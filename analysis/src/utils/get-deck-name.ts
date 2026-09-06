@@ -267,6 +267,37 @@ const orderLikeArchitypes = (match: string[]): string[] | null => {
 const matchesCriteria = (card: string, criteria: CardNameType): boolean =>
   (Array.isArray(criteria) ? criteria : [criteria]).includes(card);
 
+// Newest set the scrape covers, so scoring tracks the live format rather
+// than a card's all-time reach.
+const CURRENT_SET = (() => {
+  const counts = new Map<string, number>();
+  for (const entry of Object.values(PAIRINGS)) {
+    for (const [set, n] of Object.entries(entry.peakCountBySet ?? {})) {
+      counts.set(set, (counts.get(set) ?? 0) + n);
+    }
+  }
+  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+})();
+
+// Peak in the current set, falling back to the all-set total for cards the
+// current set does not carry. Ties break alphabetically so the leader is
+// stable across runs and does not depend on JSON order.
+const peakSum = (name: string): number => {
+  const entry = PAIRINGS[name];
+  if (!entry?.peakCountBySet) return 0;
+  const current = CURRENT_SET ? entry.peakCountBySet[CURRENT_SET] : undefined;
+  if (current !== undefined) return current;
+  return Object.values(entry.peakCountBySet).reduce((acc, n) => acc + n, 0);
+};
+
+// Copy count dominates so a two-of centrepiece beats a one-of with a higher
+// peak. Population only separates cards equally present in the deck.
+const scorePair = (match: string[], countOf: (n: string) => number): number => {
+  const copies = match.reduce((acc, name) => acc + countOf(name), 0);
+  const reach = match.reduce((acc, name) => acc + peakSum(name), 0);
+  return copies * 1e9 + reach;
+};
+
 const matchPairing = (cards: Deck["cards"]): string[] | null => {
   const cardStrings = new Set(cards.map((card) => cardToString(card)));
   const countOf = (name: string) => {
@@ -275,7 +306,7 @@ const matchPairing = (cards: Deck["cards"]): string[] | null => {
   };
 
   let best: string[] | null = null;
-  let bestScore = 0;
+  let bestScore = -1;
 
   for (const [key, entry] of Object.entries(PAIRINGS)) {
     if (!countOf(key)) continue;
@@ -286,10 +317,15 @@ const matchPairing = (cards: Deck["cards"]): string[] | null => {
     }
 
     for (const match of candidates) {
-      const score = match.reduce((acc, name) => acc + countOf(name), 0);
-      if (score <= bestScore) continue;
-      bestScore = score;
-      best = match;
+      const score = scorePair(match, countOf);
+      if (score > bestScore) {
+        bestScore = score;
+        best = match;
+      } else if (score === bestScore && best) {
+        const ordered = [...match].sort((a, b) => a.localeCompare(b)).join("&");
+        const bestOrdered = [...best].sort((a, b) => a.localeCompare(b)).join("&");
+        if (ordered < bestOrdered) best = match;
+      }
     }
   }
 

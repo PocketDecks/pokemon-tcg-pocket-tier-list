@@ -194,6 +194,19 @@ const main = async () => {
     process.stdout.write(`${set} ${decks.length}  `);
   }
 
+  // Limitless does not list these archetypes, so seed them as primaries with
+  // no partners. Skip if the scrape already produced a row for the key.
+  const SEEDS = [
+    { key: "Oricorio A3 66", set: "A3", number: "66" },
+    { key: "Puppy-Loving Girl B3b 67", set: "B3b", number: "67" },
+    { key: "Gigalith ex A2 94", set: "A2", number: "94" },
+  ];
+  for (const s of SEEDS) {
+    if (!(s.key in store.pairings)) {
+      store.pairings[s.key] = { secondary: [], peakCountBySet: {}, names: {} };
+    }
+  }
+
   store.updatedAt = new Date().toISOString();
   mkdirSync(dirname(STORE), { recursive: true });
   writeFileSync(STORE, `${JSON.stringify(store, null, 2)}\n`);

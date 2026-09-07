@@ -15,7 +15,7 @@ When $n$ is small, the formula heavily penalises the score, keeping one-off tour
 
 ## Recency weighting
 
-The meta changes quickly. The `get-multiplier.ts` file applies a recency weight to all games. Older tournaments receive a lower multiplier than tournaments played near the current date. The system calculates the multiplier linearly based on the time elapsed since the `EXPANSION_RELEASE_DATE` defined in `settings.ts`. This ensures that recent tournament results have a stronger pull on the final rankings.    
+The meta changes quickly. The `get-multiplier.ts` file applies a recency weight to all games. Older tournaments receive a lower multiplier than tournaments played near the current date. The system calculates the multiplier linearly based on the time elapsed since the `EXPANSION_RELEASE_DATE`. That date comes from the newest dated expansion in the `pokemon-tcg-pocket-cards` package rather than a hand-edited constant, so the weighting follows the real release schedule. This ensures that recent tournament results have a stronger pull on the final rankings.    
 
 ## The qualification threshold
 

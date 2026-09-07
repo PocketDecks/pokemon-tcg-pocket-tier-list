@@ -1,23 +1,30 @@
 # How-to guide: Updating archetypes and expansions
 
-The meta shifts when players discover new decks or new cards are released. You maintain the tier list by updating the `ARCHITYPES` array and the expansion release date.    
+The meta shifts when players discover new decks or new cards are released. You maintain the tier list by refreshing the scraped pairing file and, when a set drops, confirming the release date the package reports.
 
-## Adding a new archetype
+## Where archetype names come from
 
-The `get-deck-name.ts` file contains the `ARCHITYPES` array. Every ranked deck needs an entry here. Unmatched decks are dropped during the naming phase.   
-Each entry requires a `primary` card and an optional array of `secondary` cards.
-```TypeScript
-{ primary: "Charizard ex A2b 10", secondary: ["Skeledirge B2a 18"] }
+Deck names come from `analysis/src/data/limitless-pairings.json`, which `analysis/scripts/sync-pairings.mjs` scrapes from Limitless. `get-deck-name.ts` reads that file as its only source. There is no hand-maintained archetype list.
+
+To pick up new pairings, run the scraper from `analysis/`:
+
 ```
-Card names must match the database string format using only the name, set, and number (without a count). The matcher automatically prepends `"1 "` or `"2 "` during comparison. Use `PA` or `PB` for promo sets, not `P-A` or `P-B`.
+yarn sync-pairings
+```
 
-## How the matching passes work
+Each run only adds. Partners merge onto an existing primary and nothing is pruned, so the file accumulates every pairing ever seen.
 
-The system reads the `ARCHITYPES` list in order. Earlier entries have priority over later entries. The matcher runs two passes to identify a deck.    
+A few archetypes never appear on Limitless. Those are seeded in `SEED_PRIMARIES` in the scraper so a rebuild does not lose them. Add to that list if a real deck has no pairing anywhere on the site.
 
-Pass 1 looks for at least two copies of the primary card. If you defined secondary cards, the deck must also contain at least two copies of one of those secondary cards.     
+## How a name is chosen
 
-Pass 2 runs if Pass 1 fails. It looks for a single copy of the primary card but still requires two copies of any secondary card.
+The matcher scores every pairing whose primary card is in the deck, then picks the best.
+
+A partner qualifies when the deck runs two of it, or when it is the same species split across printings (Magnezone and Magnezone ex at one each). A one-of from an unrelated line, such as a tech Castform, never earns a place in the name.
+
+Cards that a stronger card in the same deck evolves from are treated as support. A Magnezone deck is named after Magnezone, not the Magneton feeding it.
+
+Card names use the name, set and number only, without a count. Use `PA` or `PB` for promo sets, not `P-A` or `P-B`.
 
 ## Handling shared printings
 
@@ -33,7 +40,11 @@ The matcher treats these aliases interchangeably and accumulates copies across t
 
 ## Preparing for a new expansion
 
-Open `settings.ts` and update the `EXPANSION_RELEASE_DATE` when a new set drops. This variable filters out older decks and resets the recency weighting logic. This ensures the tier list only reflects the new format.  
+`EXPANSION_RELEASE_DATE` in `settings.ts` is derived, not hand-edited. It reads the newest dated expansion from the `pokemon-tcg-pocket-cards` package, skipping reprint sets and promo sets with no date. Bumping the package version is what moves the window.
+
+Two things ride on that date. It filters out decks played before the set launched, and it resets the recency weighting, so the tier list reflects the new format only.
+
+If a new set lands and the date does not move, the package has not published it yet. Check the package rather than editing the constant.
 
 ## Troubleshooting missing decks
 

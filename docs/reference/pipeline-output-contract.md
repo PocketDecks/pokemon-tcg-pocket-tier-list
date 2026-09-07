@@ -16,7 +16,10 @@ A deck qualifies when it has at least one game and a win rate of at least
 at least `MIN_ARCHETYPE_QUALIFIED_GAMES` (25) qualified games before it is
 ranked at all (`get-best-decks.ts` applies both filters). The dataset is also
 restricted to decks dated on or after `EXPANSION_RELEASE_DATE`
-(`analysis/src/utils/filter-decks.ts`).
+(`analysis/src/utils/filter-decks.ts`). That date is derived in
+`analysis/src/settings.ts` from the newest dated expansion in the
+`pokemon-tcg-pocket-cards` package, so it moves with a package bump rather
+than a manual edit.
 
 Two consequences run through the whole contract. Lists and card scores are
 computed from qualified decks only, so a widely played but weak archetype

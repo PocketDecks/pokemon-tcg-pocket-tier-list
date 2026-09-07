@@ -12,8 +12,7 @@ The `download-decks.ts` script fetches data. It pulls tournament standings and p
 
 ## Deck naming
 
-The `get-deck-name.ts` module assigns names to raw card lists. It checks the cards against the `ARCHITYPES` array.   
-The matching logic relies on two passes. Pass 1 checks for at least two copies of a primary card. If an archetype has secondary card options, it also requires at least two copies of one of those secondary cards. Pass 2 runs if Pass 1 finds no match. It relaxes the primary card requirement to a single copy but still requires two copies of any secondary card. Earlier entries in the array always have priority.  
+The `get-deck-name.ts` module assigns names to raw card lists. It scores every pairing in `analysis/src/data/limitless-pairings.json` whose primary card appears in the deck, then picks the best match. That file is scraped from Limitless by `analysis/scripts/sync-pairings.mjs` and is the only source of archetype names.
 
 ## Statistical scoring
 

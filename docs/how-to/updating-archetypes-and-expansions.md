@@ -28,15 +28,21 @@ Card names use the name, set and number only, without a count. Use `PA` or `PB` 
 
 ## Handling shared printings
 
-Some decks use alternate arts or different printings of the same card. You can group these using an array for the primary or secondary slot. 
-```TypeScript
-const CHARIZARD = [
-"Mega Charizard X ex B2b 9",
-"Charizard ex A2b 10"
-];
+A card with several printings gets one key per printing, not an alias group. `Charizard ex A1 36` and `Charizard ex A2b 10` are separate keys, each with its own `secondary` list, so each printing carries the partners it was actually seen with.
+
+```
+"Charizard ex A1 36": {
+  "secondary": ["Charizard A1 35", "Mega Charizard Y ex B1a 14", ...],
+  "peakCountBySet": { ... },
+  "names": { ... }
+}
 ```
 
-The matcher treats these aliases interchangeably and accumulates copies across the array entries to meet the copy requirements.  
+Copies are not pooled across printings. A deck running one copy of each printing holds one of each, so a partner is only named when the deck runs two of one printing or splits the same species (Magnezone and Magnezone ex at one each).
+
+When the deck holds more than one printing of the same partner, the one Limitless ranks highest is the one named. So a Beautifly deck paired with Dustox is named after the B4 printing rather than the B1 one, even when both are in the list.
+
+The matching code derives the species from a card name by stripping the set code and the `ex` and `Mega` prefixes, which is what lets two printings of one species count as a split.
 
 ## Preparing for a new expansion
 

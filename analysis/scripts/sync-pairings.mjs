@@ -19,6 +19,14 @@ const SETS = [
 ];
 const NON_STANDARD_SETS = ["PA", "PB", "A4b"];
 
+// Archetypes Limitless never lists, so the sweep cannot discover them.
+// Seeded here because regeneration rebuilds the file from scratch.
+const SEED_PRIMARIES = [
+  "Oricorio A3 66",
+  "Puppy-Loving Girl B3b 67",
+  "Gigalith ex A2 94",
+];
+
 const decksUrl = (set) => `https://play.limitlesstcg.com/decks?game=pocket&set=${set}`;
 
 // p-a / p-b must precede pa / pb or the promo token never splits.
@@ -173,6 +181,14 @@ const main = async () => {
   const tally = { added: 0, merged: 0, unresolved: 0 };
   const unresolved = [];
   const failures = [];
+
+  for (const primary of SEED_PRIMARIES) {
+    store.pairings[primary] ??= {
+      secondary: [],
+      peakCountBySet: {},
+      names: {},
+    };
+  }
 
   for (const set of [...SETS, ...NON_STANDARD_SETS]) {
     let decks = [];

@@ -21,7 +21,7 @@ describe("getDeckName", () => {
   it("should return correct name for a deck with two main cards", () => {
     const deck = mkDeck([2, "Mimikyu ex", "B2", "73"], [2, "Giratina ex", "A2b", "35"]);
     const result = getDeckName(deck);
-    expect(result).toBe("mimikyu-ex-b2-073&giratina-ex-a2b-035");
+    expect(result).toBe("giratina-ex-a2b-035&mimikyu-ex-b2-073");
   });
 
   it("should return correct name for a deck with one main card", () => {

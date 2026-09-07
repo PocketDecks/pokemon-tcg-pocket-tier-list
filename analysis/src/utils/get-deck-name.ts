@@ -147,7 +147,10 @@ const matchPairing = (cards: Deck["cards"]): string[] | null => {
       } else if (score === bestScore && best) {
         const ordered = [...match].sort((a, b) => a.localeCompare(b)).join("&");
         const bestOrdered = [...best].sort((a, b) => a.localeCompare(b)).join("&");
-        if (ordered < bestOrdered) best = match;
+        if (ordered < bestOrdered) {
+          best = match;
+          bestKey = key;
+        }
       }
     }
   }

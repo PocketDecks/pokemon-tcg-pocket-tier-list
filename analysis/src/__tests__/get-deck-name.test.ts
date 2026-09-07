@@ -51,6 +51,17 @@ describe("getDeckName", () => {
     expect(getDeckName(reversed)).toBe("charizard-ex-a1-036&greninja-a1-089");
   });
 
+  // Equal-score tiebreak: when two mutual pairings score identically, the
+  // selected pair's leader must stay in sync with its key, and the result
+  // must not depend on input order.
+  it("keeps bestKey in sync on an equal-score tiebreak", () => {
+    const deck = mkDeck([2, "Hatterene", "B3", "71"], [2, "Meowstic", "B3", "66"]);
+    const result = getDeckName(deck);
+    expect(result).toBe("hatterene-b3-071&meowstic-b3-066");
+    const reversed = mkDeck([2, "Meowstic", "B3", "66"], [2, "Hatterene", "B3", "71"]);
+    expect(getDeckName(reversed)).toBe("hatterene-b3-071&meowstic-b3-066");
+  });
+
   // Task 2 decision 2: seeded archetypes not present on Limitless.
   it("names the seeded Oricorio A3 66 archetype", () => {
     const deck = mkDeck([2, "Oricorio", "A3", "66"]);

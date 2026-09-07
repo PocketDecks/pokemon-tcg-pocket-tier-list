@@ -24,8 +24,7 @@ const CURRENT_SET = (() => {
 })();
 
 // Peak in the current set, falling back to the all-set total for cards the
-// current set does not carry. Ties break alphabetically so the leader is
-// stable across runs and does not depend on JSON order.
+// current set does not carry.
 const peakSum = (name: string): number => {
   const entry = PAIRINGS[name];
   if (!entry?.peakCountBySet) return 0;

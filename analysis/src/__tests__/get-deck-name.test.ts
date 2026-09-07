@@ -73,6 +73,21 @@ describe("getDeckName", () => {
     expect(getDeckName(deck)).toBe("puppy-loving-girl-b3b-067");
   });
 
+  // Seeded archetypes carry no peak data, so reach must not be used against
+  // them. Without this a real partner outscored them and they vanished.
+  it("keeps a seeded archetype against a partner", () => {
+    const deck = mkDeck([2, "Oricorio", "A3", "66"], [2, "Greninja", "A1", "89"]);
+    expect(getDeckName(deck)).toBe("oricorio-a3-066");
+  });
+
+  it("keeps the seeded Puppy-Loving Girl archetype against a partner", () => {
+    const deck = mkDeck(
+      [2, "Puppy-Loving Girl", "B3b", "67"],
+      [2, "Mimikyu ex", "B2", "73"]
+    );
+    expect(getDeckName(deck)).toBe("puppy-loving-girl-b3b-067");
+  });
+
   it("names the seeded Gigalith ex A2 94 archetype", () => {
     const deck = mkDeck([2, "Gigalith ex", "A2", "94"]);
     expect(getDeckName(deck)).toBe("gigalith-ex-a2-094");

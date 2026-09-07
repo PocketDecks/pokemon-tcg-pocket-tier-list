@@ -107,12 +107,24 @@ const peakSum = (name: string): number => {
   return peaks.length ? Math.max(...peaks) : 0;
 };
 
+// Seeded because Limitless never lists them, so they carry no peak data.
+// Reach must not be used against them, or any real partner outscores them
+// and the archetype disappears from the tier list.
+const isSeeded = (name: string): boolean => {
+  const entry = PAIRINGS[name];
+  if (!entry) return false;
+  return !entry.peakCountBySet || Object.keys(entry.peakCountBySet).length === 0;
+};
+
 // Copy count dominates so a two-of centrepiece beats a one-of with a higher
 // peak. Population only separates cards equally present in the deck.
 const scorePair = (match: string[], countOf: (n: string) => number): number => {
   const copies = match.reduce((acc, name) => acc + countOf(name), 0);
   const reach = match.reduce((acc, name) => acc + peakSum(name), 0);
-  return copies * 1e9 + reach;
+  // Below one card's worth of copies, above any reach, so a seeded archetype
+  // wins against a partner at equal presence without overturning copy count.
+  const seeded = match.some(isSeeded) ? 5e8 : 0;
+  return copies * 1e9 + seeded + reach;
 };
 
 // How often this card appears as a secondary in other pairings. A card that

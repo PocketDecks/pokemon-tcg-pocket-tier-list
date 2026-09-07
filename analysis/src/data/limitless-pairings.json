@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-07T13:40:26.405Z",
+  "updatedAt": "2026-09-07T14:56:20.693Z",
   "pairings": {
     "Mewtwo ex A1 129": {
       "secondary": [
@@ -27893,5 +27893,6 @@
       "peakCountBySet": {},
       "names": {}
     }
-  }
+  },
+  "currentSet": "B4a"
 }

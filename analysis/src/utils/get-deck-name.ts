@@ -11,26 +11,27 @@ interface PairingEntry {
 }
 const PAIRINGS = (pairings as { pairings?: Record<string, PairingEntry> }).pairings ?? {};
 
-// Newest set the scrape covers, so scoring tracks the live format rather
-// than a card's all-time reach.
-const CURRENT_SET = (() => {
-  const counts = new Map<string, number>();
-  for (const entry of Object.values(PAIRINGS)) {
-    for (const [set, n] of Object.entries(entry.peakCountBySet ?? {})) {
-      counts.set(set, (counts.get(set) ?? 0) + n);
+const CURRENT_SET: string | null =
+  (pairings as { currentSet?: string }).currentSet ??
+  (() => {
+    const counts = new Map<string, number>();
+    for (const entry of Object.values(PAIRINGS)) {
+      for (const [set, n] of Object.entries(entry.peakCountBySet ?? {})) {
+        counts.set(set, (counts.get(set) ?? 0) + n);
+      }
     }
-  }
-  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
-})();
+    return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  })();
 
-// Peak in the current set, falling back to the all-set total for cards the
+// Peak in the current set, falling back to the best set for cards the
 // current set does not carry.
 const peakSum = (name: string): number => {
   const entry = PAIRINGS[name];
   if (!entry?.peakCountBySet) return 0;
   const current = CURRENT_SET ? entry.peakCountBySet[CURRENT_SET] : undefined;
   if (current !== undefined) return current;
-  return Object.values(entry.peakCountBySet).reduce((acc, n) => acc + n, 0);
+  const peaks = Object.values(entry.peakCountBySet);
+  return peaks.length ? Math.max(...peaks) : 0;
 };
 
 // Copy count dominates so a two-of centrepiece beats a one-of with a higher

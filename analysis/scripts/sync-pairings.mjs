@@ -119,7 +119,7 @@ const ROW =
 const COUNT_CELL = /<td[^>]*>\s*([\d,]+)\s*<\/td>/;
 
 const fetchSet = async (set) => {
-  const res = await fetch(decksUrl(set));
+  const res = await fetch(decksUrl(set), { signal: AbortSignal.timeout(20_000) });
   if (!res.ok) throw new Error(`Limitless ${set} returned ${res.status} ${res.statusText}`);
   const html = await res.text();
   const decks = [];
@@ -175,7 +175,7 @@ const mergeDeck = (store, deck) => {
 const main = async () => {
   const store = existsSync(STORE)
     ? JSON.parse(readFileSync(STORE, "utf8"))
-    : { updatedAt: null, pairings: {} };
+    : { updatedAt: null, currentSet: null, pairings: {} };
   store.pairings ??= {};
 
   const tally = { added: 0, merged: 0, unresolved: 0 };
@@ -224,6 +224,7 @@ const main = async () => {
   }
 
   store.updatedAt = new Date().toISOString();
+  store.currentSet = SETS[SETS.length - 1];
   mkdirSync(dirname(STORE), { recursive: true });
   writeFileSync(STORE, `${JSON.stringify(store, null, 2)}\n`);
 

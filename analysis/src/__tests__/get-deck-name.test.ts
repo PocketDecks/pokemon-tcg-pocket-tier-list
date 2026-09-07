@@ -47,6 +47,8 @@ describe("getDeckName", () => {
   it("names a two-primary deck deterministically", () => {
     const deck = mkDeck([2, "Charizard ex", "A1", "36"], [2, "Greninja", "A1", "89"]);
     expect(getDeckName(deck)).toBe("charizard-ex-a1-036&greninja-a1-089");
+    const reversed = mkDeck([2, "Greninja", "A1", "89"], [2, "Charizard ex", "A1", "36"]);
+    expect(getDeckName(reversed)).toBe("charizard-ex-a1-036&greninja-a1-089");
   });
 
   // Task 2 decision 2: seeded archetypes not present on Limitless.

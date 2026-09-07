@@ -51,6 +51,39 @@ const outclassed = (name: string, present: Set<string>): boolean => {
   );
 };
 
+// True when the deck also holds the base of this card's line, so the card is
+// the top of a line the deck actually plays. A lone Basic tech card (Castform,
+// Mantyke) tops nothing and must not outrank a real centrepiece. The chain is
+// walked to the base because lists commonly skip the middle stage via Rare
+// Candy, so checking only the immediate pre-evolution misses Torchic into
+// Mega Blaziken ex.
+// name -> what it evolves from, for walking a line down to its base.
+const evolvesFromByName = new Map<string, string | null>();
+for (const card of cardByName.values()) {
+  evolvesFromByName.set(card.name, card.evolvesFrom);
+}
+
+const topsLine = (name: string, present: Set<string>): boolean => {
+  const start = cardByName.get(name);
+  if (!start?.evolvesFrom) return false;
+
+  const presentNames = new Set<string>();
+  for (const card of present) {
+    const found = cardByName.get(card);
+    if (found) presentNames.add(found.name);
+  }
+
+  let next: string | null | undefined = start.evolvesFrom;
+  const seen = new Set<string>([start.name]);
+  while (next) {
+    if (presentNames.has(next)) return true;
+    if (seen.has(next)) return false;
+    seen.add(next);
+    next = evolvesFromByName.get(next) ?? null;
+  }
+  return false;
+};
+
 const CURRENT_SET: string | null =
   (pairings as { currentSet?: string }).currentSet ??
   (() => {
@@ -91,6 +124,15 @@ const secondaryCount = (name: string): number => {
     if (entry.secondary.includes(name)) n++;
   }
   return n;
+};
+
+// True only when the card's own set is the current one and it has a longer
+// history behind it, so a current-set card leads an older card at equal
+// presence: Team Rocket's Raticate ex (B4a) leads Alolan Ninetales ex (B2).
+const isCurrentSetCard = (name: string): boolean => {
+  if (!CURRENT_SET) return false;
+  const set = name.split(" ").slice(-2)[0];
+  return set.toUpperCase() === CURRENT_SET.toUpperCase();
 };
 
 // The archetype's own line outranks an unrelated support card: a pair is
@@ -168,7 +210,15 @@ const matchPairing = (cards: Deck["cards"]): string[] | null => {
       // A pair from the archetype's own line beats a bigger unrelated pair,
       // so Oricorio does not outrank the Magnezone split it supports.
       const sameLine = match.length > 1 && isSameLine(match[0], match[1]) ? 1e12 : 0;
-      const score = scorePair(match, countOf) + sameLine;
+      // A card topping a line the deck plays outranks a lone Basic tech card,
+      // so Castform does not take the name from Mega Blaziken ex and Mantyke
+      // does not take it from Mega Sharpedo ex.
+      const anchored =
+        match.some((card) => topsLine(card, present)) &&
+        !match.some((card) => countOf(card) > 0 && !topsLine(card, present) && !cardByName.get(card)?.evolvesFrom)
+          ? 1e11
+          : 0;
+      const score = scorePair(match, countOf) + sameLine + anchored;
       if (score > bestScore) {
         bestScore = score;
         best = match;
@@ -195,6 +245,11 @@ const matchPairing = (cards: Deck["cards"]): string[] | null => {
       // are played as two-ofs, even if the pairing key points the other way.
       const byTier = tierOf(b) - tierOf(a);
       if (byTier !== 0) return byTier;
+      // A card from the current set leads an older card at equal presence.
+      // Team Rocket's Raticate ex (B4a) leads Alolan Ninetales ex (B2).
+      const byCurrency =
+        (isCurrentSetCard(b) ? 1 : 0) - (isCurrentSetCard(a) ? 1 : 0);
+      if (byCurrency !== 0) return byCurrency;
       if (bestKey === b) return 1;
       if (bestKey === a) return -1;
       // Two ex cards of equal tier: the one that anchors its pairing names

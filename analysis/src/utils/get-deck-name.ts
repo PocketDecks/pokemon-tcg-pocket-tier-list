@@ -112,7 +112,13 @@ const matchPairing = (cards: Deck["cards"]): string[] | null => {
   let bestScore = -1;
   let bestKey: string | null = null;
 
+  // Every card in the deck, not only the ones the pairing file happens to
+  // mention. An evolution line the file never lists (Bulbasaur into Ivysaur)
+  // still has to be visible, or the basic gets named as the centrepiece.
   const present = new Set<string>();
+  for (const card of cards) {
+    present.add(cardToString(card).replace(/^\d+ /, ""));
+  }
   for (const [key, entry] of Object.entries(PAIRINGS)) {
     if (!countOf(key)) continue;
     present.add(key);
@@ -122,20 +128,43 @@ const matchPairing = (cards: Deck["cards"]): string[] | null => {
   for (const [key, entry] of Object.entries(PAIRINGS)) {
     if (!countOf(key) || outclassed(key, present)) continue;
 
-    // A partner qualifies as a two-of, or as a split of the same species
-    // (Magnezone plus Magnezone ex at one each). One-of tech cards from an
-    // unrelated line, like Castform or Ogerpon, do not earn a name.
+    // A partner can list several printings (Dustox B4 5 and Dustox B1 7).
+    // Take the printing the deck actually holds, so the name does not mix
+    // set codes across decks running the same pairing.
     const candidates: string[][] = [[key]];
     const keySpecies = speciesOf(key);
     for (const partner of entry.secondary) {
       if (outclassed(partner, present)) continue;
+      // A slug can resolve to the same card twice (Dialga ex and Dialga ex),
+      // which would name a deck after one card repeated.
+      if (partner === key) continue;
       if (countOf(partner) >= 2) candidates.push([key, partner]);
       else if (countOf(partner) > 0 && speciesOf(partner) === keySpecies) {
         candidates.push([key, partner]);
       }
     }
 
+    const deduped: string[][] = [];
     for (const match of candidates) {
+      if (match.length < 2) {
+        deduped.push(match);
+        continue;
+      }
+      const species = speciesOf(match[1]);
+      const inDeck = entry.secondary.filter(
+        (p) => speciesOf(p) === species && countOf(p) > 0
+      );
+      if (inDeck.length > 1) {
+        // Several printings of the same partner are in the deck; keep the
+        // one Limitless ranks highest so the choice is stable.
+        const picked = inDeck.sort((a, b) => peakSum(b) - peakSum(a))[0];
+        deduped.push(match[1] === picked ? match : [match[0], picked]);
+      } else {
+        deduped.push(match);
+      }
+    }
+
+    for (const match of deduped) {
       // A pair from the archetype's own line beats a bigger unrelated pair,
       // so Oricorio does not outrank the Magnezone split it supports.
       const sameLine = match.length > 1 && isSameLine(match[0], match[1]) ? 1e12 : 0;

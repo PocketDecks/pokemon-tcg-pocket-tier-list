@@ -6,6 +6,8 @@ import { fileURLToPath } from "node:url";
 
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json" with { type: "json" };
 
+import { canonSet, cardKey } from "./set-codes.mjs";
+
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 // src/data, not data/: analysis/data is git-ignored as it holds the raw scrape.
 const STORE = resolve(ROOT, "src/data/limitless-pairings.json");
@@ -32,12 +34,6 @@ const decksUrl = (set) => `https://play.limitlesstcg.com/decks?game=pocket&set=$
 // p-a / p-b must precede pa / pb or the promo token never splits.
 const SET_TOKEN = "(?:a1a|a1|a2a|a2b|a2|a3a|a3b|a3|a4a|a4b|a4|b1a|b1|b2a|b2b|b2|b3a|b3b|b3|b4a|b4|p-a|p-b|pa|pb)";
 
-const canonSet = (s) => {
-  const v = s.replace("p-b", "pb").replace("p-a", "pa");
-  const m = v.match(/^([ab]\d)([ab])$/);
-  return m ? `${m[1].toUpperCase()}${m[2]}` : v.toUpperCase();
-};
-
 const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 const cardIndex = new Map();
@@ -49,8 +45,6 @@ for (const card of cards) {
   if (bucket) bucket.push(entry);
   else cardIndex.set(key, [entry]);
 }
-
-const cardKey = (c) => `${c.name} ${c.set} ${c.number}`;
 
 const slugTokens = (slug) => {
   const out = [];
@@ -148,7 +142,7 @@ const mergeDeck = (store, deck) => {
     .filter(Boolean);
   if (!cards.length) return "unresolved";
 
-  const [primary, ...partners] = cards.map(cardKey);
+  const [primary, ...partners] = cards.map((c) => cardKey(c.name, c.set, c.number));
   const seen = primary in store.pairings;
 
   if (!seen) {

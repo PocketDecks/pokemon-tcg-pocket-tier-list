@@ -1,6 +1,7 @@
 import cardToString from "./card-to-string";
 import { Deck } from "./types";
 import formatName from "./format-name";
+import { cardKey } from "./set-codes";
 import pairings from "../data/limitless-pairings.json";
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
@@ -15,15 +16,10 @@ const PAIRINGS = (pairings as { pairings?: Record<string, PairingEntry> }).pairi
 // "Name SET NN" -> the card, for evolution lookups.
 const cardByName = new Map(
   (cards as { name: string; set_code: string; id: string; evolves_from: string | null }[]).map(
-    (c) => {
-      const set = c.set_code.toUpperCase().replace("P-A", "PA").replace("P-B", "PB");
-      const m = set.match(/^([AB]\d)([AB])$/);
-      const code = m ? `${m[1]}${m[2].toLowerCase()}` : set;
-      return [
-        `${c.name} ${code} ${String(Number(c.id.split("-").pop()))}`,
-        { name: c.name, evolvesFrom: c.evolves_from },
-      ];
-    }
+    (c) => [
+      cardKey(c.name, c.set_code, String(Number(c.id.split("-").pop()))),
+      { name: c.name, evolvesFrom: c.evolves_from },
+    ]
   )
 );
 

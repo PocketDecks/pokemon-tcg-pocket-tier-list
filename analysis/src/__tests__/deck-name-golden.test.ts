@@ -11,6 +11,6 @@ describe("deck naming characterisation", () => {
 
   it("covers the whole pairing store", () => {
     // Guards against the golden being silently emptied or truncated.
-    expect(Object.keys(golden).length).toBeGreaterThan(2000);
+    expect(Object.keys(golden).length).toBeGreaterThanOrEqual(29262);
   });
 });

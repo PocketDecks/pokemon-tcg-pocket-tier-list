@@ -5,6 +5,14 @@ import { cardKey } from "./set-codes";
 import pairings from "../data/limitless-pairings.json";
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
+// The scoring lattice. Each weight outranks the next so a single higher-level
+// signal always beats any lower one: sameLine beats anchored beats copies
+// beats seeded beats reach (reach is a non-negative sum, so its floor is zero).
+export const COPY_WEIGHT = 1e9;
+export const SEEDED_BONUS = 5e8;
+export const SAME_LINE_BONUS = 1e12;
+export const ANCHORED_BONUS = 1e11;
+
 
 interface PairingEntry {
   secondary: string[];
@@ -119,8 +127,8 @@ const scorePair = (match: string[], countOf: (n: string) => number): number => {
   const reach = match.reduce((acc, name) => acc + peakSum(name), 0);
   // Below one card's worth of copies, above any reach, so a seeded archetype
   // wins against a partner at equal presence without overturning copy count.
-  const seeded = match.some(isSeeded) ? 5e8 : 0;
-  return copies * 1e9 + seeded + reach;
+  const seeded = match.some(isSeeded) ? SEEDED_BONUS : 0;
+  return copies * COPY_WEIGHT + seeded + reach;
 };
 
 // How often this card appears as a secondary in other pairings. A card that
@@ -217,14 +225,14 @@ const matchPairing = (cards: Deck["cards"]): string[] | null => {
     for (const match of deduped) {
       // A pair from the archetype's own line beats a bigger unrelated pair,
       // so Oricorio does not outrank the Magnezone split it supports.
-      const sameLine = match.length > 1 && isSameLine(match[0], match[1]) ? 1e12 : 0;
+      const sameLine = match.length > 1 && isSameLine(match[0], match[1]) ? SAME_LINE_BONUS : 0;
       // A card topping a line the deck plays outranks a lone Basic tech card,
       // so Castform does not take the name from Mega Blaziken ex and Mantyke
       // does not take it from Mega Sharpedo ex.
       const anchored =
         match.some((card) => topsLine(card, present)) &&
         !match.some((card) => countOf(card) > 0 && !topsLine(card, present) && !cardByName.get(card)?.evolvesFrom)
-          ? 1e11
+          ? ANCHORED_BONUS
           : 0;
       const score = scorePair(match, countOf) + sameLine + anchored;
       if (score > bestScore) {

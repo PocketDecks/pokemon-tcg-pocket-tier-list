@@ -73,8 +73,8 @@ export const ensureSeeded = (store: PairingStore, primaries: readonly string[]):
 // because it moves on every run by definition.
 //
 // This is deliberately the same serialiser that writes the file. mergeDeck
-// only ever appends — new primaries, secondary.push, new set and name keys,
-// none of them numeric — so JSON key order is deterministic and a string
+// only ever appends (new primaries, secondary.push, new set and name keys,
+// none of them numeric), so JSON key order is deterministic and a string
 // comparison is exact.
 export const snapshot = (store: PairingStore): string =>
   JSON.stringify(store.pairings);

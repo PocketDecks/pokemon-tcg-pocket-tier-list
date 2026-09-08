@@ -8,6 +8,10 @@
 // of its first three listed partners. That exercises the single-card path, the
 // pair path, the same-line bonus, the anchored bonus and the copy/reach ordering
 // across the whole shipped store rather than a handful of hand-picked decks.
+//
+// Pairs are emitted at several copy splits. Naming only ever saw two-ofs before,
+// which made one-copy-versus-two-copy invisible: ANCHORED_BONUS never fired and
+// no weight change could move a name, so the golden gated nothing.
 import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -17,6 +21,15 @@ import { Deck } from "../src/utils/types";
 
 const PARTNERS_PER_PRIMARY = 3;
 const OUT = resolve(__dirname, "../src/__fixtures__/deck-name-golden.json");
+
+// Copy splits each pair is named at. A deck of two-ofs cannot express the
+// one-copy-versus-two-copy distinction the anchored bonus and the copy
+// ordering exist to make, so every pair is named at each split.
+const COPY_SPLITS: readonly (readonly [number, number])[] = [
+  [2, 2],
+  [2, 1],
+  [1, 2],
+];
 
 interface PairingEntry {
   secondary: string[];
@@ -33,21 +46,24 @@ const splitKey = (key: string): { name: string; set: string; number: string } =>
   return { name: parts.join(" "), set, number };
 };
 
-const deckOf = (keys: string[]): Deck => ({
-  id: "golden",
-  name: "golden",
-  cards: keys.map((key) => ({ count: 2, ...splitKey(key) })),
-  pokemon: keys.length * 2,
-  differentPokemon: keys.length,
-  winCount: 0,
-  lossCount: 0,
-  totalGames: 0,
-  date: "2024-03-20",
-  tournamentExPercent: 0,
-  noTrainerPercent: 0,
-  wins: [],
-  losses: [],
-});
+const deckOf = (keys: string[], counts?: readonly number[]): Deck => {
+  const copies = keys.map((_, index) => counts?.[index] ?? 2);
+  return {
+    id: "golden",
+    name: "golden",
+    cards: keys.map((key, index) => ({ count: copies[index], ...splitKey(key) })),
+    pokemon: copies.reduce((acc, count) => acc + count, 0),
+    differentPokemon: new Set(keys).size,
+    winCount: 0,
+    lossCount: 0,
+    totalGames: 0,
+    date: "2024-03-20",
+    tournamentExPercent: 0,
+    noTrainerPercent: 0,
+    wins: [],
+    losses: [],
+  };
+};
 
 export const buildGolden = (): Record<string, string | null> => {
   const golden: Record<string, string | null> = {};
@@ -55,7 +71,11 @@ export const buildGolden = (): Record<string, string | null> => {
   for (const key of Object.keys(store).sort()) {
     golden[key] = getDeckName(deckOf([key]));
     for (const partner of store[key].secondary.slice(0, PARTNERS_PER_PRIMARY)) {
-      golden[`${key} + ${partner}`] = getDeckName(deckOf([key, partner]));
+      for (const [first, second] of COPY_SPLITS) {
+        golden[`${key} + ${partner} @${first}-${second}`] = getDeckName(
+          deckOf([key, partner], [first, second])
+        );
+      }
     }
   }
   return golden;

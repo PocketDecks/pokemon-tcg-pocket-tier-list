@@ -203,19 +203,6 @@ const main = async () => {
     process.stdout.write(`${set} ${decks.length}  `);
   }
 
-  // Limitless does not list these archetypes, so seed them as primaries with
-  // no partners. Skip if the scrape already produced a row for the key.
-  const SEEDS = [
-    { key: "Oricorio A3 66", set: "A3", number: "66" },
-    { key: "Puppy-Loving Girl B3b 67", set: "B3b", number: "67" },
-    { key: "Gigalith ex A2 94", set: "A2", number: "94" },
-  ];
-  for (const s of SEEDS) {
-    if (!(s.key in store.pairings)) {
-      store.pairings[s.key] = { secondary: [], peakCountBySet: {}, names: {} };
-    }
-  }
-
   const changed = snapshot(store) !== before;
 
   // SETS runs oldest to newest; the non-standard reprint sets that follow it
@@ -230,32 +217,20 @@ const main = async () => {
   }
   store.currentSet = nextCurrentSet;
 
-  if (!changed) {
-    if (setChanged) {
-      // The graph is unchanged but the current set moved; persist it without
-      // bumping updatedAt, which would imply the pairings were refreshed.
-      mkdirSync(dirname(STORE), { recursive: true });
-      writeFileSync(STORE, `${JSON.stringify(store, null, 2)}\n`);
-      console.log(`\npairings unchanged; currentSet set to ${store.currentSet}`);
-      if (failures.length) console.log(`set pages skipped: ${failures.join(", ")}`);
-      return;
-    }
-    console.log(
-      `\npairings: ${tally.added} new, ${tally.merged} merged, ` +
-        `${tally.unresolved} unresolved, ${Object.keys(store.pairings).length} archetypes total (no change)`
-    );
-    if (unresolved.length) console.log(`unresolved: ${unresolved.join(", ")}`);
-    if (failures.length) console.log(`set pages skipped: ${failures.join(", ")}`);
-    return;
+  // updatedAt means "the pairings were refreshed", so it moves only when they
+  // actually did. A currentSet change on its own is still worth persisting.
+  if (changed) store.updatedAt = new Date().toISOString();
+  if (changed || setChanged) {
+    mkdirSync(dirname(STORE), { recursive: true });
+    writeFileSync(STORE, `${JSON.stringify(store, null, 2)}\n`);
   }
-
-  store.updatedAt = new Date().toISOString();
-  mkdirSync(dirname(STORE), { recursive: true });
-  writeFileSync(STORE, `${JSON.stringify(store, null, 2)}\n`);
 
   console.log(
     `\npairings: ${tally.added} new, ${tally.merged} merged, ` +
-      `${tally.unresolved} unresolved, ${Object.keys(store.pairings).length} archetypes total`
+      `${tally.unresolved} unresolved, ` +
+      `${Object.keys(store.pairings).length} archetypes total` +
+      `${changed ? "" : " (no change)"}` +
+      `${setChanged ? `; currentSet set to ${store.currentSet}` : ""}`
   );
   if (unresolved.length) console.log(`unresolved: ${unresolved.join(", ")}`);
   if (failures.length) console.log(`set pages skipped: ${failures.join(", ")}`);

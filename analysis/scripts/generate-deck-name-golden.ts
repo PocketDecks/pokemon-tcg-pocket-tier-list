@@ -16,11 +16,12 @@
 // carry identical copy totals. Real tournament deck lists are therefore named
 // alongside the synthetic cases; their varied one-ofs and two-ofs and their
 // full evolution lines make the anchored bonus reachable.
-import { readFileSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 import pairings from "../src/data/limitless-pairings.json";
+import realDeckLists from "../src/__fixtures__/real-deck-lists.json";
 import getDeckName from "../src/utils/get-deck-name";
 import { canonSet } from "../src/utils/set-codes";
 import { Deck } from "../src/utils/types";
@@ -30,7 +31,7 @@ import { Deck } from "../src/utils/types";
 // and no shipped pairing does that, so this is the only coverage that exists.
 const SEED_PARTNERS = 5;
 const OUT = resolve(__dirname, "../src/__fixtures__/deck-name-golden.json");
-const BEST_DECKS = resolve(__dirname, "../../public/data/best-decks.json");
+const REAL_DECK_LISTS = resolve(__dirname, "../src/__fixtures__/real-deck-lists.json");
 
 // Copy splits each pair is named at. A deck of two-ofs cannot express the
 // one-copy-versus-two-copy distinction the anchored bonus and the copy
@@ -200,12 +201,9 @@ const buildRealDecks = (): {
   decks: { key: string; deck: Deck }[];
   skipped: number;
 } => {
-  const bestDecks = JSON.parse(
-    readFileSync(BEST_DECKS, "utf8")
-  ) as BestDeckArchetype[];
   const decks: { key: string; deck: Deck }[] = [];
   let skipped = 0;
-  for (const archetype of bestDecks) {
+  for (const archetype of realDeckLists as BestDeckArchetype[]) {
     archetype.lists.forEach((list, index) => {
       const built = resolveList(archetype.name, index, list);
       if (built) decks.push(built);
@@ -222,9 +220,14 @@ if (require.main === module) {
   const golden = buildGolden();
   writeFileSync(OUT, `${JSON.stringify(golden, null, 2)}\n`);
   const { skipped } = buildRealDecks();
+  if (skipped) {
+    throw new Error(
+      `${skipped} real deck lists failed to resolve to cards. The golden would ` +
+        `silently shrink. Regenerate real-deck-lists.json or fix the card ids.`
+    );
+  }
   console.log(
     `wrote ${Object.keys(golden).length} cases ` +
-      `(${new Set(Object.values(golden)).size} distinct names) to ${OUT}` +
-      (skipped ? `; ${skipped} real deck lists skipped (unresolved card)` : "")
+      `(${new Set(Object.values(golden)).size} distinct names) to ${OUT}`
   );
 }

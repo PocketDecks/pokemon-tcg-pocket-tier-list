@@ -1,4 +1,5 @@
 import golden from "../__fixtures__/deck-name-golden.json";
+import realDeckLists from "../__fixtures__/real-deck-lists.json";
 import { buildGolden } from "../../scripts/generate-deck-name-golden";
 
 // Characterisation test. It asserts nothing about whether a name is *right*,
@@ -22,5 +23,16 @@ describe("deck naming characterisation", () => {
     // only coverage the component has.
     const seededCases = Object.keys(golden).filter((key) => key.startsWith("seed:"));
     expect(seededCases.length).toBeGreaterThan(0);
+  });
+
+  it("names every real deck list in the snapshot", () => {
+    const lists = (realDeckLists as { lists: unknown[] }[]).reduce(
+      (acc, archetype) => acc + archetype.lists.length,
+      0
+    );
+    const named = Object.keys(golden).filter((key) => key.startsWith("real:")).length;
+    // Every snapshot list must appear in the golden: a list that fails to
+    // resolve used to be skipped silently, shrinking the golden without failing.
+    expect(named).toBe(lists);
   });
 });

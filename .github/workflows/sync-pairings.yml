@@ -54,6 +54,8 @@ jobs:
           git checkout -B "$BRANCH" origin/main
           git add analysis/src/data/limitless-pairings.json
           git commit -m "chore(data): sync deck pairings from Limitless"
+          # Fetch the branch so --force-with-lease checks against the real remote, not a stale local ref.
+          git fetch origin "$BRANCH" || true
           git push --force-with-lease origin "$BRANCH"
 
           gh label create automated 2>/dev/null || true

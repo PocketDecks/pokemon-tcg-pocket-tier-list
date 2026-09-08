@@ -13,8 +13,10 @@ describe('analysis/src/ import layering', () => {
   it('never imports from analysis/scripts/', () => {
     for (const file of tsFiles) {
       const source = readFileSync(file, 'utf8');
-      // Any import specifier that contains 'scripts/' would reach the scripts layer.
-      const importSpecifiers = source.match(/from\s+['"][^'"]*scripts\//g);
+      // Catches from-imports, side-effect imports and dynamic import() calls.
+      const importSpecifiers = source.match(
+        /(?:from\s+['"][^'"]*|import\s*\(\s*['"][^'"]*|import\s+['"][^'"]*)scripts\//g
+      );
       expect(importSpecifiers).toBeNull();
     }
   });

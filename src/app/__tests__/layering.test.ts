@@ -2,36 +2,25 @@ import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
+const collectTs = (dir: string): string[] => {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((dirent) => {
+    const full = join(dir, dirent.name);
+    if (dirent.isDirectory()) return collectTs(full);
+    return full.endsWith('.ts') || full.endsWith('.tsx') ? [full] : [];
+  });
+};
+
 describe('frontend layering', () => {
   const rootDir = join(__dirname, '../../../');
   const pagesDir = join(rootDir, 'src/pages');
   const appDir = join(rootDir, 'src/app');
 
-  const pageFiles = readdirSync(pagesDir, { withFileTypes: true })
-    .flatMap((dirent) =>
-      dirent.isDirectory()
-        ? readdirSync(join(pagesDir, dirent.name), { withFileTypes: true }).map(
-            (d) => join(pagesDir, dirent.name, d.name)
-          )
-        : [join(pagesDir, dirent.name)]
-    )
-    .filter((p) => p.endsWith('.ts') || p.endsWith('.tsx'));
-
-  const appTsFiles = readdirSync(appDir, { withFileTypes: true })
-    .flatMap((dirent) =>
-      dirent.isDirectory()
-        ? readdirSync(join(appDir, dirent.name), { withFileTypes: true }).map(
-            (d) => join(appDir, dirent.name, d.name)
-          )
-        : [join(appDir, dirent.name)]
-    )
-    .filter(
-      (p) =>
-        p.endsWith('.ts') &&
-        !p.includes('__tests__') &&
-        !/\/use-/.test(p) &&
-        !/\\use-/.test(p)
-    );
+  const pageFiles = collectTs(pagesDir);
+  const appTsFiles = collectTs(appDir).filter(
+    (p) =>
+      !p.includes('__tests__') &&
+      !p.replace(/\\/g, '/').includes('/use-')
+  );
 
   it('no file under src/pages/ imports from src/contexts/', () => {
     for (const file of pageFiles) {

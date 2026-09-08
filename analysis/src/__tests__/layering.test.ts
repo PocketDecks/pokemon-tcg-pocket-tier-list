@@ -1,10 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
-// Files in analysis/src/ that may import from analysis/scripts/, and why.
-// Anything not listed here fails. An allowlist rather than a directory scan
-// because the previous scan excluded __tests__ from its own file set, so it
-// could not see the one file that crossed the boundary.
 const PERMITTED_CROSSINGS: Record<string, { specifier: string; reason: string }> = {
   "src/__tests__/deck-name-golden.test.ts": {
     specifier: "../../scripts/generate-deck-name-golden",
@@ -54,7 +50,6 @@ describe("analysis/src/ import layering", () => {
   });
 
   it("names a reason for every permitted crossing", () => {
-    // An allowlist entry with no stated reason is how a hole becomes permanent.
     for (const [file, { reason }] of Object.entries(PERMITTED_CROSSINGS)) {
       expect(reason.length).toBeGreaterThan(20);
       expect(tsFiles.some((f) => relative(analysisDir, f).replace(/\\/g, "/") === file))

@@ -4,18 +4,10 @@
 //
 //   cd analysis && yarn golden:generate
 //
-// Every primary in the pairing store is named alone, and again paired with each
-// of its listed partners. That exercises the single-card path, the
-// pair path, the same-line bonus, the anchored bonus and the copy/reach ordering
-// across the whole shipped store rather than a handful of hand-picked decks.
-//
-// Pairs are emitted at several copy splits. Naming only ever saw two-ofs before,
-// which made one-copy-versus-two-copy invisible: the anchored bonus never fired
-// and no weight change could move a name. Copy-count splits alone cannot fix
-// that, because both candidates in a case draw from the same two cards and so
-// carry identical copy totals. Real tournament deck lists are therefore named
-// alongside the synthetic cases; their varied one-ofs and two-ofs and their
-// full evolution lines make the anchored bonus reachable.
+// Every primary is named alone and paired with each listed partner at every
+// copy split. Pairs alone cannot reach the anchored bonus, because both
+// candidates draw from the same two cards; real tournament lists supply the
+// varied one-ofs and full evolution lines that do.
 import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -26,16 +18,10 @@ import getDeckName from "../src/utils/get-deck-name";
 import { canonSet } from "../src/utils/set-codes";
 import { Deck } from "../src/utils/types";
 
-// How many of the highest-reach partners to pair each seeded archetype with.
-// seeded only changes the answer when a seeded archetype meets a real partner,
-// and no shipped pairing does that, so this is the only coverage that exists.
 const SEED_PARTNERS = 5;
 const OUT = resolve(__dirname, "../src/__fixtures__/deck-name-golden.json");
 const REAL_DECK_LISTS = resolve(__dirname, "../src/__fixtures__/real-deck-lists.json");
 
-// Copy splits each pair is named at. A deck of two-ofs cannot express the
-// one-copy-versus-two-copy distinction the anchored bonus and the copy
-// ordering exist to make, so every pair is named at each split.
 const COPY_SPLITS: readonly (readonly [number, number])[] = [
   [2, 2],
   [2, 1],
@@ -49,8 +35,8 @@ interface PairingEntry {
 
 const store = (pairings as { pairings: Record<string, PairingEntry> }).pairings;
 
-// A pairing key is "Name SET NUMBER"; the name itself may contain spaces
-// ("Team Rocket's Weezing ex B4a 43"), so split from the right.
+// A pairing key is "Name SET NUMBER"; the name itself may contain spaces, so
+// split from the right.
 const splitKey = (key: string): { name: string; set: string; number: string } => {
   const parts = key.split(" ");
   const number = parts.pop() ?? "";
@@ -77,10 +63,6 @@ const deckOf = (keys: string[], counts?: readonly number[]): Deck => {
   };
 };
 
-// The seeded archetypes carry no peak data, so `seeded` in the rank tuple is
-// what stops a real partner outscoring them. No pairing in the shipped store
-// pairs a seeded primary with anything, so these cases are synthesised against
-// the highest-reach cards available: that is the worst case for `seeded`.
 const buildSeededCases = (): { decks: { key: string; deck: Deck }[] } => {
   const byReach = Object.keys(store)
     .map((key) => {
@@ -135,8 +117,6 @@ export const buildGolden = (): Record<string, string | null> => {
   return golden;
 };
 
-// One card as shipped in the database, folded onto the canonical pairing-key
-// shape (name, canonSet set code, numeric number with leading zeros dropped).
 interface RealCard {
   name: string;
   set: string;
@@ -152,16 +132,11 @@ for (const card of cards as { id: string; name: string; set_code: string }[]) {
   });
 }
 
-// best-decks.json is a list of archetypes, each with a `lists[]` of deck
-// lists whose `cards[]` are "count:set-number" tokens (e.g. "2:b1-184").
 interface BestDeckArchetype {
   name: string;
   lists: { cards: string[] }[];
 }
 
-// A resolved deck list plus the label it is keyed under in the golden. The
-// label carries the archetype name and the list's index so it stays stable
-// and cannot collide with the synthetic "Name SET N" keys above.
 const resolveList = (
   archetype: string,
   index: number,

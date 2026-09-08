@@ -1,11 +1,8 @@
 // Snapshots the real tournament deck lists the naming golden replays, so the
-// golden stops depending on public/data/best-decks.json. That file is written
-// by the analysis pipeline for the frontend; depending on it means a routine
-// pipeline run can move analysis test results.
+// golden stops depending on public/data/best-decks.json, which the pipeline
+// rewrites for the frontend.
 //
 //   cd analysis && yarn real-decks:generate
-//
-// Run deliberately when best-decks.json legitimately gains archetypes.
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -19,14 +16,16 @@ interface BestDeckArchetype {
 
 const bestDecks = JSON.parse(readFileSync(SOURCE, "utf8")) as BestDeckArchetype[];
 
+const byCodeUnit = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
+
 const snapshot = bestDecks
   .map((archetype) => ({
     name: archetype.name,
     lists: archetype.lists
-      .map((list) => ({ cards: [...list.cards].sort() }))
-      .sort((a, b) => a.cards.join(",").localeCompare(b.cards.join(","))),
+      .map((list) => ({ cards: [...list.cards].sort(byCodeUnit) }))
+      .sort((a, b) => byCodeUnit(a.cards.join(","), b.cards.join(","))),
   }))
-  .sort((a, b) => a.name.localeCompare(b.name));
+  .sort((a, b) => byCodeUnit(a.name, b.name));
 
 writeFileSync(OUT, `${JSON.stringify(snapshot, null, 2)}\n`);
 console.log(

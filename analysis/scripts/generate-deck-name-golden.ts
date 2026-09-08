@@ -5,7 +5,7 @@
 //   cd analysis && yarn golden:generate
 //
 // Every primary in the pairing store is named alone, and again paired with each
-// of its first three listed partners. That exercises the single-card path, the
+// of its listed partners. That exercises the single-card path, the
 // pair path, the same-line bonus, the anchored bonus and the copy/reach ordering
 // across the whole shipped store rather than a handful of hand-picked decks.
 //
@@ -29,7 +29,6 @@ import { Deck } from "../src/utils/types";
 // seeded only changes the answer when a seeded archetype meets a real partner,
 // and no shipped pairing does that, so this is the only coverage that exists.
 const SEED_PARTNERS = 5;
-const PARTNERS_PER_PRIMARY = 3;
 const OUT = resolve(__dirname, "../src/__fixtures__/deck-name-golden.json");
 const BEST_DECKS = resolve(__dirname, "../../public/data/best-decks.json");
 
@@ -118,7 +117,7 @@ export const buildGolden = (): Record<string, string | null> => {
   // Sorted so the file is stable against pairing-store insertion order.
   for (const key of Object.keys(store).sort()) {
     golden[key] = getDeckName(deckOf([key]));
-    for (const partner of store[key].secondary.slice(0, PARTNERS_PER_PRIMARY)) {
+    for (const partner of store[key].secondary) {
       for (const [first, second] of COPY_SPLITS) {
         golden[`${key} + ${partner} @${first}-${second}`] = getDeckName(
           deckOf([key, partner], [first, second])

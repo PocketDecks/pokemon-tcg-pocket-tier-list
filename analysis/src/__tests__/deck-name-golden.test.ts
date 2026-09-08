@@ -13,7 +13,7 @@ describe("deck naming characterisation", () => {
     // Guards against the golden being silently emptied or truncated. The floor
     // is the measured case count, so a generator that silently clips partners
     // or drops the seeded cases fails here instead of passing unnoticed.
-    expect(Object.keys(golden).length).toBeGreaterThanOrEqual(5964);
+    expect(Object.keys(golden).length).toBeGreaterThanOrEqual(29307);
   });
 
   it("pairs every seeded archetype against a real partner", () => {

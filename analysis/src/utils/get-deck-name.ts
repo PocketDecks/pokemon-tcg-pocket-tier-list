@@ -1,8 +1,17 @@
 import cardToString from "./card-to-string";
 import { Deck } from "./types";
 import formatName from "./format-name";
+import { cardKey } from "./set-codes";
 import pairings from "../data/limitless-pairings.json";
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
+
+// The scoring lattice. Each weight outranks the next so a single higher-level
+// signal always beats any lower one: sameLine beats anchored beats copies
+// beats seeded beats reach (reach is a non-negative sum, so its floor is zero).
+export const COPY_WEIGHT = 1e9;
+export const SEEDED_BONUS = 5e8;
+export const SAME_LINE_BONUS = 1e12;
+export const ANCHORED_BONUS = 1e11;
 
 
 interface PairingEntry {
@@ -15,15 +24,10 @@ const PAIRINGS = (pairings as { pairings?: Record<string, PairingEntry> }).pairi
 // "Name SET NN" -> the card, for evolution lookups.
 const cardByName = new Map(
   (cards as { name: string; set_code: string; id: string; evolves_from: string | null }[]).map(
-    (c) => {
-      const set = c.set_code.toUpperCase().replace("P-A", "PA").replace("P-B", "PB");
-      const m = set.match(/^([AB]\d)([AB])$/);
-      const code = m ? `${m[1]}${m[2].toLowerCase()}` : set;
-      return [
-        `${c.name} ${code} ${String(Number(c.id.split("-").pop()))}`,
-        { name: c.name, evolvesFrom: c.evolves_from },
-      ];
-    }
+    (c) => [
+      cardKey(c.name, c.set_code, String(Number(c.id.split("-").pop()))),
+      { name: c.name, evolvesFrom: c.evolves_from },
+    ]
   )
 );
 
@@ -84,24 +88,20 @@ const topsLine = (name: string, present: Set<string>): boolean => {
   return false;
 };
 
-const CURRENT_SET: string | null =
-  (pairings as { currentSet?: string }).currentSet ??
-  (() => {
-    const counts = new Map<string, number>();
-    for (const entry of Object.values(PAIRINGS)) {
-      for (const [set, n] of Object.entries(entry.peakCountBySet ?? {})) {
-        counts.set(set, (counts.get(set) ?? 0) + n);
-      }
-    }
-    return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
-  })();
+// The scraper always writes currentSet; a store without it is corrupt and
+// must fail loudly rather than silently vote across every set.
+const currentSetRaw = (pairings as { currentSet?: string }).currentSet;
+if (!currentSetRaw) {
+  throw new Error("pairing store missing required currentSet");
+}
+const CURRENT_SET: string = currentSetRaw;
 
 // Peak in the current set, falling back to the best set for cards the
 // current set does not carry.
 const peakSum = (name: string): number => {
   const entry = PAIRINGS[name];
   if (!entry?.peakCountBySet) return 0;
-  const current = CURRENT_SET ? entry.peakCountBySet[CURRENT_SET] : undefined;
+  const current = entry.peakCountBySet[CURRENT_SET];
   if (current !== undefined) return current;
   const peaks = Object.values(entry.peakCountBySet);
   return peaks.length ? Math.max(...peaks) : 0;
@@ -123,8 +123,8 @@ const scorePair = (match: string[], countOf: (n: string) => number): number => {
   const reach = match.reduce((acc, name) => acc + peakSum(name), 0);
   // Below one card's worth of copies, above any reach, so a seeded archetype
   // wins against a partner at equal presence without overturning copy count.
-  const seeded = match.some(isSeeded) ? 5e8 : 0;
-  return copies * 1e9 + seeded + reach;
+  const seeded = match.some(isSeeded) ? SEEDED_BONUS : 0;
+  return copies * COPY_WEIGHT + seeded + reach;
 };
 
 // How often this card appears as a secondary in other pairings. A card that
@@ -142,7 +142,6 @@ const secondaryCount = (name: string): number => {
 // history behind it, so a current-set card leads an older card at equal
 // presence: Team Rocket's Raticate ex (B4a) leads Alolan Ninetales ex (B2).
 const isCurrentSetCard = (name: string): boolean => {
-  if (!CURRENT_SET) return false;
   const set = name.split(" ").slice(-2)[0];
   return set.toUpperCase() === CURRENT_SET.toUpperCase();
 };
@@ -221,14 +220,14 @@ const matchPairing = (cards: Deck["cards"]): string[] | null => {
     for (const match of deduped) {
       // A pair from the archetype's own line beats a bigger unrelated pair,
       // so Oricorio does not outrank the Magnezone split it supports.
-      const sameLine = match.length > 1 && isSameLine(match[0], match[1]) ? 1e12 : 0;
+      const sameLine = match.length > 1 && isSameLine(match[0], match[1]) ? SAME_LINE_BONUS : 0;
       // A card topping a line the deck plays outranks a lone Basic tech card,
       // so Castform does not take the name from Mega Blaziken ex and Mantyke
       // does not take it from Mega Sharpedo ex.
       const anchored =
         match.some((card) => topsLine(card, present)) &&
         !match.some((card) => countOf(card) > 0 && !topsLine(card, present) && !cardByName.get(card)?.evolvesFrom)
-          ? 1e11
+          ? ANCHORED_BONUS
           : 0;
       const score = scorePair(match, countOf) + sameLine + anchored;
       if (score > bestScore) {

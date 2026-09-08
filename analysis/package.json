@@ -2,7 +2,7 @@
   "name": "pokemon-tcg-pocket-analysis",
   "version": "1.0.0",
   "private": false,
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "scripts": {
     "download": "ts-node src/download-decks.ts",
     "start": "ts-node src/get-best-decks.ts",

@@ -88,24 +88,20 @@ const topsLine = (name: string, present: Set<string>): boolean => {
   return false;
 };
 
-const CURRENT_SET: string | null =
-  (pairings as { currentSet?: string }).currentSet ??
-  (() => {
-    const counts = new Map<string, number>();
-    for (const entry of Object.values(PAIRINGS)) {
-      for (const [set, n] of Object.entries(entry.peakCountBySet ?? {})) {
-        counts.set(set, (counts.get(set) ?? 0) + n);
-      }
-    }
-    return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
-  })();
+// The scraper always writes currentSet; a store without it is corrupt and
+// must fail loudly rather than silently vote across every set.
+const currentSetRaw = (pairings as { currentSet?: string }).currentSet;
+if (!currentSetRaw) {
+  throw new Error("pairing store missing required currentSet");
+}
+const CURRENT_SET: string = currentSetRaw;
 
 // Peak in the current set, falling back to the best set for cards the
 // current set does not carry.
 const peakSum = (name: string): number => {
   const entry = PAIRINGS[name];
   if (!entry?.peakCountBySet) return 0;
-  const current = CURRENT_SET ? entry.peakCountBySet[CURRENT_SET] : undefined;
+  const current = entry.peakCountBySet[CURRENT_SET];
   if (current !== undefined) return current;
   const peaks = Object.values(entry.peakCountBySet);
   return peaks.length ? Math.max(...peaks) : 0;
@@ -146,7 +142,6 @@ const secondaryCount = (name: string): number => {
 // history behind it, so a current-set card leads an older card at equal
 // presence: Team Rocket's Raticate ex (B4a) leads Alolan Ninetales ex (B2).
 const isCurrentSetCard = (name: string): boolean => {
-  if (!CURRENT_SET) return false;
   const set = name.split(" ").slice(-2)[0];
   return set.toUpperCase() === CURRENT_SET.toUpperCase();
 };

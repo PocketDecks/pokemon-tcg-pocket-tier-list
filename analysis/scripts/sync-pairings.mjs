@@ -109,7 +109,7 @@ const resolveToken = (rawName, rawSet) => {
 };
 
 const ROW =
-  /<tr[^>]*data-share="([\d.]+)"[^>]*>.*?<a href="\/decks\/([a-z0-9-]+)\?[^"]*"[^>]*>([^<]+)<\/a>.*?<\/tr>/gs;
+  /<tr[^>]*>.*?<a href="\/decks\/([a-z0-9-]+)\?[^"]*"[^>]*>([^<]+)<\/a>.*?<\/tr>/gs;
 const COUNT_CELL = /<td[^>]*>\s*([\d,]+)\s*<\/td>/;
 
 const fetchSet = async (set) => {
@@ -119,7 +119,7 @@ const fetchSet = async (set) => {
   const decks = [];
   const seen = new Set();
   for (const m of html.matchAll(ROW)) {
-    const [, share, slug, name] = m;
+    const [, slug, name] = m;
     if (seen.has(slug)) continue;
     seen.add(slug);
     const countMatch = m[0].match(COUNT_CELL);
@@ -128,7 +128,6 @@ const fetchSet = async (set) => {
       slug,
       set,
       count: countMatch ? Number(countMatch[1].replace(/,/g, "")) : 0,
-      share: Number(share) * 100,
     });
   }
   return decks;

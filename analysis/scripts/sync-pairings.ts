@@ -48,10 +48,19 @@ const decksUrl = (set: string): string =>
 
 const norm = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
+const unknownSetCodes = new Set<string>();
+
 const cardIndex = new Map<string, IndexedCard[]>();
 for (const card of cards as CardRecord[]) {
+  let set: string;
+  try {
+    set = canonSet(card.set_code);
+  } catch {
+    unknownSetCodes.add(String(card.set_code));
+    continue;
+  }
   const number = String(Number(card.id.split("-").pop()));
-  const entry: IndexedCard = { name: card.name, set: canonSet(card.set_code), number };
+  const entry: IndexedCard = { name: card.name, set, number };
   const key = norm(card.name);
   const bucket = cardIndex.get(key);
   if (bucket) bucket.push(entry);
@@ -158,6 +167,12 @@ const main = async () => {
   const tally: Record<MergeOutcome, number> = { added: 0, merged: 0, unresolved: 0 };
   const unresolved = [];
   const failures = [];
+
+  if (unknownSetCodes.size) {
+    failures.push(
+      `card database: unrecognised set code(s) ${[...unknownSetCodes].sort().join(", ")}`
+    );
+  }
 
   ensureSeeded(store, SEED_PRIMARIES);
 

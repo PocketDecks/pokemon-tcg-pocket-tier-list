@@ -9,7 +9,6 @@ export const populateDeckNames = (
 
   for (const deck of decks) {
     const name = getDeckName(deck);
-    if (!name) continue;
     idToName[deck.id] = name;
     decksWithNames.push({
       ...deck,

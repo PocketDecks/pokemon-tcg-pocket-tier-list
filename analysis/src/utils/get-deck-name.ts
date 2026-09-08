@@ -1,18 +1,36 @@
 import cardToString from "./card-to-string";
 import { Deck } from "./types";
 import formatName from "./format-name";
-import { cardKey } from "./set-codes";
+import { cardKey, SET_CODES } from "./set-codes";
 import pairings from "../data/limitless-pairings.json";
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
-// The scoring lattice. Each weight outranks the next so a single higher-level
-// signal always beats any lower one: sameLine beats anchored beats copies
-// beats seeded beats reach (reach is a non-negative sum, so its floor is zero).
-export const COPY_WEIGHT = 1e9;
-export const SEEDED_BONUS = 5e8;
-export const SAME_LINE_BONUS = 1e12;
-export const ANCHORED_BONUS = 1e11;
+// Candidate pairs are ranked on a lexicographic tuple, compared left to right:
+// the first component that differs decides, and later components never
+// influence the result. This was previously encoded as a sum of weights
+// (1e12, 1e11, 1e9, 5e8) chosen so each level outranked the next, which held
+// only while reach stayed below 5e8 and copies below 100, neither enforced.
+//
+//   sameLine  the pair is the archetype's own evolution line
+//   anchored  a card tops a line the deck plays, over a lone Basic tech card
+//   copies    total copies of the pair in the deck
+//   seeded    an archetype Limitless never lists, so it carries no peak data
+//   reach     summed peak count, the population tiebreak
+type Rank = readonly [
+  sameLine: number,
+  anchored: number,
+  copies: number,
+  seeded: number,
+  reach: number
+];
 
+// Negative when `a` ranks higher, matching Array.prototype.sort's convention.
+const compareRank = (a: Rank, b: Rank): number => {
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return b[i] - a[i];
+  }
+  return 0;
+};
 
 interface PairingEntry {
   secondary: string[];
@@ -38,9 +56,14 @@ const tierOf = (name: string): number => {
   if (/\sex\b/i.test(name)) return 1;
   return 0;
 };
+// Built from the one set-code list, so adding a set needs no change here. It
+// still only strips codes that list holds, so an unlisted code stays inside
+// the species and breaks same-line comparison; canonSet rejects those first.
+const SET_SUFFIX = new RegExp(`\\s+(?:${SET_CODES.join("|")})\\s+\\d+$`, "i");
+
 const speciesOf = (name: string): string =>
   name
-    .replace(/\s+(A[1-4][ab]?|B[1-4][ab]?|PA|PB)\s+\d+$/i, "")
+    .replace(SET_SUFFIX, "")
     .replace(/^Mega\s+/i, "")
     .replace(/\s+ex$/i, "")
     .trim();
@@ -116,17 +139,6 @@ const isSeeded = (name: string): boolean => {
   return !entry.peakCountBySet || Object.keys(entry.peakCountBySet).length === 0;
 };
 
-// Copy count dominates so a two-of centrepiece beats a one-of with a higher
-// peak. Population only separates cards equally present in the deck.
-const scorePair = (match: string[], countOf: (n: string) => number): number => {
-  const copies = match.reduce((acc, name) => acc + countOf(name), 0);
-  const reach = match.reduce((acc, name) => acc + peakSum(name), 0);
-  // Below one card's worth of copies, above any reach, so a seeded archetype
-  // wins against a partner at equal presence without overturning copy count.
-  const seeded = match.some(isSeeded) ? SEEDED_BONUS : 0;
-  return copies * COPY_WEIGHT + seeded + reach;
-};
-
 // How often this card appears as a secondary in other pairings. A card that
 // is "someone else's partner" less often is the central archetype anchor,
 // used to break ties between two ex cards (Mimikyu ex over Giratina ex).
@@ -154,6 +166,37 @@ const isSameLine = (a: string, b: string): boolean => {
   return !!card && !!other && (card.evolvesFrom === other.name || other.evolvesFrom === card.name);
 };
 
+// Copy count dominates reach so a two-of centrepiece beats a one-of with a
+// higher peak. Population only separates cards equally present in the deck.
+const rankOf = (
+  match: string[],
+  countOf: (n: string) => number,
+  present: Set<string>
+): Rank => {
+  // A pair from the archetype's own line beats a bigger unrelated pair, so
+  // Oricorio does not outrank the Magnezone split it supports.
+  const sameLine = match.length > 1 && isSameLine(match[0], match[1]) ? 1 : 0;
+  // A card topping a line the deck plays outranks a lone Basic tech card, so
+  // Castform does not take the name from Mega Blaziken ex and Mantyke does not
+  // take it from Mega Sharpedo ex.
+  const anchored =
+    match.some((card) => topsLine(card, present)) &&
+    !match.some(
+      (card) =>
+        countOf(card) > 0 &&
+        !topsLine(card, present) &&
+        !cardByName.get(card)?.evolvesFrom
+    )
+      ? 1
+      : 0;
+  const copies = match.reduce((acc, name) => acc + countOf(name), 0);
+  // Seeded archetypes carry no peak data, so reach must not be used against
+  // them or any real partner outscores them and the archetype disappears.
+  const seeded = match.some(isSeeded) ? 1 : 0;
+  const reach = match.reduce((acc, name) => acc + peakSum(name), 0);
+  return [sameLine, anchored, copies, seeded, reach];
+};
+
 const matchPairing = (cards: Deck["cards"]): string[] | null => {
   const cardStrings = new Set(cards.map((card) => cardToString(card)));
   const countOf = (name: string) => {
@@ -162,7 +205,7 @@ const matchPairing = (cards: Deck["cards"]): string[] | null => {
   };
 
   let best: string[] | null = null;
-  let bestScore = -1;
+  let bestRank: Rank | null = null;
   let bestKey: string | null = null;
 
   // Every card in the deck, not only the ones the pairing file happens to
@@ -218,23 +261,15 @@ const matchPairing = (cards: Deck["cards"]): string[] | null => {
     }
 
     for (const match of deduped) {
-      // A pair from the archetype's own line beats a bigger unrelated pair,
-      // so Oricorio does not outrank the Magnezone split it supports.
-      const sameLine = match.length > 1 && isSameLine(match[0], match[1]) ? SAME_LINE_BONUS : 0;
-      // A card topping a line the deck plays outranks a lone Basic tech card,
-      // so Castform does not take the name from Mega Blaziken ex and Mantyke
-      // does not take it from Mega Sharpedo ex.
-      const anchored =
-        match.some((card) => topsLine(card, present)) &&
-        !match.some((card) => countOf(card) > 0 && !topsLine(card, present) && !cardByName.get(card)?.evolvesFrom)
-          ? ANCHORED_BONUS
-          : 0;
-      const score = scorePair(match, countOf) + sameLine + anchored;
-      if (score > bestScore) {
-        bestScore = score;
+      const rank = rankOf(match, countOf, present);
+      const cmp = bestRank === null ? -1 : compareRank(rank, bestRank);
+      if (cmp < 0) {
+        bestRank = rank;
         best = match;
         bestKey = key;
-      } else if (score === bestScore && best) {
+      } else if (cmp === 0 && best) {
+        // Fully tied on every ranked signal; the alphabetically first pair
+        // wins so the choice does not depend on pairing-file order.
         const ordered = [...match].sort((a, b) => a.localeCompare(b)).join("&");
         const bestOrdered = [...best].sort((a, b) => a.localeCompare(b)).join("&");
         if (ordered < bestOrdered) {
@@ -278,17 +313,22 @@ const matchPairing = (cards: Deck["cards"]): string[] | null => {
   return best;
 };
 
+// Decks that match no pairing are all filed under one slug rather than left
+// unnamed, so the tier list has a single "everything else" bucket instead of
+// a hole. Exported so callers can recognise the bucket by name.
+export const UNNAMED_DECK = "professor's-research-pa-007";
+
 /**
- * Attempts to find a matching deck name based on the deck's cards
- * @param deck The deck to find a name for
- * @returns The formatted deck name if found, null otherwise
+ * Finds the deck name for a deck's cards.
+ * @param deck The deck to name
+ * @returns The formatted deck name, or UNNAMED_DECK when nothing matches.
+ *   Never null, since every deck gets a name.
  */
-const getDeckName = (deck: Deck): string | null => {
+const getDeckName = (deck: Deck): string => {
   const { cards } = deck;
 
   const scraped = matchPairing(cards);
-  if (scraped) return formatName(cards, scraped);
-  return "professor's-research-pa-007";
+  return scraped ? formatName(cards, scraped) : UNNAMED_DECK;
 };
 
 export default getDeckName;

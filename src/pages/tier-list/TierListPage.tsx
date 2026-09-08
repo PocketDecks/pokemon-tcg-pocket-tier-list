@@ -1,4 +1,6 @@
 import { useTranslation } from "react-i18next";
+/* eslint-disable-next-line no-restricted-imports -- pre-existing: this page
+   still consumes DecksContext directly. Move behind src/app/ before adding more. */
 import { useDecks } from "../../contexts/DecksContext";
 import useFilters from "../../app/use-filters";
 import useIsPremium from "../../app/use-is-premium";

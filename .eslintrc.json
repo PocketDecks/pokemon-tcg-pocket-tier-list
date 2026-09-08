@@ -1,3 +1,39 @@
 {
-  "extends": ["react-app", "react-app/jest"]
+  "extends": ["react-app", "react-app/jest"],
+  "overrides": [
+    {
+      "files": ["src/pages/**/*.ts", "src/pages/**/*.tsx"],
+      "excludedFiles": ["**/__tests__/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["**/contexts/*"],
+                "message": "Pages must not reach into src/contexts/ directly. Depend on src/app/ instead, so page code stays testable without a provider tree."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/app/**/*.ts"],
+      "excludedFiles": ["src/app/use-*.ts", "**/__tests__/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "react",
+                "message": "src/app/ holds pure helpers. React belongs in hooks (src/app/use-*.ts) and in components."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }

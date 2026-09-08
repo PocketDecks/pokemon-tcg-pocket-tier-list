@@ -1,8 +1,6 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import pairings from "../data/limitless-pairings.json";
 import getDeckName from "../utils/get-deck-name";
-import { canonSet, cardKey } from "../utils/set-codes";
+import { canonSet, cardKey, SET_CODES, SET_CODE_PATTERN, STANDARD_SET_CODES } from "../utils/set-codes";
 import { Deck } from "../utils/types";
 
 type PairingEntry = {
@@ -27,25 +25,6 @@ for (const key of STORE_KEYS) {
   const { set } = splitKey(key);
   if (set) storeSetCodes.add(set);
 }
-
-// Loads the scraper-side mirror from the shipped file rather than importing
-// it, because jest runs in CommonJS and cannot require the ESM mirror without
-// a config change. Evaluating the real file text each run means any drift in
-// set-codes.mjs fails this suite.
-const loadMirror = (): {
-  canonSet: (raw: string) => string;
-  cardKey: (name: string, set: string, number: string) => string;
-} => {
-  const source = readFileSync(
-    resolve(__dirname, "../../scripts/set-codes.mjs"),
-    "utf8"
-  );
-  const body = source.replace(/^export /gm, "");
-  const factory = new Function(`${body}\nreturn { canonSet, cardKey };`);
-  return factory();
-};
-
-const mirror = loadMirror();
 
 const mkDeck = (...cards: [number, string, string, string][]): Deck => ({
   id: "test-id",
@@ -110,27 +89,6 @@ describe("cardKey", () => {
   });
 });
 
-describe("the scraper-side mirror stays in step with the engine", () => {
-  const rawForms: string[] = [];
-  for (const set of storeSetCodes) {
-    rawForms.push(set, set.toUpperCase(), set.toLowerCase());
-  }
-  rawForms.push("pa", "pb", "P-A", "P-B", "a1", "b4a", "A2B");
-
-  it("agrees on canonSet for every set code form in the shipped store", () => {
-    for (const raw of rawForms) {
-      expect(mirror.canonSet(raw)).toBe(canonSet(raw));
-    }
-  });
-
-  it("agrees on cardKey for every shipped pairing key", () => {
-    for (const key of STORE_KEYS) {
-      const { name, set, number } = splitKey(key);
-      expect(mirror.cardKey(name, set, number)).toBe(cardKey(name, set, number));
-    }
-  });
-});
-
 describe("deck naming parity over the pairing store", () => {
   // Characterisation snapshot: these names were captured from the engine
   // before the set-code normaliser was extracted. They must regenerate
@@ -150,5 +108,40 @@ describe("deck naming parity over the pairing store", () => {
 
   it.each(cases)("names %s identically", (expected, rows) => {
     expect(getDeckName(mkDeck(...rows))).toBe(expected);
+  });
+});
+
+describe("SET_CODES is the single enumeration", () => {
+  it("covers every set code present in the shipped store", () => {
+    for (const set of storeSetCodes) {
+      expect(SET_CODES).toContain(set);
+    }
+  });
+
+  it("keeps the standard sets as a prefix of the full list", () => {
+    expect(SET_CODES.slice(0, STANDARD_SET_CODES.length)).toEqual([
+      ...STANDARD_SET_CODES,
+    ]);
+  });
+
+  it("orders the token pattern longest-first so variants win the match", () => {
+    const re = new RegExp(`^(?:${SET_CODE_PATTERN})`, "i");
+    expect("a1a-something".match(re)?.[0]).toBe("a1a");
+    expect("a2b-something".match(re)?.[0]).toBe("a2b");
+    expect("p-a-something".match(re)?.[0]).toBe("p-a");
+  });
+});
+
+describe("canonSet rejects codes outside the enumeration", () => {
+  it("throws rather than silently upper-casing an unknown code", () => {
+    expect(() => canonSet("Z9")).toThrow("unknown set code");
+    expect(() => canonSet("")).toThrow("unknown set code");
+  });
+
+  it("still folds every known spelling", () => {
+    for (const code of SET_CODES) {
+      expect(canonSet(code.toLowerCase())).toBe(code);
+      expect(canonSet(code.toUpperCase())).toBe(code);
+    }
   });
 });

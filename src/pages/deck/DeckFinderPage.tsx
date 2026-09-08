@@ -1,5 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
+/* eslint-disable-next-line no-restricted-imports -- pre-existing: this page
+   still consumes DecksContext directly. Move behind src/app/ before adding more. */
 import { useDecks } from "../../contexts/DecksContext";
 import useMissing from "../../app/use-missing";
 import DeckCardGrid from "./DeckCardGrid";

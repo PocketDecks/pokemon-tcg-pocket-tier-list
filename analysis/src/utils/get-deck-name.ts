@@ -28,7 +28,7 @@ const cardByName = new Map(
 );
 
 // When both cards are two-ofs the centrepiece leads. An ex or Mega card
-// outranks a plain one: Suicune ex leads Greninja, Giratina ex leads Mimikyu.
+// outranks a plain one: Suicune ex leads Greninja.
 const tierOf = (name: string): number => {
   if (/^Mega\s/i.test(name)) return 2;
   if (/\sex\b/i.test(name)) return 1;
@@ -262,10 +262,13 @@ const matchPairing = (cards: Deck["cards"]): string[] | null => {
       const byCurrency =
         (isCurrentSetCard(b) ? 1 : 0) - (isCurrentSetCard(a) ? 1 : 0);
       if (byCurrency !== 0) return byCurrency;
+      // Which pairing produced the match settles cards that are otherwise
+      // equal. Both cards can list each other, and then the first key in the
+      // pairing file wins, so this tiebreak depends on file order.
       if (bestKey === b) return 1;
       if (bestKey === a) return -1;
-      // Two ex cards of equal tier: the one that anchors its pairing names
-      // (Mimikyu ex over Giratina ex) leads.
+      // The card named as a partner more often leads, so the more widely
+      // splashed card comes first: Giratina ex (108) ahead of Mimikyu ex (23).
       const byLead = secondaryCount(a) - secondaryCount(b);
       if (byLead !== 0) return byLead;
       const byReach = peakSum(b) - peakSum(a);

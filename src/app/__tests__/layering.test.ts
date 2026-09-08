@@ -5,7 +5,6 @@ import { join } from 'path';
 describe('frontend layering', () => {
   const rootDir = join(__dirname, '../../../');
   const pagesDir = join(rootDir, 'src/pages');
-  const contextsDir = join(rootDir, 'src/contexts');
   const appDir = join(rootDir, 'src/app');
 
   const pageFiles = readdirSync(pagesDir, { withFileTypes: true })

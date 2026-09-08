@@ -1,6 +1,16 @@
 # Pokemon TCG Pocket Deck Tier List
 
+<div align="center">
+
+[![frontend tests](https://img.shields.io/github/actions/workflow/status/chase-mew/pokemon-tcg-pocket-tier-list/frontend-tests.yml?branch=main)](https://github.com/chase-mew/pokemon-tcg-pocket-tier-list/actions/workflows/frontend-tests.yml)
+[![analysis tests](https://img.shields.io/github/actions/workflow/status/chase-mew/pokemon-tcg-pocket-tier-list/analysis-tests.yml?branch=main)](https://github.com/chase-mew/pokemon-tcg-pocket-tier-list/actions/workflows/analysis-tests.yml)
+[![licence](https://img.shields.io/github/license/chase-mew/pokemon-tcg-pocket-tier-list)](LICENSE)
+[![node](https://img.shields.io/badge/node-24.18.1-green)](https://nodejs.org)
+[![card data size](https://img.shields.io/badge/card%20data-453.9%20kB%20gzipped-blue)](https://bundlephobia.com/package/pokemon-tcg-pocket-cards@5.3.0)
+
 <img width="1677" alt="image" src="https://github.com/user-attachments/assets/76cb84ed-d0b0-44a6-a914-a3586c30449b" />
+
+</div>
 
 A web application that tracks and displays the current best decks for the Pokémon TCG Pocket game. This project aims to help players stay informed about the competitive meta by analysing tournament data from [Limitless](https://limitlesstcg.com/) Tournaments.
 

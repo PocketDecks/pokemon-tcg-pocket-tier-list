@@ -5,7 +5,16 @@ import { dirname, resolve } from "node:path";
 
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
-import { canonSet, cardKey } from "../src/utils/set-codes";
+import { canonSet } from "../src/utils/set-codes";
+import {
+  MergeOutcome,
+  PairingStore,
+  ResolvedDeck,
+  SEED_PRIMARIES,
+  ensureSeeded,
+  mergeDeck,
+  snapshot,
+} from "../src/utils/pairing-store";
 
 const ROOT = resolve(__dirname, "..");
 // src/data, not data/: analysis/data is git-ignored as it holds the raw scrape.
@@ -30,20 +39,6 @@ interface ScrapedDeck {
   count: number;
 }
 
-interface PairingEntry {
-  secondary: string[];
-  peakCountBySet: Record<string, number>;
-  names: Record<string, number>;
-}
-
-interface PairingStore {
-  updatedAt: string | null;
-  currentSet: string | null;
-  pairings: Record<string, PairingEntry>;
-}
-
-type MergeOutcome = "added" | "merged" | "unresolved";
-
 const messageOf = (err: unknown): string =>
   err instanceof Error ? err.message : String(err);
 
@@ -55,14 +50,6 @@ const SETS = [
   "B3a", "B3b", "B4", "B4a",
 ];
 const NON_STANDARD_SETS = ["PA", "PB", "A4b"];
-
-// Archetypes Limitless never lists, so the sweep cannot discover them.
-// Seeded here because regeneration rebuilds the file from scratch.
-const SEED_PRIMARIES = [
-  "Oricorio A3 66",
-  "Puppy-Loving Girl B3b 67",
-  "Gigalith ex A2 94",
-];
 
 const decksUrl = (set: string): string =>
   `https://play.limitlesstcg.com/decks?game=pocket&set=${set}`;
@@ -169,65 +156,21 @@ const fetchSet = async (set: string): Promise<ScrapedDeck[]> => {
   return decks;
 };
 
-// The primary card identifies the archetype, so partners merge onto it
-// instead of starting a second row.
-const mergeDeck = (store: PairingStore, deck: ScrapedDeck): MergeOutcome => {
-  const cards = slugTokens(deck.slug)
-    .flatMap(([rawName, rawSet]) => resolveToken(rawName, rawSet))
-    .filter(Boolean);
-  if (!cards.length) return "unresolved";
-
-  const [primary, ...partners] = cards.map((c) => cardKey(c.name, c.set, c.number));
-  const seen = primary in store.pairings;
-
-  if (!seen) {
-    store.pairings[primary] = {
-      secondary: [],
-      peakCountBySet: {},
-      names: {},
-    };
-  }
-
-  const entry = store.pairings[primary];
-
-  for (const partner of partners) {
-    if (!entry.secondary.includes(partner)) entry.secondary.push(partner);
-  }
-
-  const previousBest = entry.peakCountBySet[deck.set] ?? 0;
-  if (deck.count > previousBest) entry.peakCountBySet[deck.set] = deck.count;
-  entry.names[deck.name] = Math.max(entry.names[deck.name] ?? 0, deck.count);
-
-  return seen ? "merged" : "added";
-};
-
 const main = async () => {
   const store = existsSync(STORE)
     ? JSON.parse(readFileSync(STORE, "utf8"))
     : { updatedAt: null, currentSet: null, pairings: {} };
   store.pairings ??= {};
 
-  // Signature of the pairings graph before the scrape, so we only rewrite
+  // Fingerprint of the pairings graph before the scrape, so we only rewrite
   // when something actually moved (mergeDeck reports "merged" even on a no-op).
-  const sig = (p: Record<string, PairingEntry>) =>
-    Object.keys(p)
-      .sort()
-      .map((k) => `${k}:${[...(p[k].secondary || [])].sort().join(",")}:${Object.entries(p[k].peakCountBySet || {}).sort().map(([s, n]) => `${s}=${n}`).join(",")}:${Object.entries(p[k].names || {}).sort().map(([n, c]) => `${n}=${c}`).join(",")}`)
-      .join("|");
-
-  const before = sig(store.pairings);
+  const before = snapshot(store);
 
   const tally: Record<MergeOutcome, number> = { added: 0, merged: 0, unresolved: 0 };
   const unresolved = [];
   const failures = [];
 
-  for (const primary of SEED_PRIMARIES) {
-    store.pairings[primary] ??= {
-      secondary: [],
-      peakCountBySet: {},
-      names: {},
-    };
-  }
+  ensureSeeded(store, SEED_PRIMARIES);
 
   let lastFetched: string | null = null;
   for (const set of [...SETS, ...NON_STANDARD_SETS]) {
@@ -244,7 +187,15 @@ const main = async () => {
     // reprint sets (PA/PB/A4b) trail the list and are not the current format.
     if (SETS.includes(set)) lastFetched = set;
     for (const deck of decks) {
-      const outcome = mergeDeck(store, deck);
+      const resolved: ResolvedDeck = {
+        set: deck.set,
+        name: deck.name,
+        count: deck.count,
+        cards: slugTokens(deck.slug).flatMap(([rawName, rawSet]) =>
+          resolveToken(rawName, rawSet)
+        ),
+      };
+      const outcome = mergeDeck(store, resolved);
       tally[outcome]++;
       if (outcome === "unresolved" && unresolved.length < 12) {
         unresolved.push(`${set}:${deck.slug}`);
@@ -266,7 +217,7 @@ const main = async () => {
     }
   }
 
-  const changed = sig(store.pairings) !== before;
+  const changed = snapshot(store) !== before;
   const setChanged = lastFetched && lastFetched !== store.currentSet;
 
   if (lastFetched && setChanged) {

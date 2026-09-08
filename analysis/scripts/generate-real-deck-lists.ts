@@ -19,11 +19,12 @@ interface BestDeckArchetype {
 
 const bestDecks = JSON.parse(readFileSync(SOURCE, "utf8")) as BestDeckArchetype[];
 
-// Sorted so the snapshot is stable against source ordering.
 const snapshot = bestDecks
   .map((archetype) => ({
     name: archetype.name,
-    lists: archetype.lists.map((list) => ({ cards: [...list.cards].sort() })),
+    lists: archetype.lists
+      .map((list) => ({ cards: [...list.cards].sort() }))
+      .sort((a, b) => a.cards.join(",").localeCompare(b.cards.join(","))),
   }))
   .sort((a, b) => a.name.localeCompare(b.name));
 

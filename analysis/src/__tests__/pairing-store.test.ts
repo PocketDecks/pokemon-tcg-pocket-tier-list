@@ -3,6 +3,7 @@ import {
   ResolvedDeck,
   ensureSeeded,
   mergeDeck,
+  pickCurrentSet,
   snapshot,
 } from "../utils/pairing-store";
 
@@ -120,5 +121,34 @@ describe("ensureSeeded", () => {
     mergeDeck(store, deck("A3", 9, ["Oricorio", "a3", "66"]));
     ensureSeeded(store, ["Oricorio A3 66"]);
     expect(store.pairings["Oricorio A3 66"].peakCountBySet).toEqual({ A3: 9 });
+  });
+});
+
+describe("pickCurrentSet", () => {
+  it("adopts the newest set when its page was fetched", () => {
+    expect(pickCurrentSet("B4", "B4a", new Set(["B4", "B4a"]))).toBe("B4a");
+  });
+
+  it("is a no-op when the newest set is already current", () => {
+    expect(pickCurrentSet("B4a", "B4a", new Set(["B4", "B4a"]))).toBe("B4a");
+  });
+
+  it("does NOT regress to an older set when the newest page failed", () => {
+    // The bug this test exists for: a single timeout on the B4a page used to
+    // rewrite currentSet to B4, which silently renames the whole tier list,
+    // then flips back next week.
+    expect(pickCurrentSet("B4a", "B4a", new Set(["B4"]))).toBe("B4a");
+  });
+
+  it("leaves currentSet alone when nothing was fetched at all", () => {
+    expect(pickCurrentSet("B4a", "B4a", new Set())).toBe("B4a");
+  });
+
+  it("adopts the newest set on a first run when its page was fetched", () => {
+    expect(pickCurrentSet(null, "B4a", new Set(["B4a"]))).toBe("B4a");
+  });
+
+  it("stays null on a first run whose newest page failed", () => {
+    expect(pickCurrentSet(null, "B4a", new Set(["B4"]))).toBeNull();
   });
 });

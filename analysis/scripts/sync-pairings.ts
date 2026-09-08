@@ -13,6 +13,7 @@ import {
   SEED_PRIMARIES,
   ensureSeeded,
   mergeDeck,
+  pickCurrentSet,
   snapshot,
 } from "../src/utils/pairing-store";
 
@@ -172,7 +173,7 @@ const main = async () => {
 
   ensureSeeded(store, SEED_PRIMARIES);
 
-  let lastFetched: string | null = null;
+  const fetchedSets = new Set<string>();
   for (const set of [...SETS, ...NON_STANDARD_SETS]) {
     let decks: ScrapedDeck[] = [];
     try {
@@ -183,9 +184,7 @@ const main = async () => {
       process.stdout.write(`${set}! `);
       continue;
     }
-    // Track the newest standard set fetched for currentSet; non-standard
-    // reprint sets (PA/PB/A4b) trail the list and are not the current format.
-    if (SETS.includes(set)) lastFetched = set;
+    fetchedSets.add(set);
     for (const deck of decks) {
       const resolved: ResolvedDeck = {
         set: deck.set,
@@ -218,14 +217,18 @@ const main = async () => {
   }
 
   const changed = snapshot(store) !== before;
-  const setChanged = lastFetched && lastFetched !== store.currentSet;
 
-  if (lastFetched && setChanged) {
-    store.currentSet = lastFetched;
-  } else if (!lastFetched) {
-    // No set fetched; keep currentSet so peakSum and isCurrentSetCard use a real set.
-    console.warn("no set fetched successfully; currentSet unchanged");
+  // SETS runs oldest to newest; the non-standard reprint sets that follow it
+  // are not the current format, so the newest standard set is the candidate.
+  const NEWEST_SET = SETS[SETS.length - 1];
+  const nextCurrentSet = pickCurrentSet(store.currentSet, NEWEST_SET, fetchedSets);
+  const setChanged = nextCurrentSet !== store.currentSet;
+  if (!fetchedSets.has(NEWEST_SET)) {
+    console.warn(
+      `${NEWEST_SET} page did not come back; currentSet left at ${store.currentSet}`
+    );
   }
+  store.currentSet = nextCurrentSet;
 
   if (!changed) {
     if (setChanged) {

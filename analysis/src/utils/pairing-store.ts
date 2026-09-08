@@ -78,3 +78,14 @@ export const ensureSeeded = (store: PairingStore, primaries: readonly string[]):
 // comparison is exact.
 export const snapshot = (store: PairingStore): string =>
   JSON.stringify(store.pairings);
+
+// currentSet is a property of the set list, not of any one HTTP response.
+// Adopting "the newest set we happened to fetch" means a single timeout on
+// the newest set's page regresses currentSet to the one before it, which
+// changes what peakSum and isCurrentSetCard mean for every archetype and
+// renames decks across the tier list until the next successful run.
+export const pickCurrentSet = (
+  current: string | null,
+  newest: string,
+  fetchedSets: ReadonlySet<string>
+): string | null => (fetchedSets.has(newest) ? newest : current);

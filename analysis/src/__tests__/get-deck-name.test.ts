@@ -1,4 +1,4 @@
-import getDeckName from "../utils/get-deck-name";
+import getDeckName, { UNNAMED_DECK } from "../utils/get-deck-name";
 import { Deck } from "../utils/types";
 
 const mkDeck = (...cards: [number, string, string, string][]): Deck => ({
@@ -36,10 +36,9 @@ describe("getDeckName", () => {
     expect(result).toBe("suicune-ex-a4a-020&greninja-a1-089");
   });
 
-  it("should return null for a deck with no matching cards", () => {
+  it("falls back to the unnamed-deck sentinel when nothing matches", () => {
     const deck = mkDeck([2, "Random Card", "A1", "1"]);
-    const result = getDeckName(deck);
-    expect(result).toBe("professor's-research-pa-007");
+    expect(getDeckName(deck)).toBe(UNNAMED_DECK);
   });
 
   // Task 2: behaviour-preserving parity test. The leader must not depend on

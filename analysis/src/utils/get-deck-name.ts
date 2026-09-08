@@ -314,17 +314,22 @@ const matchPairing = (cards: Deck["cards"]): string[] | null => {
   return best;
 };
 
+// Decks that match no pairing are all filed under one slug rather than left
+// unnamed, so the tier list has a single "everything else" bucket instead of
+// a hole. Exported so callers can recognise the bucket by name.
+export const UNNAMED_DECK = "professor's-research-pa-007";
+
 /**
- * Attempts to find a matching deck name based on the deck's cards
- * @param deck The deck to find a name for
- * @returns The formatted deck name if found, null otherwise
+ * Finds the deck name for a deck's cards.
+ * @param deck The deck to name
+ * @returns The formatted deck name, or UNNAMED_DECK when nothing matches.
+ *   Never null — every deck gets a name.
  */
-const getDeckName = (deck: Deck): string | null => {
+const getDeckName = (deck: Deck): string => {
   const { cards } = deck;
 
   const scraped = matchPairing(cards);
-  if (scraped) return formatName(cards, scraped);
-  return "professor's-research-pa-007";
+  return scraped ? formatName(cards, scraped) : UNNAMED_DECK;
 };
 
 export default getDeckName;

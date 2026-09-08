@@ -1,5 +1,24 @@
+import expansions from "pokemon-tcg-pocket-cards/data/v5/expansions.json";
+
 // export const DEBUG: boolean = false;
-export const EXPANSION_RELEASE_DATE: Date = new Date("2026-08-01");
+
+const EXCLUDED_SET_IDS = new Set(["a4b"]);
+
+const FALLBACK_RELEASE_DATE = new Date("2026-08-27");
+
+const latestReleaseDate = (): Date => {
+  const list = expansions as { id: string; release_date: string | null }[];
+  for (let i = list.length - 1; i >= 0; i--) {
+    const entry = list[i];
+    if (!entry || EXCLUDED_SET_IDS.has(entry.id)) continue;
+    if (!entry.release_date) continue;
+    const parsed = new Date(entry.release_date);
+    if (!Number.isNaN(parsed.getTime())) return parsed;
+  }
+  return FALLBACK_RELEASE_DATE;
+};
+
+export const EXPANSION_RELEASE_DATE: Date = latestReleaseDate();
 
 export const NOEX: boolean = false;
 export const OPPONENT_BATTLE: boolean = false;

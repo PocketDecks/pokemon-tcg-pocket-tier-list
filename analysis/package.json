@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "download": "ts-node src/download-decks.ts",
+    "sync-pairings": "node scripts/sync-pairings.mjs",
     "start": "ts-node src/get-best-decks.ts",
     "build": "tsc",
     "dev": "tsc --watch",

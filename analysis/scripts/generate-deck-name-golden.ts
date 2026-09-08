@@ -25,6 +25,10 @@ import getDeckName from "../src/utils/get-deck-name";
 import { canonSet } from "../src/utils/set-codes";
 import { Deck } from "../src/utils/types";
 
+// How many of the highest-reach partners to pair each seeded archetype with.
+// seeded only changes the answer when a seeded archetype meets a real partner,
+// and no shipped pairing does that, so this is the only coverage that exists.
+const SEED_PARTNERS = 5;
 const PARTNERS_PER_PRIMARY = 3;
 const OUT = resolve(__dirname, "../src/__fixtures__/deck-name-golden.json");
 const BEST_DECKS = resolve(__dirname, "../../public/data/best-decks.json");
@@ -40,6 +44,7 @@ const COPY_SPLITS: readonly (readonly [number, number])[] = [
 
 interface PairingEntry {
   secondary: string[];
+  peakCountBySet?: Record<string, number>;
 }
 
 const store = (pairings as { pairings: Record<string, PairingEntry> }).pairings;
@@ -72,6 +77,42 @@ const deckOf = (keys: string[], counts?: readonly number[]): Deck => {
   };
 };
 
+// The seeded archetypes carry no peak data, so `seeded` in the rank tuple is
+// what stops a real partner outscoring them. No pairing in the shipped store
+// pairs a seeded primary with anything, so these cases are synthesised against
+// the highest-reach cards available: that is the worst case for `seeded`.
+const buildSeededCases = (): { decks: { key: string; deck: Deck }[] } => {
+  const byReach = Object.keys(store)
+    .map((key) => {
+      const peaks = store[key].peakCountBySet;
+      return { key, peaks };
+    })
+    .filter(({ peaks }) => !!peaks && Object.keys(peaks).length > 0)
+    .map(({ key, peaks }) => [key, Math.max(...Object.values(peaks!))] as [
+      string,
+      number
+    ])
+    .sort((a, b) => b[1] - a[1]);
+
+  const seededKeys = Object.keys(store).filter(
+    (key) => Object.keys(store[key].peakCountBySet ?? {}).length === 0
+  );
+
+  const decks: { key: string; deck: Deck }[] = [];
+  for (const seed of seededKeys) {
+    for (const [partner] of byReach.slice(0, SEED_PARTNERS)) {
+      for (const [first, second] of COPY_SPLITS) {
+        decks.push({
+          key: `seed:${seed} + ${partner} @${first}-${second}`,
+          deck: deckOf([seed, partner], [first, second]),
+        });
+      }
+    }
+  }
+  decks.sort((a, b) => a.key.localeCompare(b.key));
+  return { decks };
+};
+
 export const buildGolden = (): Record<string, string | null> => {
   const golden: Record<string, string | null> = {};
   // Sorted so the file is stable against pairing-store insertion order.
@@ -86,6 +127,9 @@ export const buildGolden = (): Record<string, string | null> => {
     }
   }
   for (const { key, deck } of buildRealDecks().decks) {
+    golden[key] = getDeckName(deck);
+  }
+  for (const { key, deck } of buildSeededCases().decks) {
     golden[key] = getDeckName(deck);
   }
   return golden;

@@ -1,6 +1,8 @@
 import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
+/* eslint-disable-next-line no-restricted-imports -- pre-existing: this page
+   still consumes DecksContext directly. Move behind src/app/ before adding more. */
 import { useDecks, useDeckDetail, MatchupType } from "../../contexts/DecksContext";
 import useMissing from "../../app/use-missing";
 import { useQuery } from "@tanstack/react-query";

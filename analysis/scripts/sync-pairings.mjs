@@ -178,6 +178,16 @@ const main = async () => {
     : { updatedAt: null, currentSet: null, pairings: {} };
   store.pairings ??= {};
 
+  // Signature of the pairings graph before the scrape, so we only rewrite
+  // when something actually moved (mergeDeck reports "merged" even on a no-op).
+  const sig = (p) =>
+    Object.keys(p)
+      .sort()
+      .map((k) => `${k}:${[...(p[k].secondary || [])].sort().join(",")}:${Object.entries(p[k].peakCountBySet || {}).sort().map(([s, n]) => `${s}=${n}`).join(",")}:${Object.entries(p[k].names || {}).sort().map(([n, c]) => `${n}=${c}`).join(",")}`)
+      .join("|");
+
+  const before = sig(store.pairings);
+
   const tally = { added: 0, merged: 0, unresolved: 0 };
   const unresolved = [];
   const failures = [];
@@ -190,6 +200,7 @@ const main = async () => {
     };
   }
 
+  let lastFetched = null;
   for (const set of [...SETS, ...NON_STANDARD_SETS]) {
     let decks = [];
     try {
@@ -200,6 +211,9 @@ const main = async () => {
       process.stdout.write(`${set}! `);
       continue;
     }
+    // Track the newest standard set fetched for currentSet; non-standard
+    // reprint sets (PA/PB/A4b) trail the list and are not the current format.
+    if (SETS.includes(set)) lastFetched = set;
     for (const deck of decks) {
       const outcome = mergeDeck(store, deck);
       tally[outcome]++;
@@ -223,8 +237,36 @@ const main = async () => {
     }
   }
 
+  const changed = sig(store.pairings) !== before;
+  const setChanged = lastFetched && lastFetched !== store.currentSet;
+
+  if (lastFetched && setChanged) {
+    store.currentSet = lastFetched;
+  } else if (!lastFetched) {
+    // No set fetched; keep currentSet so peakSum and isCurrentSetCard use a real set.
+    console.warn("no set fetched successfully; currentSet unchanged");
+  }
+
+  if (!changed) {
+    if (setChanged) {
+      // The graph is unchanged but the current set moved; persist it without
+      // bumping updatedAt, which would imply the pairings were refreshed.
+      mkdirSync(dirname(STORE), { recursive: true });
+      writeFileSync(STORE, `${JSON.stringify(store, null, 2)}\n`);
+      console.log(`\npairings unchanged; currentSet set to ${store.currentSet}`);
+      if (failures.length) console.log(`set pages skipped: ${failures.join(", ")}`);
+      return;
+    }
+    console.log(
+      `\npairings: ${tally.added} new, ${tally.merged} merged, ` +
+        `${tally.unresolved} unresolved, ${Object.keys(store.pairings).length} archetypes total (no change)`
+    );
+    if (unresolved.length) console.log(`unresolved: ${unresolved.join(", ")}`);
+    if (failures.length) console.log(`set pages skipped: ${failures.join(", ")}`);
+    return;
+  }
+
   store.updatedAt = new Date().toISOString();
-  store.currentSet = SETS[SETS.length - 1];
   mkdirSync(dirname(STORE), { recursive: true });
   writeFileSync(STORE, `${JSON.stringify(store, null, 2)}\n`);
 

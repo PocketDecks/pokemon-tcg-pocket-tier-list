@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import pairings from "../data/limitless-pairings.json";
 import getDeckName from "../utils/get-deck-name";
 import { canonSet, cardKey } from "../utils/set-codes";
@@ -27,25 +25,6 @@ for (const key of STORE_KEYS) {
   const { set } = splitKey(key);
   if (set) storeSetCodes.add(set);
 }
-
-// Loads the scraper-side mirror from the shipped file rather than importing
-// it, because jest runs in CommonJS and cannot require the ESM mirror without
-// a config change. Evaluating the real file text each run means any drift in
-// set-codes.mjs fails this suite.
-const loadMirror = (): {
-  canonSet: (raw: string) => string;
-  cardKey: (name: string, set: string, number: string) => string;
-} => {
-  const source = readFileSync(
-    resolve(__dirname, "../../scripts/set-codes.mjs"),
-    "utf8"
-  );
-  const body = source.replace(/^export /gm, "");
-  const factory = new Function(`${body}\nreturn { canonSet, cardKey };`);
-  return factory();
-};
-
-const mirror = loadMirror();
 
 const mkDeck = (...cards: [number, string, string, string][]): Deck => ({
   id: "test-id",
@@ -106,27 +85,6 @@ describe("cardKey", () => {
     for (const key of STORE_KEYS) {
       const { name, set, number } = splitKey(key);
       expect(cardKey(name, set, number)).toBe(key);
-    }
-  });
-});
-
-describe("the scraper-side mirror stays in step with the engine", () => {
-  const rawForms: string[] = [];
-  for (const set of storeSetCodes) {
-    rawForms.push(set, set.toUpperCase(), set.toLowerCase());
-  }
-  rawForms.push("pa", "pb", "P-A", "P-B", "a1", "b4a", "A2B");
-
-  it("agrees on canonSet for every set code form in the shipped store", () => {
-    for (const raw of rawForms) {
-      expect(mirror.canonSet(raw)).toBe(canonSet(raw));
-    }
-  });
-
-  it("agrees on cardKey for every shipped pairing key", () => {
-    for (const key of STORE_KEYS) {
-      const { name, set, number } = splitKey(key);
-      expect(mirror.cardKey(name, set, number)).toBe(cardKey(name, set, number));
     }
   });
 });

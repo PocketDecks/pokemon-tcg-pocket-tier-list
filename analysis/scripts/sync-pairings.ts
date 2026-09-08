@@ -2,15 +2,50 @@
 // Each run only adds: partners merge onto an existing primary, nothing prunes.
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 
-import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json" with { type: "json" };
+import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
-import { canonSet, cardKey } from "./set-codes.mjs";
+import { canonSet, cardKey } from "../src/utils/set-codes";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const ROOT = resolve(__dirname, "..");
 // src/data, not data/: analysis/data is git-ignored as it holds the raw scrape.
 const STORE = resolve(ROOT, "src/data/limitless-pairings.json");
+
+interface CardRecord {
+  name: string;
+  set_code: string;
+  id: string;
+}
+
+interface IndexedCard {
+  name: string;
+  set: string;
+  number: string;
+}
+
+interface ScrapedDeck {
+  name: string;
+  slug: string;
+  set: string;
+  count: number;
+}
+
+interface PairingEntry {
+  secondary: string[];
+  peakCountBySet: Record<string, number>;
+  names: Record<string, number>;
+}
+
+interface PairingStore {
+  updatedAt: string | null;
+  currentSet: string | null;
+  pairings: Record<string, PairingEntry>;
+}
+
+type MergeOutcome = "added" | "merged" | "unresolved";
+
+const messageOf = (err: unknown): string =>
+  err instanceof Error ? err.message : String(err);
 
 // Oldest to newest. Limitless serves the current format for PA, PB and A4b
 // regardless of the set asked for, so those mostly repeat the newest set.
@@ -29,31 +64,32 @@ const SEED_PRIMARIES = [
   "Gigalith ex A2 94",
 ];
 
-const decksUrl = (set) => `https://play.limitlesstcg.com/decks?game=pocket&set=${set}`;
+const decksUrl = (set: string): string =>
+  `https://play.limitlesstcg.com/decks?game=pocket&set=${set}`;
 
 // p-a / p-b must precede pa / pb or the promo token never splits.
 const SET_TOKEN = "(?:a1a|a1|a2a|a2b|a2|a3a|a3b|a3|a4a|a4b|a4|b1a|b1|b2a|b2b|b2|b3a|b3b|b3|b4a|b4|p-a|p-b|pa|pb)";
 
-const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+const norm = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
-const cardIndex = new Map();
-for (const card of cards) {
+const cardIndex = new Map<string, IndexedCard[]>();
+for (const card of cards as CardRecord[]) {
   const number = String(Number(card.id.split("-").pop()));
-  const entry = { name: card.name, set: canonSet(card.set_code), number };
+  const entry: IndexedCard = { name: card.name, set: canonSet(card.set_code), number };
   const key = norm(card.name);
   const bucket = cardIndex.get(key);
   if (bucket) bucket.push(entry);
   else cardIndex.set(key, [entry]);
 }
 
-const slugTokens = (slug) => {
-  const out = [];
+const slugTokens = (slug: string): [string, string][] => {
+  const out: [string, string][] = [];
   let rest = slug;
   const re = new RegExp(`^(?<name>.+?)-(?<set>${SET_TOKEN})(?:-|$)`, "i");
   while (rest) {
     const m = rest.match(re);
     if (!m) break;
-    out.push([m.groups.name, m.groups.set]);
+    out.push([m.groups!.name, m.groups!.set]);
     rest = rest.slice(m[0].length);
   }
   return out;
@@ -63,7 +99,7 @@ const slugTokens = (slug) => {
 // printing to stop one card spanning several rows.
 const REPRINT_SETS = new Set(["A4b"]);
 
-const canonicalCard = (card) => {
+const canonicalCard = (card: IndexedCard): IndexedCard => {
   if (!REPRINT_SETS.has(card.set)) return card;
   const hits = cardIndex.get(norm(card.name));
   if (!hits?.length) return card;
@@ -73,7 +109,7 @@ const canonicalCard = (card) => {
   return original ?? card;
 };
 
-const resolveCard = (rawName, rawSet) => {
+const resolveCard = (rawName: string, rawSet: string): IndexedCard | null => {
   const wanted = canonSet(rawSet).toLowerCase();
   const spaced = rawName.replace(/-/g, " ");
   const candidates = [
@@ -95,7 +131,7 @@ const resolveCard = (rawName, rawSet) => {
 
 // Slugs merge two cards into one token when they share a trailing set code
 // (hydreigon-mega-absol-ex-b1), so try each hyphen split.
-const resolveToken = (rawName, rawSet) => {
+const resolveToken = (rawName: string, rawSet: string): IndexedCard[] => {
   const direct = resolveCard(rawName, rawSet);
   if (direct) return [direct];
 
@@ -112,11 +148,11 @@ const ROW =
   /<tr[^>]*>.*?<a href="\/decks\/([a-z0-9-]+)\?[^"]*"[^>]*>([^<]+)<\/a>.*?<\/tr>/gs;
 const COUNT_CELL = /<td[^>]*>\s*([\d,]+)\s*<\/td>/;
 
-const fetchSet = async (set) => {
+const fetchSet = async (set: string): Promise<ScrapedDeck[]> => {
   const res = await fetch(decksUrl(set), { signal: AbortSignal.timeout(20_000) });
   if (!res.ok) throw new Error(`Limitless ${set} returned ${res.status} ${res.statusText}`);
   const html = await res.text();
-  const decks = [];
+  const decks: ScrapedDeck[] = [];
   const seen = new Set();
   for (const m of html.matchAll(ROW)) {
     const [, slug, name] = m;
@@ -135,7 +171,7 @@ const fetchSet = async (set) => {
 
 // The primary card identifies the archetype, so partners merge onto it
 // instead of starting a second row.
-const mergeDeck = (store, deck) => {
+const mergeDeck = (store: PairingStore, deck: ScrapedDeck): MergeOutcome => {
   const cards = slugTokens(deck.slug)
     .flatMap(([rawName, rawSet]) => resolveToken(rawName, rawSet))
     .filter(Boolean);
@@ -173,7 +209,7 @@ const main = async () => {
 
   // Signature of the pairings graph before the scrape, so we only rewrite
   // when something actually moved (mergeDeck reports "merged" even on a no-op).
-  const sig = (p) =>
+  const sig = (p: Record<string, PairingEntry>) =>
     Object.keys(p)
       .sort()
       .map((k) => `${k}:${[...(p[k].secondary || [])].sort().join(",")}:${Object.entries(p[k].peakCountBySet || {}).sort().map(([s, n]) => `${s}=${n}`).join(",")}:${Object.entries(p[k].names || {}).sort().map(([n, c]) => `${n}=${c}`).join(",")}`)
@@ -181,7 +217,7 @@ const main = async () => {
 
   const before = sig(store.pairings);
 
-  const tally = { added: 0, merged: 0, unresolved: 0 };
+  const tally: Record<MergeOutcome, number> = { added: 0, merged: 0, unresolved: 0 };
   const unresolved = [];
   const failures = [];
 
@@ -193,14 +229,14 @@ const main = async () => {
     };
   }
 
-  let lastFetched = null;
+  let lastFetched: string | null = null;
   for (const set of [...SETS, ...NON_STANDARD_SETS]) {
-    let decks = [];
+    let decks: ScrapedDeck[] = [];
     try {
       decks = await fetchSet(set);
     } catch (err) {
       // One bad page must not discard the whole run's progress.
-      failures.push(`${set}: ${err.message}`);
+      failures.push(`${set}: ${messageOf(err)}`);
       process.stdout.write(`${set}! `);
       continue;
     }
@@ -272,6 +308,6 @@ const main = async () => {
 };
 
 main().catch((err) => {
-  console.error(`sync-pairings failed: ${err.message}`);
+  console.error(`sync-pairings failed: ${messageOf(err)}`);
   process.exit(1);
 });

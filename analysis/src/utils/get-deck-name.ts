@@ -1,7 +1,7 @@
 import cardToString from "./card-to-string";
 import { Deck } from "./types";
 import formatName from "./format-name";
-import { cardKey } from "./set-codes";
+import { cardKey, SET_CODES } from "./set-codes";
 import pairings from "../data/limitless-pairings.json";
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
@@ -38,9 +38,15 @@ const tierOf = (name: string): number => {
   if (/\sex\b/i.test(name)) return 1;
   return 0;
 };
+// Built from the one set-code list, so a new set does not need this regex
+// updated too. The previous literal was /A[1-4][ab]?|B[1-4][ab]?|PA|PB/, which
+// would silently stop stripping the trailing code the day an A5 shipped —
+// leaving the set code inside the species and breaking same-line comparison.
+const SET_SUFFIX = new RegExp(`\\s+(?:${SET_CODES.join("|")})\\s+\\d+$`, "i");
+
 const speciesOf = (name: string): string =>
   name
-    .replace(/\s+(A[1-4][ab]?|B[1-4][ab]?|PA|PB)\s+\d+$/i, "")
+    .replace(SET_SUFFIX, "")
     .replace(/^Mega\s+/i, "")
     .replace(/\s+ex$/i, "")
     .trim();

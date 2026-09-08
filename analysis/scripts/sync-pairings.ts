@@ -5,7 +5,7 @@ import { dirname, resolve } from "node:path";
 
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
-import { canonSet } from "../src/utils/set-codes";
+import { canonSet, NON_STANDARD_SET_CODES, SET_CODE_PATTERN, STANDARD_SET_CODES } from "../src/utils/set-codes";
 import {
   MergeOutcome,
   PairingStore,
@@ -43,20 +43,8 @@ interface ScrapedDeck {
 const messageOf = (err: unknown): string =>
   err instanceof Error ? err.message : String(err);
 
-// Oldest to newest. Limitless serves the current format for PA, PB and A4b
-// regardless of the set asked for, so those mostly repeat the newest set.
-const SETS = [
-  "A1", "A1a", "A2", "A2a", "A2b", "A3", "A3a", "A3b",
-  "A4", "A4a", "B1", "B1a", "B2", "B2a", "B2b", "B3",
-  "B3a", "B3b", "B4", "B4a",
-];
-const NON_STANDARD_SETS = ["PA", "PB", "A4b"];
-
 const decksUrl = (set: string): string =>
   `https://play.limitlesstcg.com/decks?game=pocket&set=${set}`;
-
-// p-a / p-b must precede pa / pb or the promo token never splits.
-const SET_TOKEN = "(?:a1a|a1|a2a|a2b|a2|a3a|a3b|a3|a4a|a4b|a4|b1a|b1|b2a|b2b|b2|b3a|b3b|b3|b4a|b4|p-a|p-b|pa|pb)";
 
 const norm = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
@@ -73,7 +61,7 @@ for (const card of cards as CardRecord[]) {
 const slugTokens = (slug: string): [string, string][] => {
   const out: [string, string][] = [];
   let rest = slug;
-  const re = new RegExp(`^(?<name>.+?)-(?<set>${SET_TOKEN})(?:-|$)`, "i");
+  const re = new RegExp(`^(?<name>.+?)-(?<set>${SET_CODE_PATTERN})(?:-|$)`, "i");
   while (rest) {
     const m = rest.match(re);
     if (!m) break;
@@ -174,7 +162,7 @@ const main = async () => {
   ensureSeeded(store, SEED_PRIMARIES);
 
   const fetchedSets = new Set<string>();
-  for (const set of [...SETS, ...NON_STANDARD_SETS]) {
+  for (const set of [...STANDARD_SET_CODES, ...NON_STANDARD_SET_CODES]) {
     let decks: ScrapedDeck[] = [];
     try {
       decks = await fetchSet(set);
@@ -205,9 +193,10 @@ const main = async () => {
 
   const changed = snapshot(store) !== before;
 
-  // SETS runs oldest to newest; the non-standard reprint sets that follow it
-  // are not the current format, so the newest standard set is the candidate.
-  const NEWEST_SET = SETS[SETS.length - 1];
+  // STANDARD_SET_CODES runs oldest to newest; the non-standard reprint sets
+  // that follow it are not the current format, so the newest standard set is
+  // the candidate.
+  const NEWEST_SET = STANDARD_SET_CODES[STANDARD_SET_CODES.length - 1];
   const nextCurrentSet = pickCurrentSet(store.currentSet, NEWEST_SET, fetchedSets);
   const setChanged = nextCurrentSet !== store.currentSet;
   if (!fetchedSets.has(NEWEST_SET)) {

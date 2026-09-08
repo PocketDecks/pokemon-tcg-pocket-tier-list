@@ -1,6 +1,6 @@
 import pairings from "../data/limitless-pairings.json";
 import getDeckName from "../utils/get-deck-name";
-import { canonSet, cardKey } from "../utils/set-codes";
+import { canonSet, cardKey, SET_CODES, SET_CODE_PATTERN, STANDARD_SET_CODES } from "../utils/set-codes";
 import { Deck } from "../utils/types";
 
 type PairingEntry = {
@@ -108,5 +108,40 @@ describe("deck naming parity over the pairing store", () => {
 
   it.each(cases)("names %s identically", (expected, rows) => {
     expect(getDeckName(mkDeck(...rows))).toBe(expected);
+  });
+});
+
+describe("SET_CODES is the single enumeration", () => {
+  it("covers every set code present in the shipped store", () => {
+    for (const set of storeSetCodes) {
+      expect(SET_CODES).toContain(set);
+    }
+  });
+
+  it("keeps the standard sets as a prefix of the full list", () => {
+    expect(SET_CODES.slice(0, STANDARD_SET_CODES.length)).toEqual([
+      ...STANDARD_SET_CODES,
+    ]);
+  });
+
+  it("orders the token pattern longest-first so variants win the match", () => {
+    const re = new RegExp(`^(?:${SET_CODE_PATTERN})`, "i");
+    expect("a1a-something".match(re)?.[0]).toBe("a1a");
+    expect("a2b-something".match(re)?.[0]).toBe("a2b");
+    expect("p-a-something".match(re)?.[0]).toBe("p-a");
+  });
+});
+
+describe("canonSet rejects codes outside the enumeration", () => {
+  it("throws rather than silently upper-casing an unknown code", () => {
+    expect(() => canonSet("Z9")).toThrow("unknown set code");
+    expect(() => canonSet("")).toThrow("unknown set code");
+  });
+
+  it("still folds every known spelling", () => {
+    for (const code of SET_CODES) {
+      expect(canonSet(code.toLowerCase())).toBe(code);
+      expect(canonSet(code.toUpperCase())).toBe(code);
+    }
   });
 });

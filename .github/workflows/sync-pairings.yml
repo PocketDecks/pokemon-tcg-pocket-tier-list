@@ -1,0 +1,64 @@
+name: Sync pairings
+
+# The local cron misses new archetypes when the machine is off. This CI job
+# runs the stateless scraper weekly; scoring stays local with the 443 MB store.
+on:
+  schedule:
+    # Mondays 10:00 UTC, once weekend decklists are up.
+    - cron: "0 10 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24.18.1"
+          cache: "yarn"
+          cache-dependency-path: "analysis/yarn.lock"
+
+      - name: Install dependencies
+        run: |
+          cd analysis
+          yarn install
+
+      - name: Sync pairings
+        run: |
+          cd analysis
+          yarn sync-pairings
+
+      - name: Open a pull request if the pairings changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -z "$(git status --porcelain analysis/src/data/limitless-pairings.json)" ]; then
+            echo "No pairing changes today."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          BRANCH="automated/pairings-$(date -u +%F)"
+          git checkout -b "$BRANCH"
+          git add analysis/src/data/limitless-pairings.json
+          git commit -m "chore(data): sync deck pairings from Limitless"
+          git push -u origin "$BRANCH"
+
+          gh label create automated 2>/dev/null || true
+          gh pr create \
+            --base main \
+            --title "Sync deck pairings ($(date -u +%F))" \
+            --body "Automated weekly scrape of Limitless deck pairings. New partners are folded onto existing archetypes; nothing is pruned." \
+            --label automated

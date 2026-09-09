@@ -136,7 +136,11 @@ const TierGrid = <T,>({
     return <Loading>{emptyLabel}</Loading>;
   }
 
-  const tiers = buildTiers(items, getScore);
+  // Unranked decks score -1 and cannot be banded, so they are split out and
+  // shown in their own row below the tiers rather than dropped from the page.
+  const rankable = items.filter((item) => getScore(item) >= 0);
+  const unranked = items.filter((item) => getScore(item) < 0);
+  const tiers = buildTiers(rankable, getScore);
 
   return (
     <Page>
@@ -153,6 +157,18 @@ const TierGrid = <T,>({
           </RowContent>
         </TierRow>
       ))}
+      {unranked.length > 0 && (
+        <TierRow key="unranked">
+          <RowHeader $backgroundColor="var(--e)">?</RowHeader>
+          <RowContent>
+            {unranked.map((item) => (
+              <React.Fragment key={getKey(item)}>
+                {renderItem(item)}
+              </React.Fragment>
+            ))}
+          </RowContent>
+        </TierRow>
+      )}
       {footer}
     </Page>
   );

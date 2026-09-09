@@ -39,6 +39,9 @@ const DECKS_JSON = [
     lists: [{ cards: ["2:a1-004", "1:a1-219"], score: 10, strength: 5 }],
     percentOfGames: 50,
     popularity: 100,
+    powerScore: 80,
+    freqScore: 50,
+    metaScore: 65,
   },
 ];
 const MATCHUP_JSON = { [DECK_ID]: [] };

@@ -200,12 +200,34 @@ const DeckDetailPage = () => {
               </SubHeader>
               <KeyStats>
                 <KeyStatRow>
-                  <span>{t("deckPage.strength")}:</span>
+                  <span>{t("deckPage.powerScore")}:</span>
                   <KeyStatValue>
-                    {(deck.strength * 10).toFixed(1)}
+                    {deck.powerScore === null
+                      ? t("deckPage.unranked")
+                      : deck.powerScore.toFixed(1)}
                   </KeyStatValue>
                   <Tooltip
-                    text={t("deckPage.strengthTooltip")}
+                    text={t("deckPage.powerScoreTooltip")}
+                    ariaLabel={t("deckPage.showTooltip")}
+                  />
+                </KeyStatRow>
+                <KeyStatRow>
+                  <span>{t("deckPage.freqScore")}:</span>
+                  <KeyStatValue>{deck.freqScore.toFixed(1)}</KeyStatValue>
+                </KeyStatRow>
+                <KeyStatRow>
+                  <span>{t("deckPage.metaScore")}:</span>
+                  <KeyStatValue>
+                    {deck.metaScore === null
+                      ? t("deckPage.unranked")
+                      : deck.metaScore.toFixed(1)}
+                  </KeyStatValue>
+                </KeyStatRow>
+                <KeyStatRow>
+                  <span>{t("deckPage.cardScore")}:</span>
+                  <KeyStatValue>{(deck.strength * 10).toFixed(1)}</KeyStatValue>
+                  <Tooltip
+                    text={t("deckPage.cardScoreTooltip")}
                     ariaLabel={t("deckPage.showTooltip")}
                   />
                 </KeyStatRow>
@@ -219,33 +241,6 @@ const DeckDetailPage = () => {
                     ariaLabel={t("deckPage.showTooltip")}
                   />
                 </KeyStatRow>
-                <KeyStatRow>
-                  <span>{t("deckPage.winRate")}:</span>
-                  <KeyStatValue>
-                    {winRatePct !== null ? `${winRatePct}%` : "—"}
-                  </KeyStatValue>
-                  <Tooltip
-                    text={t("deckPage.winRateTooltip")}
-                    ariaLabel={t("deckPage.showTooltip")}
-                  />
-                </KeyStatRow>
-                {shareEntry && (
-                  <KeyStatRow>
-                    <span>{t("deckPage.metaShare")}:</span>
-                    <KeyStatValue>
-                      {(shareEntry.share * 100).toFixed(1)}%
-                      {shareEntry.delta > 0.001
-                        ? ` ▲${(shareEntry.delta * 100).toFixed(1)}`
-                        : shareEntry.delta < -0.001
-                          ? ` ▼${(Math.abs(shareEntry.delta) * 100).toFixed(1)}`
-                          : ""}
-                    </KeyStatValue>
-                    <Tooltip
-                      text={t("deckPage.metaShareTooltip")}
-                      ariaLabel={t("deckPage.showTooltip")}
-                    />
-                  </KeyStatRow>
-                )}
               </KeyStats>
             </MatchupSection>
 

@@ -42,6 +42,9 @@ let decks = [
     lists: [{ cards: ["2:a1-004", "1:a1-219"], score: 10, strength: 5 }],
     percentOfGames: 50,
     popularity: 100,
+    powerScore: null,
+    freqScore: 50,
+    metaScore: null,
   },
 ];
 
@@ -88,6 +91,9 @@ describe("DeckDetailPage with a cut card", () => {
         lists: [{ cards: ["2:a1-004", "1:a1-219"], score: 10, strength: 5 }],
         percentOfGames: 50,
         popularity: 100,
+        powerScore: null,
+        freqScore: 50,
+        metaScore: null,
       },
     ];
     vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -155,6 +161,9 @@ describe("DeckDetailPage with a cut card", () => {
         lists: [{ cards: ["2:a1-004", "2:a1-219"], score: 10, strength: 5 }],
         percentOfGames: 50,
         popularity: 100,
+        powerScore: null,
+        freqScore: 50,
+        metaScore: null,
       },
     ];
     renderDetailPage();
@@ -176,6 +185,9 @@ describe("DeckDetailPage with a cut card", () => {
         lists: [{ cards: ["2:a1-004", "2:a1-219"], score: 10, strength: 5 }],
         percentOfGames: 50,
         popularity: 100,
+        powerScore: null,
+        freqScore: 50,
+        metaScore: null,
       },
     ];
     renderDetailPage();

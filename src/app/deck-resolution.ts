@@ -32,6 +32,9 @@ export interface ResolvedDeck {
   bestList: FullList;
   score: number;
   strength: number;
+  powerScore: number | null;
+  freqScore: number;
+  metaScore: number | null;
   matchups: PipelineMatchupEntry[] | undefined;
   iconPrimary: CardType;
   iconSecondary: CardType | null;
@@ -125,6 +128,9 @@ export const resolveDeckDetail = (
       bestList,
       score: Math.max(...fullLists.map((l) => l.score)),
       strength: Math.max(...fullLists.map((l) => l.strength)),
+      powerScore: oldDeck.powerScore,
+      freqScore: oldDeck.freqScore,
+      metaScore: oldDeck.metaScore,
       matchups: matchupData[oldDeck.name],
       iconPrimary: cardsMapping[cardIds[0]],
       iconSecondary,

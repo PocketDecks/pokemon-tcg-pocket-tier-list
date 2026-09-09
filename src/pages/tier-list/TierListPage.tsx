@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useDecks } from "../../contexts/DecksContext";
 import useFilters from "../../app/use-filters";
 import useIsPremium from "../../app/use-is-premium";
-import { getSortValue } from "../../app/sorting-helper";
+
 import UserAccount from "../../components/UserAccount";
 import { SortBy } from "../../components/FilterContext";
 import LastUpdated from "../../components/LastUpdated";
@@ -187,7 +187,7 @@ const TierListPage = () => {
     <>
       <TierGrid
         items={decks}
-        getScore={(d) => getSortValue(d, sortBy)}
+        getScore={(d) => d.powerScore ?? -1}
         getKey={(d) => d.id}
         renderItem={(deck) => (
           <DeckCard

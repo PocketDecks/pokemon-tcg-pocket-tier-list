@@ -55,3 +55,15 @@ console.log("WINRATE_IMPORTANCE:", WINRATE_IMPORTANCE);
 // Multiplier applied to decks from the newest expansion; grows with weeks since release.
 export const NEW_MULTIPLIER: number = 1 + WEEKS_LIVE / 1.5;
 console.log("NEW_MULTIPLIER:", NEW_MULTIPLIER);
+
+// Card impact weighting experiment: when true, disruption/recovery cards are scored above filler. Flip to experiment only; rests false in committed code.
+export const USE_CARD_IMPACT_WEIGHTS: boolean = false;
+
+// Per-card-name multiplier applied to the composite card score. Default 1.0 for any name not listed. Keyed on the card NAME, not the full cardToString key.
+export const CARD_IMPACT_WEIGHTS: Record<string, number> = {
+  "Cyrus": 1.2,
+  "Sabrina": 1.1,
+  "Repel": 1.05,
+  "Lucky Ice Pop": 1.1,
+  "Field Blower": 1.1,
+};

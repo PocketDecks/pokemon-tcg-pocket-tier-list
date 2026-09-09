@@ -50,4 +50,17 @@ describe("resolveSlug", () => {
   it("returns an empty array for a slug with no resolvable token", () => {
     expect(resolveSlug("not-a-real-card-z9")).toEqual([]);
   });
+
+  it("resolves a two-card slug with the wanted-set spelling each", () => {
+    expect(resolveSlug("gyarados-ex-a1a-greninja-a1").map((c) => c.name)).toEqual([
+      "Gyarados ex",
+      "Greninja",
+    ]);
+  });
+
+  it("resolves a numbered single-card slug", () => {
+    expect(
+      resolveSlug("mega-altaria-ex-b1-102").map((c) => c.name),
+    ).toEqual(["Mega Altaria ex"]);
+  });
 });

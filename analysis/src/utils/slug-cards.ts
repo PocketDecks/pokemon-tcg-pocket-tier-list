@@ -71,8 +71,11 @@ const canonicalCard = (card: IndexedCard): IndexedCard => {
 };
 
 // Resolves one name/set token to a card, trying the spaced and ex variants
-// that Limitless drops from slugs. Falls back to the first printing in the
-// wanted set when an exact one is absent.
+// that Limitless drops from slugs. Pass one prefers a printing that sits in
+// the wanted set, scanning every candidate spelling before settling. Pass
+// two keeps the first printing in any set only when no wanted-set match
+// exists, so a wanted-set hit on a later spelling beats an any-set hit found
+// on an earlier one.
 const resolveCard = (rawName: string, rawSet: string): IndexedCard | null => {
   const wanted = canonSet(rawSet).toLowerCase();
   const spaced = rawName.replace(/-/g, " ");
@@ -83,12 +86,17 @@ const resolveCard = (rawName: string, rawSet: string): IndexedCard | null => {
     `${spaced} ex`,
     spaced.replace(/ ex$/, ""),
   ];
+  // Pass one: a wanted-set printing across any spelling wins.
   for (const candidate of candidates) {
     const hits = cardIndex.get(norm(candidate));
     if (!hits?.length) continue;
     const exact = hits.find((c) => c.set.toLowerCase() === wanted);
     if (exact) return canonicalCard(exact);
-    return canonicalCard(hits[0]);
+  }
+  // Pass two: fall back to the first printing in any set.
+  for (const candidate of candidates) {
+    const hits = cardIndex.get(norm(candidate));
+    if (hits?.length) return canonicalCard(hits[0]);
   }
   return null;
 };

@@ -59,3 +59,29 @@ describe("getSortValue", () => {
     expect(getSortValue(buildDeck({}), "nonsense" as SortBy)).toBe(0);
   });
 });
+
+describe("getSortValue for the power metrics", () => {
+  const deck = {
+    powerScore: 72.5,
+    metaScore: 61.25,
+    freqScore: 50,
+  } as unknown as Parameters<typeof getSortValue>[0];
+
+  it("sorts on power score", () => {
+    expect(getSortValue(deck, SortBy.POWER)).toBe(72.5);
+  });
+
+  it("sorts on meta score", () => {
+    expect(getSortValue(deck, SortBy.META)).toBe(61.25);
+  });
+
+  it("sinks unranked decks to the bottom rather than treating null as zero-ish", () => {
+    const unranked = {
+      powerScore: null,
+      metaScore: null,
+      freqScore: 90,
+    } as unknown as Parameters<typeof getSortValue>[0];
+    expect(getSortValue(unranked, SortBy.POWER)).toBe(-1);
+    expect(getSortValue(unranked, SortBy.META)).toBe(-1);
+  });
+});

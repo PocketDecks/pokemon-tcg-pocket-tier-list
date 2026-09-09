@@ -24,6 +24,11 @@ const decksRaw: PipelinePartialDeck[] = [
     percentOfGames: 50,
     popularity: 100,
     score: 10,
+    expectedWinRate: 50,
+    fieldCoverage: 1,
+    powerScore: 60,
+    freqScore: 55,
+    metaScore: 65,
   },
 ];
 

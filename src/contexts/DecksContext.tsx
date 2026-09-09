@@ -45,6 +45,11 @@ export interface FullDeckType {
   score: number;
   popularity: number;
   strength: number;
+  expectedWinRate: number;
+  fieldCoverage: number;
+  powerScore: number | null;
+  freqScore: number;
+  metaScore: number | null;
   percentOfGames: number;
   matchups: MatchupType[];
   iconPrimary: CardType;
@@ -222,6 +227,11 @@ const buildDecks = (
           score: maxScore(oldDeck),
           popularity: highestPopularity > 0 ? oldDeck.popularity / highestPopularity : 0,
           strength: highestStrength > 0 ? maxStrength(oldDeck) / highestStrength : 0,
+          expectedWinRate: oldDeck.expectedWinRate,
+          fieldCoverage: oldDeck.fieldCoverage,
+          powerScore: oldDeck.powerScore,
+          freqScore: oldDeck.freqScore,
+          metaScore: oldDeck.metaScore,
           percentOfGames: oldDeck.percentOfGames,
           matchups,
           iconPrimary: cardsMapping[cardIds[0]],

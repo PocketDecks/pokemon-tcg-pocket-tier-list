@@ -6,6 +6,8 @@ export enum SortBy {
   POPULARITY = "popularity",
   STRENGTH = "strength",
   WIN_RATE = "winRate",
+  POWER = "power",
+  META = "meta",
 }
 
 interface FilterContextType {

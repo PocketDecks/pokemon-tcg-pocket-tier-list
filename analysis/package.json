@@ -6,6 +6,7 @@
   "scripts": {
     "download": "ts-node src/download-decks.ts",
     "sync-pairings": "ts-node scripts/sync-pairings.ts",
+    "power:report": "ts-node scripts/power-report.ts",
     "golden:generate": "ts-node scripts/generate-deck-name-golden.ts",
     "real-decks:generate": "ts-node scripts/generate-real-deck-lists.ts",
     "start": "ts-node src/get-best-decks.ts",

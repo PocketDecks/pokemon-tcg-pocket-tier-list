@@ -61,7 +61,7 @@ const DeckDetailPage = () => {
     return counts;
   }, [missing]);
 
-  const { deck, extinct, highestStrength } = useDeckDetail(deckId, missingCounts);
+  const { deck, extinct } = useDeckDetail(deckId, missingCounts);
   // Card data for resolving the removed card's name in the extinct notice.
   // React Query dedupes this against the same queryKey used elsewhere, so it is
   // a cache read, not a second network fetch.
@@ -202,7 +202,7 @@ const DeckDetailPage = () => {
                 <KeyStatRow>
                   <span>{t("deckPage.strength")}:</span>
                   <KeyStatValue>
-                    {((deck.strength / (highestStrength || 1)) * 10).toFixed(1)}
+                    {(deck.strength * 10).toFixed(1)}
                   </KeyStatValue>
                   <Tooltip
                     text={t("deckPage.strengthTooltip")}

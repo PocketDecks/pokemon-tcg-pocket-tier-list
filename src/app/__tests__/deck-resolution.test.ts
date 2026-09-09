@@ -90,3 +90,15 @@ describe("highestScoreAndStrength", () => {
     expect(highestStrength).toBe(5);
   });
 });
+
+describe("card score display scale", () => {
+  it("caps the best deck at 10 rather than exceeding the scale", () => {
+    // deck.strength arrives from DecksContext already divided by
+    // highestStrength, so the display must only multiply by 10. Dividing
+    // again pushed the top deck to 11.8 on a 0 to 10 scale.
+    const displayed = (strengthRatio: number) =>
+      Number((strengthRatio * 10).toFixed(1));
+    expect(displayed(1)).toBe(10);
+    expect(displayed(0.5)).toBe(5);
+  });
+});

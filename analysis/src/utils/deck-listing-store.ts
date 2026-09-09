@@ -2,6 +2,12 @@
 // its own decks array; fetching a set REPLACES that array, so no data is lost
 // by folding, and the matcher reads listings directly instead of inferring a
 // primary/secondary graph.
+//
+// DeckListing and SetListing are declared only here. They describe the on-disk
+// shape of limitless-decks.json, and a copy kept anywhere else has drifted out
+// of step before: a hand-maintained duplicate of a pipeline shape once fell
+// behind the source, and a later change had to fix the schema as a result.
+// Import these from this file rather than redeclaring them.
 import { NON_STANDARD_SET_CODES, STANDARD_SET_CODES } from "./set-codes";
 
 // One row from a Limitless set page, exactly as the page shows it.

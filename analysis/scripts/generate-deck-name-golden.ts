@@ -19,6 +19,7 @@ import getDeckName from "../src/utils/get-deck-name";
 import { canonSet, cardKey } from "../src/utils/set-codes";
 import { resolveSlug } from "../src/utils/slug-cards";
 import { Deck } from "../src/utils/types";
+import { SetListing } from "../src/utils/deck-listing-store";
 
 const OUT = resolve(__dirname, "../src/__fixtures__/deck-name-golden.json");
 const REAL_DECK_LISTS = resolve(__dirname, "../src/__fixtures__/real-deck-lists.json");
@@ -29,14 +30,6 @@ const COPY_SPLITS: readonly (readonly [number, number])[] = [
   [1, 2],
 ];
 
-interface DeckListing {
-  name: string;
-  slug: string;
-  count: number;
-}
-interface SetListing {
-  decks: DeckListing[];
-}
 const store = (listings as { sets: Record<string, SetListing> }).sets;
 
 const deckOf = (keys: string[], counts?: readonly number[]): Deck => {

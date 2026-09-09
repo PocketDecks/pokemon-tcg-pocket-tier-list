@@ -3,19 +3,12 @@ import formatName from "./format-name";
 import { cardKey, SET_CODES } from "./set-codes";
 import listings from "../data/limitless-decks.json";
 import { resolveSlug } from "./slug-cards";
+import { SetListing } from "./deck-listing-store";
 import cardsJson from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
 // The store keeps one snapshot per set; a row is a candidate only if the deck
 // holds every card the row lists, so the pairing is what Limitless shows, not
 // an inferred primary/secondary split.
-interface DeckListing {
-  name: string;
-  slug: string;
-  count: number;
-}
-interface SetListing {
-  decks: DeckListing[];
-}
 const STORE = listings as { sets: Record<string, SetListing> };
 
 // Set age for the tiebreak: standard sets oldest to newest, then the

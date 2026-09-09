@@ -78,3 +78,47 @@ describe("getDeckName", () => {
     expect(getDeckName(deck)).toBe("puppy-loving-girl-b3b-067");
   });
 });
+
+// Regression pins from the PR 86 audit. Ranking `line` above row length let a
+// 1-card anchored row beat a 2-card unanchored one, stripping the centrepiece
+// from 93 deck names. Row length must decide first; `line` only separates
+// rows that name the same number of cards.
+//
+// The bug needs two things at once: a 2-card pair worth keeping and a
+// competing single card that anchors its own row (Dratini tops Dragonair,
+// Litwick tops Chandelure). Without that third card the matcher has nothing
+// to prefer the short row over, so the pair wins trivially and the pin cannot
+// catch the regression. Each deck below carries the minimal anchor that
+// flips it to the bare single card under the buggy ordering.
+describe("row ranking: a fuller listing outranks an anchored shorter one", () => {
+  it("keeps the Mega Rayquaza ex partner on a Dragonair deck", () => {
+    const deck = mkDeck(
+      [2, "Mega Rayquaza ex", "B4", "120"],
+      [2, "Dragonair", "B4", "117"],
+      [2, "Dratini", "A3b", "51"]
+    );
+    expect(getDeckName(deck)).toBe("mega-rayquaza-ex-b4-120&dragonair-b4-117");
+  });
+
+  it("keeps the Oricorio partner on a Chandelure deck", () => {
+    const deck = mkDeck(
+      [2, "Chandelure", "B2", "69"],
+      [2, "Oricorio", "B4", "78"],
+      [2, "Litwick", "B2", "67"]
+    );
+    expect(getDeckName(deck)).toBe("chandelure-b2-069&oricorio-b4-078");
+  });
+
+  it("still rejects a tech Basic row in favour of the real archetype", () => {
+    // The fix this task preserves: Igglybuff is a 2-of tech Basic and must not
+    // name a deck whose centrepiece is Mega Altaria ex. Swablu is in the deck
+    // so Mega Altaria ex tops a line it plays and the row is anchored.
+    const deck = mkDeck(
+      [2, "Espeon", "B3a", "20"],
+      [2, "Mega Altaria ex", "B1", "102"],
+      [2, "Igglybuff", "A4a", "59"],
+      [1, "Swablu", "B1", "196"]
+    );
+    expect(getDeckName(deck)).toBe("mega-altaria-ex-b1-102&espeon-b3a-020");
+  });
+});

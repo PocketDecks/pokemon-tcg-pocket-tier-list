@@ -125,14 +125,11 @@ const topsLine = (name: string, presentNames: Set<string>): boolean => {
 };
 
 // Negative when `a` ranks higher, matching Array.prototype.sort's convention.
-const compareRank = <T extends readonly (number | string)[]>(a: T, b: T): number => {
+// Numeric only: the name tiebreak is applied separately, so this needs no
+// runtime type dispatch and no casts.
+const compareRank = (a: readonly number[], b: readonly number[]): number => {
   for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) {
-      if (typeof a[i] === "string" && typeof b[i] === "string") {
-        return (a[i] as string).localeCompare(b[i] as string);
-      }
-      return (b[i] as number) - (a[i] as number);
-    }
+    if (a[i] !== b[i]) return b[i] - a[i];
   }
   return 0;
 };
@@ -157,19 +154,20 @@ const getDeckName = (deck: Deck): string => {
 
   // Candidate rows are those sharing at least one card name with the deck;
   // a row qualifies only when every card it lists is also in the deck. Rows
-  // are ranked lexicographically, first difference deciding:
+  // are ranked by the tuple below, first difference deciding:
+  //   cards     how many cards the row names (a fuller listing wins, so
+  //             Mega Rayquaza ex + Dragonair beats a lone Dragonair row)
   //   sameLine  two cards of the row share a species or evolution line
-  //   anchored  at least one card tops a line the deck plays and no card in
-  //             the row is a plain tech Basic (present, topping nothing,
-  //             evolving from nothing) - this is what kept Igglybuff or
-  //             Mantyke from naming decks
-  //   cards     how many cards the row names (a fuller listing wins)
+  //   anchored  a card tops a line the deck plays and no row member is a plain
+  //             tech Basic - this is what kept Igglybuff or Mantyke from
+  //             naming decks. `sameLine` and `anchored` only separate rows of
+  //             equal length: ranked above `cards` they strip centrepieces.
   //   set       newer set
   //   count     higher Limitless count
-  //   name      lexicographic order as the final stable tiebreak
-  type RowRank = readonly [sameLine: number, anchored: number, cards: number, set: number, count: number, name: string];
+  // A full tie falls through to lexicographic row name, applied below.
+  type RowRank = readonly [cards: number, sameLine: number, anchored: number, set: number, count: number];
   const seen = new Set<number>();
-  let best: { rank: RowRank; cards: string[] } | null = null;
+  let best: { rank: RowRank; cards: string[]; name: string } | null = null;
   for (const cardName of present) {
     for (const index of rowsByCard.get(cardName) ?? []) {
       if (seen.has(index)) continue;
@@ -197,15 +195,19 @@ const getDeckName = (deck: Deck): string => {
           ? 1
           : 0;
       const rank: RowRank = [
+        supportedNames.length,
         sameLine,
         anchored,
-        supportedNames.length,
         orderOf(row.set),
         row.count,
-        row.name,
       ];
-      if (!best || compareRank(rank, best.rank) < 0) {
-        best = { rank, cards: row.cardKeys };
+      if (!best) {
+        best = { rank, cards: row.cardKeys, name: row.name };
+        continue;
+      }
+      const order = compareRank(rank, best.rank);
+      if (order < 0 || (order === 0 && row.name < best.name)) {
+        best = { rank, cards: row.cardKeys, name: row.name };
       }
     }
   }

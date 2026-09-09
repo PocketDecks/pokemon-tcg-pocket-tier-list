@@ -7,11 +7,11 @@ describe("deck naming characterisation", () => {
     expect(buildGolden()).toEqual(golden);
   });
 
-  it("covers the whole pairing store", () => {
-    expect(Object.keys(golden).length).toBeGreaterThanOrEqual(29307);
+  it("covers every listing row and the real deck lists", () => {
+    expect(Object.keys(golden).length).toBeGreaterThanOrEqual(19000);
   });
 
-  it("pairs every seeded archetype against a real partner", () => {
+  it("names every seeded archetype alone and with a partner", () => {
     const seededCases = Object.keys(golden).filter((key) => key.startsWith("seed:"));
     expect(seededCases.length).toBeGreaterThan(0);
   });

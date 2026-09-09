@@ -4,21 +4,22 @@
 //
 //   cd analysis && yarn golden:generate
 //
-// Every primary is named alone and paired with each listed partner at every
-// copy split. Pairs alone cannot reach the anchored bonus, because both
-// candidates draw from the same two cards; real tournament lists supply the
-// varied one-ofs and full evolution lines that do.
+// Every listing row is named as a deck of its own resolved cards, at a 2-2 copy
+// split where it pairs with another row, then real deck lists and seeded
+// archetypes are named the same way. Naming now reads the per-set listings
+// store directly, so a row names a deck only when the deck holds every card the
+// row lists.
 import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
-import pairings from "../src/data/limitless-pairings.json";
+import listings from "../src/data/limitless-decks.json";
 import realDeckLists from "../src/__fixtures__/real-deck-lists.json";
 import getDeckName from "../src/utils/get-deck-name";
-import { canonSet } from "../src/utils/set-codes";
+import { canonSet, cardKey } from "../src/utils/set-codes";
+import { resolveSlug } from "../src/utils/slug-cards";
 import { Deck } from "../src/utils/types";
 
-const SEED_PARTNERS = 5;
 const OUT = resolve(__dirname, "../src/__fixtures__/deck-name-golden.json");
 const REAL_DECK_LISTS = resolve(__dirname, "../src/__fixtures__/real-deck-lists.json");
 
@@ -28,28 +29,27 @@ const COPY_SPLITS: readonly (readonly [number, number])[] = [
   [1, 2],
 ];
 
-interface PairingEntry {
-  secondary: string[];
-  peakCountBySet?: Record<string, number>;
+interface DeckListing {
+  name: string;
+  slug: string;
+  count: number;
 }
-
-const store = (pairings as { pairings: Record<string, PairingEntry> }).pairings;
-
-// A pairing key is "Name SET NUMBER"; the name itself may contain spaces, so
-// split from the right.
-const splitKey = (key: string): { name: string; set: string; number: string } => {
-  const parts = key.split(" ");
-  const number = parts.pop() ?? "";
-  const set = parts.pop() ?? "";
-  return { name: parts.join(" "), set, number };
-};
+interface SetListing {
+  decks: DeckListing[];
+}
+const store = (listings as { sets: Record<string, SetListing> }).sets;
 
 const deckOf = (keys: string[], counts?: readonly number[]): Deck => {
   const copies = keys.map((_, index) => counts?.[index] ?? 2);
   return {
     id: "golden",
     name: "golden",
-    cards: keys.map((key, index) => ({ count: copies[index], ...splitKey(key) })),
+    cards: keys.map((key, index) => {
+      const parts = key.split(" ");
+      const number = parts.pop() ?? "";
+      const set = parts.pop() ?? "";
+      return { count: copies[index], name: parts.join(" "), set, number };
+    }),
     pokemon: copies.reduce((acc, count) => acc + count, 0),
     differentPokemon: new Set(keys).size,
     winCount: 0,
@@ -63,30 +63,42 @@ const deckOf = (keys: string[], counts?: readonly number[]): Deck => {
   };
 };
 
-const buildSeededCases = (): { decks: { key: string; deck: Deck }[] } => {
-  const byReach = Object.keys(store)
-    .map((key) => {
-      const peaks = store[key].peakCountBySet;
-      return { key, peaks };
-    })
-    .filter(({ peaks }) => !!peaks && Object.keys(peaks).length > 0)
-    .map(({ key, peaks }) => [key, Math.max(...Object.values(peaks!))] as [
-      string,
-      number
-    ])
-    .sort((a, b) => b[1] - a[1]);
-
-  const seededKeys = Object.keys(store).filter(
-    (key) => Object.keys(store[key].peakCountBySet ?? {}).length === 0
-  );
-
+// Every listing row named as a deck of its own resolved cards.
+const buildListingCases = (): { decks: { key: string; deck: Deck }[] } => {
   const decks: { key: string; deck: Deck }[] = [];
-  for (const seed of seededKeys) {
-    for (const [partner] of byReach.slice(0, SEED_PARTNERS)) {
+  for (const [set, listing] of Object.entries(store)) {
+    for (const row of listing.decks) {
+      const keys = resolveSlug(row.slug).map((c) =>
+        cardKey(c.name, c.set, c.number)
+      );
+      if (!keys.length) continue;
+      decks.push({ key: `listing:${set}:${row.slug}`, deck: deckOf(keys) });
+    }
+  }
+  decks.sort((a, b) => a.key.localeCompare(b.key));
+  return { decks };
+};
+
+// Seeded archetypes never appear as listings, so name the seed with one
+// reference partner card the way a real list would pair it.
+const buildSeededCases = (): { decks: { key: string; deck: Deck }[] } => {
+  const reference = Object.values(store)
+    .flatMap((listing) => listing.decks)
+    .map((row) => resolveSlug(row.slug).map((c) => cardKey(c.name, c.set, c.number)))
+    .find((keys) => keys.length >= 2);
+  const decks: { key: string; deck: Deck }[] = [];
+  const seeds: [string, string[]][] = [
+    ["Oricorio A3 66", ["Oricorio A3 66"]],
+    ["Puppy-Loving Girl B3b 67", ["Puppy-Loving Girl B3b 67"]],
+    ["Gigalith ex A2 94", ["Gigalith ex A2 94"]],
+  ];
+  for (const [primary, display] of seeds) {
+    decks.push({ key: `seed:${primary}`, deck: deckOf(display) });
+    if (reference) {
       for (const [first, second] of COPY_SPLITS) {
         decks.push({
-          key: `seed:${seed} + ${partner} @${first}-${second}`,
-          deck: deckOf([seed, partner], [first, second]),
+          key: `seed:${primary} + ${reference[1]} @${first}-${second}`,
+          deck: deckOf([...display, reference[1]], [first, second]),
         });
       }
     }
@@ -97,16 +109,8 @@ const buildSeededCases = (): { decks: { key: string; deck: Deck }[] } => {
 
 export const buildGolden = (): Record<string, string | null> => {
   const golden: Record<string, string | null> = {};
-  // Sorted so the file is stable against pairing-store insertion order.
-  for (const key of Object.keys(store).sort()) {
-    golden[key] = getDeckName(deckOf([key]));
-    for (const partner of store[key].secondary) {
-      for (const [first, second] of COPY_SPLITS) {
-        golden[`${key} + ${partner} @${first}-${second}`] = getDeckName(
-          deckOf([key, partner], [first, second])
-        );
-      }
-    }
+  for (const { key, deck } of buildListingCases().decks) {
+    golden[key] = getDeckName(deck);
   }
   for (const { key, deck } of buildRealDecks().decks) {
     golden[key] = getDeckName(deck);

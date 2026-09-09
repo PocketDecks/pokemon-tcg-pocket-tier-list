@@ -313,17 +313,10 @@ const matchPairing = (cards: Deck["cards"]): string[] | null => {
   return best;
 };
 
-// Decks that match no pairing are all filed under one slug rather than left
-// unnamed, so the tier list has a single "everything else" bucket instead of
-// a hole. Exported so callers can recognise the bucket by name.
+// Slug shared by all decks that match no pairing, so the tier list has one "everything else" bucket.
 export const UNNAMED_DECK = "professor's-research-pa-007";
 
-/**
- * Finds the deck name for a deck's cards.
- * @param deck The deck to name
- * @returns The formatted deck name, or UNNAMED_DECK when nothing matches.
- *   Never null, since every deck gets a name.
- */
+// Resolves a deck's card list to its pairing name, or UNNAMED_DECK when nothing matches.
 const getDeckName = (deck: Deck): string => {
   const { cards } = deck;
 

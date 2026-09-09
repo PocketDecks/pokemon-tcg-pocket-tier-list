@@ -1,11 +1,6 @@
 import { Card } from "./types";
 
-/**
- * Converts a Card object to a standardized string representation
- * @param card The card object to convert
- * @returns A string in the format "count name set number"
- * @throws Error if required card properties are missing or invalid
- */
+// Renders a card as "count name set number", throwing when a required field is missing.
 const cardToString = (card: Card): string => {
   if (!card) {
     throw new Error("Card object is required");

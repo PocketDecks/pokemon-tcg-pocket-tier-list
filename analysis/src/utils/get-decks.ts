@@ -53,6 +53,7 @@ const applyMultipliers = (decks: Deck[], newestDate: Date): Deck[] => {
   });
 };
 
+// Loads decks from disk, filters them, attaches names and results, then applies recency multipliers.
 const getDecks = (): Deck[] => {
   const rawDecks = readDecksFromFile();
   const filteredDecks = filterDecks(rawDecks);

@@ -4,17 +4,17 @@
 // Promo and variant-letter casing collapse here so the scraper and the
 // matcher cannot drift apart.
 
-// Oldest to newest. The three trailing entries are not part of the current
-// standard format: PA and PB are promo pools, and A4b is a deluxe reprint set
-// whose cards fold onto their earliest earlier printing.
+// Set codes in the current standard format, oldest to newest. PA/PB are promo pools and A4b a reprint set whose cards fold onto an earlier printing.
 export const STANDARD_SET_CODES = [
   "A1", "A1a", "A2", "A2a", "A2b", "A3", "A3a", "A3b",
   "A4", "A4a", "B1", "B1a", "B2", "B2a", "B2b", "B3",
   "B3a", "B3b", "B4", "B4a",
 ] as const;
 
+// Set codes outside the standard format (promo pools and the A4b reprint).
 export const NON_STANDARD_SET_CODES = ["PA", "PB", "A4b"] as const;
 
+// Every set code, standard and non-standard.
 export const SET_CODES: readonly string[] = [
   ...STANDARD_SET_CODES,
   ...NON_STANDARD_SET_CODES,
@@ -30,21 +30,18 @@ for (const code of SET_CODES) {
 CANONICAL.set("p-a", "PA");
 CANONICAL.set("p-b", "PB");
 
-// Longest-first, so a1a wins against a1 and p-a against pa. Generated rather
-// than hand-ordered: the previous hand-maintained alternation had to be kept
-// in this order by a comment.
+// Regex alternation of every set code, longest-first so a1a beats a1; generated rather than hand-ordered.
 export const SET_CODE_PATTERN = [...CANONICAL.keys()]
   .sort((a, b) => b.length - a.length || a.localeCompare(b))
   .join("|");
 
-// A set code is one of a closed set of 23 values. An unrecognised one means
-// the card data or a slug carries something this code has never seen, and
-// folding it to upper case would bury that in a pairing key nothing can match.
+// Folds a raw set code to its canonical form, throwing on anything the closed list does not recognise.
 export const canonSet = (raw: string): string => {
   const canonical = CANONICAL.get(String(raw).trim().toLowerCase());
   if (!canonical) throw new Error(`unknown set code: ${JSON.stringify(raw)}`);
   return canonical;
 };
 
+// Builds the canonical pairing key "Name SET N" from a card's name, set, and number.
 export const cardKey = (name: string, set: string, number: string): string =>
   `${name} ${canonSet(set)} ${number}`;

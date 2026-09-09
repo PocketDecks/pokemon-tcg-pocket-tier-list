@@ -1,6 +1,7 @@
 import getDeckName from "./get-deck-name";
 import { Deck } from "./types";
 
+// Names every deck via getDeckName and returns the id-to-name lookup used to resolve results.
 export const populateDeckNames = (
   decks: Deck[]
 ): { decks: Deck[]; idToName: Record<string, string> } => {

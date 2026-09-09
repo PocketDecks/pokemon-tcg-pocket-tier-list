@@ -11,6 +11,7 @@ const formatName = (_cards: Card[], match: string[]): string => {
         .join("&");
 };
 
+// Joins match card names into a lowercase, zero-padded "&"-separated pairing slug.
 export const formatMatch = (match: string[]): string => formatName([], match);
 
 export default formatName;

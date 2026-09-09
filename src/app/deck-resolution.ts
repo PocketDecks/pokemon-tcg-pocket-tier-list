@@ -32,6 +32,8 @@ export interface ResolvedDeck {
   bestList: FullList;
   score: number;
   strength: number;
+  expectedWinRate: number;
+  fieldCoverage: number;
   powerScore: number | null;
   freqScore: number;
   metaScore: number | null;
@@ -128,6 +130,8 @@ export const resolveDeckDetail = (
       bestList,
       score: Math.max(...fullLists.map((l) => l.score)),
       strength: Math.max(...fullLists.map((l) => l.strength)),
+      expectedWinRate: oldDeck.expectedWinRate,
+      fieldCoverage: oldDeck.fieldCoverage,
       powerScore: oldDeck.powerScore,
       freqScore: oldDeck.freqScore,
       metaScore: oldDeck.metaScore,

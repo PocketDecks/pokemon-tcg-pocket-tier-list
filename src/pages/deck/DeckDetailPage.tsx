@@ -5,6 +5,7 @@ import { useMemo } from "react";
    still consumes DecksContext directly. Move behind src/app/ before adding more. */
 import { useDecks, useDeckDetail, MatchupType } from "../../contexts/DecksContext";
 import useMissing from "../../app/use-missing";
+import { formatCardScore } from "../../app/format-card-score";
 import { useQuery } from "@tanstack/react-query";
 import { CardType, fetchCards } from "../../app/cards-api";
 import DeckCardGrid from "./DeckCardGrid";
@@ -225,7 +226,7 @@ const DeckDetailPage = () => {
                 </KeyStatRow>
                 <KeyStatRow>
                   <span>{t("deckPage.cardScore")}:</span>
-                  <KeyStatValue>{(deck.strength * 10).toFixed(1)}</KeyStatValue>
+                  <KeyStatValue>{formatCardScore(deck.strength)}</KeyStatValue>
                   <Tooltip
                     text={t("deckPage.cardScoreTooltip")}
                     ariaLabel={t("deckPage.showTooltip")}

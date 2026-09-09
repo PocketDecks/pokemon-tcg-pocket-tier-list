@@ -188,6 +188,7 @@ const TierListPage = () => {
       <TierGrid
         items={decks}
         getScore={(d) => d.powerScore ?? -1}
+        isRanked={(deck) => deck.powerScore !== null}
         getKey={(d) => d.id}
         renderItem={(deck) => (
           <DeckCard

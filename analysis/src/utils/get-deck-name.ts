@@ -3,6 +3,7 @@ import formatName from "./format-name";
 import { cardKey, SET_CODES } from "./set-codes";
 import listings from "../data/limitless-decks.json";
 import { resolveSlug } from "./slug-cards";
+import cardsJson from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
 // The store keeps one snapshot per set; a row is a candidate only if the deck
 // holds every card the row lists, so the pairing is what Limitless shows, not
@@ -73,42 +74,138 @@ for (const [set, listing] of Object.entries(STORE.sets)) {
 
 // Resolves a deck's card list to a Limitless listing name, or UNNAMED_DECK
 // when nothing matches and no seeded archetype applies.
+
+// name -> what it evolves from, so a row's pair can be checked for a shared
+// line. A deck containing Igglybuff (a 2-of tech Basic) also contains the
+// deck's real centrepiece, so containment alone matches junk rows like
+// "Espeon Igglybuff" against a Mega Altaria ex Espeon deck. A row's partner
+// must be a 2-of in the deck, share a line with the lead, or be a centrepiece
+// itself: a card that tops an evolution line the deck plays, as Mega Altaria
+// ex and Espeon both do in a Swablu/Eevee deck.
+const evolvesFromByName = new Map<string, string | null>(
+  (
+    cardsJson as {
+      name: string;
+      set_code: string;
+      id: string;
+      evolves_from: string | null;
+    }[]
+  ).map((c) => [c.name, c.evolves_from])
+);
+
+const speciesOf = (name: string): string =>
+  name
+    .replace(/^Mega\s+/i, "")
+    .replace(/\s+ex$/i, "")
+    .trim();
+
+const isSameLine = (a: string, b: string): boolean => {
+  if (speciesOf(a) === speciesOf(b)) return true;
+  return (
+    evolvesFromByName.get(a) === b ||
+    evolvesFromByName.get(b) === a
+  );
+};
+
+// Walks the card's line down to its base: lists commonly skip middle stages
+// via Rare Candy, so checking only the immediate pre-evolution misses
+// Torchic into Mega Blaziken ex.
+const topsLine = (name: string, presentNames: Set<string>): boolean => {
+  const startsAt = evolvesFromByName.get(name);
+  if (!startsAt) return false;
+  const seen = new Set<string>([name]);
+  let next: string | null | undefined = startsAt;
+  while (next) {
+    if (presentNames.has(next)) return true;
+    if (seen.has(next)) return false;
+    seen.add(next);
+    next = evolvesFromByName.get(next) ?? null;
+  }
+  return false;
+};
+
+// Negative when `a` ranks higher, matching Array.prototype.sort's convention.
+const compareRank = <T extends readonly (number | string)[]>(a: T, b: T): number => {
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      if (typeof a[i] === "string" && typeof b[i] === "string") {
+        return (a[i] as string).localeCompare(b[i] as string);
+      }
+      return (b[i] as number) - (a[i] as number);
+    }
+  }
+  return 0;
+};
+
+// True when the deck also holds a card that evolves from this one, so the
+// card is a line's support stage, not the centrepiece. Without this a
+// Magnezone deck gets named after Magneton.
+const outclassed = (name: string, presentNames: Set<string>): boolean => {
+  for (const other of presentNames) {
+    if (other !== name && evolvesFromByName.get(other) === name) return true;
+  }
+  return false;
+};
+
 const getDeckName = (deck: Deck): string => {
   // A deck holds a card by its name, not its printing: a Magnezone A2 deck is
   // the same archetype Limitless lists as "Magnezone" in B1a, so reprints must
   // not split one pairing into separate buckets.
   const present = new Set(deck.cards.map((card) => card.name));
+  const countOf = (name: string): number =>
+    deck.cards.find((card) => card.name === name)?.count ?? 0;
 
   // Candidate rows are those sharing at least one card name with the deck;
-  // a row qualifies only when every card it lists is also in the deck. Ties are
-  // broken first by how many cards the row names (a fuller listing wins, so
-  // Charizard ex + Entei ex beats a lone Charizard ex row in a newer set), then
-  // newest set, then higher count, then name order.
+  // a row qualifies only when every card it lists is also in the deck. Rows
+  // are ranked lexicographically, first difference deciding:
+  //   sameLine  two cards of the row share a species or evolution line
+  //   anchored  at least one card tops a line the deck plays and no card in
+  //             the row is a plain tech Basic (present, topping nothing,
+  //             evolving from nothing) - this is what kept Igglybuff or
+  //             Mantyke from naming decks
+  //   cards     how many cards the row names (a fuller listing wins)
+  //   set       newer set
+  //   count     higher Limitless count
+  //   name      lexicographic order as the final stable tiebreak
+  type RowRank = readonly [sameLine: number, anchored: number, cards: number, set: number, count: number, name: string];
   const seen = new Set<number>();
-  let best: { set: string; name: string; count: number; score: number; cards: string[] } | null = null;
+  let best: { rank: RowRank; cards: string[] } | null = null;
   for (const cardName of present) {
     for (const index of rowsByCard.get(cardName) ?? []) {
       if (seen.has(index)) continue;
       seen.add(index);
       const row = ALL_ROWS[index];
-      if (!row.cardNames.every((name) => present.has(name))) continue;
-      const score = row.cardNames.length;
-      if (
-        !best ||
-        score > best.score ||
-        (score === best.score &&
-          (orderOf(row.set) > orderOf(best.set) ||
-            (orderOf(row.set) === orderOf(best.set) &&
-              (row.count > best.count ||
-                (row.count === best.count && row.name < best.name)))))
-      ) {
-        best = {
-          set: row.set,
-          name: row.name,
-          count: row.count,
-          score,
-          cards: row.cardKeys,
-        };
+      // A line's middle stage must not anchor a row: with Magnezone in the
+      // deck, Magneton cannot lead the name.
+      if (outclassed(row.cardNames[0], present)) continue;
+      const supportedNames = row.cardNames.filter(
+        (name) => !outclassed(name, present)
+      );
+      if (!supportedNames.every((name) => present.has(name))) continue;
+      const sameLine =
+        supportedNames.length > 1 && isSameLine(supportedNames[0], supportedNames[1])
+          ? 1
+          : 0;
+      const anchored =
+        supportedNames.some((name) => topsLine(name, present)) &&
+        !supportedNames.some(
+          (name) =>
+            countOf(name) > 0 &&
+            !topsLine(name, present) &&
+            evolvesFromByName.get(name) == null
+        )
+          ? 1
+          : 0;
+      const rank: RowRank = [
+        sameLine,
+        anchored,
+        supportedNames.length,
+        orderOf(row.set),
+        row.count,
+        row.name,
+      ];
+      if (!best || compareRank(rank, best.rank) < 0) {
+        best = { rank, cards: row.cardKeys };
       }
     }
   }

@@ -133,7 +133,7 @@ const run = async () => {
         lists,
         popularity: deckScore.popularity,
         percentOfGames,
-        score: lists[0]?.score ?? 0
+        score: lists.length ? Math.max(...lists.map((l) => l.score)) : 0
       });
     }
 

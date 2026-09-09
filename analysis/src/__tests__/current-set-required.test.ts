@@ -1,14 +1,15 @@
-jest.mock("../data/limitless-pairings.json", () => ({
-  pairings: {},
-}));
+import { pickCurrentSet, readStore } from "../utils/deck-listing-store";
 
-// The engine now treats currentSet as required: a pairing store written
-// without it is a corrupt input and must fail at module load instead of
-// silently falling back to a vote across all sets.
-describe("currentSet requirement", () => {
-  it("throws a clear error when the pairing store lacks currentSet", async () => {
-    await expect(import("../utils/get-deck-name")).rejects.toThrow(
-      "pairing store missing required currentSet"
-    );
+// The store must keep currentSet after a scrape so downstream snapshots know
+// the newest standard set; a store with a null currentSet means the newest
+// page never came back and must not be silently treated as current.
+describe("currentSet in the store", () => {
+  it("reads currentSet from a written store", () => {
+    const raw = JSON.stringify({ updatedAt: null, currentSet: "B4a", sets: {} });
+    expect(readStore(raw).currentSet).toBe("B4a");
+  });
+
+  it("adopts the newest standard set once its page is fetched", () => {
+    expect(pickCurrentSet(null, "B4a", new Set(["B4a"]))).toBe("B4a");
   });
 });

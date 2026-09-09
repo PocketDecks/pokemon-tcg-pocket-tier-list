@@ -1,37 +1,23 @@
-// Sweeps the Limitless deck pages into src/data/limitless-pairings.json.
-// Each run only adds: partners merge onto an existing primary, nothing prunes.
+// Sweeps the Limitless deck pages into src/data/limitless-decks.json. Each set
+// page is one snapshot of its own decks array; a refetch replaces that array
+// and never folds across sets or infers a pairing graph.
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
-import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
-
-import { canonSet, NON_STANDARD_SET_CODES, SET_CODE_PATTERN, STANDARD_SET_CODES } from "../src/utils/set-codes";
 import {
-  MergeOutcome,
-  PairingStore,
-  ResolvedDeck,
-  SEED_PRIMARIES,
-  ensureSeeded,
-  mergeDeck,
+  mergeSetPage,
   pickCurrentSet,
+  readStore,
+  SETS_SCRAPE_ORDER,
   snapshot,
-} from "../src/utils/pairing-store";
+  DeckListingStore,
+} from "../src/utils/deck-listing-store";
+import { hasUnknownSetCodes, slugTokens, unknownSetCodeList } from "../src/utils/slug-cards";
+import { STANDARD_SET_CODES } from "../src/utils/set-codes";
 
 const ROOT = resolve(__dirname, "..");
 // src/data, not data/: analysis/data is git-ignored as it holds the raw scrape.
-const STORE = resolve(ROOT, "src/data/limitless-pairings.json");
-
-interface CardRecord {
-  name: string;
-  set_code: string;
-  id: string;
-}
-
-interface IndexedCard {
-  name: string;
-  set: string;
-  number: string;
-}
+const STORE = resolve(ROOT, "src/data/limitless-decks.json");
 
 interface ScrapedDeck {
   name: string;
@@ -46,91 +32,8 @@ const messageOf = (err: unknown): string =>
 const decksUrl = (set: string): string =>
   `https://play.limitlesstcg.com/decks?game=pocket&set=${set}`;
 
-const norm = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-
-const unknownSetCodes = new Set<string>();
-
-const cardIndex = new Map<string, IndexedCard[]>();
-for (const card of cards as CardRecord[]) {
-  let set: string;
-  try {
-    set = canonSet(card.set_code);
-  } catch {
-    unknownSetCodes.add(String(card.set_code));
-    continue;
-  }
-  const number = String(Number(card.id.split("-").pop()));
-  const entry: IndexedCard = { name: card.name, set, number };
-  const key = norm(card.name);
-  const bucket = cardIndex.get(key);
-  if (bucket) bucket.push(entry);
-  else cardIndex.set(key, [entry]);
-}
-
-const slugTokens = (slug: string): [string, string][] => {
-  const out: [string, string][] = [];
-  let rest = slug;
-  const re = new RegExp(`^(?<name>.+?)-(?<set>${SET_CODE_PATTERN})(?:-|$)`, "i");
-  while (rest) {
-    const m = rest.match(re);
-    if (!m) break;
-    out.push([m.groups!.name, m.groups!.set]);
-    rest = rest.slice(m[0].length);
-  }
-  return out;
-};
-
-// A4b is a deluxe reprint set, so its cards fold onto the earliest earlier
-// printing to stop one card spanning several rows.
-const REPRINT_SETS = new Set(["A4b"]);
-
-const canonicalCard = (card: IndexedCard): IndexedCard => {
-  if (!REPRINT_SETS.has(card.set)) return card;
-  const hits = cardIndex.get(norm(card.name));
-  if (!hits?.length) return card;
-  const original = hits
-    .filter((c) => !REPRINT_SETS.has(c.set))
-    .sort((a, b) => a.set.localeCompare(b.set))[0];
-  return original ?? card;
-};
-
-const resolveCard = (rawName: string, rawSet: string): IndexedCard | null => {
-  const wanted = canonSet(rawSet).toLowerCase();
-  const spaced = rawName.replace(/-/g, " ");
-  const candidates = [
-    rawName,
-    rawName.replace("rockets", "rocket's"),
-    spaced,
-    `${spaced} ex`,
-    spaced.replace(/ ex$/, ""),
-  ];
-  for (const candidate of candidates) {
-    const hits = cardIndex.get(norm(candidate));
-    if (!hits?.length) continue;
-    const exact = hits.find((c) => c.set.toLowerCase() === wanted);
-    if (exact) return canonicalCard(exact);
-    return canonicalCard(hits[0]);
-  }
-  return null;
-};
-
-// Slugs merge two cards into one token when they share a trailing set code
-// (hydreigon-mega-absol-ex-b1), so try each hyphen split.
-const resolveToken = (rawName: string, rawSet: string): IndexedCard[] => {
-  const direct = resolveCard(rawName, rawSet);
-  if (direct) return [direct];
-
-  const parts = rawName.split("-");
-  for (let i = 1; i < parts.length; i++) {
-    const left = resolveCard(parts.slice(0, i).join("-"), rawSet);
-    const right = resolveCard(parts.slice(i).join("-"), rawSet);
-    if (left && right && left.name !== right.name) return [left, right];
-  }
-  return [];
-};
-
 const ROW =
-  /<tr[^>]*>.*?<a href="\/decks\/([a-z0-9-]+)\?[^"]*"[^>]*>([^<]+)<\/a>.*?<\/tr>/gs;
+  /<tr[^>]*>.*?<a href="\/decks\/([a-z0-9-]+)\?[^\"]*"[^>]*>([^<]+)<\/a>.*?<\/tr>/gs;
 const COUNT_CELL = /<td[^>]*>\s*([\d,]+)\s*<\/td>/;
 
 const fetchSet = async (set: string): Promise<ScrapedDeck[]> => {
@@ -155,62 +58,54 @@ const fetchSet = async (set: string): Promise<ScrapedDeck[]> => {
 };
 
 const main = async () => {
-  const store = existsSync(STORE)
-    ? JSON.parse(readFileSync(STORE, "utf8"))
-    : { updatedAt: null, currentSet: null, pairings: {} };
-  store.pairings ??= {};
+  const store: DeckListingStore = existsSync(STORE)
+    ? readStore(readFileSync(STORE, "utf8"))
+    : readStore(null);
 
-  // Fingerprint of the pairings graph before the scrape, so we only rewrite
-  // when something actually moved (mergeDeck reports "merged" even on a no-op).
+  // Snapshot of the set pages before the scrape, so updatedAt moves only when
+  // content actually changed.
   const before = snapshot(store);
 
-  const tally: Record<MergeOutcome, number> = { added: 0, merged: 0, unresolved: 0 };
-  const unresolved = [];
-  const failures = [];
+  const unresolved: string[] = [];
+  const failures: string[] = [];
 
-  if (unknownSetCodes.size) {
+  if (hasUnknownSetCodes()) {
     failures.push(
-      `card database: unrecognised set code(s) ${[...unknownSetCodes].sort().join(", ")}`
+      `card database: unrecognised set code(s) ${unknownSetCodeList().join(", ")}`
     );
   }
 
-  ensureSeeded(store, SEED_PRIMARIES);
-
   const fetchedSets = new Set<string>();
-  for (const set of [...STANDARD_SET_CODES, ...NON_STANDARD_SET_CODES]) {
-    let decks: ScrapedDeck[] = [];
+  for (const set of SETS_SCRAPE_ORDER) {
+    let decks: ScrapedDeck[];
     try {
       decks = await fetchSet(set);
     } catch (err) {
-      // One bad page must not discard the whole run's progress.
+      // One bad page must not discard the run; the previous snapshot for this
+      // set stays in memory and is written back unchanged.
       failures.push(`${set}: ${messageOf(err)}`);
       process.stdout.write(`${set}! `);
       continue;
     }
     fetchedSets.add(set);
     for (const deck of decks) {
-      const resolved: ResolvedDeck = {
-        set: deck.set,
-        name: deck.name,
-        count: deck.count,
-        cards: slugTokens(deck.slug).flatMap(([rawName, rawSet]) =>
-          resolveToken(rawName, rawSet)
-        ),
-      };
-      const outcome = mergeDeck(store, resolved);
-      tally[outcome]++;
-      if (outcome === "unresolved" && unresolved.length < 12) {
+      // A slug with no known set code cannot be filed under a set; that signals
+      // a new set reached Limitless and SET_CODES needs updating.
+      if (slugTokens(deck.slug).length === 0 && unresolved.length < 12) {
         unresolved.push(`${set}:${deck.slug}`);
       }
     }
+    mergeSetPage(
+      store,
+      set,
+      decks.map((d) => ({ name: d.name, slug: d.slug, count: d.count }))
+    );
     process.stdout.write(`${set} ${decks.length}  `);
   }
 
   const changed = snapshot(store) !== before;
 
-  // STANDARD_SET_CODES runs oldest to newest; the non-standard reprint sets
-  // that follow it are not the current format, so the newest standard set is
-  // the candidate.
+  // STANDARD_SET_CODES runs oldest to newest; the newest is the current format.
   const NEWEST_SET = STANDARD_SET_CODES[STANDARD_SET_CODES.length - 1];
   const nextCurrentSet = pickCurrentSet(store.currentSet, NEWEST_SET, fetchedSets);
   const setChanged = nextCurrentSet !== store.currentSet;
@@ -221,7 +116,7 @@ const main = async () => {
   }
   store.currentSet = nextCurrentSet;
 
-  // updatedAt means "the pairings were refreshed", so it moves only when they
+  // updatedAt means "the listings were refreshed", so it moves only when they
   // actually did. A currentSet change on its own is still worth persisting.
   if (changed) store.updatedAt = new Date().toISOString();
   if (changed || setChanged) {
@@ -229,14 +124,16 @@ const main = async () => {
     writeFileSync(STORE, `${JSON.stringify(store, null, 2)}\n`);
   }
 
+  const total = Object.values(store.sets).reduce(
+    (acc, s) => acc + s.decks.length,
+    0
+  );
   console.log(
-    `\npairings: ${tally.added} new, ${tally.merged} merged, ` +
-      `${tally.unresolved} unresolved, ` +
-      `${Object.keys(store.pairings).length} archetypes total` +
+    `\nlistings: ${total} rows across ${Object.keys(store.sets).length} sets` +
       `${changed ? "" : " (no change)"}` +
       `${setChanged ? `; currentSet set to ${store.currentSet}` : ""}`
   );
-  if (unresolved.length) console.log(`unresolved: ${unresolved.join(", ")}`);
+  if (unresolved.length) console.log(`unresolved slugs: ${unresolved.join(", ")}`);
   if (failures.length) console.log(`set pages skipped: ${failures.join(", ")}`);
 };
 

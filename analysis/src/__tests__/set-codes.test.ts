@@ -1,15 +1,25 @@
-import pairings from "../data/limitless-pairings.json";
+import decks from "../data/limitless-decks.json";
 import getDeckName from "../utils/get-deck-name";
 import { canonSet, cardKey, SET_CODES, SET_CODE_PATTERN, STANDARD_SET_CODES } from "../utils/set-codes";
+import { resolveSlug } from "../utils/slug-cards";
 import { Deck } from "../utils/types";
 
-type PairingEntry = {
-  secondary?: string[];
-  peakCountBySet?: Record<string, number>;
-  names?: Record<string, number>;
-};
-const store = (pairings as { pairings?: Record<string, PairingEntry> }).pairings ?? {};
-const STORE_KEYS = Object.keys(store);
+type DeckListing = { name: string; slug: string; count: number };
+type DeckSet = { decks: DeckListing[] };
+const deckStore = (decks as { sets?: Record<string, DeckSet> }).sets ?? {};
+
+// Derive a pairing key for every card across the live listing store, resolving
+// each row slug through the canonical card index so the verified keys track
+// what ships now rather than a frozen snapshot.
+const pairingKeys = new Set<string>();
+for (const deckSet of Object.values(deckStore)) {
+  for (const listing of deckSet.decks) {
+    for (const card of resolveSlug(listing.slug)) {
+      pairingKeys.add(cardKey(card.name, card.set, card.number));
+    }
+  }
+}
+const STORE_KEYS = [...pairingKeys];
 
 // Every shipped key is "Name SET N". Split off the trailing number and set so
 // the normaliser can be asked to rebuild the key and prove it round-trips.
@@ -82,6 +92,9 @@ describe("cardKey", () => {
 
   it("rebuilds every shipped pairing key unchanged", () => {
     expect(STORE_KEYS.length).toBeGreaterThan(0);
+    console.log(
+      `derived ${STORE_KEYS.length} card keys from ${storeSetCodes.size} distinct set codes`
+    );
     for (const key of STORE_KEYS) {
       const { name, set, number } = splitKey(key);
       expect(cardKey(name, set, number)).toBe(key);

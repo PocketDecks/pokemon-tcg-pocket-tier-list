@@ -2,11 +2,12 @@ import decks from "../data/limitless-decks.json";
 import getDeckName from "../utils/get-deck-name";
 import { canonSet, cardKey, SET_CODES, SET_CODE_PATTERN, STANDARD_SET_CODES } from "../utils/set-codes";
 import { resolveSlug } from "../utils/slug-cards";
+import { DeckListingStore } from "../utils/deck-listing-store";
 import { Deck } from "../utils/types";
 
-type DeckListing = { name: string; slug: string; count: number };
-type DeckSet = { decks: DeckListing[] };
-const deckStore = (decks as { sets?: Record<string, DeckSet> }).sets ?? {};
+// The live listing store's own shape, imported rather than redeclared: a
+// hand-maintained copy of a pipeline shape has drifted out of step here before.
+const deckStore = (decks as unknown as DeckListingStore).sets;
 
 // Derive a pairing key for every card across the live listing store, resolving
 // each row slug through the canonical card index so the verified keys track

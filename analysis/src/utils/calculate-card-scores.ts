@@ -1,8 +1,6 @@
 import {
   WINRATE_IMPORTANCE,
   POPULARITY_IMPORTANCE,
-  USE_CARD_IMPACT_WEIGHTS,
-  CARD_IMPACT_WEIGHTS,
 } from "../settings";
 
 interface CardData {
@@ -40,20 +38,11 @@ const calculateSingleCardScore = (
   const winRate = wilsonLowerBound(rawWinRate, totalGames);
   const popularity = wilsonLowerBound(rawPopularity, totalMatchingGames);
 
-  const weight = getCardImpactWeight(cardName); // reads the switch + map
   return {
     score:
-      (winRate * WINRATE_IMPORTANCE + popularity * POPULARITY_IMPORTANCE) *
-      weight,
+      winRate * WINRATE_IMPORTANCE + popularity * POPULARITY_IMPORTANCE,
     popularity,
   };
-};
-
-// Parses the card NAME from a cardToString key and returns its weight (1.0 default).
-export const getCardImpactWeight = (cardKey: string): number => {
-  if (!USE_CARD_IMPACT_WEIGHTS) return 1;
-  const name = cardKey.split(" ").slice(1, -2).join(" ");
-  return CARD_IMPACT_WEIGHTS[name] ?? 1;
 };
 
 // Scores every card in a record from its win rate and the archetype's qualified game total.

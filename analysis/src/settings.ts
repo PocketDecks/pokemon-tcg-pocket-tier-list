@@ -56,18 +56,6 @@ console.log("WINRATE_IMPORTANCE:", WINRATE_IMPORTANCE);
 export const NEW_MULTIPLIER: number = 1 + WEEKS_LIVE / 1.5;
 console.log("NEW_MULTIPLIER:", NEW_MULTIPLIER);
 
-// Card impact weighting experiment: when true, disruption/recovery cards are scored above filler. Flip to experiment only; rests false in committed code.
-export const USE_CARD_IMPACT_WEIGHTS: boolean = true;
-
-// Per-card-name multiplier applied to the composite card score. Default 1.0 for any name not listed. Keyed on the card NAME, not the full cardToString key.
-export const CARD_IMPACT_WEIGHTS: Record<string, number> = {
-  "Cyrus": 1.2,
-  "Sabrina": 1.1,
-  "Repel": 1.05,
-  "Lucky Ice Pop": 1.1,
-  "Field Blower": 1.1,
-};
-
 // Pseudo-games pulling each matchup win rate toward 50%, so a 4-game matchup
 // barely moves a deck's expected win rate and a 500-game one counts almost
 // fully. This replaces a hard opponent-games floor, which discarded 41 of 62

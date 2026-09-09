@@ -26,6 +26,11 @@ const makePartial = (name: string, score = 1): PartialDeck => ({
   popularity: 1,
   percentOfGames: 0.1,
   score,
+  expectedWinRate: 0.5,
+  fieldCoverage: 0,
+  powerScore: null,
+  freqScore: 0,
+  metaScore: null,
 });
 
 const daysAgo = (n: number) =>

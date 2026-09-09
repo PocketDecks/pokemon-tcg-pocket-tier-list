@@ -135,6 +135,13 @@ const main = async () => {
   );
   if (unresolved.length) console.log(`unresolved slugs: ${unresolved.join(", ")}`);
   if (failures.length) console.log(`set pages skipped: ${failures.join(", ")}`);
+
+  // A run that fetched nothing is a hard failure: the store is unchanged, so
+  // the workflow guard would treat it as a clean scrape. Unknown set codes
+  // mean the card database is stale and must not pass.
+  if (fetchedSets.size === 0 || hasUnknownSetCodes()) {
+    process.exitCode = 1;
+  }
 };
 
 main().catch((err) => {

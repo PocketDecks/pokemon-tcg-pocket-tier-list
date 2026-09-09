@@ -27,7 +27,6 @@ export const NOEX: boolean = false;
 export const OLD_MULTIPLIER: number = 1;
 // Number of cards in a legal deck.
 export const CARDS_IN_DECK: number = 20;
-// Deck is treated as ex-less below this share of ex cards.
 export const NOEX_PERCENT_CUTOFF: number = 0.2;
 // Deck is filtered out above this share of trainer-less games.
 export const NO_TRAINER_PERCENT_CUTOFF: number = 0.1;

@@ -1,7 +1,6 @@
 import {
   WINRATE_IMPORTANCE,
   POPULARITY_IMPORTANCE,
-  RED_CARD_MULTIPLIER,
 } from "../settings";
 
 interface CardData {
@@ -59,14 +58,8 @@ const calculateSingleCardScore = (
   const winRate = wilsonLowerBound(rawWinRate, totalGames);
   const popularity = wilsonLowerBound(rawPopularity, totalMatchingGames);
 
-  const isRedCard = cardName.toLowerCase().includes("red card");
-  const isMars = cardName.toLowerCase().includes("mars ");
-  const multiplier = isRedCard || isMars ? RED_CARD_MULTIPLIER : 1;
-
   return {
-    score:
-      (winRate * WINRATE_IMPORTANCE + popularity * POPULARITY_IMPORTANCE) *
-      multiplier,
+    score: winRate * WINRATE_IMPORTANCE + popularity * POPULARITY_IMPORTANCE,
     popularity,
   };
 };

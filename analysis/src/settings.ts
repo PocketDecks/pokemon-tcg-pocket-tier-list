@@ -24,7 +24,6 @@ export const NOEX: boolean = false;
 export const OPPONENT_BATTLE: boolean = false;
 export const OLD_MULTIPLIER: number = 1;
 export const CARDS_IN_DECK: number = 20;
-export const RED_CARD_MULTIPLIER: number = 0.9;
 export const NOEX_PERCENT_CUTOFF: number = 0.2;
 export const NO_TRAINER_PERCENT_CUTOFF: number = 0.1;
 export const MIN_GAMES_IN_TOURNAMENT: number = 50;

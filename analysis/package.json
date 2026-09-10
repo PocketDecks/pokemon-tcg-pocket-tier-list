@@ -27,6 +27,7 @@
     "@vitest/coverage-v8": "^5.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
+    "vite": "7.0.0",
     "vitest": "^5.0.0"
   },
   "resolutions": {

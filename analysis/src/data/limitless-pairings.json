@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-09T00:46:40.006Z",
+  "updatedAt": "2026-09-10T18:00:51.104Z",
   "pairings": {
     "Mewtwo ex A1 129": {
       "secondary": [
@@ -78,10 +78,10 @@
         "B3": 642,
         "B3a": 977,
         "B4": 418,
-        "B4a": 388,
-        "PA": 388,
-        "PB": 388,
-        "A4b": 388
+        "B4a": 408,
+        "PA": 408,
+        "PB": 408,
+        "A4b": 408
       },
       "names": {
         "Mewtwo ex Gardevoir": 526,
@@ -292,10 +292,10 @@
         "B3a": 866,
         "B3b": 421,
         "B4": 631,
-        "B4a": 476,
-        "PA": 476,
-        "PB": 476,
-        "A4b": 476
+        "B4a": 483,
+        "PA": 483,
+        "PB": 483,
+        "A4b": 483
       },
       "names": {
         "Charizard ex Moltres ex": 864,
@@ -1467,10 +1467,10 @@
         "B1a": 1188,
         "B2b": 817,
         "B3a": 1011,
-        "B4a": 442,
-        "PA": 442,
-        "PB": 442,
-        "A4b": 442
+        "B4a": 454,
+        "PA": 454,
+        "PB": 454,
+        "A4b": 454
       },
       "names": {
         "Wigglytuff ex Weezing": 540,
@@ -1714,17 +1714,17 @@
         "B3a": 948,
         "B3b": 151,
         "B4": 660,
-        "B4a": 491,
-        "PA": 491,
-        "PB": 491,
-        "A4b": 491
+        "B4a": 534,
+        "PA": 534,
+        "PB": 534,
+        "A4b": 534
       },
       "names": {
         "Dragonite Weezing": 1227,
         "Dragonite Frosmoth": 858,
         "Dragonite Kangaskhan": 800,
         "Dragonite Articuno": 647,
-        "Dragonite": 477,
+        "Dragonite": 534,
         "Dragonite Hypno": 532,
         "Dragonite Articuno ex": 1052,
         "Dragonite Greninja": 786,
@@ -1819,7 +1819,7 @@
         "Dragonite Altaria": 629,
         "Dragonite Mega Altaria ex": 889,
         "Dragonite Magby": 138,
-        "Dragonite Goomy": 491,
+        "Dragonite Goomy": 501,
         "Dragonite Archeops": 708,
         "Dragonite Walking Wake": 193,
         "Dragonite Hisuian Goodra": 221,
@@ -2229,10 +2229,10 @@
         "B3a": 987,
         "B3b": 449,
         "B4": 354,
-        "B4a": 403,
-        "PA": 403,
-        "PB": 403,
-        "A4b": 403
+        "B4a": 406,
+        "PA": 406,
+        "PB": 406,
+        "A4b": 406
       },
       "names": {
         "Greninja Weezing": 634,
@@ -2391,7 +2391,7 @@
         "Greninja Mega Sableye ex": 266,
         "Greninja Mega Rayquaza ex": 354,
         "Greninja Team Rocket's Zapdos ex": 203,
-        "Greninja Team Rocket's Articuno ex": 386
+        "Greninja Team Rocket's Articuno ex": 406
       }
     },
     "Muk A1 175": {
@@ -3151,10 +3151,10 @@
         "A2a": 1163,
         "A2b": 547,
         "B1": 1195,
-        "B4a": 454,
-        "PA": 454,
-        "PB": 454,
-        "A4b": 454
+        "B4a": 485,
+        "PA": 485,
+        "PB": 485,
+        "A4b": 485
       },
       "names": {
         "Nidoking Weezing": 1078,
@@ -3167,7 +3167,7 @@
         "Nidoking Golbat": 650,
         "Nidoking Toxicroak": 735,
         "Nidoking Shiinotic": 1078,
-        "Nidoking Munchlax": 454
+        "Nidoking Munchlax": 485
       }
     },
     "Machoke A1 144": {
@@ -5026,7 +5026,7 @@
         "Magneton Blissey": 869,
         "Magneton Miraidon ex": 746,
         "Magneton Darkrai ex": 876,
-        "Magneton Lugia ex": 262,
+        "Magneton Lugia ex": 280,
         "Magneton Giratina ex": 528
       }
     },
@@ -5179,10 +5179,10 @@
         "A2": 898,
         "A2a": 1080,
         "A4": 675,
-        "B4a": 503,
-        "PA": 503,
-        "PB": 503,
-        "A4b": 503
+        "B4a": 524,
+        "PA": 524,
+        "PB": 524,
+        "A4b": 524
       },
       "names": {
         "Persian Gyarados": 567,
@@ -5195,7 +5195,7 @@
         "Persian Rampardos": 898,
         "Persian Arceus ex": 1080,
         "Persian Origin Forme Palkia": 675,
-        "Persian Chandelure": 503
+        "Persian Chandelure": 524
       }
     },
     "Clefairy A1 113": {
@@ -6268,10 +6268,10 @@
         "B3a": 903,
         "B3b": 108,
         "B4": 374,
-        "B4a": 435,
-        "PA": 435,
-        "PB": 435,
-        "A4b": 435
+        "B4a": 452,
+        "PA": 452,
+        "PB": 452,
+        "A4b": 452
       },
       "names": {
         "Aerodactyl ex Primeape": 888,
@@ -6571,10 +6571,10 @@
         "B2a": 492,
         "B2b": 833,
         "B3a": 808,
-        "B4a": 508,
-        "PA": 508,
-        "PB": 508,
-        "A4b": 508
+        "B4a": 529,
+        "PA": 529,
+        "PB": 529,
+        "A4b": 529
       },
       "names": {
         "Pidgeot ex Pidgeot": 1210,
@@ -7527,10 +7527,10 @@
         "B3a": 982,
         "B3b": 334,
         "B4": 670,
-        "B4a": 345,
-        "PA": 345,
-        "PB": 345,
-        "A4b": 345
+        "B4a": 362,
+        "PA": 362,
+        "PB": 362,
+        "A4b": 362
       },
       "names": {
         "Darkrai ex Magnezone": 1097,
@@ -7623,7 +7623,7 @@
         "Darkrai ex Kingambit": 331,
         "Darkrai ex Bronzong": 893,
         "Darkrai ex Cacturne": 334,
-        "Darkrai ex Hoopa ex": 345,
+        "Darkrai ex Hoopa ex": 362,
         "Darkrai ex Mega Sableye ex": 670
       }
     },
@@ -7961,10 +7961,10 @@
         "B3": 450,
         "B3a": 858,
         "B3b": 550,
-        "B4a": 488,
-        "PA": 488,
-        "PB": 488,
-        "A4b": 488
+        "B4a": 522,
+        "PA": 522,
+        "PB": 522,
+        "A4b": 522
       },
       "names": {
         "Magnezone Skarmory": 774,
@@ -8079,7 +8079,7 @@
         "Magnezone Buzzwole ex": 668,
         "Magnezone Kommo-o": 697,
         "Magnezone Krookodile": 370,
-        "Magnezone Lugia ex": 488,
+        "Magnezone Lugia ex": 522,
         "Magnezone Cleffa": 429,
         "Magnezone Raikou ex": 119,
         "Magnezone Raikou": 912,
@@ -8157,13 +8157,13 @@
         "B3a": 769,
         "B3b": 493,
         "B4": 535,
-        "B4a": 382,
-        "PA": 382,
-        "PB": 382,
-        "A4b": 382
+        "B4a": 417,
+        "PA": 417,
+        "PB": 417,
+        "A4b": 417
       },
       "names": {
-        "Weavile ex Darkrai ex": 383,
+        "Weavile ex Darkrai ex": 417,
         "Weavile ex Weezing": 898,
         "Weavile ex Mew ex": 244,
         "Weavile ex Honchkrow": 1170,
@@ -8248,10 +8248,10 @@
         "B2a": 548,
         "B3a": 919,
         "B3b": 349,
-        "B4a": 441,
-        "PA": 441,
-        "PB": 441,
-        "A4b": 441
+        "B4a": 449,
+        "PA": 449,
+        "PB": 449,
+        "A4b": 449
       },
       "names": {
         "Pachirisu ex": 468,
@@ -8287,7 +8287,7 @@
         "Pachirisu ex Pidgeot": 743,
         "Pachirisu ex Tapu Koko ex": 487,
         "Pachirisu ex Zeraora": 548,
-        "Pachirisu ex Dedenne ex": 441
+        "Pachirisu ex Dedenne ex": 449
       }
     },
     "Yanmega ex A2 7": {
@@ -8521,10 +8521,10 @@
         "B3a": 938,
         "B3b": 524,
         "B4": 667,
-        "B4a": 444,
-        "PA": 444,
-        "PB": 444,
-        "A4b": 444
+        "B4a": 460,
+        "PA": 460,
+        "PB": 460,
+        "A4b": 460
       },
       "names": {
         "Rampardos Lucario": 646,
@@ -9092,10 +9092,10 @@
         "B2": 527,
         "B2b": 547,
         "B3b": 536,
-        "B4a": 315,
-        "PA": 315,
-        "PB": 315,
-        "A4b": 315
+        "B4a": 318,
+        "PA": 318,
+        "PB": 318,
+        "A4b": 318
       },
       "names": {
         "Bastiodon Skarmory": 966,
@@ -9395,7 +9395,7 @@
         "Garchomp Hisuian Zoroark ex": 107,
         "Garchomp Wynaut": 485,
         "Garchomp Mime Jr.": 516,
-        "Garchomp Goomy": 73,
+        "Garchomp Goomy": 79,
         "Garchomp Munchlax": 504
       }
     },
@@ -9557,10 +9557,10 @@
         "B2a": 497,
         "B2b": 798,
         "B3a": 742,
-        "B4a": 379,
-        "PA": 379,
-        "PB": 379,
-        "A4b": 379
+        "B4a": 420,
+        "PA": 420,
+        "PB": 420,
+        "A4b": 420
       },
       "names": {
         "Mismagius ex Mew ex": 986,
@@ -9598,7 +9598,7 @@
         "Mismagius ex Shiinotic": 753,
         "Mismagius ex Galarian Cursola": 810,
         "Mismagius ex Mismagius": 800,
-        "Mismagius ex Hatterene": 379
+        "Mismagius ex Hatterene": 420
       }
     },
     "Togekiss A2 65": {
@@ -9658,7 +9658,11 @@
         "B2": 828,
         "B2a": 467,
         "B3": 756,
-        "B3a": 1010
+        "B3a": 1010,
+        "B4a": 276,
+        "PA": 276,
+        "PB": 276,
+        "A4b": 276
       },
       "names": {
         "Togekiss Mew ex": 747,
@@ -10614,10 +10618,10 @@
         "B3a": 944,
         "B3b": 512,
         "B4": 494,
-        "B4a": 353,
-        "PA": 353,
-        "PB": 353,
-        "A4b": 353
+        "B4a": 367,
+        "PA": 367,
+        "PB": 367,
+        "A4b": 367
       },
       "names": {
         "Leafeon ex Celebi ex": 715,
@@ -10994,7 +10998,7 @@
         "Arceus ex Mega Scizor ex": 838,
         "Arceus ex Iron Moth": 594,
         "Arceus ex Furfrou": 813,
-        "Arceus ex Miraidon ex": 298
+        "Arceus ex Miraidon ex": 310
       }
     },
     "Garchomp ex A2a 47": {
@@ -11151,10 +11155,10 @@
         "A3b": 516,
         "A4a": 591,
         "B2": 892,
-        "B4a": 520,
-        "PA": 520,
-        "PB": 520,
-        "A4b": 520
+        "B4a": 536,
+        "PA": 536,
+        "PB": 536,
+        "A4b": 536
       },
       "names": {
         "Probopass ex Dialga ex": 109,
@@ -12867,10 +12871,10 @@
         "B2b": 697,
         "B3": 772,
         "B3a": 620,
-        "B4a": 510,
-        "PA": 510,
-        "PB": 510,
-        "A4b": 510
+        "B4a": 530,
+        "PA": 530,
+        "PB": 530,
+        "A4b": 530
       },
       "names": {
         "Tinkaton ex Skarmory": 1014,
@@ -13058,10 +13062,10 @@
         "B2b": 505,
         "B3a": 867,
         "B4": 455,
-        "B4a": 465,
-        "PA": 465,
-        "PB": 465,
-        "A4b": 465
+        "B4a": 469,
+        "PA": 469,
+        "PB": 469,
+        "A4b": 469
       },
       "names": {
         "Pawmot Electrode": 335,
@@ -13339,14 +13343,14 @@
         "B3a": 1008,
         "B3b": 541,
         "B4": 696,
-        "B4a": 249,
-        "PA": 249,
-        "PB": 249,
-        "A4b": 249
+        "B4a": 263,
+        "PA": 263,
+        "PB": 263,
+        "A4b": 263
       },
       "names": {
         "Solgaleo ex Skarmory": 279,
-        "Solgaleo ex Snorlax": 249,
+        "Solgaleo ex Snorlax": 263,
         "Solgaleo ex": 1211,
         "Solgaleo ex Escavalier": 743,
         "Solgaleo ex Excadrill": 333,
@@ -13530,13 +13534,13 @@
         "B3a": 986,
         "B3b": 347,
         "B4": 609,
-        "B4a": 497,
-        "PA": 497,
-        "PB": 497,
-        "A4b": 497
+        "B4a": 541,
+        "PA": 541,
+        "PB": 541,
+        "A4b": 541
       },
       "names": {
-        "Incineroar ex": 277,
+        "Incineroar ex": 323,
         "Incineroar ex Turtonator": 361,
         "Incineroar ex Charizard ex": 1136,
         "Incineroar ex Infernape ex": 512,
@@ -13586,7 +13590,7 @@
         "Incineroar ex Castform Sunny Form": 609,
         "Incineroar ex Mantyke": 452,
         "Incineroar ex Furfrou": 574,
-        "Incineroar ex Team Rocket's Moltres ex": 488
+        "Incineroar ex Team Rocket's Moltres ex": 541
       }
     },
     "Lunala ex A3 87": {
@@ -13686,10 +13690,10 @@
         "B3a": 701,
         "B3b": 270,
         "B4": 256,
-        "B4a": 362,
-        "PA": 362,
-        "PB": 362,
-        "A4b": 362
+        "B4a": 378,
+        "PA": 378,
+        "PB": 378,
+        "A4b": 378
       },
       "names": {
         "Banette Mewtwo ex": 751,
@@ -13714,8 +13718,8 @@
         "Banette Mimikyu ex": 664,
         "Banette Mega Kangaskhan ex": 524,
         "Banette Houndstone": 822,
-        "Banette Gholdengo": 168,
-        "Banette Araquanid": 362
+        "Banette Gholdengo": 180,
+        "Banette Araquanid": 378
       }
     },
     "Crabominable ex A3 49": {
@@ -13866,10 +13870,10 @@
         "B3a": 879,
         "B3b": 497,
         "B4": 580,
-        "B4a": 480,
-        "PA": 480,
-        "PB": 480,
-        "A4b": 480
+        "B4a": 547,
+        "PA": 547,
+        "PB": 547,
+        "A4b": 547
       },
       "names": {
         "Decidueye ex Lurantis": 821,
@@ -13925,10 +13929,10 @@
         "Decidueye ex Rapid Strike Urshifu": 811,
         "Decidueye ex Indeedee ex": 698,
         "Decidueye ex Hoopa ex": 137,
-        "Decidueye ex Heliolisk": 472,
+        "Decidueye ex Heliolisk": 505,
         "Decidueye ex Dragonair": 501,
         "Decidueye ex Team Rocket's Electrode": 326,
-        "Decidueye ex Miltank": 480
+        "Decidueye ex Miltank": 547
       }
     },
     "Tsareena A3 20": {
@@ -14975,14 +14979,14 @@
         "B3a": 273,
         "B3b": 516,
         "B4": 423,
-        "B4a": 333,
-        "PA": 333,
-        "PB": 333,
-        "A4b": 333
+        "B4a": 350,
+        "PA": 350,
+        "PB": 350,
+        "A4b": 350
       },
       "names": {
         "Buzzwole ex Pheromosa": 423,
-        "Buzzwole ex Celesteela": 333,
+        "Buzzwole ex Celesteela": 350,
         "Buzzwole ex Kartana": 844,
         "Buzzwole ex Nihilego": 156,
         "Buzzwole ex Guzzlord ex": 1104,
@@ -15106,7 +15110,7 @@
         "Guzzlord ex Igglybuff": 238,
         "Guzzlord ex Seviper": 718,
         "Guzzlord ex Koraidon ex": 78,
-        "Guzzlord ex Team Rocket's Raticate ex": 416
+        "Guzzlord ex Team Rocket's Raticate ex": 439
       }
     },
     "Tapu Koko ex A3a 19": {
@@ -15218,13 +15222,13 @@
         "B3": 320,
         "B3a": 454,
         "B4": 548,
-        "B4a": 506,
-        "PA": 506,
-        "PB": 506,
-        "A4b": 506
+        "B4a": 526,
+        "PA": 526,
+        "PB": 526,
+        "A4b": 526
       },
       "names": {
-        "Naganadel Guzzlord ex": 506,
+        "Naganadel Guzzlord ex": 526,
         "Naganadel Darkrai ex": 1053,
         "Naganadel Nihilego": 1097,
         "Naganadel Giratina ex": 552,
@@ -15530,10 +15534,10 @@
         "B3a": 927,
         "B3b": 468,
         "B4": 694,
-        "B4a": 463,
-        "PA": 463,
-        "PB": 463,
-        "A4b": 463
+        "B4a": 554,
+        "PA": 554,
+        "PB": 554,
+        "A4b": 554
       },
       "names": {
         "Sylveon ex Eevee ex": 937,
@@ -15579,7 +15583,7 @@
         "Sylveon ex Paldean Clodsire ex": 484,
         "Sylveon ex Tsareena": 668,
         "Sylveon ex Lucario": 479,
-        "Sylveon ex Garchomp": 538,
+        "Sylveon ex Garchomp": 554,
         "Sylveon ex Beedrill ex": 589,
         "Sylveon ex Alakazam": 601,
         "Sylveon ex Charizard ex": 617,
@@ -15705,10 +15709,10 @@
         "B3": 699,
         "B3a": 915,
         "B3b": 257,
-        "B4a": 453,
-        "PA": 453,
-        "PB": 453,
-        "A4b": 453
+        "B4a": 486,
+        "PA": 486,
+        "PB": 486,
+        "A4b": 486
       },
       "names": {
         "Slurpuff Alcremie": 915,
@@ -15907,10 +15911,10 @@
         "B3a": 995,
         "B3b": 166,
         "B4": 702,
-        "B4a": 409,
-        "PA": 409,
-        "PB": 409,
-        "A4b": 409
+        "B4a": 427,
+        "PA": 427,
+        "PB": 427,
+        "A4b": 427
       },
       "names": {
         "Dragonite ex Oricorio": 546,
@@ -15947,9 +15951,9 @@
         "Dragonite ex Walking Wake": 300,
         "Dragonite ex Mega Rayquaza ex": 130,
         "Dragonite ex Araquanid": 616,
-        "Dragonite ex Hisuian Goodra": 409,
+        "Dragonite ex Hisuian Goodra": 427,
         "Dragonite ex Drampa": 490,
-        "Dragonite ex Haxorus": 303
+        "Dragonite ex Haxorus": 317
       }
     },
     "Fan Rotom A2 142": {
@@ -16024,10 +16028,10 @@
         "B3a": 605,
         "B3b": 222,
         "B4": 437,
-        "B4a": 350,
-        "PA": 350,
-        "PB": 350,
-        "A4b": 350
+        "B4a": 371,
+        "PA": 371,
+        "PB": 371,
+        "A4b": 371
       },
       "names": {
         "Eevee ex Sylveon ex": 1145,
@@ -16057,7 +16061,7 @@
         "Eevee ex Mega Altaria ex": 587,
         "Eevee ex Umbreon": 913,
         "Eevee ex Palkia ex": 445,
-        "Eevee ex Vaporeon ex": 350
+        "Eevee ex Vaporeon ex": 371
       }
     },
     "Dusk Mane Necrozma PA 79": {
@@ -16130,10 +16134,10 @@
         "B3a": 942,
         "B3b": 466,
         "B4": 679,
-        "B4a": 424,
-        "PA": 424,
-        "PB": 424,
-        "A4b": 424
+        "B4a": 447,
+        "PA": 447,
+        "PB": 447,
+        "A4b": 447
       },
       "names": {
         "Snorlax ex Greninja": 833,
@@ -16262,7 +16266,11 @@
         "B3": 745,
         "B3a": 606,
         "B3b": 400,
-        "B4": 468
+        "B4": 468,
+        "B4a": 479,
+        "PA": 479,
+        "PB": 479,
+        "A4b": 479
       },
       "names": {
         "Primarina ex Primarina": 406,
@@ -16793,10 +16801,10 @@
         "B3a": 688,
         "B3b": 141,
         "B4": 289,
-        "B4a": 152,
-        "PA": 152,
-        "PB": 152,
-        "A4b": 152
+        "B4a": 165,
+        "PA": 165,
+        "PB": 165,
+        "A4b": 165
       },
       "names": {
         "Espeon ex Sylveon ex": 220,
@@ -16874,14 +16882,14 @@
         "B3a": 1009,
         "B3b": 411,
         "B4": 649,
-        "B4a": 446,
-        "PA": 446,
-        "PB": 446,
-        "A4b": 446
+        "B4a": 456,
+        "PA": 456,
+        "PB": 456,
+        "A4b": 456
       },
       "names": {
         "Crobat ex Sylveon ex": 463,
-        "Crobat ex Darkrai ex": 428,
+        "Crobat ex Darkrai ex": 437,
         "Crobat ex Umbreon ex": 830,
         "Crobat ex Arceus ex": 888,
         "Crobat ex Nihilego": 200,
@@ -17208,10 +17216,10 @@
         "B3a": 1005,
         "B3b": 453,
         "B4": 181,
-        "B4a": 86,
-        "PA": 86,
-        "PB": 86,
-        "A4b": 86
+        "B4a": 89,
+        "PA": 89,
+        "PB": 89,
+        "A4b": 89
       },
       "names": {
         "Umbreon ex Sylveon ex": 401,
@@ -17490,10 +17498,10 @@
         "B2": 755,
         "B2a": 254,
         "B2b": 471,
-        "B4a": 464,
-        "PA": 464,
-        "PB": 464,
-        "A4b": 464
+        "B4a": 470,
+        "PA": 470,
+        "PB": 470,
+        "A4b": 470
       },
       "names": {
         "Typhlosion Turtonator": 220,
@@ -17506,7 +17514,7 @@
         "Typhlosion Skeledirge": 254,
         "Typhlosion Igglybuff": 297,
         "Typhlosion Banette": 471,
-        "Typhlosion Team Rocket's Magmar": 464
+        "Typhlosion Team Rocket's Magmar": 470
       }
     },
     "Porygon-Z A4 137": {
@@ -17665,10 +17673,10 @@
         "B2": 734,
         "B2a": 655,
         "B3a": 378,
-        "B4a": 309,
-        "PA": 309,
-        "PB": 309,
-        "A4b": 309
+        "B4a": 333,
+        "PA": 333,
+        "PB": 333,
+        "A4b": 333
       },
       "names": {
         "Togekiss": 267,
@@ -17677,7 +17685,7 @@
         "Togekiss Banette": 1035,
         "Togekiss Chingling": 720,
         "Togekiss Meowth": 655,
-        "Togekiss Meloetta": 309
+        "Togekiss Meloetta": 333
       }
     },
     "Ninetales A4 26": {
@@ -17982,13 +17990,13 @@
         "B3a": 914,
         "B3b": 521,
         "B4": 642,
-        "B4a": 522,
-        "PA": 522,
-        "PB": 522,
-        "A4b": 522
+        "B4a": 553,
+        "PA": 553,
+        "PB": 553,
+        "A4b": 553
       },
       "names": {
-        "Suicune ex Greninja": 476,
+        "Suicune ex Greninja": 533,
         "Suicune ex Giratina ex": 935,
         "Suicune ex Palkia ex": 528,
         "Suicune ex Gyarados": 549,
@@ -18021,7 +18029,7 @@
         "Suicune ex Dragonite": 892,
         "Suicune ex Kingdra ex": 979,
         "Suicune ex Decidueye ex": 1011,
-        "Suicune ex Greninja ex": 82,
+        "Suicune ex Greninja ex": 86,
         "Suicune ex Mega Gyarados ex": 499,
         "Suicune ex Ludicolo": 786,
         "Suicune ex Mega Pidgeot ex": 695,
@@ -18041,12 +18049,12 @@
         "Suicune ex Mega Slowbro ex": 497,
         "Suicune ex Wigglytuff": 825,
         "Suicune ex Inteleon": 623,
-        "Suicune ex Vaporeon ex": 522,
+        "Suicune ex Vaporeon ex": 553,
         "Suicune ex Iron Bundle ex": 239,
         "Suicune ex Milotic ex": 472,
         "Suicune ex Golduck": 521,
         "Suicune ex Ariados": 297,
-        "Suicune ex Gholdengo": 295
+        "Suicune ex Gholdengo": 311
       }
     },
     "Raikou ex A4a 25": {
@@ -18300,10 +18308,10 @@
         "B3a": 964,
         "B3b": 415,
         "B4": 686,
-        "B4a": 483,
-        "PA": 483,
-        "PB": 483,
-        "A4b": 483
+        "B4a": 537,
+        "PA": 537,
+        "PB": 537,
+        "A4b": 537
       },
       "names": {
         "Jumpluff ex Oricorio": 636,
@@ -18350,7 +18358,7 @@
         "Jumpluff ex Eiscue": 896,
         "Jumpluff ex Glimmora": 964,
         "Jumpluff ex Claydol": 296,
-        "Jumpluff ex Team Rocket's Electrode": 27
+        "Jumpluff ex Team Rocket's Electrode": 29
       }
     },
     "Raichu ex PA 112": {
@@ -18452,10 +18460,10 @@
         "B3a": 434,
         "B3b": 79,
         "B4": 701,
-        "B4a": 320,
-        "PA": 320,
-        "PB": 320,
-        "A4b": 320
+        "B4a": 328,
+        "PA": 328,
+        "PB": 328,
+        "A4b": 328
       },
       "names": {
         "Entei ex Magby": 691,
@@ -18483,7 +18491,7 @@
         "Entei ex Mega Charizard X ex": 656,
         "Entei ex Typhlosion ex": 342,
         "Entei ex": 637,
-        "Entei ex Delphox": 233
+        "Entei ex Delphox": 249
       }
     },
     "Miltank A4a 62": {
@@ -18866,10 +18874,10 @@
         "B3a": 772,
         "B3b": 535,
         "B4": 669,
-        "B4a": 521,
-        "PA": 521,
-        "PB": 521,
-        "A4b": 521
+        "B4a": 551,
+        "PA": 551,
+        "PB": 551,
+        "A4b": 551
       },
       "names": {
         "Mega Altaria ex Indeedee ex": 465,
@@ -18946,7 +18954,7 @@
         "Mega Altaria ex Goomy": 678,
         "Mega Altaria ex Inteleon": 709,
         "Mega Altaria ex Espeon": 9,
-        "Mega Altaria ex Iron Valiant": 343,
+        "Mega Altaria ex Iron Valiant": 366,
         "Mega Altaria ex Iron Crown": 554,
         "Mega Altaria ex Iron Leaves": 575,
         "Mega Altaria ex Gengar ex": 699,
@@ -18955,8 +18963,8 @@
         "Mega Altaria ex Flutter Mane": 595,
         "Mega Altaria ex Oricorio": 247,
         "Mega Altaria ex Happiny": 73,
-        "Mega Altaria ex Team Rocket's Hypno": 166,
-        "Mega Altaria ex Team Rocket's Raticate ex": 308,
+        "Mega Altaria ex Team Rocket's Hypno": 167,
+        "Mega Altaria ex Team Rocket's Raticate ex": 343,
         "Mega Altaria ex Wynaut": 338,
         "Mega Altaria ex Bonsly": 355
       }
@@ -19013,10 +19021,10 @@
         "B3a": 778,
         "B3b": 504,
         "B4": 687,
-        "B4a": 369,
-        "PA": 369,
-        "PB": 369,
-        "A4b": 369
+        "B4a": 380,
+        "PA": 380,
+        "PB": 380,
+        "A4b": 380
       },
       "names": {
         "Hydreigon Mega Absol ex": 21,
@@ -19052,10 +19060,10 @@
         "Hydreigon Iron Jugulis": 257,
         "Hydreigon Glimmora": 358,
         "Hydreigon Zoroark": 640,
-        "Hydreigon Mega Sableye ex": 54,
+        "Hydreigon Mega Sableye ex": 58,
         "Hydreigon Sylveon": 126,
         "Hydreigon Eevee ex": 250,
-        "Hydreigon Hoopa ex": 341,
+        "Hydreigon Hoopa ex": 352,
         "Hydreigon Rampardos": 511,
         "Hydreigon Greninja": 687
       }
@@ -19129,13 +19137,13 @@
         "B3a": 824,
         "B3b": 461,
         "B4": 640,
-        "B4a": 457,
-        "PA": 457,
-        "PB": 457,
-        "A4b": 457
+        "B4a": 487,
+        "PA": 487,
+        "PB": 487,
+        "A4b": 487
       },
       "names": {
-        "Mega Absol ex Darkrai ex": 457,
+        "Mega Absol ex Darkrai ex": 487,
         "Mega Absol ex Hydreigon": 149,
         "Mega Absol ex Chingling": 302,
         "Mega Absol ex Dusknoir": 722,
@@ -19270,10 +19278,10 @@
         "B3a": 781,
         "B3b": 432,
         "B4": 536,
-        "B4a": 447,
-        "PA": 447,
-        "PB": 447,
-        "A4b": 447
+        "B4a": 458,
+        "PA": 458,
+        "PB": 458,
+        "A4b": 458
       },
       "names": {
         "Mega Blaziken ex Heatmor": 996,
@@ -19334,7 +19342,7 @@
         "Mega Blaziken ex Iron Moth": 65,
         "Mega Blaziken ex Mantyke": 199,
         "Mega Blaziken ex Talonflame": 536,
-        "Mega Blaziken ex Team Rocket's Moltres ex": 270
+        "Mega Blaziken ex Team Rocket's Moltres ex": 286
       }
     },
     "Greninja ex B1 73": {
@@ -19377,13 +19385,13 @@
         "B3a": 845,
         "B3b": 481,
         "B4": 505,
-        "B4a": 502,
-        "PA": 502,
-        "PB": 502,
-        "A4b": 502
+        "B4a": 523,
+        "PA": 523,
+        "PB": 523,
+        "A4b": 523
       },
       "names": {
-        "Greninja ex Suicune ex": 502,
+        "Greninja ex Suicune ex": 523,
         "Greninja ex Greninja": 549,
         "Greninja ex Palkia ex": 336,
         "Greninja ex Crabominable ex": 544,
@@ -19401,7 +19409,7 @@
         "Greninja ex Chien-Pao ex": 278,
         "Greninja ex Alolan Ninetales ex": 530,
         "Greninja ex Igglybuff": 727,
-        "Greninja ex Vaporeon ex": 342,
+        "Greninja ex Vaporeon ex": 348,
         "Greninja ex Mega Slowbro ex": 567,
         "Greninja ex Inteleon": 702,
         "Greninja ex Giratina ex": 828,
@@ -19522,13 +19530,13 @@
         "Jolteon ex Alolan Raichu": 323,
         "Jolteon ex Bellibolt ex": 101,
         "Jolteon ex Pawmot": 926,
-        "Jolteon ex Mega Manectric ex": 213,
+        "Jolteon ex Mega Manectric ex": 230,
         "Jolteon ex Zapdos ex": 402,
         "Jolteon ex Inteleon": 538,
         "Jolteon ex Miraidon ex": 260,
         "Jolteon ex Magnezone ex": 656,
         "Jolteon ex Teal Mask Ogerpon ex": 382,
-        "Jolteon ex Raichu": 422,
+        "Jolteon ex Raichu": 450,
         "Jolteon ex Dedenne ex": 666,
         "Jolteon ex Team Rocket's Electrode": 534,
         "Jolteon ex Team Rocket's Zapdos ex": 536
@@ -19577,14 +19585,14 @@
         "B3a": 988,
         "B3b": 529,
         "B4": 382,
-        "B4a": 490,
-        "PA": 490,
-        "PB": 490,
-        "A4b": 490
+        "B4a": 543,
+        "PA": 543,
+        "PB": 543,
+        "A4b": 543
       },
       "names": {
         "Mega Ampharos ex Ampharos": 813,
-        "Mega Ampharos ex Oricorio": 490,
+        "Mega Ampharos ex Oricorio": 543,
         "Mega Ampharos ex Pichu": 571,
         "Mega Ampharos ex Raikou ex": 573,
         "Mega Ampharos ex Galvantula": 105,
@@ -19610,7 +19618,7 @@
         "Mega Ampharos ex Toxtricity ex": 900,
         "Mega Ampharos ex Minun": 988,
         "Mega Ampharos ex Magnezone": 529,
-        "Mega Ampharos ex Greninja": 84,
+        "Mega Ampharos ex Greninja": 87,
         "Mega Ampharos ex Heliolisk": 382,
         "Mega Ampharos ex Team Rocket's Electrode": 161
       }
@@ -19658,10 +19666,10 @@
         "B3": 706,
         "B3a": 792,
         "B4": 167,
-        "B4a": 99,
-        "PA": 99,
-        "PB": 99,
-        "A4b": 99
+        "B4a": 105,
+        "PA": 105,
+        "PB": 105,
+        "A4b": 105
       },
       "names": {
         "Mega Pidgeot ex Pidgeot": 792,
@@ -19781,10 +19789,10 @@
         "B3a": 872,
         "B3b": 448,
         "B4": 663,
-        "B4a": 500,
-        "PA": 500,
-        "PB": 500,
-        "A4b": 500
+        "B4a": 527,
+        "PA": 527,
+        "PB": 527,
+        "A4b": 527
       },
       "names": {
         "Indeedee ex Goodra": 345,
@@ -19848,7 +19856,7 @@
         "Indeedee ex Miltank": 748,
         "Indeedee ex Hisuian Goodra": 448,
         "Indeedee ex Wynaut": 201,
-        "Indeedee ex Mega Diancie ex": 500,
+        "Indeedee ex Mega Diancie ex": 527,
         "Indeedee ex Wailord ex": 629,
         "Indeedee ex Mega Metagross ex": 633,
         "Indeedee ex Alolan Raichu ex": 663,
@@ -19898,10 +19906,10 @@
         "B3a": 951,
         "B3b": 119,
         "B4": 355,
-        "B4a": 525,
-        "PA": 525,
-        "PB": 525,
-        "A4b": 525
+        "B4a": 556,
+        "PA": 556,
+        "PB": 556,
+        "A4b": 556
       },
       "names": {
         "Hitmonchan ex Rampardos": 355,
@@ -19932,7 +19940,7 @@
         "Hitmonchan ex Unown": 561,
         "Hitmonchan ex Great Tusk": 768,
         "Hitmonchan ex Koraidon ex": 951,
-        "Hitmonchan ex Mega Gallade ex": 525
+        "Hitmonchan ex Mega Gallade ex": 556
       }
     },
     "Luxray B1 88": {
@@ -20028,10 +20036,10 @@
         "B3a": 998,
         "B3b": 526,
         "B4": 606,
-        "B4a": 430,
-        "PA": 430,
-        "PB": 430,
-        "A4b": 430
+        "B4a": 436,
+        "PA": 436,
+        "PB": 436,
+        "A4b": 436
       },
       "names": {
         "Mega Gyarados ex Gyarados": 553,
@@ -20072,8 +20080,8 @@
         "Mega Gyarados ex Iron Bundle ex": 281,
         "Mega Gyarados ex Milotic ex": 113,
         "Mega Gyarados ex Mega Sharpedo ex": 81,
-        "Mega Gyarados ex Articuno ex": 251,
-        "Mega Gyarados ex Gholdengo": 430
+        "Mega Gyarados ex Articuno ex": 259,
+        "Mega Gyarados ex Gholdengo": 436
       }
     },
     "Dragalge ex B1 160": {
@@ -20576,10 +20584,10 @@
         "B2b": 374,
         "B3a": 401,
         "B3b": 377,
-        "B4a": 324,
-        "PA": 324,
-        "PB": 324,
-        "A4b": 324
+        "B4a": 332,
+        "PA": 332,
+        "PB": 332,
+        "A4b": 332
       },
       "names": {
         "Rapidash ex Rapidash": 872,
@@ -20600,7 +20608,7 @@
         "Rapidash ex Moltres ex": 236,
         "Rapidash ex Mantyke": 401,
         "Rapidash ex Charmeleon": 377,
-        "Rapidash ex Castform Sunny Form": 324
+        "Rapidash ex Castform Sunny Form": 332
       }
     },
     "Wailord B1 57": {
@@ -20627,10 +20635,10 @@
         "B3": 729,
         "B3a": 464,
         "B4": 567,
-        "B4a": 421,
-        "PA": 421,
-        "PB": 421,
-        "A4b": 421
+        "B4a": 438,
+        "PA": 438,
+        "PB": 438,
+        "A4b": 438
       },
       "names": {
         "Wailord Primarina": 462,
@@ -20646,7 +20654,7 @@
         "Wailord Rapid Strike Urshifu": 674,
         "Wailord Tyrantrum": 729,
         "Wailord Dondozo": 567,
-        "Wailord Gholdengo": 421
+        "Wailord Gholdengo": 438
       }
     },
     "Lilligant B1 18": {
@@ -20659,16 +20667,16 @@
       ],
       "peakCountBySet": {
         "B1": 974,
-        "B4a": 471,
-        "PA": 471,
-        "PB": 471,
-        "A4b": 471
+        "B4a": 503,
+        "PA": 503,
+        "PB": 503,
+        "A4b": 503
       },
       "names": {
         "Lilligant Tsareena": 878,
         "Lilligant Kartana": 843,
         "Lilligant Vespiquen": 974,
-        "Lilligant Teal MaskOgerpon": 471
+        "Lilligant Teal MaskOgerpon": 503
       }
     },
     "Manaphy A2 50": {
@@ -20842,10 +20850,10 @@
         "B3a": 852,
         "B3b": 394,
         "B4": 305,
-        "B4a": 24,
-        "PA": 24,
-        "PB": 24,
-        "A4b": 24
+        "B4a": 27,
+        "PA": 27,
+        "PB": 27,
+        "A4b": 27
       },
       "names": {
         "Whimsicott ex Whimsicott": 447,
@@ -21471,10 +21479,10 @@
         "B3a": 967,
         "B3b": 543,
         "B4": 509,
-        "B4a": 473,
-        "PA": 473,
-        "PB": 473,
-        "A4b": 473
+        "B4a": 535,
+        "PA": 535,
+        "PB": 535,
+        "A4b": 535
       },
       "names": {
         "Magnezone Mega Absol ex": 503,
@@ -21581,10 +21589,10 @@
         "Magnezone Milotic ex": 85,
         "Magnezone Mega Sableye ex": 501,
         "Magnezone Mega Rayquaza ex": 209,
-        "Magnezone Team Rocket's Electrode": 120,
+        "Magnezone Team Rocket's Electrode": 130,
         "Magnezone Team Rocket's Persian": 326,
-        "Magnezone Zapdos ex": 473,
-        "Magnezone Mega Lucario ex": 124
+        "Magnezone Zapdos ex": 535,
+        "Magnezone Mega Lucario ex": 135
       }
     },
     "Mega Charizard Y ex B1a 14": {
@@ -21643,10 +21651,10 @@
         "B3a": 695,
         "B3b": 333,
         "B4": 683,
-        "B4a": 372,
-        "PA": 372,
-        "PB": 372,
-        "A4b": 372
+        "B4a": 381,
+        "PA": 381,
+        "PB": 381,
+        "A4b": 381
       },
       "names": {
         "Mega Charizard Y ex Entei ex": 26,
@@ -21688,7 +21696,7 @@
         "Mega Charizard Y ex Castform Sunny Form": 535,
         "Mega Charizard Y ex Iron Moth": 122,
         "Mega Charizard Y ex Wigglytuff": 638,
-        "Mega Charizard Y ex Team Rocket's Moltres ex": 146
+        "Mega Charizard Y ex Team Rocket's Moltres ex": 161
       }
     },
     "Mega Lopunny ex B1a 42": {
@@ -21755,13 +21763,13 @@
         "B3a": 994,
         "B3b": 518,
         "B4": 404,
-        "B4a": 398,
-        "PA": 398,
-        "PB": 398,
-        "A4b": 398
+        "B4a": 422,
+        "PA": 422,
+        "PB": 422,
+        "A4b": 422
       },
       "names": {
-        "Mega Lopunny ex Lucario": 340,
+        "Mega Lopunny ex Lucario": 357,
         "Mega Lopunny ex Magnezone": 758,
         "Mega Lopunny ex Hitmontop": 994,
         "Mega Lopunny ex Hitmonchan ex": 841,
@@ -21775,7 +21783,7 @@
         "Mega Lopunny ex Tyrogue": 470,
         "Mega Lopunny ex Garchomp ex": 181,
         "Mega Lopunny ex Archeops": 234,
-        "Mega Lopunny ex Furfrou": 313,
+        "Mega Lopunny ex Furfrou": 320,
         "Mega Lopunny ex Primeape": 613,
         "Mega Lopunny ex Indeedee ex": 312,
         "Mega Lopunny ex Medicham": 973,
@@ -21809,7 +21817,7 @@
         "Mega Lopunny ex Koraidon ex": 399,
         "Mega Lopunny ex Teal Mask Ogerpon ex": 868,
         "Mega Lopunny ex Quagsire": 518,
-        "Mega Lopunny ex Pidgeot": 398
+        "Mega Lopunny ex Pidgeot": 422
       }
     },
     "Mega Venusaur ex B1a 4": {
@@ -21865,10 +21873,10 @@
         "B3a": 1012,
         "B3b": 472,
         "B4": 671,
-        "B4a": 483,
-        "PA": 483,
-        "PB": 483,
-        "A4b": 483
+        "B4a": 484,
+        "PA": 484,
+        "PB": 484,
+        "A4b": 484
       },
       "names": {
         "Mega Venusaur ex": 62,
@@ -21886,7 +21894,7 @@
         "Mega Venusaur ex Leafeon ex": 406,
         "Mega Venusaur ex Magnezone": 408,
         "Mega Venusaur ex Alolan Exeggutor": 424,
-        "Mega Venusaur ex Igglybuff": 483,
+        "Mega Venusaur ex Igglybuff": 484,
         "Mega Venusaur ex Shuckle ex": 554,
         "Mega Venusaur ex Exeggutor ex": 615,
         "Mega Venusaur ex Mantyke": 635,
@@ -21910,7 +21918,7 @@
         "Mega Venusaur ex Mega Sceptile ex": 157,
         "Mega Venusaur ex Shaymin": 522,
         "Mega Venusaur ex Munchlax": 387,
-        "Mega Venusaur ex Exeggutor": 282
+        "Mega Venusaur ex Exeggutor": 299
       }
     },
     "Mega Steelix ex B1a 52": {
@@ -21955,10 +21963,10 @@
         "B3a": 999,
         "B3b": 444,
         "B4": 570,
-        "B4a": 469,
-        "PA": 469,
-        "PB": 469,
-        "A4b": 469
+        "B4a": 475,
+        "PA": 475,
+        "PB": 475,
+        "A4b": 475
       },
       "names": {
         "Mega Steelix ex Pichu": 295,
@@ -21981,7 +21989,7 @@
         "Mega Steelix ex Probopass ex": 1043,
         "Mega Steelix ex Furfrou": 1093,
         "Mega Steelix ex Swanna": 1189,
-        "Mega Steelix ex Galarian Perrserker": 469,
+        "Mega Steelix ex Galarian Perrserker": 475,
         "Mega Steelix ex Claydol": 434,
         "Mega Steelix ex Orthworm": 134,
         "Mega Steelix ex Arboliva": 719,
@@ -22033,10 +22041,10 @@
         "B3a": 807,
         "B3b": 363,
         "B4": 677,
-        "B4a": 518,
-        "PA": 518,
-        "PB": 518,
-        "A4b": 518
+        "B4a": 532,
+        "PA": 532,
+        "PB": 532,
+        "A4b": 532
       },
       "names": {
         "Mega Blastoise ex Blastoise": 814,
@@ -22059,13 +22067,13 @@
         "Mega Blastoise ex Palkia ex": 1044,
         "Mega Blastoise ex Greninja ex": 1049,
         "Mega Blastoise ex Baxcalibur": 807,
-        "Mega Blastoise ex Snorlax ex": 297,
+        "Mega Blastoise ex Snorlax ex": 308,
         "Mega Blastoise ex Snorlax": 396,
         "Mega Blastoise ex Regice": 668,
         "Mega Blastoise ex Wailord": 438,
         "Mega Blastoise ex Phione": 571,
         "Mega Blastoise ex Mega Sharpedo ex": 677,
-        "Mega Blastoise ex Zapdos ex": 518
+        "Mega Blastoise ex Zapdos ex": 532
       }
     },
     "Heliolisk B1a 29": {
@@ -22524,10 +22532,10 @@
         "B3a": 923,
         "B3b": 369,
         "B4": 599,
-        "B4a": 498,
-        "PA": 498,
-        "PB": 498,
-        "A4b": 498
+        "B4a": 525,
+        "PA": 525,
+        "PB": 525,
+        "A4b": 525
       },
       "names": {
         "Mega Kangaskhan ex Darkrai ex": 799,
@@ -22581,10 +22589,10 @@
         "Mega Kangaskhan ex Archeops": 802,
         "Mega Kangaskhan ex Mega Sableye ex": 159,
         "Mega Kangaskhan ex Palkia ex": 369,
-        "Mega Kangaskhan ex Happiny": 46,
-        "Mega Kangaskhan ex Tauros ex": 198,
+        "Mega Kangaskhan ex Happiny": 50,
+        "Mega Kangaskhan ex Tauros ex": 214,
         "Mega Kangaskhan ex Hoopa ex": 429,
-        "Mega Kangaskhan ex Porygon-Z": 433
+        "Mega Kangaskhan ex Porygon-Z": 453
       }
     },
     "Mimikyu ex B2 73": {
@@ -22618,7 +22626,11 @@
         "B3": 606,
         "B3a": 955,
         "B3b": 150,
-        "B4": 417
+        "B4": 417,
+        "B4a": 300,
+        "PA": 300,
+        "PB": 300,
+        "A4b": 300
       },
       "names": {
         "Mimikyu ex Greninja": 417,
@@ -22641,7 +22653,7 @@
         "Mimikyu ex Iron Valiant": 600,
         "Mimikyu ex Mimikyu": 710,
         "Mimikyu ex Flutter Mane ex": 955,
-        "Mimikyu ex Mega Diancie ex": 150
+        "Mimikyu ex Mega Diancie ex": 300
       }
     },
     "Mega Gardevoir ex B2 66": {
@@ -22678,7 +22690,8 @@
         "Iron Boulder B3a 29",
         "Iron Valiant B3a 27",
         "Mega Diancie ex B3b 32",
-        "Ceruledge ex PB 66"
+        "Ceruledge ex PB 66",
+        "Houndstone B2a 53"
       ],
       "peakCountBySet": {
         "B2": 550,
@@ -22688,10 +22701,10 @@
         "B3a": 1013,
         "B3b": 489,
         "B4": 493,
-        "B4a": 394,
-        "PA": 394,
-        "PB": 394,
-        "A4b": 394
+        "B4a": 481,
+        "PA": 481,
+        "PB": 481,
+        "A4b": 481
       },
       "names": {
         "Mega Gardevoir ex Mewtwo ex": 493,
@@ -22726,7 +22739,8 @@
         "Mega Gardevoir ex Iron Boulder": 422,
         "Mega Gardevoir ex Iron Valiant": 700,
         "Mega Gardevoir ex Mega Diancie ex": 82,
-        "Mega Gardevoir ex Ceruledge ex": 251
+        "Mega Gardevoir ex Ceruledge ex": 251,
+        "Mega Gardevoir ex Houndstone": 481
       }
     },
     "Chandelure B2 69": {
@@ -22890,8 +22904,8 @@
         "Alolan Ninetales ex Chingling": 918,
         "Alolan Ninetales ex Milotic ex": 400,
         "Alolan Ninetales ex Dudunsparce": 485,
-        "Alolan Ninetales ex Mega Sharpedo ex": 358,
-        "Alolan Ninetales ex Wugtrio ex": 186,
+        "Alolan Ninetales ex Mega Sharpedo ex": 379,
+        "Alolan Ninetales ex Wugtrio ex": 201,
         "Alolan Ninetales ex Team Rocket's Raticate ex": 496,
         "Alolan Ninetales ex Gholdengo": 513
       }
@@ -22938,10 +22952,10 @@
         "B3a": 799,
         "B3b": 519,
         "B4": 645,
-        "B4a": 412,
-        "PA": 412,
-        "PB": 412,
-        "A4b": 412
+        "B4a": 441,
+        "PA": 441,
+        "PB": 441,
+        "A4b": 441
       },
       "names": {
         "Mega Swampert ex": 380,
@@ -22974,8 +22988,8 @@
         "Mega Swampert ex Dragonite ex": 637,
         "Mega Swampert ex Incineroar ex": 671,
         "Mega Swampert ex Mega Sharpedo ex": 645,
-        "Mega Swampert ex Archaludon": 383,
-        "Mega Swampert ex Munchlax": 412
+        "Mega Swampert ex Archaludon": 410,
+        "Mega Swampert ex Munchlax": 441
       }
     },
     "Mega Mawile ex B2 113": {
@@ -22995,10 +23009,10 @@
         "B3": 329,
         "B3a": 332,
         "B3b": 177,
-        "B4a": 209,
-        "PA": 209,
-        "PB": 209,
-        "A4b": 209
+        "B4a": 226,
+        "PA": 226,
+        "PB": 226,
+        "A4b": 226
       },
       "names": {
         "Mega Mawile ex": 332,
@@ -23064,10 +23078,10 @@
         "B3a": 1015,
         "B3b": 318,
         "B4": 681,
-        "B4a": 288,
-        "PA": 288,
-        "PB": 288,
-        "A4b": 288
+        "B4a": 301,
+        "PA": 301,
+        "PB": 301,
+        "A4b": 301
       },
       "names": {
         "Blacephalon ex": 681,
@@ -23167,10 +23181,10 @@
         "B3": 771,
         "B3a": 941,
         "B4": 700,
-        "B4a": 275,
-        "PA": 275,
-        "PB": 275,
-        "A4b": 275
+        "B4a": 291,
+        "PA": 291,
+        "PB": 291,
+        "A4b": 291
       },
       "names": {
         "Mega Medicham ex Giratina ex": 941,
@@ -23195,7 +23209,7 @@
         "Mega Medicham ex Bonsly": 386,
         "Mega Medicham ex Mega Lucario ex": 393,
         "Mega Medicham ex Snorlax": 700,
-        "Mega Medicham ex Spiritomb": 275
+        "Mega Medicham ex Spiritomb": 291
       }
     },
     "Toxtricity ex B2 55": {
@@ -23320,10 +23334,10 @@
         "B3": 782,
         "B3a": 894,
         "B3b": 547,
-        "B4a": 339,
-        "PA": 339,
-        "PB": 339,
-        "A4b": 339
+        "B4a": 351,
+        "PA": 351,
+        "PB": 351,
+        "A4b": 351
       },
       "names": {
         "Teal Mask Ogerpon ex Slaking": 220,
@@ -23332,7 +23346,7 @@
         "Teal Mask Ogerpon ex Serperior": 513,
         "Teal Mask Ogerpon ex Stoutland": 574,
         "Teal Mask Ogerpon ex Beautifly": 316,
-        "Teal Mask Ogerpon ex Rampardos": 339,
+        "Teal Mask Ogerpon ex Rampardos": 351,
         "Teal Mask Ogerpon ex Igglybuff": 380,
         "Teal Mask Ogerpon ex Dragonite": 544,
         "Teal Mask Ogerpon ex": 578,
@@ -23416,10 +23430,10 @@
         "B3a": 242,
         "B3b": 177,
         "B4": 156,
-        "B4a": 304,
-        "PA": 304,
-        "PB": 304,
-        "A4b": 304
+        "B4a": 347,
+        "PA": 347,
+        "PB": 347,
+        "A4b": 347
       },
       "names": {
         "Gourgeist Chandelure": 567,
@@ -23504,15 +23518,15 @@
         "B2": 817,
         "B3a": 718,
         "B3b": 215,
-        "B4a": 306,
-        "PA": 306,
-        "PB": 306,
-        "A4b": 306
+        "B4a": 336,
+        "PA": 336,
+        "PB": 336,
+        "A4b": 336
       },
       "names": {
         "Gardevoir Reuniclus": 718,
         "Gardevoir Mewtwo ex": 817,
-        "Gardevoir Mega Diancie ex": 306
+        "Gardevoir Mega Diancie ex": 336
       }
     },
     "Galarian Perrserker B2 111": {
@@ -23610,17 +23624,17 @@
         "B2": 743,
         "B2a": 339,
         "B3a": 1002,
-        "B4a": 364,
-        "PA": 364,
-        "PB": 364,
-        "A4b": 364
+        "B4a": 388,
+        "PA": 388,
+        "PB": 388,
+        "A4b": 388
       },
       "names": {
         "Machamp Rampardos": 743,
         "Machamp Hitmontop": 511,
         "Machamp Koraidon ex": 831,
         "Machamp": 1002,
-        "Machamp Zygarde ex": 364
+        "Machamp Zygarde ex": 388
       }
     },
     "Chingling B1 109": {
@@ -23691,10 +23705,10 @@
         "B3a": 715,
         "B3b": 304,
         "B4": 388,
-        "B4a": 387,
-        "PA": 387,
-        "PB": 387,
-        "A4b": 387
+        "B4a": 421,
+        "PA": 421,
+        "PB": 421,
+        "A4b": 421
       },
       "names": {
         "Bellibolt ex Zeraora": 388,
@@ -23722,7 +23736,7 @@
         "Bellibolt ex Emolga": 834,
         "Bellibolt ex Miraidon ex": 140,
         "Bellibolt ex Boltund": 715,
-        "Bellibolt ex Team Rocket's Electrode": 387
+        "Bellibolt ex Team Rocket's Electrode": 421
       }
     },
     "Meowscarada ex B2a 3": {
@@ -23748,13 +23762,13 @@
         "B3a": 842,
         "B3b": 542,
         "B4": 662,
-        "B4a": 199,
-        "PA": 199,
-        "PB": 199,
-        "A4b": 199
+        "B4a": 218,
+        "PA": 218,
+        "PB": 218,
+        "A4b": 218
       },
       "names": {
-        "Meowscarada ex Meowscarada": 29,
+        "Meowscarada ex Meowscarada": 32,
         "Meowscarada ex Decidueye ex": 367,
         "Meowscarada ex Ariados": 704,
         "Meowscarada ex Teal Mask Ogerpon ex": 842,
@@ -23804,10 +23818,10 @@
         "B3a": 372,
         "B3b": 434,
         "B4": 690,
-        "B4a": 460,
-        "PA": 460,
-        "PB": 460,
-        "A4b": 460
+        "B4a": 549,
+        "PA": 549,
+        "PB": 549,
+        "A4b": 549
       },
       "names": {
         "Gholdengo ex Orthworm": 584,
@@ -23832,7 +23846,7 @@
         "Gholdengo ex Skarmory ex": 891,
         "Gholdengo ex Aegislash": 797,
         "Gholdengo ex Miltank": 690,
-        "Gholdengo ex Charcadet": 410
+        "Gholdengo ex Charcadet": 432
       }
     },
     "Skeledirge B2a 18": {
@@ -24058,10 +24072,10 @@
         "B3a": 992,
         "B3b": 499,
         "B4": 608,
-        "B4a": 489,
-        "PA": 489,
-        "PB": 489,
-        "A4b": 489
+        "B4a": 544,
+        "PA": 544,
+        "PB": 544,
+        "A4b": 544
       },
       "names": {
         "Armarouge ex Magby": 314,
@@ -24087,7 +24101,7 @@
         "Armarouge ex Ceruledge ex": 376,
         "Armarouge ex Wigglytuff": 519,
         "Armarouge ex Heatmor": 992,
-        "Armarouge ex Sylveon": 489,
+        "Armarouge ex Sylveon": 544,
         "Armarouge ex Ninetales": 381
       }
     },
@@ -24210,10 +24224,10 @@
         "B3a": 939,
         "B3b": 313,
         "B4": 564,
-        "B4a": 402,
-        "PA": 402,
-        "PB": 402,
-        "A4b": 402
+        "B4a": 418,
+        "PA": 418,
+        "PB": 418,
+        "A4b": 418
       },
       "names": {
         "Mega Charizard X ex Mega Charizard Y ex": 51,
@@ -24222,7 +24236,7 @@
         "Mega Charizard X ex Charizard ex": 791,
         "Mega Charizard X ex Heatmor": 939,
         "Mega Charizard X ex Teal Mask Ogerpon ex": 392,
-        "Mega Charizard X ex Charizard": 402,
+        "Mega Charizard X ex Charizard": 418,
         "Mega Charizard X ex Ninetales": 445,
         "Mega Charizard X ex Mega Blaziken ex": 804,
         "Mega Charizard X ex Alolan Marowak": 298,
@@ -24232,7 +24246,7 @@
         "Mega Charizard X ex": 313,
         "Mega Charizard X ex Greninja": 213,
         "Mega Charizard X ex Flareon": 272,
-        "Mega Charizard X ex Team Rocket's Moltres ex": 56
+        "Mega Charizard X ex Team Rocket's Moltres ex": 63
       }
     },
     "Mega Manectric ex B2b 27": {
@@ -24291,10 +24305,10 @@
         "B3a": 905,
         "B3b": 255,
         "B4": 600,
-        "B4a": 367,
-        "PA": 367,
-        "PB": 367,
-        "A4b": 367
+        "B4a": 384,
+        "PA": 384,
+        "PB": 384,
+        "A4b": 384
       },
       "names": {
         "Mega Manectric ex Zeraora": 508,
@@ -24318,7 +24332,7 @@
         "Mega Manectric ex Pikachu ex": 395,
         "Mega Manectric ex Pawmot": 636,
         "Mega Manectric ex Mega Kangaskhan ex": 258,
-        "Mega Manectric ex Pichu": 367,
+        "Mega Manectric ex Pichu": 384,
         "Mega Manectric ex Alolan Raichu": 278,
         "Mega Manectric ex Boltund": 283,
         "Mega Manectric ex Plusle": 359,
@@ -24336,7 +24350,7 @@
         "Mega Manectric ex Iron Thorns": 344,
         "Mega Manectric ex Miraidon ex": 366,
         "Mega Manectric ex Emolga": 249,
-        "Mega Manectric ex Heliolisk": 242,
+        "Mega Manectric ex Heliolisk": 256,
         "Mega Manectric ex Eelektrik": 600,
         "Mega Manectric ex Team Rocket's Electrode": 26
       }
@@ -24357,7 +24371,8 @@
         "Aegislash B2 120",
         "Aegislash B1 172",
         "Leafeon ex A2a 10",
-        "Oricorio A3 34"
+        "Oricorio A3 34",
+        "Team Rocket's Raticate ex B4a 59"
       ],
       "peakCountBySet": {
         "B2b": 851,
@@ -24365,15 +24380,15 @@
         "B3a": 985,
         "B3b": 51,
         "B4": 622,
-        "B4a": 507,
-        "PA": 507,
-        "PB": 507,
-        "A4b": 507
+        "B4a": 528,
+        "PA": 528,
+        "PB": 528,
+        "A4b": 528
       },
       "names": {
         "Mega Scizor ex Revavroom": 160,
         "Mega Scizor ex Skarmory": 985,
-        "Mega Scizor ex Scizor": 507,
+        "Mega Scizor ex Scizor": 528,
         "Mega Scizor ex Dialga ex": 776,
         "Mega Scizor ex Pichu": 152,
         "Mega Scizor ex Magby": 204,
@@ -24384,7 +24399,8 @@
         "Mega Scizor ex Igglybuff": 767,
         "Mega Scizor ex Aegislash": 751,
         "Mega Scizor ex Leafeon ex": 851,
-        "Mega Scizor ex Oricorio": 622
+        "Mega Scizor ex Oricorio": 622,
+        "Mega Scizor ex Team Rocket's Raticate ex": 327
       }
     },
     "Mega Slowbro ex B2b 16": {
@@ -24422,10 +24438,10 @@
         "B3a": 795,
         "B3b": 506,
         "B4": 628,
-        "B4a": 356,
-        "PA": 356,
-        "PB": 356,
-        "A4b": 356
+        "B4a": 359,
+        "PA": 359,
+        "PB": 359,
+        "A4b": 359
       },
       "names": {
         "Mega Slowbro ex Mantyke": 534,
@@ -24572,10 +24588,10 @@
         "B3a": 912,
         "B3b": 508,
         "B4": 704,
-        "B4a": 401,
-        "PA": 401,
-        "PB": 401,
-        "A4b": 401
+        "B4a": 419,
+        "PA": 419,
+        "PB": 419,
+        "A4b": 419
       },
       "names": {
         "Mega Gengar ex Igglybuff": 477,
@@ -24676,14 +24692,14 @@
       ],
       "peakCountBySet": {
         "B2b": 334,
-        "B4a": 346,
-        "PA": 346,
-        "PB": 346,
-        "A4b": 346
+        "B4a": 374,
+        "PA": 374,
+        "PB": 374,
+        "A4b": 374
       },
       "names": {
         "Guzzlord Indeedee": 334,
-        "Guzzlord": 346
+        "Guzzlord": 374
       }
     },
     "Kartana B2b 48": {
@@ -24958,10 +24974,10 @@
         "B3a": 997,
         "B3b": 484,
         "B4": 652,
-        "B4a": 449,
-        "PA": 449,
-        "PB": 449,
-        "A4b": 449
+        "B4a": 462,
+        "PA": 462,
+        "PB": 462,
+        "A4b": 462
       },
       "names": {
         "Mega Lucario ex Igglybuff": 103,
@@ -25010,7 +25026,7 @@
         "Mega Lucario ex Golduck": 997,
         "Mega Lucario ex Palossand": 274,
         "Mega Lucario ex Magnezone": 359,
-        "Mega Lucario ex Snorlax": 449,
+        "Mega Lucario ex Snorlax": 462,
         "Mega Lucario ex Mewtwo ex": 484,
         "Mega Lucario ex Turtonator": 152,
         "Mega Lucario ex Sudowoodo": 402,
@@ -25020,9 +25036,9 @@
         "Mega Lucario ex Eevee ex": 573,
         "Mega Lucario ex Wynaut": 604,
         "Mega Lucario ex Mega Lopunny ex": 652,
-        "Mega Lucario ex Team Rocket's Raticate ex": 90,
-        "Mega Lucario ex Team Rocket's Weezing ex": 344,
-        "Mega Lucario ex Marowak": 427
+        "Mega Lucario ex Team Rocket's Raticate ex": 92,
+        "Mega Lucario ex Team Rocket's Weezing ex": 372,
+        "Mega Lucario ex Marowak": 434
       }
     },
     "Zoroark ex B3 106": {
@@ -25052,10 +25068,10 @@
         "B3a": 883,
         "B3b": 510,
         "B4": 129,
-        "B4a": 128,
-        "PA": 128,
-        "PB": 128,
-        "A4b": 128
+        "B4a": 140,
+        "PA": 140,
+        "PB": 140,
+        "A4b": 140
       },
       "names": {
         "Zoroark ex Mega Absol ex": 48,
@@ -25075,7 +25091,7 @@
         "Zoroark ex Toxapex": 610,
         "Zoroark ex Alolan Muk": 810,
         "Zoroark ex Glimmora": 883,
-        "Zoroark ex Mega Sableye ex": 129,
+        "Zoroark ex Mega Sableye ex": 140,
         "Zoroark ex Hoopa ex": 71,
         "Zoroark ex Team Rocket's Weezing ex": 44
       }
@@ -25100,10 +25116,10 @@
         "B3a": 522,
         "B3b": 390,
         "B4": 332,
-        "B4a": 269,
-        "PA": 269,
-        "PB": 269,
-        "A4b": 269
+        "B4a": 288,
+        "PA": 288,
+        "PB": 288,
+        "A4b": 288
       },
       "names": {
         "Magnezone ex Magnezone": 470,
@@ -25112,7 +25128,7 @@
         "Magnezone ex Oricorio": 300,
         "Magnezone ex Zekrom": 466,
         "Magnezone ex Mega Manectric ex": 689,
-        "Magnezone ex Miraidon ex": 221,
+        "Magnezone ex Miraidon ex": 243,
         "Magnezone ex Darkrai ex": 522,
         "Magnezone ex Heliolisk": 329,
         "Magnezone ex Galvantula": 332
@@ -25161,16 +25177,16 @@
         "B3a": 841,
         "B3b": 549,
         "B4": 577,
-        "B4a": 264,
-        "PA": 264,
-        "PB": 264,
-        "A4b": 264
+        "B4a": 295,
+        "PA": 295,
+        "PB": 295,
+        "A4b": 295
       },
       "names": {
         "Mega Sceptile ex Teal Mask Ogerpon ex": 121,
-        "Mega Sceptile ex Sceptile": 59,
-        "Mega Sceptile ex Pheromosa": 264,
-        "Mega Sceptile ex": 148,
+        "Mega Sceptile ex Sceptile": 62,
+        "Mega Sceptile ex Pheromosa": 284,
+        "Mega Sceptile ex": 150,
         "Mega Sceptile ex Greninja": 70,
         "Mega Sceptile ex Kartana": 75,
         "Mega Sceptile ex Goomy": 133,
@@ -25247,12 +25263,12 @@
       "names": {
         "Flygon ex Indeedee ex": 443,
         "Flygon ex Sylveon ex": 492,
-        "Flygon ex Giratina ex": 391,
+        "Flygon ex Giratina ex": 416,
         "Flygon ex Ariados": 265,
         "Flygon ex": 127,
         "Flygon ex Teal Mask Ogerpon ex": 254,
         "Flygon ex Meowth": 391,
-        "Flygon ex Goomy": 220,
+        "Flygon ex Goomy": 240,
         "Flygon ex Igglybuff": 293,
         "Flygon ex Leafeon ex": 832,
         "Flygon ex Greninja": 969,
@@ -25273,7 +25289,7 @@
         "Flygon ex Dragonair": 416,
         "Flygon ex Wynaut": 214,
         "Flygon ex Mime Jr.": 261,
-        "Flygon ex Munchlax": 352
+        "Flygon ex Munchlax": 370
       }
     },
     "Inteleon B3 50": {
@@ -25368,10 +25384,10 @@
         "B3a": 851,
         "B3b": 511,
         "B4": 410,
-        "B4a": 399,
-        "PA": 399,
-        "PB": 399,
-        "A4b": 399
+        "B4a": 402,
+        "PA": 402,
+        "PB": 402,
+        "A4b": 402
       },
       "names": {
         "Vaporeon ex Greninja ex": 406,
@@ -25398,7 +25414,7 @@
         "Vaporeon ex Primarina": 851,
         "Vaporeon ex Froslass": 242,
         "Vaporeon ex Milotic ex": 410,
-        "Vaporeon ex Indeedee ex": 399
+        "Vaporeon ex Indeedee ex": 402
       }
     },
     "Brambleghast B3 73": {
@@ -25435,14 +25451,14 @@
         "B3a": 294,
         "B3b": 355,
         "B4": 654,
-        "B4a": 423,
-        "PA": 423,
-        "PB": 423,
-        "A4b": 423
+        "B4a": 440,
+        "PA": 440,
+        "PB": 440,
+        "A4b": 440
       },
       "names": {
         "Mega Audino ex Brambleghast": 87,
-        "Mega Audino ex Indeedee ex": 423,
+        "Mega Audino ex Indeedee ex": 440,
         "Mega Audino ex Oricorio": 649,
         "Mega Audino ex Probopass": 791,
         "Mega Audino ex Munchlax": 355,
@@ -25957,17 +25973,17 @@
         "B3a": 587,
         "B3b": 271,
         "B4": 583,
-        "B4a": 317,
-        "PA": 317,
-        "PB": 317,
-        "A4b": 317
+        "B4a": 325,
+        "PA": 325,
+        "PB": 325,
+        "A4b": 325
       },
       "names": {
         "Glimmora Kingambit": 339,
         "Glimmora Mega Absol ex": 352,
         "Glimmora Nihilego": 502,
         "Glimmora Zarude": 587,
-        "Glimmora Darkrai ex": 317,
+        "Glimmora Darkrai ex": 325,
         "Glimmora Zoroark": 583
       }
     },
@@ -25996,7 +26012,7 @@
         "A4b": 284
       },
       "names": {
-        "Flutter Mane ex Greninja": 191,
+        "Flutter Mane ex Greninja": 207,
         "Flutter Mane ex Mega Gardevoir ex": 203,
         "Flutter Mane ex Mega Altaria ex": 284,
         "Flutter Mane ex Indeedee ex": 251,
@@ -26009,7 +26025,7 @@
         "Flutter Mane ex Banette": 713,
         "Flutter Mane ex Scream Tail": 882,
         "Flutter Mane ex Mimikyu ex": 937,
-        "Flutter Mane ex": 66
+        "Flutter Mane ex": 69
       }
     },
     "Iron Bundle ex B3a 13": {
@@ -26027,13 +26043,13 @@
         "B3a": 910,
         "B3b": 136,
         "B4": 375,
-        "B4a": 475,
-        "PA": 475,
-        "PB": 475,
-        "A4b": 475
+        "B4a": 507,
+        "PA": 507,
+        "PB": 507,
+        "A4b": 507
       },
       "names": {
-        "Iron Bundle ex Iron Valiant": 475,
+        "Iron Bundle ex Iron Valiant": 507,
         "Iron Bundle ex Baxcalibur": 164,
         "Iron Bundle ex Altaria": 368,
         "Iron Bundle ex Greninja ex": 521,
@@ -26041,7 +26057,7 @@
         "Iron Bundle ex": 826,
         "Iron Bundle ex Mantyke": 892,
         "Iron Bundle ex Vaporeon ex": 910,
-        "Iron Bundle ex Iron Bundle": 375
+        "Iron Bundle ex Iron Bundle": 377
       }
     },
     "Kingambit B3a 43": {
@@ -26085,10 +26101,10 @@
       "peakCountBySet": {
         "B3a": 984,
         "B3b": 551,
-        "B4a": 487,
-        "PA": 487,
-        "PB": 487,
-        "A4b": 487
+        "B4a": 539,
+        "PA": 539,
+        "PB": 539,
+        "A4b": 539
       },
       "names": {
         "Terapagos ex Altaria": 336,
@@ -26107,7 +26123,7 @@
         "Terapagos ex Igglybuff": 776,
         "Terapagos ex Giratina ex": 984,
         "Terapagos ex Milotic ex": 450,
-        "Terapagos ex Team Rocket's Raticate ex": 487
+        "Terapagos ex Team Rocket's Raticate ex": 539
       }
     },
     "Ceruledge ex PB 66": {
@@ -26180,14 +26196,14 @@
         "B3a": 871,
         "B3b": 435,
         "B4": 561,
-        "B4a": 377,
-        "PA": 377,
-        "PB": 377,
-        "A4b": 377
+        "B4a": 390,
+        "PA": 390,
+        "PB": 390,
+        "A4b": 390
       },
       "names": {
         "Espeon Flutter Mane ex": 289,
-        "Espeon Igglybuff": 377,
+        "Espeon Igglybuff": 390,
         "Espeon Indeedee ex": 412,
         "Espeon Mew ex": 632,
         "Espeon Altaria": 821,
@@ -26477,23 +26493,23 @@
       "peakCountBySet": {
         "B3b": 545,
         "B4": 592,
-        "B4a": 494,
-        "PA": 494,
-        "PB": 494,
-        "A4b": 494
+        "B4a": 520,
+        "PA": 520,
+        "PB": 520,
+        "A4b": 520
       },
       "names": {
         "Milotic ex Vaporeon ex": 218,
         "Milotic ex Chien-Pao ex": 171,
         "Milotic ex Eevee ex": 94,
         "Milotic ex Igglybuff": 136,
-        "Milotic ex Suicune ex": 347,
+        "Milotic ex Suicune ex": 369,
         "Milotic ex Vaporeon": 444,
         "Milotic ex Greninja": 69,
         "Milotic ex Rapid Strike Urshifu": 292,
-        "Milotic ex Mega Gyarados ex": 252,
+        "Milotic ex Mega Gyarados ex": 269,
         "Milotic ex Seaking": 531,
-        "Milotic ex Palkia ex": 192,
+        "Milotic ex Palkia ex": 206,
         "Milotic ex Glaceon ex": 165,
         "Milotic ex Hisuian Zoroark ex": 171,
         "Milotic ex Magnezone": 592,
@@ -26506,7 +26522,7 @@
         "Milotic ex Flareon ex": 237,
         "Milotic ex Furfrou": 249,
         "Milotic ex Honchkrow": 290,
-        "Milotic ex Silvally": 359,
+        "Milotic ex Silvally": 386,
         "Milotic ex Druddigon": 328,
         "Milotic ex Milotic": 331,
         "Milotic ex Mega Swampert ex": 366,
@@ -26524,14 +26540,14 @@
         "Milotic ex Butterfree": 533,
         "Milotic ex Dragonite": 544,
         "Milotic ex Gyarados": 545,
-        "Milotic ex Mega Sharpedo ex": 167,
-        "Milotic ex Dustox": 366,
+        "Milotic ex Mega Sharpedo ex": 179,
+        "Milotic ex Dustox": 385,
         "Milotic ex Mega Audino ex": 298,
-        "Milotic ex Mega Kangaskhan ex": 338,
+        "Milotic ex Mega Kangaskhan ex": 354,
         "Milotic ex Wailord ex": 427,
         "Milotic ex Ho-Oh ex": 582,
-        "Milotic ex Garchomp": 494,
-        "Milotic ex Oricorio": 311,
+        "Milotic ex Garchomp": 520,
+        "Milotic ex Oricorio": 340,
         "Milotic ex Team Rocket's Articuno ex": 426
       }
     },
@@ -26558,10 +26574,10 @@
       "peakCountBySet": {
         "B3b": 500,
         "B4": 617,
-        "B4a": 336,
-        "PA": 336,
-        "PB": 336,
-        "A4b": 336
+        "B4a": 355,
+        "PA": 355,
+        "PB": 355,
+        "A4b": 355
       },
       "names": {
         "Mega Sableye ex Darkrai ex": 189,
@@ -26581,7 +26597,7 @@
         "Mega Sableye ex Paldean Clodsire ex": 464,
         "Mega Sableye ex Alolan Muk": 500,
         "Mega Sableye ex Hoopa ex": 617,
-        "Mega Sableye ex Scrafty": 336
+        "Mega Sableye ex Scrafty": 355
       }
     },
     "Hisuian Goodra B3b 50": {
@@ -26737,13 +26753,13 @@
       "peakCountBySet": {
         "B3b": 70,
         "B4": 627,
-        "B4a": 363,
-        "PA": 363,
-        "PB": 363,
-        "A4b": 363
+        "B4a": 382,
+        "PA": 382,
+        "PB": 382,
+        "A4b": 382
       },
       "names": {
-        "Palossand Koraidon ex": 363,
+        "Palossand Koraidon ex": 382,
         "Palossand Rampardos": 627
       }
     },
@@ -26760,10 +26776,10 @@
       "peakCountBySet": {
         "B3b": 493,
         "B4": 697,
-        "B4a": 365,
-        "PA": 365,
-        "PB": 365,
-        "A4b": 365
+        "B4a": 387,
+        "PA": 387,
+        "PB": 387,
+        "A4b": 387
       },
       "names": {
         "Mega Diancie ex Flutter Mane ex": 697,
@@ -26816,10 +26832,10 @@
       "peakCountBySet": {
         "B3b": 402,
         "B4": 555,
-        "B4a": 183,
-        "PA": 183,
-        "PB": 183,
-        "A4b": 183
+        "B4a": 198,
+        "PA": 198,
+        "PB": 198,
+        "A4b": 198
       },
       "names": {
         "Sylveon Goodra": 275,
@@ -26827,7 +26843,7 @@
         "Sylveon Mega Diancie ex": 402,
         "Sylveon Espeon": 347,
         "Sylveon Mega Kangaskhan ex": 555,
-        "Sylveon Snorlax ex": 183
+        "Sylveon Snorlax ex": 198
       }
     },
     "Golduck B3a 7": {
@@ -26970,10 +26986,10 @@
       ],
       "peakCountBySet": {
         "B4": 634,
-        "B4a": 511,
-        "PA": 511,
-        "PB": 511,
-        "A4b": 511
+        "B4a": 531,
+        "PA": 531,
+        "PB": 531,
+        "A4b": 531
       },
       "names": {
         "Dragonair Mega Rayquaza ex": 22,
@@ -26992,8 +27008,8 @@
         "Dragonair Rayquaza": 597,
         "Dragonair Hisuian Goodra": 634,
         "Dragonair Garchomp": 207,
-        "Dragonair Archaludon": 325,
-        "Dragonair Miraidon ex": 511
+        "Dragonair Archaludon": 338,
+        "Dragonair Miraidon ex": 531
       }
     },
     "Vespiquen ex B4 11": {
@@ -27042,25 +27058,25 @@
       ],
       "peakCountBySet": {
         "B4": 699,
-        "B4a": 501,
-        "PA": 501,
-        "PB": 501,
-        "A4b": 501
+        "B4a": 538,
+        "PA": 538,
+        "PB": 538,
+        "A4b": 538
       },
       "names": {
         "Hoopa ex Mega Absol ex": 14,
         "Hoopa ex Greninja": 41,
         "Hoopa ex Mega Sableye ex": 43,
         "Hoopa ex Hydreigon": 57,
-        "Hoopa ex Darkrai ex": 486,
-        "Hoopa ex Galarian Obstagoon": 259,
+        "Hoopa ex Darkrai ex": 538,
+        "Hoopa ex Galarian Obstagoon": 278,
         "Hoopa ex Decidueye ex": 485,
         "Hoopa ex Crobat": 456,
         "Hoopa ex Mega Gengar ex": 682,
         "Hoopa ex": 698,
         "Hoopa ex Zoroark ex": 699,
         "Hoopa ex Team Rocket's Weezing ex": 74,
-        "Hoopa ex Umbreon ex": 501
+        "Hoopa ex Umbreon ex": 502
       }
     },
     "Mega Sharpedo ex B4 35": {
@@ -27096,19 +27112,19 @@
       ],
       "peakCountBySet": {
         "B4": 625,
-        "B4a": 524,
-        "PA": 524,
-        "PB": 524,
-        "A4b": 524
+        "B4a": 555,
+        "PA": 555,
+        "PB": 555,
+        "A4b": 555
       },
       "names": {
         "Mega Sharpedo ex Gyarados": 66,
         "Mega Sharpedo ex Chien-Pao ex": 99,
-        "Mega Sharpedo ex Mega Gyarados ex": 212,
+        "Mega Sharpedo ex Mega Gyarados ex": 232,
         "Mega Sharpedo ex Suicune ex": 267,
         "Mega Sharpedo ex Milotic ex": 83,
-        "Mega Sharpedo ex Walrein": 390,
-        "Mega Sharpedo ex Palkia ex": 291,
+        "Mega Sharpedo ex Walrein": 394,
+        "Mega Sharpedo ex Palkia ex": 309,
         "Mega Sharpedo ex Starmie ex": 198,
         "Mega Sharpedo ex Araquanid": 524,
         "Mega Sharpedo ex Samurott": 244,
@@ -27117,7 +27133,7 @@
         "Mega Sharpedo ex Mega Blastoise ex": 300,
         "Mega Sharpedo ex Omastar": 314,
         "Mega Sharpedo ex Aurorus": 343,
-        "Mega Sharpedo ex Greninja": 514,
+        "Mega Sharpedo ex Greninja": 555,
         "Mega Sharpedo ex Alolan Ninetales ex": 351,
         "Mega Sharpedo ex Indeedee ex": 365,
         "Mega Sharpedo ex Hisuian Zoroark ex": 376,
@@ -27128,7 +27144,7 @@
         "Mega Sharpedo ex Primarina ex": 625,
         "Mega Sharpedo ex Team Rocket's Articuno ex": 101,
         "Mega Sharpedo ex Gyarados ex": 479,
-        "Mega Sharpedo ex Mamoswine": 321
+        "Mega Sharpedo ex Mamoswine": 342
       }
     },
     "Mega Rayquaza ex B4 120": {
@@ -27157,17 +27173,17 @@
       ],
       "peakCountBySet": {
         "B4": 499,
-        "B4a": 462,
-        "PA": 462,
-        "PB": 462,
-        "A4b": 462
+        "B4a": 540,
+        "PA": 540,
+        "PB": 540,
+        "A4b": 540
       },
       "names": {
-        "Wailord ex Indeedee ex": 118,
+        "Wailord ex Indeedee ex": 127,
         "Wailord ex": 299,
         "Wailord ex Wailord": 320,
         "Wailord ex Mantyke": 499,
-        "Wailord ex Suicune ex": 462
+        "Wailord ex Suicune ex": 540
       }
     },
     "Beautifly B4 3": {
@@ -27200,22 +27216,22 @@
       ],
       "peakCountBySet": {
         "B4": 678,
-        "B4a": 461,
-        "PA": 461,
-        "PB": 461,
-        "A4b": 461
+        "B4a": 552,
+        "PA": 552,
+        "PB": 552,
+        "A4b": 552
       },
       "names": {
         "Rotom ex": 116,
         "Rotom ex Pachirisu": 93,
         "Rotom ex Oricorio": 115,
-        "Rotom ex Smeargle": 461,
+        "Rotom ex Smeargle": 552,
         "Rotom ex Raikou ex": 146,
         "Rotom ex Mime Jr.": 392,
         "Rotom ex Luxray": 650,
         "Rotom ex Dedenne ex": 678,
         "Rotom ex Zeraora": 123,
-        "Rotom ex Heliolisk": 337
+        "Rotom ex Heliolisk": 349
       }
     },
     "Luxray B4 53": {
@@ -27262,21 +27278,21 @@
       ],
       "peakCountBySet": {
         "B4": 630,
-        "B4a": 378,
-        "PA": 378,
-        "PB": 378,
-        "A4b": 378
+        "B4a": 489,
+        "PA": 489,
+        "PB": 489,
+        "A4b": 489
       },
       "names": {
-        "Mega Gallade ex Gallade": 109,
-        "Mega Gallade ex": 355,
+        "Mega Gallade ex Gallade": 114,
+        "Mega Gallade ex": 373,
         "Mega Gallade ex Greninja": 88,
         "Mega Gallade ex Gallade ex": 196,
-        "Mega Gallade ex Hitmontop": 378,
+        "Mega Gallade ex Hitmontop": 391,
         "Mega Gallade ex Pichu": 254,
         "Mega Gallade ex Hitmonchan ex": 293,
-        "Mega Gallade ex Lucario": 311,
-        "Mega Gallade ex Koraidon ex": 335,
+        "Mega Gallade ex Lucario": 489,
+        "Mega Gallade ex Koraidon ex": 353,
         "Mega Gallade ex Mantyke": 335,
         "Mega Gallade ex Silvally": 339,
         "Mega Gallade ex Munchlax": 353,
@@ -27305,17 +27321,17 @@
         "A4b": 535
       },
       "names": {
-        "Mega Houndoom ex Castform Sunny Form": 169,
+        "Mega Houndoom ex Castform Sunny Form": 181,
         "Mega Houndoom ex": 128,
         "Mega Houndoom ex Moltres ex": 237,
         "Mega Houndoom ex Greninja": 275,
         "Mega Houndoom ex Houndoom": 502,
         "Mega Houndoom ex Rapidash": 532,
         "Mega Houndoom ex Victini": 668,
-        "Mega Houndoom ex Team Rocket's Moltres ex": 415,
+        "Mega Houndoom ex Team Rocket's Moltres ex": 443,
         "Mega Houndoom ex Turtonator": 411,
         "Mega Houndoom ex Iron Moth": 535,
-        "Mega Houndoom ex Magby": 417
+        "Mega Houndoom ex Magby": 425
       }
     },
     "Mega Metagross ex B4 109": {
@@ -27340,7 +27356,7 @@
       },
       "names": {
         "Mega Metagross ex Dialga ex": 76,
-        "Mega Metagross ex Orthworm": 268,
+        "Mega Metagross ex Orthworm": 285,
         "Mega Metagross ex Metagross": 118,
         "Mega Metagross ex Probopass": 204,
         "Mega Metagross ex": 460,
@@ -27364,14 +27380,14 @@
       ],
       "peakCountBySet": {
         "B4": 540,
-        "B4a": 248,
-        "PA": 248,
-        "PB": 248,
-        "A4b": 248
+        "B4a": 268,
+        "PA": 268,
+        "PB": 268,
+        "A4b": 268
       },
       "names": {
         "Typhlosion ex": 87,
-        "Typhlosion ex Typhlosion": 248,
+        "Typhlosion ex Typhlosion": 268,
         "Typhlosion ex Hearthflame Mask Ogerpon": 333,
         "Typhlosion ex Entei ex": 340,
         "Typhlosion ex Ninetales": 464,
@@ -27432,14 +27448,14 @@
       ],
       "peakCountBySet": {
         "B4": 318,
-        "B4a": 223,
-        "PA": 223,
-        "PB": 223,
-        "A4b": 223
+        "B4a": 239,
+        "PA": 239,
+        "PB": 239,
+        "A4b": 239
       },
       "names": {
         "Dustox Mega Sceptile ex": 318,
-        "Dustox Team Rocket's Magmar": 223
+        "Dustox Team Rocket's Magmar": 239
       }
     },
     "Araquanid B4 47": {
@@ -27468,18 +27484,18 @@
       ],
       "peakCountBySet": {
         "B4": 598,
-        "B4a": 276,
-        "PA": 276,
-        "PB": 276,
-        "A4b": 276
+        "B4a": 292,
+        "PA": 292,
+        "PB": 292,
+        "A4b": 292
       },
       "names": {
         "Heliolisk Luxray": 359,
         "Heliolisk Miraidon ex": 407,
         "Heliolisk Mega Rayquaza ex": 490,
         "Heliolisk Pikachu ex": 598,
-        "Heliolisk Team Rocket's Zapdos ex": 53,
-        "Heliolisk Zapdos ex": 276
+        "Heliolisk Team Rocket's Zapdos ex": 56,
+        "Heliolisk Zapdos ex": 292
       }
     },
     "Galarian Obstagoon B4 97": {
@@ -27594,32 +27610,32 @@
         "Oricorio A3 34"
       ],
       "peakCountBySet": {
-        "B4a": 495,
-        "PA": 495,
-        "PB": 495,
-        "A4b": 495
+        "B4a": 548,
+        "PA": 548,
+        "PB": 548,
+        "A4b": 548
       },
       "names": {
         "Team Rocket's Weezing ex Hoopa ex": 6,
-        "Team Rocket's Weezing ex Team Rocket's Magmar": 35,
-        "Team Rocket's Weezing ex Mega Absol ex": 31,
+        "Team Rocket's Weezing ex Team Rocket's Magmar": 40,
+        "Team Rocket's Weezing ex Mega Absol ex": 33,
         "Team Rocket's Weezing ex Zoroark ex": 45,
-        "Team Rocket's Weezing ex Hydreigon": 125,
-        "Team Rocket's Weezing ex Darkrai ex": 132,
-        "Team Rocket's Weezing ex Paldean Clodsire ex": 157,
-        "Team Rocket's Weezing ex Mega Sableye ex": 140,
-        "Team Rocket's Weezing ex Teal Mask Ogerpon ex": 177,
-        "Team Rocket's Weezing ex Nihilego": 235,
-        "Team Rocket's Weezing ex Igglybuff": 255,
-        "Team Rocket's Weezing ex Hypno": 300,
-        "Team Rocket's Weezing ex Entei ex": 434,
+        "Team Rocket's Weezing ex Hydreigon": 136,
+        "Team Rocket's Weezing ex Darkrai ex": 146,
+        "Team Rocket's Weezing ex Paldean Clodsire ex": 169,
+        "Team Rocket's Weezing ex Mega Sableye ex": 148,
+        "Team Rocket's Weezing ex Teal Mask Ogerpon ex": 188,
+        "Team Rocket's Weezing ex Nihilego": 252,
+        "Team Rocket's Weezing ex Igglybuff": 275,
+        "Team Rocket's Weezing ex Hypno": 315,
+        "Team Rocket's Weezing ex Entei ex": 455,
         "Team Rocket's Weezing ex Dustox": 346,
         "Team Rocket's Weezing ex Galarian Obstagoon": 407,
-        "Team Rocket's Weezing ex Giratina ex": 458,
-        "Team Rocket's Weezing ex Butterfree": 470,
-        "Team Rocket's Weezing ex Team Rocket's Muk": 495,
-        "Team Rocket's Weezing ex Team Rocket's Houndoom": 492,
-        "Team Rocket's Weezing ex Oricorio": 360
+        "Team Rocket's Weezing ex Giratina ex": 548,
+        "Team Rocket's Weezing ex Butterfree": 472,
+        "Team Rocket's Weezing ex Team Rocket's Muk": 521,
+        "Team Rocket's Weezing ex Team Rocket's Houndoom": 516,
+        "Team Rocket's Weezing ex Oricorio": 365
       }
     },
     "Team Rocket's Raticate ex B4a 59": {
@@ -27656,48 +27672,52 @@
         "Mega Scizor ex B2b 47",
         "Ho-Oh ex A4 34",
         "Team Rocket's Tinkaton B4a 50",
-        "Ceruledge ex PB 66"
+        "Ceruledge ex PB 66",
+        "Team Rocket's Slowking ex B4a 26",
+        "Giratina ex A2b 35"
       ],
       "peakCountBySet": {
-        "B4a": 537,
-        "PA": 537,
-        "PB": 537,
-        "A4b": 537
+        "B4a": 557,
+        "PA": 557,
+        "PB": 557,
+        "A4b": 557
       },
       "names": {
-        "Team Rocket's Raticate ex Alolan Ninetales ex": 10,
-        "Team Rocket's Raticate ex Jolteon ex": 50,
-        "Team Rocket's Raticate ex Mega Lucario ex": 52,
-        "Team Rocket's Raticate ex Terapagos ex": 69,
+        "Team Rocket's Raticate ex Alolan Ninetales ex": 13,
+        "Team Rocket's Raticate ex Jolteon ex": 51,
+        "Team Rocket's Raticate ex Mega Lucario ex": 53,
+        "Team Rocket's Raticate ex Terapagos ex": 72,
         "Team Rocket's Raticate ex Team Rocket's Weezing ex": 89,
         "Team Rocket's Raticate ex Mega Kangaskhan ex": 103,
-        "Team Rocket's Raticate ex Indeedee ex": 112,
-        "Team Rocket's Raticate ex Crawdaunt": 147,
+        "Team Rocket's Raticate ex Indeedee ex": 123,
+        "Team Rocket's Raticate ex Crawdaunt": 160,
         "Team Rocket's Raticate ex Guzzlord ex": 166,
         "Team Rocket's Raticate ex Mega Altaria ex": 162,
         "Team Rocket's Raticate ex Tyrantrum": 180,
-        "Team Rocket's Raticate ex Suicune ex": 226,
-        "Team Rocket's Raticate ex Banette": 237,
-        "Team Rocket's Raticate ex Team Rocket's Moltres ex": 261,
-        "Team Rocket's Raticate ex Mega Houndoom ex": 280,
+        "Team Rocket's Raticate ex Suicune ex": 242,
+        "Team Rocket's Raticate ex Banette": 254,
+        "Team Rocket's Raticate ex Team Rocket's Moltres ex": 279,
+        "Team Rocket's Raticate ex Mega Houndoom ex": 296,
         "Team Rocket's Raticate ex Porygon-Z": 222,
-        "Team Rocket's Raticate ex Stoutland": 287,
+        "Team Rocket's Raticate ex Stoutland": 303,
         "Team Rocket's Raticate ex Igglybuff": 290,
-        "Team Rocket's Raticate ex Mega Slowbro ex": 294,
-        "Team Rocket's Raticate ex Vaporeon ex": 299,
+        "Team Rocket's Raticate ex Mega Slowbro ex": 314,
+        "Team Rocket's Raticate ex Vaporeon ex": 306,
         "Team Rocket's Raticate ex Hoopa ex": 288,
         "Team Rocket's Raticate ex Dragonite": 354,
-        "Team Rocket's Raticate ex Garchomp": 349,
-        "Team Rocket's Raticate ex Alolan Raichu ex": 419,
-        "Team Rocket's Raticate ex Greninja": 432,
-        "Team Rocket's Raticate ex Team Rocket's Persian": 445,
-        "Team Rocket's Raticate ex Mega Manectric ex": 448,
+        "Team Rocket's Raticate ex Garchomp": 358,
+        "Team Rocket's Raticate ex Alolan Raichu ex": 433,
+        "Team Rocket's Raticate ex Greninja": 444,
+        "Team Rocket's Raticate ex Team Rocket's Persian": 457,
+        "Team Rocket's Raticate ex Mega Manectric ex": 461,
         "Team Rocket's Raticate ex Seaking": 515,
-        "Team Rocket's Raticate ex Flygon ex": 537,
-        "Team Rocket's Raticate ex Mega Scizor ex": 286,
-        "Team Rocket's Raticate ex Ho-Oh ex": 334,
-        "Team Rocket's Raticate ex Team Rocket's Tinkaton": 517,
-        "Team Rocket's Raticate ex Ceruledge ex": 480
+        "Team Rocket's Raticate ex Flygon ex": 557,
+        "Team Rocket's Raticate ex Mega Scizor ex": 302,
+        "Team Rocket's Raticate ex Ho-Oh ex": 356,
+        "Team Rocket's Raticate ex Team Rocket's Tinkaton": 546,
+        "Team Rocket's Raticate ex Ceruledge ex": 550,
+        "Team Rocket's Raticate ex Team Rocket's Slowking ex": 482,
+        "Team Rocket's Raticate ex Giratina ex": 490
       }
     },
     "Garchomp B4a 54": {
@@ -27714,29 +27734,31 @@
         "Mime Jr. B4 68",
         "Furfrou B4a 64",
         "Elekid A4 70",
-        "Cleffa A4 77"
+        "Cleffa A4 77",
+        "Pyukumuku A3 54"
       ],
       "peakCountBySet": {
-        "B4a": 486,
-        "PA": 486,
-        "PB": 486,
-        "A4b": 486
+        "B4a": 491,
+        "PA": 491,
+        "PB": 491,
+        "A4b": 491
       },
       "names": {
         "Garchomp": 21,
-        "Garchomp Greninja": 42,
-        "Garchomp Goomy": 43,
-        "Garchomp Happiny": 55,
-        "Garchomp Munchlax": 72,
-        "Garchomp Mantyke": 70,
+        "Garchomp Greninja": 46,
+        "Garchomp Goomy": 45,
+        "Garchomp Happiny": 60,
+        "Garchomp Munchlax": 78,
+        "Garchomp Mantyke": 74,
         "Garchomp Meowth": 111,
-        "Garchomp Chien-Pao ex": 182,
-        "Garchomp Hitmontop": 202,
-        "Garchomp Snorlax": 215,
+        "Garchomp Chien-Pao ex": 197,
+        "Garchomp Hitmontop": 220,
+        "Garchomp Snorlax": 233,
         "Garchomp Mime Jr.": 375,
-        "Garchomp Furfrou": 380,
+        "Garchomp Furfrou": 423,
         "Garchomp Elekid": 486,
-        "Garchomp Cleffa": 285
+        "Garchomp Cleffa": 298,
+        "Garchomp Pyukumuku": 491
       }
     },
     "Team Rocket's Slowking ex B4a 26": {
@@ -27753,21 +27775,21 @@
         "Unown A4 84"
       ],
       "peakCountBySet": {
-        "B4a": 481,
-        "PA": 481,
-        "PB": 481,
-        "A4b": 481
+        "B4a": 500,
+        "PA": 500,
+        "PB": 500,
+        "A4b": 500
       },
       "names": {
         "Team Rocket's Slowking ex Sylveon ex": 34,
-        "Team Rocket's Slowking ex Meloetta": 41,
-        "Team Rocket's Slowking ex Indeedee ex": 127,
-        "Team Rocket's Slowking ex Giratina ex": 158,
-        "Team Rocket's Slowking ex Mega Gardevoir ex": 348,
-        "Team Rocket's Slowking ex Mimikyu ex": 393,
-        "Team Rocket's Slowking ex Magneton": 426,
-        "Team Rocket's Slowking ex Shiinotic": 459,
-        "Team Rocket's Slowking ex Gourgeist": 481,
+        "Team Rocket's Slowking ex Meloetta": 43,
+        "Team Rocket's Slowking ex Indeedee ex": 138,
+        "Team Rocket's Slowking ex Giratina ex": 172,
+        "Team Rocket's Slowking ex Mega Gardevoir ex": 360,
+        "Team Rocket's Slowking ex Mimikyu ex": 415,
+        "Team Rocket's Slowking ex Magneton": 435,
+        "Team Rocket's Slowking ex Shiinotic": 471,
+        "Team Rocket's Slowking ex Gourgeist": 500,
         "Team Rocket's Slowking ex Unown": 286
       }
     },
@@ -27780,18 +27802,18 @@
         "Inteleon B3 50"
       ],
       "peakCountBySet": {
-        "B4a": 516,
-        "PA": 516,
-        "PB": 516,
-        "A4b": 516
+        "B4a": 545,
+        "PA": 545,
+        "PB": 545,
+        "A4b": 545
       },
       "names": {
-        "Team Rocket's Articuno ex": 74,
-        "Team Rocket's Articuno ex Gholdengo": 141,
-        "Team Rocket's Articuno ex Froslass": 162,
+        "Team Rocket's Articuno ex": 75,
+        "Team Rocket's Articuno ex Gholdengo": 155,
+        "Team Rocket's Articuno ex Froslass": 174,
         "Team Rocket's Articuno ex Articuno ex": 245,
-        "Team Rocket's Articuno ex Team Rocket's Lapras": 389,
-        "Team Rocket's Articuno ex Inteleon": 516
+        "Team Rocket's Articuno ex Team Rocket's Lapras": 399,
+        "Team Rocket's Articuno ex Inteleon": 545
       }
     },
     "Team Rocket's Electrode B4a 20": {
@@ -27804,14 +27826,14 @@
         "Pawmot B3a 16"
       ],
       "peakCountBySet": {
-        "B4a": 418,
-        "PA": 418,
-        "PB": 418,
-        "A4b": 418
+        "B4a": 429,
+        "PA": 429,
+        "PB": 429,
+        "A4b": 429
       },
       "names": {
-        "Team Rocket's Electrode Luxray": 414,
-        "Team Rocket's Electrode Team Rocket's Zapdos ex": 101,
+        "Team Rocket's Electrode Luxray": 429,
+        "Team Rocket's Electrode Team Rocket's Zapdos ex": 109,
         "Team Rocket's Electrode Greninja": 371,
         "Team Rocket's Electrode Pawmot": 418
       }
@@ -27830,10 +27852,10 @@
         "A4b": 532
       },
       "names": {
-        "Serperior Teal Mask Ogerpon ex": 164,
+        "Serperior Teal Mask Ogerpon ex": 176,
         "Serperior": 256,
-        "Serperior Shaymin": 271,
-        "Serperior Chingling": 392,
+        "Serperior Shaymin": 282,
+        "Serperior Chingling": 404,
         "Serperior Mega Heracross ex": 532
       }
     },
@@ -27849,7 +27871,7 @@
         "A4b": 499
       },
       "names": {
-        "Team Rocket's Moltres ex Mega Houndoom ex": 150,
+        "Team Rocket's Moltres ex Mega Houndoom ex": 159,
         "Team Rocket's Moltres ex Mega Blaziken ex": 499
       }
     },
@@ -27862,17 +27884,17 @@
         "Indeedee ex B1 121"
       ],
       "peakCountBySet": {
-        "B4a": 490,
-        "PA": 490,
-        "PB": 490,
-        "A4b": 490
+        "B4a": 506,
+        "PA": 506,
+        "PB": 506,
+        "A4b": 506
       },
       "names": {
         "Team Rocket's Zapdos ex Heliolisk": 173,
         "Team Rocket's Zapdos ex Team Rocket's Electrode": 357,
-        "Team Rocket's Zapdos ex Pichu": 381,
-        "Team Rocket's Zapdos ex Greninja": 425,
-        "Team Rocket's Zapdos ex Indeedee ex": 490
+        "Team Rocket's Zapdos ex Pichu": 405,
+        "Team Rocket's Zapdos ex Greninja": 446,
+        "Team Rocket's Zapdos ex Indeedee ex": 506
       }
     },
     "Team Rocket's Tinkaton B4a 50": {
@@ -27883,17 +27905,17 @@
         "Orthworm B2a 77"
       ],
       "peakCountBySet": {
-        "B4a": 439,
-        "PA": 439,
-        "PB": 439,
-        "A4b": 439
+        "B4a": 451,
+        "PA": 451,
+        "PB": 451,
+        "A4b": 451
       },
       "names": {
         "Team Rocket's Tinkaton Wynaut": 160,
-        "Team Rocket's Tinkaton Skarmory": 395,
-        "Team Rocket's Tinkaton Kartana": 436,
-        "Team Rocket's Tinkaton": 437,
-        "Team Rocket's Tinkaton Orthworm": 439
+        "Team Rocket's Tinkaton Skarmory": 414,
+        "Team Rocket's Tinkaton Kartana": 445,
+        "Team Rocket's Tinkaton": 451,
+        "Team Rocket's Tinkaton Orthworm": 448
       }
     },
     "Delphox B4a 12": {
@@ -27903,27 +27925,27 @@
         "Pichu A4 66"
       ],
       "peakCountBySet": {
-        "B4a": 376,
-        "PA": 376,
-        "PB": 376,
-        "A4b": 376
+        "B4a": 389,
+        "PA": 389,
+        "PB": 389,
+        "A4b": 389
       },
       "names": {
-        "Delphox Entei ex": 240,
-        "Delphox Castform Sunny Form": 316,
-        "Delphox Pichu": 376
+        "Delphox Entei ex": 261,
+        "Delphox Castform Sunny Form": 337,
+        "Delphox Pichu": 389
       }
     },
     "Magikarp A1 77": {
       "secondary": [],
       "peakCountBySet": {
-        "B4a": 443,
-        "PA": 443,
-        "PB": 443,
-        "A4b": 443
+        "B4a": 459,
+        "PA": 459,
+        "PB": 459,
+        "A4b": 459
       },
       "names": {
-        "Magikarp": 443
+        "Magikarp": 459
       }
     },
     "Team Rocket's Hypno B4a 28": {
@@ -27931,13 +27953,13 @@
         "Giratina ex A2b 35"
       ],
       "peakCountBySet": {
-        "B4a": 493,
-        "PA": 493,
-        "PB": 493,
-        "A4b": 493
+        "B4a": 517,
+        "PA": 517,
+        "PB": 517,
+        "A4b": 517
       },
       "names": {
-        "Team Rocket's Hypno Giratina ex": 493
+        "Team Rocket's Hypno Giratina ex": 517
       }
     },
     "Oricorio A3 66": {
@@ -27960,13 +27982,27 @@
         "Greninja A1 89"
       ],
       "peakCountBySet": {
-        "B4a": 467,
-        "PA": 467,
-        "PB": 467,
-        "A4b": 467
+        "B4a": 496,
+        "PA": 496,
+        "PB": 496,
+        "A4b": 496
       },
       "names": {
-        "Dragonite Greninja": 467
+        "Dragonite Greninja": 496
+      }
+    },
+    "Armaldo B4 82": {
+      "secondary": [
+        "Turtonator B4 123"
+      ],
+      "peakCountBySet": {
+        "B4a": 401,
+        "PA": 401,
+        "PB": 401,
+        "A4b": 401
+      },
+      "names": {
+        "Armaldo Turtonator": 401
       }
     }
   },

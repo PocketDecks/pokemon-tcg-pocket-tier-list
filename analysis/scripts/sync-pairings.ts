@@ -34,8 +34,19 @@ const decksUrl = (set: string): string =>
   `https://play.limitlesstcg.com/decks?game=pocket&set=${set}`;
 
 const ROW =
-  /<tr[^>]*>.*?<a href="\/decks\/([a-z0-9-]+)\?[^\"]*"[^>]*>([^<]+)<\/a>.*?<\/tr>/gs;
-const COUNT_CELL = /<td[^>]*>\s*([\d,]+)\s*<\/td>/;
+  /<tr[^>]*>.*?<a href="\/decks\/([a-z0-9-]+)\?[^"]*"[^>]*>([^<]+)<\/a>.*?<\/tr>/gs;
+
+// Row cells are rank, blank, name, count, share, record, win rate. The first
+// `<td>` is the row number, so reading it makes count the page position.
+const COUNT_CELL_INDEX = 3;
+
+const countOfRow = (row: string): number => {
+  const cells = [...row.matchAll(/<td[^>]*>(.*?)<\/td>/gs)];
+  const cell = cells[COUNT_CELL_INDEX]?.[1] ?? "";
+  const digits = cell.replace(/<[^>]+>/g, "").replace(/,/g, "").trim();
+  const value = Number(digits);
+  return Number.isFinite(value) ? value : 0;
+};
 
 const fetchSet = async (set: string): Promise<ScrapedDeck[]> => {
   const res = await fetch(decksUrl(set), { signal: AbortSignal.timeout(20_000) });
@@ -47,12 +58,11 @@ const fetchSet = async (set: string): Promise<ScrapedDeck[]> => {
     const [, slug, name] = m;
     if (seen.has(slug)) continue;
     seen.add(slug);
-    const countMatch = m[0].match(COUNT_CELL);
     decks.push({
       name: name.trim(),
       slug,
       set,
-      count: countMatch ? Number(countMatch[1].replace(/,/g, "")) : 0,
+      count: countOfRow(m[0]),
     });
   }
   return decks;

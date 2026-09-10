@@ -22,7 +22,7 @@ describe("getDeckName", () => {
     // Magnezone A2 53 + Miraidon ex B3a 19 must match the B3a
     // "Magnezone Miraidon" row, keeping both cards, not a Magnezone-only row.
     const deck = mkDeck([2, "Magnezone", "A2", "53"], [2, "Miraidon ex", "B3a", "19"]);
-    expect(getDeckName(deck)).toBe("miraidon-ex-b3a-019&magnezone-b1a-026");
+    expect(getDeckName(deck)).toBe("magnezone-b1a-026&miraidon-ex-b3a-019");
   });
 
   it("keeps the partner in the name instead of folding it into the primary", () => {
@@ -97,7 +97,7 @@ describe("row ranking: a fuller listing outranks an anchored shorter one", () =>
       [2, "Dragonair", "B4", "117"],
       [2, "Dratini", "A3b", "51"]
     );
-    expect(getDeckName(deck)).toBe("mega-rayquaza-ex-b4-120&dragonair-b4-117");
+    expect(getDeckName(deck)).toBe("dragonair-b4-117&mega-rayquaza-ex-b4-120");
   });
 
   it("keeps the Oricorio partner on a Chandelure deck", () => {

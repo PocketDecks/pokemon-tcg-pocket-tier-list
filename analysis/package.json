@@ -12,8 +12,9 @@
     "start": "ts-node src/get-best-decks.ts",
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "canvas": "^3.2.3",
@@ -21,13 +22,12 @@
     "pokemon-tcg-pocket-cards": "^5.3.0"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.12",
     "@types/node": "^20.11.24",
     "@types/node-fetch": "^2.6.11",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.1.2",
+    "@vitest/coverage-v8": "^5.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^5.0.0"
   },
   "resolutions": {
     "@babel/core": "^7.26.0",

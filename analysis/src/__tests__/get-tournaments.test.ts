@@ -1,13 +1,14 @@
 import { getTournaments } from "../utils/get-tournaments";
 import fs from "fs";
+import { vi } from "vitest";
 
-jest.mock("fs");
+vi.mock("fs");
 
 describe("getTournaments", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    (fs.existsSync as jest.Mock).mockReturnValue(true);
-    (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify([]));
+    vi.clearAllMocks();
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify([]));
   });
 
   it("should filter tournaments based on minimum games", async () => {
@@ -17,7 +18,7 @@ describe("getTournaments", () => {
       { id: "3", players: 200 },
     ];
 
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
       statusText: "OK",
@@ -40,11 +41,11 @@ describe("getTournaments", () => {
       { id: "2", players: 150 },
     ];
 
-    (fs.readFileSync as jest.Mock).mockReturnValue(
+    vi.mocked(fs.readFileSync).mockReturnValue(
       JSON.stringify([{ id: "1" }])
     );
 
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
       statusText: "OK",

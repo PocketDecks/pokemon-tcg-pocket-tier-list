@@ -2,13 +2,14 @@ import { populateDeckNames } from "../utils/populate-deck-names";
 import { Deck } from "../utils/types";
 import { UNNAMED_DECK } from "../utils/get-deck-name";
 
-jest.mock("../utils/get-deck-name", () => ({
+vi.mock("../utils/get-deck-name", () => ({
   __esModule: true,
-  default: jest.fn(),
+  default: vi.fn(),
   UNNAMED_DECK: "professor's-research-pa-007",
 }));
 
 import getDeckName from "../utils/get-deck-name";
+import { vi } from "vitest";
 
 const mockDeck: Deck = {
   id: "test-id",
@@ -28,11 +29,11 @@ const mockDeck: Deck = {
 
 describe("populateDeckNames", () => {
   beforeEach(() => {
-    (getDeckName as jest.Mock).mockReset();
+    vi.mocked(getDeckName).mockReset();
   });
 
   it("should populate deck names and create idToName mapping", () => {
-    (getDeckName as jest.Mock).mockImplementation(
+    vi.mocked(getDeckName).mockImplementation(
       (deck: Deck) => (deck.id === "valid-id" ? "Test Deck Name" : UNNAMED_DECK)
     );
     const validDeck: Deck = {
@@ -56,7 +57,7 @@ describe("populateDeckNames", () => {
   });
 
   it("keeps decks whose name resolves to the unnamed sentinel", () => {
-    (getDeckName as jest.Mock).mockImplementation(() => UNNAMED_DECK);
+    vi.mocked(getDeckName).mockImplementation(() => UNNAMED_DECK);
     const unnamedDeck1: Deck = {
       ...mockDeck,
       id: "unnamed-id-1",
@@ -80,7 +81,7 @@ describe("populateDeckNames", () => {
     // getDeckName never returns null; the unnamed bucket is a real name. A
     // truthiness guard here would silently drop these decks if the sentinel
     // ever became falsy.
-    (getDeckName as jest.Mock).mockImplementation(
+    vi.mocked(getDeckName).mockImplementation(
       (deck: Deck) => (deck.id === "valid-id" ? "Test Deck Name" : UNNAMED_DECK)
     );
     const deck = { ...mockDeck, id: "unmatched-id" };

@@ -1,0 +1,29 @@
+# CodeRabbit configuration
+# Docs: https://docs.coderabbit.ai/getting-started/configure-coderabbit-overview
+language: "en-GB"
+early_access: false
+
+reviews:
+  profile: "assertive"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  commit_status: true
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    drafts: false
+  path_instructions:
+    - path: "analysis/src/**"
+      instructions: |
+        Review with thermo-nuclear standards: implementation quality, abstraction quality and codebase health, not just local nits. Prioritise in this order: structural regressions, missed dramatic simplifications ("code judo" reframings that delete whole branches or layers), spaghetti/branching growth, boundary and type-contract problems, file-size and decomposition, modularity, legibility. Flag: files crossing 1000 lines, ad-hoc conditionals bolted onto unrelated flows, one-off flags that complicate control flow, feature logic leaking into shared paths, thin wrappers that add indirection without clarity, unnecessary casts/any/optionality, duplicated logic where a canonical helper exists, unnecessary sequential orchestration or non-atomic updates. A characterisation or golden test is not evidence unless it has been mutation-tested (mutate one input at a time; a component with zero output diffs has no coverage). Do not approve merely because behaviour seems correct: the bar is no structural regression, no obvious missed simplification, no spaghetti growth. Prefer a few high-conviction comments over cosmetic nits. Be direct and demanding about quality, but not rude.
+    - path: "src/**"
+      instructions: |
+        Same thermo-nuclear standards. Frontend-specific checks on top: respect the page/helper layering (pages must not import src/contexts/ except where an inline debt marker allows it; no-restricted-imports in eslint is the enforcement), weight suggestions by mobile fetch cost (bundle size and data volume matter for the deploy target), keep generated data files out of review scope. Components must not grow past healthy size; extract subcomponents rather than letting a file sprawl.
+    - path: "analysis/data/**"
+      instructions: |
+        Generated data. Do not comment on content, formatting or size; only review the scripts that generate it.
+
+chat:
+  auto_reply: true

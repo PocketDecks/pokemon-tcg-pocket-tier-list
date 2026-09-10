@@ -142,19 +142,3 @@ export const resolveDeckDetail = (
   };
 };
 
-/// Cross-deck normalisation reference for the detail page's strength stat.
-/// Reads only score/strength off the raw data, and ignores every tier-list
-/// filter so the stat cannot shift when an unrelated filter is active.
-export const highestScoreAndStrength = (
-  decksRaw: PipelinePartialDeck[]
-): { highestScore: number; highestStrength: number } => {
-  let highestScore = 0;
-  let highestStrength = 0;
-  for (const deck of decksRaw) {
-    for (const list of deck.lists) {
-      if (list.score > highestScore) highestScore = list.score;
-      if (list.strength > highestStrength) highestStrength = list.strength;
-    }
-  }
-  return { highestScore, highestStrength };
-};

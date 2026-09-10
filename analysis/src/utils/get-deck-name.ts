@@ -65,9 +65,6 @@ for (const [set, listing] of Object.entries(STORE.sets)) {
   }
 }
 
-// Resolves a deck's card list to a Limitless listing name, or UNNAMED_DECK
-// when nothing matches and no seeded archetype applies.
-
 // name -> what it evolves from, so a row's pair can be checked for a shared
 // line. A deck containing Igglybuff (a 2-of tech Basic) also contains the
 // deck's real centrepiece, so containment alone matches junk rows like
@@ -170,16 +167,10 @@ const getDeckName = (deck: Deck): string => {
       if (seen.has(index)) continue;
       seen.add(index);
       const row = ALL_ROWS[index];
-      // A line's middle stage must not anchor a row: with Magnezone in the
-      // deck, Magneton cannot lead the name.
-      if (outclassed(row.cardNames[0], present)) continue;
-      // supportedNames drops names the deck outclasses so they do not drive
-      // sameLine, anchored or the row length; the containment check below is
-      // separate and validates every name the row lists against the deck, so a
-      // row cannot name a card the deck does not play.
       const supportedNames = row.cardNames.filter(
         (name) => !outclassed(name, present)
       );
+      if (supportedNames.length === 0) continue;
       if (!row.cardNames.every((name) => present.has(name))) continue;
       const sameLine =
         supportedNames.length > 1 && isSameLine(supportedNames[0], supportedNames[1])

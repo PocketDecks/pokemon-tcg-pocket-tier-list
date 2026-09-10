@@ -25,7 +25,6 @@ import {
   buildFullLists,
   pickBestList,
   resolveDeckDetail,
-  highestScoreAndStrength,
   type FullList,
 } from "../app/deck-resolution";
 
@@ -393,9 +392,8 @@ export const useDeckDetail = (
 
   return useMemo(() => {
     if (!cardsPayload || !decksData || !deckId) {
-      return { deck: null, extinct: false, highestScore: 0, highestStrength: 0 };
+      return { deck: null, extinct: false };
     }
-    const { highestScore, highestStrength } = highestScoreAndStrength(decksData.decks);
     const resolved = resolveDeckDetail(
       decksData.decks,
       decksData.matchupData,
@@ -407,8 +405,6 @@ export const useDeckDetail = (
     return {
       deck: resolved?.deck ?? null,
       extinct: resolved?.extinct ?? false,
-      highestScore,
-      highestStrength,
     };
   }, [cardsPayload, decksData, cardsMapping, deckId, missingCounts]);
 };

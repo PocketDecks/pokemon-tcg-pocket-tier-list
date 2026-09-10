@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { resolveDeckDetail, highestScoreAndStrength } from "../deck-resolution";
+import { resolveDeckDetail } from "../deck-resolution";
 import { formatCardScore } from "../format-card-score";
 import type { PipelinePartialDeck } from "../../types/pipeline-data";
 import rawCards from "../__fixtures__/cards-full-v510.json";
@@ -85,15 +85,6 @@ describe("resolveDeckDetail", () => {
       {}
     );
     expect(result?.deck.matchups).toEqual(matchups);
-  });
-});
-
-describe("highestScoreAndStrength", () => {
-  it("scans every list of every deck, ignoring filters", () => {
-    const { highestScore, highestStrength } =
-      highestScoreAndStrength(decksRaw);
-    expect(highestScore).toBe(10);
-    expect(highestStrength).toBe(5);
   });
 });
 

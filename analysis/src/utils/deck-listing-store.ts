@@ -70,16 +70,8 @@ export const mergeSetPage = (
 // Fingerprints one page's rows so two sets that come back identical can be
 // spotted. A set page is unique to its set, so the same fingerprint twice in
 // one run means one body was served for several sets.
-export const pageFingerprint = (decks: readonly DeckListing[]): string => {
-  let hash = 0;
-  for (const deck of decks) {
-    for (let i = 0; i < deck.slug.length; i++) {
-      hash = (hash * 31 + deck.slug.charCodeAt(i)) | 0;
-    }
-    hash = (hash * 31 + deck.count) | 0;
-  }
-  return `${decks.length}:${hash}`;
-};
+export const pageFingerprint = (decks: readonly DeckListing[]): string =>
+  JSON.stringify(decks);
 
 // Chooses the current set: only adopt a newly fetched set if we actually saw
 // it, so a single timeout cannot regress currentSet and rename decks.

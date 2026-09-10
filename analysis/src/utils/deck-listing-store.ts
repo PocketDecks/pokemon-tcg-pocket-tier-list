@@ -30,12 +30,15 @@ export interface DeckListingStore {
   sets: Record<string, SetListing>;
 }
 
-// Scrape order: standard sets oldest to newest, then the non-standard promo
-// and reprint pools. The newest standard set is the current-format candidate.
-export const SETS_SCRAPE_ORDER: readonly string[] = [
-  ...STANDARD_SET_CODES,
-  ...NON_STANDARD_SET_CODES,
-];
+// Scrape order: standard sets oldest to newest. Only these have a Limitless
+// tournament page, so only these are ever fetched.
+//
+// PA, PB and A4b have no deck page of their own. Scraping them fetched
+// whatever a missing page returns and filed it under three set keys, so one
+// body was committed as four separate snapshots and the promo pools carried
+// hundreds of archetype rows that belong to no promo set. A snapshot is only
+// meaningful for a set Limitless actually lists.
+export const SETS_SCRAPE_ORDER: readonly string[] = [...STANDARD_SET_CODES];
 
 const emptyStore = (): DeckListingStore => ({
   updatedAt: null,
@@ -62,6 +65,20 @@ export const mergeSetPage = (
   decks: DeckListing[]
 ): void => {
   store.sets[set] = { decks };
+};
+
+// Fingerprints one page's rows so two sets that come back identical can be
+// spotted. A set page is unique to its set, so the same fingerprint twice in
+// one run means one body was served for several sets.
+export const pageFingerprint = (decks: readonly DeckListing[]): string => {
+  let hash = 0;
+  for (const deck of decks) {
+    for (let i = 0; i < deck.slug.length; i++) {
+      hash = (hash * 31 + deck.slug.charCodeAt(i)) | 0;
+    }
+    hash = (hash * 31 + deck.count) | 0;
+  }
+  return `${decks.length}:${hash}`;
 };
 
 // Chooses the current set: only adopt a newly fetched set if we actually saw

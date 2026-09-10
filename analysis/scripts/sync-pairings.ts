@@ -6,6 +6,7 @@ import { dirname, resolve } from "node:path";
 
 import {
   mergeSetPage,
+  pageFingerprint,
   pickCurrentSet,
   readStore,
   SETS_SCRAPE_ORDER,
@@ -76,6 +77,7 @@ const main = async () => {
   }
 
   const fetchedSets = new Set<string>();
+  const seenPages = new Map<string, string>();
   for (const set of SETS_SCRAPE_ORDER) {
     let decks: ScrapedDeck[];
     try {
@@ -87,6 +89,17 @@ const main = async () => {
       process.stdout.write(`${set}! `);
       continue;
     }
+    // Two sets never share a page. The same rows twice in one run means one
+    // body was served for both, which once filed a single scrape under four
+    // set keys and let decks from one format name decks in another.
+    const fingerprint = pageFingerprint(decks);
+    const twin = seenPages.get(fingerprint);
+    if (twin) {
+      failures.push(`${set}: identical to ${twin}, not written`);
+      process.stdout.write(`${set}=${twin} `);
+      continue;
+    }
+    seenPages.set(fingerprint, set);
     fetchedSets.add(set);
     for (const deck of decks) {
       // A slug with no known set code cannot be filed under a set; that signals

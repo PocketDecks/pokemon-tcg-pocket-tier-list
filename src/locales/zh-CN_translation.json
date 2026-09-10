@@ -141,6 +141,7 @@
     "power": "战力评分",
     "popularity": "流行度",
     "strength": "强度",
+    "meta": "环境评分",
     "winRate": "胜率",
     "latestExpansionCards": "最新扩展包卡牌",
     "latestExpansionCardsAny": "任意"

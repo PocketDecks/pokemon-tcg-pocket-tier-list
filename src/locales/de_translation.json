@@ -141,6 +141,7 @@
     "power": "Power-Wert",
     "popularity": "Beliebtheit",
     "strength": "Stärke",
+    "meta": "Meta-Wert",
     "winRate": "Gewinnrate",
     "latestExpansionCards": "Karten aus neuester Erweiterung",
     "latestExpansionCardsAny": "Beliebig"

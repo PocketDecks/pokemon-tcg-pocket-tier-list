@@ -141,6 +141,7 @@
     "power": "Power Score",
     "popularity": "Popularity",
     "strength": "Strength",
+    "meta": "Meta Score",
     "winRate": "Win Rate",
     "latestExpansionCards": "Cards from latest expansion",
     "latestExpansionCardsAny": "Any"

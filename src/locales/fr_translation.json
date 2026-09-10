@@ -141,6 +141,7 @@
     "power": "Score de puissance",
     "popularity": "Popularité",
     "strength": "Force",
+    "meta": "Score méta",
     "winRate": "Taux de victoire",
     "latestExpansionCards": "Cartes de la dernière extension",
     "latestExpansionCardsAny": "Tous"

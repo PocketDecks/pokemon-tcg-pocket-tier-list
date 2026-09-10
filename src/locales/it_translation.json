@@ -141,6 +141,7 @@
     "power": "Punteggio di potenza",
     "popularity": "Popolarità",
     "strength": "Forza",
+    "meta": "Punteggio meta",
     "winRate": "Tasso di Vittoria",
     "latestExpansionCards": "Carte dall'ultima espansione",
     "latestExpansionCardsAny": "Qualsiasi"

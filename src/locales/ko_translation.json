@@ -141,6 +141,7 @@
     "power": "파워 스코어",
     "popularity": "인기도",
     "strength": "강도",
+    "meta": "메타 스코어",
     "winRate": "승률",
     "latestExpansionCards": "최신 확장팩 카드",
     "latestExpansionCardsAny": "모두"

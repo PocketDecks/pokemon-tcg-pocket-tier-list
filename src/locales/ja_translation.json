@@ -141,6 +141,7 @@
     "power": "パワースコア",
     "popularity": "人気度",
     "strength": "強さ",
+    "meta": "メタスコア",
     "winRate": "勝率",
     "latestExpansionCards": "最新拡張パックのカード",
     "latestExpansionCardsAny": "任意"

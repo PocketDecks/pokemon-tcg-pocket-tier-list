@@ -141,6 +141,7 @@
     "power": "Pontuação de poder",
     "popularity": "Popularidade",
     "strength": "Força",
+    "meta": "Pontuação meta",
     "winRate": "Taxa de Vitória",
     "latestExpansionCards": "Cartas da expansão mais recente",
     "latestExpansionCardsAny": "Qualquer"

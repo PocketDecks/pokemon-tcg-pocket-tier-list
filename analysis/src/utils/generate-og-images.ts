@@ -11,6 +11,7 @@ interface OgDeckInput {
 const WIDTH = 1200;
 const HEIGHT = 630;
 
+// Renders one PNG open-graph image per deck, pruning stale slugs, then writes them to the public og directory.
 export const generateOgImages = async (decks: OgDeckInput[]): Promise<void> => {
   const OUTPUT_DIR = process.env.OG_OUTPUT_DIR
     ? path.resolve(process.env.OG_OUTPUT_DIR)

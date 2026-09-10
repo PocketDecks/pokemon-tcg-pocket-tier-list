@@ -2,19 +2,21 @@
 // and file I/O so it can be tested without hitting Limitless.
 import { cardKey } from "./set-codes";
 
+// One pairing entry: a primary card and the data gathered about its partners.
 export interface PairingEntry {
   secondary: string[];
   peakCountBySet: Record<string, number>;
   names: Record<string, number>;
 }
 
+// The pairing store: current set, last update, and every archetype's entry.
 export interface PairingStore {
   updatedAt: string | null;
   currentSet: string | null;
   pairings: Record<string, PairingEntry>;
 }
 
-/** A scraped deck after its slug has been resolved to real cards. */
+// A scraped deck after its slug has been resolved to real cards.
 export interface ResolvedDeck {
   set: string;
   name: string;
@@ -22,10 +24,10 @@ export interface ResolvedDeck {
   cards: { name: string; set: string; number: string }[];
 }
 
+// How a merge resolved: added a new primary, merged into an existing one, or left unresolved.
 export type MergeOutcome = "added" | "merged" | "unresolved";
 
-// Archetypes Limitless never lists, so the sweep cannot discover them.
-// Seeded because regeneration rebuilds the file from scratch.
+// Archetypes Limitless never lists, so the sweep cannot discover them; seeded because regeneration rebuilds the file.
 export const SEED_PRIMARIES: readonly string[] = [
   "Oricorio A3 66",
   "Puppy-Loving Girl B3b 67",
@@ -38,8 +40,7 @@ const emptyEntry = (): PairingEntry => ({
   names: {},
 });
 
-// The primary card identifies the archetype, so partners merge onto it
-// instead of starting a second row. Nothing is ever pruned.
+// Merges a resolved deck into the store, folding partners onto the primary; returns whether it was added, merged, or unresolved.
 export const mergeDeck = (store: PairingStore, deck: ResolvedDeck): MergeOutcome => {
   if (!deck.cards.length) return "unresolved";
 
@@ -61,29 +62,18 @@ export const mergeDeck = (store: PairingStore, deck: ResolvedDeck): MergeOutcome
   return seen ? "merged" : "added";
 };
 
+// Ensures every seeded primary has an entry so regeneration keeps them present.
 export const ensureSeeded = (store: PairingStore, primaries: readonly string[]): void => {
   for (const primary of primaries) {
     store.pairings[primary] ??= emptyEntry();
   }
 };
 
-// A fingerprint of everything the scrape can move, used to decide whether the
-// file is worth rewriting: mergeDeck reports "merged" even for a row that did
-// not change, so the tally cannot answer the question. updatedAt is excluded
-// because it moves on every run by definition.
-//
-// This is deliberately the same serialiser that writes the file. mergeDeck
-// only ever appends (new primaries, secondary.push, new set and name keys,
-// none of them numeric), so JSON key order is deterministic and a string
-// comparison is exact.
+// Serialises the pairings map to a stable string for change detection; same serializer the writer uses so key order is deterministic.
 export const snapshot = (store: PairingStore): string =>
   JSON.stringify(store.pairings);
 
-// currentSet is a property of the set list, not of any one HTTP response.
-// Adopting "the newest set we happened to fetch" means a single timeout on
-// the newest set's page regresses currentSet to the one before it, which
-// changes what peakSum and isCurrentSetCard mean for every archetype and
-// renames decks across the tier list until the next successful run.
+// Chooses the current set: only adopt a newly fetched set if we actually saw it, so a single timeout cannot regress currentSet and rename decks.
 export const pickCurrentSet = (
   current: string | null,
   newest: string,

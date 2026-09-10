@@ -3,7 +3,6 @@ import getMultiplier from "./get-multiplier";
 import { filterDecks } from "./filter-decks";
 import { populateDeckNames } from "./populate-deck-names";
 import { updateDeckResults } from "./update-deck-results";
-import { fixPokeballCards } from "./fix-pokeball-cards";
 import { Deck } from "./types";
 
 const deckFilePath = () => process.env.DECKS_FILE || "./data/decks.json";
@@ -54,6 +53,7 @@ const applyMultipliers = (decks: Deck[], newestDate: Date): Deck[] => {
   });
 };
 
+// Loads decks from disk, filters them, attaches names and results, then applies recency multipliers.
 const getDecks = (): Deck[] => {
   const rawDecks = readDecksFromFile();
   const filteredDecks = filterDecks(rawDecks);
@@ -66,7 +66,7 @@ const getDecks = (): Deck[] => {
   const newestDate = getNewestDate(decksWithResults);
   const decksWithMultipliers = applyMultipliers(decksWithResults, newestDate);
 
-  return fixPokeballCards(decksWithMultipliers);
+  return decksWithMultipliers;
 };
 
 export default getDecks;

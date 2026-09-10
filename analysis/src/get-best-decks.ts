@@ -36,8 +36,7 @@ const run = async () => {
       0
     );
 
-    // Tally qualified games per archetype so we can drop tiny-sample
-    // archetypes (1-2 lucky tournament runs) from the rankings.
+    // Tally qualified games per archetype to drop tiny-sample flukes (1-2 lucky runs) from the rankings.
     const qualifiedGamesByName = new Map<string, number>();
     for (const deck of qualifiedDecks) {
       qualifiedGamesByName.set(
@@ -67,7 +66,7 @@ const run = async () => {
     for (const deckName of uniqueDeckNames) {
       matchupResults[deckName] = {};
 
-      // Qualified decks for this archetype (80%+ winrate)
+      // Qualified decks for this archetype
       const matchingQualifiedDecks = qualifiedDecks.filter(
         (game: Deck) => game.name === deckName
       );
@@ -99,7 +98,7 @@ const run = async () => {
       // Calculate card scores from qualified decks
       const scoredCards = calculateCardScores(cards, matchingQualifiedGames);
 
-      // Calculate matchup results from ALL decks (unfiltered) so winrates are accurate
+      // Matchup results use ALL decks (unfiltered) so win rates stay accurate
       matchupResults[deckName] = calculateMatchupResults(allDecks, deckName);
 
       // Build lists from qualified decks only
@@ -137,7 +136,7 @@ const run = async () => {
       });
     }
 
-    // Sort bestDecks by score descending to ensure deterministic ordering
+    // Sort bestDecks by score descending for deterministic ordering
     bestDecks.sort((a, b) => b.score - a.score);
 
     const matchupData = buildMatchupData(matchupResults);

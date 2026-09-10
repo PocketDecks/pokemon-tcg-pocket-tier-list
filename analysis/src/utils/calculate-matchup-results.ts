@@ -19,6 +19,7 @@ const processOpponentResults = (
   }
 };
 
+// Tallies wins and losses per opponent for one archetype across all decks.
 export const calculateMatchupResults = (
   decks: Deck[],
   deckName: string

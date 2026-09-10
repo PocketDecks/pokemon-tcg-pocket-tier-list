@@ -5,6 +5,7 @@ import {
 } from "../settings";
 import { Deck } from "./types";
 
+// Recency multiplier for a deck: newer decks scale up toward NEW_MULTIPLIER.
 const getMultiplier = (game: Deck, newestDate: Date) => {
   const deckDate = new Date(game.date);
   const timePassed = deckDate.getTime() - EXPANSION_RELEASE_DATE.getTime();

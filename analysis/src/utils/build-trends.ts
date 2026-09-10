@@ -1,22 +1,16 @@
-// analysis/src/utils/build-trends.ts
 import { Deck } from "./types";
 import { PipelinePartialDeck, PipelineTrendRow } from "../../../src/types/pipeline-data";
 
-/**
- * Builds the daily meta-share trend series for the top 6 highest-scoring
- * archetypes, as a percentage of that day's total qualified games.
- *
- * Assumes bestDecks is pre-sorted by score descending; get-best-decks.ts
- * sorts it before calling, so the first six entries are the top six.
- */
+// Builds the daily meta-share trend series for the top 6 archetypes as a
+// percentage of that day's qualified games. bestDecks must be pre-sorted by
+// score descending, so the first six entries are the top six.
 export const buildTrends = (
   qualifiedDecks: Deck[],
   bestDecks: PipelinePartialDeck[]
 ): PipelineTrendRow[] => {
   const top6Names = bestDecks.slice(0, 6).map((d) => d.name);
 
-  // Day accumulators keep date/totalGames separate from the per-archetype
-  // number tallies; a single Record<string, number> view would mistype date.
+  // Day accumulators keep date/totalGames separate from per-archetype tallies, which a single Record<string, number> view would mistype.
   const trendData: Record<string, { date: string; totalGames: number; counts: Record<string, number> }> = {};
 
   for (const deck of qualifiedDecks) {

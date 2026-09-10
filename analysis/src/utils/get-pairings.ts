@@ -8,6 +8,7 @@ const apiKey = () => {
   return key;
 };
 
+// Fetches a tournament's pairings and tags each with its tournament id.
 export const getPairings = async (tournament: Tournament) => {
   const res = await fetch(
     `${BASE}/tournaments/${tournament.id}/pairings?key=${apiKey()}`

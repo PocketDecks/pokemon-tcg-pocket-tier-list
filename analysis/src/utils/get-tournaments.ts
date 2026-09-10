@@ -17,6 +17,7 @@ const readProcessedTournaments = (): Tournament[] => {
   return JSON.parse(fs.readFileSync(PROCESSED_FILE, "utf-8"));
 };
 
+// Downloads unprocessed tournaments with enough players to count.
 export const getTournaments = async () => {
   const res = await fetch(
     `${BASE}/tournaments?key=${apiKey()}&limit=10000&game=${GAME}`

@@ -9,6 +9,7 @@ const apiKey = () => {
   return key;
 };
 
+// Downloads one tournament's standings and maps them to scored, result-tagged decks.
 const getTournamentDecks = async (tournament: Tournament) => {
   const res = await fetch(
     `${BASE}/tournaments/${tournament.id}/standings?key=${apiKey()}`

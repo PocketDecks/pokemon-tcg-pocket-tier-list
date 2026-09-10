@@ -14,20 +14,7 @@ interface CardScore extends Omit<CardData, "score"> {
   popularity: number;
 }
 
-/**
- * Wilson-style shrinkage estimator: given an observed proportion `p` and
- * an effective sample size `n`, returns a value <= `p` that pulls toward 0
- * harder when `n` is small. Used to keep card stats from a tiny archetype
- * from looking as confidently good as the same stats from a large one.
- *
- * Formally this is the Wilson score interval lower bound for a binomial
- * proportion at confidence level `z` (default z=1.96 ≈ 95%). In this
- * pipeline the inputs are recency-weighted (and therefore non-integer)
- * game counts, so `n` is treated as an effective sample size rather than
- * a strict binomial trial count, and the result should be read as a
- * sample-size-aware shrinkage rather than a true CI bound. Returns 0 if
- * `n` <= 0.
- */
+// Wilson lower-bound shrinkage: pulls a proportion toward 0 harder as its effective sample size shrinks, so tiny archetypes don't look as confident as large ones (returns 0 when n <= 0).
 const wilsonLowerBound = (p: number, n: number, z = 1.96): number => {
   if (n <= 0) return 0;
   const safeP = Math.max(0, Math.min(1, p));
@@ -37,14 +24,7 @@ const wilsonLowerBound = (p: number, n: number, z = 1.96): number => {
   return Math.max(0, (center - margin) / denom);
 };
 
-/**
- * Calculates the score for a single card based on its win rate, popularity, and type.
- *
- * Both the per-card win rate (over the card's appearances) and the per-card
- * popularity (over the archetype's qualified games) are passed through a
- * Wilson lower bound so that small samples within a tiny archetype don't
- * artificially saturate at 1.0.
- */
+// Scores one card from its win rate and popularity, both shrunk by a Wilson bound so small samples don't saturate.
 const calculateSingleCardScore = (
   cardName: string,
   { winCount, totalGames }: CardData,
@@ -64,12 +44,7 @@ const calculateSingleCardScore = (
   };
 };
 
-/**
- * Calculates scores for all cards based on their win rates and popularity
- * @param cards - Record of card data containing win counts and total games
- * @param matchingGames - Total number of games to calculate popularity against
- * @returns Record of cards with calculated scores
- */
+// Scores every card in a record from its win rate and the archetype's qualified game total.
 export const calculateCardScores = (
   cards: Record<string, CardData>,
   matchingGames: number

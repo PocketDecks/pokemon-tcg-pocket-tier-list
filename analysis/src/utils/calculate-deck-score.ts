@@ -12,12 +12,7 @@ interface CardStats {
   score?: number;
 }
 
-/**
- * Calculates the total score for all cards in a deck based on their individual scores and counts
- * @param cards - Array of cards in the deck
- * @param cardStats - Record of card statistics including scores
- * @returns The total weighted card score
- */
+// Sums each card's score weighted by its count, normalised over a full deck.
 const calculateCardScore = (
   cards: Card[],
   cardStats: Record<string, CardStats>
@@ -31,20 +26,14 @@ const calculateCardScore = (
   );
 };
 
+// Composite score for one deck: card strength and popularity blended by their configured weights.
 export interface DeckScore {
   score: number;
   popularity: number;
   strength: number;
 }
 
-/**
- * Calculates a deck's overall score based on card performance and popularity
- * @param deck - The deck to score
- * @param cardStats - Statistics for all cards including win rates and scores
- * @param matchingGames - Number of games played with this deck
- * @param totalGames - Total number of games in the dataset
- * @returns The deck's overall score
- */
+// Scores a deck from its cards, qualified games, and the dataset total.
 export const calculateDeckScore = (
   deck: Deck,
   cardStats: Record<string, CardStats>,

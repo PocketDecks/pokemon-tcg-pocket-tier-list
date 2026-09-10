@@ -7,6 +7,7 @@ import {
 } from "../settings";
 import { Deck } from "./types";
 
+// Drops pre-release and ex-less decks, filters no-trainer outliers, and caps the deck count.
 export const filterDecks = (decks: Deck[]): Deck[] => {
   return decks
     .filter((deck) => new Date(deck.date) >= EXPANSION_RELEASE_DATE)

@@ -114,6 +114,8 @@
     "alternatives": "Alternativas",
     "metaShare": "Participação no Meta",
     "powerScoreTooltip": "Taxa de vitória esperada contra o campo atual, ponderada pela frequência com que você enfrenta cada deck. 50 é uma vitória equilibrada. 100 é o deck mais forte do campo.",
+    "freqScoreTooltip": "Com que frequência este baralho aparece em listas de torneio qualificadas, com o baralho mais jogado da janela atual valendo 100.",
+    "metaScoreTooltip": "A média entre Pontuação de poder e Frequência. Equilibra a taxa de vitória esperada com a presença real do baralho.",
     "cardScoreTooltip": "A força das cartas individuais deste deck, pontuada em todas as listas de torneio. Isso mede apenas a qualidade das cartas, não a taxa de vitória, e não afeta o ranking.",
     "popularityTooltip": "Partidas qualificadas nos últimos 14 dias, limitadas ao lançamento desta expansão",
     "winRateTooltip": "% de vitória no período atual",

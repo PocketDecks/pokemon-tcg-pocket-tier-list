@@ -215,6 +215,10 @@ const DeckDetailPage = () => {
                 <KeyStatRow>
                   <span>{t("deckPage.freqScore")}:</span>
                   <KeyStatValue>{deck.freqScore.toFixed(1)}</KeyStatValue>
+                  <Tooltip
+                    text={t("deckPage.freqScoreTooltip")}
+                    ariaLabel={t("deckPage.showTooltip")}
+                  />
                 </KeyStatRow>
                 <KeyStatRow>
                   <span>{t("deckPage.metaScore")}:</span>
@@ -223,6 +227,10 @@ const DeckDetailPage = () => {
                       ? t("deckPage.unranked")
                       : deck.metaScore.toFixed(1)}
                   </KeyStatValue>
+                  <Tooltip
+                    text={t("deckPage.metaScoreTooltip")}
+                    ariaLabel={t("deckPage.showTooltip")}
+                  />
                 </KeyStatRow>
                 <KeyStatRow>
                   <span>{t("deckPage.cardScore")}:</span>

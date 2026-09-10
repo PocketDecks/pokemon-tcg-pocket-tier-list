@@ -114,6 +114,8 @@
     "alternatives": "替代方案",
     "metaShare": "環境占比",
     "powerScoreTooltip": "在當前環境中的預期勝率，按你遇到每個牌組的頻率加權。50 代表勝負各半，100 代表環境中最強的牌組。",
+    "freqScoreTooltip": "該牌組在合格比賽列表中的出現頻率，以當前週期內使用最多的牌組為 100。",
+    "metaScoreTooltip": "環境評分與頻率的平均值，平衡預期勝率與牌組的實際出場率。",
     "cardScoreTooltip": "這個牌組單卡強度的評分，基於每一份比賽牌表評定。它只衡量卡牌品質，而非勝率，也不影響排名。",
     "popularityTooltip": "過去 14 天內的合格對局，上限至此擴充包發布",
     "winRateTooltip": "當前時間窗口的勝率 %",

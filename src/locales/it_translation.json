@@ -114,6 +114,8 @@
     "alternatives": "Alternative",
     "metaShare": "Condivisione nel Meta",
     "powerScoreTooltip": "Tasso di vittoria atteso contro il campo attuale, ponderato in base a quanto spesso incontri ogni mazzo. 50 è una vittoria alla pari. 100 è il mazzo più forte del campo.",
+    "freqScoreTooltip": "Quanto è comune questo mazzo nelle liste di torneo qualificate, con il mazzo più giocato della finestra attuale a 100.",
+    "metaScoreTooltip": "La media tra Punteggio di potenza e Frequenza. Bilancia la percentuale di vittoria attesa con la presenza reale del mazzo.",
     "cardScoreTooltip": "Quanto sono forti le singole carte di questo mazzo, valutate su ogni lista torneo. Misura solo la qualità delle carte, non il tasso di vittoria, e non influisce sul rango.",
     "popularityTooltip": "Partite qualificate negli ultimi 14 giorni, limitate all'uscita di questa espansione",
     "winRateTooltip": "% di vittoria nella finestra attuale",

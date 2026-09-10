@@ -114,6 +114,8 @@
     "alternatives": "Alternatives",
     "metaShare": "Part du méta",
     "powerScoreTooltip": "Taux de victoire attendu contre le terrain actuel, pondéré par la fréquence à laquelle vous affrontez chaque deck. 50 correspond à une victoire à parts égales. 100 est le deck le plus fort du terrain.",
+    "freqScoreTooltip": "Fréquence de ce deck dans les listes de tournoi qualifiées, à l'échelle du deck le plus joué de la période actuelle qui atteint 100.",
+    "metaScoreTooltip": "La moyenne du Score de puissance et de la Fréquence. Elle équilibre le taux de victoire attendu et la présence réelle du deck.",
     "cardScoreTooltip": "La force des cartes individuelles de ce deck, évaluée sur toutes les listes de tournoi. Cela mesure uniquement la qualité des cartes, pas le taux de victoire, et n'affecte pas le rang.",
     "popularityTooltip": "Parties qualifiées sur les 14 derniers jours, plafonnées à la sortie de cette extension",
     "winRateTooltip": "% de victoires dans la fenêtre actuelle",

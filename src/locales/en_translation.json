@@ -114,6 +114,8 @@
     "alternatives": "Alternatives",
     "metaShare": "Meta share",
     "powerScoreTooltip": "Expected win rate against the current field, weighted by how often you meet each deck. 50 is an even win rate. 100 is the strongest deck in the field.",
+    "freqScoreTooltip": "How common this deck is in qualified tournament lists, scaled so the most played deck in the current window scores 100.",
+    "metaScoreTooltip": "The average of Power Score and Frequency. It balances expected win rate against how often the deck actually appears.",
     "cardScoreTooltip": "How strong this deck's individual cards are, scored across every tournament list. This measures card quality only, not win rate, and does not affect the tier.",
     "popularityTooltip": "Qualified games in the last 14 days, capped at this expansion's release",
     "winRateTooltip": "Win % in the current window",

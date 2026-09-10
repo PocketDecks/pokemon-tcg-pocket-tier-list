@@ -114,6 +114,8 @@
     "alternatives": "Alternative",
     "metaShare": "Cotă meta",
     "powerScoreTooltip": "Rata de victorie așteptată împotriva câmpului actual, ponderată după cât de des întâlnești fiecare deck. 50 este o victorie la egalitate. 100 este cel mai puternic deck din câmp.",
+    "freqScoreTooltip": "Cât de des apare acest deck în listele de turneu calificate, scalat astfel încât cel mai jucat deck din fereastra curentă să valoreze 100.",
+    "metaScoreTooltip": "Media dintre Scorul de putere și Frecvență. Echilibrează rata de victorie așteptată cu prezența reală a deckului.",
     "cardScoreTooltip": "Cât de puternice sunt cărțile individuale ale acestui deck, notate pe fiecare listă de turneu. Măsoară doar calitatea cărților, nu rata de victorie, și nu afectează rangul.",
     "popularityTooltip": "Meciuri calificate în ultimele 14 zile, limitate la lansarea acestei expansiuni",
     "winRateTooltip": "% de victorii în fereastra curentă",

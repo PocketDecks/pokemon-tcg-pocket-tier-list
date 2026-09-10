@@ -77,8 +77,14 @@ describe("resolveSlug", () => {
   });
 
   it("returns empty when one token resolves to no cards", () => {
-    // miraidon-ex-b3a resolves, but not-a-real-card-z9 does not, so the
-    // partly resolvable slug must read as a failure.
+    // Both tokens are consumed, so this reaches the per-token check rather
+    // than being rejected earlier as incomplete: zzzz is not a card.
+    expect(resolveSlug("zzzz-a1-pikachu-ex-a2b")).toEqual([]);
+  });
+
+  it("returns empty for a partly resolvable slug with an unmatched tail", () => {
+    // miraidon-ex-b3a resolves, but the trailing -not-a-real-card-z9 is never
+    // tokenised, so the input was not fully consumed.
     expect(resolveSlug("miraidon-ex-b3a-not-a-real-card-z9")).toEqual([]);
   });
 });

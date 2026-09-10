@@ -18,22 +18,18 @@ const mkDeck = (...cards: [number, string, string, string][]): Deck => ({
 });
 
 describe("getDeckName", () => {
-  it("should return correct name for a deck with two main cards", () => {
-    const deck = mkDeck([2, "Mimikyu ex", "B2", "73"], [2, "Giratina ex", "A2b", "35"]);
-    const result = getDeckName(deck);
-    expect(result).toBe("giratina-ex-a2b-035&mimikyu-ex-b2-073");
+  it("matches a deck to the newest-set listing that names all its cards", () => {
+    // Magnezone A2 53 + Miraidon ex B3a 19 must match the B3a
+    // "Magnezone Miraidon" row, keeping both cards, not a Magnezone-only row.
+    const deck = mkDeck([2, "Magnezone", "A2", "53"], [2, "Miraidon ex", "B3a", "19"]);
+    expect(getDeckName(deck)).toBe("magnezone-b1a-026&miraidon-ex-b3a-019");
   });
 
-  it("should return correct name for a deck with one main card", () => {
-    const deck = mkDeck([2, "Magnezone", "A2", "53"]);
-    const result = getDeckName(deck);
-    expect(result).toBe("magnezone-a2-053");
-  });
-
-  it("should return correct name for a deck with one main card and one side card", () => {
-    const deck = mkDeck([2, "Suicune ex", "A4a", "20"], [2, "Greninja", "A1", "89"]);
-    const result = getDeckName(deck);
-    expect(result).toBe("suicune-ex-a4a-020&greninja-a1-089");
+  it("keeps the partner in the name instead of folding it into the primary", () => {
+    // Charizard ex A2b 10 + Entei ex A4a 10 must keep Entei, not name the deck
+    // after Charizard ex alone.
+    const deck = mkDeck([2, "Charizard ex", "A2b", "10"], [2, "Entei ex", "A4a", "10"]);
+    expect(getDeckName(deck)).toBe("charizard-ex-a1-036&entei-ex-a4a-010");
   });
 
   it("falls back to the unnamed-deck sentinel when nothing matches", () => {
@@ -41,30 +37,21 @@ describe("getDeckName", () => {
     expect(getDeckName(deck)).toBe(UNNAMED_DECK);
   });
 
-  // Task 2: behaviour-preserving parity test. The leader must not depend on
-  // card order or JSON insertion order; highest summed peakCountBySet wins.
-  it("names a two-primary deck deterministically", () => {
-    const deck = mkDeck([2, "Charizard ex", "A1", "36"], [2, "Greninja", "A1", "89"]);
-    expect(getDeckName(deck)).toBe("charizard-ex-a1-036&greninja-a1-089");
-    const reversed = mkDeck([2, "Greninja", "A1", "89"], [2, "Charizard ex", "A1", "36"]);
-    expect(getDeckName(reversed)).toBe("charizard-ex-a1-036&greninja-a1-089");
+  it("matches a single-card listing", () => {
+    const deck = mkDeck([2, "Magnezone", "A2", "53"]);
+    expect(getDeckName(deck)).toBe("magnezone-b1a-026");
   });
 
-  // Equal-score tiebreak: when two mutual pairings score identically, the
-  // selected pair's leader must stay in sync with its key, and the result
-  // must not depend on input order.
-  it("keeps bestKey in sync on an equal-score tiebreak", () => {
-    const deck = mkDeck([2, "Hatterene", "B3", "71"], [2, "Meowstic", "B3", "66"]);
-    const result = getDeckName(deck);
-    expect(result).toBe("hatterene-b3-071&meowstic-b3-066");
-    const reversed = mkDeck([2, "Meowstic", "B3", "66"], [2, "Hatterene", "B3", "71"]);
-    expect(getDeckName(reversed)).toBe("hatterene-b3-071&meowstic-b3-066");
+  it("names a two-card deck deterministically regardless of input order", () => {
+    const a = mkDeck([2, "Charizard ex", "A2b", "10"], [2, "Entei ex", "A4a", "10"]);
+    const b = mkDeck([2, "Entei ex", "A4a", "10"], [2, "Charizard ex", "A2b", "10"]);
+    expect(getDeckName(a)).toBe(getDeckName(b));
   });
 
-  // Task 2 decision 2: seeded archetypes not present on Limitless.
+  // Task 2: seeded archetypes not present on Limitless.
   it("names the seeded Oricorio A3 66 archetype", () => {
     const deck = mkDeck([2, "Oricorio", "A3", "66"]);
-    expect(getDeckName(deck)).toBe("oricorio-a3-066");
+    expect(getDeckName(deck)).toBe("oricorio-a3-034");
   });
 
   it("names the seeded Puppy-Loving Girl B3b 67 archetype", () => {
@@ -72,23 +59,124 @@ describe("getDeckName", () => {
     expect(getDeckName(deck)).toBe("puppy-loving-girl-b3b-067");
   });
 
-  // Seeded archetypes carry no peak data, so reach must not be used against
-  // them. Without this a real partner outscored them and they vanished.
-  it("keeps a seeded archetype against a partner", () => {
-    const deck = mkDeck([2, "Oricorio", "A3", "66"], [2, "Greninja", "A1", "89"]);
-    expect(getDeckName(deck)).toBe("oricorio-a3-066");
-  });
-
-  it("keeps the seeded Puppy-Loving Girl archetype against a partner", () => {
-    const deck = mkDeck(
-      [2, "Puppy-Loving Girl", "B3b", "67"],
-      [2, "Mimikyu ex", "B2", "73"]
-    );
-    expect(getDeckName(deck)).toBe("puppy-loving-girl-b3b-067");
-  });
-
   it("names the seeded Gigalith ex A2 94 archetype", () => {
     const deck = mkDeck([2, "Gigalith ex", "A2", "94"]);
-    expect(getDeckName(deck)).toBe("gigalith-ex-a2-094");
+    expect(getDeckName(deck)).toBe("gigalith-ex-b2-087");
+  });
+
+  // Seeds are a last resort: when a partner gives the deck a real listing, that
+  // listing names it instead of the seed.
+  it("prefers a matching listing over the seed when a partner is present", () => {
+    const deck = mkDeck([2, "Oricorio", "A3", "66"], [2, "Greninja", "A1", "89"]);
+    expect(getDeckName(deck)).toBe("greninja-a1-089&oricorio-a3-034");
+  });
+
+  // A seeded archetype still names the deck against a partner that yields no
+  // listing, so the archetype does not vanish into UNNAMED_DECK.
+  it("keeps a seeded archetype when the partner matches no listing", () => {
+    const deck = mkDeck([2, "Puppy-Loving Girl", "B3b", "67"], [2, "Lickitung", "A1", "117"]);
+    expect(getDeckName(deck)).toBe("puppy-loving-girl-b3b-067");
+  });
+});
+
+// Regression pins from the PR 86 audit. Ranking `line` above row length let a
+// 1-card anchored row beat a 2-card unanchored one, stripping the centrepiece
+// from 93 deck names. Row length must decide first; `line` only separates
+// rows that name the same number of cards.
+//
+// The bug needs two things at once: a 2-card pair worth keeping and a
+// competing single card that anchors its own row (Dratini tops Dragonair,
+// Litwick tops Chandelure). Without that third card the matcher has nothing
+// to prefer the short row over, so the pair wins trivially and the pin cannot
+// catch the regression. Each deck below carries the minimal anchor that
+// flips it to the bare single card under the buggy ordering.
+describe("row ranking: a fuller listing outranks an anchored shorter one", () => {
+  it("keeps the Mega Rayquaza ex partner on a Dragonair deck", () => {
+    const deck = mkDeck(
+      [2, "Mega Rayquaza ex", "B4", "120"],
+      [2, "Dragonair", "B4", "117"],
+      [2, "Dratini", "A3b", "51"]
+    );
+    expect(getDeckName(deck)).toBe("dragonair-b4-117&mega-rayquaza-ex-b4-120");
+  });
+
+  it("keeps the Oricorio partner on a Chandelure deck", () => {
+    const deck = mkDeck(
+      [2, "Chandelure", "B2", "69"],
+      [2, "Oricorio", "B4", "78"],
+      [2, "Litwick", "B2", "67"]
+    );
+    expect(getDeckName(deck)).toBe("chandelure-b2-069&oricorio-b4-078");
+  });
+
+  it("still rejects a tech Basic row in favour of the real archetype", () => {
+    // The fix this task preserves: Igglybuff is a 2-of tech Basic and must not
+    // name a deck whose centrepiece is Mega Altaria ex. Swablu is in the deck
+    // so Mega Altaria ex tops a line it plays and the row is anchored.
+    const deck = mkDeck(
+      [2, "Espeon", "B3a", "20"],
+      [2, "Mega Altaria ex", "B1", "102"],
+      [2, "Igglybuff", "A4a", "59"],
+      [1, "Swablu", "B1", "196"]
+    );
+    expect(getDeckName(deck)).toBe("mega-altaria-ex-b1-102&espeon-b3a-020");
+  });
+});
+
+// Containment: every card a row lists must be in the deck, checked against the
+// full row and not the filtered supportedNames. The "Machoke Meowth" row names
+// Machoke and Meowth. A deck holding Machoke and Persian (Meowth's evolution,
+// not Meowth itself) must not take that row: outclassed() would drop Meowth
+// from supportedNames and a check on supportedNames alone would pass it. With
+// the row-level check it falls through to UNNAMED_DECK.
+describe("containment: a row listing a card the deck lacks is rejected", () => {
+  it("does not name a row after a card the deck does not play", () => {
+    const deck = mkDeck(
+      [2, "Machoke", "A1", "144"],
+      [2, "Persian", "A1", "127"]
+    );
+    expect(getDeckName(deck)).toBe(UNNAMED_DECK);
+  });
+});
+
+describe("Milotic ex/Eevee ex naming: Eevee ex misread as a plain tech Basic and sameLine outranking set recency", () => {
+  it("names the milotic-ex-b3b-015&vaporeon-ex-b3-037#0 real list after the current B4a pairing", () => {
+    const deck = mkDeck(
+      [1, "Vaporeon", "A3b", "016"],
+      [1, "Giant Cape", "A2", "147"],
+      [1, "Training Area", "B2", "153"],
+      [1, "Chien-Pao ex", "B2a", "037"],
+      [1, "Vaporeon ex", "B3", "037"],
+      [1, "Field Blower", "B3", "147"],
+      [1, "Elegant Cape", "B3b", "065"],
+      [1, "Wallace", "B3b", "068"],
+      [2, "Eevee ex", "A3b", "056"],
+      [2, "Feebas", "A4a", "021"],
+      [2, "Copycat", "B1", "225"],
+      [2, "Milotic ex", "B3b", "015"],
+      [2, "Poké Ball", "PA", "005"],
+      [2, "Professor's Research", "PA", "007"]
+    );
+    expect(getDeckName(deck)).toBe("milotic-ex-b3b-015&eevee-ex-a3b-056");
+  });
+
+  it("names the milotic-ex-b3b-015#3 real list after the current B4a pairing", () => {
+    const deck = mkDeck(
+      [1, "Vaporeon", "A1a", "019"],
+      [1, "Pokémon Center Lady", "A2b", "070"],
+      [1, "Eevee ex", "A3b", "056"],
+      [1, "Suicune ex", "A4a", "020"],
+      [1, "Chien-Pao ex", "B2a", "037"],
+      [1, "Field Blower", "B3", "147"],
+      [1, "Wallace", "B3b", "068"],
+      [1, "Soothing Shore", "B4", "154"],
+      [2, "Giant Cape", "A2", "147"],
+      [2, "Copycat", "B1", "225"],
+      [2, "Milotic ex", "B3b", "015"],
+      [2, "Poké Ball", "PA", "005"],
+      [2, "Professor's Research", "PA", "007"],
+      [2, "Feebas", "PB", "072"]
+    );
+    expect(getDeckName(deck)).toBe("milotic-ex-b3b-015&eevee-ex-a3b-056");
   });
 });

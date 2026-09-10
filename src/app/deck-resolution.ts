@@ -32,6 +32,11 @@ export interface ResolvedDeck {
   bestList: FullList;
   score: number;
   strength: number;
+  expectedWinRate: number;
+  fieldCoverage: number;
+  powerScore: number | null;
+  freqScore: number;
+  metaScore: number | null;
   matchups: PipelineMatchupEntry[] | undefined;
   iconPrimary: CardType;
   iconSecondary: CardType | null;
@@ -125,6 +130,11 @@ export const resolveDeckDetail = (
       bestList,
       score: Math.max(...fullLists.map((l) => l.score)),
       strength: Math.max(...fullLists.map((l) => l.strength)),
+      expectedWinRate: oldDeck.expectedWinRate,
+      fieldCoverage: oldDeck.fieldCoverage,
+      powerScore: oldDeck.powerScore,
+      freqScore: oldDeck.freqScore,
+      metaScore: oldDeck.metaScore,
       matchups: matchupData[oldDeck.name],
       iconPrimary: cardsMapping[cardIds[0]],
       iconSecondary,
@@ -132,19 +142,3 @@ export const resolveDeckDetail = (
   };
 };
 
-/// Cross-deck normalisation reference for the detail page's strength stat.
-/// Reads only score/strength off the raw data, and ignores every tier-list
-/// filter so the stat cannot shift when an unrelated filter is active.
-export const highestScoreAndStrength = (
-  decksRaw: PipelinePartialDeck[]
-): { highestScore: number; highestStrength: number } => {
-  let highestScore = 0;
-  let highestStrength = 0;
-  for (const deck of decksRaw) {
-    for (const list of deck.lists) {
-      if (list.score > highestScore) highestScore = list.score;
-      if (list.strength > highestStrength) highestStrength = list.strength;
-    }
-  }
-  return { highestScore, highestStrength };
-};

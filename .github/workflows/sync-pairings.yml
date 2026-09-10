@@ -40,8 +40,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -z "$(git status --porcelain analysis/src/data/limitless-pairings.json)" ]; then
-            echo "No pairing changes today."
+          if [ ! -f analysis/src/data/limitless-decks.json ]; then
+            echo "limitless-decks.json missing after scrape; store path moved or scraper failed."
+            exit 1
+          fi
+
+          if [ -z "$(git status --porcelain analysis/src/data/limitless-decks.json)" ]; then
+            echo "No listing changes today."
             exit 0
           fi
 
@@ -52,8 +57,8 @@ jobs:
           # Reuse the date branch on re-runs; -B resets it so a second run cannot fail on a duplicate.
           git fetch origin main
           git checkout -B "$BRANCH" origin/main
-          git add analysis/src/data/limitless-pairings.json
-          git commit -m "chore(data): sync deck pairings from Limitless"
+          git add analysis/src/data/limitless-decks.json
+          git commit -m "chore(data): sync deck listings from Limitless"
           # Fetch the branch so --force-with-lease checks against the real remote, not a stale local ref.
           git fetch origin "$BRANCH" || true
           git push --force-with-lease origin "$BRANCH"

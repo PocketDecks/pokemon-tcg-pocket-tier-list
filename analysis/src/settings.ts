@@ -55,3 +55,19 @@ console.log("WINRATE_IMPORTANCE:", WINRATE_IMPORTANCE);
 // Multiplier applied to decks from the newest expansion; grows with weeks since release.
 export const NEW_MULTIPLIER: number = 1 + WEEKS_LIVE / 1.5;
 console.log("NEW_MULTIPLIER:", NEW_MULTIPLIER);
+
+// Pseudo-games pulling each matchup win rate toward 50%, so a 4-game matchup
+// barely moves a deck's expected win rate and a 500-game one counts almost
+// fully. This replaces a hard opponent-games floor, which discarded 41 of 62
+// decks entirely and left the ranking 99% correlated with play rate.
+export const MATCHUP_PRIOR_GAMES: number = 30;
+
+// Matchup rows below this are dropped as noise before smoothing. Note that
+// totalGames is a recency-weighted sum, not a raw count.
+export const MIN_MATCHUP_GAMES: number = 5;
+
+// Share of the field a deck's matchup data must cover before it gets a Power
+// Score. Below this the deck is unranked rather than given an invented score.
+// Measured on the 62-deck field: 0.25 ranks 52 decks at rho(power, winRate)
+// 0.726; 0.5 ranks 43 at 0.797; 0.7 ranks 29 at 0.881.
+export const MIN_FIELD_COVERAGE: number = 0.5;

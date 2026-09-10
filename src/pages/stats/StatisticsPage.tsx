@@ -371,7 +371,10 @@ const StatisticsPage = () => {
 
     const tierMap = useMemo(() => {
         const map = new Map<string, string>();
-        const tiers = buildTiers(sortedDecks, (d) => d.score);
+        const tiers = buildTiers(
+          sortedDecks.filter((d) => d.powerScore !== null),
+          (d) => d.powerScore ?? -1
+        );
         tiers.forEach((t) => {
             t.data.forEach((d) => map.set(d.id, t.color));
         });

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useDecks } from "../../contexts/DecksContext";
 import useFilters from "../../app/use-filters";
 import useIsPremium from "../../app/use-is-premium";
-import { getSortValue } from "../../app/sorting-helper";
+
 import UserAccount from "../../components/UserAccount";
 import { SortBy } from "../../components/FilterContext";
 import LastUpdated from "../../components/LastUpdated";
@@ -152,7 +152,7 @@ const TierListPage = () => {
               value={sortBy}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value as SortBy)}
             >
-              {[SortBy.SCORE, SortBy.POPULARITY, SortBy.STRENGTH].map(
+              {[SortBy.POWER, SortBy.META, SortBy.SCORE, SortBy.POPULARITY, SortBy.STRENGTH].map(
                 (sortByOption) => (
                   <option key={sortByOption} value={sortByOption}>
                     {t(`filter.${sortByOption}`)}
@@ -187,7 +187,8 @@ const TierListPage = () => {
     <>
       <TierGrid
         items={decks}
-        getScore={(d) => getSortValue(d, sortBy)}
+        getScore={(d) => d.powerScore ?? -1}
+        isRanked={(deck) => deck.powerScore !== null}
         getKey={(d) => d.id}
         renderItem={(deck) => (
           <DeckCard

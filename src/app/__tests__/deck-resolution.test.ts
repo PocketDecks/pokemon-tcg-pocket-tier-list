@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { resolveDeckDetail, highestScoreAndStrength } from "../deck-resolution";
+import { resolveDeckDetail } from "../deck-resolution";
+import { formatCardScore } from "../format-card-score";
 import type { PipelinePartialDeck } from "../../types/pipeline-data";
 import rawCards from "../__fixtures__/cards-full-v510.json";
 import { normaliseMultipleCards } from "../cards-api";
@@ -24,6 +25,11 @@ const decksRaw: PipelinePartialDeck[] = [
     percentOfGames: 50,
     popularity: 100,
     score: 10,
+    expectedWinRate: 0.5,
+    fieldCoverage: 1,
+    powerScore: 60,
+    freqScore: 55,
+    metaScore: 65,
   },
 ];
 
@@ -82,11 +88,12 @@ describe("resolveDeckDetail", () => {
   });
 });
 
-describe("highestScoreAndStrength", () => {
-  it("scans every list of every deck, ignoring filters", () => {
-    const { highestScore, highestStrength } =
-      highestScoreAndStrength(decksRaw);
-    expect(highestScore).toBe(10);
-    expect(highestStrength).toBe(5);
+describe("card score display scale", () => {
+  it("caps the best deck at 10 rather than exceeding the scale", () => {
+    // deck.strength arrives from DecksContext already divided by
+    // highestStrength, so the display must only multiply by 10. Dividing
+    // again pushed the top deck to 11.8 on a 0 to 10 scale.
+    expect(formatCardScore(1)).toBe("10.0");
+    expect(formatCardScore(0.5)).toBe("5.0");
   });
 });

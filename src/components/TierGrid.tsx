@@ -111,6 +111,8 @@ interface Props<T> {
   getScore: (item: T) => number;
   getKey: (item: T) => string;
   renderItem: (item: T) => ReactNode;
+  /** Decides whether an item can be banded into a tier. Items the predicate rejects drop into a neutral unranked row. Defaults to every item being rankable. */
+  isRanked?: (item: T) => boolean;
   /** Rendered above the tiers, inside the page shell. Absent on the expansion list. */
   filters?: ReactNode;
   /** Rendered after the last tier row, inside the page shell. */
@@ -124,6 +126,7 @@ const TierGrid = <T,>({
   getScore,
   getKey,
   renderItem,
+  isRanked = () => true,
   filters,
   footer,
   loadingLabel = "Loading...",
@@ -136,7 +139,12 @@ const TierGrid = <T,>({
     return <Loading>{emptyLabel}</Loading>;
   }
 
-  const tiers = buildTiers(items, getScore);
+  // The caller states which items can be banded. Items the predicate rejects
+  // land in a neutral unranked row, so the grid never infers rankedness from
+  // a score's sign.
+  const rankable = items.filter((item) => isRanked(item));
+  const unranked = items.filter((item) => !isRanked(item));
+  const tiers = buildTiers(rankable, getScore);
 
   return (
     <Page>
@@ -153,6 +161,18 @@ const TierGrid = <T,>({
           </RowContent>
         </TierRow>
       ))}
+      {unranked.length > 0 && (
+        <TierRow key="unranked" data-testid="unranked-row">
+          <RowHeader $backgroundColor="var(--unranked, #3a3a36)">?</RowHeader>
+          <RowContent>
+            {unranked.map((item) => (
+              <React.Fragment key={getKey(item)}>
+                {renderItem(item)}
+              </React.Fragment>
+            ))}
+          </RowContent>
+        </TierRow>
+      )}
       {footer}
     </Page>
   );

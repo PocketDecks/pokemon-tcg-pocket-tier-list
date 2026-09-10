@@ -5,6 +5,7 @@ import { useMemo } from "react";
    still consumes DecksContext directly. Move behind src/app/ before adding more. */
 import { useDecks, useDeckDetail, MatchupType } from "../../contexts/DecksContext";
 import useMissing from "../../app/use-missing";
+import { formatCardScore } from "../../app/format-card-score";
 import { useQuery } from "@tanstack/react-query";
 import { CardType, fetchCards } from "../../app/cards-api";
 import DeckCardGrid from "./DeckCardGrid";
@@ -61,7 +62,7 @@ const DeckDetailPage = () => {
     return counts;
   }, [missing]);
 
-  const { deck, extinct, highestStrength } = useDeckDetail(deckId, missingCounts);
+  const { deck, extinct } = useDeckDetail(deckId, missingCounts);
   // Card data for resolving the removed card's name in the extinct notice.
   // React Query dedupes this against the same queryKey used elsewhere, so it is
   // a cache read, not a second network fetch.
@@ -200,12 +201,42 @@ const DeckDetailPage = () => {
               </SubHeader>
               <KeyStats>
                 <KeyStatRow>
-                  <span>{t("deckPage.strength")}:</span>
+                  <span>{t("deckPage.powerScore")}:</span>
                   <KeyStatValue>
-                    {((deck.strength / (highestStrength || 1)) * 10).toFixed(1)}
+                    {deck.powerScore === null
+                      ? t("deckPage.unranked")
+                      : deck.powerScore.toFixed(1)}
                   </KeyStatValue>
                   <Tooltip
-                    text={t("deckPage.strengthTooltip")}
+                    text={t("deckPage.powerScoreTooltip")}
+                    ariaLabel={t("deckPage.showTooltip")}
+                  />
+                </KeyStatRow>
+                <KeyStatRow>
+                  <span>{t("deckPage.freqScore")}:</span>
+                  <KeyStatValue>{deck.freqScore.toFixed(1)}</KeyStatValue>
+                  <Tooltip
+                    text={t("deckPage.freqScoreTooltip")}
+                    ariaLabel={t("deckPage.showTooltip")}
+                  />
+                </KeyStatRow>
+                <KeyStatRow>
+                  <span>{t("deckPage.metaScore")}:</span>
+                  <KeyStatValue>
+                    {deck.metaScore === null
+                      ? t("deckPage.unranked")
+                      : deck.metaScore.toFixed(1)}
+                  </KeyStatValue>
+                  <Tooltip
+                    text={t("deckPage.metaScoreTooltip")}
+                    ariaLabel={t("deckPage.showTooltip")}
+                  />
+                </KeyStatRow>
+                <KeyStatRow>
+                  <span>{t("deckPage.cardScore")}:</span>
+                  <KeyStatValue>{formatCardScore(deck.strength)}</KeyStatValue>
+                  <Tooltip
+                    text={t("deckPage.cardScoreTooltip")}
                     ariaLabel={t("deckPage.showTooltip")}
                   />
                 </KeyStatRow>
@@ -219,33 +250,6 @@ const DeckDetailPage = () => {
                     ariaLabel={t("deckPage.showTooltip")}
                   />
                 </KeyStatRow>
-                <KeyStatRow>
-                  <span>{t("deckPage.winRate")}:</span>
-                  <KeyStatValue>
-                    {winRatePct !== null ? `${winRatePct}%` : "—"}
-                  </KeyStatValue>
-                  <Tooltip
-                    text={t("deckPage.winRateTooltip")}
-                    ariaLabel={t("deckPage.showTooltip")}
-                  />
-                </KeyStatRow>
-                {shareEntry && (
-                  <KeyStatRow>
-                    <span>{t("deckPage.metaShare")}:</span>
-                    <KeyStatValue>
-                      {(shareEntry.share * 100).toFixed(1)}%
-                      {shareEntry.delta > 0.001
-                        ? ` ▲${(shareEntry.delta * 100).toFixed(1)}`
-                        : shareEntry.delta < -0.001
-                          ? ` ▼${(Math.abs(shareEntry.delta) * 100).toFixed(1)}`
-                          : ""}
-                    </KeyStatValue>
-                    <Tooltip
-                      text={t("deckPage.metaShareTooltip")}
-                      ariaLabel={t("deckPage.showTooltip")}
-                    />
-                  </KeyStatRow>
-                )}
               </KeyStats>
             </MatchupSection>
 

@@ -35,6 +35,16 @@ export interface PipelinePartialDeck {
   popularity: number;
   percentOfGames: number;
   score: number;
+  /** 0..1 win rate against the 14-day field. Always present. */
+  expectedWinRate: number;
+  /** 0..1 share of the field this deck has usable matchup data against. */
+  fieldCoverage: number;
+  /** 0..100 VS-style Power Score, or null when fieldCoverage is too low. */
+  powerScore: number | null;
+  /** 0..100 play rate against the most-played deck. Always present. */
+  freqScore: number;
+  /** (powerScore + freqScore) / 2, or null when unranked. */
+  metaScore: number | null;
 }
 
 /** One opponent row in matchup-data.json's per-deck array, including the

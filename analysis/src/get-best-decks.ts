@@ -8,6 +8,7 @@ import { calculateMatchupResults } from "./utils/calculate-matchup-results";
 import { buildTrends } from "./utils/build-trends";
 import { buildMatchupData } from "./utils/build-matchup-data";
 import { buildMetaShare } from "./utils/build-meta-share";
+import { buildDeckPower, DeckPowerInput } from "./utils/build-deck-power";
 import { generateOgImages } from "./utils/generate-og-images";
 import { Deck, DeckList, PartialDeck } from "./utils/types";
 import { convertCardsToIds } from "./utils/convert-cards";
@@ -132,7 +133,12 @@ const run = async () => {
         lists,
         popularity: deckScore.popularity,
         percentOfGames,
-        score: lists.length ? Math.max(...lists.map((l) => l.score)) : 0
+        score: lists.length ? Math.max(...lists.map((l) => l.score)) : 0,
+        expectedWinRate: 0.5,
+        fieldCoverage: 0,
+        powerScore: null,
+        freqScore: 0,
+        metaScore: null
       });
     }
 
@@ -231,6 +237,28 @@ const run = async () => {
         "../public/data/meta-share.json",
         JSON.stringify(metaShare, null, 2)
     );
+
+    // Power and Meta scores need the matchup rows and the 14-day field share,
+    // so this runs after both are built.
+    const games14ByName = new Map(
+      metaShare.decks.map((entry) => [entry.name, entry.games14])
+    );
+    const powerInputs: DeckPowerInput[] = bestDecks.map((deck) => ({
+      name: deck.name,
+      matchups: matchupData[deck.name] ?? [],
+      games14: games14ByName.get(deck.name) ?? 0,
+    }));
+    const powerByName = new Map(
+      buildDeckPower(powerInputs).map((row) => [row.name, row] as const)
+    );
+    for (const deck of bestDecks) {
+      const power = powerByName.get(deck.name);
+      deck.expectedWinRate = power?.expectedWinRate ?? 0.5;
+      deck.fieldCoverage = power?.fieldCoverage ?? 0;
+      deck.powerScore = power?.powerScore ?? null;
+      deck.freqScore = power?.freqScore ?? 0;
+      deck.metaScore = power?.metaScore ?? null;
+    }
 
     fs.writeFileSync(
       "./data/card-scores.json",

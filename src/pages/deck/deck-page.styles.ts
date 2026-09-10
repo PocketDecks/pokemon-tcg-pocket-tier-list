@@ -326,6 +326,20 @@ export const KeyStatRow = styled.div`
   font-weight: 400;
   display: contents;
 
+  span {
+    grid-column: 1;
+  }
+
+  > :nth-child(2) {
+    grid-column: 2;
+  }
+
+  /* Rows without a tooltip still leave the third column free, so the next
+     row's label cannot slide into it. */
+  > :nth-child(3) {
+    grid-column: 3;
+  }
+
   @media (max-width: 900px) {
     font-size: 2rem;
   }

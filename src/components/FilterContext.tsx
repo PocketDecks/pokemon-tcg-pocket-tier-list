@@ -6,6 +6,8 @@ export enum SortBy {
   POPULARITY = "popularity",
   STRENGTH = "strength",
   WIN_RATE = "winRate",
+  POWER = "power",
+  META = "meta",
 }
 
 interface FilterContextType {
@@ -30,7 +32,7 @@ export const FilterContext = createContext<FilterContextType>({
   setIncludeEx: () => { },
   deckAmount: FREE_DECK_AMOUNT,
   setDeckAmount: () => { },
-  sortBy: SortBy.SCORE,
+  sortBy: SortBy.POWER,
   setSortBy: () => { },
   expansion: null,
   setExpansion: () => { },
@@ -46,7 +48,7 @@ const FilterContextProvider = ({ children }: Props) => {
   const [energy, setEnergy] = useState<string | null>(null);
   const [includeEx, setIncludeEx] = useState<boolean>(true);
   const [deckAmount, setDeckAmount] = useState<number>(FREE_DECK_AMOUNT);
-  const [sortBy, setSortBy] = useState<SortBy>(SortBy.SCORE);
+  const [sortBy, setSortBy] = useState<SortBy>(SortBy.POWER);
   const [expansion, setExpansion] = useState<string | null>(null);
   const [latestExpansionCards, setLatestExpansionCards] = useState<number | null>(null);
 

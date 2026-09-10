@@ -1,109 +1,107 @@
-import cardToString from "./card-to-string";
 import { Deck } from "./types";
 import formatName from "./format-name";
 import { cardKey, SET_CODES } from "./set-codes";
-import pairings from "../data/limitless-pairings.json";
-import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
+import listings from "../data/limitless-decks.json";
+import { resolveSlug } from "./slug-cards";
+import { SetListing } from "./deck-listing-store";
+import cardsJson from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
-// Candidate pairs are ranked on a lexicographic tuple, compared left to right:
-// the first component that differs decides, and later components never
-// influence the result. This was previously encoded as a sum of weights
-// (1e12, 1e11, 1e9, 5e8) chosen so each level outranked the next, which held
-// only while reach stayed below 5e8 and copies below 100, neither enforced.
-//
-//   sameLine  the pair is the archetype's own evolution line
-//   anchored  a card tops a line the deck plays, over a lone Basic tech card
-//   copies    total copies of the pair in the deck
-//   seeded    an archetype Limitless never lists, so it carries no peak data
-//   reach     summed peak count, the population tiebreak
-type Rank = readonly [
-  sameLine: number,
-  anchored: number,
-  copies: number,
-  seeded: number,
-  reach: number
+// The store keeps one snapshot per set; a row is a candidate only if the deck
+// holds every card the row lists, so the pairing is what Limitless shows, not
+// an inferred primary/secondary split.
+const STORE = listings as { sets: Record<string, SetListing> };
+
+// Set age for the tiebreak: standard sets oldest to newest, then the
+// non-standard pools. A higher index is the newer format.
+const SET_ORDER = new Map(SET_CODES.map((set, index) => [set.toUpperCase(), index]));
+const orderOf = (set: string): number =>
+  SET_ORDER.get(set.toUpperCase()) ?? -1;
+
+// Archetypes Limitless never lists, so no row will ever match them; seeded so
+// regeneration still names them. The display pair is what formatName renders
+// when the deck holds the primary and no listing row matched.
+interface SeededArchetype {
+  primary: string;
+  display: string[];
+}
+const SEEDED_ARCHETYPES: readonly SeededArchetype[] = [
+  { primary: "Oricorio", display: ["Oricorio A3 66"] },
+  { primary: "Puppy-Loving Girl", display: ["Puppy-Loving Girl B3b 67"] },
+  { primary: "Gigalith ex", display: ["Gigalith ex A2 94"] },
 ];
 
-// Negative when `a` ranks higher, matching Array.prototype.sort's convention.
-const compareRank = (a: Rank, b: Rank): number => {
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return b[i] - a[i];
-  }
-  return 0;
-};
+// Slug shared by all decks that match no listing, so the tier list has one
+// "everything else" bucket.
+export const UNNAMED_DECK = "professor's-research-pa-007";
 
-interface PairingEntry {
-  secondary: string[];
-  peakCountBySet?: Record<string, number>;
-  names?: Record<string, number>;
+// One resolved listing row, with its card names for subset matching.
+interface IndexedRow {
+  set: string;
+  name: string;
+  count: number;
+  cardNames: string[];
+  cardKeys: string[];
 }
-const PAIRINGS = (pairings as { pairings?: Record<string, PairingEntry> }).pairings ?? {};
 
-// "Name SET NN" -> the card, for evolution lookups.
-const cardByName = new Map(
-  (cards as { name: string; set_code: string; id: string; evolves_from: string | null }[]).map(
-    (c) => [
-      cardKey(c.name, c.set_code, String(Number(c.id.split("-").pop()))),
-      { name: c.name, evolvesFrom: c.evolves_from },
-    ]
-  )
+// Built once at import: rows grouped by each card name they contain, so a deck
+// only evaluates rows that share at least one of its cards instead of scanning
+// every row.
+const ALL_ROWS: IndexedRow[] = [];
+const rowsByCard: Map<string, number[]> = new Map();
+for (const [set, listing] of Object.entries(STORE.sets)) {
+  for (const row of listing.decks) {
+    const cards = resolveSlug(row.slug).map((c) =>
+      cardKey(c.name, c.set, c.number)
+    );
+    if (!cards.length) continue;
+    const cardNames = cards.map((key) => key.split(" ").slice(0, -2).join(" "));
+    const index = ALL_ROWS.length;
+    ALL_ROWS.push({ set, name: row.name, count: row.count, cardNames, cardKeys: cards });
+    for (const cardName of cardNames) {
+      const refs = rowsByCard.get(cardName);
+      if (refs) refs.push(index);
+      else rowsByCard.set(cardName, [index]);
+    }
+  }
+}
+
+// name -> what it evolves from, so a row's pair can be checked for a shared
+// line. A deck containing Igglybuff (a 2-of tech Basic) also contains the
+// deck's real centrepiece, so containment alone matches junk rows like
+// "Espeon Igglybuff" against a Mega Altaria ex Espeon deck. A row's partner
+// must be a 2-of in the deck, share a line with the lead, or be a centrepiece
+// itself: a card that tops an evolution line the deck plays, as Mega Altaria
+// ex and Espeon both do in a Swablu/Eevee deck.
+const evolvesFromByName = new Map<string, string | null>(
+  (
+    cardsJson as {
+      name: string;
+      set_code: string;
+      id: string;
+      evolves_from: string | null;
+    }[]
+  ).map((c) => [c.name, c.evolves_from])
 );
-
-// When both cards are two-ofs the centrepiece leads. An ex or Mega card
-// outranks a plain one: Suicune ex leads Greninja.
-const tierOf = (name: string): number => {
-  if (/^Mega\s/i.test(name)) return 2;
-  if (/\sex\b/i.test(name)) return 1;
-  return 0;
-};
-// Built from the one set-code list, so adding a set needs no change here. It
-// still only strips codes that list holds, so an unlisted code stays inside
-// the species and breaks same-line comparison; canonSet rejects those first.
-const SET_SUFFIX = new RegExp(`\\s+(?:${SET_CODES.join("|")})\\s+\\d+$`, "i");
 
 const speciesOf = (name: string): string =>
   name
-    .replace(SET_SUFFIX, "")
     .replace(/^Mega\s+/i, "")
     .replace(/\s+ex$/i, "")
     .trim();
 
-// A card that a stronger card in the same deck evolves from is support, not
-// the centrepiece. Without this a Magnezone deck gets named after Magneton.
-const outclassed = (name: string, present: Set<string>): boolean => {
-  const card = cardByName.get(name);
-  if (!card) return false;
-  return [...present].some(
-    (other) => other !== name && cardByName.get(other)?.evolvesFrom === card.name
+const isSameLine = (a: string, b: string): boolean => {
+  if (speciesOf(a) === speciesOf(b)) return true;
+  return (
+    evolvesFromByName.get(a) === b ||
+    evolvesFromByName.get(b) === a
   );
 };
 
-// True when the deck also holds the base of this card's line, so the card is
-// the top of a line the deck actually plays. A lone Basic tech card (Castform,
-// Mantyke) tops nothing and must not outrank a real centrepiece. The chain is
-// walked to the base because lists commonly skip the middle stage via Rare
-// Candy, so checking only the immediate pre-evolution misses Torchic into
-// Mega Blaziken ex.
-// name -> what it evolves from, for walking a line down to its base.
-const evolvesFromByName = new Map<string, string | null>();
-for (const card of cardByName.values()) {
-  evolvesFromByName.set(card.name, card.evolvesFrom);
-}
-
-const topsLine = (name: string, present: Set<string>): boolean => {
-  const start = cardByName.get(name);
-  if (!start?.evolvesFrom) return false;
-
-  const presentNames = new Set<string>();
-  for (const card of present) {
-    const found = cardByName.get(card);
-    if (found) presentNames.add(found.name);
-  }
-
-  let next: string | null | undefined = start.evolvesFrom;
-  const seen = new Set<string>([start.name]);
+const reachesSpecies = (from: string, species: string): boolean => {
+  const seen = new Set<string>([from]);
+  let next: string | null | undefined = evolvesFromByName.get(from);
   while (next) {
-    if (presentNames.has(next)) return true;
+    if (speciesOf(next) === species) return true;
     if (seen.has(next)) return false;
     seen.add(next);
     next = evolvesFromByName.get(next) ?? null;
@@ -111,217 +109,111 @@ const topsLine = (name: string, present: Set<string>): boolean => {
   return false;
 };
 
-// The scraper always writes currentSet; a store without it is corrupt and
-// must fail loudly rather than silently vote across every set.
-const currentSetRaw = (pairings as { currentSet?: string }).currentSet;
-if (!currentSetRaw) {
-  throw new Error("pairing store missing required currentSet");
-}
-const CURRENT_SET: string = currentSetRaw;
+// Walks the card's line down to its base: lists commonly skip middle stages
+// via Rare Candy, so checking only the immediate pre-evolution misses
+// Torchic into Mega Blaziken ex.
+const topsLine = (name: string, presentNames: Set<string>): boolean =>
+  [...presentNames].some((other) => other !== name && reachesSpecies(name, speciesOf(other)));
 
-// Peak in the current set, falling back to the best set for cards the
-// current set does not carry.
-const peakSum = (name: string): number => {
-  const entry = PAIRINGS[name];
-  if (!entry?.peakCountBySet) return 0;
-  const current = entry.peakCountBySet[CURRENT_SET];
-  if (current !== undefined) return current;
-  const peaks = Object.values(entry.peakCountBySet);
-  return peaks.length ? Math.max(...peaks) : 0;
-};
-
-// Seeded because Limitless never lists them, so they carry no peak data.
-// Reach must not be used against them, or any real partner outscores them
-// and the archetype disappears from the tier list.
-const isSeeded = (name: string): boolean => {
-  const entry = PAIRINGS[name];
-  if (!entry) return false;
-  return !entry.peakCountBySet || Object.keys(entry.peakCountBySet).length === 0;
-};
-
-// How often this card appears as a secondary in other pairings. A card that
-// is "someone else's partner" less often is the central archetype anchor,
-// used to break ties between two ex cards (Mimikyu ex over Giratina ex).
-const secondaryCount = (name: string): number => {
-  let n = 0;
-  for (const entry of Object.values(PAIRINGS)) {
-    if (entry.secondary.includes(name)) n++;
+// Negative when `a` ranks higher, matching Array.prototype.sort's convention.
+// Numeric only: the name tiebreak is applied separately, so this needs no
+// runtime type dispatch and no casts.
+const compareRank = (a: readonly number[], b: readonly number[]): number => {
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return b[i] - a[i];
   }
-  return n;
+  return 0;
 };
 
-// True only when the card's own set is the current one and it has a longer
-// history behind it, so a current-set card leads an older card at equal
-// presence: Team Rocket's Raticate ex (B4a) leads Alolan Ninetales ex (B2).
-const isCurrentSetCard = (name: string): boolean => {
-  const set = name.split(" ").slice(-2)[0];
-  return set.toUpperCase() === CURRENT_SET.toUpperCase();
-};
-
-// The archetype's own line outranks an unrelated support card: a pair is
-// same-species when both cards are the same species, or one evolves from it.
-const isSameLine = (a: string, b: string): boolean => {
-  if (speciesOf(a) === speciesOf(b)) return true;
-  const [card, other] = [cardByName.get(a), cardByName.get(b)];
-  return !!card && !!other && (card.evolvesFrom === other.name || other.evolvesFrom === card.name);
-};
-
-// Copy count dominates reach so a two-of centrepiece beats a one-of with a
-// higher peak. Population only separates cards equally present in the deck.
-const rankOf = (
-  match: string[],
-  countOf: (n: string) => number,
-  present: Set<string>
-): Rank => {
-  // A pair from the archetype's own line beats a bigger unrelated pair, so
-  // Oricorio does not outrank the Magnezone split it supports.
-  const sameLine = match.length > 1 && isSameLine(match[0], match[1]) ? 1 : 0;
-  // A card topping a line the deck plays outranks a lone Basic tech card, so
-  // Castform does not take the name from Mega Blaziken ex and Mantyke does not
-  // take it from Mega Sharpedo ex.
-  const anchored =
-    match.some((card) => topsLine(card, present)) &&
-    !match.some(
-      (card) =>
-        countOf(card) > 0 &&
-        !topsLine(card, present) &&
-        !cardByName.get(card)?.evolvesFrom
-    )
-      ? 1
-      : 0;
-  const copies = match.reduce((acc, name) => acc + countOf(name), 0);
-  // Seeded archetypes carry no peak data, so reach must not be used against
-  // them or any real partner outscores them and the archetype disappears.
-  const seeded = match.some(isSeeded) ? 1 : 0;
-  const reach = match.reduce((acc, name) => acc + peakSum(name), 0);
-  return [sameLine, anchored, copies, seeded, reach];
-};
-
-const matchPairing = (cards: Deck["cards"]): string[] | null => {
-  const cardStrings = new Set(cards.map((card) => cardToString(card)));
-  const countOf = (name: string) => {
-    if (cardStrings.has(`2 ${name}`)) return 2;
-    return cardStrings.has(`1 ${name}`) ? 1 : 0;
-  };
-
-  let best: string[] | null = null;
-  let bestRank: Rank | null = null;
-  let bestKey: string | null = null;
-
-  // Every card in the deck, not only the ones the pairing file happens to
-  // mention. An evolution line the file never lists (Bulbasaur into Ivysaur)
-  // still has to be visible, or the basic gets named as the centrepiece.
-  const present = new Set<string>();
-  for (const card of cards) {
-    present.add(cardToString(card).replace(/^\d+ /, ""));
+// True when the deck also holds a card that evolves from this one, so the
+// card is a line's support stage, not the centrepiece. Without this a
+// Magnezone deck gets named after Magneton.
+const outclassed = (name: string, presentNames: Set<string>): boolean => {
+  for (const other of presentNames) {
+    if (other !== name && evolvesFromByName.get(other) === name) return true;
   }
-  for (const [key, entry] of Object.entries(PAIRINGS)) {
-    if (!countOf(key)) continue;
-    present.add(key);
-    for (const partner of entry.secondary) if (countOf(partner)) present.add(partner);
-  }
+  return false;
+};
 
-  for (const [key, entry] of Object.entries(PAIRINGS)) {
-    if (!countOf(key) || outclassed(key, present)) continue;
+const isLineBase = (name: string, presentNames: Set<string>): boolean =>
+  [...presentNames].some((other) => other !== name && reachesSpecies(other, speciesOf(name)));
 
-    // A partner can list several printings (Dustox B4 5 and Dustox B1 7).
-    // Take the printing the deck actually holds, so the name does not mix
-    // set codes across decks running the same pairing.
-    const candidates: string[][] = [[key]];
-    const keySpecies = speciesOf(key);
-    for (const partner of entry.secondary) {
-      if (outclassed(partner, present)) continue;
-      // A slug can resolve to the same card twice (Dialga ex and Dialga ex),
-      // which would name a deck after one card repeated.
-      if (partner === key) continue;
-      if (countOf(partner) >= 2) candidates.push([key, partner]);
-      else if (countOf(partner) > 0 && speciesOf(partner) === keySpecies) {
-        candidates.push([key, partner]);
-      }
-    }
+const getDeckName = (deck: Deck): string => {
+  // A deck holds a card by its name, not its printing: a Magnezone A2 deck is
+  // the same archetype Limitless lists as "Magnezone" in B1a, so reprints must
+  // not split one pairing into separate buckets.
+  const present = new Set(deck.cards.map((card) => card.name));
+  const countOf = (name: string): number =>
+    deck.cards.find((card) => card.name === name)?.count ?? 0;
 
-    const deduped: string[][] = [];
-    for (const match of candidates) {
-      if (match.length < 2) {
-        deduped.push(match);
+  // Candidate rows are those sharing at least one card name with the deck;
+  // a row qualifies only when every card it lists is also in the deck. Rows
+  // are ranked by the tuple below, first difference deciding:
+  //   cards     how many cards the row names (a fuller listing wins, so
+  //             Mega Rayquaza ex + Dragonair beats a lone Dragonair row)
+  //   anchored  a card tops a line the deck plays and no row member is a plain
+  //             tech Basic - this is what kept Igglybuff or Mantyke from
+  //             naming decks. `anchored` and `sameLine` only separate rows of
+  //             equal length: ranked above `cards` they strip centrepieces.
+  //   set       newer set
+  //   sameLine  two cards of the row share a species or evolution line
+  //   count     higher Limitless count
+  // A full tie falls through to lexicographic row name, applied below.
+  type RowRank = readonly [cards: number, anchored: number, set: number, sameLine: number, count: number];
+  const seen = new Set<number>();
+  let best: { rank: RowRank; cards: string[]; name: string } | null = null;
+  for (const cardName of present) {
+    for (const index of rowsByCard.get(cardName) ?? []) {
+      if (seen.has(index)) continue;
+      seen.add(index);
+      const row = ALL_ROWS[index];
+      const supportedNames = row.cardNames.filter(
+        (name) => !outclassed(name, present)
+      );
+      if (supportedNames.length === 0) continue;
+      if (!row.cardNames.every((name) => present.has(name))) continue;
+      const sameLine =
+        supportedNames.length > 1 && isSameLine(supportedNames[0], supportedNames[1])
+          ? 1
+          : 0;
+      const anchored =
+        supportedNames.some((name) => topsLine(name, present)) &&
+        !supportedNames.some(
+          (name) =>
+            countOf(name) > 0 &&
+            !topsLine(name, present) &&
+            evolvesFromByName.get(name) == null &&
+            !isLineBase(name, present)
+        )
+          ? 1
+          : 0;
+      const rank: RowRank = [
+        supportedNames.length,
+        anchored,
+        orderOf(row.set),
+        sameLine,
+        row.count,
+      ];
+      if (!best) {
+        best = { rank, cards: row.cardKeys, name: row.name };
         continue;
       }
-      const species = speciesOf(match[1]);
-      const inDeck = entry.secondary.filter(
-        (p) => speciesOf(p) === species && countOf(p) > 0
-      );
-      if (inDeck.length > 1) {
-        // Several printings of the same partner are in the deck; keep the
-        // one Limitless ranks highest so the choice is stable.
-        const picked = inDeck.sort((a, b) => peakSum(b) - peakSum(a))[0];
-        deduped.push(match[1] === picked ? match : [match[0], picked]);
-      } else {
-        deduped.push(match);
-      }
-    }
-
-    for (const match of deduped) {
-      const rank = rankOf(match, countOf, present);
-      const cmp = bestRank === null ? -1 : compareRank(rank, bestRank);
-      if (cmp < 0) {
-        bestRank = rank;
-        best = match;
-        bestKey = key;
-      } else if (cmp === 0 && best) {
-        // Fully tied on every ranked signal; the alphabetically first pair
-        // wins so the choice does not depend on pairing-file order.
-        const ordered = [...match].sort((a, b) => a.localeCompare(b)).join("&");
-        const bestOrdered = [...best].sort((a, b) => a.localeCompare(b)).join("&");
-        if (ordered < bestOrdered) {
-          best = match;
-          bestKey = key;
-        }
+      const order = compareRank(rank, best.rank);
+      if (order < 0 || (order === 0 && row.name < best.name)) {
+        best = { rank, cards: row.cardKeys, name: row.name };
       }
     }
   }
 
-  // The centrepiece leads. Both being two-ofs means the pairing's own key
-  // decides, since that is the archetype as Limitless lists it. Otherwise the
-  // card played in more copies leads, then popularity, then name.
-  if (best && best.length > 1) {
-    best = [...best].sort((a, b) => {
-      const byCopies = countOf(b) - countOf(a);
-      if (byCopies !== 0) return byCopies;
-      // The centrepiece leads: an ex or Mega outranks a plain card when both
-      // are played as two-ofs, even if the pairing key points the other way.
-      const byTier = tierOf(b) - tierOf(a);
-      if (byTier !== 0) return byTier;
-      // A card from the current set leads an older card at equal presence.
-      // Team Rocket's Raticate ex (B4a) leads Alolan Ninetales ex (B2).
-      const byCurrency =
-        (isCurrentSetCard(b) ? 1 : 0) - (isCurrentSetCard(a) ? 1 : 0);
-      if (byCurrency !== 0) return byCurrency;
-      // Which pairing produced the match settles cards that are otherwise
-      // equal. Both cards can list each other, and then the first key in the
-      // pairing file wins, so this tiebreak depends on file order.
-      if (bestKey === b) return 1;
-      if (bestKey === a) return -1;
-      // The card named as a partner more often leads, so the more widely
-      // splashed card comes first: Giratina ex (108) ahead of Mimikyu ex (23).
-      const byLead = secondaryCount(a) - secondaryCount(b);
-      if (byLead !== 0) return byLead;
-      const byReach = peakSum(b) - peakSum(a);
-      return byReach !== 0 ? byReach : a.localeCompare(b);
-    });
+  if (best) return formatName(deck.cards, best.cards);
+
+  // No listing matched: a seeded archetype still names the deck when its
+  // primary is present, so those decks are not lost to the unnamed bucket.
+  for (const seed of SEEDED_ARCHETYPES) {
+    if (present.has(seed.primary)) return formatName(deck.cards, seed.display);
   }
 
-  return best;
-};
-
-// Slug shared by all decks that match no pairing, so the tier list has one "everything else" bucket.
-export const UNNAMED_DECK = "professor's-research-pa-007";
-
-// Resolves a deck's card list to its pairing name, or UNNAMED_DECK when nothing matches.
-const getDeckName = (deck: Deck): string => {
-  const { cards } = deck;
-
-  const scraped = matchPairing(cards);
-  return scraped ? formatName(cards, scraped) : UNNAMED_DECK;
+  return UNNAMED_DECK;
 };
 
 export default getDeckName;

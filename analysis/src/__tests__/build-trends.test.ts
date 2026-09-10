@@ -24,6 +24,11 @@ const makePartial = (name: string, score: number): PartialDeck => ({
   popularity: 1,
   percentOfGames: 0.1,
   score,
+  expectedWinRate: 0.5,
+  fieldCoverage: 0,
+  powerScore: null,
+  freqScore: 0,
+  metaScore: null,
 });
 
 describe("buildTrends", () => {

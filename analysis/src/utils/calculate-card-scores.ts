@@ -39,7 +39,8 @@ const calculateSingleCardScore = (
   const popularity = wilsonLowerBound(rawPopularity, totalMatchingGames);
 
   return {
-    score: winRate * WINRATE_IMPORTANCE + popularity * POPULARITY_IMPORTANCE,
+    score:
+      winRate * WINRATE_IMPORTANCE + popularity * POPULARITY_IMPORTANCE,
     popularity,
   };
 };

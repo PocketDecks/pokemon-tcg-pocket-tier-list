@@ -25,7 +25,6 @@ import {
   buildFullLists,
   pickBestList,
   resolveDeckDetail,
-  highestScoreAndStrength,
   type FullList,
 } from "../app/deck-resolution";
 
@@ -45,6 +44,11 @@ export interface FullDeckType {
   score: number;
   popularity: number;
   strength: number;
+  expectedWinRate: number;
+  fieldCoverage: number;
+  powerScore: number | null;
+  freqScore: number;
+  metaScore: number | null;
   percentOfGames: number;
   matchups: MatchupType[];
   iconPrimary: CardType;
@@ -222,6 +226,11 @@ const buildDecks = (
           score: maxScore(oldDeck),
           popularity: highestPopularity > 0 ? oldDeck.popularity / highestPopularity : 0,
           strength: highestStrength > 0 ? maxStrength(oldDeck) / highestStrength : 0,
+          expectedWinRate: oldDeck.expectedWinRate,
+          fieldCoverage: oldDeck.fieldCoverage,
+          powerScore: oldDeck.powerScore,
+          freqScore: oldDeck.freqScore,
+          metaScore: oldDeck.metaScore,
           percentOfGames: oldDeck.percentOfGames,
           matchups,
           iconPrimary: cardsMapping[cardIds[0]],
@@ -383,9 +392,8 @@ export const useDeckDetail = (
 
   return useMemo(() => {
     if (!cardsPayload || !decksData || !deckId) {
-      return { deck: null, extinct: false, highestScore: 0, highestStrength: 0 };
+      return { deck: null, extinct: false };
     }
-    const { highestScore, highestStrength } = highestScoreAndStrength(decksData.decks);
     const resolved = resolveDeckDetail(
       decksData.decks,
       decksData.matchupData,
@@ -397,8 +405,6 @@ export const useDeckDetail = (
     return {
       deck: resolved?.deck ?? null,
       extinct: resolved?.extinct ?? false,
-      highestScore,
-      highestStrength,
     };
   }, [cardsPayload, decksData, cardsMapping, deckId, missingCounts]);
 };

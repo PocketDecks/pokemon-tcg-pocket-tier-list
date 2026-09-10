@@ -116,6 +116,15 @@ export const resolveToken = (rawName: string, rawSet: string): IndexedCard[] => 
   return [];
 };
 
-// Resolves a whole slug to its cards; empty when a token will not resolve.
-export const resolveSlug = (slug: string): IndexedCard[] =>
-  slugTokens(slug).flatMap(([rawName, rawSet]) => resolveToken(rawName, rawSet));
+// Resolves a whole slug to its cards. Returns empty unless slugTokens
+// consumed the entire input and every token resolved to at least one card,
+// so a partly matched or partly resolvable slug reads as a failure.
+export const resolveSlug = (slug: string): IndexedCard[] => {
+  const tokens = slugTokens(slug);
+  if (!tokens.length) return [];
+  const rejoined = tokens.map(([name, set]) => `${name}-${set}`).join("-");
+  if (rejoined !== slug) return [];
+  const cards = tokens.map(([name, set]) => resolveToken(name, set));
+  if (cards.some((c) => c.length === 0)) return [];
+  return cards.flat();
+};

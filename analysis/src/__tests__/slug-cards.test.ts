@@ -58,9 +58,27 @@ describe("resolveSlug", () => {
     ]);
   });
 
-  it("resolves a numbered single-card slug", () => {
-    expect(
-      resolveSlug("mega-altaria-ex-b1-102").map((c) => c.name),
-    ).toEqual(["Mega Altaria ex"]);
+  it("returns empty for a slug with a leftover numbered suffix", () => {
+    // mega-altaria-ex-b1-102 leaves -102 unmatched, so it is incomplete.
+    expect(resolveSlug("mega-altaria-ex-b1-102")).toEqual([]);
+  });
+
+  it("resolves a two-card promo slug with a p-a suffix", () => {
+    expect(resolveSlug("starmie-ex-a1-lapras-ex-p-a").map((c) => c.name)).toEqual([
+      "Starmie ex",
+      "Lapras ex",
+    ]);
+  });
+
+  it("returns empty for a slug with an unmatched suffix", () => {
+    // slugTokens matches miraidon-ex-b3a then stops at the trailing -zzz,
+    // so the input was not fully consumed.
+    expect(resolveSlug("miraidon-ex-b3a-zzz")).toEqual([]);
+  });
+
+  it("returns empty when one token resolves to no cards", () => {
+    // miraidon-ex-b3a resolves, but not-a-real-card-z9 does not, so the
+    // partly resolvable slug must read as a failure.
+    expect(resolveSlug("miraidon-ex-b3a-not-a-real-card-z9")).toEqual([]);
   });
 });

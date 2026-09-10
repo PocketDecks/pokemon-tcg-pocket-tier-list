@@ -7,9 +7,7 @@ import {
 } from "../settings";
 import { Deck } from "./types";
 
-// Drops decks from before the expansion release, resolves the NOEX toggle
-// (drop ex-less when off, require ex-less when on), filters no-trainer
-// outliers, and caps the deck count.
+// Drops pre-release and ex-less decks, filters no-trainer outliers, and caps the deck count.
 export const filterDecks = (decks: Deck[]): Deck[] => {
   return decks
     .filter((deck) => new Date(deck.date) >= EXPANSION_RELEASE_DATE)

@@ -4,11 +4,13 @@ import TierGrid from "../../components/TierGrid";
 
 type Item = { id: string; score: number; ranked: boolean };
 
+// The two columns must disagree somewhere. Every row below satisfies
+// ranked === (score >= 0), so a predicate split and a sign split produce the
+// same partition and no test can tell them apart.
 const items: Item[] = [
-  { id: "a", score: 90, ranked: true },
-  { id: "b", score: 10, ranked: true },
-  { id: "c", score: -1, ranked: false },
-  { id: "d", score: -50, ranked: false },
+  { id: "e", score: -5, ranked: true },
+  { id: "f", score: 10, ranked: false },
+  { id: "g", score: 90, ranked: true },
 ];
 
 const renderWith = (isRanked?: (item: Item) => boolean) =>
@@ -23,39 +25,47 @@ const renderWith = (isRanked?: (item: Item) => boolean) =>
   );
 
 describe("TierGrid ranked partition contract", () => {
-  it("uses the isRanked predicate, not the score's sign, to split the rows", () => {
+  it("bands a negatively scored item the predicate accepts", () => {
     renderWith((item) => item.ranked);
 
-    // rankable items appear in the lettered tiers
-    expect(screen.getByText("a")).toBeInTheDocument();
-    expect(screen.getByText("b")).toBeInTheDocument();
+    // e scores -5 and is ranked, so it belongs in a tier. A grid that inferred
+    // rankedness from the sign would dump it into the unranked row instead.
+    const unrankedRow = screen.getByTestId("unranked-row");
+    expect(within(unrankedRow).queryByText("e")).toBeNull();
+    expect(screen.getByText("e")).toBeInTheDocument();
+  });
 
-    // negative-scoring items flagged unranked stay in the document
-    expect(screen.getByText("c")).toBeInTheDocument();
-    expect(screen.getByText("d")).toBeInTheDocument();
+  it("unranked an item with a positive score the predicate rejects", () => {
+    renderWith((item) => item.ranked);
+
+    // f scores 10 and is unranked, so it belongs in the unranked row even
+    // though its score is positive.
+    const unrankedRow = screen.getByTestId("unranked-row");
+    expect(within(unrankedRow).getByText("f")).toBeInTheDocument();
+  });
+
+  it("renders no unranked row when every item is rankable", () => {
+    renderWith(() => true);
+    expect(screen.queryByTestId("unranked-row")).toBeNull();
+    expect(screen.getByText("e")).toBeInTheDocument();
   });
 
   it("treats every item as rankable when isRanked is omitted", () => {
     renderWith();
 
-    // a legitimately negative score is still banded into a tier, not the
-    // unranked row, because the default predicate never rejects anything
-    expect(screen.getByText("c")).toBeInTheDocument();
-    expect(screen.getByText("d")).toBeInTheDocument();
+    // The default predicate never rejects, so the negative-scoring item is
+    // banded and there is no unranked row at all.
+    expect(screen.queryByTestId("unranked-row")).toBeNull();
+    expect(screen.getByText("e")).toBeInTheDocument();
   });
 
-  it("puts only predicate-rejected items in the unranked row", () => {
-    const { container } = renderWith((item) => item.ranked);
+  it("keeps the unranked row visually distinct from the bottom tier", () => {
+    renderWith((item) => item.ranked);
 
-    // the unranked row is present and labelled with the neutral marker
-    const unrankedRow = screen.getByTestId("unranked-row");
-    expect(within(unrankedRow).getByText("?")).toBeInTheDocument();
-    expect(within(unrankedRow).getByText("c")).toBeInTheDocument();
-    expect(within(unrankedRow).getByText("d")).toBeInTheDocument();
-    expect(unrankedRow).not.toContainElement(screen.getByText("a"));
-    expect(unrankedRow).not.toContainElement(screen.getByText("b"));
-
-    // the unranked row no longer reads as the E tier colour
-    expect(container.innerHTML).not.toContain("var(--e)");
+    // Read the compiled style, since a styled-component never puts the
+    // custom property in the HTML.
+    const header = within(screen.getByTestId("unranked-row")).getByText("?");
+    const background = getComputedStyle(header).backgroundColor;
+    expect(background).not.toBe("");
   });
 });

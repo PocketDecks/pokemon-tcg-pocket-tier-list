@@ -1,119 +1,137 @@
 [
   {
     "date": "2026-08-27",
-    "mega-sceptile-ex-b3-008&butterfree-b3b-003": 0,
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 0,
     "mega-altaria-ex-b1-102&espeon-b3a-020": 50,
-    "mega-blaziken-ex-b1-036": 0,
-    "mega-lucario-ex-b3-081&lucario-b3-080": 0,
-    "hydreigon-b1-157": 0,
-    "vespiquen-ex-b4-011&teal-mask-ogerpon-ex-b2-017": 0
+    "mega-lucario-ex-b3-081&lucario-a2-092": 0,
+    "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024": 0,
+    "hydreigon-b1-157&mega-absol-ex-b1-151": 0,
+    "vespiquen-ex-b4-011&shuckle-ex-a4-021": 0
   },
   {
     "date": "2026-08-28",
-    "mega-sceptile-ex-b3-008&butterfree-b3b-003": 5.9128600571996035,
-    "mega-altaria-ex-b1-102&espeon-b3a-020": 10.570075930545395,
-    "mega-blaziken-ex-b1-036": 1.2748045855215073,
-    "mega-lucario-ex-b3-081&lucario-b3-080": 7.917041747375336,
-    "hydreigon-b1-157": 0.8213519165476961,
-    "vespiquen-ex-b4-011&teal-mask-ogerpon-ex-b2-017": 16.25825448675724
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 5.914177778001573,
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 10.572896894306307,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 7.917378538389763,
+    "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024": 1.273800153045538,
+    "hydreigon-b1-157&mega-absol-ex-b1-151": 0.8219011381625303,
+    "vespiquen-ex-b4-011&shuckle-ex-a4-021": 16.258625905548246
   },
   {
     "date": "2026-08-29",
-    "mega-sceptile-ex-b3-008&butterfree-b3b-003": 2.644785062545817,
-    "mega-altaria-ex-b1-102&espeon-b3a-020": 3.19393044205097,
-    "mega-blaziken-ex-b1-036": 6.04629290598371,
-    "mega-lucario-ex-b3-081&lucario-b3-080": 13.655017730528218,
-    "hydreigon-b1-157": 4.1414970842026975,
-    "vespiquen-ex-b4-011&teal-mask-ogerpon-ex-b2-017": 7.311582231572306
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 2.6447788609024867,
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 3.1950845350921284,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 13.654280704831578,
+    "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024": 6.045769987242284,
+    "hydreigon-b1-157&mega-absol-ex-b1-151": 2.904216130776831,
+    "vespiquen-ex-b4-011&shuckle-ex-a4-021": 7.31331236712351
   },
   {
     "date": "2026-08-30",
-    "mega-sceptile-ex-b3-008&butterfree-b3b-003": 4.999801479552481,
-    "mega-altaria-ex-b1-102&espeon-b3a-020": 3.2016791613348907,
-    "mega-blaziken-ex-b1-036": 10.467466937553947,
-    "mega-lucario-ex-b3-081&lucario-b3-080": 7.699290448837158,
-    "hydreigon-b1-157": 3.94008928845306,
-    "vespiquen-ex-b4-011&teal-mask-ogerpon-ex-b2-017": 5.1869307373671205
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 5.000136911460638,
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 3.2023526111574414,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 7.699034272212316,
+    "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024": 10.470662186684567,
+    "hydreigon-b1-157&mega-absol-ex-b1-151": 3.9399245635239235,
+    "vespiquen-ex-b4-011&shuckle-ex-a4-021": 5.186963927503892
   },
   {
     "date": "2026-08-31",
-    "mega-sceptile-ex-b3-008&butterfree-b3b-003": 3.5772542949656936,
-    "mega-altaria-ex-b1-102&espeon-b3a-020": 2.1353039715450337,
-    "mega-blaziken-ex-b1-036": 0,
-    "mega-lucario-ex-b3-081&lucario-b3-080": 12.106907899160833,
-    "hydreigon-b1-157": 0,
-    "vespiquen-ex-b4-011&teal-mask-ogerpon-ex-b2-017": 6.052054752320846
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 3.576026806594413,
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 2.1335114004437314,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 12.106094765305194,
+    "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024": 0,
+    "hydreigon-b1-157&mega-absol-ex-b1-151": 0,
+    "vespiquen-ex-b4-011&shuckle-ex-a4-021": 6.051696446500815
   },
   {
     "date": "2026-09-01",
-    "mega-sceptile-ex-b3-008&butterfree-b3b-003": 2.8770882778573,
-    "mega-altaria-ex-b1-102&espeon-b3a-020": 1.6553417936188874,
-    "mega-blaziken-ex-b1-036": 4.026377395545621,
-    "mega-lucario-ex-b3-081&lucario-b3-080": 13.775680515846103,
-    "hydreigon-b1-157": 4.17277865739808,
-    "vespiquen-ex-b4-011&teal-mask-ogerpon-ex-b2-017": 3.3161690286471193
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 2.8772749907078947,
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 1.6542552675470525,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 13.773038749374006,
+    "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024": 4.024366319782078,
+    "hydreigon-b1-157&mega-absol-ex-b1-151": 2.539390609073883,
+    "vespiquen-ex-b4-011&shuckle-ex-a4-021": 3.319624962865144
   },
   {
     "date": "2026-09-02",
-    "mega-sceptile-ex-b3-008&butterfree-b3b-003": 9.506718022457452,
-    "mega-altaria-ex-b1-102&espeon-b3a-020": 5.953815496248175,
-    "mega-blaziken-ex-b1-036": 2.081849279014855,
-    "mega-lucario-ex-b3-081&lucario-b3-080": 15.041635335416807,
-    "hydreigon-b1-157": 1.0346506593967162,
-    "vespiquen-ex-b4-011&teal-mask-ogerpon-ex-b2-017": 6.548306914132438
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 9.50173078470351,
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 5.954778065562824,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 15.041478726950459,
+    "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024": 2.0806896093428184,
+    "hydreigon-b1-157&mega-absol-ex-b1-151": 1.0342620215370062,
+    "vespiquen-ex-b4-011&shuckle-ex-a4-021": 6.5489479822424315
   },
   {
     "date": "2026-09-03",
-    "mega-sceptile-ex-b3-008&butterfree-b3b-003": 13.590551246090065,
-    "mega-altaria-ex-b1-102&espeon-b3a-020": 8.148226901482271,
-    "mega-blaziken-ex-b1-036": 8.871630912696347,
-    "mega-lucario-ex-b3-081&lucario-b3-080": 10.819012124669124,
-    "hydreigon-b1-157": 4.5257945680182035,
-    "vespiquen-ex-b4-011&teal-mask-ogerpon-ex-b2-017": 8.792012631549527
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 13.594125268417018,
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 8.150545614763704,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 10.816275910028681,
+    "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024": 8.874655685793323,
+    "hydreigon-b1-157&mega-absol-ex-b1-151": 4.524737533844312,
+    "vespiquen-ex-b4-011&shuckle-ex-a4-021": 8.790189830272883
   },
   {
     "date": "2026-09-04",
-    "mega-sceptile-ex-b3-008&butterfree-b3b-003": 3.775270507789235,
-    "mega-altaria-ex-b1-102&espeon-b3a-020": 10.004186765474552,
-    "mega-blaziken-ex-b1-036": 9.066710251888423,
-    "mega-lucario-ex-b3-081&lucario-b3-080": 11.188894784528262,
-    "hydreigon-b1-157": 12.22197424043887,
-    "vespiquen-ex-b4-011&teal-mask-ogerpon-ex-b2-017": 6.40480104851205
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 3.775274333881131,
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 10.003284557373595,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 11.189995354205461,
+    "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024": 9.064977806606286,
+    "hydreigon-b1-157&mega-absol-ex-b1-151": 12.221309262657853,
+    "vespiquen-ex-b4-011&shuckle-ex-a4-021": 6.404376307161991
   },
   {
     "date": "2026-09-05",
-    "mega-sceptile-ex-b3-008&butterfree-b3b-003": 4.396123629052191,
-    "mega-altaria-ex-b1-102&espeon-b3a-020": 10.550168259079161,
-    "mega-blaziken-ex-b1-036": 5.152964562113863,
-    "mega-lucario-ex-b3-081&lucario-b3-080": 9.83342981575029,
-    "hydreigon-b1-157": 5.071557450281335,
-    "vespiquen-ex-b4-011&teal-mask-ogerpon-ex-b2-017": 7.746775173470717
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 4.395453306867216,
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 10.548864699047487,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 9.833043349845036,
+    "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024": 5.153263145156988,
+    "hydreigon-b1-157&mega-absol-ex-b1-151": 5.071031277879978,
+    "vespiquen-ex-b4-011&shuckle-ex-a4-021": 7.7460487402717115
   },
   {
     "date": "2026-09-06",
-    "mega-sceptile-ex-b3-008&butterfree-b3b-003": 10.914626846008419,
-    "mega-altaria-ex-b1-102&espeon-b3a-020": 19.21572351042384,
-    "mega-blaziken-ex-b1-036": 1.509944430631833,
-    "mega-lucario-ex-b3-081&lucario-b3-080": 13.58816159173931,
-    "hydreigon-b1-157": 5.696250374470004,
-    "vespiquen-ex-b4-011&teal-mask-ogerpon-ex-b2-017": 1.4598335526580026
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 10.914045798360059,
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 19.21186468763338,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 13.588796011481428,
+    "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024": 1.5093323238480085,
+    "hydreigon-b1-157&mega-absol-ex-b1-151": 5.69617184730296,
+    "vespiquen-ex-b4-011&shuckle-ex-a4-021": 1.4604584725128775
   },
   {
     "date": "2026-09-07",
-    "mega-sceptile-ex-b3-008&butterfree-b3b-003": 13.638888815613065,
-    "mega-altaria-ex-b1-102&espeon-b3a-020": 4.590971857397289,
-    "mega-blaziken-ex-b1-036": 4.128872661657504,
-    "mega-lucario-ex-b3-081&lucario-b3-080": 10.40213422797815,
-    "hydreigon-b1-157": 3.0164528657512633,
-    "vespiquen-ex-b4-011&teal-mask-ogerpon-ex-b2-017": 4.941478553157232
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 13.639577102644942,
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 4.590845252216342,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 10.400161412917585,
+    "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024": 4.129239577352973,
+    "hydreigon-b1-157&mega-absol-ex-b1-151": 3.01602843923352,
+    "vespiquen-ex-b4-011&shuckle-ex-a4-021": 4.941403834560838
   },
   {
     "date": "2026-09-08",
-    "mega-sceptile-ex-b3-008&butterfree-b3b-003": 5.993029446969659,
-    "mega-altaria-ex-b1-102&espeon-b3a-020": 7.68103932242145,
-    "mega-blaziken-ex-b1-036": 4.516992473091462,
-    "mega-lucario-ex-b3-081&lucario-b3-080": 8.510910597816613,
-    "hydreigon-b1-157": 1.491455514602631,
-    "vespiquen-ex-b4-011&teal-mask-ogerpon-ex-b2-017": 0.8237038591053912
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 5.994875867535104,
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 7.6818568636875835,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 8.511530006725575,
+    "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024": 4.5187987100237965,
+    "hydreigon-b1-157&mega-absol-ex-b1-151": 1.4911506357348514,
+    "vespiquen-ex-b4-011&shuckle-ex-a4-021": 0.8236437517485728
+  },
+  {
+    "date": "2026-09-09",
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 4.882279296647099,
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 5.743271865394195,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 12.51726638431252,
+    "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024": 1.1586354471249651,
+    "hydreigon-b1-157&mega-absol-ex-b1-151": 1.9815617414918392,
+    "vespiquen-ex-b4-011&shuckle-ex-a4-021": 0.5628019741910963
+  },
+  {
+    "date": "2026-09-10",
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 4.872435754347255,
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 12.041185258002654,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 8.594474594719003,
+    "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024": 0,
+    "hydreigon-b1-157&mega-absol-ex-b1-151": 2.560441729789063,
+    "vespiquen-ex-b4-011&shuckle-ex-a4-021": 1.6293720098657674
   }
 ]

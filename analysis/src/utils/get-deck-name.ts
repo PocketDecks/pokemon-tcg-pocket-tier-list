@@ -100,22 +100,23 @@ const isSameLine = (a: string, b: string): boolean => {
   );
 };
 
-// Walks the card's line down to its base: lists commonly skip middle stages
-// via Rare Candy, so checking only the immediate pre-evolution misses
-// Torchic into Mega Blaziken ex.
-const topsLine = (name: string, presentNames: Set<string>): boolean => {
-  const startsAt = evolvesFromByName.get(name);
-  if (!startsAt) return false;
-  const seen = new Set<string>([name]);
-  let next: string | null | undefined = startsAt;
+const reachesSpecies = (from: string, species: string): boolean => {
+  const seen = new Set<string>([from]);
+  let next: string | null | undefined = evolvesFromByName.get(from);
   while (next) {
-    if (presentNames.has(next)) return true;
+    if (speciesOf(next) === species) return true;
     if (seen.has(next)) return false;
     seen.add(next);
     next = evolvesFromByName.get(next) ?? null;
   }
   return false;
 };
+
+// Walks the card's line down to its base: lists commonly skip middle stages
+// via Rare Candy, so checking only the immediate pre-evolution misses
+// Torchic into Mega Blaziken ex.
+const topsLine = (name: string, presentNames: Set<string>): boolean =>
+  [...presentNames].some((other) => other !== name && reachesSpecies(name, speciesOf(other)));
 
 // Negative when `a` ranks higher, matching Array.prototype.sort's convention.
 // Numeric only: the name tiebreak is applied separately, so this needs no
@@ -137,6 +138,9 @@ const outclassed = (name: string, presentNames: Set<string>): boolean => {
   return false;
 };
 
+const isLineBase = (name: string, presentNames: Set<string>): boolean =>
+  [...presentNames].some((other) => other !== name && reachesSpecies(other, speciesOf(name)));
+
 const getDeckName = (deck: Deck): string => {
   // A deck holds a card by its name, not its printing: a Magnezone A2 deck is
   // the same archetype Limitless lists as "Magnezone" in B1a, so reprints must
@@ -150,15 +154,15 @@ const getDeckName = (deck: Deck): string => {
   // are ranked by the tuple below, first difference deciding:
   //   cards     how many cards the row names (a fuller listing wins, so
   //             Mega Rayquaza ex + Dragonair beats a lone Dragonair row)
-  //   sameLine  two cards of the row share a species or evolution line
   //   anchored  a card tops a line the deck plays and no row member is a plain
   //             tech Basic - this is what kept Igglybuff or Mantyke from
-  //             naming decks. `sameLine` and `anchored` only separate rows of
+  //             naming decks. `anchored` and `sameLine` only separate rows of
   //             equal length: ranked above `cards` they strip centrepieces.
   //   set       newer set
+  //   sameLine  two cards of the row share a species or evolution line
   //   count     higher Limitless count
   // A full tie falls through to lexicographic row name, applied below.
-  type RowRank = readonly [cards: number, sameLine: number, anchored: number, set: number, count: number];
+  type RowRank = readonly [cards: number, anchored: number, set: number, sameLine: number, count: number];
   const seen = new Set<number>();
   let best: { rank: RowRank; cards: string[]; name: string } | null = null;
   for (const cardName of present) {
@@ -187,15 +191,16 @@ const getDeckName = (deck: Deck): string => {
           (name) =>
             countOf(name) > 0 &&
             !topsLine(name, present) &&
-            evolvesFromByName.get(name) == null
+            evolvesFromByName.get(name) == null &&
+            !isLineBase(name, present)
         )
           ? 1
           : 0;
       const rank: RowRank = [
         supportedNames.length,
-        sameLine,
         anchored,
         orderOf(row.set),
+        sameLine,
         row.count,
       ];
       if (!best) {

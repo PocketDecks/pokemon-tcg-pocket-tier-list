@@ -138,3 +138,45 @@ describe("containment: a row listing a card the deck lacks is rejected", () => {
     expect(getDeckName(deck)).toBe(UNNAMED_DECK);
   });
 });
+
+describe("Milotic ex/Eevee ex naming: Eevee ex misread as a plain tech Basic and sameLine outranking set recency", () => {
+  it("names the milotic-ex-b3b-015&vaporeon-ex-b3-037#0 real list after the current B4a pairing", () => {
+    const deck = mkDeck(
+      [1, "Vaporeon", "A3b", "016"],
+      [1, "Giant Cape", "A2", "147"],
+      [1, "Training Area", "B2", "153"],
+      [1, "Chien-Pao ex", "B2a", "037"],
+      [1, "Vaporeon ex", "B3", "037"],
+      [1, "Field Blower", "B3", "147"],
+      [1, "Elegant Cape", "B3b", "065"],
+      [1, "Wallace", "B3b", "068"],
+      [2, "Eevee ex", "A3b", "056"],
+      [2, "Feebas", "A4a", "021"],
+      [2, "Copycat", "B1", "225"],
+      [2, "Milotic ex", "B3b", "015"],
+      [2, "Poké Ball", "PA", "005"],
+      [2, "Professor's Research", "PA", "007"]
+    );
+    expect(getDeckName(deck)).toBe("milotic-ex-b3b-015&eevee-ex-a3b-056");
+  });
+
+  it("names the milotic-ex-b3b-015#3 real list after the current B4a pairing", () => {
+    const deck = mkDeck(
+      [1, "Vaporeon", "A1a", "019"],
+      [1, "Pokémon Center Lady", "A2b", "070"],
+      [1, "Eevee ex", "A3b", "056"],
+      [1, "Suicune ex", "A4a", "020"],
+      [1, "Chien-Pao ex", "B2a", "037"],
+      [1, "Field Blower", "B3", "147"],
+      [1, "Wallace", "B3b", "068"],
+      [1, "Soothing Shore", "B4", "154"],
+      [2, "Giant Cape", "A2", "147"],
+      [2, "Copycat", "B1", "225"],
+      [2, "Milotic ex", "B3b", "015"],
+      [2, "Poké Ball", "PA", "005"],
+      [2, "Professor's Research", "PA", "007"],
+      [2, "Feebas", "PB", "072"]
+    );
+    expect(getDeckName(deck)).toBe("milotic-ex-b3b-015&eevee-ex-a3b-056");
+  });
+});

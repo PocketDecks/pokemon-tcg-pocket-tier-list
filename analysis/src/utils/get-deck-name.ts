@@ -169,10 +169,14 @@ const getDeckName = (deck: Deck): string => {
       // A line's middle stage must not anchor a row: with Magnezone in the
       // deck, Magneton cannot lead the name.
       if (outclassed(row.cardNames[0], present)) continue;
+      // supportedNames drops names the deck outclasses so they do not drive
+      // sameLine, anchored or the row length; the containment check below is
+      // separate and validates every name the row lists against the deck, so a
+      // row cannot name a card the deck does not play.
       const supportedNames = row.cardNames.filter(
         (name) => !outclassed(name, present)
       );
-      if (!supportedNames.every((name) => present.has(name))) continue;
+      if (!row.cardNames.every((name) => present.has(name))) continue;
       const sameLine =
         supportedNames.length > 1 && isSameLine(supportedNames[0], supportedNames[1])
           ? 1

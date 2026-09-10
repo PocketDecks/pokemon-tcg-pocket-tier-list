@@ -122,3 +122,19 @@ describe("row ranking: a fuller listing outranks an anchored shorter one", () =>
     expect(getDeckName(deck)).toBe("mega-altaria-ex-b1-102&espeon-b3a-020");
   });
 });
+
+// Containment: every card a row lists must be in the deck, checked against the
+// full row and not the filtered supportedNames. The "Machoke Meowth" row names
+// Machoke and Meowth. A deck holding Machoke and Persian (Meowth's evolution,
+// not Meowth itself) must not take that row: outclassed() would drop Meowth
+// from supportedNames and a check on supportedNames alone would pass it. With
+// the row-level check it falls through to UNNAMED_DECK.
+describe("containment: a row listing a card the deck lacks is rejected", () => {
+  it("does not name a row after a card the deck does not play", () => {
+    const deck = mkDeck(
+      [2, "Machoke", "A1", "144"],
+      [2, "Persian", "A1", "127"]
+    );
+    expect(getDeckName(deck)).toBe(UNNAMED_DECK);
+  });
+});

@@ -152,7 +152,7 @@ const TierListPage = () => {
               value={sortBy}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value as SortBy)}
             >
-              {[SortBy.SCORE, SortBy.POPULARITY, SortBy.STRENGTH].map(
+              {[SortBy.POWER, SortBy.SCORE, SortBy.POPULARITY, SortBy.STRENGTH].map(
                 (sortByOption) => (
                   <option key={sortByOption} value={sortByOption}>
                     {t(`filter.${sortByOption}`)}

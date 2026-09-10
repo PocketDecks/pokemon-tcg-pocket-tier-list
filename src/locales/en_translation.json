@@ -138,6 +138,7 @@
     "deckAmount": "Number of Decks",
     "sortBy": "Sort By",
     "score": "Overall Best",
+    "power": "Power Score",
     "popularity": "Popularity",
     "strength": "Strength",
     "winRate": "Win Rate",

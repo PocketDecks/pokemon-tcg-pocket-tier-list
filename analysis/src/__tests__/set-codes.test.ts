@@ -15,7 +15,11 @@ const deckStore = (decks as unknown as DeckListingStore).sets;
 const pairingKeys = new Set<string>();
 for (const deckSet of Object.values(deckStore)) {
   for (const listing of deckSet.decks) {
-    for (const card of resolveSlug(listing.slug)) {
+    const cards = resolveSlug(listing.slug);
+    if (cards.length === 0) {
+      throw new Error(`resolveSlug returned no cards for slug: ${listing.slug}`);
+    }
+    for (const card of cards) {
       pairingKeys.add(cardKey(card.name, card.set, card.number));
     }
   }

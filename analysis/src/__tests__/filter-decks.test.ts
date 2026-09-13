@@ -1,7 +1,9 @@
 import { filterDecks } from "../utils/filter-decks";
 import { Deck } from "../utils/types";
+import { vi } from "vitest";
 
-jest.mock("../settings", () => ({
+vi.mock(import("../settings"), async (importOriginal) => ({
+  ...(await importOriginal()),
   NOEX: true,
   NOEX_PERCENT_CUTOFF: 0.2,
   WIGGLYTUFF_PERCENT_CUTOFF: 0.1,

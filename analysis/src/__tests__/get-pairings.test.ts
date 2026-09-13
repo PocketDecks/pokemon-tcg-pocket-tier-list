@@ -1,8 +1,9 @@
 import { getPairings } from "../utils/get-pairings";
+import { vi } from "vitest";
 
 describe("getPairings", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should transform pairings correctly", async () => {
@@ -26,7 +27,7 @@ describe("getPairings", () => {
       },
     ];
 
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       json: () => Promise.resolve(mockPairings),
     });
 

@@ -1,10 +1,12 @@
 import getTournamentDecks from "../utils/get-tournament-decks";
+import { getPairings } from "../utils/get-pairings";
+import { vi } from "vitest";
 
-jest.mock("../utils/get-pairings");
+vi.mock("../utils/get-pairings");
 
 describe("getDecks", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should process decks correctly", async () => {
@@ -35,16 +37,14 @@ describe("getDecks", () => {
       { winner: "tournament1-player1", loser: "tournament1-player2" },
     ];
 
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
       statusText: "OK",
       json: () => Promise.resolve(mockDecks),
     });
 
-    require("../utils/get-pairings").getPairings.mockResolvedValue(
-      mockPairings
-    );
+    vi.mocked(getPairings).mockResolvedValue(mockPairings);
 
     const result = await getTournamentDecks(mockTournament as any);
     expect(result).toHaveLength(2);

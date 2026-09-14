@@ -39,22 +39,28 @@ export const MIN_WINRATE_THRESHOLD: number = 0.6;
 // Minimum qualified games an archetype needs before it ranks, to drop 1-2-deck flukes while keeping fresh archetypes visible.
 export const MIN_ARCHETYPE_QUALIFIED_GAMES: number = 25;
 
-const NOW = new Date();
 const SECONDS_IN_WEEK = 7 * 24 * 60 * 60 * 1000;
-const TIME_PASSED = NOW.getTime() - EXPANSION_RELEASE_DATE.getTime();
-const WEEKS_LIVE = TIME_PASSED / SECONDS_IN_WEEK;
-console.log("WEEKS_LIVE:", WEEKS_LIVE);
 
-const _WINRATE_IMPORTANCE = 0.2 + WEEKS_LIVE * 0.15;
+export const scoringWeights = (now: Date) => {
+  const weeksLive =
+    (now.getTime() - EXPANSION_RELEASE_DATE.getTime()) / SECONDS_IN_WEEK;
+  const winrateImportance = Math.min(0.2 + weeksLive * 0.15, 0.75);
+
+  return {
+    winrateImportance,
+    popularityImportance: 1 - winrateImportance,
+    newMultiplier: 1 + weeksLive / 1.5,
+  };
+};
+
+const CURRENT_SCORING_WEIGHTS = scoringWeights(new Date());
 // Weight given to win-rate in the composite deck score; rises with weeks since release.
-export const WINRATE_IMPORTANCE = Math.min(_WINRATE_IMPORTANCE, 0.75);
+export const WINRATE_IMPORTANCE = CURRENT_SCORING_WEIGHTS.winrateImportance;
 // Residual weight given to popularity; the complement of WINRATE_IMPORTANCE.
-export const POPULARITY_IMPORTANCE: number = 1 - WINRATE_IMPORTANCE;
-console.log("WINRATE_IMPORTANCE:", WINRATE_IMPORTANCE);
+export const POPULARITY_IMPORTANCE = CURRENT_SCORING_WEIGHTS.popularityImportance;
 
 // Multiplier applied to decks from the newest expansion; grows with weeks since release.
-export const NEW_MULTIPLIER: number = 1 + WEEKS_LIVE / 1.5;
-console.log("NEW_MULTIPLIER:", NEW_MULTIPLIER);
+export const NEW_MULTIPLIER = CURRENT_SCORING_WEIGHTS.newMultiplier;
 
 // Pseudo-games pulling each matchup win rate toward 50%, so a 4-game matchup
 // barely moves a deck's expected win rate and a 500-game one counts almost

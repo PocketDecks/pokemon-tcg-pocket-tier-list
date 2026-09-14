@@ -17,27 +17,6 @@ import TierGrid from "../../components/TierGrid";
 import DeckCard from "../../components/DeckCard";
 import styled from "styled-components";
 
-const FilterContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  gap: 1.5rem;
-  z-index: 10;
-
-  @media (max-width: 900px) {
-    position: relative;
-    top: 0;
-    right: 0;
-    margin: 2rem;
-    width: calc(100% - 4rem);
-    justify-content: space-between;
-    align-items: center;
-  }
-`;
-
 const DeckAmountContainer = styled.div`
   display: flex;
   align-items: center;
@@ -107,7 +86,7 @@ const TierListPage = () => {
   if (error) return <div>Error loading data: {error.message}</div>;
 
   const filters = (
-    <FilterContainer>
+    <>
       <UserAccount />
       {isPremium && (
         <>
@@ -180,7 +159,7 @@ const TierListPage = () => {
           </DeckAmountContainer>
         </>
       )}
-    </FilterContainer>
+    </>
   );
 
   return (

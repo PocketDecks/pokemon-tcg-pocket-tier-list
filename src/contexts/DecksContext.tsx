@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo } from "react";
+import React, { createContext, useContext, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useMissing from "../app/use-missing";
 import useFilters from "../app/use-filters";
@@ -11,6 +11,7 @@ import {
 } from "../app/cards-api";
 import useExpansions from "../app/use-expansions";
 import { MetaShareEntry, PipelineMatchupEntry, PipelineMetaShare, PipelinePartialDeck, PipelineDeckList } from "../types/pipeline-data";
+import { FullDeckType, MatchupType } from "../app/deck-types";
 import { SortBy } from "../app/sort-by";
 import {
   deckNameToIconIds,
@@ -27,7 +28,10 @@ import {
   resolveDeckDetail,
   type FullList,
 } from "../app/deck-resolution";
-import { FullDeckType, MatchupType } from "../app/deck-types";
+
+export type { CardType };
+
+export type MatchupType = PipelineMatchupEntry;
 
 type PartialList = PipelineDeckList;
 

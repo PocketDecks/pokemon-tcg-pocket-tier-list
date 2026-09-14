@@ -40,6 +40,17 @@ describe("deckNameToIconIds", () => {
       "a1-001",
     ]);
   });
+
+  it("takes the trailing ids of real mega-lucario deck names", () => {
+    expect(deckNameToIconIds("mega-lucario-ex-b3-081&lucario-a2-092")).toEqual([
+      "b3-081",
+      "a2-092",
+    ]);
+  });
+
+  it("takes the trailing id of a real mega-venusaur deck name", () => {
+    expect(deckNameToIconIds("mega-venusaur-ex-b1a-004")).toEqual(["b1a-004"]);
+  });
 });
 
 describe("findUnresolvedCardIds", () => {

@@ -12,6 +12,7 @@ import { generateOgImages } from "./utils/generate-og-images";
 import { Deck, DeckList, PartialDeck } from "./utils/types";
 import { convertCardsToIds } from "./utils/convert-cards";
 import { writeArtifacts } from "./utils/write-artifacts";
+import { deckNameToIconIds } from "../../src/types/deck-name";
 import {
   MIN_WINRATE_THRESHOLD,
   MIN_ARCHETYPE_QUALIFIED_GAMES,
@@ -192,18 +193,10 @@ const run = async () => {
       }
     }
 
-    const deckIconIds = (name: string): string[] =>
-      name.split("&").map((part: string) => {
-        const segments = part.split("-");
-        return [segments[segments.length - 2], segments[segments.length - 1]].join(
-          "-"
-        );
-      });
-
     const cardsById = new Map(cards.map((card: any) => [card.id, card] as [string, any]));
 
     const iconCards = (name: string) =>
-      deckIconIds(name)
+      deckNameToIconIds(name)
         .map((id: string) => cardsById.get(id))
         .filter((card: any): card is any => !!card)
         .sort((a: any, b: any) => Number(!!b.ex) - Number(!!a.ex));

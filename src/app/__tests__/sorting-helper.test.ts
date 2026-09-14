@@ -55,6 +55,10 @@ describe("getSortValue", () => {
     expect(getSortValue(buildDeck({ matchups: [] }), SortBy.WIN_RATE)).toBe(0);
   });
 
+  it("falls back to 0 when matchups are missing", () => {
+    expect(getSortValue(buildDeck({ matchups: undefined }), SortBy.WIN_RATE)).toBe(0);
+  });
+
   it("returns 0 for an unrecognised sort option", () => {
     expect(getSortValue(buildDeck({}), "nonsense" as SortBy)).toBe(0);
   });

@@ -7,7 +7,7 @@ export const getSortValue = (deck: FullDeckType, sortBy: SortBy): number => {
   if (sortBy === SortBy.POPULARITY) return deck.popularity;
   if (sortBy === SortBy.STRENGTH) return deck.strength;
   if (sortBy === SortBy.WIN_RATE) {
-    return deck.matchups.find((m: MatchupType) => m.name === "Total")?.winRate ?? 0;
+    return deck.matchups?.find((m: MatchupType) => m.name === "Total")?.winRate ?? 0;
   }
   // Unranked decks have no Power or Meta score. -1 sinks them below every
   // ranked deck instead of letting a null read as 0, which would place them

@@ -50,7 +50,7 @@ export interface FullDeckType {
   freqScore: number;
   metaScore: number | null;
   percentOfGames: number;
-  matchups: MatchupType[];
+  matchups: MatchupType[] | undefined;
   iconPrimary: CardType;
   iconSecondary: CardType | null;
 }

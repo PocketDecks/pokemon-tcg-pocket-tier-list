@@ -1,6 +1,6 @@
-import { SortBy } from "../components/FilterContext";
-import { MatchupType } from "../contexts/DecksContext";
-import { FullDeckType } from "../contexts/DecksContext";
+import { SortBy } from "../app/sort-by";
+import { MatchupType } from "../app/deck-types";
+import { FullDeckType } from "../app/deck-types";
 
 export const getSortValue = (deck: FullDeckType, sortBy: SortBy): number => {
   if (sortBy === SortBy.SCORE) return deck.score;

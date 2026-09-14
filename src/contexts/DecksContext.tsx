@@ -110,23 +110,12 @@ interface BuildOptions {
   latestExpansionCards: number | null;
   // The legacy tier list keeps at most one paired ("&") deck. Detail pages
   // link straight to pairs, so their view of the list must not trim them.
-  trimPairedDecks: boolean;
+  applyPairedTrim: boolean;
 }
 const trimPairedDecks = (fullDecks: FullDeckType[]): FullDeckType[] => {
-  const includedDecks = [];
-  let hasOneDouble = false;
-  for (let i = fullDecks.length - 1; i >= 0; i--) {
-    const deck = fullDecks[i];
-    if (!hasOneDouble) {
-      if (!deck.name.includes("&")) {
-        continue;
-      } else {
-        hasOneDouble = true;
-      }
-    }
-    includedDecks.push(deck);
-  }
-  return includedDecks.reverse();
+  const lastPairedIndex = fullDecks.findLastIndex((deck) => deck.name.includes("&"));
+  if (lastPairedIndex === -1) return fullDecks;
+  return fullDecks.slice(0, lastPairedIndex + 1);
 };
 
 const buildDecks = (
@@ -144,6 +133,7 @@ const buildDecks = (
     sortBy,
     latestExpansionId,
     latestExpansionCards,
+    applyPairedTrim,
   } = options;
 
   const unresolvedCardIds = new Set<string>();
@@ -251,8 +241,7 @@ const buildDecks = (
     );
   }
 
-  if (energy !== null) return fullDecks;
-
+  if (!applyPairedTrim) return fullDecks;
   return trimPairedDecks(fullDecks);
 };
 
@@ -298,7 +287,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
       sortBy,
       latestExpansionId,
       latestExpansionCards,
-      trimPairedDecks: true,
+      applyPairedTrim: energy === null,
     });
   }, [
     cardsPayload,

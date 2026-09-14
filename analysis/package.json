@@ -11,6 +11,7 @@
     "real-decks:generate": "ts-node scripts/generate-real-deck-lists.ts",
     "start": "ts-node src/get-best-decks.ts",
     "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest",

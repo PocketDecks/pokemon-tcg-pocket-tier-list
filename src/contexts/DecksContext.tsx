@@ -26,35 +26,15 @@ import {
   buildFullLists,
   pickBestList,
   resolveDeckDetail,
-  type FullList,
 } from "../app/deck-resolution";
 
 export type { CardType };
-
-export type MatchupType = PipelineMatchupEntry;
+export type { FullDeckType };
+export type { MatchupType };
 
 type PartialList = PipelineDeckList;
 
 type PartialDeckType = PipelinePartialDeck;
-
-export interface FullDeckType {
-  id: string;
-  name: string;
-  lists: FullList[];
-  bestList: FullList;
-  score: number;
-  popularity: number;
-  strength: number;
-  expectedWinRate: number;
-  fieldCoverage: number;
-  powerScore: number | null;
-  freqScore: number;
-  metaScore: number | null;
-  percentOfGames: number;
-  matchups: MatchupType[] | undefined;
-  iconPrimary: CardType;
-  iconSecondary: CardType | null;
-}
 
 interface DecksContextType {
   decks: FullDeckType[] | null;

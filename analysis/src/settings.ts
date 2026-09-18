@@ -42,8 +42,10 @@ export const MIN_ARCHETYPE_QUALIFIED_GAMES: number = 25;
 const SECONDS_IN_WEEK = 7 * 24 * 60 * 60 * 1000;
 
 export const scoringWeights = (now: Date) => {
-  const weeksLive =
-    (now.getTime() - EXPANSION_RELEASE_DATE.getTime()) / SECONDS_IN_WEEK;
+  const weeksLive = Math.max(
+    0,
+    (now.getTime() - EXPANSION_RELEASE_DATE.getTime()) / SECONDS_IN_WEEK
+  );
   const winrateImportance = Math.min(0.2 + weeksLive * 0.15, 0.75);
 
   return {

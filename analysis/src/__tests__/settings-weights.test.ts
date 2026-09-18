@@ -90,4 +90,17 @@ describe("scoringWeights", () => {
       expect(weights.winrateImportance + weights.popularityImportance).toBe(1);
     }
   });
+
+  it("returns the release-day baseline for dates before the release", async () => {
+    const { EXPANSION_RELEASE_DATE, scoringWeights } = await loadSettings(
+      new Date("2026-09-18T00:00:00.000Z")
+    );
+    const beforeRelease = weeksAfterRelease(EXPANSION_RELEASE_DATE, -1);
+
+    expect(scoringWeights(beforeRelease)).toEqual({
+      winrateImportance: 0.2,
+      popularityImportance: 0.8,
+      newMultiplier: 1,
+    });
+  });
 });

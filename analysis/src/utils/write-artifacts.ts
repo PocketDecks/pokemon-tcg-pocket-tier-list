@@ -1,6 +1,6 @@
 import fs from "fs";
 
-type Artifact = {
+type Artefact = {
   target: string;
   temporary: string;
   backup: string;
@@ -8,6 +8,7 @@ type Artifact = {
   previous: string | null;
   hadTarget: boolean;
   committed: boolean;
+  retainTemporary: boolean;
 };
 
 // Windows keeps EPERM-locked targets for as long as a reader holds them, so
@@ -27,8 +28,8 @@ const renameWithRetry = (source: string, destination: string): void => {
   }
 };
 
-export const writeArtifacts = (files: Record<string, string>): void => {
-  const artifacts: Artifact[] = Object.keys(files).map((target) => {
+export const writeArtefacts = (files: Record<string, string>): void => {
+  const artefacts: Artefact[] = Object.keys(files).map((target) => {
     const hadTarget = fs.existsSync(target);
     return {
       target,
@@ -38,76 +39,86 @@ export const writeArtifacts = (files: Record<string, string>): void => {
       previous: hadTarget ? fs.readFileSync(target, "utf8") : null,
       hadTarget,
       committed: false,
+      retainTemporary: false,
     };
   });
 
-  for (const artifact of artifacts) {
-    if (fs.existsSync(artifact.temporary) || fs.existsSync(artifact.backup)) {
-      throw new Error(`Refusing stale staging files for ${artifact.target}`);
+  for (const artefact of artefacts) {
+    if (fs.existsSync(artefact.temporary) || fs.existsSync(artefact.backup)) {
+      throw new Error(`Refusing stale staging files for ${artefact.target}`);
     }
   }
 
   try {
-    for (const artifact of artifacts) {
-      fs.writeFileSync(artifact.temporary, artifact.content);
+    for (const artefact of artefacts) {
+      fs.writeFileSync(artefact.temporary, artefact.content);
     }
 
-    for (const artifact of artifacts) {
-      if (artifact.hadTarget) {
+    for (const artefact of artefacts) {
+      if (artefact.hadTarget) {
         try {
-          renameWithRetry(artifact.target, artifact.backup);
+          renameWithRetry(artefact.target, artefact.backup);
         } catch (error) {
-          if ((error as NodeJS.ErrnoException).code !== "EPERM") throw error;
-          // The target is held open, so it keeps its place and `previous`
-          // preserves the old contents for rollback.
+          artefact.retainTemporary = true;
+          throw error;
+        }
+        if (!fs.existsSync(artefact.backup)) {
+          artefact.retainTemporary = true;
+          throw new Error(`Backup missing after renaming ${artefact.target}`);
         }
       }
       try {
-        renameWithRetry(artifact.temporary, artifact.target);
+        renameWithRetry(artefact.temporary, artefact.target);
       } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== "EPERM") throw error;
-        fs.writeFileSync(artifact.target, artifact.content);
-        artifact.committed = true;
-        fs.rmSync(artifact.temporary, { force: true });
+        if (
+          (error as NodeJS.ErrnoException).code !== "EPERM" ||
+          !artefact.hadTarget ||
+          !fs.existsSync(artefact.backup)
+        ) {
+          throw error;
+        }
+        fs.writeFileSync(artefact.target, artefact.content);
+        artefact.committed = true;
+        fs.rmSync(artefact.temporary, { force: true });
       }
-      artifact.committed = true;
+      artefact.committed = true;
     }
   } catch (error) {
-    for (const artifact of [...artifacts].reverse()) {
+    for (const artefact of [...artefacts].reverse()) {
       try {
-        if (fs.existsSync(artifact.backup)) {
-          if (fs.existsSync(artifact.target)) fs.rmSync(artifact.target);
-          fs.renameSync(artifact.backup, artifact.target);
-        } else if (artifact.committed) {
-          if (artifact.previous !== null) {
-            fs.writeFileSync(artifact.target, artifact.previous);
-          } else if (fs.existsSync(artifact.target)) {
-            fs.rmSync(artifact.target);
+        if (fs.existsSync(artefact.backup)) {
+          if (fs.existsSync(artefact.target)) fs.rmSync(artefact.target);
+          fs.renameSync(artefact.backup, artefact.target);
+        } else if (artefact.committed) {
+          if (artefact.previous !== null) {
+            fs.writeFileSync(artefact.target, artefact.previous);
+          } else if (fs.existsSync(artefact.target)) {
+            fs.rmSync(artefact.target);
           }
         }
       } catch (rollbackError) {
-        console.warn(`Could not roll back artifact ${artifact.target}:`, rollbackError);
+        console.warn(`Could not roll back artefact ${artefact.target}:`, rollbackError);
       }
     }
 
-    for (const artifact of artifacts) {
-      if (!fs.existsSync(artifact.temporary)) continue;
+    for (const artefact of artefacts) {
+      if (artefact.retainTemporary || !fs.existsSync(artefact.temporary)) continue;
       try {
-        fs.rmSync(artifact.temporary);
+        fs.rmSync(artefact.temporary);
       } catch (cleanupError) {
-        console.warn(`Could not remove artifact staging file ${artifact.temporary}:`, cleanupError);
+        console.warn(`Could not remove artefact staging file ${artefact.temporary}:`, cleanupError);
       }
     }
     throw error;
   }
 
-  for (const artifact of artifacts) {
-    if (!fs.existsSync(artifact.backup)) continue;
+  for (const artefact of artefacts) {
+    if (!fs.existsSync(artefact.backup)) continue;
     try {
-      fs.rmSync(artifact.backup);
+      fs.rmSync(artefact.backup);
     } catch (cleanupError) {
       console.warn(
-        `Could not remove artifact backup ${artifact.backup}. The committed ` +
+        `Could not remove artefact backup ${artefact.backup}. The committed ` +
           `target remains active. Verify it and remove the backup before rerunning:`,
         cleanupError
       );

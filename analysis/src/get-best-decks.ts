@@ -11,7 +11,7 @@ import { buildDeckPower, DeckPowerInput } from "./utils/build-deck-power";
 import { generateOgImages } from "./utils/generate-og-images";
 import { Deck, DeckList, PartialDeck } from "./utils/types";
 import { convertCardsToIds } from "./utils/convert-cards";
-import { writeArtifacts } from "./utils/write-artifacts";
+import { writeArtefacts } from "./utils/write-artifacts";
 import { deckNameToIconIds } from "../../src/types/deck-name";
 import {
   MIN_WINRATE_THRESHOLD,
@@ -244,7 +244,7 @@ const run = async () => {
       deck.metaScore = power?.metaScore ?? null;
     }
 
-    writeArtifacts({
+    writeArtefacts({
       "../public/data/historical-trends.json": JSON.stringify(trends, null, 2),
       "../public/data/meta-share.json": JSON.stringify(metaShare, null, 2),
       "./data/card-scores.json": JSON.stringify(cardScoresList, null, 2),

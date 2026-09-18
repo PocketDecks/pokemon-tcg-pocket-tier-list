@@ -1,14 +1,7 @@
 import { createContext, useMemo, useState, ReactNode } from "react";
 import { FREE_DECK_AMOUNT } from "../app/constants";
-
-export enum SortBy {
-  SCORE = "score",
-  POPULARITY = "popularity",
-  STRENGTH = "strength",
-  WIN_RATE = "winRate",
-  POWER = "power",
-  META = "meta",
-}
+import { SortBy } from "../app/sort-by";
+export { SortBy };
 
 interface FilterContextType {
   energy: string | null;

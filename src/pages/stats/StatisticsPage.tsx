@@ -20,9 +20,7 @@ import Header from "../../components/Header";
 import SeoContent from "../../components/SeoContent";
 import AdInContent from "../../ads/AdInContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
-/* eslint-disable-next-line no-restricted-imports -- pre-existing: this page
-   still consumes DecksContext directly. Move behind src/app/ before adding more. */
-import { useDecks } from "../../contexts/DecksContext";
+import { useDecks } from "../../app/use-decks";
 import { buildTiers } from "../../app/tier-helper";
 import { deckDisplayName, formatArchetypeId } from "../../app/deck-display";
 import { latestExpansionName } from "../../app/use-expansions";

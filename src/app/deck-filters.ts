@@ -1,23 +1,14 @@
 import { CardType } from "./cards-api";
 import { parseDeckListRef } from "./card-ref";
 
+export { deckNameToIconIds } from "../types/deck-name";
+
 export type CardsMapping = Record<string, CardType>;
 
 export const cardToId = (card: string): string => parseDeckListRef(card).id;
 
 export const cardToCount = (card: string): number =>
   parseDeckListRef(card).count;
-
-/** Deck names end in the id of each icon card, e.g. "venusaur-a1-004&bulbasaur-a1-001". */
-export const deckNameToIconIds = (name: string): string[] => {
-  return name.split("&").map((cardName: string) => {
-    const cardNameParts = cardName.split("-");
-    return [
-      cardNameParts[cardNameParts.length - 2],
-      cardNameParts[cardNameParts.length - 1],
-    ].join("-");
-  });
-};
 
 /** Cards and deck lists are versioned separately, so ids can fall out of step. */
 export const findUnresolvedCardIds = (

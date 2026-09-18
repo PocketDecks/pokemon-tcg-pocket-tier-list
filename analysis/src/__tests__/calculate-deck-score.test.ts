@@ -1,11 +1,16 @@
 import { calculateDeckScore } from "../utils/calculate-deck-score";
+import {
+  CARDS_IN_DECK,
+  POPULARITY_IMPORTANCE,
+  WINRATE_IMPORTANCE,
+} from "../settings";
 import { Deck } from "../utils/types";
 
 describe("calculateDeckScore", () => {
-  it("should calculate deck score correctly", () => {
+  it("calculates strength, popularity, and the weighted composite score", () => {
     const mockCards = {
-      Pikachu: { winCount: 10, totalGames: 20, score: 0.8 },
-      Charizard: { winCount: 15, totalGames: 20, score: 0.9 },
+      "2 Pikachu base 1": { winCount: 10, totalGames: 20, score: 0.8 },
+      "1 Charizard base 2": { winCount: 15, totalGames: 20, score: 0.9 },
     };
 
     const mockDeck: Deck = {
@@ -36,7 +41,15 @@ describe("calculateDeckScore", () => {
       matchingGames,
       allGames
     );
-    expect(score.score).toBeGreaterThan(0);
-    expect(score.popularity).toBeGreaterThan(0);
+    expect(score.strength).toBeCloseTo(
+      (0.8 * 2 + 0.9) / CARDS_IN_DECK,
+      10
+    );
+    expect(score.popularity).toBeCloseTo(0.2, 10);
+    expect(score.score).toBeCloseTo(
+      ((0.8 * 2 + 0.9) / CARDS_IN_DECK) * WINRATE_IMPORTANCE +
+        0.2 * POPULARITY_IMPORTANCE,
+      10
+    );
   });
 });

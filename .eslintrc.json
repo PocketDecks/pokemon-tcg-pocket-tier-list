@@ -34,6 +34,29 @@
           }
         ]
       }
+    },
+    {
+      "files": ["src/app/**/*.ts"],
+      "excludedFiles": ["src/app/use-*.ts", "**/__tests__/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "react",
+                "message": "src/app/ holds pure helpers. React belongs in hooks (src/app/use-*.ts) and in components."
+              }
+            ],
+            "patterns": [
+              {
+                "group": ["**/components/*", "**/contexts/*"],
+                "message": "App pure layer must depend only on types from src/types/. No component or context imports."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

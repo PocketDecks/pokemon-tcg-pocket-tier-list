@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { Link } from "react-router";
 import { FullDeckType } from "../contexts/DecksContext";
 import { MetaShareEntry } from "../types/pipeline-data";
+import { deltaTrend, DeltaTrend } from "../app/delta-trend";
 
 const Container = styled.div`
   position: relative;
@@ -46,7 +47,7 @@ const DeckImage = styled.img`
   height: 280%;
 `;
 
-const ShareBadge = styled.div<{ $delta: number | null }>`
+const ShareBadge = styled.div<{ $trend: DeltaTrend }>`
   font-size: 1.4rem;
   font-weight: 700;
   position: absolute;
@@ -59,13 +60,11 @@ const ShareBadge = styled.div<{ $delta: number | null }>`
   white-space: nowrap;
 
   color: ${(props) =>
-    props.$delta === null
-      ? "rgba(255, 255, 255, 0.85)"
-      : props.$delta > 0
-        ? "#7ddb8a"
-        : props.$delta < 0
-          ? "#e58a8a"
-          : "rgba(255, 255, 255, 0.85)"};
+    props.$trend === "up"
+      ? "#7ddb8a"
+      : props.$trend === "down"
+        ? "#e58a8a"
+        : "rgba(255, 255, 255, 0.85)"};
 `;
 
 const NewTag = styled.div`
@@ -89,23 +88,25 @@ interface Props {
 
 const formatShare = (share: number): string => `${(share * 100).toFixed(1)}%`;
 
-const deltaArrow = (delta: number | null): string => {
-  if (delta === null || Math.abs(delta) <= 0.001) return "";
-  return delta > 0 ? " ▲" : " ▼";
+const deltaArrow = (trend: DeltaTrend): string => {
+  if (trend === "up") return " ▲";
+  if (trend === "down") return " ▼";
+  return "";
 };
 
 const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
     const share = metaShare?.share ?? null;
     const delta = metaShare?.delta ?? null;
+    const trend = deltaTrend(delta);
 
     return (
         <Container>
             <StyledDeckCard to={`/deck/${deck.id}`}>
                 <DeckImage key={deck.iconPrimary.id} src={deck.iconPrimary.image} alt={deck.iconPrimary.name} />
                 {metaShare && share !== null && (
-                    <ShareBadge $delta={delta} title={metaShareLabel ?? "Meta share"}>
+                    <ShareBadge $trend={trend} title={metaShareLabel ?? "Meta share"}>
                         {formatShare(share)}
-                        {deltaArrow(delta)}
+                        {deltaArrow(trend)}
                     </ShareBadge>
                 )}
             </StyledDeckCard>

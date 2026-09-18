@@ -1,4 +1,3 @@
-import fs from "fs";
 import cardToString from "./utils/card-to-string";
 import getDecks from "./utils/get-decks";
 import getId from "./utils/get-id";
@@ -12,6 +11,8 @@ import { buildDeckPower, DeckPowerInput } from "./utils/build-deck-power";
 import { generateOgImages } from "./utils/generate-og-images";
 import { Deck, DeckList, PartialDeck } from "./utils/types";
 import { convertCardsToIds } from "./utils/convert-cards";
+import { writeArtefacts } from "./utils/write-artifacts";
+import { deckNameToIconIds } from "../../src/types/deck-name";
 import {
   MIN_WINRATE_THRESHOLD,
   MIN_ARCHETYPE_QUALIFIED_GAMES,
@@ -192,18 +193,10 @@ const run = async () => {
       }
     }
 
-    const deckIconIds = (name: string): string[] =>
-      name.split("&").map((part: string) => {
-        const segments = part.split("-");
-        return [segments[segments.length - 2], segments[segments.length - 1]].join(
-          "-"
-        );
-      });
-
     const cardsById = new Map(cards.map((card: any) => [card.id, card] as [string, any]));
 
     const iconCards = (name: string) =>
-      deckIconIds(name)
+      deckNameToIconIds(name)
         .map((id: string) => cardsById.get(id))
         .filter((card: any): card is any => !!card)
         .sort((a: any, b: any) => Number(!!b.ex) - Number(!!a.ex));
@@ -227,16 +220,7 @@ const run = async () => {
 
     const trends = buildTrends(qualifiedDecks, bestDecks);
 
-    fs.writeFileSync(
-        "../public/data/historical-trends.json",
-        JSON.stringify(trends, null, 2)
-    );
-
     const metaShare = buildMetaShare(qualifiedDecks, bestDecks, new Date());
-    fs.writeFileSync(
-        "../public/data/meta-share.json",
-        JSON.stringify(metaShare, null, 2)
-    );
 
     // Power and Meta scores need the matchup rows and the 14-day field share,
     // so this runs after both are built.
@@ -260,30 +244,16 @@ const run = async () => {
       deck.metaScore = power?.metaScore ?? null;
     }
 
-    fs.writeFileSync(
-      "./data/card-scores.json",
-      JSON.stringify(cardScoresList, null, 2)
-    );
-    fs.writeFileSync(
-      "../public/data/card-scores.json",
-      JSON.stringify(cardScoresList, null, 2)
-    );
-    fs.writeFileSync(
-      "./data/best-decks.json",
-      JSON.stringify(bestDecks, null, 2)
-    );
-    fs.writeFileSync(
-      "../public/data/best-decks.json",
-      JSON.stringify(bestDecks, null, 2)
-    );
-    fs.writeFileSync(
-      "../public/data/matchup-data.json",
-      JSON.stringify(matchupData, null, 2)
-    );
-    fs.writeFileSync(
-      "../src/app/last-updated.ts",
-      `export const LAST_UPDATED = new Date("${new Date().toISOString()}");`
-    );
+    writeArtefacts({
+      "../public/data/historical-trends.json": JSON.stringify(trends, null, 2),
+      "../public/data/meta-share.json": JSON.stringify(metaShare, null, 2),
+      "./data/card-scores.json": JSON.stringify(cardScoresList, null, 2),
+      "../public/data/card-scores.json": JSON.stringify(cardScoresList, null, 2),
+      "./data/best-decks.json": JSON.stringify(bestDecks, null, 2),
+      "../public/data/best-decks.json": JSON.stringify(bestDecks, null, 2),
+      "../public/data/matchup-data.json": JSON.stringify(matchupData, null, 2),
+      "../src/app/last-updated.ts": `export const LAST_UPDATED = new Date("${new Date().toISOString()}");`,
+    });
   } catch (error) {
     console.error("Pipeline failed:", error);
     process.exit(1);

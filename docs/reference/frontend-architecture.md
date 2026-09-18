@@ -214,6 +214,8 @@ renderer.
 | `deck-energy.ts` | `inferEnergyIds`, `EXCLUDED_DECK_BUILDER_NR`, `FORCED_LIGHTNING_NR` | `DecksContext` |
 | `deck-filters.ts` | `CardsMapping`, `cardToId`, `cardToCount`, `deckNameToIconIds`, `findUnresolvedCardIds`, `isAffordable`, `matchesEnergy`, `matchesExFilter`, `hasEnoughLatestExpansionCards` | `DecksContext` |
 | `tier-helper.ts` | `buildTiers` | `TierGrid`, `StatisticsPage` |
+| `deck-types.ts` | `FullDeckType`, `MatchupType` | `DecksContext`, `sorting-helper.ts` |
+| `sort-by.ts` | `SortBy` | `DecksContext`, `FilterContext`, `sorting-helper.ts` |
 | `sorting-helper.ts` | `getSortValue` | `DecksContext`, `TierListPage` |
 | `deck-slug.ts` | re-exports `deckSlug` from `scripts/deck-slug.mjs` | `DecksContext`, `ShareDeckCode` |
 

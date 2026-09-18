@@ -11,7 +11,8 @@ import {
 } from "../app/cards-api";
 import useExpansions from "../app/use-expansions";
 import { MetaShareEntry, PipelineMatchupEntry, PipelineMetaShare, PipelinePartialDeck, PipelineDeckList } from "../types/pipeline-data";
-import { SortBy } from "../components/FilterContext";
+import { FullDeckType, MatchupType } from "../app/deck-types";
+import { SortBy } from "../app/sort-by";
 import {
   deckNameToIconIds,
   findUnresolvedCardIds,
@@ -25,35 +26,15 @@ import {
   buildFullLists,
   pickBestList,
   resolveDeckDetail,
-  type FullList,
 } from "../app/deck-resolution";
 
 export type { CardType };
-
-export type MatchupType = PipelineMatchupEntry;
+export type { FullDeckType };
+export type { MatchupType };
 
 type PartialList = PipelineDeckList;
 
 type PartialDeckType = PipelinePartialDeck;
-
-export interface FullDeckType {
-  id: string;
-  name: string;
-  lists: FullList[];
-  bestList: FullList;
-  score: number;
-  popularity: number;
-  strength: number;
-  expectedWinRate: number;
-  fieldCoverage: number;
-  powerScore: number | null;
-  freqScore: number;
-  metaScore: number | null;
-  percentOfGames: number;
-  matchups: MatchupType[];
-  iconPrimary: CardType;
-  iconSecondary: CardType | null;
-}
 
 interface DecksContextType {
   decks: FullDeckType[] | null;
@@ -108,25 +89,14 @@ interface BuildOptions {
   sortBy: SortBy;
   latestExpansionId: string | null;
   latestExpansionCards: number | null;
-  // The legacy tier list keeps at most one paired ("&") deck. Detail pages
-  // link straight to pairs, so their view of the list must not trim them.
-  trimPairedDecks: boolean;
+  // The legacy tier list keeps decks through the last paired ("&") entry.
+  // Detail pages link straight to pairs, so their view must not trim them.
+  applyPairedTrim: boolean;
 }
 const trimPairedDecks = (fullDecks: FullDeckType[]): FullDeckType[] => {
-  const includedDecks = [];
-  let hasOneDouble = false;
-  for (let i = fullDecks.length - 1; i >= 0; i--) {
-    const deck = fullDecks[i];
-    if (!hasOneDouble) {
-      if (!deck.name.includes("&")) {
-        continue;
-      } else {
-        hasOneDouble = true;
-      }
-    }
-    includedDecks.push(deck);
-  }
-  return includedDecks.reverse();
+  const lastPairedIndex = fullDecks.findLastIndex((deck) => deck.name.includes("&"));
+  if (lastPairedIndex === -1) return fullDecks;
+  return fullDecks.slice(0, lastPairedIndex + 1);
 };
 
 const buildDecks = (
@@ -144,6 +114,7 @@ const buildDecks = (
     sortBy,
     latestExpansionId,
     latestExpansionCards,
+    applyPairedTrim,
   } = options;
 
   const unresolvedCardIds = new Set<string>();
@@ -251,8 +222,7 @@ const buildDecks = (
     );
   }
 
-  if (energy !== null) return fullDecks;
-
+  if (!applyPairedTrim) return fullDecks;
   return trimPairedDecks(fullDecks);
 };
 
@@ -298,7 +268,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
       sortBy,
       latestExpansionId,
       latestExpansionCards,
-      trimPairedDecks: true,
+      applyPairedTrim: energy === null,
     });
   }, [
     cardsPayload,

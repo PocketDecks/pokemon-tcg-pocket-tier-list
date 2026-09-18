@@ -130,6 +130,22 @@ describe("DecksProvider with a drifted card id", () => {
     expect(screen.queryByText(DRIFTED_DECK)).not.toBeInTheDocument();
   });
 
+  it("keeps an unpaired deck when no paired decks exist", async () => {
+    const unpairedDeck = GOOD_DECK.replace("&", "/");
+    vi.spyOn(global, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("best-decks.json"))
+        return jsonResponse([{ ...decks[0], name: unpairedDeck }]);
+      if (url.endsWith("matchup-data.json")) return jsonResponse({ [unpairedDeck]: [] });
+      if (url.endsWith("meta-share.json"))
+        return jsonResponse({ generatedAt: "2026-08-24T00:00:00Z", windowDays: 7, decks: [] });
+      return jsonResponse(rawCards);
+    });
+
+    renderProvider();
+
+    expect(await screen.findByText(unpairedDeck)).toBeInTheDocument();
+  });
 
   it("keeps decks loading when only the meta-share fetch rejects", async () => {
     vi.spyOn(global, "fetch").mockImplementation((input) => {

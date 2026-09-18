@@ -39,6 +39,8 @@ jobs:
         working-directory: analysis
       - run: yarn test
         working-directory: analysis
+        env:
+          LIMITLESS_API_KEY: ${{ secrets.LIMITLESS_API_KEY }}
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"

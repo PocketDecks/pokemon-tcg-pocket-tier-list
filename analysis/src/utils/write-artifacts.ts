@@ -67,6 +67,7 @@ export const writeArtifacts = (files: Record<string, string>): void => {
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== "EPERM") throw error;
         fs.writeFileSync(artifact.target, artifact.content);
+        artifact.committed = true;
         fs.rmSync(artifact.temporary, { force: true });
       }
       artifact.committed = true;

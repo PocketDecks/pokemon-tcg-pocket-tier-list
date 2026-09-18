@@ -159,6 +159,31 @@ describe("writeArtifacts", () => {
     expect(fs.existsSync(`${target}.bak`)).toBe(false);
   });
 
+  it("restores previous contents when direct-write staging cleanup fails", () => {
+    const directory = makeTempDirectory();
+    const target = path.join(directory, "target.json");
+    fs.writeFileSync(target, "old");
+    const realRmSync = fs.rmSync;
+    vi.spyOn(fs, "renameSync").mockImplementation(() => {
+      const error = new Error("injected access denied") as NodeJS.ErrnoException;
+      error.code = "EPERM";
+      throw error;
+    });
+    vi.spyOn(fs, "rmSync").mockImplementation((targetPath, options) => {
+      if (targetPath === `${target}.tmp`) {
+        throw new Error("injected staging cleanup failure");
+      }
+      return realRmSync(targetPath, options);
+    });
+
+    expect(() => writeArtifacts({ [target]: "new" })).toThrow(
+      "injected staging cleanup failure"
+    );
+
+    expect(fs.readFileSync(target, "utf8")).toBe("old");
+    expect(fs.existsSync(`${target}.tmp`)).toBe(true);
+  });
+
   it("restores previous contents on rollback when no backup file exists", () => {
     const directory = makeTempDirectory();
     const first = path.join(directory, "first.json");

@@ -64,6 +64,82 @@ describe("writeArtifacts", () => {
     expect(fs.readdirSync(directory).sort()).toEqual(["first.json", "second.json"]);
   });
 
+  it("keeps committed targets when backup cleanup fails", () => {
+    const directory = makeTempDirectory();
+    const first = path.join(directory, "first.json");
+    const second = path.join(directory, "second.json");
+    fs.writeFileSync(first, "old first");
+    fs.writeFileSync(second, "old second");
+    const realRmSync = fs.rmSync;
+    let backupRemovals = 0;
+    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+      if (String(target).endsWith(".bak")) {
+        backupRemovals += 1;
+        if (backupRemovals === 2) throw new Error("injected cleanup failure");
+      }
+      return realRmSync(target, options);
+    });
+
+    writeArtifacts({ [first]: "new first", [second]: "new second" });
+
+    expect(readFiles([first, second])).toEqual([
+      [first, "new first"],
+      [second, "new second"],
+    ]);
+    expect(fs.existsSync(`${second}.bak`)).toBe(true);
+  });
+
+  it("retains failed rollback cleanup and rethrows the commit error", () => {
+    const directory = makeTempDirectory();
+    const first = path.join(directory, "first.json");
+    const second = path.join(directory, "second.json");
+    fs.writeFileSync(first, "old first");
+    fs.writeFileSync(second, "old second");
+    const realRenameSync = fs.renameSync;
+    vi.spyOn(fs, "renameSync").mockImplementation((source, target) => {
+      if (source === `${second}.tmp` && target === second) {
+        throw new Error("injected commit failure");
+      }
+      return realRenameSync(source, target);
+    });
+    const realRmSync = fs.rmSync;
+    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+      if (target === first) throw new Error("injected rollback cleanup failure");
+      return realRmSync(target, options);
+    });
+
+    expect(() =>
+      writeArtifacts({ [first]: "new first", [second]: "new second" })
+    ).toThrow("injected commit failure");
+
+    expect(fs.readFileSync(first, "utf8")).toBe("new first");
+    expect(fs.readFileSync(`${first}.bak`, "utf8")).toBe("old first");
+    expect(fs.readFileSync(second, "utf8")).toBe("old second");
+  });
+
+  it("retains a backup when rollback rename fails", () => {
+    const directory = makeTempDirectory();
+    const target = path.join(directory, "target.json");
+    fs.writeFileSync(target, "old");
+    const realRenameSync = fs.renameSync;
+    vi.spyOn(fs, "renameSync").mockImplementation((source, destination) => {
+      if (source === `${target}.tmp` && destination === target) {
+        throw new Error("injected commit failure");
+      }
+      if (source === `${target}.bak` && destination === target) {
+        throw new Error("injected rollback rename failure");
+      }
+      return realRenameSync(source, destination);
+    });
+
+    expect(() => writeArtifacts({ [target]: "new" })).toThrow(
+      "injected commit failure"
+    );
+
+    expect(fs.existsSync(`${target}.bak`)).toBe(true);
+    expect(fs.readFileSync(`${target}.bak`, "utf8")).toBe("old");
+  });
+
   it("refuses stale staging files without changing the target", () => {
     const directory = makeTempDirectory();
     const target = path.join(directory, "target.json");

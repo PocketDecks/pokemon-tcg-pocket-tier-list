@@ -89,8 +89,8 @@ interface BuildOptions {
   sortBy: SortBy;
   latestExpansionId: string | null;
   latestExpansionCards: number | null;
-  // The legacy tier list keeps at most one paired ("&") deck. Detail pages
-  // link straight to pairs, so their view of the list must not trim them.
+  // The legacy tier list keeps decks through the last paired ("&") entry.
+  // Detail pages link straight to pairs, so their view must not trim them.
   applyPairedTrim: boolean;
 }
 const trimPairedDecks = (fullDecks: FullDeckType[]): FullDeckType[] => {

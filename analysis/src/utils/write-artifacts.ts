@@ -35,24 +35,37 @@ export const writeArtifacts = (files: Record<string, string>): void => {
       fs.renameSync(artifact.temporary, artifact.target);
       artifact.committed = true;
     }
-
-    for (const artifact of artifacts) {
-      if (fs.existsSync(artifact.backup)) fs.rmSync(artifact.backup);
-    }
   } catch (error) {
     for (const artifact of [...artifacts].reverse()) {
-      if (fs.existsSync(artifact.backup)) {
-        if (fs.existsSync(artifact.target)) fs.rmSync(artifact.target);
-        fs.renameSync(artifact.backup, artifact.target);
-      } else if (artifact.committed && fs.existsSync(artifact.target)) {
-        fs.rmSync(artifact.target);
+      try {
+        if (fs.existsSync(artifact.backup)) {
+          if (fs.existsSync(artifact.target)) fs.rmSync(artifact.target);
+          fs.renameSync(artifact.backup, artifact.target);
+        } else if (artifact.committed && fs.existsSync(artifact.target)) {
+          fs.rmSync(artifact.target);
+        }
+      } catch (rollbackError) {
+        console.warn(`Could not roll back artifact ${artifact.target}:`, rollbackError);
       }
     }
 
     for (const artifact of artifacts) {
-      if (fs.existsSync(artifact.temporary)) fs.rmSync(artifact.temporary);
-      if (fs.existsSync(artifact.backup)) fs.rmSync(artifact.backup);
+      if (!fs.existsSync(artifact.temporary)) continue;
+      try {
+        fs.rmSync(artifact.temporary);
+      } catch (cleanupError) {
+        console.warn(`Could not remove artifact staging file ${artifact.temporary}:`, cleanupError);
+      }
     }
     throw error;
+  }
+
+  for (const artifact of artifacts) {
+    if (!fs.existsSync(artifact.backup)) continue;
+    try {
+      fs.rmSync(artifact.backup);
+    } catch (cleanupError) {
+      console.warn(`Could not remove artifact backup ${artifact.backup}:`, cleanupError);
+    }
   }
 };

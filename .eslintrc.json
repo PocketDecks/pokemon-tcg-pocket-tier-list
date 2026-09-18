@@ -42,6 +42,12 @@
         "no-restricted-imports": [
           "error",
           {
+            "paths": [
+              {
+                "name": "react",
+                "message": "src/app/ holds pure helpers. React belongs in hooks (src/app/use-*.ts) and in components."
+              }
+            ],
             "patterns": [
               {
                 "group": ["**/components/*", "**/contexts/*"],

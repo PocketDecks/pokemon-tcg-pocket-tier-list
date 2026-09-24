@@ -12,9 +12,11 @@ export const buildTrends = (
 
   // Day accumulators keep date/totalGames separate from per-archetype tallies, which a single Record<string, number> view would mistype.
   const trendData: Record<string, { date: string; totalGames: number; counts: Record<string, number> }> = {};
+  const currentDate = new Date().toISOString().slice(0, 10);
 
   for (const deck of qualifiedDecks) {
     const dateStr = deck.date.split("T")[0];
+    if (dateStr === currentDate) continue;
 
     if (!trendData[dateStr]) {
       trendData[dateStr] = { date: dateStr, totalGames: 0, counts: {} };

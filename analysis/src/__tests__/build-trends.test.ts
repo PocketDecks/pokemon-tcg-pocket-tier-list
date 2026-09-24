@@ -89,4 +89,17 @@ describe("buildTrends", () => {
 
     expect(trends.map((t) => t.date)).toEqual(["2024-05-01", "2024-05-02"]);
   });
+
+  it("excludes the current UTC date", () => {
+    const currentDate = new Date().toISOString().slice(0, 10);
+    const trends = buildTrends(
+      [
+        makeDeck({ name: "Deck A", date: `${currentDate}T00:00:00.000Z`, totalGames: 10 }),
+        makeDeck({ name: "Deck A", date: "2024-01-01T00:00:00.000Z", totalGames: 10 }),
+      ],
+      [makePartial("Deck A", 1)]
+    );
+
+    expect(trends.map((trend) => trend.date)).toEqual(["2024-01-01"]);
+  });
 });

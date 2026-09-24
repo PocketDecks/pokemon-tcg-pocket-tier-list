@@ -3,6 +3,7 @@ import fs from "fs";
 import { getTournaments } from "./utils/get-tournaments";
 import getTournamentDecks from "./utils/get-tournament-decks";
 import { round } from "./utils/round";
+import { writeArtefacts } from "./utils/write-artifacts";
 
 const DECKS_FILE = "./data/decks.json";
 const PROCESSED_FILE = "./data/processed-tournaments.json";
@@ -48,8 +49,10 @@ export const downloadDecks = async () => {
   }
 
   fs.mkdirSync("./data", { recursive: true });
-  fs.writeFileSync(DECKS_FILE, JSON.stringify(nextDecks));
-  fs.writeFileSync(PROCESSED_FILE, JSON.stringify(nextProcessed));
+  writeArtefacts({
+    [DECKS_FILE]: JSON.stringify(nextDecks),
+    [PROCESSED_FILE]: JSON.stringify(nextProcessed),
+  });
 };
 
 if (process.argv[1]?.endsWith("download-decks.ts")) {

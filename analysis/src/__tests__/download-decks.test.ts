@@ -6,9 +6,11 @@ const { getTournamentDecks, getTournaments } = vi.hoisted(() => ({
   getTournamentDecks: vi.fn(),
   getTournaments: vi.fn(),
 }));
+const writeArtefacts = vi.hoisted(() => vi.fn());
 
 vi.mock("../utils/get-tournament-decks", () => ({ default: getTournamentDecks }));
 vi.mock("../utils/get-tournaments", () => ({ getTournaments }));
+vi.mock("../utils/write-artifacts", () => ({ writeArtefacts }));
 vi.mock("fs");
 
 describe("downloadDecks", () => {
@@ -21,7 +23,7 @@ describe("downloadDecks", () => {
       String(path).endsWith("decks.json") ? "[{\"id\":\"old\"}]" : "[{\"id\":\"done\"}]"
     );
     vi.mocked(fs.mkdirSync).mockImplementation(() => undefined);
-    vi.mocked(fs.writeFileSync).mockImplementation(() => undefined);
+    writeArtefacts.mockImplementation(() => undefined);
   });
 
   it("writes both data files only after every tournament succeeds", async () => {
@@ -33,9 +35,18 @@ describe("downloadDecks", () => {
 
     await downloadDecks();
 
-    expect(fs.writeFileSync).toHaveBeenCalledTimes(2);
-    expect(fs.writeFileSync).toHaveBeenNthCalledWith(1, "./data/decks.json", expect.stringContaining("deck-two"));
-    expect(fs.writeFileSync).toHaveBeenNthCalledWith(2, "./data/processed-tournaments.json", expect.stringContaining("two"));
+    expect(writeArtefacts).toHaveBeenCalledTimes(1);
+    const payload = writeArtefacts.mock.calls[0][0] as Record<string, string>;
+    expect(JSON.parse(payload["./data/decks.json"])).toEqual([
+      { id: "old" },
+      { id: "deck-one" },
+      { id: "deck-two" },
+    ]);
+    expect(JSON.parse(payload["./data/processed-tournaments.json"])).toEqual([
+      { id: "done" },
+      { id: "one", date: "2026-09-01" },
+      { id: "two", date: "2026-09-02" },
+    ]);
   });
 
   it("leaves both data files untouched when a tournament fails", async () => {
@@ -47,6 +58,6 @@ describe("downloadDecks", () => {
 
     await expect(downloadDecks()).rejects.toThrow("pairings failed");
 
-    expect(fs.writeFileSync).not.toHaveBeenCalled();
+    expect(writeArtefacts).not.toHaveBeenCalled();
   });
 });

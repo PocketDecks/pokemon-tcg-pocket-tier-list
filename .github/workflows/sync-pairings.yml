@@ -31,6 +31,13 @@ jobs:
           cd analysis
           yarn install
 
+      - name: Prepare dated branch
+        run: |
+          BRANCH="automated/pairings-$(date -u +%F)"
+          echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
+          git fetch origin main
+          git checkout -B "$BRANCH" origin/main
+
       - name: Sync pairings
         run: |
           cd analysis
@@ -53,10 +60,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          BRANCH="automated/pairings-$(date -u +%F)"
-          # Reuse the date branch on re-runs; -B resets it so a second run cannot fail on a duplicate.
-          git fetch origin main
-          git checkout -B "$BRANCH" origin/main
           git add analysis/src/data/limitless-decks.json
           git commit -m "chore(data): sync deck listings from Limitless"
           # Fetch the branch so --force-with-lease checks against the real remote, not a stale local ref.

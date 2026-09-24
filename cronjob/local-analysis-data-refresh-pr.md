@@ -22,7 +22,7 @@ Repository: the checked-out `pokemon-tcg-pocket-tier-list` repository.
 8. Run `yarn.cmd test` and `yarn.cmd typecheck` from `analysis/`. From the repository root, run `yarn.cmd typecheck`, `yarn.cmd lint`, and `yarn.cmd test:ci`. Stop at the first failure and report the command and first error.
 9. Inspect `git status --short`. Never stage `analysis/data/`; the raw tournament store stays local. If no tracked pairing, golden, or public-output files changed, report a silent day and stop.
 10. Commit only the refreshed pairing store, naming golden, public data, public deck images, and update timestamp. Use `chore(data): refresh tier-list snapshot` as the commit subject.
-11. Push the dated branch to the repository's review remote and create or update one pull request against `main`. Use the title `chore(data): refresh tier-list snapshot`. The body must state the pairing-row count, ranked-archetype count, image parity, and test results. Check the title and body for EN-UK spelling, straight quotes, no em dashes, and no AI or internal process references before posting.
+11. Push the dated branch to the repository's review remote and create or update one pull request against `main`. Use the title `chore(data): refresh tier-list snapshot`. The body must state the pairing-row count, ranked-archetype count, image parity, and test results. Check the title and body for EN-UK spelling and ensure the gate is applied before posting.
 12. Read the pull request back after publishing. Verify that its head SHA equals the local commit and report the review URL plus the current check states. Never merge and never push `main`.
 
 ## Failure rules

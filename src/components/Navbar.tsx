@@ -1,129 +1,134 @@
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { NavLink } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useUI } from "../contexts/UIContext";
 import useIsMobile from "../ads/useIsMobile";
+import NavIcon, { type NavIconName } from "./NavIcon";
 
-const dropdown = css<{ $open: boolean }>`
+const Nav = styled.nav<{ $open: boolean }>`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.4rem;
+  padding: 0 0.8rem;
+
   @media (max-width: 900px) {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
     z-index: 60;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.25rem;
+    gap: 0.2rem;
     background: var(--bg);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
-    padding: 1rem 1rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 1.6rem 3.2rem rgba(0, 0, 0, 0.45);
+    padding: 0.8rem 1.2rem 1.6rem;
     opacity: ${(props) => (props.$open ? 1 : 0)};
     transform: ${(props) =>
-      props.$open ? "translateY(0)" : "translateY(-0.5rem)"};
+      props.$open ? "translateY(0)" : "translateY(-0.6rem)"};
     visibility: ${(props) => (props.$open ? "visible" : "hidden")};
     pointer-events: ${(props) => (props.$open ? "auto" : "none")};
-    transition: opacity 200ms ease-out, transform 200ms ease-out,
-      visibility 200ms;
-  }
-
-  @media (max-width: 900px) and (prefers-reduced-motion: reduce) {
-    transition: none;
+    transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 200ms cubic-bezier(0.16, 1, 0.3, 1), visibility 200ms;
   }
 `;
 
-const Nav = styled.nav<{ $open: boolean; $inline: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
+const Chip = styled.span`
+  display: grid;
+  place-items: center;
+  width: 4.8rem;
+  height: 3.2rem;
+  border-radius: 1rem;
+  transition: background-color 160ms ease-out, color 160ms ease-out;
 
-  ${(props) =>
-    props.$inline
-      ? css`
-          @media (max-width: 900px) {
-            flex-wrap: wrap;
-            justify-content: flex-start;
-          }
-        `
-      : dropdown}
+  @media (max-width: 900px) {
+    width: 4rem;
+  }
 `;
 
-const NavItem = styled(NavLink)<{ $inline: boolean }>`
-  display: inline-flex;
-  align-items: center;
-  font-size: 1.4rem;
+const Label = styled.span`
+  font-size: 1.15rem;
   font-weight: 500;
-  color: var(--main);
-  padding: 0.375rem 1rem;
-  border-radius: 0.375rem;
-  white-space: nowrap;
-  opacity: 0.7;
-  transition: opacity 0.2s ease, background 0.2s ease;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  text-align: center;
+  text-wrap: balance;
+  hyphens: auto;
 
-  &.active {
-    opacity: 1;
-    background: rgba(255, 255, 255, 0.12);
-    box-shadow: inset 0 -2px 0 var(--focus);
+  @media (max-width: 900px) {
+    font-size: 1.6rem;
+    text-align: left;
   }
+`;
+
+const NavItem = styled(NavLink)<{ $tier: string }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 0.2rem;
+  border-radius: 1rem;
+  color: rgba(255, 255, 255, 0.64);
+  transition: color 160ms ease-out;
 
   &:hover {
-    opacity: 1;
+    color: var(--main);
+  }
+
+  &:hover ${Chip} {
     background: rgba(255, 255, 255, 0.08);
   }
 
-  @media (max-width: 900px) {
-    min-height: 4.4rem;
-    padding: 0.8rem 1.2rem;
+  &.active {
+    color: var(--main);
+  }
 
-    ${(props) =>
-      !props.$inline &&
-      css`
-        width: 100%;
-        font-size: 1.6rem;
-        text-align: left;
-      `}
+  &.active ${Label} {
+    font-weight: 600;
+  }
+
+  &.active ${Chip} {
+    background: ${(props) => props.$tier};
+    color: rgba(0, 0, 0, 0.8);
+  }
+
+  @media (max-width: 900px) {
+    flex-direction: row;
+    gap: 1.2rem;
+    min-height: 4.8rem;
+    padding: 0.4rem 0.8rem;
   }
 `;
 
-interface Props {
-  inline?: boolean;
-}
+const ITEMS: { to: string; key: string; icon: NavIconName; tier: string }[] = [
+  { to: "/tier-list", key: "header.tierList", icon: "tierList", tier: "var(--s)" },
+  { to: "/deck", key: "header.bestDeckFinder", icon: "deckFinder", tier: "var(--a)" },
+  { to: "/cards-list", key: "header.bestCards", icon: "bestCards", tier: "var(--b)" },
+  { to: "/expansion-list", key: "header.bestExpansions", icon: "expansions", tier: "var(--c)" },
+  { to: "/statistics", key: "header.statistics", icon: "statistics", tier: "var(--d)" },
+];
 
-const Navbar = ({ inline = false }: Props) => {
+const Navbar = () => {
   const { t } = useTranslation();
   const { isNavOpen, toggleNav } = useUI();
   const isMobile = useIsMobile();
-
-  const items = [
-    { to: "/tier-list", label: t("header.tierList") },
-    { to: "/deck", label: t("header.bestDeckFinder") },
-    { to: "/cards-list", label: t("header.bestCards") },
-    { to: "/expansion-list", label: t("header.bestExpansions") },
-    { to: "/statistics", label: t("header.statistics") },
-  ];
-
-  // On desktop the nav stays in the header row. On mobile it is the animated
-  // dropdown that opens only after the user taps the menu button.
-  const open = inline || !isMobile || isNavOpen;
-  const closesMenu = isMobile && !inline;
+  const open = !isMobile || isNavOpen;
 
   return (
-    <Nav
-      id={inline ? undefined : "site-nav"}
-      aria-label={inline ? t("a11y.footerNav") : t("a11y.primaryNav")}
-      $open={open}
-      $inline={inline}
-    >
-      {items.map((item) => (
+    <Nav id="site-nav" aria-label={t("a11y.primaryNav")} $open={open}>
+      {ITEMS.map((item) => (
         <NavItem
           key={item.to}
           to={item.to}
           end={item.to === "/deck"}
-          $inline={inline}
-          onClick={closesMenu ? toggleNav : undefined}
+          $tier={item.tier}
+          onClick={isMobile ? toggleNav : undefined}
         >
-          {item.label}
+          <Chip>
+            <NavIcon name={item.icon} />
+          </Chip>
+          <Label>{t(item.key)}</Label>
         </NavItem>
       ))}
     </Nav>

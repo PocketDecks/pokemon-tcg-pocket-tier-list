@@ -12,7 +12,7 @@ vi.mock("react-i18next", () => ({
           "a11y.openMenu": "Open menu",
           "a11y.closeMenu": "Close menu",
           "a11y.primaryNav": "Main navigation",
-          "a11y.footerNav": "Footer navigation",
+          "footer.about": "About",
         } as Record<string, string>
       )[key] ?? key,
   }),
@@ -60,12 +60,12 @@ describe("Header", () => {
     ).toBeInTheDocument();
   });
 
-  it("does not add a second banner landmark in the footer", () => {
+  it("renders the footer without a second banner or navigation", () => {
     renderHeader(true);
     expect(screen.queryByRole("banner")).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("navigation", { name: "Footer navigation" })
-    ).toBeInTheDocument();
+    expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
+    expect(screen.getByRole("contentinfo")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "About" })).toBeInTheDocument();
   });
 
   it("closes the mobile menu on Escape and returns focus to the menu button", () => {

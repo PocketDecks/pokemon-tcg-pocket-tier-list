@@ -6,33 +6,26 @@ import { Link } from "react-router";
 const Container = styled(Link)`
   display: flex;
   align-items: center;
-  gap: 1rem;
-`;
+  border-radius: 1rem;
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
 
-const StyledLogo = styled.img`
-  width: 8rem;
-
-  @media (max-width: 900px) {
-    width: 6rem;
+  &:hover {
+    transform: rotate(-6deg);
   }
 `;
 
-const StyledText = styled.p`
-  font-size: 2.8rem;
-  font-weight: 600;
-  color: var(--main);
+const StyledLogo = styled.img`
+  width: 5.2rem;
 
-  @media (max-width: 1156px) {
-    display: none;
-    font-size: 2rem;
+  @media (max-width: 900px) {
+    width: 4.8rem;
   }
 `;
 
 const Logo = () => {
   return (
     <Container to="/">
-      <StyledLogo src={logo} alt="logo" />
-      <StyledText>Top Pocket Decks</StyledText>
+      <StyledLogo src={logo} alt="Top Pocket Decks" />
     </Container>
   );
 };

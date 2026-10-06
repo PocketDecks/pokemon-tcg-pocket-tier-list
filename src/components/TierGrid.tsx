@@ -4,7 +4,7 @@ import React, { type ReactNode } from "react";
 
 const Page = styled.div`
   width: 100%;
-  height: 100dvh;
+  height: calc(100dvh - var(--ad-anchor-h, 0px));
   display: flex;
   flex-direction: column;
   align-items: center;

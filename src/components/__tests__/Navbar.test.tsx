@@ -29,15 +29,12 @@ const UIProbe = () => {
   return <span data-testid="navopen-probe">{String(isNavOpen)}</span>;
 };
 
-const renderNavbar = ({
-  inline = false,
-  path = "/",
-}: { inline?: boolean; path?: string } = {}) =>
+const renderNavbar = ({ path = "/" }: { path?: string } = {}) =>
   render(
     <UIProvider>
       <MemoryRouter initialEntries={[path]}>
         <UIProbe />
-        <Navbar inline={inline} />
+        <Navbar />
       </MemoryRouter>
     </UIProvider>
   );
@@ -71,13 +68,6 @@ describe("Navbar", () => {
     expect(screen.getByTestId("navopen-probe")).toHaveTextContent("false");
     fireEvent.click(screen.getByRole("link", { name: /tier list/i }));
     expect(screen.getByTestId("navopen-probe")).toHaveTextContent("true");
-  });
-
-  it("leaves the shared nav state alone when a footer link is tapped on mobile", () => {
-    mobile = true;
-    renderNavbar({ inline: true });
-    fireEvent.click(screen.getByRole("link", { name: /tier list/i }));
-    expect(screen.getByTestId("navopen-probe")).toHaveTextContent("false");
   });
 
   it("marks only the current route as the current page", () => {

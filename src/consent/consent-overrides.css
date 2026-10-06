@@ -124,10 +124,7 @@
 /* --- Dialog interior -------------------------------------------------------
  * c15t sizes the category widget in rem against an assumed 16px root, and the
  * app's root is 10px, so every switch, icon and gap inside the dialog renders
- * at 62.5% of its intended size. The global `* { font-size: 10px }` compounds
- * it: unlayered, so it beats the font sizes c15t declares in @layer components
- * and flattens the accordion labels to 10px. The banner escaped both because
- * the rules above already restate its sizes.
+ * at 62.5% of its intended size.
  *
  * These are c15t's own component variables, restated at the app's scale
  * (c15t's value x 1.6). The title, description, footer and button rules above
@@ -162,4 +159,9 @@
 [data-testid="consent-dialog-root"] [class*="c15t-ui-contentInner"] {
   font-size: 1.5rem !important;
   line-height: 1.5 !important;
+}
+
+[data-branding="c15t"],
+[data-branding="c15t"] * {
+  font-size: 1rem;
 }

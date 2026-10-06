@@ -53,15 +53,6 @@ const Content = styled.article`
     padding-left: 2.4rem;
   }
 
-  /* The global "*" reset sets font-size: 10px on every element directly, which
-     overrides inheritance for inline elements. Force them back to their
-     parent's size so bold text and links aren't shrunk to 1rem. */
-  strong,
-  em,
-  a {
-    font-size: inherit;
-  }
-
   a {
     color: var(--e);
     text-decoration: underline;

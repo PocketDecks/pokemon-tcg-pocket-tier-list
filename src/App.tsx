@@ -9,7 +9,7 @@ import AdAnchor from "./ads/AdAnchor";
 import AdBlockerNotice from "./components/AdBlockerNotice";
 import { ContentReadyProvider } from "./ads/ContentReadyContext";
 import ErrorBoundary, { LoadingNotice } from "./components/ErrorBoundary";
-import Header from "./components/Header";
+import Header, { RAIL_WIDTH } from "./components/Header";
 import HomeBanner from "./components/HomeBanner";
 
 const LandingPage = lazy(() => import("./pages/landing/LandingPage"));
@@ -37,10 +37,30 @@ const queryClient = new QueryClient(queryClientOptions);
 const StyledApp = styled.div`
   width: 100%;
   min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: grid;
+  grid-template-columns: ${RAIL_WIDTH} minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "rail banner"
+    "rail main"
+    "rail footer";
   background: var(--bg);
+
+  @media (max-width: 900px) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+`;
+
+const Banner = styled.div`
+  grid-area: banner;
+  width: 100%;
+`;
+
+const FooterArea = styled.div`
+  grid-area: footer;
+  width: 100%;
 `;
 
 const SkipLink = styled.a`
@@ -62,7 +82,9 @@ const SkipLink = styled.a`
 `;
 
 const Main = styled.main`
+  grid-area: main;
   width: 100%;
+  min-width: 0;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -80,7 +102,11 @@ const Layout = () => {
   return (
       <StyledApp>
         <SkipLink href="#main-content">{t("a11y.skipToContent")}</SkipLink>
-        {pathname === "/" && <HomeBanner />}
+        {pathname === "/" && (
+          <Banner>
+            <HomeBanner />
+          </Banner>
+        )}
         <Header />
         <Main id="main-content" tabIndex={-1}>
           <ErrorBoundary>
@@ -89,8 +115,10 @@ const Layout = () => {
             </Suspense>
           </ErrorBoundary>
         </Main>
-        <Header footer />
-        <AdBlockerNotice />
+        <FooterArea>
+          <Header footer />
+          <AdBlockerNotice />
+        </FooterArea>
         <AdAnchor />
       </StyledApp>
   );

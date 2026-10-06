@@ -1,57 +1,30 @@
 import useCards from "../../app/use-cards";
 import useExpansions from "../../app/use-expansions";
+import { useDecks } from "../../app/use-decks";
 import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import TierGrid from "../../components/TierGrid";
 import ExpansionIcon from "../../components/ExpansionIcon";
-
-interface PackData {
-  expansionId: string;
-  packId: string;
-  packName: string;
-  packImage: string;
-  totalScore: number;
-}
+import { buildExpansionPackData } from "../../app/expansion-scores";
 
 const ExpansionListPage = () => {
   const cards = useCards(1_000_000);
   const expansions = useExpansions();
+  const { scoreBaseline } = useDecks();
 
-  useMarkContentReady(!!cards && !!expansions);
+  useMarkContentReady(!!cards && !!expansions && !!scoreBaseline);
 
-  // Tally all scores in a single O(N) pass
-  const packScores = new Map<string, number>();
-  const sharedScores = new Map<string, number>();
-
-  for (const card of cards ?? []) {
-    if (card.pack.toLowerCase().includes("shared")) {
-      sharedScores.set(card.set, (sharedScores.get(card.set) || 0) + card.score);
-    } else {
-      const key = `${card.set}-${card.pack}`;
-      packScores.set(key, (packScores.get(key) || 0) + card.score);
-    }
-  }
-
-  // Assemble data
-  const expansionData: PackData[] = (expansions ?? [])
-      .flatMap((expansion) =>
-          expansion.packs.map((pack) => ({
-            expansionId: expansion.id,
-            packId: pack.id,
-            packName: pack.name,
-            packImage: pack.image ?? "",
-            totalScore:
-                (packScores.get(`${expansion.id}-${pack.name}`) || 0) +
-                (sharedScores.get(expansion.id) || 0),
-          }))
-      )
-      .sort((a, b) => b.totalScore - a.totalScore);
+  const expansionData = buildExpansionPackData(
+    cards ?? [],
+    expansions ?? [],
+    scoreBaseline?.cardStrength ?? 0
+  );
 
   return (
       <>
         <TierGrid
-          items={cards && expansions ? expansionData : null}
-          getScore={(d) => d.totalScore}
+          items={cards && expansions && scoreBaseline ? expansionData : null}
+          getScore={(d) => d.relativeScore}
           getKey={(d) => d.packId}
           renderItem={(data) => <ExpansionIcon image={data.packImage} />}
         />

@@ -27,6 +27,7 @@ import {
   pickBestList,
   resolveDeckDetail,
 } from "../app/deck-resolution";
+import { getScoreBaseline, type ScoreBaseline } from "../app/score-baseline";
 
 export type { CardType };
 export type { FullDeckType };
@@ -38,6 +39,7 @@ type PartialDeckType = PipelinePartialDeck;
 
 interface DecksContextType {
   decks: FullDeckType[] | null;
+  scoreBaseline: ScoreBaseline | null;
   metaShare: PipelineMetaShare | null;
   metaShareBySlug: Record<string, MetaShareEntry> | null;
   loading: boolean;
@@ -238,6 +240,11 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const { data: decksData, isLoading: decksLoading, error: decksError } = useDecksData();
 
+  const scoreBaseline = useMemo(
+    () => (decksData ? getScoreBaseline(decksData.decks) : null),
+    [decksData]
+  );
+
   const metaShareBySlug = useMemo(() => {
     const share: PipelineMetaShare | null | undefined = decksData?.metaShare;
     if (!share) return null;
@@ -287,12 +294,21 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
   const value = useMemo(
     () => ({
       decks,
+      scoreBaseline,
       metaShare: decksData?.metaShare ?? null,
       metaShareBySlug,
       loading: cardsLoading || decksLoading,
       error: decksError ?? null,
     }),
-    [decks, decksData, metaShareBySlug, cardsLoading, decksLoading, decksError]
+    [
+      decks,
+      scoreBaseline,
+      decksData,
+      metaShareBySlug,
+      cardsLoading,
+      decksLoading,
+      decksError,
+    ]
   );
 
   return (

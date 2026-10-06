@@ -9,7 +9,8 @@ import {
     XAxis,
     YAxis,
     Tooltip,
-    Legend,
+    CartesianGrid,
+    type TooltipContentProps,
 } from "recharts";
 import useIsPremium from "../../app/use-is-premium";
 import { useQuery } from "@tanstack/react-query";
@@ -25,6 +26,7 @@ import { deckDisplayName, formatArchetypeId } from "../../app/deck-display";
 import { latestExpansionName } from "../../app/use-expansions";
 import { sortByPowerScore } from "../../app/score-baseline";
 import PageTitle from "../../components/PageTitle";
+import NavIcon from "../../components/NavIcon";
 import crownIcon from "../../assets/crown.webp";
 
 const PageContainer = styled.div`
@@ -45,10 +47,10 @@ const Section = styled.section`
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    background: var(--border);
+    background: #121210;
     padding: 2.4rem;
-    border-radius: 1.2rem;
-    border: 1px solid var(--border);
+    border-radius: 1.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.06);
     min-width: 0;
     contain: layout;
 
@@ -71,7 +73,8 @@ const SectionHeader = styled.div`
 
 const SectionTitle = styled.h2`
     font-size: 2.4rem;
-    font-weight: 500;
+    font-weight: 600;
+    letter-spacing: -0.01em;
 `;
 
 const ToggleContainer = styled.div`
@@ -83,6 +86,9 @@ const ToggleContainer = styled.div`
 `;
 
 const ToggleButton = styled.button<{ $active: boolean; $locked?: boolean }>`
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
     padding: 0.8rem 1.6rem;
     border-radius: 0.4rem;
     font-size: 1.4rem;
@@ -92,7 +98,12 @@ const ToggleButton = styled.button<{ $active: boolean; $locked?: boolean }>`
     opacity: ${(props) => (props.$locked ? 0.5 : 1)};
     cursor: ${(props) => (props.$locked ? "not-allowed" : "pointer")};
     border: none;
-    transition: all 0.2s ease;
+    transition: background-color 160ms ease-out, color 160ms ease-out;
+
+    &:hover {
+        background: ${(props) =>
+            props.$active ? "var(--main)" : props.$locked ? "transparent" : "rgba(255, 255, 255, 0.08)"};
+    }
 
     @media (max-width: 900px) {
         min-height: 4.4rem;
@@ -102,7 +113,71 @@ const ToggleButton = styled.button<{ $active: boolean; $locked?: boolean }>`
 const ChartContainer = styled.div`
     font-size: 1.2rem;
     width: 100%;
-    height: 400px;
+    height: 36rem;
+`;
+
+const SeriesLegend = styled.ul`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.8rem;
+    list-style: none;
+`;
+
+const SeriesButton = styled.button<{ $dimmed: boolean }>`
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    min-height: 3.2rem;
+    padding: 0.4rem 1rem;
+    border-radius: 0.8rem;
+    font-size: 1.3rem;
+    color: var(--main);
+    cursor: pointer;
+    opacity: ${(props) => (props.$dimmed ? 0.45 : 1)};
+    transition: opacity 160ms ease-out, background-color 160ms ease-out;
+
+    &:hover,
+    &[aria-pressed="true"] {
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    @media (max-width: 900px) {
+        min-height: 4.4rem;
+    }
+`;
+
+const Swatch = styled.span<{ $color: string }>`
+    width: 1.4rem;
+    height: 0.4rem;
+    border-radius: 0.2rem;
+    background: ${(props) => props.$color};
+    flex-shrink: 0;
+`;
+
+const TooltipCard = styled.div`
+    min-width: 24rem;
+    padding: 1.2rem 1.4rem;
+    border-radius: 1rem;
+    background: #1d1d1b;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0.8rem 2.4rem rgba(0, 0, 0, 0.45);
+    font-size: 1.3rem;
+    color: var(--main);
+`;
+
+const TooltipDate = styled.p`
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.72);
+`;
+
+const TooltipRow = styled.div`
+    display: grid;
+    grid-template-columns: 1.4rem 1fr auto;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.2rem 0;
+    font-variant-numeric: tabular-nums;
 `;
 
 const MatrixWrapper = styled.div`
@@ -110,14 +185,7 @@ const MatrixWrapper = styled.div`
     max-width: 100%;
     overflow-x: auto;
     border-radius: 0.8rem;
-    border: 1px solid var(--border);
     -webkit-overflow-scrolling: touch;
-    display: flex;
-    justify-content: center;
-
-    @media (max-width: 1300px) {
-        justify-content: flex-start;
-    }
 
     &::-webkit-scrollbar {
         height: 8px;
@@ -128,22 +196,23 @@ const MatrixWrapper = styled.div`
     }
 `;
 
-const MatrixTable = styled.table`
+const MatrixTable = styled.table<{ $columns: number }>`
     border-collapse: separate; /* Fixes the sticky background clipping bug */
     border-spacing: 0;
     font-size: 1.3rem;
     text-align: center;
     table-layout: fixed;
-    width: max-content;
+    width: 100%;
+    min-width: ${(props) => 260 + props.$columns * 64}px;
 
     th,
     td {
         padding: 0.5rem;
-        border-bottom: 1px solid var(--border);
-        border-right: 1px solid var(--border);
-        width: 75px;
-        min-width: 75px;
-        height: 75px;
+        border-bottom: 2px solid #121210;
+        border-right: 2px solid #121210;
+        width: 64px;
+        min-width: 64px;
+        height: 52px;
     }
 
     thead th {
@@ -151,27 +220,24 @@ const MatrixTable = styled.table`
         position: sticky;
         top: 0;
         z-index: 2;
-        background: var(--bg);
+        background: #121210;
         color: var(--main);
         font-weight: 600;
         height: auto;
-        padding: 1rem 0.5rem;
-    }
-
-    th:first-child,
-    td:first-child {
-        border-left: 1px solid var(--border);
+        padding: 0.8rem 0.4rem;
     }
 
     @media (max-width: 900px) {
         font-size: 1.2rem;
         th,
         td {
-            width: 60px;
-            min-width: 60px;
-            height: 60px;
+            width: 52px;
+            min-width: 52px;
+            height: 48px;
             padding: 0.2rem;
         }
+
+        min-width: ${(props) => 140 + props.$columns * 52}px;
     }
 `;
 
@@ -180,24 +246,67 @@ const MovementTable = styled.table`
     width: 100%;
     color: var(--main);
 
+    font-size: 1.4rem;
+    font-variant-numeric: tabular-nums;
+
     th,
     td {
-        /* The global reset sets every element to 10px, so sizing the table
-           alone leaves the cells unreadable. */
-        font-size: 1.4rem;
-        padding: 1rem 1.2rem;
+        padding: 0.8rem 1.2rem;
         text-align: left;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
     }
 
     th {
+        font-size: 1.2rem;
         font-weight: 600;
-        opacity: 0.7;
+        letter-spacing: 0.02em;
+        color: rgba(255, 255, 255, 0.6);
     }
 
-    td:first-child {
-        opacity: 0.5;
+    td:first-child,
+    th:first-child {
         width: 4rem;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    th:nth-child(3),
+    td:nth-child(3) {
+        width: 24rem;
+    }
+
+    th:last-child,
+    td:last-child {
+        width: 11rem;
+        text-align: right;
+    }
+
+    tbody tr {
+        transition: background-color 160ms ease-out;
+    }
+
+    tbody tr:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    @media (max-width: 600px) {
+        font-size: 1.3rem;
+
+        th,
+        td {
+            padding: 0.8rem 0.6rem;
+        }
+
+        th:first-child,
+        td:first-child {
+            display: none;
+        }
+
+        th:nth-child(3),
+        td:nth-child(3),
+        th:last-child,
+        td:last-child {
+            width: auto;
+        }
     }
 
     a {
@@ -219,22 +328,116 @@ const Delta = styled.td<{ $rising: boolean }>`
     color: ${(props) => (props.$rising ? "var(--e)" : "var(--s)")};
     font-weight: 600;
     white-space: nowrap;
+
+    svg {
+        vertical-align: -0.2rem;
+        margin-right: 0.4rem;
+    }
+`;
+
+const DeckCell = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    min-width: 0;
+`;
+
+const ShareCell = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+`;
+
+const ShareTrack = styled.span`
+    flex: 1;
+    height: 0.6rem;
+    border-radius: 0.3rem;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+
+    @media (max-width: 600px) {
+        display: none;
+    }
+`;
+
+const ShareFill = styled.span<{ $width: number }>`
+    display: block;
+    width: ${(props) => props.$width}%;
+    height: 100%;
+    border-radius: 0.3rem;
+    background: rgba(255, 255, 255, 0.5);
+`;
+
+const ShareValue = styled.span`
+    min-width: 4.8rem;
+    text-align: right;
+`;
+
+const ArtFrame = styled.span<{ $size: number }>`
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    width: ${(props) => props.$size}rem;
+    height: ${(props) => props.$size}rem;
+    border-radius: 0.6rem;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.06);
+
+    img {
+        position: absolute;
+        top: -32%;
+        left: 50%;
+        transform: translateX(-50%);
+        height: 280%;
+    }
+`;
+
+const HeaderArt = styled.span`
+    display: inline-flex;
+    justify-content: center;
+
+    & > * + * {
+        margin-left: -0.8rem;
+        box-shadow: 0 0 0 2px #121210;
+    }
+`;
+
+const VisuallyHidden = styled.span`
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+`;
+
+const ScaleLegend = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.72);
+    font-variant-numeric: tabular-nums;
+`;
+
+const ScaleBar = styled.span`
+    width: 16rem;
+    height: 0.8rem;
+    border-radius: 0.4rem;
+    background: linear-gradient(to right, #b8312f, #383835, #256abf);
 `;
 
 const MatrixCell = styled.td<{ $bg?: string; $isPopulated: boolean }>`
-  background: ${(props) => props.$bg || "transparent"};
-  color: ${(props) => (props.$isPopulated ? "#fff" : "var(--main)")};
-  font-size: 1.3rem; /* 13px */
-  font-weight: ${(props) => (props.$isPopulated ? "1000" : "500")};
-  text-shadow: ${(props) =>
-    props.$isPopulated
-        ? "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0px 2px 4px rgba(0,0,0,0.8)"
-        : "none"};
-  transition: filter 0.2s ease;
-  cursor: crosshair;
+  background: ${(props) => props.$bg || "#1d1d1b"};
+  color: ${(props) => (props.$isPopulated ? "#fff" : "rgba(255, 255, 255, 0.4)")};
+  font-size: 1.3rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  border-radius: 0.4rem;
+  transition: box-shadow 160ms ease-out;
 
   &:hover {
-    filter: brightness(1.15);
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.75);
   }
 `;
 
@@ -243,14 +446,15 @@ const DeckLabelHeader = styled.th`
   left: 0 !important; /* Separated borders natively fix the 1px bleed */
   top: 0 !important;
   z-index: 3 !important; /* Outranks scrolling cells AND the header row */
-  background: var(--bg) !important;
+  background: #121210 !important;
   text-align: left;
-  width: 160px !important;
-  min-width: 160px !important;
+  vertical-align: bottom;
+  width: 260px !important;
+  min-width: 260px !important;
 
   @media (max-width: 900px) {
-    width: 120px !important;
-    min-width: 120px !important;
+    width: 140px !important;
+    min-width: 140px !important;
   }
 `;
 
@@ -258,18 +462,18 @@ const DeckLabelCell = styled.td`
   position: sticky !important;
   left: 0 !important; /* Separated borders natively fix the 1px bleed */
   z-index: 1 !important; /* Outranks scrolling cells, ensuring opaque cover */
-  background: var(--bg) !important; /* Enforces opaque cover */
+  background: #121210 !important; /* Enforces opaque cover */
   text-align: left;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 160px !important;
-  max-width: 160px !important;
+  width: 260px !important;
+  max-width: 260px !important;
 
   @media (max-width: 900px) {
-    width: 120px !important;
-    max-width: 120px !important;
+    width: 140px !important;
+    max-width: 140px !important;
   }
 `;
 
@@ -314,18 +518,35 @@ const Loading = styled.div`
     font-weight: 500;
 `;
 
-const COLOR_PALETTE = [
-    "var(--s)",
-    "var(--a)",
-    "var(--b)",
-    "var(--c)",
-    "var(--d)",
-    "var(--e)",
+const SERIES_COLOURS = [
+    "#3987e5",
+    "#d95926",
+    "#199e70",
+    "#c98500",
+    "#d55181",
+    "#008300",
 ];
 
+const MATRIX_EVEN = "#383835";
+const MATRIX_FAVOURED = "#256abf";
+const MATRIX_UNFAVOURED = "#b8312f";
+
+const matrixColour = (winRate: number): string => {
+    const t = Math.max(-1, Math.min(1, (winRate - 0.5) / 0.25));
+    const pole = t >= 0 ? MATRIX_FAVOURED : MATRIX_UNFAVOURED;
+    return `color-mix(in oklab, ${pole} ${Math.round(Math.abs(t) * 100)}%, ${MATRIX_EVEN})`;
+};
+
+const DeckArt = ({ src, size }: { src?: string; size: number }) => (
+    <ArtFrame $size={size}>{src && <img src={src} alt="" loading="lazy" />}</ArtFrame>
+);
+
 const StatisticsPage = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { decks, metaShare, loading, error } = useDecks();
+    const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
+    const [pinnedSeries, setPinnedSeries] = useState<string | null>(null);
+    const activeSeries = hoveredSeries ?? pinnedSeries;
     const isPremium = useIsPremium();
     const [range, setRange] = useState<"14-day" | "all-time">("14-day");
     const trendQuery = usePipelineTrends();
@@ -387,31 +608,42 @@ const StatisticsPage = () => {
         return trendData.filter((d) => new Date(d.date) >= cutoff);
     }, [trendData, range]);
 
-    const getMatrixStyle = (winRate: number | undefined) => {
-        if (winRate === undefined) return { bg: "transparent" };
-        const wr = Math.max(0, Math.min(1, winRate));
-
-        if (wr >= 0.45 && wr <= 0.55) {
-            return { bg: "#fff9c4" };
-        }
-
-        if (wr > 0.55) {
-            const pct = Math.min(100, ((wr - 0.55) / 0.45) * 100);
-            return {
-                bg: `color-mix(in srgb, #1b5e20 ${pct}%, #fff9c4)`,
-            };
-        }
-
-        const pct = Math.min(100, ((0.45 - wr) / 0.45) * 100);
-        return {
-            bg: `color-mix(in srgb, #b71c1c ${pct}%, #fff9c4)`,
-        };
-    };
-
     const topArchetypeNames =
         trendData.length > 0
             ? Object.keys(trendData[0]).filter((key) => key !== "date")
             : [];
+
+    const seriesLabel = (name: string) =>
+        deckDisplayName(decks?.find((d) => d.name === name) ?? { name });
+
+    const formatDay = (value: string) => {
+        const date = new Date(value);
+        return Number.isNaN(date.getTime())
+            ? value
+            : date.toLocaleDateString(i18n.language, { day: "numeric", month: "short" });
+    };
+
+    const cardImage = (id: string | undefined) =>
+        id ? cardsPayload?.cards.find((c) => c.id === id)?.image : undefined;
+
+    const maxMovementShare = Math.max(0.0001, ...movementDecks.map((d) => d.share));
+
+    const renderTrendTooltip = ({ active, payload, label }: TooltipContentProps) => {
+        if (!active || !payload?.length) return null;
+        const rows = [...payload].sort((a, b) => Number(b.value ?? 0) - Number(a.value ?? 0));
+        return (
+            <TooltipCard>
+                <TooltipDate>{formatDay(String(label))}</TooltipDate>
+                {rows.map((row) => (
+                    <TooltipRow key={String(row.dataKey)}>
+                        <Swatch $color={row.color ?? "var(--main)"} />
+                        <span>{row.name}</span>
+                        <span>{Number(row.value ?? 0).toFixed(1)}%</span>
+                    </TooltipRow>
+                ))}
+            </TooltipCard>
+        );
+    };
 
     // The static shell (header + SEO copy) renders even while deck data is in
     // flight. The build-time prerender snapshots this route with no network
@@ -438,11 +670,13 @@ const StatisticsPage = () => {
                         <ToggleButton
                             $active={range === "all-time"}
                             $locked={!isPremium}
+                            aria-disabled={!isPremium}
                             onClick={() => {
                                 if (isPremium) setRange("all-time");
                             }}
                         >
-                            All Time {!isPremium && "🔒"}
+                            All Time
+                            {!isPremium && <NavIcon name="lock" size={14} />}
                         </ToggleButton>
                     </ToggleContainer>
                 </SectionHeader>
@@ -452,48 +686,76 @@ const StatisticsPage = () => {
                         <Loading>{t("statistics.noTrends")}</Loading>
                     ) : (
                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={filteredTrendData} title={t("statistics.trends")}>
+                        <LineChart
+                            data={filteredTrendData}
+                            title={t("statistics.trends")}
+                            margin={{ top: 8, right: 8, bottom: 0, left: -8 }}
+                        >
+                            <CartesianGrid
+                                vertical={false}
+                                stroke="rgba(255, 255, 255, 0.07)"
+                            />
                             <XAxis
                                 dataKey="date"
-                                stroke="var(--main)"
-                                opacity={0.6}
-                                tickFormatter={(val) => val}
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
+                                tickFormatter={formatDay}
+                                minTickGap={24}
                             />
                             <YAxis
-                                stroke="var(--main)"
-                                opacity={0.6}
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
                                 tickFormatter={(val) => `${val}%`}
+                                width={48}
                             />
                             <Tooltip
-                                contentStyle={{
-                                    background: "var(--bg)",
-                                    border: "1px solid var(--border)",
-                                    borderRadius: "8px",
-                                    color: "var(--main)",
-                                }}
-                                formatter={(value: any, name: any) => [
-                                    `${Number(value ?? 0).toFixed(1)}%`,
-                                    name,
-                                ]}
+                                content={renderTrendTooltip}
+                                cursor={{ stroke: "rgba(255, 255, 255, 0.24)", strokeWidth: 1 }}
                             />
-                            <Legend />
                             {topArchetypeNames.map((name, idx) => (
                                 <Line
                                     key={name}
-                                    type="monotone"
+                                    type="linear"
                                     dataKey={name}
-                                    name={deckDisplayName(
-                                        decks.find((d) => d.name === name) ?? { name }
-                                    )}
-                                    stroke={COLOR_PALETTE[idx % COLOR_PALETTE.length]}
-                                    strokeWidth={3}
+                                    name={seriesLabel(name)}
+                                    stroke={SERIES_COLOURS[idx]}
+                                    strokeWidth={activeSeries === name ? 3 : 2}
+                                    strokeOpacity={activeSeries && activeSeries !== name ? 0.18 : 1}
                                     dot={false}
+                                    activeDot={{ r: 4, stroke: "#121210", strokeWidth: 2 }}
+                                    isAnimationActive={false}
                                 />
                             ))}
                         </LineChart>
                     </ResponsiveContainer>
                     )}
                 </ChartContainer>
+
+                {!trendQuery.failed && topArchetypeNames.length > 0 && (
+                    <SeriesLegend>
+                        {topArchetypeNames.map((name, idx) => (
+                            <li key={name}>
+                                <SeriesButton
+                                    type="button"
+                                    aria-pressed={pinnedSeries === name}
+                                    $dimmed={!!activeSeries && activeSeries !== name}
+                                    onMouseEnter={() => setHoveredSeries(name)}
+                                    onMouseLeave={() => setHoveredSeries(null)}
+                                    onFocus={() => setHoveredSeries(name)}
+                                    onBlur={() => setHoveredSeries(null)}
+                                    onClick={() =>
+                                        setPinnedSeries((current) => (current === name ? null : name))
+                                    }
+                                >
+                                    <Swatch $color={SERIES_COLOURS[idx]} />
+                                    {seriesLabel(name)}
+                                </SeriesButton>
+                            </li>
+                        ))}
+                    </SeriesLegend>
+                )}
             </Section>
 
             <AdInContent placement="statistics" />
@@ -534,6 +796,14 @@ const StatisticsPage = () => {
                                 <tr key={entry.name}>
                                     <td>{index + 1}</td>
                                     <td>
+                                        <DeckCell>
+                                        <DeckArt
+                                            size={2.8}
+                                            src={
+                                                decks?.find((d) => d.id === entry.name)?.iconPrimary?.image ??
+                                                cardImage(deckNameToIconIds(entry.name)[0])
+                                            }
+                                        />
                                         {(() => {
                                             const deck = decks?.find(
                                                 (d) => d.id === entry.name
@@ -561,9 +831,18 @@ const StatisticsPage = () => {
                                                 <img src={crownIcon} alt="" />
                                             </CrownLink>
                                         )}
+                                        </DeckCell>
                                     </td>
-                                    <td>{(entry.share * 100).toFixed(1)}%</td>
+                                    <td>
+                                        <ShareCell>
+                                            <ShareTrack aria-hidden="true">
+                                                <ShareFill $width={(entry.share / maxMovementShare) * 100} />
+                                            </ShareTrack>
+                                            <ShareValue>{(entry.share * 100).toFixed(1)}%</ShareValue>
+                                        </ShareCell>
+                                    </td>
                                     <Delta $rising={entry.delta > 0}>
+                                        <NavIcon name={entry.delta > 0 ? "arrowUp" : "arrowDown"} size={14} />
                                         {entry.delta > 0
                                             ? `+${(entry.delta * 100).toFixed(1)} pp`
                                             : `${(entry.delta * 100).toFixed(1)} pp`}
@@ -584,15 +863,28 @@ const StatisticsPage = () => {
                     <SectionTitle>
                         {t("statistics.matrix")}
                     </SectionTitle>
+                    <ScaleLegend aria-hidden="true">
+                        <span>25%</span>
+                        <ScaleBar />
+                        <span>75%</span>
+                    </ScaleLegend>
                 </SectionHeader>
 
                 <MatrixWrapper>
-                    <MatrixTable>
+                    <MatrixTable $columns={matrixDecks.length}>
                         <thead>
                         <tr>
                             <DeckLabelHeader>Deck Archetype</DeckLabelHeader>
                             {matrixDecks.map((colDeck) => (
-                                <th key={colDeck.id}>{deckDisplayName(colDeck)}</th>
+                                <th key={colDeck.id} title={deckDisplayName(colDeck)}>
+                                    <HeaderArt aria-hidden="true">
+                                        <DeckArt size={2.8} src={colDeck.iconPrimary?.image} />
+                                        {colDeck.iconSecondary && (
+                                            <DeckArt size={2.8} src={colDeck.iconSecondary.image} />
+                                        )}
+                                    </HeaderArt>
+                                    <VisuallyHidden>{deckDisplayName(colDeck)}</VisuallyHidden>
+                                </th>
                             ))}
                         </tr>
                         </thead>
@@ -604,6 +896,7 @@ const StatisticsPage = () => {
                                         <TierDot
                                             $color={tierMap.get(rowDeck.id) || "transparent"}
                                         />
+                                        <DeckArt size={2.8} src={rowDeck.iconPrimary?.image} />
                                         <DeckNameText>{deckDisplayName(rowDeck)}</DeckNameText>
                                     </DeckNameWrapper>
                                 </DeckLabelCell>
@@ -611,7 +904,7 @@ const StatisticsPage = () => {
                                     if (rowDeck.id === colDeck.id) {
                                         return (
                                             <MatrixCell key={colDeck.id} $isPopulated={false}>
-                                                -
+                                                —
                                             </MatrixCell>
                                         );
                                     }
@@ -620,7 +913,6 @@ const StatisticsPage = () => {
                                         (m) => m.name === colDeck.name
                                     );
                                     const winRate = match?.winRate;
-                                    const style = getMatrixStyle(winRate);
                                     const isPopulated = winRate !== undefined;
 
                                     const winRateText = isPopulated
@@ -635,7 +927,7 @@ const StatisticsPage = () => {
                                     return (
                                         <MatrixCell
                                             key={colDeck.id}
-                                            $bg={style.bg}
+                                            $bg={isPopulated ? matrixColour(winRate) : undefined}
                                             $isPopulated={isPopulated}
                                             title={hoverText}
                                         >
@@ -689,9 +981,9 @@ const StatisticsPage = () => {
                 <h3>Read the matchup matrix</h3>
                 <p>
                     The matchup matrix breaks down head-to-head win rates across the
-                    board. The grid colours shift from deep green for highly favourable
-                    matchups to crimson red for the worst counters, passing through pale
-                    yellow for even splits. Hover over any cell to check the total number
+                    board. The grid colours shift from deep blue for highly favourable
+                    matchups to red for the worst counters, passing through grey for even
+                    splits. Hover over any cell to check the total number
                     of games played. This ensures the sample size is reliable before you
                     commit to a strategy.
                 </p>

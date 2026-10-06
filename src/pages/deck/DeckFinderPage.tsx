@@ -1,7 +1,10 @@
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
 import { useDecks } from "../../app/use-decks";
 import useMissing from "../../app/use-missing";
+import {
+  relativeToBaseline,
+  sortByPowerScore,
+} from "../../app/score-baseline";
 import DeckCardGrid from "./DeckCardGrid";
 import DeckHeadTags from "./DeckHeadTags";
 import ShareDeckCode from "../../components/ShareDeckCode";
@@ -26,10 +29,9 @@ import {
 } from "./deck-page.styles";
 
 const DeckFinderPage = () => {
-  const { decks, loading, error } = useDecks();
+  const { decks, scoreBaseline, loading, error } = useDecks();
   const { undoMissing, canUndo, lastRemovedId } = useMissing();
   const { t } = useTranslation();
-  const [bestScore, setBestScore] = useState<number | null>(null);
 
   // Card data for resolving a removed card's name in the empty-deck notice.
   // React Query dedupes this against the same queryKey used elsewhere, so it is
@@ -45,16 +47,7 @@ const DeckFinderPage = () => {
     ? (cardsById.get(lastRemovedId)?.name ?? null)
     : null;
 
-  useEffect(() => {
-    if (bestScore !== null) return;
-    if (!decks || decks.length === 0) return;
-    const sortedDecks = [...decks].sort((a, b) => b.score - a.score);
-    setBestScore(sortedDecks[0].score);
-  }, [decks, bestScore]);
-
-  const deck = decks
-    ? [...decks].sort((a, b) => b.score - a.score)[0]
-    : undefined;
+  const deck = decks ? sortByPowerScore(decks)[0] : undefined;
 
   // Ready (for showing ads) only once a real deck is resolved, never on the
   // loading or "not enough cards" screens.
@@ -86,7 +79,10 @@ const DeckFinderPage = () => {
     );
   }
 
-  const relativeScore = deck && bestScore ? deck.score / bestScore : 0;
+  const relativeScore =
+    typeof deck.powerScore === "number" && scoreBaseline
+      ? relativeToBaseline(deck.powerScore, scoreBaseline.powerScore)
+      : null;
   const uniqueCards = deck.bestList.cards.filter(
     (card, index, self) => self.findIndex((c) => c.id === card.id) === index
   );
@@ -99,10 +95,12 @@ const DeckFinderPage = () => {
       <StyledDeckPage>
         <CardSection>
           <DeckFinderHeader>{t("deckPage.deckFinderHeader")}</DeckFinderHeader>
-          <RelativeStrength $relativeScore={relativeScore}>
-            {t("deckPage.relativeStrength")}{" "}
-            {`${(relativeScore * 100).toFixed(0)}%`}
-          </RelativeStrength>
+          {relativeScore !== null && (
+            <RelativeStrength $relativeScore={relativeScore}>
+              {t("deckPage.relativeStrength")}{" "}
+              {`${(relativeScore * 100).toFixed(0)}%`}
+            </RelativeStrength>
+          )}
           <DeckCardGrid cards={uniqueCards} counts={cardCounts} />
           <AdInContent placement="deck" />
           <ShareDeckCode

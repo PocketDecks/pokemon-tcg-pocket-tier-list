@@ -24,6 +24,7 @@ import { useDecks } from "../../app/use-decks";
 import { buildTiers } from "../../app/tier-helper";
 import { deckDisplayName, formatArchetypeId } from "../../app/deck-display";
 import { latestExpansionName } from "../../app/use-expansions";
+import { sortByPowerScore } from "../../app/score-baseline";
 import crownIcon from "../../assets/crown.webp";
 
 const PageContainer = styled.div`
@@ -360,7 +361,7 @@ const StatisticsPage = () => {
 
     const sortedDecks = useMemo(() => {
         if (!decks) return [];
-        return [...decks].sort((a, b) => b.score - a.score);
+        return sortByPowerScore(decks);
     }, [decks]);
 
     const matrixDecks = useMemo(() => {

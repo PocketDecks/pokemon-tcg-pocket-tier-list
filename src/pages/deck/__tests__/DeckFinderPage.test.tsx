@@ -139,6 +139,22 @@ describe("DeckFinderPage", () => {
     expect(await screen.findByText("Relative Strength 80%")).toBeInTheDocument();
   });
 
+  it("hides relative strength for an unranked recommendation", async () => {
+    vi.spyOn(global, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("best-decks.json"))
+        return jsonResponse([{ ...DECKS_JSON[0], powerScore: null, metaScore: null }]);
+      if (url.endsWith("matchup-data.json")) return jsonResponse(MATCHUP_JSON);
+      if (url.endsWith("meta-share.json"))
+        return jsonResponse({ generatedAt: "2026-08-24T00:00:00Z", windowDays: 7, decks: [] });
+      return jsonResponse(rawCards);
+    });
+    renderFinder();
+
+    expect(await screen.findByAltText("Venusaur ex")).toBeInTheDocument();
+    expect(screen.queryByText(/^Relative Strength/)).not.toBeInTheDocument();
+  });
+
   it("shows the empty state after removing a needed card, and restores on undo", async () => {
     renderFinder();
 

@@ -40,7 +40,6 @@ describe("score baseline", () => {
     ).toEqual({
       deckName: "tier-leader",
       powerScore: 100,
-      cardStrength: 0.7,
     });
   });
 

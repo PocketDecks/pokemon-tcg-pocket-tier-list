@@ -3,10 +3,11 @@ import { buildExpansionPackData } from "../expansion-scores";
 
 describe("buildExpansionPackData", () => {
   it("maps a single-pack set by its expansion name", () => {
-    const [pack] = buildExpansionPackData(
+    const packs = buildExpansionPackData(
       [
         { set: "b4a", pack: "Team Rocket's Ambition", score: 0.8 },
         { set: "b4a", pack: "Team Rocket's Ambition", score: 0.4 },
+        { set: "a1", pack: "Pikachu", score: 0.7 },
       ],
       [
         {
@@ -20,18 +21,26 @@ describe("buildExpansionPackData", () => {
             },
           ],
         },
+        {
+          id: "a1",
+          name: "Genetic Apex",
+          packs: [
+            {
+              id: "a1-pikachu",
+              name: "Pikachu",
+              image: "pikachu.webp",
+            },
+          ],
+        },
       ],
-      1
     );
 
-    expect(pack).toMatchObject({
-      expansionId: "b4a",
-      packId: "b4a-booster",
-      packName: "Booster",
-      packImage: "b4a.webp",
-    });
-    expect(pack.relativeScore).toBeCloseTo(0.6);
-    expect(pack.totalScore).toBeCloseTo(1.2);
+    expect(packs.map((pack) => pack.packId)).toEqual([
+      "a1-pikachu",
+      "b4a-booster",
+    ]);
+    expect(packs[1].totalScore).toBeCloseTo(1.2);
+    expect(packs[1].averageScore).toBeCloseTo(0.6);
   });
 
   it("does not return packs without artwork or scored cards", () => {
@@ -52,8 +61,7 @@ describe("buildExpansionPackData", () => {
             name: "Promo-A",
             packs: [{ id: "pa-shop", name: "Shop", image: null }],
           },
-        ],
-        1
+        ]
       )
     ).toEqual([
       {
@@ -62,7 +70,7 @@ describe("buildExpansionPackData", () => {
         packName: "Pikachu",
         packImage: "pikachu.webp",
         totalScore: 0.5,
-        relativeScore: 0.5,
+        averageScore: 0.5,
       },
     ]);
   });

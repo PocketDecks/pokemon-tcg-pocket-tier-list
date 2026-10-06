@@ -1,5 +1,4 @@
 import type { ExpansionType } from "./use-expansions";
-import { relativeToBaseline } from "./score-baseline";
 
 interface CardScoreInput {
   set: string;
@@ -13,7 +12,7 @@ export interface ExpansionPackData {
   packName: string;
   packImage: string;
   totalScore: number;
-  relativeScore: number;
+  averageScore: number;
 }
 
 interface PackScore {
@@ -60,8 +59,7 @@ const scoreForPack = (
 
 export const buildExpansionPackData = (
   scores: CardScoreInput[],
-  expansions: ExpansionType[],
-  cardStrengthBaseline: number
+  expansions: ExpansionType[]
 ): ExpansionPackData[] =>
   expansions
     .flatMap((expansion) =>
@@ -77,12 +75,9 @@ export const buildExpansionPackData = (
             packName: pack.name,
             packImage: pack.image,
             totalScore: packScore.total,
-            relativeScore: relativeToBaseline(
-              averageScore,
-              cardStrengthBaseline
-            ),
+            averageScore,
           },
         ];
       })
     )
-    .sort((a, b) => b.relativeScore - a.relativeScore);
+    .sort((a, b) => b.averageScore - a.averageScore);

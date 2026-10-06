@@ -1,6 +1,5 @@
 import useCards from "../../app/use-cards";
 import useExpansions from "../../app/use-expansions";
-import { useDecks } from "../../app/use-decks";
 import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import TierGrid from "../../components/TierGrid";
@@ -10,21 +9,16 @@ import { buildExpansionPackData } from "../../app/expansion-scores";
 const ExpansionListPage = () => {
   const cards = useCards(1_000_000);
   const expansions = useExpansions();
-  const { scoreBaseline } = useDecks();
 
-  useMarkContentReady(!!cards && !!expansions && !!scoreBaseline);
+  useMarkContentReady(!!cards && !!expansions);
 
-  const expansionData = buildExpansionPackData(
-    cards ?? [],
-    expansions ?? [],
-    scoreBaseline?.cardStrength ?? 0
-  );
+  const expansionData = buildExpansionPackData(cards ?? [], expansions ?? []);
 
   return (
       <>
         <TierGrid
-          items={cards && expansions && scoreBaseline ? expansionData : null}
-          getScore={(d) => d.relativeScore}
+          items={cards && expansions ? expansionData : null}
+          getScore={(d) => d.averageScore}
           getKey={(d) => d.packId}
           renderItem={(data) => <ExpansionIcon image={data.packImage} />}
         />
@@ -41,12 +35,12 @@ const ExpansionListPage = () => {
                   <h3>How pack value is calculated</h3>
                   <p>
                     Every card carries a score based on how much tournament-winning decks
-                    rely on it. A pack's total is the sum of the scores of the cards it
-                    holds, so packs that contain several lineup staples rank higher than
-                    packs whose cards rarely see competitive play. Cards that arrive
-                    through a set's shared pool count toward every pack in that set.
-                    Once the totals are tallied, packs are sorted into tiers from S to E,
-                    with S standing for the most valuable pulls in the game.
+                    rely on it. Packs are ranked by the average score of their scored cards,
+                    so consistently strong cards rank above packs with lower average value.
+                    Cards that arrive through a set's shared pool count toward every pack
+                    in that set. Once the averages are calculated, packs are sorted into
+                    tiers from S to E, with S standing for the most valuable pulls in the
+                    game.
                   </p>
 
                   <h3>Worth opening this week</h3>

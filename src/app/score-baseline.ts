@@ -1,19 +1,12 @@
 export interface ScoreBaseline {
   deckName: string;
   powerScore: number;
-  cardStrength: number;
 }
 
 export type PowerScoredDeck = {
   name: string;
   powerScore: number | null;
-  lists: { score: number; strength: number }[];
 };
-
-const maxListValue = (
-  deck: PowerScoredDeck,
-  field: "score" | "strength"
-): number => Math.max(0, ...deck.lists.map((list) => list[field]));
 
 export const sortByPowerScore = <T extends PowerScoredDeck>(
   decks: T[]
@@ -36,7 +29,6 @@ export const getScoreBaseline = (
   return {
     deckName: leader.name,
     powerScore: leader.powerScore,
-    cardStrength: maxListValue(leader, "strength"),
   };
 };
 

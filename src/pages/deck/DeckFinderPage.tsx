@@ -80,9 +80,9 @@ const DeckFinderPage = () => {
   }
 
   const relativeScore =
-    typeof deck?.powerScore === "number" && scoreBaseline
+    typeof deck.powerScore === "number" && scoreBaseline
       ? relativeToBaseline(deck.powerScore, scoreBaseline.powerScore)
-      : 0;
+      : null;
   const uniqueCards = deck.bestList.cards.filter(
     (card, index, self) => self.findIndex((c) => c.id === card.id) === index
   );
@@ -95,10 +95,12 @@ const DeckFinderPage = () => {
       <StyledDeckPage>
         <CardSection>
           <DeckFinderHeader>{t("deckPage.deckFinderHeader")}</DeckFinderHeader>
-          <RelativeStrength $relativeScore={relativeScore}>
-            {t("deckPage.relativeStrength")}{" "}
-            {`${(relativeScore * 100).toFixed(0)}%`}
-          </RelativeStrength>
+          {relativeScore !== null && (
+            <RelativeStrength $relativeScore={relativeScore}>
+              {t("deckPage.relativeStrength")}{" "}
+              {`${(relativeScore * 100).toFixed(0)}%`}
+            </RelativeStrength>
+          )}
           <DeckCardGrid cards={uniqueCards} counts={cardCounts} />
           <AdInContent placement="deck" />
           <ShareDeckCode

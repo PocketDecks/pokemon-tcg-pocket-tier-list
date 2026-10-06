@@ -118,12 +118,20 @@ const topsLine = (name: string, presentNames: Set<string>): boolean =>
 // Negative when `a` ranks higher, matching Array.prototype.sort's convention.
 // Numeric only: the name tiebreak is applied separately, so this needs no
 // runtime type dispatch and no casts.
-const compareRank = (a: readonly number[], b: readonly number[]): number => {
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return b[i] - a[i];
-  }
-  return 0;
-};
+export interface RowRank {
+  cards: number;
+  anchored: number;
+  set: number;
+  count: number;
+  sameLine: number;
+}
+
+export const compareRank = (a: RowRank, b: RowRank): number =>
+  b.cards - a.cards ||
+  b.anchored - a.anchored ||
+  b.set - a.set ||
+  b.count - a.count ||
+  b.sameLine - a.sameLine;
 
 // True when the deck also holds a card that evolves from this one, so the
 // card is a line's support stage, not the centrepiece. Without this a
@@ -156,10 +164,9 @@ const getDeckName = (deck: Deck): string => {
   //             naming decks. `anchored` and `sameLine` only separate rows of
   //             equal length: ranked above `cards` they strip centrepieces.
   //   set       newer set
-  //   sameLine  two cards of the row share a species or evolution line
   //   count     higher Limitless count
+  //   sameLine  two cards of the row share a species or evolution line
   // A full tie falls through to lexicographic row name, applied below.
-  type RowRank = readonly [cards: number, anchored: number, set: number, sameLine: number, count: number];
   const seen = new Set<number>();
   let best: { rank: RowRank; cards: string[]; name: string } | null = null;
   for (const cardName of present) {
@@ -187,13 +194,13 @@ const getDeckName = (deck: Deck): string => {
         )
           ? 1
           : 0;
-      const rank: RowRank = [
-        supportedNames.length,
+      const rank: RowRank = {
+        cards: supportedNames.length,
         anchored,
-        orderOf(row.set),
+        set: orderOf(row.set),
+        count: row.count,
         sameLine,
-        row.count,
-      ];
+      };
       if (!best) {
         best = { rank, cards: row.cardKeys, name: row.name };
         continue;

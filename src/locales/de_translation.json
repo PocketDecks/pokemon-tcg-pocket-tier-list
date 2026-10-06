@@ -1,6 +1,6 @@
 {
   "home": {
-    "banner": "Top Pocket Decks ist quicklebendig, und ein neuer Maintainer hält es aktuell. Die Ranglisten sind aktuell für {{expansion}} (Stand: {{date}})."
+    "banner": "Ranglisten sind aktuell vom {{date}}."
   },
   "premium": {
     "title": "Top Pocket Decks Premium",

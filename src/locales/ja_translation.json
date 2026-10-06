@@ -1,6 +1,6 @@
 {
   "home": {
-    "banner": "Top Pocket Decks は新しい管理者の下で順調に運営されており、引き続き更新されています。ランキングは {{date}} 時点での {{expansion}} のものです。"
+    "banner": "ランキングの基準日：{{date}}"
   },
   "premium": {
     "title": "Top Pocket Decks Premium",

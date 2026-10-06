@@ -1,6 +1,6 @@
 {
   "home": {
-    "banner": "Top Pocket Decks 依然活躍，並由新維護者持續更新。截至 {{date}}，{{expansion}} 的排名為最新狀態。"
+    "banner": "排名截至 {{date}}。"
   },
   "premium": {
     "title": "Top Pocket Decks Premium",

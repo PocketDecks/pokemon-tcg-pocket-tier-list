@@ -1,6 +1,6 @@
 {
   "home": {
-    "banner": "Top Pocket Decks 一切正常，并由新的维护者保持更新。截至 {{date}}，当前排名适用于 {{expansion}}。"
+    "banner": "排名截至 {{date}}。"
   },
   "premium": {
     "title": "Top Pocket Decks 高级会员",

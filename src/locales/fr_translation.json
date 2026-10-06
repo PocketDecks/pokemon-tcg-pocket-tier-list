@@ -1,6 +1,6 @@
 {
   "home": {
-    "banner": "Top Pocket Decks est bel et bien vivant, avec un nouveau responsable qui le maintient à jour. Les classements sont à jour pour {{expansion}} en date du {{date}}."
+    "banner": "Les classements sont à jour au {{date}}."
   },
   "premium": {
     "title": "Top Pocket Decks Premium",

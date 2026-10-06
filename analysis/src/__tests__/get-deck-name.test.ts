@@ -1,4 +1,4 @@
-import getDeckName, { UNNAMED_DECK } from "../utils/get-deck-name";
+import getDeckName, { compareRank, UNNAMED_DECK } from "../utils/get-deck-name";
 import { Deck } from "../utils/types";
 
 const mkDeck = (...cards: [number, string, string, string][]): Deck => ({
@@ -18,6 +18,25 @@ const mkDeck = (...cards: [number, string, string, string][]): Deck => ({
 });
 
 describe("getDeckName", () => {
+  it("prefers higher listing count over a same-line match when prior rank fields tie", () => {
+    const highCount = {
+      cards: 2,
+      anchored: 0,
+      set: 0,
+      count: 9535,
+      sameLine: 0,
+    };
+    const sameLine = {
+      cards: 2,
+      anchored: 0,
+      set: 0,
+      count: 1,
+      sameLine: 1,
+    };
+
+    expect(compareRank(highCount, sameLine)).toBeLessThan(0);
+  });
+
   it("matches a deck to the newest-set listing that names all its cards", () => {
     // Magnezone A2 53 + Miraidon ex B3a 19 must match the B3a
     // "Magnezone Miraidon" row, keeping both cards, not a Magnezone-only row.

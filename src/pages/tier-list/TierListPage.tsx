@@ -3,7 +3,6 @@ import { useDecks } from "../../app/use-decks";
 import useFilters from "../../app/use-filters";
 import useIsPremium from "../../app/use-is-premium";
 
-import UserAccount from "../../components/UserAccount";
 import { SortBy } from "../../components/FilterContext";
 import LastUpdated from "../../components/LastUpdated";
 import Dropdown from "../../components/Dropdown";
@@ -12,10 +11,11 @@ import AdInContent from "../../ads/AdInContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import React, { type ChangeEvent } from "react";
 import TierGrid from "../../components/TierGrid";
+import PageTitle from "../../components/PageTitle";
 import DeckCard from "../../components/DeckCard";
 import styled from "styled-components";
 
-const DeckAmountContainer = styled.div`
+const DeckAmountContainer = styled.label`
   display: flex;
   align-items: center;
   gap: 1.2rem;
@@ -83,10 +83,7 @@ const TierListPage = () => {
 
   if (error) return <div>Error loading data: {error.message}</div>;
 
-  const filters = (
-    <>
-      <UserAccount />
-      {isPremium && (
+  const filters = isPremium ? (
         <>
           <Dropdown
             value={energy ?? ""}
@@ -156,12 +153,11 @@ const TierListPage = () => {
             </DeckAmountSelect>
           </DeckAmountContainer>
         </>
-      )}
-    </>
-  );
+  ) : null;
 
   return (
     <>
+      <PageTitle>{t("header.tierList")}</PageTitle>
       <TierGrid
         items={decks}
         getScore={(d) => d.powerScore ?? -1}

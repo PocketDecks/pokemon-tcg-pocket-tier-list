@@ -16,7 +16,6 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchCards } from "../../app/cards-api";
 import { deckNameToIconIds } from "../../app/deck-filters";
 import usePipelineTrends from "../../app/use-pipeline-trends";
-import Header from "../../components/Header";
 import SeoContent from "../../components/SeoContent";
 import AdInContent from "../../ads/AdInContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
@@ -25,6 +24,7 @@ import { buildTiers } from "../../app/tier-helper";
 import { deckDisplayName, formatArchetypeId } from "../../app/deck-display";
 import { latestExpansionName } from "../../app/use-expansions";
 import { sortByPowerScore } from "../../app/score-baseline";
+import PageTitle from "../../components/PageTitle";
 import crownIcon from "../../assets/crown.webp";
 
 const PageContainer = styled.div`
@@ -93,9 +93,14 @@ const ToggleButton = styled.button<{ $active: boolean; $locked?: boolean }>`
     cursor: ${(props) => (props.$locked ? "not-allowed" : "pointer")};
     border: none;
     transition: all 0.2s ease;
+
+    @media (max-width: 900px) {
+        min-height: 4.4rem;
+    }
 `;
 
 const ChartContainer = styled.div`
+    font-size: 1.2rem;
     width: 100%;
     height: 400px;
 `;
@@ -300,13 +305,6 @@ const TierDot = styled.div<{ $color: string }>`
     flex-shrink: 0;
 `;
 
-const HeaderRow = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-`;
-
 const Loading = styled.div`
     display: flex;
     justify-content: center;
@@ -454,7 +452,7 @@ const StatisticsPage = () => {
                         <Loading>{t("statistics.noTrends")}</Loading>
                     ) : (
                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={filteredTrendData}>
+                        <LineChart data={filteredTrendData} title={t("statistics.trends")}>
                             <XAxis
                                 dataKey="date"
                                 stroke="var(--main)"
@@ -657,9 +655,7 @@ const StatisticsPage = () => {
 
     return (
         <PageContainer>
-            <HeaderRow>
-                <Header />
-            </HeaderRow>
+            <PageTitle>{t("header.statistics")}</PageTitle>
 
             {renderContent()}
 

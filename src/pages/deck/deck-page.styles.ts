@@ -330,6 +330,10 @@ export const KeyStatRow = styled.div`
     grid-column: 1;
   }
 
+  > :first-child {
+    font-size: 1.6rem;
+  }
+
   > :nth-child(2) {
     grid-column: 2;
   }

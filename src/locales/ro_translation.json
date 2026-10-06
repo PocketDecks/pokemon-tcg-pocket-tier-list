@@ -2,6 +2,13 @@
   "home": {
     "banner": "Clasamentele sunt actualizate la {{date}}."
   },
+  "a11y": {
+    "skipToContent": "Salt la conținut",
+    "openMenu": "Deschide meniul",
+    "closeMenu": "Închide meniul",
+    "primaryNav": "Navigare principală",
+    "footerNav": "Navigare subsol"
+  },
   "premium": {
     "title": "Top Pocket Decks Premium",
     "manageSubscription": "Gestionare abonament",

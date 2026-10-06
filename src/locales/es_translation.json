@@ -2,6 +2,13 @@
   "home": {
     "banner": "Las clasificaciones están actualizadas al {{date}}."
   },
+  "a11y": {
+    "skipToContent": "Saltar al contenido",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "primaryNav": "Navegación principal",
+    "footerNav": "Navegación del pie de página"
+  },
   "premium": {
     "title": "Top Pocket Decks Premium",
     "manageSubscription": "Administrar suscripción",

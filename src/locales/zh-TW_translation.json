@@ -2,6 +2,13 @@
   "home": {
     "banner": "排名截至 {{date}}。"
   },
+  "a11y": {
+    "skipToContent": "跳到主要內容",
+    "openMenu": "開啟選單",
+    "closeMenu": "關閉選單",
+    "primaryNav": "主導覽",
+    "footerNav": "頁尾導覽"
+  },
   "premium": {
     "title": "Top Pocket Decks Premium",
     "manageSubscription": "管理訂閱",

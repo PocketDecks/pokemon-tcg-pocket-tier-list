@@ -1,11 +1,9 @@
 import styled from "styled-components";
-import Header from "../../components/Header";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { ReactNode } from "react";
 
 const StyledLegalPage = styled.div`
   width: 100%;
-  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -86,9 +84,7 @@ const LegalPage = ({ children }: Props) => {
 
   return (
     <StyledLegalPage>
-      <Header />
       <Content>{children}</Content>
-      <Header footer />
     </StyledLegalPage>
   );
 };

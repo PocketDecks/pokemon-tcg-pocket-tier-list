@@ -2,6 +2,13 @@
   "home": {
     "banner": "Rankings are current as of {{date}}."
   },
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "primaryNav": "Main navigation",
+    "footerNav": "Footer navigation"
+  },
   "premium": {
     "title": "Top Pocket Decks Premium",
     "manageSubscription": "Manage Subscription",

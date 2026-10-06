@@ -32,6 +32,10 @@ const SignInButton = styled.button`
   color: var(--main);
   cursor: pointer;
   white-space: nowrap;
+
+  @media (max-width: 900px) {
+    min-height: 4.4rem;
+  }
 `;
 
 const UserInfo = styled.button`

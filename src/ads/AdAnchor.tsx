@@ -48,6 +48,7 @@ const Actions = styled.div`
 `;
 
 const CloseButton = styled.button`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -59,6 +60,12 @@ const CloseButton = styled.button`
   color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
   transition: background-color 0.2s ease;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -1.3rem -0.6rem;
+  }
 
   &:hover {
     background: rgba(255, 255, 255, 0.1);

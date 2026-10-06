@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Link } from "react-router";
 import Logo from "./Logo";
@@ -13,6 +14,7 @@ import closeIcon from "../assets/close.svg";
 
 const StyledHeader = styled.div<{ $footer?: boolean }>`
   width: 100%;
+  max-width: 150rem;
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
@@ -46,8 +48,8 @@ const MenuButton = styled.button`
   display: none;
   align-items: center;
   justify-content: center;
-  width: 4rem;
-  height: 4rem;
+  width: 4.4rem;
+  height: 4.4rem;
   border-radius: 0.75rem;
   color: var(--main);
   cursor: pointer;
@@ -88,7 +90,7 @@ const FooterBarInner = styled.div`
   gap: 1.5rem;
 `;
 
-const FooterLinks = styled.nav`
+const FooterLinks = styled.div`
   display: flex;
   align-items: center;
   gap: 2.4rem;
@@ -103,6 +105,12 @@ const FooterLink = styled(Link)`
 
   &:hover {
     opacity: 1;
+  }
+
+  @media (max-width: 900px) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 4.4rem;
   }
 `;
 
@@ -124,20 +132,34 @@ const Header = ({ footer }: Props) => {
   const { t } = useTranslation();
   const { isNavOpen, toggleNav } = useUI();
   const isMobile = useIsMobile();
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (footer || !isNavOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      toggleNav();
+      menuButtonRef.current?.focus();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [footer, isNavOpen, toggleNav]);
 
   return (
     <>
-      <StyledHeader $footer={footer}>
+      <StyledHeader as={footer ? "div" : "header"} $footer={footer}>
         <Logo />
-        <Navbar />
+        <Navbar inline={footer} />
         {!footer && (
           <RightSection>
             <UserAccount />
             {isMobile && (
               <MenuButton
+                ref={menuButtonRef}
                 onClick={toggleNav}
                 aria-expanded={isNavOpen}
-                aria-label={isNavOpen ? "Close menu" : "Open menu"}
+                aria-controls="site-nav"
+                aria-label={isNavOpen ? t("a11y.closeMenu") : t("a11y.openMenu")}
               >
                 <MenuIcon
                   src={isNavOpen ? closeIcon : menuIcon}

@@ -1,5 +1,4 @@
 import styled, { keyframes } from "styled-components";
-import Header from "../../components/Header";
 import tierList from "../../assets/tier-list.webp";
 import Button from "../../components/Button";
 import { useEffect, useRef } from "react";
@@ -165,7 +164,6 @@ const Hero = () => {
 
   return (
       <StyledHero>
-        <Header />
         <Content>
           <TextSection>
             <StyledHeader>{t("hero.title")}</StyledHeader>

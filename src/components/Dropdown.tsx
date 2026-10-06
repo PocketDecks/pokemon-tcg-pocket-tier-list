@@ -2,6 +2,7 @@ import styled from "styled-components";
 import ArrowDown from "../assets/arrow-down.svg";
 
 const Dropdown = styled.select`
+  min-height: 4.4rem;
   padding: 0.8rem 4rem 0.8rem 1.2rem;
   font-size: 1.6rem;
   border-radius: 0.4rem;
@@ -9,7 +10,6 @@ const Dropdown = styled.select`
   color: var(--main);
   border: 1px solid var(--main);
   cursor: pointer;
-  outline: none;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -20,6 +20,11 @@ const Dropdown = styled.select`
 
   &:hover {
     border-color: var(--a);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
   }
 `;
 

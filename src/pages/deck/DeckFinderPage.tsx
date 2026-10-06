@@ -7,6 +7,7 @@ import {
 } from "../../app/score-baseline";
 import DeckCardGrid from "./DeckCardGrid";
 import DeckHeadTags from "./DeckHeadTags";
+import PageTitle from "../../components/PageTitle";
 import ShareDeckCode from "../../components/ShareDeckCode";
 import AdInContent from "../../ads/AdInContent";
 import SeoContent from "../../components/SeoContent";
@@ -92,6 +93,7 @@ const DeckFinderPage = () => {
   return (
     <>
       <DeckHeadTags deck={deck} />
+      <PageTitle>{t("header.bestDeckFinder")}</PageTitle>
       <StyledDeckPage>
         <CardSection>
           <DeckFinderHeader>{t("deckPage.deckFinderHeader")}</DeckFinderHeader>

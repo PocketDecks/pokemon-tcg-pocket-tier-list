@@ -29,12 +29,15 @@ const UIProbe = () => {
   return <span data-testid="navopen-probe">{String(isNavOpen)}</span>;
 };
 
-const renderNavbar = () =>
+const renderNavbar = ({
+  inline = false,
+  path = "/",
+}: { inline?: boolean; path?: string } = {}) =>
   render(
     <UIProvider>
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[path]}>
         <UIProbe />
-        <Navbar />
+        <Navbar inline={inline} />
       </MemoryRouter>
     </UIProvider>
   );
@@ -68,5 +71,30 @@ describe("Navbar", () => {
     expect(screen.getByTestId("navopen-probe")).toHaveTextContent("false");
     fireEvent.click(screen.getByRole("link", { name: /tier list/i }));
     expect(screen.getByTestId("navopen-probe")).toHaveTextContent("true");
+  });
+
+  it("leaves the shared nav state alone when a footer link is tapped on mobile", () => {
+    mobile = true;
+    renderNavbar({ inline: true });
+    fireEvent.click(screen.getByRole("link", { name: /tier list/i }));
+    expect(screen.getByTestId("navopen-probe")).toHaveTextContent("false");
+  });
+
+  it("marks only the current route as the current page", () => {
+    renderNavbar({ path: "/tier-list" });
+    expect(screen.getByRole("link", { name: /tier list/i })).toHaveAttribute(
+      "aria-current",
+      "page"
+    );
+    expect(
+      screen.getByRole("link", { name: /best deck finder/i })
+    ).not.toHaveAttribute("aria-current");
+  });
+
+  it("does not mark the deck finder current on a deck detail page", () => {
+    renderNavbar({ path: "/deck/greninja-a1-089" });
+    expect(
+      screen.getByRole("link", { name: /best deck finder/i })
+    ).not.toHaveAttribute("aria-current");
   });
 });

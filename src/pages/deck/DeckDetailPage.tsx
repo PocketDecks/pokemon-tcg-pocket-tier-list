@@ -11,7 +11,6 @@ import DeckHeadTags from "./DeckHeadTags";
 import DeckCard from "../../components/DeckCard";
 import { MIN_MATCHUP_GAMES, WINRATE_THRESHOLD } from "../../app/config";
 import useIsPremium from "../../app/use-is-premium";
-import UserAccount from "../../components/UserAccount";
 import ShareDeckCode from "../../components/ShareDeckCode";
 import Tooltip from "../../components/Tooltip";
 import type { MetaShareEntry } from "../../types/pipeline-data";
@@ -21,6 +20,7 @@ import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { countById, oneSwapAlternatives } from "../../app/deck-diff";
 import { deckDisplayName } from "../../app/deck-display";
+import PageTitle from "../../components/PageTitle";
 import {
   AlternativeCard,
   AlternativeContainer,
@@ -182,6 +182,7 @@ const DeckDetailPage = () => {
   return (
     <>
       <DeckHeadTags deck={deck} />
+      <PageTitle>{deckDisplayName(deck)}</PageTitle>
       <StyledDeckPage>
         <CardSection>
           <DeckCardGrid cards={uniqueCards} counts={cardCounts} />
@@ -191,7 +192,6 @@ const DeckDetailPage = () => {
           <AdInContent placement="deck" />
         </CardSection>
         <PanelSection>
-          <UserAccount hideIfPremium />
           <Matchups>
             <MatchupSection>
               <SubHeader $backgroundColor="var(--c)">

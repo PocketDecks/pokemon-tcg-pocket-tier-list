@@ -2,6 +2,13 @@
   "home": {
     "banner": "ランキングの基準日：{{date}}"
   },
+  "a11y": {
+    "skipToContent": "本文へスキップ",
+    "openMenu": "メニューを開く",
+    "closeMenu": "メニューを閉じる",
+    "primaryNav": "メインナビゲーション",
+    "footerNav": "フッターナビゲーション"
+  },
   "premium": {
     "title": "Top Pocket Decks Premium",
     "manageSubscription": "サブスクリプション管理",

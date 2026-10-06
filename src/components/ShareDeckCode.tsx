@@ -62,6 +62,10 @@ const ActionButton = styled.button`
   padding: 0.8rem 2rem;
   cursor: pointer;
 
+  @media (max-width: 900px) {
+    min-height: 4.4rem;
+  }
+
   &:focus-visible {
     outline: 2px solid var(--main);
     outline-offset: 2px;

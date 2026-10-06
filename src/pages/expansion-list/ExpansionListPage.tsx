@@ -2,11 +2,14 @@ import useCards from "../../app/use-cards";
 import useExpansions from "../../app/use-expansions";
 import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
+import { useTranslation } from "react-i18next";
 import TierGrid from "../../components/TierGrid";
+import PageTitle from "../../components/PageTitle";
 import ExpansionIcon from "../../components/ExpansionIcon";
 import { buildExpansionPackData } from "../../app/expansion-scores";
 
 const ExpansionListPage = () => {
+  const { t } = useTranslation();
   const cards = useCards(1_000_000);
   const expansions = useExpansions();
 
@@ -16,6 +19,7 @@ const ExpansionListPage = () => {
 
   return (
       <>
+        <PageTitle>{t("header.bestExpansions")}</PageTitle>
         <TierGrid
           items={cards && expansions ? expansionData : null}
           getScore={(d) => d.averageScore}

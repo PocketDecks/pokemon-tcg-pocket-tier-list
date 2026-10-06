@@ -13,6 +13,7 @@ const TooltipContainer = styled.div`
 `;
 
 const TooltipIcon = styled.div`
+  position: relative;
   width: 1.8rem;
   height: 1.8rem;
   border-radius: 50%;
@@ -27,6 +28,12 @@ const TooltipIcon = styled.div`
   transition: opacity 0.2s ease;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -1.3rem;
+  }
 
   &:hover {
     opacity: 1;

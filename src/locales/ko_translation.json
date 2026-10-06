@@ -2,6 +2,13 @@
   "home": {
     "banner": "랭킹 기준일: {{date}}"
   },
+  "a11y": {
+    "skipToContent": "본문으로 건너뛰기",
+    "openMenu": "메뉴 열기",
+    "closeMenu": "메뉴 닫기",
+    "primaryNav": "주 메뉴",
+    "footerNav": "바닥글 메뉴"
+  },
   "premium": {
     "title": "Top Pocket Decks Premium",
     "manageSubscription": "구독 관리",

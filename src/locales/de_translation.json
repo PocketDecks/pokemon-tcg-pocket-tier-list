@@ -2,6 +2,13 @@
   "home": {
     "banner": "Ranglisten sind aktuell vom {{date}}."
   },
+  "a11y": {
+    "skipToContent": "Zum Inhalt springen",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen",
+    "primaryNav": "Hauptnavigation",
+    "footerNav": "Fußzeilennavigation"
+  },
   "premium": {
     "title": "Top Pocket Decks Premium",
     "manageSubscription": "Abonnement verwalten",

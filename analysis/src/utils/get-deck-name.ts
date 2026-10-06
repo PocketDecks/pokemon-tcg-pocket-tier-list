@@ -156,10 +156,10 @@ const getDeckName = (deck: Deck): string => {
   //             naming decks. `anchored` and `sameLine` only separate rows of
   //             equal length: ranked above `cards` they strip centrepieces.
   //   set       newer set
-  //   sameLine  two cards of the row share a species or evolution line
   //   count     higher Limitless count
+  //   sameLine  two cards of the row share a species or evolution line
   // A full tie falls through to lexicographic row name, applied below.
-  type RowRank = readonly [cards: number, anchored: number, set: number, sameLine: number, count: number];
+  type RowRank = readonly [cards: number, anchored: number, set: number, count: number, sameLine: number];
   const seen = new Set<number>();
   let best: { rank: RowRank; cards: string[]; name: string } | null = null;
   for (const cardName of present) {
@@ -191,8 +191,8 @@ const getDeckName = (deck: Deck): string => {
         supportedNames.length,
         anchored,
         orderOf(row.set),
-        sameLine,
         row.count,
+        sameLine,
       ];
       if (!best) {
         best = { rank, cards: row.cardKeys, name: row.name };

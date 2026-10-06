@@ -54,6 +54,7 @@
     "vitest": "^4.1.11"
   },
   "resolutions": {
+    "undici": "^8.10.2",
     "js-yaml": "^4.3.2"
   }
 }

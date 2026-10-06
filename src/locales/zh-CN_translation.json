@@ -1,6 +1,6 @@
 {
   "home": {
-    "banner": "Top Pocket Decks 一切正常，并由新的维护者保持更新。截至 {{date}}，当前排名适用于 {{expansion}}。"
+    "banner": "排名截至 {{date}}。"
   },
   "premium": {
     "title": "Top Pocket Decks 高级会员",
@@ -87,7 +87,7 @@
     "title": "用户账户",
     "signOut": "退出登录"
   },
-  "lastUpdated": "排名数据截至",
+  "lastUpdated": "最后更新:",
   "deckPage": {
     "matchups": "对战",
     "strongAgainst": "优势对抗",

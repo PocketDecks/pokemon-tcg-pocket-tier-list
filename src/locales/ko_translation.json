@@ -1,6 +1,6 @@
 {
   "home": {
-    "banner": "Top Pocket Decks는 새로운 관리자와 함께 원활하게 운영되며 계속 업데이트됩니다. 순위는 {{date}} 기준 {{expansion}}에 대한 최신 정보입니다."
+    "banner": "랭킹 기준일: {{date}}"
   },
   "premium": {
     "title": "Top Pocket Decks Premium",
@@ -87,7 +87,7 @@
     "title": "사용자 계정",
     "signOut": "로그아웃"
   },
-  "lastUpdated": "랭킹 기준일",
+  "lastUpdated": "마지막 업데이트:",
   "deckPage": {
     "matchups": "매치업",
     "strongAgainst": "강점",

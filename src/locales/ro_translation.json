@@ -1,6 +1,6 @@
 {
   "home": {
-    "banner": "Top Pocket Decks este activ și pe mâini bune, având un nou dezvoltator care îl menține actualizat. Clasamentele sunt la zi pentru {{expansion}} începând cu {{date}}."
+    "banner": "Clasamentele sunt actualizate la {{date}}."
   },
   "premium": {
     "title": "Top Pocket Decks Premium",
@@ -87,7 +87,7 @@
     "title": "Cont utilizator",
     "signOut": "Deconectează-te"
   },
-  "lastUpdated": "Clasamente valabile la data de",
+  "lastUpdated": "Ultima actualizare:",
   "deckPage": {
     "matchups": "Matchup-uri",
     "strongAgainst": "Puternic vs.",

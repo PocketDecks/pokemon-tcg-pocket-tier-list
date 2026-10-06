@@ -1,6 +1,6 @@
 {
   "home": {
-    "banner": "Top Pocket Decks 依然活躍，並由新維護者持續更新。截至 {{date}}，{{expansion}} 的排名為最新狀態。"
+    "banner": "排名截至 {{date}}。"
   },
   "premium": {
     "title": "Top Pocket Decks Premium",
@@ -87,7 +87,7 @@
     "title": "使用者帳號",
     "signOut": "登出"
   },
-  "lastUpdated": "排名資料截至",
+  "lastUpdated": "最後更新：",
   "deckPage": {
     "matchups": "對戰組合",
     "strongAgainst": "優勢對抗",

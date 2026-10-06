@@ -1,6 +1,6 @@
 {
   "home": {
-    "banner": "Top Pocket Decks is alive and well, with a new maintainer keeping it updated. Rankings are current for {{expansion}} as of {{date}}."
+    "banner": "Rankings are current as of {{date}}."
   },
   "premium": {
     "title": "Top Pocket Decks Premium",
@@ -87,7 +87,7 @@
     "title": "User Account",
     "signOut": "Sign out"
   },
-  "lastUpdated": "Rankings are current as of",
+  "lastUpdated": "Last updated:",
   "deckPage": {
     "matchups": "Matchups",
     "strongAgainst": "Strong Against",

@@ -1,6 +1,6 @@
 {
   "home": {
-    "banner": "Top Pocket Decks sigue activo, con un nuevo mantenedor que lo mantiene actualizado. Las clasificaciones corresponden a {{expansion}} con fecha del {{date}}."
+    "banner": "Las clasificaciones están actualizadas al {{date}}."
   },
   "premium": {
     "title": "Top Pocket Decks Premium",
@@ -87,7 +87,7 @@
     "title": "Cuenta de usuario",
     "signOut": "Cerrar sesión"
   },
-  "lastUpdated": "Clasificaciones vigentes a",
+  "lastUpdated": "Última actualización:",
   "deckPage": {
     "matchups": "Enfrentamientos",
     "strongAgainst": "Fuerte contra",

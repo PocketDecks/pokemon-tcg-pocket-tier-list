@@ -97,8 +97,8 @@ const RowContent = styled.div`
 `;
 
 const Loading = styled.div`
-  height: 100dvh;
-  width: 100dvw;
+  height: 100%;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;

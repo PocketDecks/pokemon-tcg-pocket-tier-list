@@ -114,6 +114,10 @@ const Navbar = () => {
   const { isNavOpen, toggleNav } = useUI();
   const isMobile = useIsMobile();
   const open = !isMobile || isNavOpen;
+  const handleMobileNavigation = () => {
+    if (isNavOpen) toggleNav();
+    window.setTimeout(() => document.getElementById("main-content")?.focus(), 0);
+  };
 
   return (
     <Nav id="site-nav" aria-label={t("a11y.primaryNav")} $open={open}>
@@ -123,7 +127,7 @@ const Navbar = () => {
           to={item.to}
           end={item.to === "/deck"}
           $tier={item.tier}
-          onClick={isMobile ? toggleNav : undefined}
+          onClick={isMobile ? handleMobileNavigation : undefined}
         >
           <Chip>
             <NavIcon name={item.icon} />

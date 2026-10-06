@@ -141,8 +141,8 @@ export const CardNumber = styled.div`
 `;
 
 export const Overlay = styled.div`
-  height: 100dvh;
-  width: 100dvw;
+  min-height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import Navbar from "../Navbar";
@@ -29,11 +29,18 @@ const UIProbe = () => {
   return <span data-testid="navopen-probe">{String(isNavOpen)}</span>;
 };
 
+const NavOpener = () => {
+  const { toggleNav } = useUI();
+  return <button onClick={toggleNav}>Open navigation</button>;
+};
+
 const renderNavbar = ({ path = "/" }: { path?: string } = {}) =>
   render(
     <UIProvider>
       <MemoryRouter initialEntries={[path]}>
         <UIProbe />
+        <NavOpener />
+        <main id="main-content" tabIndex={-1} />
         <Navbar />
       </MemoryRouter>
     </UIProvider>
@@ -62,12 +69,17 @@ describe("Navbar", () => {
     expect(screen.getByRole("link", { name: /statistics/i })).toBeInTheDocument();
   });
 
-  it("toggles the shared nav state when a link is tapped on mobile", () => {
+  it("closes the mobile nav and moves focus to main content after navigation", async () => {
     mobile = true;
     renderNavbar();
     expect(screen.getByTestId("navopen-probe")).toHaveTextContent("false");
-    fireEvent.click(screen.getByRole("link", { name: /tier list/i }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Open navigation" }));
     expect(screen.getByTestId("navopen-probe")).toHaveTextContent("true");
+    fireEvent.click(screen.getByRole("link", { name: /tier list/i }));
+
+    expect(screen.getByTestId("navopen-probe")).toHaveTextContent("false");
+    await waitFor(() => expect(screen.getByRole("main")).toHaveFocus());
   });
 
   it("marks only the current route as the current page", () => {

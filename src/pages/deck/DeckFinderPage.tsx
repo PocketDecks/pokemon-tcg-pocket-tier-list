@@ -7,7 +7,8 @@ import {
 } from "../../app/score-baseline";
 import DeckCardGrid from "./DeckCardGrid";
 import DeckHeadTags from "./DeckHeadTags";
-import PageTitle from "../../components/PageTitle";
+import DeckHero, { type DeckHeroStat } from "./DeckHero";
+import useDeckTiers, { tierForDeck } from "../../app/use-deck-tiers";
 import ShareDeckCode from "../../components/ShareDeckCode";
 import AdInContent from "../../ads/AdInContent";
 import SeoContent from "../../components/SeoContent";
@@ -17,20 +18,24 @@ import { CardType, fetchCards } from "../../app/cards-api";
 import { countById } from "../../app/deck-diff";
 import {
   CardSection,
-  DeckFinderHeader,
   EmptyActions,
   EmptyMessage,
+  FinderHelper,
   Or,
   Overlay,
-  RelativeStrength,
   Shrug,
+  Strength,
+  StrengthFill,
+  StrengthLabel,
+  StrengthTrack,
   StyledDeckPage,
   StyledLink,
   UndoButton,
 } from "./deck-page.styles";
 
 const DeckFinderPage = () => {
-  const { decks, scoreBaseline, loading, error } = useDecks();
+  const { decks, scoreBaseline, metaShareBySlug, loading, error } = useDecks();
+  const tiers = useDeckTiers(decks);
   const { undoMissing, canUndo, lastRemovedId } = useMissing();
   const { t } = useTranslation();
 
@@ -88,21 +93,43 @@ const DeckFinderPage = () => {
     (card, index, self) => self.findIndex((c) => c.id === card.id) === index
   );
   const cardCounts = countById(deck.bestList.cards);
+  const totalMatchup = deck.matchups?.find((m) => m.name === "Total");
+  const share = metaShareBySlug?.[deck.id]?.share;
+  const heroStats: DeckHeroStat[] = [
+    ...(totalMatchup
+      ? [{ label: t("deckPage.winRate"), value: `${Math.round(totalMatchup.winRate * 100)}%` }]
+      : []),
+    ...(share !== undefined
+      ? [{ label: t("deckPage.metaShare"), value: `${(share * 100).toFixed(1)}%` }]
+      : []),
+  ];
 
 
   return (
     <>
       <DeckHeadTags deck={deck} />
-      <PageTitle>{t("header.bestDeckFinder")}</PageTitle>
-      <StyledDeckPage>
-        <CardSection>
-          <DeckFinderHeader>{t("deckPage.deckFinderHeader")}</DeckFinderHeader>
-          {relativeScore !== null && (
-            <RelativeStrength $relativeScore={relativeScore}>
+      <DeckHero deck={deck} tier={tierForDeck(tiers, deck.id)} stats={heroStats}>
+        {relativeScore !== null && (
+          <Strength>
+            <StrengthLabel>
               {t("deckPage.relativeStrength")}{" "}
               {`${(relativeScore * 100).toFixed(0)}%`}
-            </RelativeStrength>
-          )}
+            </StrengthLabel>
+            <StrengthTrack
+              role="meter"
+              aria-label={t("deckPage.relativeStrength")}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(relativeScore * 100)}
+            >
+              <StrengthFill $value={relativeScore} />
+            </StrengthTrack>
+          </Strength>
+        )}
+      </DeckHero>
+      <StyledDeckPage>
+        <CardSection>
+          <FinderHelper>{t("deckPage.deckFinderHeader")}</FinderHelper>
           <DeckCardGrid cards={uniqueCards} counts={cardCounts} />
           <AdInContent placement="deck" />
           <ShareDeckCode

@@ -22,7 +22,7 @@ import crownIcon from "../../assets/crown.webp";
 import { formatTrendDay } from "./format-trend-day";
 import TrendChart from "./TrendChart";
 import MatchupMatrix from "./MatchupMatrix";
-import DeckArt from "./DeckArt";
+import DeckArt from "../../components/DeckArt";
 
 const PageContainer = styled.div`
     width: 100%;

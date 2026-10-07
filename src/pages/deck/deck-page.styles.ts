@@ -41,56 +41,42 @@ export const PanelSection = styled.div`
   }
 `;
 
-export const DeckFinderHeader = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
+export const FinderHelper = styled.p`
   width: 100%;
-  height: 8rem;
-  background: var(--e);
-  color: var(--bg);
-  font-size: 3.2rem;
-  font-weight: 500;
-  text-align: center;
-  padding: 0 4rem;
-
-  @media (max-width: 900px) {
-    font-size: 2.4rem;
-    height: auto;
-    padding: 2rem;
-  }
+  max-width: 72ch;
+  align-self: flex-start;
+  font-size: 1.5rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.72);
 `;
 
-export const RelativeStrength = styled.div<{ $relativeScore: number }>`
+export const Strength = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 8rem;
-  background: ${(props) => {
-    const colors = [
-      "var(--s)",
-      "var(--a)",
-      "var(--b)",
-      "var(--c)",
-      "var(--d)",
-      "var(--e)",
-    ];
-    const index = Math.floor(props.$relativeScore * (colors.length - 1));
-    return colors[index];
-  }};
-  color: var(--bg);
-  font-size: 3.2rem;
-  font-weight: 500;
-  text-align: center;
-  padding: 0 4rem;
-  margin-bottom: 2rem;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 18rem;
+`;
 
-  @media (max-width: 900px) {
-    font-size: 2.4rem;
-    height: auto;
-    padding: 2rem;
-  }
+export const StrengthLabel = styled.span`
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  font-variant-numeric: tabular-nums;
+`;
+
+export const StrengthTrack = styled.span`
+  height: 0.8rem;
+  border-radius: 0.4rem;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+`;
+
+export const StrengthFill = styled.span<{ $value: number }>`
+  display: block;
+  width: ${(props) => Math.round(props.$value * 100)}%;
+  height: 100%;
+  border-radius: 0.4rem;
+  background: var(--main);
 `;
 
 export const CardList = styled.div`
@@ -234,26 +220,37 @@ export const Matchups = styled.div`
   }
 `;
 
-export const SubHeader = styled.div<{ $backgroundColor: string }>`
+export const SubHeader = styled.h2<{ $backgroundColor: string }>`
   display: flex;
-  justify-content: center;
   align-items: center;
+  gap: 1rem;
   width: 100%;
-  padding: 1rem 0;
-  background: ${(props) => props.$backgroundColor};
-  color: var(--bg);
-  font-size: 2.8rem;
-  font-weight: 500;
-  opacity: 0.9;
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--main);
+
+  &::before {
+    content: "";
+    flex-shrink: 0;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 0.3rem;
+    background: ${(props) => props.$backgroundColor};
+  }
 `;
 
-export const MatchupSection = styled.div`
+export const MatchupSection = styled.section`
   display: flex;
   flex-direction: column;
   align-items: center;
   flex: 1;
-  gap: 2.4rem;
+  gap: 2rem;
   height: auto;
+  padding: 2rem;
+  border-radius: 1.6rem;
+  background: #121210;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 
   @media (max-width: 900px) {
     width: 100%;

@@ -20,7 +20,8 @@ import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { countById, oneSwapAlternatives } from "../../app/deck-diff";
 import { deckDisplayName } from "../../app/deck-display";
-import PageTitle from "../../components/PageTitle";
+import DeckHero, { type DeckHeroStat } from "./DeckHero";
+import useDeckTiers, { tierForDeck } from "../../app/use-deck-tiers";
 import {
   AlternativeCard,
   AlternativeContainer,
@@ -50,6 +51,7 @@ import {
 const DeckDetailPage = () => {
   const deckId = useParams().deckId;
   const { decks, metaShareBySlug, loading, error } = useDecks();
+  const tiers = useDeckTiers(decks);
   const { missing, canUndo, undoMissing, lastRemovedId } = useMissing();
   const { t } = useTranslation();
   const isPremium = useIsPremium();
@@ -178,11 +180,17 @@ const DeckDetailPage = () => {
   const winRatePct = totalMatchup ? Math.round(totalMatchup.winRate * 100) : null;
 
   const displayName = deckDisplayName(deck);
+  const heroStats: DeckHeroStat[] = [
+    ...(winRatePct !== null ? [{ label: t("deckPage.winRate"), value: `${winRatePct}%` }] : []),
+    ...(shareEntry
+      ? [{ label: t("deckPage.metaShare"), value: `${(shareEntry.share * 100).toFixed(1)}%` }]
+      : []),
+  ];
 
   return (
     <>
       <DeckHeadTags deck={deck} />
-      <PageTitle>{deckDisplayName(deck)}</PageTitle>
+      <DeckHero deck={deck} tier={tierForDeck(tiers, deck.id)} stats={heroStats} />
       <StyledDeckPage>
         <CardSection>
           <DeckCardGrid cards={uniqueCards} counts={cardCounts} />

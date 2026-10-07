@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { deckDisplayName, formatArchetypeId } from "../../app/deck-display";
 import type { FullDeckType } from "../../app/deck-types";
-import DeckArt from "./DeckArt";
+import DeckArt from "../../components/DeckArt";
 
 const MatrixWrapper = styled.div`
     width: 100%;

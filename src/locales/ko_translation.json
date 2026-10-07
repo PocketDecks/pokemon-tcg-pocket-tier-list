@@ -128,7 +128,7 @@
     "metaShareTooltip": "유효 게임 점유율 ± 주간 변화",
     "showTooltip": "설명 보기",
     "energyUsed": "사용 에너지",
-    "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again."
+    "matchupsUnavailable": "덱 데이터를 불러오지 못했습니다. 페이지를 새로고침하여 다시 시도하세요."
   },
   "energyDropdown": {
     "all": "모든 에너지 타입",

@@ -128,7 +128,7 @@
     "metaShareTooltip": "Cuota de partidas válidas ± cambio semanal",
     "showTooltip": "Mostrar explicación",
     "energyUsed": "Energía usada",
-    "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again."
+    "matchupsUnavailable": "Los datos del mazo no se cargaron. Recarga la página para intentarlo de nuevo."
   },
   "energyDropdown": {
     "all": "Todos los tipos de Energía",

@@ -128,7 +128,7 @@
     "metaShareTooltip": "Anteil qualifizierter Spiele ± wöchentliche Veränderung",
     "showTooltip": "Erklärung anzeigen",
     "energyUsed": "Genutzte Energie",
-    "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again."
+    "matchupsUnavailable": "Deck-Daten wurden nicht geladen. Lade die Seite neu, um es erneut zu versuchen."
   },
   "energyDropdown": {
     "all": "Alle Energietypen",

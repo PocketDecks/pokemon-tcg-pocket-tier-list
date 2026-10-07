@@ -128,7 +128,7 @@
     "metaShareTooltip": "予選済み試合でのシェア ± 週次変化",
     "showTooltip": "説明を表示",
     "energyUsed": "使用エネルギー",
-    "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again."
+    "matchupsUnavailable": "デッキデータが読み込まれませんでした。ページを更新してもう一度お試しください。"
   },
   "energyDropdown": {
     "all": "すべてのエネルギータイプ",

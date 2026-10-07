@@ -2,6 +2,7 @@ import styled, { keyframes } from "styled-components";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { deckDisplayName } from "../app/deck-display";
+import { deckThumbUrl, onDeckThumbError } from "../app/deck-thumb";
 import { FullDeckType } from "../contexts/DecksContext";
 import { MetaShareEntry } from "../types/pipeline-data";
 import { deltaTrend } from "../app/delta-trend";
@@ -56,10 +57,10 @@ const SubCard = styled(Link)`
 
 const DeckImage = styled.img`
   position: absolute;
-  top: -32%;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 280%;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 `;
 
 const Badge = styled.div<{ $tone: "up" | "down" | "flat" | "new" }>`
@@ -203,7 +204,14 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
                 to={`/deck/${deck.id}`}
                 aria-label={shareLabel ? `${name}, ${shareLabel}` : name}
             >
-                <DeckImage key={deck.iconPrimary.id} src={deck.iconPrimary.image} alt={deck.iconPrimary.name} />
+                <DeckImage
+                    key={deck.iconPrimary.id}
+                    src={deckThumbUrl(deck.iconPrimary.id)}
+                    onError={onDeckThumbError(deck.iconPrimary.image)}
+                    alt={deck.iconPrimary.name}
+                    width={183}
+                    height={183}
+                />
                 {metaShare?.isNew ? (
                     <Badge $tone="new" title={metaShareLabel ?? "Meta share"}>
                         NEW
@@ -221,8 +229,11 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
                 <SubCard to={`/deck/${deck.id}`} tabIndex={-1} aria-hidden="true">
                     <DeckImage
                         key={deck.iconSecondary.id}
-                        src={deck.iconSecondary.image}
+                        src={deckThumbUrl(deck.iconSecondary.id)}
+                        onError={onDeckThumbError(deck.iconSecondary.image)}
                         alt={deck.iconSecondary.name}
+                        width={183}
+                        height={183}
                     />
                 </SubCard>
             )}

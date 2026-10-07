@@ -7,6 +7,7 @@ const {
   findEmptyStyledTags,
   findExternalScripts,
   findLoopbackRefs,
+  findMissingDeckThumbs,
   findModulepreloadDrift,
   findNonEmptyDeckRoots,
 } = require("../verify-dist-html");
@@ -129,4 +130,26 @@ test("flags a script pointing at another host", () => {
     "index.html: https://cdn.example.com/a.js",
     "index.html: //tracker.example.net/b.js",
   ]);
+});
+
+const THUMB_DECKS = [
+  { name: "mega-lucario-ex-b3-081" },
+  { name: "mega-altaria-ex-b1-102&espeon-b3a-020" },
+];
+
+test("passes when every deck icon id has a thumbnail", () => {
+  const dir = makeDist({
+    "thumbs/b3-081.webp": "x",
+    "thumbs/b1-102.webp": "x",
+    "thumbs/b3a-020.webp": "x",
+  });
+  assert.deepStrictEqual(findMissingDeckThumbs(dir, THUMB_DECKS), []);
+});
+
+test("flags a deck icon id with no thumbnail", () => {
+  const dir = makeDist({
+    "thumbs/b3-081.webp": "x",
+    "thumbs/b1-102.webp": "x",
+  });
+  assert.deepStrictEqual(findMissingDeckThumbs(dir, THUMB_DECKS), ["b3a-020"]);
 });

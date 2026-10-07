@@ -30,7 +30,7 @@
   },
   "scripts": {
     "start": "vite",
-    "prebuild": "node scripts/generate-sitemap.js && node scripts/generate-attack-costs.mjs",
+    "prebuild": "node scripts/generate-sitemap.js && node scripts/generate-attack-costs.mjs && node scripts/generate-deck-thumbs.mjs",
     "build": "yarn typecheck && yarn lint && vite build",
     "postbuild": "node scripts/prerender-decks.js && node scripts/prerender-routes.js && node scripts/verify-dist-html.js",
     "test": "vitest",
@@ -51,6 +51,7 @@
     "jsdom": "^30.0.1",
     "puppeteer": "^25.8.0",
     "react-is": "^19.2.0",
+    "sharp": "^0.35.5",
     "vite": "^8.2.2",
     "vitest": "^4.1.11"
   },

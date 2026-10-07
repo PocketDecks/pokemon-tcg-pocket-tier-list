@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { cardIdFromImage, deckThumbUrl, onDeckThumbError } from "../app/deck-thumb";
 
 const ArtFrame = styled.span<{ $size: number }>`
     position: relative;
@@ -9,21 +10,30 @@ const ArtFrame = styled.span<{ $size: number }>`
     border-radius: 0.6rem;
     overflow: hidden;
     background: rgba(255, 255, 255, 0.06);
+`;
 
-    img {
-        position: absolute;
-        top: -32%;
-        left: 50%;
-        transform: translateX(-50%);
-        height: 280%;
-    }
+const Art = styled.img`
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 `;
 
 const DeckArt = ({ src, size }: { src?: string; size: number }) => {
-    const pixels = Math.round(size * 16);
+    const cardId = src ? cardIdFromImage(src) : null;
     return (
         <ArtFrame $size={size}>
-            {src && <img src={src} alt="" width={pixels} height={pixels} loading="lazy" />}
+            {src && (
+                <Art
+                    src={cardId ? deckThumbUrl(cardId) : src}
+                    onError={onDeckThumbError(src)}
+                    alt=""
+                    width={183}
+                    height={183}
+                    loading="lazy"
+                />
+            )}
         </ArtFrame>
     );
 };

@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { deckNameToIconIds } = require("./deck-name.mjs");
 
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
@@ -95,6 +96,20 @@ const findModulepreloadDrift = (
   });
 };
 
+const findMissingDeckThumbs = (
+  dir = DIST_DIR,
+  decks = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "..", "public", "data", "best-decks.json"), "utf8")
+  )
+) => {
+  const thumbDir = path.join(dir, "thumbs");
+  const ids = new Set();
+  for (const deck of decks) {
+    for (const id of deckNameToIconIds(deck.name)) ids.add(id);
+  }
+  return [...ids].filter((id) => !fs.existsSync(path.join(thumbDir, `${id}.webp`)));
+};
+
 const isExternalHost = (src) => {
   const match = src.match(/^(?:https?:)?\/\/([^/?#]+)/i);
   if (!match) return false;
@@ -147,6 +162,13 @@ const main = () => {
     );
     process.exit(1);
   }
+  const missingThumbs = findMissingDeckThumbs();
+  if (missingThumbs.length > 0) {
+    console.error(
+      `Deck icon ids without a built thumbnail:\n${missingThumbs.join("\n")}`
+    );
+    process.exit(1);
+  }
   console.log(`No loopback origins in ${DIST_DIR}`);
 };
 
@@ -156,6 +178,7 @@ module.exports = {
   findEmptyStyledTags,
   findExternalScripts,
   findLoopbackRefs,
+  findMissingDeckThumbs,
   findModulepreloadDrift,
   findNonEmptyDeckRoots,
   findTemplateModulepreloads,

@@ -1,0 +1,82 @@
+import fs from "fs";
+import path from "path";
+import { pathToFileURL } from "url";
+import sharp from "sharp";
+import { deckNameToIconIds } from "./deck-name.mjs";
+import { cardIdFromImage, DECK_THUMB_CROP, DECK_THUMB_QUALITY } from "./deck-thumbs.mjs";
+
+const ATTEMPTS = 3;
+
+const fetchBuffer = async (url) => {
+  let lastError;
+  for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`${response.status} ${response.statusText}`);
+      }
+      return Buffer.from(await response.arrayBuffer());
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw new Error(`${url}: ${lastError?.message ?? "unknown error"}`);
+};
+
+export const thumbCardIds = (decks) => {
+  const ids = new Set();
+  for (const deck of decks) {
+    for (const id of deckNameToIconIds(deck.name)) ids.add(id);
+  }
+  return [...ids];
+};
+
+export const cropArt = (buffer) =>
+  sharp(buffer)
+    .extract(DECK_THUMB_CROP)
+    .webp({ quality: DECK_THUMB_QUALITY })
+    .toBuffer();
+
+const main = async () => {
+  const cwd = process.cwd();
+  const decksPath = path.join(cwd, "public", "data", "best-decks.json");
+  const decks = JSON.parse(fs.readFileSync(decksPath, "utf8"));
+  const cards = JSON.parse(
+    fs.readFileSync(
+      path.join(
+        cwd,
+        "node_modules",
+        "pokemon-tcg-pocket-cards",
+        "data",
+        "v5",
+        "cards.core.min.json"
+      ),
+      "utf8"
+    )
+  );
+  const imageById = new Map(cards.map((card) => [card.id, card.image]));
+
+  const outDir = path.join(cwd, "public", "thumbs");
+  fs.mkdirSync(outDir, { recursive: true });
+
+  const ids = thumbCardIds(decks);
+  let written = 0;
+  for (const id of ids) {
+    const image = imageById.get(id);
+    if (!image) {
+      throw new Error(`generate-deck-thumbs: no card record for ${id}`);
+    }
+    const source = await fetchBuffer(image);
+    const thumb = await cropArt(source);
+    fs.writeFileSync(path.join(outDir, `${id}.webp`), thumb);
+    written++;
+  }
+  console.log(`generate-deck-thumbs: wrote ${written} thumbnails to ${outDir}`);
+};
+
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    console.error(`generate-deck-thumbs: ${error.message}`);
+    process.exit(1);
+  });
+}

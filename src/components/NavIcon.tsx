@@ -21,7 +21,8 @@ export type NavIconName =
   | "check"
   | "bulb"
   | "bug"
-  | "chat";
+  | "chat"
+  | "info";
 
 const paths: Record<NavIconName, ReactNode> = {
   tierList: <path d="M4 6h16M4 12h11M4 18h6" />,
@@ -86,6 +87,12 @@ const paths: Record<NavIconName, ReactNode> = {
   ),
   versus: <path d="M4 8h13M14 4.5L17.5 8 14 11.5M20 16H7M10 12.5L6.5 16l3.5 3.5" />,
   code: <path d="M9 7l-5 5 5 5M15 7l5 5-5 5M13.5 4.5l-3 15" />,
+  info: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5.5M12 7.6v.01" />
+    </>
+  ),
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
   bulb: <path d="M9.5 18h5M10.5 21h3M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8v.3h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z" />,
   bug: (

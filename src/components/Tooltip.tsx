@@ -1,146 +1,133 @@
 import styled from "styled-components";
-import { useState, useRef, useEffect, KeyboardEvent } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import NavIcon from "./NavIcon";
 
-const TooltipContainer = styled.div`
+const VIEWPORT_MARGIN = 12;
+const GAP = 8;
+
+const Trigger = styled.button`
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  margin-left: 0.8rem;
-
-  @media (max-width: 900px) {
-    margin-left: 0.4rem;
-  }
-`;
-
-const TooltipIcon = styled.div`
-  position: relative;
-  width: 1.8rem;
-  height: 1.8rem;
+  display: inline-grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin-left: 0.6rem;
   border-radius: 50%;
-  border: 1px solid var(--main);
-  color: var(--main);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.6);
   cursor: help;
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
+  transition: color 160ms ease-out, background-color 160ms ease-out;
 
   &::after {
     content: "";
     position: absolute;
-    inset: -1.3rem;
+    inset: -1rem;
   }
 
-  &:hover {
-    opacity: 1;
-  }
-
-  @media (max-width: 900px) {
-    width: 1.6rem;
-    height: 1.6rem;
-    font-size: 1.1rem;
+  &:hover,
+  &[aria-expanded="true"] {
+    color: var(--main);
+    background: rgba(255, 255, 255, 0.08);
   }
 `;
 
-const TooltipContent = styled.div<{ $isVisible: boolean }>`
-  /* Fixed and centred on the viewport, not the icon: a box centred on an
-     icon near the screen edge overflows no matter how it is capped. The
-     viewport anchor keeps every part of the box on screen at any width. */
+const Bubble = styled.div<{ $open: boolean }>`
   position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 10vh;
-  background: var(--bg);
-  border: 1px solid var(--main);
-  padding: 1.2rem;
-  border-radius: 0.4rem;
-  font-size: 1.6rem;
-  color: var(--main);
-  opacity: ${(props) => (props.$isVisible ? 1 : 0)};
-  visibility: ${(props) => (props.$isVisible ? "visible" : "hidden")};
-  transition: all 0.2s ease;
   z-index: 1000;
-  width: max-content;
-  max-width: calc(100vw - 3.2rem);
+  max-width: min(32rem, calc(100vw - ${VIEWPORT_MARGIN * 2}px));
+  padding: 1.2rem 1.4rem;
+  border-radius: 1rem;
+  background: #1d1d1b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 1.2rem 3.2rem rgba(0, 0, 0, 0.5);
+  color: var(--main);
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1.5;
   text-align: left;
   pointer-events: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-
-  &::after {
-    content: none;
-  }
-
-  @media (max-width: 900px) {
-    font-size: 1.4rem;
-    padding: 1rem;
-  }
+  opacity: ${(props) => (props.$open ? 1 : 0)};
+  visibility: ${(props) => (props.$open ? "visible" : "hidden")};
+  transform: translateY(${(props) => (props.$open ? "0" : "0.4rem")});
+  transition: opacity 150ms ease-out, transform 150ms ease-out, visibility 150ms;
 `;
 
 interface Props {
   text: string;
-  /** Localised accessible name for the toggle icon. */
   ariaLabel?: string;
 }
 
 const Tooltip = ({ text, ariaLabel }: Props) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const tooltipRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const bubbleRef = useRef<HTMLDivElement>(null);
+  const id = useId();
+
+  const place = useCallback(() => {
+    const trigger = triggerRef.current;
+    const bubble = bubbleRef.current;
+    if (!trigger || !bubble) return;
+    const anchor = trigger.getBoundingClientRect();
+    const { width, height } = bubble.getBoundingClientRect();
+    const maxLeft = window.innerWidth - width - VIEWPORT_MARGIN;
+    const left = Math.max(VIEWPORT_MARGIN, Math.min(anchor.left + anchor.width / 2 - width / 2, maxLeft));
+    const below = anchor.bottom + GAP;
+    const fitsBelow = below + height <= window.innerHeight - VIEWPORT_MARGIN;
+    const top = fitsBelow ? below : Math.max(VIEWPORT_MARGIN, anchor.top - GAP - height);
+    setPosition({ top, left });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (open) place();
+  }, [open, place]);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        tooltipRef.current &&
-        !tooltipRef.current.contains(event.target as Node)
-      ) {
-        setIsVisible(false);
-      }
+    if (!open) return;
+    const close = () => setOpen(false);
+    const onPointerDown = (event: PointerEvent) => {
+      if (!triggerRef.current?.contains(event.target as Node)) close();
     };
-
-    const handleScroll = () => {
-      if (isVisible) {
-        setIsVisible(false);
-      }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
     };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("scroll", handleScroll, { capture: true, passive: true });
-
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("scroll", place, { capture: true, passive: true });
+    window.addEventListener("resize", place);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("scroll", handleScroll, { capture: true });
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("scroll", place, { capture: true });
+      window.removeEventListener("resize", place);
     };
-  }, [isVisible]);
-
-  // Clicking an already-hovered icon must keep the tooltip open, not toggle
-  // it closed under the pointer. Outside click and scroll still dismiss.
-  const handleActivate = () => {
-    setIsVisible(true);
-  };
+  }, [open, place]);
 
   return (
-    <TooltipContainer ref={tooltipRef}>
-      <TooltipIcon
-        onMouseEnter={() => setIsVisible(true)}
-        onMouseLeave={() => setIsVisible(false)}
-        onClick={handleActivate}
-        role="button"
+    <>
+      <Trigger
+        ref={triggerRef}
+        type="button"
         aria-label={ariaLabel ?? text}
-        tabIndex={0}
-        onKeyDown={(e: KeyboardEvent) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            handleActivate();
-          }
-        }}
+        aria-describedby={id}
+        aria-expanded={open}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        onClick={() => setOpen(true)}
       >
-        ?
-      </TooltipIcon>
-      <TooltipContent $isVisible={isVisible}>{text}</TooltipContent>
-    </TooltipContainer>
+        <NavIcon name="info" size={18} />
+      </Trigger>
+      <Bubble
+        ref={bubbleRef}
+        id={id}
+        role="tooltip"
+        $open={open}
+        style={{ top: position.top, left: position.left }}
+      >
+        {text}
+      </Bubble>
+    </>
   );
 };
 

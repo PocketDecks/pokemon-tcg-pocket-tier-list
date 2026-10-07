@@ -25,11 +25,17 @@ match /feedback/{feedbackId} {
 }
 
 match /feedbackThrottle/{uid} {
-  allow create, update: if request.auth != null
+  allow create, update: if signedInWithGoogle()
     && request.auth.uid == uid
     && request.resource.data.keys().hasOnly(['lastAt'])
     && request.resource.data.lastAt == request.time;
   allow read, delete: if false;
+}
+
+function signedInWithGoogle() {
+  return request.auth != null
+    && request.auth.token.firebase.sign_in_provider == 'google.com'
+    && request.auth.token.email_verified == true;
 }
 
 function feedbackThrottlePath() {
@@ -38,7 +44,7 @@ function feedbackThrottlePath() {
 
 function isValidFeedback() {
   let data = request.resource.data;
-  return request.auth != null
+  return signedInWithGoogle()
     && data.keys().hasOnly(['uid', 'email', 'category', 'message', 'contactOk', 'page', 'createdAt'])
     && data.keys().hasAll(['uid', 'email', 'category', 'message', 'contactOk', 'page', 'createdAt'])
     && data.uid == request.auth.uid
@@ -59,7 +65,7 @@ function isValidFeedback() {
 
 3. Publish the rules.
 
-These rules let a signed-in user create feedback only as themselves, only with the fields and limits the form uses, and at most once every five minutes. Nobody can read, edit or delete feedback from the site. You read it in the console.
+These rules let a user signed in with Google create feedback only as themselves, only with the fields and limits the form uses, and at most once every five minutes. Nobody can read, edit or delete feedback from the site. You read it in the console.
 
 The rules have not been run against the Firestore emulator. After publishing, send one message from the live site and check that a document appears in `feedback`. Then send a second message straight away and check that the page shows its error message.
 

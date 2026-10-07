@@ -6,14 +6,14 @@ import { useAuth } from "../../app/use-auth";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import Button from "../../components/Button";
 import NavIcon, { type NavIconName } from "../../components/NavIcon";
+import { submitFeedback } from "../../app/feedback-api";
 import {
   FEEDBACK_CATEGORIES,
   FEEDBACK_MAX_LENGTH,
   FEEDBACK_MIN_LENGTH,
   FEEDBACK_PAGE_MAX_LENGTH,
-  submitFeedback,
   type FeedbackCategory,
-} from "../../app/feedback-api";
+} from "../../app/feedback";
 
 type Status = "idle" | "sending" | "sent" | "error";
 

@@ -15,8 +15,7 @@ vi.mock("../../../app/use-auth", () => ({
   useAuth: () => auth,
 }));
 
-vi.mock("../../../app/feedback-api", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("../../../app/feedback-api")>()),
+vi.mock("../../../app/feedback-api", () => ({
   submitFeedback,
 }));
 

@@ -12,31 +12,17 @@ import ErrorBoundary, { LoadingNotice } from "./components/ErrorBoundary";
 import Header, { RAIL_WIDTH } from "./components/Header";
 import HomeBanner from "./components/HomeBanner";
 
-import {
-  loadAboutPage,
-  loadCardsListPage,
-  loadDeckDetailPage,
-  loadDeckFinderPage,
-  loadExpansionListPage,
-  loadFeedbackPage,
-  loadLandingPage,
-  loadNotFoundPage,
-  loadPrivacyPage,
-  loadStatisticsPage,
-  loadTierListPage,
-} from "./app/routes";
-
-const LandingPage = lazy(loadLandingPage);
-const TierListPage = lazy(loadTierListPage);
-const DeckFinderPage = lazy(loadDeckFinderPage);
-const DeckDetailPage = lazy(loadDeckDetailPage);
-const CardsListPage = lazy(loadCardsListPage);
-const ExpansionListPage = lazy(loadExpansionListPage);
-const StatisticsPage = lazy(loadStatisticsPage);
-const PrivacyPage = lazy(loadPrivacyPage);
-const AboutPage = lazy(loadAboutPage);
-const NotFoundPage = lazy(loadNotFoundPage);
-const FeedbackPage = lazy(loadFeedbackPage);
+const LandingPage = lazy(() => import("./pages/landing/LandingPage"));
+const TierListPage = lazy(() => import("./pages/tier-list/TierListPage"));
+const DeckFinderPage = lazy(() => import("./pages/deck/DeckFinderPage"));
+const DeckDetailPage = lazy(() => import("./pages/deck/DeckDetailPage"));
+const CardsListPage = lazy(() => import("./pages/cards-list/CardsListPage"));
+const ExpansionListPage = lazy(() => import("./pages/expansion-list/ExpansionListPage"));
+const StatisticsPage = lazy(() => import("./pages/stats/StatisticsPage"));
+const PrivacyPage = lazy(() => import("./pages/legal/PrivacyPage"));
+const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
+const NotFoundPage = lazy(() => import("./pages/not-found/NotFoundPage"));
+const FeedbackPage = lazy(() => import("./pages/feedback/FeedbackPage"));
 
 export const queryClientOptions = {
   defaultOptions: {

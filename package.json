@@ -31,7 +31,7 @@
     "start": "vite",
     "prebuild": "node scripts/generate-sitemap.js && node scripts/generate-attack-costs.mjs",
     "build": "yarn typecheck && yarn lint && vite build",
-    "postbuild": "node scripts/prerender-routes.js && node scripts/prerender-decks.js && node scripts/verify-dist-html.js",
+    "postbuild": "node scripts/prerender-decks.js && node scripts/prerender-routes.js && node scripts/verify-dist-html.js",
     "test": "vitest",
     "test:ci": "vitest run",
     "typecheck": "tsc --noEmit",

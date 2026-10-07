@@ -28,6 +28,23 @@ const findEmptyStyledTags = (dir = DIST_DIR) =>
         .map(() => entry);
     });
 
+const findNonEmptyDeckRoots = (dir = DIST_DIR) => {
+  const deckDir = path.join(dir, "deck");
+  if (!fs.existsSync(deckDir)) return [];
+  return fs
+    .readdirSync(deckDir, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name === "index.html")
+    .map((entry) => {
+      const file = path.join(entry.parentPath, entry.name);
+      const relativeFile = path.relative(deckDir, file);
+      if (relativeFile.split(path.sep).length !== 2) return null;
+      const html = fs.readFileSync(file, "utf8");
+      const root = html.match(/<div\b[^>]*id=["']root["'][^>]*>([\s\S]*?)<\/div>/i);
+      return root && root[1].trim() ? path.relative(dir, file) : null;
+    })
+    .filter(Boolean);
+};
+
 const main = () => {
   const offenders = findLoopbackRefs();
   if (offenders.length > 0) {
@@ -43,9 +60,16 @@ const main = () => {
     );
     process.exit(1);
   }
+  const nonEmptyDeckRoots = findNonEmptyDeckRoots();
+  if (nonEmptyDeckRoots.length > 0) {
+    console.error(
+      `Non-empty deck roots found in built HTML:\n${nonEmptyDeckRoots.join("\n")}`
+    );
+    process.exit(1);
+  }
   console.log(`No loopback origins in ${DIST_DIR}`);
 };
 
 if (require.main === module) main();
 
-module.exports = { findEmptyStyledTags, findLoopbackRefs };
+module.exports = { findEmptyStyledTags, findLoopbackRefs, findNonEmptyDeckRoots };

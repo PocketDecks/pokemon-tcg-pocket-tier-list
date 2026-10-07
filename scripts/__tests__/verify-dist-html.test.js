@@ -3,7 +3,11 @@ const assert = require("node:assert");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
-const { findEmptyStyledTags, findLoopbackRefs } = require("../verify-dist-html");
+const {
+  findEmptyStyledTags,
+  findLoopbackRefs,
+  findNonEmptyDeckRoots,
+} = require("../verify-dist-html");
 
 const makeDist = (files) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "dist-"));
@@ -32,6 +36,23 @@ test("passes clean output untouched", () => {
       '<link rel="canonical" href="https://pocketdecks.top/" />',
   });
   assert.deepStrictEqual(findLoopbackRefs(dir), []);
+});
+
+test("passes deck pages with empty roots", () => {
+  const dir = makeDist({
+    "deck/index.html": '<div id="root"><main>Finder</main></div>',
+    "deck/x/index.html": '<div id="root"></div>',
+  });
+  assert.deepStrictEqual(findNonEmptyDeckRoots(dir), []);
+});
+
+test("flags deck pages with non-empty roots", () => {
+  const dir = makeDist({
+    "deck/x/index.html": '<div id="root"><main>Home page</main></div>',
+  });
+  assert.deepStrictEqual(findNonEmptyDeckRoots(dir), [
+    path.join("deck", "x", "index.html"),
+  ]);
 });
 
 test("passes HTML with non-empty styled-components CSS", () => {

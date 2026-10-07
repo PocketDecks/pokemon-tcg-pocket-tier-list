@@ -1,122 +1,96 @@
 import styled from "styled-components";
-import filters from "../../assets/features/filters.webp";
-import openSource from "../../assets/features/open-source.webp";
-import matchups from "../../assets/features/matchups.webp";
-import tournament from "../../assets/features/tournament.webp";
-import weeklyUpdates from "../../assets/features/weekly.webp";
-import missingCards from "../../assets/features/missing.webp";
 import { useTranslation } from "react-i18next";
 import { Trans } from "react-i18next";
 import { GITHUB_URL } from "../../app/constants";
+import NavIcon, { type NavIconName } from "../../components/NavIcon";
 
 interface FeatureType {
   title: string;
   description: string | React.ReactNode;
-  image: string;
+  icon: NavIconName;
+  tier: string;
 }
 
-const StyledFeatures = styled.div`
+const StyledFeatures = styled.section`
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 8rem 4.8rem;
-  gap: 4.8rem;
-  background: var(--bg);
+  max-width: 150rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 6.4rem;
+  padding: 9.6rem 4rem 8rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+    gap: 4rem;
+  }
 
   @media (max-width: 900px) {
-    padding: 4.8rem 2.4rem;
+    padding: 6.4rem 2rem 5.6rem;
   }
 `;
 
 const Title = styled.h2`
-  font-size: 5.6rem;
-  font-weight: 500;
-  color: var(--text);
-  text-align: center;
+  font-size: 4.8rem;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
 
   @media (max-width: 900px) {
-    font-size: 4rem;
+    font-size: 3.6rem;
   }
 `;
 
-const Grid = styled.div`
+const List = styled.ul`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(35rem, 1fr));
-  gap: 4.8rem;
-  width: 100%;
-  max-width: 150rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4.8rem 4rem;
+  list-style: none;
 
-  @media (max-width: 900px) {
+  @media (max-width: 700px) {
     grid-template-columns: 1fr;
     gap: 3.2rem;
   }
 `;
 
-const Card = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2.4rem;
-  padding: 3.2rem;
-  background: var(--card);
-  border-radius: 1.6rem;
-  transition: transform 0.2s ease-in-out;
-
-  &:hover {
-    transform: translateY(-0.4rem);
-  }
-
-  @media (max-width: 900px) {
-    padding: 2.4rem;
-  }
+const Item = styled.li`
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 1.6rem;
+  row-gap: 0.8rem;
+  align-items: start;
 `;
 
-const Image = styled.img`
-  width: 100%;
-  max-width: 24rem;
-  height: auto;
-  border-radius: 0.4rem;
-  border: 1px solid white;
-  box-shadow: 0 0.8rem 1.6rem rgba(0, 0, 0, 0.2);
+const Chip = styled.span<{ $color: string }>`
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 4.8rem;
+  height: 4.8rem;
+  border-radius: 1.2rem;
+  background: ${(props) => props.$color};
+  color: rgba(0, 0, 0, 0.78);
 `;
 
-const CardTitle = styled.h3`
-  font-size: 3.2rem;
-  font-weight: 500;
-  color: var(--text);
-  text-align: center;
-
-  @media (max-width: 900px) {
-    font-size: 2.4rem;
-  }
+const ItemTitle = styled.h3`
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  padding-top: 0.2rem;
 `;
 
 const Description = styled.p`
-  font-size: 1.8rem;
-  color: var(--text-secondary);
-  text-align: center;
+  max-width: 46ch;
+  font-size: 1.6rem;
   line-height: 1.6;
-
-  @media (max-width: 900px) {
-    font-size: 1.6rem;
-  }
+  color: rgba(255, 255, 255, 0.72);
+  text-wrap: pretty;
 `;
 
 const StyledLink = styled.a`
   color: var(--main);
   text-decoration: underline;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-  font-size: 1.8rem;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  @media (max-width: 900px) {
-    font-size: 1.6rem;
-  }
+  text-underline-offset: 0.3rem;
 `;
 
 const Features = () => {
@@ -126,27 +100,32 @@ const Features = () => {
     {
       title: t("features.tournamentResults.title"),
       description: t("features.tournamentResults.description"),
-      image: tournament,
+      icon: "trophy",
+      tier: "var(--s)",
     },
     {
       title: t("features.weeklyUpdates.title"),
       description: t("features.weeklyUpdates.description"),
-      image: weeklyUpdates,
+      icon: "calendar",
+      tier: "var(--a)",
     },
     {
       title: t("features.filters.title"),
       description: t("features.filters.description"),
-      image: filters,
+      icon: "sliders",
+      tier: "var(--b)",
     },
     {
       title: t("features.missingCards.title"),
       description: t("features.missingCards.description"),
-      image: missingCards,
+      icon: "cardMinus",
+      tier: "var(--c)",
     },
     {
       title: t("features.matchups.title"),
       description: t("features.matchups.description"),
-      image: matchups,
+      icon: "versus",
+      tier: "var(--d)",
     },
     {
       title: t("features.openSource.title"),
@@ -163,22 +142,25 @@ const Features = () => {
           ]}
         />
       ),
-      image: openSource,
+      icon: "code",
+      tier: "var(--e)",
     },
   ];
 
   return (
     <StyledFeatures>
       <Title>{t("features.title")}</Title>
-      <Grid>
+      <List>
         {FEATURES.map((feature) => (
-          <Card key={feature.title}>
-            <Image src={feature.image} alt={feature.title} />
-            <CardTitle>{feature.title}</CardTitle>
+          <Item key={feature.title}>
+            <Chip $color={feature.tier} aria-hidden="true">
+              <NavIcon name={feature.icon} size={24} />
+            </Chip>
+            <ItemTitle>{feature.title}</ItemTitle>
             <Description>{feature.description}</Description>
-          </Card>
+          </Item>
         ))}
-      </Grid>
+      </List>
     </StyledFeatures>
   );
 };

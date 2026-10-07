@@ -9,7 +9,14 @@ export type NavIconName =
   | "account"
   | "lock"
   | "arrowUp"
-  | "arrowDown";
+  | "arrowDown"
+  | "arrowRight"
+  | "trophy"
+  | "calendar"
+  | "sliders"
+  | "cardMinus"
+  | "versus"
+  | "code";
 
 const paths: Record<NavIconName, ReactNode> = {
   tierList: <path d="M4 6h16M4 12h11M4 18h6" />,
@@ -46,6 +53,34 @@ const paths: Record<NavIconName, ReactNode> = {
   ),
   arrowUp: <path d="M12 19V5M6 11l6-6 6 6" />,
   arrowDown: <path d="M12 5v14M6 13l6 6 6-6" />,
+  arrowRight: <path d="M5 12h14M13 6l6 6-6 6" />,
+  trophy: (
+    <>
+      <path d="M8 4h8v5a4 4 0 0 1-8 0z" />
+      <path d="M8 6H5v1.5A3 3 0 0 0 8 10.5M16 6h3v1.5a3 3 0 0 1-3 3M12 13v4M8.5 20h7M10 17h4" />
+    </>
+  ),
+  calendar: (
+    <>
+      <rect x="4" y="5.5" width="16" height="14.5" rx="2.5" />
+      <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
+    </>
+  ),
+  sliders: (
+    <>
+      <path d="M4 7h9M17 7h3M4 17h3M11 17h9" />
+      <circle cx="15" cy="7" r="2" />
+      <circle cx="9" cy="17" r="2" />
+    </>
+  ),
+  cardMinus: (
+    <>
+      <rect x="5" y="3" width="14" height="18" rx="2.5" />
+      <path d="M9 12h6" />
+    </>
+  ),
+  versus: <path d="M4 8h13M14 4.5L17.5 8 14 11.5M20 16H7M10 12.5L6.5 16l3.5 3.5" />,
+  code: <path d="M9 7l-5 5 5 5M15 7l5 5-5 5M13.5 4.5l-3 15" />,
 };
 
 const NavIcon = ({ name, size = 22 }: { name: NavIconName; size?: number }) => (

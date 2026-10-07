@@ -1,8 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { getCurrentUserSubscriptions } from "@invertase/firestore-stripe-payments";
 import { useEffect } from "react";
-import { payments } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
+
+const getPremiumSubscriptions = async () => {
+  const [{ getCurrentUserSubscriptions }, payments] = await Promise.all([
+    import("@invertase/firestore-stripe-payments"),
+    import("../config/firebase").then(({ getPayments }) => getPayments()),
+  ]);
+  return getCurrentUserSubscriptions(payments, {
+    status: ["active", "trialing", "past_due"],
+  });
+};
 
 const useIsPremium = () => {
   const { user, loading } = useAuth();
@@ -20,9 +28,7 @@ const useIsPremium = () => {
     enabled: !loading && !!user,
     retry: false,
     queryFn: async () => {
-      const subscriptions = await getCurrentUserSubscriptions(payments, {
-        status: ["active", "trialing", "past_due"],
-      });
+      const subscriptions = await getPremiumSubscriptions();
       return subscriptions.length > 0;
     },
   });

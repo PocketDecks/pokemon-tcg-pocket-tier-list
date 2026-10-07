@@ -18,7 +18,7 @@ vi.mock("../../contexts/AuthContext", () => ({
 }));
 
 vi.mock("../../config/firebase", () => ({
-  payments: {},
+  getPayments: vi.fn().mockResolvedValue({}),
 }));
 
 const mockSubscriptions = getCurrentUserSubscriptions as ReturnType<typeof vi.fn>;

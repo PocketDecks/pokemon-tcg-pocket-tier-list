@@ -86,7 +86,7 @@ const Stat = styled.div`
   gap: 0.2rem;
 `;
 
-const StatValue = styled.span`
+const StatValue = styled.div`
   font-size: 2.2rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -100,7 +100,7 @@ const StatLabel = styled.span`
 
 export interface DeckHeroStat {
   label: string;
-  value: string;
+  value: ReactNode;
 }
 
 interface Props {

@@ -8,6 +8,7 @@ import {
 import DeckCardGrid from "./DeckCardGrid";
 import DeckHeadTags from "./DeckHeadTags";
 import DeckHero, { type DeckHeroStat } from "./DeckHero";
+import EnergyList from "./EnergyList";
 import useDeckTiers, { tierForDeck } from "../../app/use-deck-tiers";
 import ShareDeckCode from "../../components/ShareDeckCode";
 import AdInContent from "../../ads/AdInContent";
@@ -101,6 +102,9 @@ const DeckFinderPage = () => {
       : []),
     ...(share !== undefined
       ? [{ label: t("deckPage.metaShare"), value: `${(share * 100).toFixed(1)}%` }]
+      : []),
+    ...(deck.bestList.energyIds.length > 0
+      ? [{ label: t("deckPage.energyUsed"), value: <EnergyList energyIds={deck.bestList.energyIds} /> }]
       : []),
   ];
 

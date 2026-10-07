@@ -21,6 +21,7 @@ import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { countById, oneSwapAlternatives } from "../../app/deck-diff";
 import { deckDisplayName } from "../../app/deck-display";
 import DeckHero, { type DeckHeroStat } from "./DeckHero";
+import EnergyList from "./EnergyList";
 import useDeckTiers, { tierForDeck } from "../../app/use-deck-tiers";
 import {
   AlternativeCard,
@@ -184,6 +185,9 @@ const DeckDetailPage = () => {
     ...(winRatePct !== null ? [{ label: t("deckPage.winRate"), value: `${winRatePct}%` }] : []),
     ...(shareEntry
       ? [{ label: t("deckPage.metaShare"), value: `${(shareEntry.share * 100).toFixed(1)}%` }]
+      : []),
+    ...(deck.bestList.energyIds.length > 0
+      ? [{ label: t("deckPage.energyUsed"), value: <EnergyList energyIds={deck.bestList.energyIds} /> }]
       : []),
   ];
 

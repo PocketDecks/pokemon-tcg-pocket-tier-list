@@ -1,7 +1,7 @@
 import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
-import { useDecks, useDeckDetail, MatchupType } from "../../app/use-decks";
+import { useDecks, useDeckDetail, MatchupType, useMatchups } from "../../app/use-decks";
 import useMissing from "../../app/use-missing";
 import { formatCardScore } from "../../app/format-card-score";
 import { useQuery } from "@tanstack/react-query";
@@ -35,6 +35,8 @@ import {
   MatchupContainer,
   MatchupLabel,
   MatchupList,
+  MatchupSkeletonTile,
+  MatchupUnavailable,
   MatchupSection,
   Matchups,
   Or,
@@ -55,6 +57,7 @@ import {
 const DeckDetailPage = () => {
   const deckId = useParams().deckId;
   const { decks, metaShareBySlug, loading, error } = useDecks();
+  const { matchupsByName, loading: matchupsLoading, error: matchupsError } = useMatchups();
   const tiers = useDeckTiers(decks);
   const { missing, canUndo, undoMissing, lastRemovedId } = useMissing();
   const { t } = useTranslation();
@@ -82,6 +85,7 @@ const DeckDetailPage = () => {
     : null;
   const shareEntry: MetaShareEntry | null =
     metaShareBySlug?.[deckId ?? ""] ?? null;
+  const deckMatchups = deck ? matchupsByName?.[deck.name] : undefined;
 
   // Ready (for showing ads) only once a real deck is resolved, never on the
   // loading or "not enough cards" screens.
@@ -117,7 +121,7 @@ const DeckDetailPage = () => {
     const cardCounts = countById(deck.bestList.cards);
     const alternatives = oneSwapAlternatives(deck.bestList, deck.lists, 3);
     const validMatchups =
-      deck.matchups?.filter(
+      deckMatchups?.filter(
         (m) =>
           m &&
           m.totalGames > MIN_MATCHUP_GAMES &&
@@ -143,7 +147,7 @@ const DeckDetailPage = () => {
       strongAgainst,
       weakAgainst,
     };
-  }, [deck, deckMap, extinct]);
+  }, [deck, deckMap, deckMatchups, extinct]);
 
   if (loading) return <Overlay>Loading...</Overlay>;
   if (error) return <Overlay>Error loading data: {error.message}</Overlay>;
@@ -180,12 +184,16 @@ const DeckDetailPage = () => {
   const { uniqueCards, cardCounts, alternatives, strongAgainst, weakAgainst } =
     derived;
 
-  const totalMatchup = deck.matchups?.find((m) => m.name === "Total");
+  const totalMatchup = deckMatchups?.find((m) => m.name === "Total");
   const winRatePct = totalMatchup ? Math.round(totalMatchup.winRate * 100) : null;
 
   const displayName = deckDisplayName(deck);
   const heroStats: DeckHeroStat[] = [
-    ...(winRatePct !== null ? [{ label: t("deckPage.winRate"), value: `${winRatePct}%` }] : []),
+    ...(matchupsLoading
+      ? [{ label: t("deckPage.winRate"), value: <MatchupSkeletonTile aria-hidden="true" /> }]
+      : winRatePct !== null
+        ? [{ label: t("deckPage.winRate"), value: `${winRatePct}%` }]
+        : []),
     ...(shareEntry
       ? [{ label: t("deckPage.metaShare"), value: `${(shareEntry.share * 100).toFixed(1)}%` }]
       : []),
@@ -312,36 +320,52 @@ const DeckDetailPage = () => {
               <SubHeader $backgroundColor="var(--f)">
                 {t("deckPage.strongAgainst")}
               </SubHeader>
-              <MatchupList $blur={!isPremium}>
-                {strongAgainst.map((matchup: MatchupType) => (
-                  <MatchupContainer key={matchup.name}>
-                    <DeckCardContainer>
-                      <DeckCard deck={deckMap.get(matchup.name)!} />
-                    </DeckCardContainer>
-                    <MatchupLabel $winRate={matchup.winRate}>
-                      {`${(matchup.winRate * 100).toFixed(0)}%`}
-                    </MatchupLabel>
-                  </MatchupContainer>
-                ))}
-              </MatchupList>
+              {matchupsLoading ? (
+                <MatchupList>
+                  {Array.from({ length: 6 }, (_, index) => <MatchupSkeletonTile key={index} />)}
+                </MatchupList>
+              ) : matchupsError ? (
+                <MatchupUnavailable>{t("deckPage.matchupsUnavailable")}</MatchupUnavailable>
+              ) : (
+                <MatchupList $blur={!isPremium}>
+                  {strongAgainst.map((matchup: MatchupType) => (
+                    <MatchupContainer key={matchup.name}>
+                      <DeckCardContainer>
+                        <DeckCard deck={deckMap.get(matchup.name)!} />
+                      </DeckCardContainer>
+                      <MatchupLabel $winRate={matchup.winRate}>
+                        {`${(matchup.winRate * 100).toFixed(0)}%`}
+                      </MatchupLabel>
+                    </MatchupContainer>
+                  ))}
+                </MatchupList>
+              )}
             </MatchupSection>
 
             <MatchupSection>
               <SubHeader $backgroundColor="var(--s)">
                 {t("deckPage.weakAgainst")}
               </SubHeader>
-              <MatchupList $blur={!isPremium}>
-                {weakAgainst.map((matchup: MatchupType) => (
-                  <MatchupContainer key={matchup.name}>
-                    <DeckCardContainer>
-                      <DeckCard deck={deckMap.get(matchup.name)!} />
-                    </DeckCardContainer>
-                    <MatchupLabel $winRate={matchup.winRate}>
-                      {`${(matchup.winRate * 100).toFixed(0)}%`}
-                    </MatchupLabel>
-                  </MatchupContainer>
-                ))}
-              </MatchupList>
+              {matchupsLoading ? (
+                <MatchupList>
+                  {Array.from({ length: 6 }, (_, index) => <MatchupSkeletonTile key={index} />)}
+                </MatchupList>
+              ) : matchupsError ? (
+                <MatchupUnavailable>{t("deckPage.matchupsUnavailable")}</MatchupUnavailable>
+              ) : (
+                <MatchupList $blur={!isPremium}>
+                  {weakAgainst.map((matchup: MatchupType) => (
+                    <MatchupContainer key={matchup.name}>
+                      <DeckCardContainer>
+                        <DeckCard deck={deckMap.get(matchup.name)!} />
+                      </DeckCardContainer>
+                      <MatchupLabel $winRate={matchup.winRate}>
+                        {`${(matchup.winRate * 100).toFixed(0)}%`}
+                      </MatchupLabel>
+                    </MatchupContainer>
+                  ))}
+                </MatchupList>
+              )}
             </MatchupSection>
           </Matchups>
         </PanelSection>

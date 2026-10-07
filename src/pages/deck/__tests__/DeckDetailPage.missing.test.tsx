@@ -115,6 +115,39 @@ describe("DeckDetailPage with a cut card", () => {
     vi.restoreAllMocks();
   });
 
+  it("shows matchup loading placeholders without blocking the deck", async () => {
+    let resolveMatchups!: (response: Response) => void;
+    vi.spyOn(global, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("best-decks.json")) return jsonResponse(decks);
+      if (url.endsWith("matchup-data.json"))
+        return new Promise((resolve) => { resolveMatchups = resolve; });
+      if (url.endsWith("meta-share.json"))
+        return jsonResponse({ generatedAt: "2026-08-24T00:00:00Z", windowDays: 7, decks: [] });
+      return jsonResponse(rawCards);
+    });
+    renderDetailPage();
+
+    expect(await screen.findByAltText("Venusaur ex")).toBeInTheDocument();
+    expect(screen.getAllByRole("status", { name: "Loading matchup" }).length).toBeGreaterThan(0);
+    resolveMatchups(jsonResponse({ [GOOD_DECK]: [] }) as unknown as Response);
+  });
+
+  it("shows an unavailable message when matchup data fails", async () => {
+    vi.spyOn(global, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("best-decks.json")) return jsonResponse(decks);
+      if (url.endsWith("matchup-data.json")) return Promise.reject(new Error("network down"));
+      if (url.endsWith("meta-share.json"))
+        return jsonResponse({ generatedAt: "2026-08-24T00:00:00Z", windowDays: 7, decks: [] });
+      return jsonResponse(rawCards);
+    });
+    renderDetailPage();
+
+    expect((await screen.findAllByText("Matchup data didn't load. Refresh the page to try again.")).length).toBe(2);
+    expect(screen.getByAltText("Venusaur ex")).toBeInTheDocument();
+  });
+
   it("renders the deck normally before any cuts", async () => {
     renderDetailPage();
     expect(await screen.findByAltText("Venusaur ex")).toBeInTheDocument();

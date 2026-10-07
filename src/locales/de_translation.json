@@ -127,7 +127,8 @@
     "winRateTooltip": "Sieg-% im aktuellen Fenster",
     "metaShareTooltip": "Anteil qualifizierter Spiele ± wöchentliche Veränderung",
     "showTooltip": "Erklärung anzeigen",
-    "energyUsed": "Genutzte Energie"
+    "energyUsed": "Genutzte Energie",
+    "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again."
   },
   "energyDropdown": {
     "all": "Alle Energietypen",

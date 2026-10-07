@@ -313,39 +313,3 @@ describe("useMatchups", () => {
     ).toBeInTheDocument();
   });
 });
-
-describe("useMatchups", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("returns the matchup map from its query", async () => {
-    vi.spyOn(global, "fetch").mockImplementation(() =>
-      jsonResponse({ "test-deck": [{ name: "Total", winRate: 0.5, totalGames: 10 }] })
-    );
-    render(
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-      >
-        <MatchupsProbe />
-      </QueryClientProvider>
-    );
-    expect(await screen.findByText("test-deck")).toBeInTheDocument();
-  });
-
-  it("exposes a fetch error without throwing past the hook", async () => {
-    vi.spyOn(global, "fetch").mockImplementation(() =>
-      errorResponse(500, "Internal Server Error")
-    );
-    render(
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-      >
-        <MatchupsProbe />
-      </QueryClientProvider>
-    );
-    expect(
-      await screen.findByText("Failed to fetch matchup-data.json: 500 Internal Server Error")
-    ).toBeInTheDocument();
-  });
-});

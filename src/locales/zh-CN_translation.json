@@ -127,7 +127,8 @@
     "winRateTooltip": "当前窗口的胜率百分比",
     "metaShareTooltip": "合格对局的份额 ± 每周变化",
     "showTooltip": "显示说明",
-    "energyUsed": "使用能量"
+    "energyUsed": "使用能量",
+    "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again."
   },
   "energyDropdown": {
     "all": "所有能量类型",

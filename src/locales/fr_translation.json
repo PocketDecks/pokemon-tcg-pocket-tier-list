@@ -127,7 +127,8 @@
     "winRateTooltip": "% de victoires dans la fenêtre actuelle",
     "metaShareTooltip": "Part des parties qualifiées ± variation hebdomadaire",
     "showTooltip": "Afficher l'explication",
-    "energyUsed": "Énergie utilisée"
+    "energyUsed": "Énergie utilisée",
+    "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again."
   },
   "energyDropdown": {
     "all": "Tous les types d'énergie",

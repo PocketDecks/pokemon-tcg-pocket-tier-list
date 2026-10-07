@@ -112,12 +112,12 @@ const trimPairedDecks = (fullDecks: FullDeckType[]): FullDeckType[] => {
 };
 
 const buildDecks = (
-  decksData: { decks: PartialDeckType[]; matchupData: Record<string, PipelineMatchupEntry[]> },
+  decksData: { decks: PartialDeckType[]; matchupData?: Record<string, PipelineMatchupEntry[]> },
   cardsPayload: CardsPayload,
   cardsMapping: Record<string, CardType>,
   options: BuildOptions
 ): FullDeckType[] => {
-  const { decks, matchupData } = decksData;
+  const { decks, matchupData = {} } = decksData;
   const {
     missingCounts,
     energy,
@@ -359,29 +359,19 @@ const useCardsData = () => {
   return { cardsPayload, cardsMapping, isLoading };
 };
 
+const fetchDeckData = async () => {
+  const decksResponse = await fetch("/data/best-decks.json");
+  if (!decksResponse.ok) {
+    throw new Error(`Failed to fetch best-decks.json: ${decksResponse.status} ${decksResponse.statusText}`);
+  }
+  const decks = (await decksResponse.json()) as PartialDeckType[];
+  return { decks, matchupData: {}, metaShare: await loadMetaShare() };
+};
+
 const useDecksData = () => {
   return useQuery({
     queryKey: ["decks"],
-    queryFn: async () => {
-      const [decksResponse, matchupDataResponse] = await Promise.all([
-        fetch("/data/best-decks.json"),
-        fetch("/data/matchup-data.json"),
-      ]);
-
-      if (!decksResponse.ok) {
-        throw new Error(`Failed to fetch best-decks.json: ${decksResponse.status} ${decksResponse.statusText}`);
-      }
-      if (!matchupDataResponse.ok) {
-        throw new Error(`Failed to fetch matchup-data.json: ${matchupDataResponse.status} ${matchupDataResponse.statusText}`);
-      }
-
-      const [decksData, matchupData] = await Promise.all([
-        decksResponse.json(),
-        matchupDataResponse.json(),
-      ]);
-
-      return { decks: decksData, matchupData, metaShare: await loadMetaShare() };
-    },
+    queryFn: fetchDeckData,
   });
 };
 
@@ -393,6 +383,7 @@ export const useDeckDetail = (
 ) => {
   const { cardsPayload, cardsMapping } = useCardsData();
   const { data: decksData } = useDecksData();
+  const { matchupsByName } = useMatchups();
 
   return useMemo(() => {
     if (!cardsPayload || !decksData || !deckId) {
@@ -400,7 +391,7 @@ export const useDeckDetail = (
     }
     const resolved = resolveDeckDetail(
       decksData.decks,
-      decksData.matchupData,
+      matchupsByName ?? {},
       cardsPayload,
       cardsMapping,
       deckId,
@@ -410,5 +401,5 @@ export const useDeckDetail = (
       deck: resolved?.deck ?? null,
       extinct: resolved?.extinct ?? false,
     };
-  }, [cardsPayload, decksData, cardsMapping, deckId, missingCounts]);
+  }, [cardsPayload, cardsMapping, decksData, deckId, missingCounts, matchupsByName]);
 };

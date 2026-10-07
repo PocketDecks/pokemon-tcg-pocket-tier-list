@@ -296,6 +296,21 @@ export const MatchupList = styled.div<{ $blur?: boolean }>`
   }
 `;
 
+export const MatchupSkeletonTile = styled.span.attrs({ role: "status", "aria-label": "Loading matchup", "aria-hidden": undefined })`
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.08);
+`;
+
+export const MatchupUnavailable = styled.p`
+  width: 100%;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.5;
+`;
+
 export const MatchupContainer = styled.div`
   display: flex;
   flex-direction: column;

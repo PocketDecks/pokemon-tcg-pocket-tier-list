@@ -127,7 +127,8 @@
     "winRateTooltip": "현재 윈도우 승률(%)",
     "metaShareTooltip": "유효 게임 점유율 ± 주간 변화",
     "showTooltip": "설명 보기",
-    "energyUsed": "사용 에너지"
+    "energyUsed": "사용 에너지",
+    "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again."
   },
   "energyDropdown": {
     "all": "모든 에너지 타입",

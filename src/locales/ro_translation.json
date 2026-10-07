@@ -127,7 +127,8 @@
     "winRateTooltip": "% de victorii în fereastra curentă",
     "metaShareTooltip": "Ponderea meciurilor calificate ± schimbare săptămânală",
     "showTooltip": "Afișează explicația",
-    "energyUsed": "Energie folosită"
+    "energyUsed": "Energie folosită",
+    "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again."
   },
   "energyDropdown": {
     "all": "Toate tipurile de energie",

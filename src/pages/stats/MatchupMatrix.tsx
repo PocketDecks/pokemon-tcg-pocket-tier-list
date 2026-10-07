@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { deckDisplayName, formatArchetypeId } from "../../app/deck-display";
 import type { FullDeckType } from "../../app/deck-types";
 import DeckArt from "../../components/DeckArt";
+import type { MatchupType } from "../../app/deck-types";
 
 const MatrixWrapper = styled.div`
     width: 100%;
@@ -159,9 +160,10 @@ interface Props {
     decks: FullDeckType[];
     tierMap: Map<string, string>;
     matrixColour: (winRate: number) => string;
+    matchupsByName: Record<string, MatchupType[]> | null;
 }
 
-const MatchupMatrix = ({ decks, tierMap, matrixColour }: Props) => (
+const MatchupMatrix = ({ decks, tierMap, matrixColour, matchupsByName }: Props) => (
     <MatrixWrapper>
         <MatrixTable $columns={decks.length}>
             <thead>
@@ -205,7 +207,7 @@ const MatchupMatrix = ({ decks, tierMap, matrixColour }: Props) => (
                                 );
                             }
 
-                            const match = rowDeck.matchups?.find((m) => m.name === colDeck.name);
+                            const match = matchupsByName?.[rowDeck.name]?.find((m) => m.name === colDeck.name);
                             const winRate = match?.winRate;
                             const isPopulated = winRate !== undefined;
                             const winRateText = isPopulated

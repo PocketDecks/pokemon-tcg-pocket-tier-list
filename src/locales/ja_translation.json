@@ -127,7 +127,8 @@
     "winRateTooltip": "現在のウィンドウでの勝率",
     "metaShareTooltip": "予選済み試合でのシェア ± 週次変化",
     "showTooltip": "説明を表示",
-    "energyUsed": "使用エネルギー"
+    "energyUsed": "使用エネルギー",
+    "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again."
   },
   "energyDropdown": {
     "all": "すべてのエネルギータイプ",

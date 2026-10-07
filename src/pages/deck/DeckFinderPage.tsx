@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useDecks } from "../../app/use-decks";
+import { useDecks, useMatchups } from "../../app/use-decks";
 import useMissing from "../../app/use-missing";
 import {
   relativeToBaseline,
@@ -32,10 +32,13 @@ import {
   StyledDeckPage,
   StyledLink,
   UndoButton,
+  MatchupSkeletonTile,
+  MatchupUnavailable,
 } from "./deck-page.styles";
 
 const DeckFinderPage = () => {
   const { decks, scoreBaseline, metaShareBySlug, loading, error } = useDecks();
+  const { matchupsByName, loading: matchupsLoading, error: matchupsError } = useMatchups();
   const tiers = useDeckTiers(decks);
   const { undoMissing, canUndo, lastRemovedId } = useMissing();
   const { t } = useTranslation();
@@ -94,10 +97,13 @@ const DeckFinderPage = () => {
     (card, index, self) => self.findIndex((c) => c.id === card.id) === index
   );
   const cardCounts = countById(deck.bestList.cards);
-  const totalMatchup = deck.matchups?.find((m) => m.name === "Total");
+  const deckMatchups = matchupsByName?.[deck.name];
+  const totalMatchup = deckMatchups?.find((m) => m.name === "Total");
   const share = metaShareBySlug?.[deck.id]?.share;
   const heroStats: DeckHeroStat[] = [
-    ...(totalMatchup
+    ...(matchupsLoading
+      ? [{ label: t("deckPage.winRate"), value: <MatchupSkeletonTile aria-hidden="true" /> }]
+      : totalMatchup && !matchupsError
       ? [{ label: t("deckPage.winRate"), value: `${Math.round(totalMatchup.winRate * 100)}%` }]
       : []),
     ...(share !== undefined
@@ -134,6 +140,7 @@ const DeckFinderPage = () => {
       <StyledDeckPage>
         <CardSection>
           <FinderHelper>{t("deckPage.deckFinderHeader")}</FinderHelper>
+          {matchupsError && <MatchupUnavailable>{t("deckPage.matchupsUnavailable")}</MatchupUnavailable>}
           <DeckCardGrid cards={uniqueCards} counts={cardCounts} />
           <AdInContent placement="deck" />
           <ShareDeckCode

@@ -1,15 +1,15 @@
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 
-const ENERGIES: Record<number, { name: string; colour: string }> = {
-  1: { name: "Grass", colour: "#5cb85c" },
-  2: { name: "Fire", colour: "#e5603b" },
-  3: { name: "Water", colour: "#3f9ae0" },
-  4: { name: "Lightning", colour: "#f2c232" },
-  5: { name: "Psychic", colour: "#a865c9" },
-  6: { name: "Fighting", colour: "#c4703a" },
-  7: { name: "Darkness", colour: "#3c6170" },
-  8: { name: "Metal", colour: "#9aa5ae" },
+const ENERGIES: Record<number, { name: string; icon: string }> = {
+  1: { name: "Grass", icon: "/energy/grass.webp" },
+  2: { name: "Fire", icon: "/energy/fire.webp" },
+  3: { name: "Water", icon: "/energy/water.webp" },
+  4: { name: "Lightning", icon: "/energy/lightning.webp" },
+  5: { name: "Psychic", icon: "/energy/psychic.webp" },
+  6: { name: "Fighting", icon: "/energy/fighting.webp" },
+  7: { name: "Darkness", icon: "/energy/dark.webp" },
+  8: { name: "Metal", icon: "/energy/steel.webp" },
 };
 
 const List = styled.ul`
@@ -27,25 +27,23 @@ const Item = styled.li`
   gap: 0.6rem;
 `;
 
-const Marker = styled.span<{ $colour: string }>`
-  width: 1.4rem;
-  height: 1.4rem;
-  border-radius: 50%;
-  background: ${(props) => props.$colour};
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+const Icon = styled.img`
+  width: 2.2rem;
+  height: 2.2rem;
+  object-fit: contain;
 `;
 
 const EnergyList = ({ energyIds }: { energyIds: number[] }) => {
   const { t } = useTranslation();
   const energies = [...new Set(energyIds)]
     .map((id) => ENERGIES[id])
-    .filter((energy): energy is { name: string; colour: string } => !!energy);
+    .filter((energy): energy is { name: string; icon: string } => !!energy);
 
   return (
     <List>
       {energies.map((energy) => (
         <Item key={energy.name}>
-          <Marker $colour={energy.colour} aria-hidden="true" />
+          <Icon src={energy.icon} alt="" width={22} height={22} />
           {t(`energyDropdown.${energy.name}`)}
         </Item>
       ))}

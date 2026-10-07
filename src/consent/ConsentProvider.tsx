@@ -40,6 +40,9 @@ const ConsentProvider = ({ children }: { children: ReactNode }) => {
       {appVisible && !isPrerender ? (
         <>
           <ConsentBanner hideBranding={!import.meta.env.DEV} />
+          {/* "Customize" only flips the store's activeUI to "dialog", which
+              hides the banner. Without this mounted the banner simply
+              disappears and the visitor has no way back to the categories. */}
           <ConsentDialog />
         </>
       ) : null}

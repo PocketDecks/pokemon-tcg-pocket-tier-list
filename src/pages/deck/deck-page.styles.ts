@@ -91,10 +91,33 @@ export const CardList = styled.div`
   }
 `;
 
-export const CardContainer = styled.button`
+export const CardContainer = styled.button<{ $stacked: boolean }>`
   position: relative;
+  isolation: isolate;
   width: 100%;
   cursor: pointer;
+
+  ${(props) =>
+    props.$stacked &&
+    `
+      &::before {
+        content: "";
+        position: absolute;
+        inset: 0.4rem -0.6rem -0.6rem 0.4rem;
+        z-index: -1;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.16);
+        box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.35);
+      }
+    `}
+
+  img {
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  &:hover img {
+    transform: translateY(-0.3rem);
+  }
 `;
 
 export const CardImage = styled.img`
@@ -103,26 +126,35 @@ export const CardImage = styled.img`
   display: block;
 `;
 
-export const CardNumber = styled.div`
+export const CardNumber = styled.span<{ $count: number }>`
   position: absolute;
-  bottom: 0;
-  right: 0;
-  background: var(--s);
-  color: var(--bg);
-  height: 4rem;
-  width: 4rem;
-  transform: translate(30%, 30%);
-  display: flex;
-  justify-content: center;
+  right: 0.8rem;
+  bottom: 0.8rem;
+  min-width: 3.6rem;
+  height: 2.6rem;
+  padding: 0 0.8rem;
+  display: inline-flex;
   align-items: center;
-  font-size: 2.8rem;
-  font-weight: 500;
-  border-radius: 50%;
+  justify-content: center;
+  border-radius: 1.3rem;
+  background: ${(props) => (props.$count > 1 ? "var(--main)" : "rgba(18, 18, 16, 0.82)")};
+  color: ${(props) => (props.$count > 1 ? "var(--bg)" : "var(--main)")};
+  box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.45);
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+
+  &::before {
+    content: "×";
+    margin-right: 0.1rem;
+  }
 
   @media (max-width: 900px) {
-    height: 3rem;
-    width: 3rem;
-    font-size: 2rem;
+    right: 0.6rem;
+    bottom: 0.6rem;
+    min-width: 3.2rem;
+    height: 2.4rem;
+    font-size: 1.4rem;
   }
 `;
 

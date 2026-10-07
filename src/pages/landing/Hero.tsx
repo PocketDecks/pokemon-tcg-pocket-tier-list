@@ -213,11 +213,14 @@ const SKELETON_TIERS = [
   { label: "F", color: "var(--f)" },
 ];
 
+const EMPTY_PREVIEW_IMAGE = "/assets/hero/tier-list.webp";
+
 const Hero = () => {
   const { t } = useTranslation();
   const { decks, metaShareBySlug } = useDecks();
   const tiers = useDeckTiers(decks).filter((tier) => PREVIEW_TIERS.includes(tier.label));
   const hasDecks = tiers.some((tier) => tier.decks.length > 0);
+  const hasResolvedEmptyState = decks !== null && !hasDecks;
 
   return (
     <StyledHero>
@@ -265,7 +268,21 @@ const Hero = () => {
                   </PreviewRow>
                 );
               })
-            : SKELETON_TIERS.map((tier) => (
+            : hasResolvedEmptyState
+              ? (
+                  <PreviewRow>
+                    <RowDecks>
+                      <img
+                        src={EMPTY_PREVIEW_IMAGE}
+                        alt={t("header.tierList")}
+                        width={640}
+                        height={360}
+                        style={{ width: "100%", height: "auto", objectFit: "cover" }}
+                      />
+                    </RowDecks>
+                  </PreviewRow>
+                )
+              : SKELETON_TIERS.map((tier) => (
                 <PreviewRow key={tier.label} aria-hidden="true">
                   <RowHeader $color={tier.color}>{tier.label}</RowHeader>
                   <RowDecks>

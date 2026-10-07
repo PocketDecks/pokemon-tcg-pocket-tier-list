@@ -19,8 +19,13 @@ const ArtFrame = styled.span<{ $size: number }>`
     }
 `;
 
-const DeckArt = ({ src, size }: { src?: string; size: number }) => (
-    <ArtFrame $size={size}>{src && <img src={src} alt="" loading="lazy" />}</ArtFrame>
-);
+const DeckArt = ({ src, size }: { src?: string; size: number }) => {
+    const pixels = Math.round(size * 16);
+    return (
+        <ArtFrame $size={size}>
+            {src && <img src={src} alt="" width={pixels} height={pixels} loading="lazy" />}
+        </ArtFrame>
+    );
+};
 
 export default DeckArt;

@@ -118,7 +118,7 @@ const BestDeckFinder = () => {
           <Button to="/deck">{t("bestDeckFinder.button")}</Button>
         </TextSection>
         {topDeck && (
-          <Preview to="/deck" aria-label={t("bestDeckFinder.button")}>
+          <Preview to="/deck">
             <PreviewName>{deckDisplayName(topDeck)}</PreviewName>
             <CardGrid>
               {previewCards.map((card) => (

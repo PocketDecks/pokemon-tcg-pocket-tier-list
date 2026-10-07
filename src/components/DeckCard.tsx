@@ -121,7 +121,6 @@ const NameBubble = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   pointer-events: none;
-  transform: translateY(-100%);
   animation: ${appear} 120ms ease-out 150ms both;
 `;
 
@@ -131,15 +130,14 @@ const BUBBLE_MARGIN = 12;
 const NameTip = ({ anchor, text }: { anchor: DOMRect; text: string }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [left, setLeft] = useState(anchor.left + anchor.width / 2);
-  const [top, setTop] = useState(anchor.top - BUBBLE_GAP);
+  const [top, setTop] = useState(anchor.bottom + BUBBLE_GAP);
 
   useLayoutEffect(() => {
     const rect = ref.current?.getBoundingClientRect();
     const width = rect?.width ?? 0;
-    const height = rect?.height ?? 0;
     const centred = anchor.left + anchor.width / 2 - width / 2;
     setLeft(Math.max(BUBBLE_MARGIN, Math.min(centred, window.innerWidth - width - BUBBLE_MARGIN)));
-    setTop(Math.max(BUBBLE_MARGIN + height, anchor.top - BUBBLE_GAP));
+    setTop(anchor.bottom + BUBBLE_GAP);
   }, [anchor]);
 
   return (
@@ -174,14 +172,15 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
 
     useEffect(() => {
         if (!anchor) return;
+        const hideOnScroll = () => setAnchor(null);
         const follow = () => {
             const rect = containerRef.current?.getBoundingClientRect();
             if (rect) setAnchor(rect);
         };
-        document.addEventListener("scroll", follow, { capture: true, passive: true });
+        document.addEventListener("scroll", hideOnScroll, { capture: true, passive: true });
         window.addEventListener("resize", follow);
         return () => {
-            document.removeEventListener("scroll", follow, { capture: true });
+            document.removeEventListener("scroll", hideOnScroll, { capture: true });
             window.removeEventListener("resize", follow);
         };
     }, [anchor]);

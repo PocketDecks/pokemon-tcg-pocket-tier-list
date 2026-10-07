@@ -14,9 +14,6 @@ const Page = styled.div`
     height: auto;
   }
 
-  @media (min-width: 901px) and (hover: hover) {
-    padding-top: 3.2rem;
-  }
 `;
 
 const FilterContainer = styled.div`

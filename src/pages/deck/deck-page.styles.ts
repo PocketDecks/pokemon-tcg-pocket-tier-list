@@ -94,6 +94,7 @@ export const CardList = styled.div`
 export const CardContainer = styled.button<{ $stacked: boolean }>`
   position: relative;
   isolation: isolate;
+  container-type: inline-size;
   width: 100%;
   cursor: pointer;
 
@@ -128,33 +129,26 @@ export const CardImage = styled.img`
 
 export const CardNumber = styled.span<{ $count: number }>`
   position: absolute;
-  right: 0.8rem;
-  bottom: 0.8rem;
-  min-width: 3.6rem;
-  height: 2.6rem;
-  padding: 0 0.8rem;
+  right: 4.5cqw;
+  bottom: 4.5cqw;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 1.3rem;
+  min-width: 2.4em;
+  height: 1.7em;
+  padding: 0 0.5em;
+  border-radius: 0.85em;
+  font-size: clamp(1.1rem, 9cqw, 1.7rem);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
   background: ${(props) => (props.$count > 1 ? "var(--main)" : "rgba(18, 18, 16, 0.82)")};
   color: ${(props) => (props.$count > 1 ? "var(--bg)" : "var(--main)")};
-  box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.45);
-  font-size: 1.5rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0.1em 0.5em rgba(0, 0, 0, 0.45);
 
   &::before {
     content: "×";
-    margin-right: 0.1rem;
-  }
-
-  @media (max-width: 900px) {
-    right: 0.6rem;
-    bottom: 0.6rem;
-    min-width: 3.2rem;
-    height: 2.4rem;
-    font-size: 1.4rem;
+    margin-right: 0.08em;
   }
 `;
 
@@ -383,24 +377,59 @@ export const KeyStatValue = styled.span`
   font-weight: 500;
 `;
 
-export const AlternativeContainer = styled.div`
-  position: relative;
-  flex: 1;
-  display: flex;
+export const AlternativeSwap = styled.div`
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  gap: 4.8rem;
+  gap: 1.2rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+
+  &:first-of-type {
+    padding-top: 0;
+    border-top: none;
+  }
 `;
 
-export const AlternativeCard = styled.img`
-  width: calc(50% - 2.4rem);
-  aspect-ratio: 63 / 88;
-  display: block;
+export const SwapSide = styled.div<{ $out: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  min-width: 0;
+
+  img {
+    width: 100%;
+    aspect-ratio: 63 / 88;
+    display: block;
+    opacity: ${(props) => (props.$out ? 0.55 : 1)};
+    filter: ${(props) => (props.$out ? "grayscale(0.6)" : "none")};
+  }
 `;
 
-export const ArrowRight = styled.img`
-  position: absolute;
-  top: 50%;
-  right: 50%;
-  transform: translate(50%, -50%);
-  height: 5rem;
+export const SwapLabel = styled.span`
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-size: 1.3rem;
+  line-height: 1.3;
+  min-width: 0;
+`;
+
+export const SwapCount = styled.span<{ $out: boolean }>`
+  flex-shrink: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: ${(props) => (props.$out ? "#e58a8a" : "#7ddb8a")};
+`;
+
+export const SwapName = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.85);
+`;
+
+export const SwapArrow = styled.span`
+  color: rgba(255, 255, 255, 0.6);
 `;

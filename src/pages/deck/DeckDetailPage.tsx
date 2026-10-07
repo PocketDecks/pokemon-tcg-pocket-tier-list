@@ -14,7 +14,7 @@ import useIsPremium from "../../app/use-is-premium";
 import ShareDeckCode from "../../components/ShareDeckCode";
 import Tooltip from "../../components/Tooltip";
 import type { MetaShareEntry } from "../../types/pipeline-data";
-import arrowRight from "../../assets/arrow-right.svg";
+import NavIcon from "../../components/NavIcon";
 import AdInContent from "../../ads/AdInContent";
 import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
@@ -24,9 +24,7 @@ import DeckHero, { type DeckHeroStat } from "./DeckHero";
 import EnergyList from "./EnergyList";
 import useDeckTiers, { tierForDeck } from "../../app/use-deck-tiers";
 import {
-  AlternativeCard,
-  AlternativeContainer,
-  ArrowRight,
+  AlternativeSwap,
   CardSection,
   DeckCardContainer,
   EmptyActions,
@@ -46,6 +44,11 @@ import {
   StyledDeckPage,
   StyledLink,
   SubHeader,
+  SwapArrow,
+  SwapCount,
+  SwapLabel,
+  SwapName,
+  SwapSide,
   UndoButton,
 } from "./deck-page.styles";
 
@@ -280,13 +283,27 @@ const DeckDetailPage = () => {
                   {t("deckPage.alternatives")}
                 </SubHeader>
                 {alternatives.map(({ list, diff }) => (
-                  <AlternativeContainer
+                  <AlternativeSwap
                     key={`${list.score}-${list.cards.map((c) => c.id).join("-")}`}
                   >
-                    <AlternativeCard src={diff.removed[0].image} />
-                    <AlternativeCard src={diff.added[0].image} />
-                    <ArrowRight src={arrowRight} />
-                  </AlternativeContainer>
+                    <SwapSide $out>
+                      <img src={diff.removed[0].image} alt="" loading="lazy" />
+                      <SwapLabel>
+                        <SwapCount $out>{`−${diff.removed.length}`}</SwapCount>
+                        <SwapName>{diff.removed[0].name}</SwapName>
+                      </SwapLabel>
+                    </SwapSide>
+                    <SwapArrow aria-hidden="true">
+                      <NavIcon name="arrowRight" size={20} />
+                    </SwapArrow>
+                    <SwapSide $out={false}>
+                      <img src={diff.added[0].image} alt="" loading="lazy" />
+                      <SwapLabel>
+                        <SwapCount $out={false}>{`+${diff.added.length}`}</SwapCount>
+                        <SwapName>{diff.added[0].name}</SwapName>
+                      </SwapLabel>
+                    </SwapSide>
+                  </AlternativeSwap>
                 ))}
               </MatchupSection>
             )}

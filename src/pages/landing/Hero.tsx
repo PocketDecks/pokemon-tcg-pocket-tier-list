@@ -7,8 +7,9 @@ import useDeckTiers from "../../app/use-deck-tiers";
 import DeckCard from "../../components/DeckCard";
 import NavIcon from "../../components/NavIcon";
 
-const PREVIEW_TIERS = 3;
 const PREVIEW_DECKS = 5;
+const PREVIEW_DECKS_MOBILE = 3;
+const PREVIEW_TIERS = ["S", "A", "F"];
 
 const StyledHero = styled.div`
   width: 100%;
@@ -125,10 +126,10 @@ const RowHeader = styled.div<{ $color: string }>`
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  width: 8rem;
+  width: 7.2rem;
   background: ${(props) => props.$color};
   color: rgba(0, 0, 0, 0.72);
-  font-size: 3.2rem;
+  font-size: 2.8rem;
   font-weight: 600;
 
   @media (max-width: 900px) {
@@ -141,19 +142,52 @@ const RowDecks = styled.div`
   flex: 1;
   min-width: 0;
   display: flex;
-  gap: 1.6rem;
-  padding: 1.4rem 1.6rem;
+  align-items: stretch;
+  gap: 1.2rem;
+  padding: 1rem 1.4rem;
   overflow: hidden;
 
   @media (max-width: 900px) {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.2rem;
-    padding: 1.2rem;
+    grid-template-columns: repeat(${PREVIEW_DECKS_MOBILE + 1}, minmax(0, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+  }
+`;
 
-    & > *:nth-child(n + 4) {
-      display: none;
-    }
+const Slot = styled.div<{ $mobileHidden: boolean }>`
+  height: 100%;
+  aspect-ratio: 1 / 1;
+
+  @media (max-width: 900px) {
+    display: ${(props) => (props.$mobileHidden ? "none" : "block")};
+    height: auto;
+    width: 100%;
+  }
+`;
+
+const MoreTile = styled(Link)<{ $desktopHidden: boolean }>`
+  display: ${(props) => (props.$desktopHidden ? "none" : "grid")};
+  place-items: center;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 1.2rem;
+  border: 1px dashed rgba(255, 255, 255, 0.24);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: border-color 160ms ease-out, color 160ms ease-out;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+    color: var(--main);
+  }
+
+  @media (max-width: 900px) {
+    display: grid;
+    height: auto;
+    width: 100%;
   }
 `;
 
@@ -166,21 +200,24 @@ const SkeletonTile = styled.span`
   @media (max-width: 900px) {
     height: auto;
     width: 100%;
+
+    &:nth-child(n + ${PREVIEW_DECKS_MOBILE + 1}) {
+      display: none;
+    }
   }
 `;
 
 const SKELETON_TIERS = [
   { label: "S", color: "var(--s)" },
   { label: "A", color: "var(--a)" },
-  { label: "B", color: "var(--b)" },
+  { label: "F", color: "var(--f)" },
 ];
 
 const Hero = () => {
   const { t } = useTranslation();
   const { decks, metaShareBySlug } = useDecks();
-  const tiers = useDeckTiers(decks)
-    .filter((tier) => tier.decks.length > 0)
-    .slice(0, PREVIEW_TIERS);
+  const tiers = useDeckTiers(decks).filter((tier) => PREVIEW_TIERS.includes(tier.label));
+  const hasDecks = tiers.some((tier) => tier.decks.length > 0);
 
   return (
     <StyledHero>
@@ -197,22 +234,37 @@ const Hero = () => {
           </Actions>
         </TextSection>
         <Preview aria-label={t("header.tierList")}>
-          {tiers.length > 0
-            ? tiers.map((tier) => (
-                <PreviewRow key={tier.label}>
-                  <RowHeader $color={tier.color}>{tier.label}</RowHeader>
-                  <RowDecks>
-                    {tier.decks.slice(0, PREVIEW_DECKS).map((deck) => (
-                      <DeckCard
-                        key={deck.id}
-                        deck={deck}
-                        metaShare={metaShareBySlug?.[deck.id] ?? null}
-                        metaShareLabel={t("tierList.metaShare")}
-                      />
-                    ))}
-                  </RowDecks>
-                </PreviewRow>
-              ))
+          {hasDecks
+            ? tiers.map((tier) => {
+                const strongest = [...tier.decks]
+                  .sort((a, b) => (b.powerScore ?? -1) - (a.powerScore ?? -1))
+                  .slice(0, PREVIEW_DECKS);
+                return (
+                  <PreviewRow key={tier.label}>
+                    <RowHeader $color={tier.color}>{tier.label}</RowHeader>
+                    <RowDecks>
+                      {strongest.map((deck, index) => (
+                        <Slot key={deck.id} $mobileHidden={index >= PREVIEW_DECKS_MOBILE}>
+                          <DeckCard
+                            deck={deck}
+                            metaShare={metaShareBySlug?.[deck.id] ?? null}
+                            metaShareLabel={t("tierList.metaShare")}
+                          />
+                        </Slot>
+                      ))}
+                      {tier.decks.length > PREVIEW_DECKS_MOBILE && (
+                        <MoreTile
+                          to="/tier-list"
+                          aria-label={t("hero.button")}
+                          $desktopHidden={tier.decks.length <= PREVIEW_DECKS}
+                        >
+                          (...)
+                        </MoreTile>
+                      )}
+                    </RowDecks>
+                  </PreviewRow>
+                );
+              })
             : SKELETON_TIERS.map((tier) => (
                 <PreviewRow key={tier.label} aria-hidden="true">
                   <RowHeader $color={tier.color}>{tier.label}</RowHeader>

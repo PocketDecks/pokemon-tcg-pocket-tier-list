@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import Hero from "./Hero";
 import Features from "./Features";
+import StatsPreview from "./StatsPreview";
 import BestDeckFinder from "./BestDeckFinder";
 import AdInContent from "../../ads/AdInContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
@@ -21,6 +22,7 @@ const LandingPage = () => {
   return (
     <StyledLandingPage>
       <Hero />
+      <StatsPreview />
       <Features />
       <AdInContent placement="landing" />
       <BestDeckFinder />

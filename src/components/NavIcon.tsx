@@ -16,7 +16,12 @@ export type NavIconName =
   | "sliders"
   | "cardMinus"
   | "versus"
-  | "code";
+  | "code"
+  | "qr"
+  | "check"
+  | "bulb"
+  | "bug"
+  | "chat";
 
 const paths: Record<NavIconName, ReactNode> = {
   tierList: <path d="M4 6h16M4 12h11M4 18h6" />,
@@ -81,6 +86,23 @@ const paths: Record<NavIconName, ReactNode> = {
   ),
   versus: <path d="M4 8h13M14 4.5L17.5 8 14 11.5M20 16H7M10 12.5L6.5 16l3.5 3.5" />,
   code: <path d="M9 7l-5 5 5 5M15 7l5 5-5 5M13.5 4.5l-3 15" />,
+  check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
+  bulb: <path d="M9.5 18h5M10.5 21h3M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8v.3h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z" />,
+  bug: (
+    <>
+      <rect x="7.5" y="8" width="9" height="12" rx="4.5" />
+      <path d="M12 11v9M9.5 5.5L11 8M14.5 5.5L13 8M4 13h3.5M16.5 13H20M5 18.5l2.8-1.5M19 18.5l-2.8-1.5M5 8l2.8 1.5M19 8l-2.8 1.5" />
+    </>
+  ),
+  chat: <path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 17h-8l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 5 5z" />,
+  qr: (
+    <>
+      <rect x="4" y="4" width="6" height="6" rx="1" />
+      <rect x="14" y="4" width="6" height="6" rx="1" />
+      <rect x="4" y="14" width="6" height="6" rx="1" />
+      <path d="M14 14h2.5v2.5M20 14v6h-3M14 18.5V20" />
+    </>
+  ),
 };
 
 const NavIcon = ({ name, size = 22 }: { name: NavIconName; size?: number }) => (

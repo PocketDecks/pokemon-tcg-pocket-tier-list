@@ -110,22 +110,34 @@ const Features = () => {
       tier: "var(--a)",
     },
     {
-      title: t("features.filters.title"),
-      description: t("features.filters.description"),
-      icon: "sliders",
+      title: t("features.statistics.title"),
+      description: t("features.statistics.description"),
+      icon: "statistics",
       tier: "var(--b)",
-    },
-    {
-      title: t("features.missingCards.title"),
-      description: t("features.missingCards.description"),
-      icon: "cardMinus",
-      tier: "var(--c)",
     },
     {
       title: t("features.matchups.title"),
       description: t("features.matchups.description"),
       icon: "versus",
+      tier: "var(--c)",
+    },
+    {
+      title: t("features.missingCards.title"),
+      description: t("features.missingCards.description"),
+      icon: "cardMinus",
       tier: "var(--d)",
+    },
+    {
+      title: t("features.filters.title"),
+      description: t("features.filters.description"),
+      icon: "sliders",
+      tier: "var(--f)",
+    },
+    {
+      title: t("features.qrImport.title"),
+      description: t("features.qrImport.description"),
+      icon: "qr",
+      tier: "var(--s)",
     },
     {
       title: t("features.openSource.title"),
@@ -143,7 +155,7 @@ const Features = () => {
         />
       ),
       icon: "code",
-      tier: "var(--f)",
+      tier: "var(--a)",
     },
   ];
 

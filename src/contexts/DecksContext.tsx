@@ -10,7 +10,7 @@ import {
   fetchCards,
 } from "../app/cards-api";
 import useExpansions from "../app/use-expansions";
-import { MetaShareEntry, PipelineMatchupEntry, PipelineMetaShare, PipelinePartialDeck, PipelineDeckList } from "../types/pipeline-data";
+import { MetaShareEntry, PipelineMatchupData, PipelineMatchupEntry, PipelineMetaShare, PipelinePartialDeck, PipelineDeckList } from "../types/pipeline-data";
 import { FullDeckType, MatchupType } from "../app/deck-types";
 import { SortBy } from "../app/sort-by";
 import {
@@ -81,6 +81,16 @@ const loadMetaShare = async (): Promise<PipelineMetaShare | null> => {
   } catch {
     return null;
   }
+};
+
+const fetchMatchupData = async (): Promise<PipelineMatchupData> => {
+  const response = await fetch("/data/matchup-data.json");
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch matchup-data.json: ${response.status} ${response.statusText}`
+    );
+  }
+  return (await response.json()) as PipelineMatchupData;
 };
 
 interface BuildOptions {
@@ -322,6 +332,14 @@ export const useDecks = () => {
     throw new Error("useDecks must be used within a DecksProvider");
   }
   return context;
+};
+
+export const useMatchups = () => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["matchups"],
+    queryFn: fetchMatchupData,
+  });
+  return { matchupsByName: data ?? null, loading: isLoading, error: error ?? null };
 };
 
 /// Shared between DecksProvider and useDeckDetail: one React Query cache

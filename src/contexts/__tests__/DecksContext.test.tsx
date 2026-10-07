@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DecksProvider, useDecks } from "../DecksContext";
+import { DecksProvider, useDecks, useMatchups } from "../DecksContext";
 import rawCards from "../../app/__fixtures__/cards.json";
 
 // The only dependency that reaches for Firebase.
@@ -57,6 +57,13 @@ const ErrorProbe = () => {
   if (loading) return <p>loading</p>;
   if (error) return <p>{error.message}</p>;
   return <p>loaded</p>;
+};
+
+const MatchupsProbe = () => {
+  const { matchupsByName, loading, error } = useMatchups();
+  if (loading) return <p>matchups-loading</p>;
+  if (error) return <p>{error.message}</p>;
+  return <p>{matchupsByName ? Object.keys(matchupsByName).join(",") : "no-matchups"}</p>;
 };
 
 const DeckNames = () => {
@@ -268,5 +275,77 @@ describe("DecksProvider with every deck at zero popularity", () => {
 
     const item = await screen.findByText("0");
     expect(item.textContent).not.toBe("NaN");
+  });
+});
+
+describe("useMatchups", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("returns the matchup map from its query", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(() =>
+      jsonResponse({ "test-deck": [{ name: "Total", winRate: 0.5, totalGames: 10 }] })
+    );
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <MatchupsProbe />
+      </QueryClientProvider>
+    );
+    expect(await screen.findByText("test-deck")).toBeInTheDocument();
+  });
+
+  it("exposes a fetch error without throwing past the hook", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(() =>
+      errorResponse(500, "Internal Server Error")
+    );
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <MatchupsProbe />
+      </QueryClientProvider>
+    );
+    expect(
+      await screen.findByText("Failed to fetch matchup-data.json: 500 Internal Server Error")
+    ).toBeInTheDocument();
+  });
+});
+
+describe("useMatchups", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("returns the matchup map from its query", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(() =>
+      jsonResponse({ "test-deck": [{ name: "Total", winRate: 0.5, totalGames: 10 }] })
+    );
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <MatchupsProbe />
+      </QueryClientProvider>
+    );
+    expect(await screen.findByText("test-deck")).toBeInTheDocument();
+  });
+
+  it("exposes a fetch error without throwing past the hook", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(() =>
+      errorResponse(500, "Internal Server Error")
+    );
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <MatchupsProbe />
+      </QueryClientProvider>
+    );
+    expect(
+      await screen.findByText("Failed to fetch matchup-data.json: 500 Internal Server Error")
+    ).toBeInTheDocument();
   });
 });

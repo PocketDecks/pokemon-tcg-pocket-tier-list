@@ -1,11 +1,4 @@
-import {
-  cardIdFromImage as readCardId,
-  deckThumbUrl as thumbUrl,
-} from "../../scripts/deck-thumbs.mjs";
-
-export const deckThumbUrl = (cardId: string): string => thumbUrl(cardId);
-
-export const cardIdFromImage = (image: string): string | null => readCardId(image);
+export { cardIdFromImage, deckThumbUrl } from "../../scripts/deck-thumbs.mjs";
 
 export const onDeckThumbError =
   (remote: string) =>

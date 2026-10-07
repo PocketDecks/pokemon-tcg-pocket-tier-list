@@ -8,6 +8,7 @@ describe("prepareAppMount", () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     vi.useRealTimers();
   });
 
@@ -33,6 +34,34 @@ describe("prepareAppMount", () => {
     expect(mount.mount.textContent).toBe("Client page");
     expect(mount.mount.style.visibility).toBe("");
     expect(document.documentElement.dataset.appVisible).toBe("true");
+  });
+
+  it("swaps the app once when swap is called repeatedly", () => {
+    vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+    document.body.innerHTML = '<div id="root"><main>Static page</main></div>';
+    const root = document.getElementById("root")!;
+    const mount = prepareAppMount(root);
+    mount.mount.innerHTML = "<main>Client page</main>";
+
+    mount.swap();
+    mount.swap();
+
+    expect(root.textContent).toBe("");
+    expect(mount.mount.textContent).toBe("Client page");
+    expect(window.scrollTo).toHaveBeenCalledTimes(0);
+  });
+
+  it("keeps prerendered content when the cap is cancelled", () => {
+    vi.useFakeTimers();
+    document.body.innerHTML = '<div id="root"><main>Static page</main></div>';
+    const root = document.getElementById("root")!;
+    const mount = prepareAppMount(root);
+
+    const cancel = mount.startCap(4000);
+    cancel();
+    vi.advanceTimersByTime(4000);
+
+    expect(root.textContent).toBe("Static page");
   });
 
   it("swaps at the cap", () => {

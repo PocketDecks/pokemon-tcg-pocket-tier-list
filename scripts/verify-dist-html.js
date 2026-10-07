@@ -5,6 +5,9 @@ const { deckNameToIconIds } = require("./deck-name.mjs");
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
   : path.join(__dirname, "..", "dist");
+const DATA_DIR = process.env.BUILD_DIR
+  ? path.join(DIST_DIR, "data")
+  : path.join(__dirname, "..", "public", "data");
 const SITE_HOST = "pocketdecks.top";
 const LOOPBACK = /(https?:)?\/\/(127\.0\.0\.1|localhost)(:\d+)?/g;
 
@@ -96,12 +99,16 @@ const findModulepreloadDrift = (
   });
 };
 
-const findMissingDeckThumbs = (
-  dir = DIST_DIR,
-  decks = JSON.parse(
-    fs.readFileSync(path.join(__dirname, "..", "public", "data", "best-decks.json"), "utf8")
-  )
-) => {
+const loadDecks = (dataDir = DATA_DIR) => {
+  const decksPath = path.join(dataDir, "best-decks.json");
+  try {
+    return JSON.parse(fs.readFileSync(decksPath, "utf8"));
+  } catch (error) {
+    throw new Error(`Unable to load deck data from ${decksPath}: ${error.message}`);
+  }
+};
+
+const findMissingDeckThumbs = (dir = DIST_DIR, decks = loadDecks()) => {
   const thumbDir = path.join(dir, "thumbs");
   const ids = new Set();
   for (const deck of decks) {
@@ -162,11 +169,16 @@ const main = () => {
     );
     process.exit(1);
   }
-  const missingThumbs = findMissingDeckThumbs();
-  if (missingThumbs.length > 0) {
-    console.error(
-      `Deck icon ids without a built thumbnail:\n${missingThumbs.join("\n")}`
-    );
+  try {
+    const missingThumbs = findMissingDeckThumbs();
+    if (missingThumbs.length > 0) {
+      console.error(
+        `Deck icon ids without a built thumbnail:\n${missingThumbs.join("\n")}`
+      );
+      process.exit(1);
+    }
+  } catch (error) {
+    console.error(`Deck thumbnail check failed: ${error.message}`);
     process.exit(1);
   }
   console.log(`No loopback origins in ${DIST_DIR}`);
@@ -180,6 +192,7 @@ module.exports = {
   findLoopbackRefs,
   findMissingDeckThumbs,
   findModulepreloadDrift,
+  loadDecks,
   findNonEmptyDeckRoots,
   findTemplateModulepreloads,
 };

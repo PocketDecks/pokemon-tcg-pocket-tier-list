@@ -80,6 +80,8 @@ const ROUTE_META = {
   },
 };
 
+const ROUTE_READY_ROUTES = new Set(["/cards-list", "/statistics", "/deck"]);
+
 const MIME = {
   ".html": "text/html",
   ".js": "text/javascript",
@@ -168,6 +170,12 @@ const main = async () => {
   for (const route of ROUTES) {
     await page.goto(`${ORIGIN}${route}`, { waitUntil: "networkidle0" });
     await page.waitForSelector("#app-root > *, #root > *");
+    if (ROUTE_READY_ROUTES.has(route)) {
+      await page.waitForFunction(
+        () => document.documentElement.dataset.routeReady === window.location.pathname,
+        { timeout: 20000 }
+      );
+    }
     if (DECK_ANCHOR_ROUTES.has(route)) {
       await page.waitForFunction(
         () => document.querySelectorAll('a[href^="/deck/"]').length > 10,
@@ -225,4 +233,4 @@ const main = async () => {
 
 if (require.main === module) main();
 
-module.exports = { ROUTE_META, ROUTES };
+module.exports = { ROUTE_READY_ROUTES, ROUTE_META, ROUTES };

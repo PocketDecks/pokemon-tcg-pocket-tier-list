@@ -138,7 +138,7 @@ const NameTip = ({ anchor, text }: { anchor: DOMRect; text: string }) => {
     const width = rect?.width ?? 0;
     const centred = anchor.left + anchor.width / 2 - width / 2;
     setLeft(Math.max(BUBBLE_MARGIN, Math.min(centred, window.innerWidth - width - BUBBLE_MARGIN)));
-    setTop(anchor.bottom + BUBBLE_GAP);
+    setTop(Math.max(BUBBLE_MARGIN, anchor.top - (rect?.height ?? 0) - BUBBLE_GAP));
   }, [anchor]);
 
   return (

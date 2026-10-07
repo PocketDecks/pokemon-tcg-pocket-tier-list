@@ -8,6 +8,7 @@ const {
   findExternalScripts,
   findLoopbackRefs,
   findMissingDeckThumbs,
+  loadDecks,
   findModulepreloadDrift,
   findNonEmptyDeckRoots,
 } = require("../verify-dist-html");
@@ -152,4 +153,16 @@ test("flags a deck icon id with no thumbnail", () => {
     "thumbs/b1-102.webp": "x",
   });
   assert.deepStrictEqual(findMissingDeckThumbs(dir, THUMB_DECKS), ["b3a-020"]);
+});
+
+test("flags a deck name without a card id without inventing a missing thumbnail", () => {
+  const dir = makeDist({ "thumbs/b3-081.webp": "x" });
+  assert.deepStrictEqual(findMissingDeckThumbs(dir, [{ name: "Malformed" }]), []);
+});
+
+test("reports missing deck data clearly", () => {
+  assert.throws(
+    () => loadDecks(path.join(os.tmpdir(), "missing-deck-data")),
+    /Unable to load deck data from .*best-decks\.json/
+  );
 });

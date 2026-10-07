@@ -17,7 +17,7 @@ describe("DeckArt", () => {
     render(<DeckArt size={2.8} src={REMOTE} />);
     expect(screen.getByRole("presentation")).toHaveAttribute(
       "src",
-      "/thumbs/b3-081.webp"
+      "/thumbs/b3-081.webp?v=2"
     );
   });
 

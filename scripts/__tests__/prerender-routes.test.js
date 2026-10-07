@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert");
-const { ROUTES, ROUTE_META } = require("../prerender-routes");
+const { ROUTES, ROUTE_META, ROUTE_READY_ROUTES } = require("../prerender-routes");
 
 test("every route has unique title and description, plus self canonical", () => {
   const titles = new Set();
@@ -16,4 +16,8 @@ test("every route has unique title and description, plus self canonical", () => 
   }
   assert.strictEqual(titles.size, ROUTES.length, "duplicate titles across routes");
   assert.strictEqual(descriptions.size, ROUTES.length, "duplicate descriptions across routes");
+});
+
+test("waits for route content on data-backed pages", () => {
+  assert.deepStrictEqual([...ROUTE_READY_ROUTES], ["/cards-list", "/statistics", "/deck"]);
 });

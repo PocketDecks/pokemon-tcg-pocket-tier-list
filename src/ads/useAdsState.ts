@@ -1,7 +1,7 @@
 import { useConsentManager } from "@c15t/react";
 import useIsPremium from "../app/use-is-premium";
 import { ADS_ENABLED, IS_DEV } from "./adsConfig";
-import { useAppVisible } from "../app/app-bootstrap";
+import { useAppVisible } from "../app/use-app-visible";
 import { useContentReady } from "./ContentReadyContext";
 
 export interface AdsState {

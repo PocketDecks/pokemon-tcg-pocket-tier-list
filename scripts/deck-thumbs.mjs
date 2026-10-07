@@ -18,7 +18,9 @@ export const DECK_THUMB_CROP = deriveCropRect();
 
 export const DECK_THUMB_QUALITY = 80;
 
-export const deckThumbUrl = (cardId) => `/thumbs/${cardId}.webp`;
+export const DECK_THUMB_VERSION = "2";
+
+export const deckThumbUrl = (cardId) => `/thumbs/${cardId}.webp?v=${DECK_THUMB_VERSION}`;
 
 const CARD_IMAGE = /([a-z0-9]+)\/(\d+)\.webp$/;
 

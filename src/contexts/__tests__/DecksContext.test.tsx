@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DecksProvider, useDecks, useMatchups } from "../DecksContext";
+import { DecksProvider, sanitiseMatchupData, useDecks, useMatchups } from "../DecksContext";
 import rawCards from "../../app/__fixtures__/cards.json";
 
 // The only dependency that reaches for Firebase.
@@ -100,6 +100,25 @@ const renderProvider = () =>
       </DecksProvider>
     </QueryClientProvider>
   );
+
+describe("sanitiseMatchupData", () => {
+  it("keeps valid rows and counts malformed entries", () => {
+    expect(
+      sanitiseMatchupData({
+        "Deck A": {},
+        "Deck B": [
+          { name: "Total", winRate: 0.5, totalGames: 10 },
+          { name: "Bad rate", winRate: "0.5", totalGames: 10 },
+        ],
+      })
+    ).toEqual({
+      matchups: {
+        "Deck B": [{ name: "Total", winRate: 0.5, totalGames: 10 }],
+      },
+      dropped: 2,
+    });
+  });
+});
 
 describe("DecksProvider with a drifted card id", () => {
   let consoleWarn: MockInstance;
@@ -394,6 +413,7 @@ describe("useMatchups", () => {
     );
     renderMatchups();
     expect(await screen.findByText("Deck B")).toBeInTheDocument();
+    expect(screen.queryByText("Bad rate")).not.toBeInTheDocument();
     expect(consoleWarn).toHaveBeenCalledTimes(1);
     expect(consoleWarn).toHaveBeenCalledWith(
       "Dropped 2 invalid matchup entries from matchup-data.json"

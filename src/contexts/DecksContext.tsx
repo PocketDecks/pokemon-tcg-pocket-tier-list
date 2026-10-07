@@ -83,6 +83,47 @@ const loadMetaShare = async (): Promise<PipelineMetaShare | null> => {
   }
 };
 
+export interface SanitisedMatchupData {
+  matchups: PipelineMatchupData;
+  dropped: number;
+}
+
+export const sanitiseMatchupData = (
+  data: Record<string, unknown>
+): SanitisedMatchupData => {
+  let dropped = 0;
+  const matchups: PipelineMatchupData = {};
+  for (const [deckName, rows] of Object.entries(data)) {
+    if (!Array.isArray(rows)) {
+      dropped += 1;
+      continue;
+    }
+    const validRows: MatchupType[] = [];
+    for (const row of rows) {
+      const valid =
+        row !== null &&
+        typeof row === "object" &&
+        !Array.isArray(row) &&
+        typeof row.name === "string" &&
+        typeof row.winRate === "number" &&
+        Number.isFinite(row.winRate) &&
+        row.winRate >= 0 &&
+        row.winRate <= 1 &&
+        typeof row.totalGames === "number" &&
+        Number.isFinite(row.totalGames) &&
+        row.totalGames >= 0;
+      if (valid) validRows.push(row as MatchupType);
+      else dropped += 1;
+    }
+    if (validRows.length === 0) {
+      dropped += 1;
+      continue;
+    }
+    matchups[deckName] = validRows;
+  }
+  return { matchups, dropped };
+};
+
 const fetchMatchupData = async (): Promise<PipelineMatchupData> => {
   const response = await fetch("/data/matchup-data.json");
   if (!response.ok) {
@@ -95,36 +136,7 @@ const fetchMatchupData = async (): Promise<PipelineMatchupData> => {
     throw new Error("matchup-data.json has an unexpected shape");
   }
 
-  let dropped = 0;
-  const matchups = Object.fromEntries(
-    Object.entries(data).flatMap(([deckName, rows]) => {
-      if (!Array.isArray(rows)) {
-        dropped += 1;
-        return [];
-      }
-      const validRows = rows.filter((row): row is MatchupType => {
-        const valid =
-          row !== null &&
-          typeof row === "object" &&
-          !Array.isArray(row) &&
-          typeof row.name === "string" &&
-          typeof row.winRate === "number" &&
-          Number.isFinite(row.winRate) &&
-          row.winRate >= 0 &&
-          row.winRate <= 1 &&
-          typeof row.totalGames === "number" &&
-          Number.isFinite(row.totalGames) &&
-          row.totalGames >= 0;
-        if (!valid) dropped += 1;
-        return valid;
-      });
-      if (validRows.length === 0) {
-        dropped += 1;
-        return [];
-      }
-      return [[deckName, validRows]];
-    })
-  ) as PipelineMatchupData;
+  const { matchups, dropped } = sanitiseMatchupData(data);
 
   if (dropped > 0) {
     console.warn(`Dropped ${dropped} invalid matchup entries from matchup-data.json`);

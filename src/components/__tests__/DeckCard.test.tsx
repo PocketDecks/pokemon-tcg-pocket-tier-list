@@ -137,26 +137,26 @@ describe("DeckCard name label geometry", () => {
     return link;
   };
 
-  it("keeps the label below the tile for a tile near the top and one far down", () => {
+  it("places the label above the tile and clamps it near the viewport top", () => {
     stubRects(15, 40);
     const link = hover();
 
     const nearTop = screen.getByText("Card One");
-    expect(nearTop).toHaveStyle({ top: "223px" });
+    expect(nearTop).toHaveStyle({ top: "12px" });
 
     fireEvent.mouseLeave(link);
     stubRects(500, 40);
     fireEvent.mouseEnter(link);
 
     const farDown = screen.getByText("Card One");
-    expect(farDown).toHaveStyle({ top: "708px" });
+    expect(farDown).toHaveStyle({ top: "452px" });
   });
 
-  it("keeps the label below the tile regardless of label height", () => {
+  it("keeps the label above the tile regardless of label height", () => {
     stubRects(15, 60);
     hover();
 
-    expect(screen.getByText("Card One")).toHaveStyle({ top: "223px" });
+    expect(screen.getByText("Card One")).toHaveStyle({ top: "12px" });
   });
 
   it("hides the label when the page scrolls", () => {

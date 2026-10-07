@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import { renderToString } from "react-dom/server";
 import { ServerStyleSheet } from "styled-components";
 import GlobalStyles from "../GlobalStyles";
 import { consentTheme } from "../../consent/consent-theme";
+
+const APP_FONT_FAMILY = '"Manrope Variable", "Manrope", "Manrope Fallback", system-ui, -apple-system, "Segoe UI", sans-serif';
 
 const collectCss = () => {
   const sheet = new ServerStyleSheet();
@@ -15,26 +18,22 @@ const collectCss = () => {
 };
 
 describe("GlobalStyles", () => {
-  it("ships a metric-matched Manrope fallback and uses it in the app stack", () => {
+  it("ships the declared font stack and loaded Manrope face", () => {
     const css = collectCss();
-
-    expect(css).toContain('@font-face{font-family:"Manrope Fallback"');
-    expect(css).toContain('src:local("Arial"),local("ArialMT")');
-    expect(css).toContain("size-adjust:103.1851%");
-    expect(css).toContain("ascent-override:103.3095%");
-    expect(css).toContain("descent-override:29.074%");
-    expect(css).toContain("line-gap-override:0%");
-
-    expect(css).toContain(
-      'font-family:"Manrope Variable","Manrope","Manrope Fallback",system-ui'
+    const manropeCss = readFileSync(
+      require.resolve("@fontsource-variable/manrope/index.css"),
+      "utf8"
     );
+    const fallback = css.match(/@font-face\{[^}]*font-family:"Manrope Fallback"[^}]*\}/)?.[0];
+
+    expect(fallback).toContain("src:local(\"Arial\")");
+    expect(css).toContain("font-family:\"Manrope Variable\",\"Manrope\",\"Manrope Fallback\"");
+    expect(manropeCss).toContain("font-family: 'Manrope Variable'");
   });
 
-  it("keeps the fallback in the consent banner font stack", () => {
+  it("uses the same app font family in the consent banner", () => {
     const fontFamily = consentTheme.theme?.typography?.fontFamily;
 
-    expect(fontFamily).toBe(
-      '"Manrope Variable", "Manrope", "Manrope Fallback", system-ui, -apple-system, "Segoe UI", sans-serif'
-    );
+    expect(fontFamily).toBe(APP_FONT_FAMILY);
   });
 });

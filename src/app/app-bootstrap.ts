@@ -1,26 +1,21 @@
-import { useSyncExternalStore } from "react";
-
 let contentReadyHandler: (() => void) | null = null;
 const visibilityListeners = new Set<() => void>();
 
-const isAppVisible = (): boolean =>
+export const isAppVisible = (): boolean =>
   document.documentElement.dataset.appVisible === "true";
+
+export const subscribeAppVisible = (listener: () => void): (() => void) => {
+  visibilityListeners.add(listener);
+  return (): void => {
+    visibilityListeners.delete(listener);
+  };
+};
 
 export const setAppVisible = (): void => {
   if (isAppVisible()) return;
   document.documentElement.dataset.appVisible = "true";
   visibilityListeners.forEach((listener) => listener());
 };
-
-export const useAppVisible = (): boolean =>
-  useSyncExternalStore(
-    (listener) => {
-      visibilityListeners.add(listener);
-      return () => visibilityListeners.delete(listener);
-    },
-    isAppVisible,
-    () => false
-  );
 
 export const setContentReadyHandler = (handler: (() => void) | null): void => {
   contentReadyHandler = handler;

@@ -37,6 +37,19 @@ export const cropArt = (buffer) =>
     .webp({ quality: DECK_THUMB_QUALITY })
     .toBuffer();
 
+const runWithConcurrency = async (items, worker, concurrency) => {
+  const results = [];
+  let nextIndex = 0;
+  const run = async () => {
+    while (nextIndex < items.length) {
+      const index = nextIndex++;
+      results[index] = await worker(items[index]);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, run));
+  return results;
+};
+
 const main = async () => {
   const cwd = process.cwd();
   const decksPath = path.join(cwd, "public", "data", "best-decks.json");
@@ -59,19 +72,24 @@ const main = async () => {
   const outDir = path.join(cwd, "public", "thumbs");
   fs.mkdirSync(outDir, { recursive: true });
 
-  const ids = thumbCardIds(decks);
-  let written = 0;
-  for (const id of ids) {
-    const image = imageById.get(id);
-    if (!image) {
-      throw new Error(`generate-deck-thumbs: no card record for ${id}`);
-    }
-    const source = await fetchBuffer(image);
-    const thumb = await cropArt(source);
-    fs.writeFileSync(path.join(outDir, `${id}.webp`), thumb);
-    written++;
-  }
-  console.log(`generate-deck-thumbs: wrote ${written} thumbnails to ${outDir}`);
+  const ids = thumbCardIds(decks).filter(
+    (id) => !fs.existsSync(path.join(outDir, `${id}.webp`))
+  );
+  const generated = await runWithConcurrency(
+    ids,
+    async (id) => {
+      const image = imageById.get(id);
+      if (!image) {
+        throw new Error(`generate-deck-thumbs: no card record for ${id}`);
+      }
+      const source = await fetchBuffer(image);
+      const thumb = await cropArt(source);
+      fs.writeFileSync(path.join(outDir, `${id}.webp`), thumb);
+      return id;
+    },
+    8
+  );
+  console.log(`generate-deck-thumbs: wrote ${generated.length} thumbnails to ${outDir}`);
 };
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

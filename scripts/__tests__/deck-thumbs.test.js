@@ -45,10 +45,11 @@ test("maps a deck name to its icon ids, primary first", () => {
     "b1-102",
     "b3a-020",
   ]);
+  assert.deepStrictEqual(deckNameToIconIds("Malformed"), []);
 });
 
 test("serves thumbnails from the first-party path", () => {
-  assert.strictEqual(deckThumbUrl("b3-081"), "/thumbs/b3-081.webp");
+    assert.strictEqual(deckThumbUrl("b3-081"), "/thumbs/b3-081.webp?v=2");
 });
 
 test("reads the card id back out of the upstream image url", () => {

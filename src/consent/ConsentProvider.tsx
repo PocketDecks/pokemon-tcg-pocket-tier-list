@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { ConsentBanner, ConsentDialog, ConsentManagerProvider } from "@c15t/react";
 import { gtag } from "@c15t/scripts/google-tag";
-import { useAppVisible } from "../app/app-bootstrap";
+import { useAppVisible } from "../app/use-app-visible";
 // Import the real component stylesheet directly. The @c15t/react/styles.css
 // entrypoint only re-@imports this via a bare specifier, which CRA's css-loader
 // does not resolve, so the prebuilt styles never load through it.

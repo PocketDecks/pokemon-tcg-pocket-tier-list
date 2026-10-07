@@ -24,6 +24,16 @@ const Anchor = styled.div`
   border-top: ${ANCHOR_BORDER}px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
 
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 1rem;
+    background: var(--bg);
+  }
+
   @media (min-width: 901px) {
     display: grid;
     grid-template-columns: minmax(12rem, 1fr) minmax(0, 72.8rem) minmax(12rem, 1fr);

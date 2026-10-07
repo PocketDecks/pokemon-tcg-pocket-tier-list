@@ -120,10 +120,20 @@ const startServer = () =>
   });
 
 const main = async () => {
-  if (!fs.existsSync(path.join(DIST_DIR, "index.html"))) {
+  const indexPath = path.join(DIST_DIR, "index.html");
+  if (!fs.existsSync(indexPath)) {
     console.error(`No index.html in ${DIST_DIR}; run \`yarn build\` first.`);
     process.exit(1);
   }
+  const templateHtml = fs.readFileSync(indexPath, "utf8");
+  const templatePreloads = [...templateHtml.matchAll(/<link\b[^>]*>/gi)]
+    .map((match) => match[0])
+    .filter((tag) => /rel=["']modulepreload["']/i.test(tag))
+    .map((tag) => (tag.match(/href=["']([^"']*)["']/i) || [])[1])
+    .filter((href) => href !== undefined);
+  const templateScripts = [
+    ...templateHtml.matchAll(/<script\b[^>]*\bsrc=["']([^"']*)["'][^>]*>/gi),
+  ].map((match) => match[1]);
   const server = await startServer();
   const browser = await puppeteer.launch({
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
@@ -168,6 +178,20 @@ const main = async () => {
         el.textContent = Array.from(el.sheet.cssRules, (rule) => rule.cssText).join("\n");
       });
     });
+    await page.evaluate(
+      (preloads, scripts) => {
+        const allowedPreloads = new Set(preloads);
+        const allowedScripts = new Set(scripts);
+        document.querySelectorAll('link[rel="modulepreload"]').forEach((el) => {
+          if (!allowedPreloads.has(el.getAttribute("href"))) el.remove();
+        });
+        document.querySelectorAll("script[src]").forEach((el) => {
+          if (!allowedScripts.has(el.getAttribute("src"))) el.remove();
+        });
+      },
+      templatePreloads,
+      templateScripts
+    );
     // Vite stamps lazy-chunk hrefs with the preview origin while the page
     // boots; captured markup must stay root-relative.
     let html = (

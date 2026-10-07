@@ -5,7 +5,9 @@ const os = require("node:os");
 const path = require("node:path");
 const {
   findEmptyStyledTags,
+  findExternalScripts,
   findLoopbackRefs,
+  findModulepreloadDrift,
   findNonEmptyDeckRoots,
 } = require("../verify-dist-html");
 
@@ -17,6 +19,8 @@ const makeDist = (files) => {
   }
   return dir;
 };
+
+const PRELOAD = '<link rel="modulepreload" href="/assets/entry.js" />';
 
 test("flags every loopback spelling in nested pages", () => {
   const dir = makeDist({
@@ -71,4 +75,58 @@ test("flags empty styled-components CSS in nested pages", () => {
   assert.strictEqual(offenders.length, 2);
   assert.ok(offenders.includes("index.html"));
   assert.ok(offenders.includes(`deck${path.sep}x${path.sep}index.html`));
+});
+
+test("passes routes whose modulepreload set matches the template", () => {
+  const dir = makeDist({
+    "index.html": `<head>${PRELOAD}</head>`,
+    "deck/x/index.html": `<head>${PRELOAD}</head>`,
+    "tier-list/index.html": `<head>${PRELOAD}</head>`,
+  });
+  assert.deepStrictEqual(findModulepreloadDrift(dir), []);
+});
+
+test("flags a route carrying a modulepreload the template never shipped", () => {
+  const dir = makeDist({
+    "index.html": `<head>${PRELOAD}</head>`,
+    "deck/x/index.html": `<head>${PRELOAD}</head>`,
+    "tier-list/index.html":
+      `<head>${PRELOAD}<link rel="modulepreload" href="/assets/lazy.js" /></head>`,
+  });
+  assert.deepStrictEqual(findModulepreloadDrift(dir), [
+    path.join("tier-list", "index.html") + ": /assets/entry.js, /assets/lazy.js",
+  ]);
+});
+
+test("flags a route missing a template modulepreload", () => {
+  const dir = makeDist({
+    "deck/x/index.html": `<head>${PRELOAD}</head>`,
+    "about/index.html": "<head></head>",
+  });
+  assert.deepStrictEqual(findModulepreloadDrift(dir), [
+    path.join("about", "index.html") + ": ",
+  ]);
+});
+
+test("passes relative and site-host scripts", () => {
+  const dir = makeDist({
+    "index.html":
+      '<script type="module" src="/assets/app.js"></script>' +
+      '<script src="https://pocketdecks.top/analytics.js"></script>',
+  });
+  assert.deepStrictEqual(findExternalScripts(dir), []);
+});
+
+test("flags a script pointing at another host", () => {
+  const dir = makeDist({
+    "index.html":
+      '<script src="https://cdn.example.com/a.js"></script>' +
+      '<script src="//tracker.example.net/b.js"></script>' +
+      '<script type="module" src="/assets/app.js"></script>',
+    "deck/x/index.html": '<script src="https://pocketdecks.top/ok.js"></script>',
+  });
+  assert.deepStrictEqual(findExternalScripts(dir), [
+    "index.html: https://cdn.example.com/a.js",
+    "index.html: //tracker.example.net/b.js",
+  ]);
 });

@@ -4,7 +4,11 @@ const path = require("path");
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
   : path.join(__dirname, "..", "dist");
+const SITE_HOST = "pocketdecks.top";
 const LOOPBACK = /(https?:)?\/\/(127\.0\.0\.1|localhost)(:\d+)?/g;
+
+const listHtmlFiles = (dir = DIST_DIR) =>
+  fs.readdirSync(dir, { recursive: true }).filter((entry) => entry.endsWith(".html"));
 
 const findLoopbackRefs = (dir = DIST_DIR) =>
   fs
@@ -45,6 +49,68 @@ const findNonEmptyDeckRoots = (dir = DIST_DIR) => {
     .filter(Boolean);
 };
 
+const collectModulepreloads = (html) =>
+  [...html.matchAll(/<link\b[^>]*>/gi)]
+    .map((match) => match[0])
+    .filter((tag) => /rel=["']modulepreload["']/i.test(tag))
+    .map((tag) => (tag.match(/href=["']([^"']*)["']/i) || [])[1])
+    .filter((href) => href !== undefined);
+
+// Deck detail pages are stamped from the built template without a JS render, so
+// they carry the template's preload set verbatim. Fall back to the home page.
+const findTemplateModulepreloads = (dir = DIST_DIR) => {
+  const deckDir = path.join(dir, "deck");
+  if (fs.existsSync(deckDir)) {
+    const detail = fs
+      .readdirSync(deckDir, { recursive: true, withFileTypes: true })
+      .filter((entry) => entry.isFile() && entry.name === "index.html")
+      .map((entry) => path.join(entry.parentPath, entry.name))
+      .filter((file) => path.relative(deckDir, file).split(path.sep).length === 2)
+      .sort();
+    if (detail.length > 0) {
+      return new Set(collectModulepreloads(fs.readFileSync(detail[0], "utf8")));
+    }
+  }
+  const home = path.join(dir, "index.html");
+  if (fs.existsSync(home)) {
+    return new Set(collectModulepreloads(fs.readFileSync(home, "utf8")));
+  }
+  return new Set();
+};
+
+const sameSet = (a, b) =>
+  a.length === b.length && a.every((value, index) => value === b[index]);
+
+const findModulepreloadDrift = (
+  dir = DIST_DIR,
+  templateHrefs = findTemplateModulepreloads(dir)
+) => {
+  const expected = [...templateHrefs].sort();
+  return listHtmlFiles(dir).flatMap((entry) => {
+    const html = fs.readFileSync(path.join(dir, entry), "utf8");
+    const actual = [...new Set(collectModulepreloads(html))].sort();
+    return sameSet(actual, expected)
+      ? []
+      : [`${entry}: ${actual.join(", ")}`];
+  });
+};
+
+const isExternalHost = (src) => {
+  const match = src.match(/^(?:https?:)?\/\/([^/?#]+)/i);
+  if (!match) return false;
+  const host = match[1].split("@").pop().split(":")[0].toLowerCase();
+  return host !== SITE_HOST;
+};
+
+const findExternalScripts = (dir = DIST_DIR) =>
+  listHtmlFiles(dir).flatMap((entry) => {
+    const html = fs.readFileSync(path.join(dir, entry), "utf8");
+    return [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']*)["'][^>]*>/gi)]
+      .map((match) => match[1])
+      .filter(isExternalHost)
+      .map((src) => `${entry}: ${src}`);
+  });
+
 const main = () => {
   const offenders = findLoopbackRefs();
   if (offenders.length > 0) {
@@ -67,9 +133,30 @@ const main = () => {
     );
     process.exit(1);
   }
+  const preloadDrift = findModulepreloadDrift();
+  if (preloadDrift.length > 0) {
+    console.error(
+      `Modulepreload sets drifting from the template:\n${preloadDrift.join("\n")}`
+    );
+    process.exit(1);
+  }
+  const externalScripts = findExternalScripts();
+  if (externalScripts.length > 0) {
+    console.error(
+      `Script tags pointing at another host in built HTML:\n${externalScripts.join("\n")}`
+    );
+    process.exit(1);
+  }
   console.log(`No loopback origins in ${DIST_DIR}`);
 };
 
 if (require.main === module) main();
 
-module.exports = { findEmptyStyledTags, findLoopbackRefs, findNonEmptyDeckRoots };
+module.exports = {
+  findEmptyStyledTags,
+  findExternalScripts,
+  findLoopbackRefs,
+  findModulepreloadDrift,
+  findNonEmptyDeckRoots,
+  findTemplateModulepreloads,
+};

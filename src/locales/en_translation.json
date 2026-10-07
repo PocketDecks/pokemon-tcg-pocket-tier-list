@@ -126,7 +126,8 @@
     "popularityTooltip": "Qualified games in the last 14 days, capped at this expansion's release",
     "winRateTooltip": "Win % in the current window",
     "metaShareTooltip": "Share of qualified games ± weekly change",
-    "showTooltip": "Show explanation"
+    "showTooltip": "Show explanation",
+    "energyUsed": "Energy Used"
   },
   "energyDropdown": {
     "all": "All Energy Types",
@@ -184,12 +185,46 @@
   },
   "footer": {
     "about": "About",
-    "privacy": "Privacy Policy"
+    "privacy": "Privacy Policy",
+    "feedback": "Feedback"
+  },
+  "feedback": {
+    "title": "Send feedback",
+    "intro": "Found a bug, spotted odd data, or have an idea? Tell us. Every message is read.",
+    "signInTitle": "Sign in to send feedback",
+    "signInBody": "Signing in keeps the form free of spam. Your account is only used to reply if you ask for one.",
+    "signedInAs": "Signed in as {{name}}",
+    "categoryLabel": "What is it about?",
+    "categories": {
+      "idea": "An idea",
+      "bug": "Something's broken",
+      "data": "Data looks off",
+      "other": "Something else"
+    },
+    "messageLabel": "Your message",
+    "messagePlaceholder": "What happened, or what would make the site better?",
+    "messageHint": "At least {{min}} characters.",
+    "messageTooShort": "Please write at least {{min}} characters.",
+    "contactLabel": "You can email me at {{email}} about this",
+    "submit": "Send feedback",
+    "sending": "Sending…",
+    "successTitle": "Thanks, it's on its way",
+    "successBody": "We read every message.",
+    "successReply": "We'll reply to {{email}}.",
+    "sendAnother": "Send another",
+    "error": "That didn't send. Check your connection and try again in a few minutes."
   },
   "hero": {
     "title": "Pokemon TCG Pocket Best Decks and Tier List",
     "subtitle": "Find the strongest Pokemon TCG Pocket decks using real tournament data. You can filter full lists, mark the cards you lack, and see exactly what to build next. Dominate the meta.",
     "button": "View Tier List"
+  },
+  "landing": {
+    "stats": {
+      "title": "Read the meta",
+      "description": "See which decks are climbing or falling each week, how their share of tournament games shifts, and how every top deck fares head to head.",
+      "button": "Open Statistics"
+    }
   },
   "features": {
     "title": "Features",
@@ -216,6 +251,14 @@
     "openSource": {
       "title": "Open Source",
       "description": "This website is open source. You can find the source code on <0>GitHub</0>."
+    },
+    "qrImport": {
+      "title": "QR Import",
+      "description": "Every deck page has a QR code you can scan in Pokémon TCG Pocket to import the list, plus a deck code to copy."
+    },
+    "statistics": {
+      "title": "Meta Statistics",
+      "description": "Follow each deck's share of the meta week by week and check head-to-head matchup win rates."
     }
   },
   "tierList": {

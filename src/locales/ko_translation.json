@@ -126,7 +126,8 @@
     "popularityTooltip": "최근 14일간 유효 게임 수 (이번 확장팩 출시일 이후 기준)",
     "winRateTooltip": "현재 윈도우 승률(%)",
     "metaShareTooltip": "유효 게임 점유율 ± 주간 변화",
-    "showTooltip": "설명 보기"
+    "showTooltip": "설명 보기",
+    "energyUsed": "사용 에너지"
   },
   "energyDropdown": {
     "all": "모든 에너지 타입",
@@ -184,12 +185,46 @@
   },
   "footer": {
     "about": "소개",
-    "privacy": "개인정보 처리방침"
+    "privacy": "개인정보 처리방침",
+    "feedback": "피드백"
+  },
+  "feedback": {
+    "title": "피드백 보내기",
+    "intro": "버그나 이상한 데이터를 발견했거나 아이디어가 있나요? 알려 주세요. 모든 메시지를 읽습니다.",
+    "signInTitle": "피드백을 보내려면 로그인하세요",
+    "signInBody": "로그인은 스팸을 막기 위한 것입니다. 계정 정보는 답변을 요청한 경우에만 사용합니다.",
+    "signedInAs": "{{name}}(으)로 로그인됨",
+    "categoryLabel": "어떤 내용인가요?",
+    "categories": {
+      "idea": "아이디어",
+      "bug": "문제가 있어요",
+      "data": "데이터가 이상해요",
+      "other": "기타"
+    },
+    "messageLabel": "메시지",
+    "messagePlaceholder": "무슨 일이 있었나요? 사이트를 어떻게 개선하면 좋을까요?",
+    "messageHint": "{{min}}자 이상 입력하세요.",
+    "messageTooShort": "{{min}}자 이상 입력해 주세요.",
+    "contactLabel": "이 건에 대해 {{email}}(으)로 연락해도 좋아요",
+    "submit": "피드백 보내기",
+    "sending": "보내는 중…",
+    "successTitle": "감사합니다. 전송되었습니다",
+    "successBody": "모든 메시지를 읽습니다.",
+    "successReply": "{{email}}(으)로 답장드릴게요.",
+    "sendAnother": "하나 더 보내기",
+    "error": "전송하지 못했습니다. 연결을 확인하고 몇 분 뒤에 다시 시도해 주세요."
   },
   "hero": {
     "title": "포켓몬 카드게임 포켓 최고의 덱 및 티어 리스트",
     "subtitle": "실제 토너먼트 데이터를 사용하여 가장 강력한 포켓몬 카드게임 포켓 덱을 찾아보세요. 전체 리스트를 필터링하고 부족한 카드를 표시하여 다음에 무엇을 구축해야 할지 정확히 확인할 수 있습니다. 메타를 지배하세요.",
     "button": "티어 리스트 보기"
+  },
+  "landing": {
+    "stats": {
+      "title": "메타 읽기",
+      "description": "매주 어떤 덱이 오르고 내려가는지, 대회 게임 점유율이 어떻게 바뀌는지, 상위 덱끼리의 상성은 어떤지 확인하세요.",
+      "button": "통계 열기"
+    }
   },
   "features": {
     "title": "기능",
@@ -216,6 +251,14 @@
     "openSource": {
       "title": "오픈 소스",
       "description": "이 웹사이트는 오픈 소스입니다. 소스 코드는 <0>GitHub</0>에서 확인할 수 있습니다."
+    },
+    "qrImport": {
+      "title": "QR 가져오기",
+      "description": "모든 덱 페이지에는 Pokémon TCG Pocket에서 스캔해 덱을 가져올 수 있는 QR 코드와 복사할 수 있는 덱 코드가 있습니다."
+    },
+    "statistics": {
+      "title": "메타 통계",
+      "description": "덱별 메타 점유율을 주 단위로 추적하고 상대 덱별 승률을 확인하세요."
     }
   },
   "tierList": {

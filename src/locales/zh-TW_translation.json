@@ -126,7 +126,8 @@
     "popularityTooltip": "過去 14 天內的合格對局，上限至此擴充包發布",
     "winRateTooltip": "當前時間窗口的勝率 %",
     "metaShareTooltip": "合格對局占比 ± 每週變化",
-    "showTooltip": "顯示說明"
+    "showTooltip": "顯示說明",
+    "energyUsed": "使用能量"
   },
   "energyDropdown": {
     "all": "所有能量屬性",
@@ -184,12 +185,46 @@
   },
   "footer": {
     "about": "關於",
-    "privacy": "隱私權政策"
+    "privacy": "隱私權政策",
+    "feedback": "意見回饋"
+  },
+  "feedback": {
+    "title": "傳送意見回饋",
+    "intro": "發現錯誤、奇怪的資料，或者有新點子？告訴我們。每則訊息我們都會閱讀。",
+    "signInTitle": "登入後即可傳送意見回饋",
+    "signInBody": "登入可以讓表單遠離垃圾訊息。只有在你希望得到回覆時，我們才會使用你的帳號資訊。",
+    "signedInAs": "已登入為 {{name}}",
+    "categoryLabel": "回饋內容是關於？",
+    "categories": {
+      "idea": "一個點子",
+      "bug": "有東西壞了",
+      "data": "資料看起來不對",
+      "other": "其他"
+    },
+    "messageLabel": "你的訊息",
+    "messagePlaceholder": "發生了什麼，或者怎樣能讓網站更好？",
+    "messageHint": "至少 {{min}} 個字元。",
+    "messageTooShort": "請至少輸入 {{min}} 個字元。",
+    "contactLabel": "可以就此事寄信到 {{email}} 聯絡我",
+    "submit": "傳送意見回饋",
+    "sending": "正在傳送…",
+    "successTitle": "謝謝，已經送出",
+    "successBody": "每則訊息我們都會閱讀。",
+    "successReply": "我們會回覆到 {{email}}。",
+    "sendAnother": "再傳一則",
+    "error": "傳送失敗。請檢查網路連線，幾分鐘後再試。"
   },
   "hero": {
     "title": "Pokemon TCG Pocket 最佳牌組與強度排行榜",
     "subtitle": "使用真實賽事數據尋找最強大的 Pokemon TCG Pocket 牌組。你可以過濾完整列表，標記你缺少的卡牌，並確切看到接下來該組建什麼。主宰環境。",
     "button": "查看排行榜"
+  },
+  "landing": {
+    "stats": {
+      "title": "解讀環境",
+      "description": "查看每週哪些牌組在上升或下滑、它們在比賽對局中的占比如何變化，以及各強勢牌組之間的對局表現。",
+      "button": "開啟統計"
+    }
   },
   "features": {
     "title": "功能",
@@ -216,6 +251,14 @@
     "openSource": {
       "title": "開源",
       "description": "這個網站是開源的。你可以在 <0>GitHub</0> 上找到原始碼。"
+    },
+    "qrImport": {
+      "title": "QR 碼匯入",
+      "description": "每個牌組頁面都有可在 Pokémon TCG Pocket 中掃描匯入牌表的 QR 碼，以及可複製的牌組代碼。"
+    },
+    "statistics": {
+      "title": "環境統計",
+      "description": "按週追蹤每個牌組的環境占比，並查看各對局的勝率。"
     }
   },
   "tierList": {

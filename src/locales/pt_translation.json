@@ -126,7 +126,8 @@
     "popularityTooltip": "Partidas qualificadas nos últimos 14 dias, limitadas ao lançamento desta expansão",
     "winRateTooltip": "% de vitória no período atual",
     "metaShareTooltip": "Proporção de partidas qualificadas ± mudança semanal",
-    "showTooltip": "Mostrar explicação"
+    "showTooltip": "Mostrar explicação",
+    "energyUsed": "Energia usada"
   },
   "energyDropdown": {
     "all": "Todos os Tipos de Energia",
@@ -184,12 +185,46 @@
   },
   "footer": {
     "about": "Sobre",
-    "privacy": "Política de Privacidade"
+    "privacy": "Política de Privacidade",
+    "feedback": "Feedback"
+  },
+  "feedback": {
+    "title": "Enviar feedback",
+    "intro": "Encontrou um bug, dados estranhos ou tem uma ideia? Conte para nós. Lemos todas as mensagens.",
+    "signInTitle": "Entre para enviar feedback",
+    "signInBody": "Entrar mantém o formulário livre de spam. Sua conta só é usada para responder se você pedir.",
+    "signedInAs": "Conectado como {{name}}",
+    "categoryLabel": "Sobre o que é?",
+    "categories": {
+      "idea": "Uma ideia",
+      "bug": "Algo está quebrado",
+      "data": "Os dados parecem errados",
+      "other": "Outra coisa"
+    },
+    "messageLabel": "Sua mensagem",
+    "messagePlaceholder": "O que aconteceu, ou o que deixaria o site melhor?",
+    "messageHint": "Pelo menos {{min}} caracteres.",
+    "messageTooShort": "Escreva pelo menos {{min}} caracteres.",
+    "contactLabel": "Vocês podem me escrever em {{email}} sobre isso",
+    "submit": "Enviar feedback",
+    "sending": "Enviando…",
+    "successTitle": "Obrigado, já foi enviado",
+    "successBody": "Lemos todas as mensagens.",
+    "successReply": "Responderemos para {{email}}.",
+    "sendAnother": "Enviar outro",
+    "error": "Não foi possível enviar. Verifique sua conexão e tente de novo em alguns minutos."
   },
   "hero": {
     "title": "Melhores Decks e Tier List de Pokemon TCG Pocket",
     "subtitle": "Encontre os decks mais fortes de Pokemon TCG Pocket usando dados reais de torneios. Você pode filtrar listas completas, marcar as cartas que lhe faltam e ver exatamente o que construir a seguir. Domine o meta.",
     "button": "Ver Tier List"
+  },
+  "landing": {
+    "stats": {
+      "title": "Leia o meta",
+      "description": "Veja quais decks sobem ou caem a cada semana, como muda a sua participação nas partidas de torneio e como cada deck de topo se sai no confronto direto.",
+      "button": "Abrir estatísticas"
+    }
   },
   "features": {
     "title": "Recursos",
@@ -216,6 +251,14 @@
     "openSource": {
       "title": "Código Aberto",
       "description": "Este site tem código aberto. Você pode encontrar o código-fonte no <0>GitHub</0>."
+    },
+    "qrImport": {
+      "title": "Importação por QR",
+      "description": "Cada página de deck tem um código QR que você pode escanear no Pokémon TCG Pocket para importar a lista, além de um código de deck para copiar."
+    },
+    "statistics": {
+      "title": "Estatísticas do meta",
+      "description": "Acompanhe semana a semana a participação de cada deck no meta e confira as taxas de vitória em cada confronto."
     }
   },
   "tierList": {

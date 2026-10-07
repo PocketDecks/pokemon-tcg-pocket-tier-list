@@ -31,6 +31,30 @@ describe("gradient text layering", () => {
           <HomeBanner />
         </>
       )
-    ).toMatch(/::before[^}]*z-index:-1/);
+    ).toMatch(/top:-100%;left:0;width:300%;height:300%;z-index:-1/);
+    expect(
+      renderStyles(
+        <>
+          <Button>View Tier List</Button>
+          <HomeBanner />
+        </>
+      )
+    ).toMatch(/transform:translateX\(-66\.667%\)/);
+    expect(
+      renderStyles(
+        <>
+          <Button>View Tier List</Button>
+          <HomeBanner />
+        </>
+      )
+    ).not.toContain("background-size:33.333% 100%");
+    expect(
+      renderStyles(
+        <>
+          <Button>View Tier List</Button>
+          <HomeBanner />
+        </>
+      )
+    ).not.toContain("z-index:1");
   });
 });

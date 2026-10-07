@@ -7,7 +7,7 @@ const rainbowAnimation = keyframes`
     transform: translateX(0);
   }
   50% {
-    transform: translateX(-33.333%);
+    transform: translateX(-66.667%);
   }
   100% {
     transform: translateX(0);
@@ -52,11 +52,13 @@ const buttonBase = css<{ $isLoading: boolean; $wide: boolean }>`
   overflow: hidden;
 
   &::before {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    width: 300%;
     content: "";
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 300%;
+    height: 300%;
+    z-index: -1;
     background: linear-gradient(
       45deg,
       var(--s),
@@ -67,13 +69,7 @@ const buttonBase = css<{ $isLoading: boolean; $wide: boolean }>`
       var(--f),
       var(--s)
     );
-    background-size: 33.333% 100%;
     animation: ${rainbowAnimation} 8s ease infinite;
-  }
-
-  & > * {
-    position: relative;
-    z-index: 1;
   }
 
   color: var(--bg);

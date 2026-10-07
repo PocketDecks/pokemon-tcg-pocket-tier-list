@@ -136,8 +136,11 @@ const StatsPreview = () => {
   const { t } = useTranslation();
   const { decks, metaShare } = useDecks();
 
+  const rankedIds = new Set(
+    (decks ?? []).filter((deck) => deck.powerScore !== null).map((deck) => deck.id)
+  );
   const rising = (metaShare?.decks ?? [])
-    .filter((entry) => entry.delta > 0.001)
+    .filter((entry) => entry.delta > 0.001 && rankedIds.has(entry.name))
     .sort((a, b) => b.delta - a.delta)
     .slice(0, PREVIEW_ROWS);
 

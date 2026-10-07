@@ -17,12 +17,13 @@ const StyledHomeBanner = styled.div`
   font-weight: 600;
   color: var(--bg);
   position: relative;
+  isolation: isolate;
   overflow: hidden;
 
   &::before {
     position: absolute;
     inset: 0;
-    z-index: 0;
+    z-index: -1;
     width: 300%;
     content: "";
     background: linear-gradient(

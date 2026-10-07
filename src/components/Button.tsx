@@ -48,12 +48,13 @@ const buttonBase = css<{ $isLoading: boolean; $wide: boolean }>`
   padding: 0 3.2rem;
   border-radius: 0.8rem;
   position: relative;
+  isolation: isolate;
   overflow: hidden;
 
   &::before {
     position: absolute;
     inset: 0;
-    z-index: 0;
+    z-index: -1;
     width: 300%;
     content: "";
     background: linear-gradient(

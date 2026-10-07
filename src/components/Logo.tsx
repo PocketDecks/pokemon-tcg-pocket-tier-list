@@ -16,6 +16,7 @@ const Container = styled(Link)`
 
 const StyledLogo = styled.img`
   width: 5.2rem;
+  height: auto;
 
   @media (max-width: 900px) {
     width: 4.8rem;

@@ -16,7 +16,6 @@ export type FullDeckType = {
   freqScore: number;
   metaScore: number | null;
   percentOfGames: number;
-
   iconPrimary: CardType;
   iconSecondary: CardType | null;
 };

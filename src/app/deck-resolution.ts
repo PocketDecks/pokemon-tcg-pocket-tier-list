@@ -36,7 +36,6 @@ export interface ResolvedDeck {
   powerScore: number | null;
   freqScore: number;
   metaScore: number | null;
-
   iconPrimary: CardType;
   iconSecondary: CardType | null;
 }
@@ -133,7 +132,6 @@ export const resolveDeckDetail = (
       powerScore: oldDeck.powerScore,
       freqScore: oldDeck.freqScore,
       metaScore: oldDeck.metaScore,
-
       iconPrimary: cardsMapping[cardIds[0]],
       iconSecondary,
     },

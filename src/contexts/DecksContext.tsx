@@ -217,7 +217,6 @@ const buildDecks = (
           freqScore: oldDeck.freqScore,
           metaScore: oldDeck.metaScore,
           percentOfGames: oldDeck.percentOfGames,
-
           iconPrimary: cardsMapping[cardIds[0]],
           iconSecondary,
         };

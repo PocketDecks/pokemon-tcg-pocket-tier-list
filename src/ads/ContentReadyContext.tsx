@@ -64,6 +64,10 @@ export const useMarkContentReady = (isReady: boolean): void => {
   const { markReady } = useContentReadyContext();
   const { pathname } = useLocation();
   useEffect(() => {
+    // Reflect the current ready state. Clearing readiness (an empty path never
+    // matches the current pathname) when a route transitions back to a
+    // loading/empty state ensures global units like AdAnchor don't linger on a
+    // content-less screen.
     markReady(isReady ? pathname : "");
     if (isReady) {
       document.documentElement.dataset.routeReady = pathname;

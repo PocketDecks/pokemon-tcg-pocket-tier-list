@@ -49,7 +49,8 @@ test("maps a deck name to its icon ids, primary first", () => {
 });
 
 test("serves thumbnails from the first-party path", () => {
-    assert.strictEqual(deckThumbUrl("b3-081"), "/thumbs/b3-081.webp?v=2");
+    assert.strictEqual(deckThumbUrl("b3-081"), "/thumbs/v3/b3-081-183.webp?v=3");
+  assert.strictEqual(deckThumbUrl("b3-081", 96), "/thumbs/v3/b3-081-96.webp?v=3");
 });
 
 test("reads the card id back out of the upstream image url", () => {

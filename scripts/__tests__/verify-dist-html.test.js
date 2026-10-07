@@ -140,23 +140,28 @@ const THUMB_DECKS = [
 
 test("passes when every deck icon id has a thumbnail", () => {
   const dir = makeDist({
-    "thumbs/b3-081.webp": "x",
-    "thumbs/b1-102.webp": "x",
-    "thumbs/b3a-020.webp": "x",
+    "thumbs/v3/b3-081-96.webp": "x",
+    "thumbs/v3/b3-081-183.webp": "x",
+    "thumbs/v3/b1-102-96.webp": "x",
+    "thumbs/v3/b1-102-183.webp": "x",
+    "thumbs/v3/b3a-020-96.webp": "x",
+    "thumbs/v3/b3a-020-183.webp": "x",
   });
   assert.deepStrictEqual(findMissingDeckThumbs(dir, THUMB_DECKS), []);
 });
 
 test("flags a deck icon id with no thumbnail", () => {
   const dir = makeDist({
-    "thumbs/b3-081.webp": "x",
-    "thumbs/b1-102.webp": "x",
+    "thumbs/v3/b3-081-96.webp": "x",
+    "thumbs/v3/b3-081-183.webp": "x",
+    "thumbs/v3/b1-102-96.webp": "x",
+    "thumbs/v3/b1-102-183.webp": "x",
   });
-  assert.deepStrictEqual(findMissingDeckThumbs(dir, THUMB_DECKS), ["b3a-020"]);
+  assert.deepStrictEqual(findMissingDeckThumbs(dir, THUMB_DECKS), ["b3a-020-96", "b3a-020-183"]);
 });
 
 test("flags a deck name without a card id without inventing a missing thumbnail", () => {
-  const dir = makeDist({ "thumbs/b3-081.webp": "x" });
+  const dir = makeDist({ "thumbs/v3/b3-081-96.webp": "x" });
   assert.deepStrictEqual(findMissingDeckThumbs(dir, [{ name: "Malformed" }]), []);
 });
 

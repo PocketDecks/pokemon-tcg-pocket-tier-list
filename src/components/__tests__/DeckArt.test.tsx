@@ -9,15 +9,15 @@ describe("DeckArt", () => {
   it("reserves square dimensions for loaded artwork", () => {
     render(<DeckArt size={2.8} src="/thumbs/b3-081.webp" />);
     const image = screen.getByRole("presentation");
-    expect(image).toHaveAttribute("width", "183");
-    expect(image).toHaveAttribute("height", "183");
+    expect(image).toHaveAttribute("width", "96");
+    expect(image).toHaveAttribute("height", "96");
   });
 
   it("loads the first-party thumbnail for an upstream card image", () => {
     render(<DeckArt size={2.8} src={REMOTE} />);
     expect(screen.getByRole("presentation")).toHaveAttribute(
       "src",
-      "/thumbs/b3-081.webp?v=2"
+      "/thumbs/v3/b3-081-96.webp?v=3"
     );
   });
 

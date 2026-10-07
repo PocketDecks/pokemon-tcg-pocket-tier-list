@@ -7,7 +7,8 @@ export const DECK_THUMB_CROP: {
 };
 export const DECK_THUMB_QUALITY: number;
 export const DECK_THUMB_VERSION: string;
-export const deckThumbUrl: (cardId: string) => string;
+export const DECK_THUMB_SIZES: number[];
+export const deckThumbUrl: (cardId: string, size?: number) => string;
 export const cardIdFromImage: (image: string) => string | null;
 export const deriveCropRect: (
   art?: { width: number; height: number },

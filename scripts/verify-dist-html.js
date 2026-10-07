@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const { deckNameToIconIds } = require("./deck-name.mjs");
+const { DECK_THUMB_SIZES, DECK_THUMB_VERSION } = require("./deck-thumbs.mjs");
 
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
@@ -109,12 +110,16 @@ const loadDecks = (dataDir = DATA_DIR) => {
 };
 
 const findMissingDeckThumbs = (dir = DIST_DIR, decks = loadDecks()) => {
-  const thumbDir = path.join(dir, "thumbs");
+  const thumbDir = path.join(dir, "thumbs", `v${DECK_THUMB_VERSION}`);
   const ids = new Set();
   for (const deck of decks) {
     for (const id of deckNameToIconIds(deck.name)) ids.add(id);
   }
-  return [...ids].filter((id) => !fs.existsSync(path.join(thumbDir, `${id}.webp`)));
+  return [...ids].flatMap((id) =>
+    DECK_THUMB_SIZES.filter(
+      (size) => !fs.existsSync(path.join(thumbDir, `${id}-${size}.webp`))
+    ).map((size) => `${id}-${size}`)
+  );
 };
 
 const isExternalHost = (src) => {

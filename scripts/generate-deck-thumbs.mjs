@@ -3,7 +3,7 @@ import path from "path";
 import { pathToFileURL } from "url";
 import sharp from "sharp";
 import { deckNameToIconIds } from "./deck-name.mjs";
-import { cardIdFromImage, DECK_THUMB_CROP, DECK_THUMB_QUALITY } from "./deck-thumbs.mjs";
+import { cardIdFromImage, DECK_THUMB_CROP, DECK_THUMB_QUALITY, DECK_THUMB_SIZES, DECK_THUMB_VERSION } from "./deck-thumbs.mjs";
 
 const ATTEMPTS = 3;
 
@@ -31,9 +31,10 @@ export const thumbCardIds = (decks) => {
   return [...ids];
 };
 
-export const cropArt = (buffer) =>
+export const cropArt = (buffer, size) =>
   sharp(buffer)
     .extract(DECK_THUMB_CROP)
+    .resize(size, size)
     .webp({ quality: DECK_THUMB_QUALITY })
     .toBuffer();
 
@@ -69,11 +70,11 @@ const main = async () => {
   );
   const imageById = new Map(cards.map((card) => [card.id, card.image]));
 
-  const outDir = path.join(cwd, "public", "thumbs");
+  const outDir = path.join(cwd, "public", "thumbs", `v${DECK_THUMB_VERSION}`);
   fs.mkdirSync(outDir, { recursive: true });
 
-  const ids = thumbCardIds(decks).filter(
-    (id) => !fs.existsSync(path.join(outDir, `${id}.webp`))
+  const ids = thumbCardIds(decks).filter((id) =>
+    DECK_THUMB_SIZES.some((size) => !fs.existsSync(path.join(outDir, `${id}-${size}.webp`)))
   );
   const generated = await runWithConcurrency(
     ids,
@@ -83,8 +84,12 @@ const main = async () => {
         throw new Error(`generate-deck-thumbs: no card record for ${id}`);
       }
       const source = await fetchBuffer(image);
-      const thumb = await cropArt(source);
-      fs.writeFileSync(path.join(outDir, `${id}.webp`), thumb);
+      await Promise.all(
+        DECK_THUMB_SIZES.map(async (size) => {
+          const thumb = await cropArt(source, size);
+          fs.writeFileSync(path.join(outDir, `${id}-${size}.webp`), thumb);
+        })
+      );
       return id;
     },
     8

@@ -3,6 +3,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { deckDisplayName } from "../app/deck-display";
 import { deckThumbUrl, onDeckThumbError } from "../app/deck-thumb";
+
+const THUMB_SIZES = { small: 96, large: 183 };
 import { FullDeckType } from "../contexts/DecksContext";
 import { MetaShareEntry } from "../types/pipeline-data";
 import { deltaTrend } from "../app/delta-trend";
@@ -206,7 +208,9 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
             >
                 <DeckImage
                     key={deck.iconPrimary.id}
-                    src={deckThumbUrl(deck.iconPrimary.id)}
+                    src={deckThumbUrl(deck.iconPrimary.id, THUMB_SIZES.large)}
+                    srcSet={`${deckThumbUrl(deck.iconPrimary.id, THUMB_SIZES.small)} ${THUMB_SIZES.small}w, ${deckThumbUrl(deck.iconPrimary.id, THUMB_SIZES.large)} ${THUMB_SIZES.large}w`}
+                    sizes="(max-width: 900px) 25vw, 12vw"
                     onError={onDeckThumbError(deck.iconPrimary.image)}
                     alt={deck.iconPrimary.name}
                     width={183}
@@ -229,7 +233,9 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
                 <SubCard to={`/deck/${deck.id}`} tabIndex={-1} aria-hidden="true">
                     <DeckImage
                         key={deck.iconSecondary.id}
-                        src={deckThumbUrl(deck.iconSecondary.id)}
+                        src={deckThumbUrl(deck.iconSecondary.id, THUMB_SIZES.large)}
+                        srcSet={`${deckThumbUrl(deck.iconSecondary.id, THUMB_SIZES.small)} ${THUMB_SIZES.small}w, ${deckThumbUrl(deck.iconSecondary.id, THUMB_SIZES.large)} ${THUMB_SIZES.large}w`}
+                        sizes="(max-width: 900px) 25vw, 12vw"
                         onError={onDeckThumbError(deck.iconSecondary.image)}
                         alt={deck.iconSecondary.name}
                         width={183}

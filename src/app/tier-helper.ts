@@ -13,6 +13,6 @@ export const buildTiers = <T,>(items: T[], getScore: (item: T) => number) => {
         { label: "B", color: "var(--b)", data: items.filter((d) => getScore(d) < bestScore - steps * 2 && getScore(d) >= bestScore - steps * 3) },
         { label: "C", color: "var(--c)", data: items.filter((d) => getScore(d) < bestScore - steps * 3 && getScore(d) >= bestScore - steps * 4) },
         { label: "D", color: "var(--d)", data: items.filter((d) => getScore(d) < bestScore - steps * 4 && getScore(d) >= bestScore - steps * 5) },
-        { label: "E", color: "var(--e)", data: items.filter((d) => getScore(d) < bestScore - steps * 5) },
+        { label: "F", color: "var(--f)", data: items.filter((d) => getScore(d) < bestScore - steps * 5) },
     ];
 };

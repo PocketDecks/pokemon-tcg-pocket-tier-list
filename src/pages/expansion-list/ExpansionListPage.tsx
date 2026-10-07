@@ -2,11 +2,14 @@ import useCards from "../../app/use-cards";
 import useExpansions from "../../app/use-expansions";
 import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
+import { useTranslation } from "react-i18next";
 import TierGrid from "../../components/TierGrid";
+import PageTitle from "../../components/PageTitle";
 import ExpansionIcon from "../../components/ExpansionIcon";
 import { buildExpansionPackData } from "../../app/expansion-scores";
 
 const ExpansionListPage = () => {
+  const { t } = useTranslation();
   const cards = useCards(1_000_000);
   const expansions = useExpansions();
 
@@ -16,6 +19,7 @@ const ExpansionListPage = () => {
 
   return (
       <>
+        <PageTitle>{t("header.bestExpansions")}</PageTitle>
         <TierGrid
           items={cards && expansions ? expansionData : null}
           getScore={(d) => d.averageScore}
@@ -39,7 +43,7 @@ const ExpansionListPage = () => {
                     so consistently strong cards rank above packs with lower average value.
                     Cards that arrive through a set's shared pool count toward every pack
                     in that set. Once the averages are calculated, packs are sorted into
-                    tiers from S to E, with S standing for the most valuable pulls in the
+                    tiers from S to F, with S standing for the most valuable pulls in the
                     game.
                   </p>
 

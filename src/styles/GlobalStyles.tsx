@@ -10,13 +10,15 @@ const GlobalStyle = createGlobalStyle`
         --b: #FFDF80;
         --c: #FFFF7F;
         --d: #BFFF7F;
-        --e: #7FFF7F;
+        --f: #7FFF7F;
+        --focus: #FFDF80;
         /* Bottom space reserved for the sticky ad anchor (0 when no ads). */
         --ad-anchor-h: 0px;
     }
 
     html {
         background-color: var(--bg);
+        font-size: 10px;
     }
 
     body {
@@ -28,7 +30,6 @@ const GlobalStyle = createGlobalStyle`
         box-sizing: border-box;
         margin: 0;
         padding: 0;
-        font-size: 10px;
         font-family: "Roboto", sans-serif;
         line-height: 1.2;
     }
@@ -40,12 +41,26 @@ const GlobalStyle = createGlobalStyle`
     button {
         background: none;
         border: none;
-        outline: none;
     }
-    
+
+    :focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+
     input {
         border: none;
-        outline: none;
         background: none;
         -moz-appearance: textfield;
         appearance: textfield;

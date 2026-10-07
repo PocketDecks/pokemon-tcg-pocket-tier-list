@@ -234,3 +234,8 @@ qrcode.react bundles QR Code Generator, which carries its own attribution:
 
 Crown icons created by feen - Flaticon (https://www.flaticon.com), used under
 Flaticon's attribution licence.
+
+Energy type icons in `public/energy/` are taken from "Pokemon Energy Detailed
+Symbols" by dbizal (2019).
+
+- Source: https://www.deviantart.com/dbizal/art/Pokemon-Energy-Detailed-Symbols-817113008

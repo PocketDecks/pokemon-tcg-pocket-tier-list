@@ -2,21 +2,12 @@ import styled from "styled-components";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
-import {
-    ResponsiveContainer,
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    Tooltip,
-    Legend,
-} from "recharts";
+
 import useIsPremium from "../../app/use-is-premium";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCards } from "../../app/cards-api";
 import { deckNameToIconIds } from "../../app/deck-filters";
 import usePipelineTrends from "../../app/use-pipeline-trends";
-import Header from "../../components/Header";
 import SeoContent from "../../components/SeoContent";
 import AdInContent from "../../ads/AdInContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
@@ -25,7 +16,13 @@ import { buildTiers } from "../../app/tier-helper";
 import { deckDisplayName, formatArchetypeId } from "../../app/deck-display";
 import { latestExpansionName } from "../../app/use-expansions";
 import { sortByPowerScore } from "../../app/score-baseline";
+import PageTitle from "../../components/PageTitle";
+import NavIcon from "../../components/NavIcon";
 import crownIcon from "../../assets/crown.webp";
+import { formatTrendDay } from "./format-trend-day";
+import TrendChart from "./TrendChart";
+import MatchupMatrix from "./MatchupMatrix";
+import DeckArt from "../../components/DeckArt";
 
 const PageContainer = styled.div`
     width: 100%;
@@ -45,10 +42,10 @@ const Section = styled.section`
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    background: var(--border);
+    background: #121210;
     padding: 2.4rem;
-    border-radius: 1.2rem;
-    border: 1px solid var(--border);
+    border-radius: 1.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.06);
     min-width: 0;
     contain: layout;
 
@@ -71,7 +68,8 @@ const SectionHeader = styled.div`
 
 const SectionTitle = styled.h2`
     font-size: 2.4rem;
-    font-weight: 500;
+    font-weight: 600;
+    letter-spacing: -0.01em;
 `;
 
 const ToggleContainer = styled.div`
@@ -83,6 +81,9 @@ const ToggleContainer = styled.div`
 `;
 
 const ToggleButton = styled.button<{ $active: boolean; $locked?: boolean }>`
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
     padding: 0.8rem 1.6rem;
     border-radius: 0.4rem;
     font-size: 1.4rem;
@@ -92,81 +93,15 @@ const ToggleButton = styled.button<{ $active: boolean; $locked?: boolean }>`
     opacity: ${(props) => (props.$locked ? 0.5 : 1)};
     cursor: ${(props) => (props.$locked ? "not-allowed" : "pointer")};
     border: none;
-    transition: all 0.2s ease;
-`;
+    transition: background-color 160ms ease-out, color 160ms ease-out;
 
-const ChartContainer = styled.div`
-    width: 100%;
-    height: 400px;
-`;
-
-const MatrixWrapper = styled.div`
-    width: 100%;
-    max-width: 100%;
-    overflow-x: auto;
-    border-radius: 0.8rem;
-    border: 1px solid var(--border);
-    -webkit-overflow-scrolling: touch;
-    display: flex;
-    justify-content: center;
-
-    @media (max-width: 1300px) {
-        justify-content: flex-start;
-    }
-
-    &::-webkit-scrollbar {
-        height: 8px;
-    }
-    &::-webkit-scrollbar-thumb {
-        background: var(--border);
-        border-radius: 4px;
-    }
-`;
-
-const MatrixTable = styled.table`
-    border-collapse: separate; /* Fixes the sticky background clipping bug */
-    border-spacing: 0;
-    font-size: 1.3rem;
-    text-align: center;
-    table-layout: fixed;
-    width: max-content;
-
-    th,
-    td {
-        padding: 0.5rem;
-        border-bottom: 1px solid var(--border);
-        border-right: 1px solid var(--border);
-        width: 75px;
-        min-width: 75px;
-        height: 75px;
-    }
-
-    thead th {
-        border-top: 1px solid var(--border);
-        position: sticky;
-        top: 0;
-        z-index: 2;
-        background: var(--bg);
-        color: var(--main);
-        font-weight: 600;
-        height: auto;
-        padding: 1rem 0.5rem;
-    }
-
-    th:first-child,
-    td:first-child {
-        border-left: 1px solid var(--border);
+    &:hover {
+        background: ${(props) =>
+            props.$active ? "var(--main)" : props.$locked ? "transparent" : "rgba(255, 255, 255, 0.08)"};
     }
 
     @media (max-width: 900px) {
-        font-size: 1.2rem;
-        th,
-        td {
-            width: 60px;
-            min-width: 60px;
-            height: 60px;
-            padding: 0.2rem;
-        }
+        min-height: 4.4rem;
     }
 `;
 
@@ -175,24 +110,67 @@ const MovementTable = styled.table`
     width: 100%;
     color: var(--main);
 
+    font-size: 1.4rem;
+    font-variant-numeric: tabular-nums;
+
     th,
     td {
-        /* The global reset sets every element to 10px, so sizing the table
-           alone leaves the cells unreadable. */
-        font-size: 1.4rem;
-        padding: 1rem 1.2rem;
+        padding: 0.8rem 1.2rem;
         text-align: left;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
     }
 
     th {
+        font-size: 1.2rem;
         font-weight: 600;
-        opacity: 0.7;
+        letter-spacing: 0.02em;
+        color: rgba(255, 255, 255, 0.6);
     }
 
-    td:first-child {
-        opacity: 0.5;
+    td:first-child,
+    th:first-child {
         width: 4rem;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    th:nth-child(3),
+    td:nth-child(3) {
+        width: 24rem;
+    }
+
+    th:last-child,
+    td:last-child {
+        width: 11rem;
+        text-align: right;
+    }
+
+    tbody tr {
+        transition: background-color 160ms ease-out;
+    }
+
+    tbody tr:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    @media (max-width: 600px) {
+        font-size: 1.3rem;
+
+        th,
+        td {
+            padding: 0.8rem 0.6rem;
+        }
+
+        th:first-child,
+        td:first-child {
+            display: none;
+        }
+
+        th:nth-child(3),
+        td:nth-child(3),
+        th:last-child,
+        td:last-child {
+            width: auto;
+        }
     }
 
     a {
@@ -211,74 +189,68 @@ const MovementTable = styled.table`
 `;
 
 const Delta = styled.td<{ $rising: boolean }>`
-    color: ${(props) => (props.$rising ? "var(--e)" : "var(--s)")};
+    color: ${(props) => (props.$rising ? "var(--f)" : "var(--s)")};
     font-weight: 600;
     white-space: nowrap;
+
+    svg {
+        vertical-align: -0.2rem;
+        margin-right: 0.4rem;
+    }
 `;
 
-const MatrixCell = styled.td<{ $bg?: string; $isPopulated: boolean }>`
-  background: ${(props) => props.$bg || "transparent"};
-  color: ${(props) => (props.$isPopulated ? "#fff" : "var(--main)")};
-  font-size: 1.3rem; /* 13px */
-  font-weight: ${(props) => (props.$isPopulated ? "1000" : "500")};
-  text-shadow: ${(props) =>
-    props.$isPopulated
-        ? "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0px 2px 4px rgba(0,0,0,0.8)"
-        : "none"};
-  transition: filter 0.2s ease;
-  cursor: crosshair;
-
-  &:hover {
-    filter: brightness(1.15);
-  }
-`;
-
-const DeckLabelHeader = styled.th`
-  position: sticky !important;
-  left: 0 !important; /* Separated borders natively fix the 1px bleed */
-  top: 0 !important;
-  z-index: 3 !important; /* Outranks scrolling cells AND the header row */
-  background: var(--bg) !important;
-  text-align: left;
-  width: 160px !important;
-  min-width: 160px !important;
-
-  @media (max-width: 900px) {
-    width: 120px !important;
-    min-width: 120px !important;
-  }
-`;
-
-const DeckLabelCell = styled.td`
-  position: sticky !important;
-  left: 0 !important; /* Separated borders natively fix the 1px bleed */
-  z-index: 1 !important; /* Outranks scrolling cells, ensuring opaque cover */
-  background: var(--bg) !important; /* Enforces opaque cover */
-  text-align: left;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 160px !important;
-  max-width: 160px !important;
-
-  @media (max-width: 900px) {
-    width: 120px !important;
-    max-width: 120px !important;
-  }
-`;
-
-const DeckNameWrapper = styled.div`
+const DeckCell = styled.div`
     display: flex;
     align-items: center;
-    gap: 0.8rem;
-    padding-left: 0.4rem;
-    overflow: hidden;
+    gap: 1.2rem;
+    min-width: 0;
 `;
 
-const DeckNameText = styled.span`
+const ShareCell = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+`;
+
+const ShareTrack = styled.span`
+    flex: 1;
+    height: 0.6rem;
+    border-radius: 0.3rem;
+    background: rgba(255, 255, 255, 0.06);
     overflow: hidden;
-    text-overflow: ellipsis;
+
+    @media (max-width: 600px) {
+        display: none;
+    }
+`;
+
+const ShareFill = styled.span<{ $width: number }>`
+    display: block;
+    width: ${(props) => props.$width}%;
+    height: 100%;
+    border-radius: 0.3rem;
+    background: rgba(255, 255, 255, 0.5);
+`;
+
+const ShareValue = styled.span`
+    min-width: 4.8rem;
+    text-align: right;
+`;
+
+const ScaleLegend = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.72);
+    font-variant-numeric: tabular-nums;
+`;
+
+const ScaleBar = styled.span`
+    width: 16rem;
+    height: 0.8rem;
+    border-radius: 0.4rem;
+    background: linear-gradient(to right, #b8312f, #383835, #256abf);
 `;
 
 const CrownLink = styled(Link)`
@@ -292,21 +264,6 @@ const CrownLink = styled(Link)`
     }
 `;
 
-const TierDot = styled.div<{ $color: string }>`
-    width: 0.8rem;
-    height: 0.8rem;
-    border-radius: 50%;
-    background: ${(props) => props.$color};
-    flex-shrink: 0;
-`;
-
-const HeaderRow = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-`;
-
 const Loading = styled.div`
     display: flex;
     justify-content: center;
@@ -316,18 +273,22 @@ const Loading = styled.div`
     font-weight: 500;
 `;
 
-const COLOR_PALETTE = [
-    "var(--s)",
-    "var(--a)",
-    "var(--b)",
-    "var(--c)",
-    "var(--d)",
-    "var(--e)",
-];
+const MATRIX_EVEN = "#383835";
+const MATRIX_FAVOURED = "#256abf";
+const MATRIX_UNFAVOURED = "#b8312f";
+
+const matrixColour = (winRate: number): string => {
+    const t = Math.max(-1, Math.min(1, (winRate - 0.5) / 0.25));
+    const pole = t >= 0 ? MATRIX_FAVOURED : MATRIX_UNFAVOURED;
+    return `color-mix(in oklab, ${pole} ${Math.round(Math.abs(t) * 100)}%, ${MATRIX_EVEN})`;
+};
 
 const StatisticsPage = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { decks, metaShare, loading, error } = useDecks();
+    const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
+    const [pinnedSeries, setPinnedSeries] = useState<string | null>(null);
+    const activeSeries = hoveredSeries ?? pinnedSeries;
     const isPremium = useIsPremium();
     const [range, setRange] = useState<"14-day" | "all-time">("14-day");
     const trendQuery = usePipelineTrends();
@@ -389,31 +350,22 @@ const StatisticsPage = () => {
         return trendData.filter((d) => new Date(d.date) >= cutoff);
     }, [trendData, range]);
 
-    const getMatrixStyle = (winRate: number | undefined) => {
-        if (winRate === undefined) return { bg: "transparent" };
-        const wr = Math.max(0, Math.min(1, winRate));
-
-        if (wr >= 0.45 && wr <= 0.55) {
-            return { bg: "#fff9c4" };
-        }
-
-        if (wr > 0.55) {
-            const pct = Math.min(100, ((wr - 0.55) / 0.45) * 100);
-            return {
-                bg: `color-mix(in srgb, #1b5e20 ${pct}%, #fff9c4)`,
-            };
-        }
-
-        const pct = Math.min(100, ((0.45 - wr) / 0.45) * 100);
-        return {
-            bg: `color-mix(in srgb, #b71c1c ${pct}%, #fff9c4)`,
-        };
-    };
-
     const topArchetypeNames =
         trendData.length > 0
             ? Object.keys(trendData[0]).filter((key) => key !== "date")
             : [];
+
+    const seriesLabel = (name: string) =>
+        deckDisplayName(decks?.find((d) => d.name === name) ?? { name });
+
+    const formatDay = (value: string) => formatTrendDay(value, i18n.language);
+
+    const cardImage = (id: string | undefined) =>
+        id ? cardsPayload?.cards.find((c) => c.id === id)?.image : undefined;
+
+    const maxMovementShare = Math.max(0.0001, ...movementDecks.map((d) => d.share));
+
+
 
     // The static shell (header + SEO copy) renders even while deck data is in
     // flight. The build-time prerender snapshots this route with no network
@@ -440,62 +392,32 @@ const StatisticsPage = () => {
                         <ToggleButton
                             $active={range === "all-time"}
                             $locked={!isPremium}
+                            aria-disabled={!isPremium}
                             onClick={() => {
                                 if (isPremium) setRange("all-time");
                             }}
                         >
-                            All Time {!isPremium && "🔒"}
+                            All Time
+                            {!isPremium && <NavIcon name="lock" size={14} />}
                         </ToggleButton>
                     </ToggleContainer>
                 </SectionHeader>
 
-                <ChartContainer>
-                    {trendQuery.failed ? (
-                        <Loading>{t("statistics.noTrends")}</Loading>
-                    ) : (
-                    <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={filteredTrendData}>
-                            <XAxis
-                                dataKey="date"
-                                stroke="var(--main)"
-                                opacity={0.6}
-                                tickFormatter={(val) => val}
-                            />
-                            <YAxis
-                                stroke="var(--main)"
-                                opacity={0.6}
-                                tickFormatter={(val) => `${val}%`}
-                            />
-                            <Tooltip
-                                contentStyle={{
-                                    background: "var(--bg)",
-                                    border: "1px solid var(--border)",
-                                    borderRadius: "8px",
-                                    color: "var(--main)",
-                                }}
-                                formatter={(value: any, name: any) => [
-                                    `${Number(value ?? 0).toFixed(1)}%`,
-                                    name,
-                                ]}
-                            />
-                            <Legend />
-                            {topArchetypeNames.map((name, idx) => (
-                                <Line
-                                    key={name}
-                                    type="monotone"
-                                    dataKey={name}
-                                    name={deckDisplayName(
-                                        decks.find((d) => d.name === name) ?? { name }
-                                    )}
-                                    stroke={COLOR_PALETTE[idx % COLOR_PALETTE.length]}
-                                    strokeWidth={3}
-                                    dot={false}
-                                />
-                            ))}
-                        </LineChart>
-                    </ResponsiveContainer>
-                    )}
-                </ChartContainer>
+                <TrendChart
+                    data={filteredTrendData}
+                    names={topArchetypeNames}
+                    title={t("statistics.trends")}
+                    failed={trendQuery.failed}
+                    noDataLabel={t("statistics.noTrends")}
+                    activeSeries={activeSeries}
+                    pinnedSeries={pinnedSeries}
+                    formatDay={formatDay}
+                    seriesLabel={seriesLabel}
+                    onHover={setHoveredSeries}
+                    onPin={(name) =>
+                        setPinnedSeries((current) => (current === name ? null : name))
+                    }
+                />
             </Section>
 
             <AdInContent placement="statistics" />
@@ -536,6 +458,14 @@ const StatisticsPage = () => {
                                 <tr key={entry.name}>
                                     <td>{index + 1}</td>
                                     <td>
+                                        <DeckCell>
+                                        <DeckArt
+                                            size={2.8}
+                                            src={
+                                                decks?.find((d) => d.id === entry.name)?.iconPrimary?.image ??
+                                                cardImage(deckNameToIconIds(entry.name)[0])
+                                            }
+                                        />
                                         {(() => {
                                             const deck = decks?.find(
                                                 (d) => d.id === entry.name
@@ -563,9 +493,18 @@ const StatisticsPage = () => {
                                                 <img src={crownIcon} alt="" />
                                             </CrownLink>
                                         )}
+                                        </DeckCell>
                                     </td>
-                                    <td>{(entry.share * 100).toFixed(1)}%</td>
+                                    <td>
+                                        <ShareCell>
+                                            <ShareTrack aria-hidden="true">
+                                                <ShareFill $width={(entry.share / maxMovementShare) * 100} />
+                                            </ShareTrack>
+                                            <ShareValue>{(entry.share * 100).toFixed(1)}%</ShareValue>
+                                        </ShareCell>
+                                    </td>
                                     <Delta $rising={entry.delta > 0}>
+                                        <NavIcon name={entry.delta > 0 ? "arrowUp" : "arrowDown"} size={14} />
                                         {entry.delta > 0
                                             ? `+${(entry.delta * 100).toFixed(1)} pp`
                                             : `${(entry.delta * 100).toFixed(1)} pp`}
@@ -586,70 +525,18 @@ const StatisticsPage = () => {
                     <SectionTitle>
                         {t("statistics.matrix")}
                     </SectionTitle>
+                    <ScaleLegend aria-hidden="true">
+                        <span>25%</span>
+                        <ScaleBar />
+                        <span>75%</span>
+                    </ScaleLegend>
                 </SectionHeader>
 
-                <MatrixWrapper>
-                    <MatrixTable>
-                        <thead>
-                        <tr>
-                            <DeckLabelHeader>Deck Archetype</DeckLabelHeader>
-                            {matrixDecks.map((colDeck) => (
-                                <th key={colDeck.id}>{deckDisplayName(colDeck)}</th>
-                            ))}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {matrixDecks.map((rowDeck) => (
-                            <tr key={rowDeck.id}>
-                                <DeckLabelCell>
-                                    <DeckNameWrapper>
-                                        <TierDot
-                                            $color={tierMap.get(rowDeck.id) || "transparent"}
-                                        />
-                                        <DeckNameText>{deckDisplayName(rowDeck)}</DeckNameText>
-                                    </DeckNameWrapper>
-                                </DeckLabelCell>
-                                {matrixDecks.map((colDeck) => {
-                                    if (rowDeck.id === colDeck.id) {
-                                        return (
-                                            <MatrixCell key={colDeck.id} $isPopulated={false}>
-                                                -
-                                            </MatrixCell>
-                                        );
-                                    }
-
-                                    const match = rowDeck.matchups?.find(
-                                        (m) => m.name === colDeck.name
-                                    );
-                                    const winRate = match?.winRate;
-                                    const style = getMatrixStyle(winRate);
-                                    const isPopulated = winRate !== undefined;
-
-                                    const winRateText = isPopulated
-                                        ? `${Math.round(winRate * 100)}%`
-                                        : "N/A";
-                                    const hoverText = match
-                                        ? `${winRateText} win rate vs. ${formatArchetypeId(
-                                            colDeck.name
-                                        )} (${Math.round(match.totalGames)} total games)`
-                                        : undefined;
-
-                                    return (
-                                        <MatrixCell
-                                            key={colDeck.id}
-                                            $bg={style.bg}
-                                            $isPopulated={isPopulated}
-                                            title={hoverText}
-                                        >
-                                            {winRateText}
-                                        </MatrixCell>
-                                    );
-                                })}
-                            </tr>
-                        ))}
-                        </tbody>
-                    </MatrixTable>
-                </MatrixWrapper>
+                <MatchupMatrix
+                    decks={matrixDecks}
+                    tierMap={tierMap}
+                    matrixColour={matrixColour}
+                />
             </Section>
             </>
         );
@@ -657,9 +544,7 @@ const StatisticsPage = () => {
 
     return (
         <PageContainer>
-            <HeaderRow>
-                <Header />
-            </HeaderRow>
+            <PageTitle>{t("header.statistics")}</PageTitle>
 
             {renderContent()}
 
@@ -693,9 +578,9 @@ const StatisticsPage = () => {
                 <h3>Read the matchup matrix</h3>
                 <p>
                     The matchup matrix breaks down head-to-head win rates across the
-                    board. The grid colours shift from deep green for highly favourable
-                    matchups to crimson red for the worst counters, passing through pale
-                    yellow for even splits. Hover over any cell to check the total number
+                    board. The grid colours shift from deep blue for highly favourable
+                    matchups to red for the worst counters, passing through grey for even
+                    splits. Hover over any cell to check the total number
                     of games played. This ensures the sample size is reliable before you
                     commit to a strategy.
                 </p>

@@ -54,7 +54,7 @@ const buttonBase = css<{ $isLoading: boolean; $wide: boolean }>`
       var(--b),
       var(--c),
       var(--d),
-      var(--e),
+      var(--f),
       var(--s)
   );
   background-size: 300% 300%;

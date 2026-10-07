@@ -11,20 +11,20 @@ import DeckHeadTags from "./DeckHeadTags";
 import DeckCard from "../../components/DeckCard";
 import { MIN_MATCHUP_GAMES, WINRATE_THRESHOLD } from "../../app/config";
 import useIsPremium from "../../app/use-is-premium";
-import UserAccount from "../../components/UserAccount";
 import ShareDeckCode from "../../components/ShareDeckCode";
 import Tooltip from "../../components/Tooltip";
 import type { MetaShareEntry } from "../../types/pipeline-data";
-import arrowRight from "../../assets/arrow-right.svg";
+import NavIcon from "../../components/NavIcon";
 import AdInContent from "../../ads/AdInContent";
 import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { countById, oneSwapAlternatives } from "../../app/deck-diff";
 import { deckDisplayName } from "../../app/deck-display";
+import DeckHero, { type DeckHeroStat } from "./DeckHero";
+import EnergyList from "./EnergyList";
+import useDeckTiers, { tierForDeck } from "../../app/use-deck-tiers";
 import {
-  AlternativeCard,
-  AlternativeContainer,
-  ArrowRight,
+  AlternativeSwap,
   CardSection,
   DeckCardContainer,
   EmptyActions,
@@ -44,12 +44,18 @@ import {
   StyledDeckPage,
   StyledLink,
   SubHeader,
+  SwapArrow,
+  SwapCount,
+  SwapLabel,
+  SwapName,
+  SwapSide,
   UndoButton,
 } from "./deck-page.styles";
 
 const DeckDetailPage = () => {
   const deckId = useParams().deckId;
   const { decks, metaShareBySlug, loading, error } = useDecks();
+  const tiers = useDeckTiers(decks);
   const { missing, canUndo, undoMissing, lastRemovedId } = useMissing();
   const { t } = useTranslation();
   const isPremium = useIsPremium();
@@ -178,10 +184,20 @@ const DeckDetailPage = () => {
   const winRatePct = totalMatchup ? Math.round(totalMatchup.winRate * 100) : null;
 
   const displayName = deckDisplayName(deck);
+  const heroStats: DeckHeroStat[] = [
+    ...(winRatePct !== null ? [{ label: t("deckPage.winRate"), value: `${winRatePct}%` }] : []),
+    ...(shareEntry
+      ? [{ label: t("deckPage.metaShare"), value: `${(shareEntry.share * 100).toFixed(1)}%` }]
+      : []),
+    ...(deck.bestList.energyIds.length > 0
+      ? [{ label: t("deckPage.energyUsed"), value: <EnergyList energyIds={deck.bestList.energyIds} /> }]
+      : []),
+  ];
 
   return (
     <>
       <DeckHeadTags deck={deck} />
+      <DeckHero deck={deck} tier={tierForDeck(tiers, deck.id)} stats={heroStats} />
       <StyledDeckPage>
         <CardSection>
           <DeckCardGrid cards={uniqueCards} counts={cardCounts} />
@@ -191,7 +207,6 @@ const DeckDetailPage = () => {
           <AdInContent placement="deck" />
         </CardSection>
         <PanelSection>
-          <UserAccount hideIfPremium />
           <Matchups>
             <MatchupSection>
               <SubHeader $backgroundColor="var(--c)">
@@ -268,19 +283,33 @@ const DeckDetailPage = () => {
                   {t("deckPage.alternatives")}
                 </SubHeader>
                 {alternatives.map(({ list, diff }) => (
-                  <AlternativeContainer
+                  <AlternativeSwap
                     key={`${list.score}-${list.cards.map((c) => c.id).join("-")}`}
                   >
-                    <AlternativeCard src={diff.removed[0].image} />
-                    <AlternativeCard src={diff.added[0].image} />
-                    <ArrowRight src={arrowRight} />
-                  </AlternativeContainer>
+                    <SwapSide $out>
+                      <img src={diff.removed[0].image} alt="" loading="lazy" />
+                      <SwapLabel>
+                        <SwapCount $out>{`−${diff.removed.length}`}</SwapCount>
+                        <SwapName>{diff.removed[0].name}</SwapName>
+                      </SwapLabel>
+                    </SwapSide>
+                    <SwapArrow aria-hidden="true">
+                      <NavIcon name="arrowRight" size={20} />
+                    </SwapArrow>
+                    <SwapSide $out={false}>
+                      <img src={diff.added[0].image} alt="" loading="lazy" />
+                      <SwapLabel>
+                        <SwapCount $out={false}>{`+${diff.added.length}`}</SwapCount>
+                        <SwapName>{diff.added[0].name}</SwapName>
+                      </SwapLabel>
+                    </SwapSide>
+                  </AlternativeSwap>
                 ))}
               </MatchupSection>
             )}
 
             <MatchupSection>
-              <SubHeader $backgroundColor="var(--e)">
+              <SubHeader $backgroundColor="var(--f)">
                 {t("deckPage.strongAgainst")}
               </SubHeader>
               <MatchupList $blur={!isPremium}>

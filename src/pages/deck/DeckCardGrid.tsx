@@ -22,6 +22,7 @@ const DeckCardGrid = ({ cards, counts }: Props) => {
         return (
           <CardContainer
             key={card.id}
+            $stacked={count > 1}
             onClick={() => {
               if (count === 1) {
                 addMissing([card.id, card.id]);
@@ -31,7 +32,7 @@ const DeckCardGrid = ({ cards, counts }: Props) => {
             }}
           >
             <CardImage src={card.image} alt={card.name} />
-            <CardNumber>{count}</CardNumber>
+            <CardNumber $count={count}>{count}</CardNumber>
           </CardContainer>
         );
       })}

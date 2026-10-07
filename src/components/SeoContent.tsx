@@ -47,16 +47,8 @@ const Section = styled.section`
     padding-left: 2.4rem;
   }
 
-  /* The global "*" reset forces font-size: 10px on every element; make inline
-     elements inherit so bold text and links match the surrounding copy. */
-  strong,
-  em,
   a {
-    font-size: inherit;
-  }
-
-  a {
-    color: var(--e);
+    color: var(--f);
     text-decoration: underline;
   }
 `;

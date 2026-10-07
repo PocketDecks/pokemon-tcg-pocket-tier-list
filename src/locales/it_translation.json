@@ -2,6 +2,12 @@
   "home": {
     "banner": "Le classifiche sono aggiornate al {{date}}."
   },
+  "a11y": {
+    "skipToContent": "Vai al contenuto",
+    "openMenu": "Apri menu",
+    "closeMenu": "Chiudi menu",
+    "primaryNav": "Navigazione principale"
+  },
   "premium": {
     "title": "Top Pocket Decks Premium",
     "manageSubscription": "Gestisci Abbonamento",
@@ -120,7 +126,8 @@
     "popularityTooltip": "Partite qualificate negli ultimi 14 giorni, limitate all'uscita di questa espansione",
     "winRateTooltip": "% di vittoria nella finestra attuale",
     "metaShareTooltip": "Quota di partite qualificate ± cambiamento settimanale",
-    "showTooltip": "Mostra spiegazione"
+    "showTooltip": "Mostra spiegazione",
+    "energyUsed": "Energia usata"
   },
   "energyDropdown": {
     "all": "Tutti i Tipi di Energia",
@@ -178,12 +185,47 @@
   },
   "footer": {
     "about": "Informazioni",
-    "privacy": "Informativa sulla Privacy"
+    "privacy": "Informativa sulla Privacy",
+    "feedback": "Feedback"
+  },
+  "feedback": {
+    "title": "Invia un feedback",
+    "intro": "Hai trovato un bug, dati strani o hai un'idea? Diccelo. Leggiamo ogni messaggio.",
+    "signInTitle": "Accedi per inviare un feedback",
+    "signInBody": "L'accesso tiene il modulo libero dallo spam. Il tuo account serve solo a risponderti, se lo chiedi.",
+    "signedInAs": "Accesso effettuato come {{name}}",
+    "categoryLabel": "Di cosa si tratta?",
+    "categories": {
+      "idea": "Un'idea",
+      "bug": "Qualcosa non funziona",
+      "data": "I dati sembrano strani",
+      "other": "Altro"
+    },
+    "messageLabel": "Il tuo messaggio",
+    "messagePlaceholder": "Cosa è successo, o cosa migliorerebbe il sito?",
+    "messageHint": "Almeno {{min}} caratteri.",
+    "messageTooShort": "Scrivi almeno {{min}} caratteri.",
+    "contactLabel": "Potete scrivermi a {{email}} su questo",
+    "submit": "Invia feedback",
+    "sending": "Invio in corso…",
+    "successTitle": "Grazie, è stato inviato",
+    "successBody": "Leggiamo ogni messaggio.",
+    "successReply": "Ti risponderemo a {{email}}.",
+    "sendAnother": "Invia un altro",
+    "error": "Invio non riuscito. Controlla la connessione e riprova tra qualche minuto.",
+    "rateLimited": "Hai già inviato un feedback nell'ultima ora. Il tuo messaggio resta qui, quindi puoi inviarlo allo scadere dell'ora."
   },
   "hero": {
     "title": "Migliori Mazzi e Tier List di Pokemon TCG Pocket",
     "subtitle": "Trova i mazzi più forti di Pokemon TCG Pocket usando dati di tornei reali. Puoi filtrare le liste complete, contrassegnare le carte che ti mancano e vedere esattamente cosa costruire in seguito. Domina il meta.",
     "button": "Visualizza la Tier List"
+  },
+  "landing": {
+    "stats": {
+      "title": "Leggi il meta",
+      "description": "Scopri quali mazzi salgono o scendono ogni settimana, come cambia la loro quota di partite nei tornei e come se la cava ogni mazzo di punta negli scontri diretti.",
+      "button": "Apri le statistiche"
+    }
   },
   "features": {
     "title": "Funzionalità",
@@ -210,6 +252,14 @@
     "openSource": {
       "title": "Open Source",
       "description": "Questo sito web è open source. Puoi trovare il codice sorgente su <0>GitHub</0>."
+    },
+    "qrImport": {
+      "title": "Importazione QR",
+      "description": "Ogni pagina del mazzo ha un codice QR da scansionare in Pokémon TCG Pocket per importare la lista, oltre a un codice mazzo da copiare."
+    },
+    "statistics": {
+      "title": "Statistiche del meta",
+      "description": "Segui settimana dopo settimana la quota del meta di ogni mazzo e controlla le percentuali di vittoria negli scontri diretti."
     }
   },
   "tierList": {

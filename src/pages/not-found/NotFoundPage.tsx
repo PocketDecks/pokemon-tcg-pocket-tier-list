@@ -1,18 +1,16 @@
 import styled from "styled-components";
 import { Link } from "react-router";
-import Header from "../../components/Header";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 
 const Wrapper = styled.div`
   width: 100%;
-  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   background: var(--bg);
 `;
 
-const Content = styled.main`
+const Content = styled.div`
   flex: 1;
   width: 100%;
   max-width: 90rem;
@@ -88,16 +86,14 @@ const NotFoundPage = () => {
 
   return (
     <Wrapper>
-      <Header />
       <Content>
         <Code>404</Code>
         <Title>Page not found</Title>
         <Message>
           Sorry, that page doesn&apos;t exist or has moved.
         </Message>
-        <HomeLink to="/">Back to the tier list</HomeLink>
+        <HomeLink to="/tier-list">Back to the tier list</HomeLink>
       </Content>
-      <Header footer />
     </Wrapper>
   );
 };

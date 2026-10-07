@@ -3,7 +3,6 @@ import { useDecks } from "../../app/use-decks";
 import useFilters from "../../app/use-filters";
 import useIsPremium from "../../app/use-is-premium";
 
-import UserAccount from "../../components/UserAccount";
 import { SortBy } from "../../components/FilterContext";
 import LastUpdated from "../../components/LastUpdated";
 import Dropdown from "../../components/Dropdown";
@@ -12,10 +11,11 @@ import AdInContent from "../../ads/AdInContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import React, { type ChangeEvent } from "react";
 import TierGrid from "../../components/TierGrid";
+import PageTitle from "../../components/PageTitle";
 import DeckCard from "../../components/DeckCard";
 import styled from "styled-components";
 
-const DeckAmountContainer = styled.div`
+const DeckAmountContainer = styled.label`
   display: flex;
   align-items: center;
   gap: 1.2rem;
@@ -40,7 +40,7 @@ const IncludeExContainer = styled.label`
 const IncludeExCheckbox = styled.input.attrs({ type: "checkbox" })`
   width: 1.6rem;
   height: 1.6rem;
-  accent-color: var(--e);
+  accent-color: var(--f);
   background: var(--bg);
   border: 2px solid var(--main);
   border-radius: 0.3rem;
@@ -83,10 +83,7 @@ const TierListPage = () => {
 
   if (error) return <div>Error loading data: {error.message}</div>;
 
-  const filters = (
-    <>
-      <UserAccount />
-      {isPremium && (
+  const filters = isPremium ? (
         <>
           <Dropdown
             value={energy ?? ""}
@@ -156,16 +153,14 @@ const TierListPage = () => {
             </DeckAmountSelect>
           </DeckAmountContainer>
         </>
-      )}
-    </>
-  );
+  ) : null;
 
   return (
     <>
+      <PageTitle>{t("header.tierList")}</PageTitle>
       <TierGrid
-        items={decks}
+        items={decks ? decks.filter((deck) => deck.powerScore !== null) : null}
         getScore={(d) => d.powerScore ?? -1}
-        isRanked={(deck) => deck.powerScore !== null}
         getKey={(d) => d.id}
         renderItem={(deck) => (
           <DeckCard
@@ -190,7 +185,7 @@ const TierListPage = () => {
           <a href="https://limitlesstcg.com/" target="_blank" rel="noopener noreferrer">
             Limitless
           </a>{" "}
-          events and sort them into tiers from S to E. The list updates regularly to
+          events and sort them into tiers from S to F. The list updates regularly to
           reflect the current metagame as new expansions and balance changes alter the
           format.
         </p>
@@ -211,7 +206,7 @@ const TierListPage = () => {
           meta, making them safe choices for ranked play. A and B tier decks are
           highly competitive and can win events in the right hands or with favourable
           matchups. C and D tier options remain viable but are less consistent, often
-          serving as budget-friendly or matchup-dependent alternatives. E tier
+          serving as budget-friendly or matchup-dependent alternatives. F tier
           consists of experimental decks that struggle against the top of the meta.
         </p>
 

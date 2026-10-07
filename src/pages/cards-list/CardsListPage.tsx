@@ -5,12 +5,14 @@ import Dropdown from "../../components/Dropdown";
 import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import React, { type ChangeEvent } from "react";
+import { useTranslation } from "react-i18next";
 import TierGrid from "../../components/TierGrid";
-import UserAccount from "../../components/UserAccount";
+import PageTitle from "../../components/PageTitle";
 import CardIcon from "../../components/CardIcon";
 import LastUpdated from "../../components/LastUpdated";
 
 const CardsListPage = () => {
+  const { t } = useTranslation();
   const cards = useCards(30);
   const { expansion, setExpansion } = useFilters();
   const expansions = useExpansions();
@@ -20,7 +22,6 @@ const CardsListPage = () => {
 
   const filters = (
     <>
-      <UserAccount />
       <Dropdown
         value={expansion ?? ""}
         onChange={(e: ChangeEvent<HTMLSelectElement>) => {
@@ -40,6 +41,7 @@ const CardsListPage = () => {
 
   return (
     <>
+      <PageTitle>{t("header.bestCards")}</PageTitle>
       <TierGrid
         items={cards}
         getScore={(c) => c.score}

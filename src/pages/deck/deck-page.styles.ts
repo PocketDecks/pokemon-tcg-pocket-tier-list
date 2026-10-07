@@ -41,56 +41,42 @@ export const PanelSection = styled.div`
   }
 `;
 
-export const DeckFinderHeader = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
+export const FinderHelper = styled.p`
   width: 100%;
-  height: 8rem;
-  background: var(--e);
-  color: var(--bg);
-  font-size: 3.2rem;
-  font-weight: 500;
-  text-align: center;
-  padding: 0 4rem;
-
-  @media (max-width: 900px) {
-    font-size: 2.4rem;
-    height: auto;
-    padding: 2rem;
-  }
+  max-width: 72ch;
+  align-self: flex-start;
+  font-size: 1.5rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.72);
 `;
 
-export const RelativeStrength = styled.div<{ $relativeScore: number }>`
+export const Strength = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 8rem;
-  background: ${(props) => {
-    const colors = [
-      "var(--s)",
-      "var(--a)",
-      "var(--b)",
-      "var(--c)",
-      "var(--d)",
-      "var(--e)",
-    ];
-    const index = Math.floor(props.$relativeScore * (colors.length - 1));
-    return colors[index];
-  }};
-  color: var(--bg);
-  font-size: 3.2rem;
-  font-weight: 500;
-  text-align: center;
-  padding: 0 4rem;
-  margin-bottom: 2rem;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 18rem;
+`;
 
-  @media (max-width: 900px) {
-    font-size: 2.4rem;
-    height: auto;
-    padding: 2rem;
-  }
+export const StrengthLabel = styled.span`
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  font-variant-numeric: tabular-nums;
+`;
+
+export const StrengthTrack = styled.span`
+  height: 0.8rem;
+  border-radius: 0.4rem;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+`;
+
+export const StrengthFill = styled.span<{ $value: number }>`
+  display: block;
+  width: ${(props) => Math.round(props.$value * 100)}%;
+  height: 100%;
+  border-radius: 0.4rem;
+  background: var(--main);
 `;
 
 export const CardList = styled.div`
@@ -105,10 +91,34 @@ export const CardList = styled.div`
   }
 `;
 
-export const CardContainer = styled.button`
+export const CardContainer = styled.button<{ $stacked: boolean }>`
   position: relative;
+  isolation: isolate;
+  container-type: inline-size;
   width: 100%;
   cursor: pointer;
+
+  ${(props) =>
+    props.$stacked &&
+    `
+      &::before {
+        content: "";
+        position: absolute;
+        inset: 0.4rem -0.6rem -0.6rem 0.4rem;
+        z-index: -1;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.16);
+        box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.35);
+      }
+    `}
+
+  img {
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  &:hover img {
+    transform: translateY(-0.3rem);
+  }
 `;
 
 export const CardImage = styled.img`
@@ -117,32 +127,34 @@ export const CardImage = styled.img`
   display: block;
 `;
 
-export const CardNumber = styled.div`
+export const CardNumber = styled.span<{ $count: number }>`
   position: absolute;
-  bottom: 0;
-  right: 0;
-  background: var(--s);
-  color: var(--bg);
-  height: 4rem;
-  width: 4rem;
-  transform: translate(30%, 30%);
-  display: flex;
-  justify-content: center;
+  right: 4.5cqw;
+  bottom: 4.5cqw;
+  display: inline-flex;
   align-items: center;
-  font-size: 2.8rem;
-  font-weight: 500;
-  border-radius: 50%;
+  justify-content: center;
+  min-width: 2.4em;
+  height: 1.7em;
+  padding: 0 0.5em;
+  border-radius: 0.85em;
+  font-size: clamp(1.1rem, 9cqw, 1.7rem);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  background: ${(props) => (props.$count > 1 ? "var(--main)" : "rgba(18, 18, 16, 0.82)")};
+  color: ${(props) => (props.$count > 1 ? "var(--bg)" : "var(--main)")};
+  box-shadow: 0 0.1em 0.5em rgba(0, 0, 0, 0.45);
 
-  @media (max-width: 900px) {
-    height: 3rem;
-    width: 3rem;
-    font-size: 2rem;
+  &::before {
+    content: "×";
+    margin-right: 0.08em;
   }
 `;
 
 export const Overlay = styled.div`
-  height: 100dvh;
-  width: 100dvw;
+  min-height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -234,26 +246,37 @@ export const Matchups = styled.div`
   }
 `;
 
-export const SubHeader = styled.div<{ $backgroundColor: string }>`
+export const SubHeader = styled.h2<{ $backgroundColor: string }>`
   display: flex;
-  justify-content: center;
   align-items: center;
+  gap: 1rem;
   width: 100%;
-  padding: 1rem 0;
-  background: ${(props) => props.$backgroundColor};
-  color: var(--bg);
-  font-size: 2.8rem;
-  font-weight: 500;
-  opacity: 0.9;
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--main);
+
+  &::before {
+    content: "";
+    flex-shrink: 0;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 0.3rem;
+    background: ${(props) => props.$backgroundColor};
+  }
 `;
 
-export const MatchupSection = styled.div`
+export const MatchupSection = styled.section`
   display: flex;
   flex-direction: column;
   align-items: center;
   flex: 1;
-  gap: 2.4rem;
+  gap: 2rem;
   height: auto;
+  padding: 2rem;
+  border-radius: 1.6rem;
+  background: #121210;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 
   @media (max-width: 900px) {
     width: 100%;
@@ -299,7 +322,7 @@ export const MatchupLabel = styled.div<{ $winRate: number }>`
   font-size: 2.4rem;
   font-weight: 500;
   color: ${(props) =>
-      props.$winRate > WINRATE_THRESHOLD ? "var(--e)" : "var(--s)"};
+      props.$winRate > WINRATE_THRESHOLD ? "var(--f)" : "var(--s)"};
 
   @media (max-width: 900px) {
     font-size: 2rem;
@@ -330,6 +353,10 @@ export const KeyStatRow = styled.div`
     grid-column: 1;
   }
 
+  > :first-child {
+    font-size: 1.6rem;
+  }
+
   > :nth-child(2) {
     grid-column: 2;
   }
@@ -350,24 +377,59 @@ export const KeyStatValue = styled.span`
   font-weight: 500;
 `;
 
-export const AlternativeContainer = styled.div`
-  position: relative;
-  flex: 1;
-  display: flex;
+export const AlternativeSwap = styled.div`
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  gap: 4.8rem;
+  gap: 1.2rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+
+  &:first-of-type {
+    padding-top: 0;
+    border-top: none;
+  }
 `;
 
-export const AlternativeCard = styled.img`
-  width: calc(50% - 2.4rem);
-  aspect-ratio: 63 / 88;
-  display: block;
+export const SwapSide = styled.div<{ $out: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  min-width: 0;
+
+  img {
+    width: 100%;
+    aspect-ratio: 63 / 88;
+    display: block;
+    opacity: ${(props) => (props.$out ? 0.55 : 1)};
+    filter: ${(props) => (props.$out ? "grayscale(0.6)" : "none")};
+  }
 `;
 
-export const ArrowRight = styled.img`
-  position: absolute;
-  top: 50%;
-  right: 50%;
-  transform: translate(50%, -50%);
-  height: 5rem;
+export const SwapLabel = styled.span`
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-size: 1.3rem;
+  line-height: 1.3;
+  min-width: 0;
+`;
+
+export const SwapCount = styled.span<{ $out: boolean }>`
+  flex-shrink: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: ${(props) => (props.$out ? "#e58a8a" : "#7ddb8a")};
+`;
+
+export const SwapName = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.85);
+`;
+
+export const SwapArrow = styled.span`
+  color: rgba(255, 255, 255, 0.6);
 `;

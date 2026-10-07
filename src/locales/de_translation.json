@@ -2,6 +2,12 @@
   "home": {
     "banner": "Ranglisten sind aktuell vom {{date}}."
   },
+  "a11y": {
+    "skipToContent": "Zum Inhalt springen",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen",
+    "primaryNav": "Hauptnavigation"
+  },
   "premium": {
     "title": "Top Pocket Decks Premium",
     "manageSubscription": "Abonnement verwalten",
@@ -120,7 +126,8 @@
     "popularityTooltip": "Qualifizierte Spiele in den letzten 14 Tagen, begrenzt auf das Erscheinungsdatum dieser Erweiterung",
     "winRateTooltip": "Sieg-% im aktuellen Fenster",
     "metaShareTooltip": "Anteil qualifizierter Spiele ± wöchentliche Veränderung",
-    "showTooltip": "Erklärung anzeigen"
+    "showTooltip": "Erklärung anzeigen",
+    "energyUsed": "Genutzte Energie"
   },
   "energyDropdown": {
     "all": "Alle Energietypen",
@@ -178,12 +185,47 @@
   },
   "footer": {
     "about": "Über uns",
-    "privacy": "Datenschutz"
+    "privacy": "Datenschutz",
+    "feedback": "Feedback"
+  },
+  "feedback": {
+    "title": "Feedback senden",
+    "intro": "Einen Fehler gefunden, seltsame Daten entdeckt oder eine Idee? Sag es uns. Jede Nachricht wird gelesen.",
+    "signInTitle": "Melde dich an, um Feedback zu senden",
+    "signInBody": "Die Anmeldung hält das Formular frei von Spam. Dein Konto wird nur genutzt, um dir zu antworten, wenn du das möchtest.",
+    "signedInAs": "Angemeldet als {{name}}",
+    "categoryLabel": "Worum geht es?",
+    "categories": {
+      "idea": "Eine Idee",
+      "bug": "Etwas funktioniert nicht",
+      "data": "Daten wirken falsch",
+      "other": "Etwas anderes"
+    },
+    "messageLabel": "Deine Nachricht",
+    "messagePlaceholder": "Was ist passiert, oder was würde die Seite besser machen?",
+    "messageHint": "Mindestens {{min}} Zeichen.",
+    "messageTooShort": "Bitte schreib mindestens {{min}} Zeichen.",
+    "contactLabel": "Ihr dürft mir dazu an {{email}} schreiben",
+    "submit": "Feedback senden",
+    "sending": "Wird gesendet …",
+    "successTitle": "Danke, es ist unterwegs",
+    "successBody": "Wir lesen jede Nachricht.",
+    "successReply": "Wir antworten an {{email}}.",
+    "sendAnother": "Noch etwas senden",
+    "error": "Das hat nicht geklappt. Prüfe deine Verbindung und versuche es in ein paar Minuten erneut.",
+    "rateLimited": "Du hast in der letzten Stunde bereits Feedback gesendet. Deine Nachricht bleibt hier, du kannst sie senden, sobald die Stunde um ist."
   },
   "hero": {
     "title": "Pokémon TCG Pocket Beste Decks und Tier-Liste",
     "subtitle": "Finde die stärksten Pokémon TCG Pocket Decks anhand echter Turnierdaten. Du kannst vollständige Listen filtern, fehlende Karten markieren und genau sehen, was du als Nächstes bauen solltest. Dominiere das Meta.",
     "button": "Tier-Liste anzeigen"
+  },
+  "landing": {
+    "stats": {
+      "title": "Das Meta lesen",
+      "description": "Sieh, welche Decks jede Woche steigen oder fallen, wie sich ihr Anteil an Turnierspielen verschiebt und wie jedes Top-Deck im direkten Vergleich abschneidet.",
+      "button": "Statistiken öffnen"
+    }
   },
   "features": {
     "title": "Funktionen",
@@ -210,6 +252,14 @@
     "openSource": {
       "title": "Open Source",
       "description": "Diese Website ist Open Source. Du findest den Quellcode auf <0>GitHub</0>."
+    },
+    "qrImport": {
+      "title": "QR-Import",
+      "description": "Jede Deckseite hat einen QR-Code, den du in Pokémon TCG Pocket scannen kannst, um die Liste zu importieren, und einen Deckcode zum Kopieren."
+    },
+    "statistics": {
+      "title": "Meta-Statistiken",
+      "description": "Verfolge Woche für Woche den Meta-Anteil jedes Decks und prüfe die Siegquoten im direkten Matchup."
     }
   },
   "tierList": {

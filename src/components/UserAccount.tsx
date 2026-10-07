@@ -8,11 +8,13 @@ import { useTranslation } from "react-i18next";
 import Premium from "./Premium";
 import useIsPremium from "../app/use-is-premium";
 import contactIcon from "../assets/contact.svg";
+import NavIcon from "./NavIcon";
 
-const StyledUserAccount = styled.div`
+const StyledUserAccount = styled.div<{ $compact: boolean }>`
   display: flex;
+  flex-direction: ${(props) => (props.$compact ? "column" : "row")};
   align-items: center;
-  gap: 2rem;
+  gap: ${(props) => (props.$compact ? "1.2rem" : "2rem")};
 
   @media (max-width: 900px) {
     gap: 1rem;
@@ -32,6 +34,25 @@ const SignInButton = styled.button`
   color: var(--main);
   cursor: pointer;
   white-space: nowrap;
+
+  transition: background-color 160ms ease-out, border-color 160ms ease-out;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.36);
+  }
+
+  @media (max-width: 900px) {
+    min-height: 4.4rem;
+  }
+`;
+
+const CompactSignInButton = styled(SignInButton)`
+  width: 4.4rem;
+  height: 4.4rem;
+  padding: 0;
+  justify-content: center;
+  border-radius: 1.2rem;
 `;
 
 const UserInfo = styled.button`
@@ -106,27 +127,23 @@ const ContactText = styled.p`
 
 const EmailText = styled(ContactText)`
   margin-top: 1rem;
-  color: var(--e);
+  color: var(--f);
 `;
 
 interface Props {
-  hideIfPremium?: boolean;
+  compact?: boolean;
 }
 
-const UserAccount = ({ hideIfPremium = false }: Props) => {
+const UserAccount = ({ compact = false }: Props) => {
   const { t } = useTranslation();
   const { user, signOut, signInWithGoogle } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
   const isPremium = useIsPremium();
 
-  if (hideIfPremium && isPremium) {
-    return null;
-  }
-
   return (
     <>
-      <StyledUserAccount>
+      <StyledUserAccount $compact={compact}>
         {isPremium && (
           <ContactButton onClick={() => setIsContactOpen(true)}>
             <ContactIcon src={contactIcon} alt="Contact" />
@@ -140,10 +157,19 @@ const UserAccount = ({ hideIfPremium = false }: Props) => {
             />
           </UserInfo>
         )}
-        {!user && (
+        {!user && !compact && (
           <SignInButton onClick={() => signInWithGoogle()}>
             {t("header.signIn", "Sign in with Google")}
           </SignInButton>
+        )}
+        {!user && compact && (
+          <CompactSignInButton
+            onClick={() => signInWithGoogle()}
+            aria-label={t("header.signIn", "Sign in with Google")}
+            title={t("header.signIn", "Sign in with Google")}
+          >
+            <NavIcon name="account" />
+          </CompactSignInButton>
         )}
         <Premium />
       </StyledUserAccount>

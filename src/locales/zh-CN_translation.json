@@ -2,6 +2,12 @@
   "home": {
     "banner": "排名截至 {{date}}。"
   },
+  "a11y": {
+    "skipToContent": "跳到主要内容",
+    "openMenu": "打开菜单",
+    "closeMenu": "关闭菜单",
+    "primaryNav": "主导航"
+  },
   "premium": {
     "title": "Top Pocket Decks 高级会员",
     "manageSubscription": "管理订阅",
@@ -120,7 +126,8 @@
     "popularityTooltip": "过去 14 天内的合格对局数，以当前扩展包发布时为上限",
     "winRateTooltip": "当前窗口的胜率百分比",
     "metaShareTooltip": "合格对局的份额 ± 每周变化",
-    "showTooltip": "显示说明"
+    "showTooltip": "显示说明",
+    "energyUsed": "使用能量"
   },
   "energyDropdown": {
     "all": "所有能量类型",
@@ -178,12 +185,47 @@
   },
   "footer": {
     "about": "关于",
-    "privacy": "隐私政策"
+    "privacy": "隐私政策",
+    "feedback": "反馈"
+  },
+  "feedback": {
+    "title": "发送反馈",
+    "intro": "发现了错误、奇怪的数据，或者有新想法？告诉我们。每条消息我们都会阅读。",
+    "signInTitle": "登录后即可发送反馈",
+    "signInBody": "登录可以让表单远离垃圾信息。只有在你希望得到回复时，我们才会使用你的账号信息。",
+    "signedInAs": "已登录为 {{name}}",
+    "categoryLabel": "反馈内容是关于？",
+    "categories": {
+      "idea": "一个想法",
+      "bug": "有东西坏了",
+      "data": "数据看起来不对",
+      "other": "其他"
+    },
+    "messageLabel": "你的消息",
+    "messagePlaceholder": "发生了什么，或者怎样能让网站更好？",
+    "messageHint": "至少 {{min}} 个字符。",
+    "messageTooShort": "请至少输入 {{min}} 个字符。",
+    "contactLabel": "可以就此事发邮件到 {{email}} 联系我",
+    "submit": "发送反馈",
+    "sending": "正在发送…",
+    "successTitle": "谢谢，已经发送",
+    "successBody": "每条消息我们都会阅读。",
+    "successReply": "我们会回复到 {{email}}。",
+    "sendAnother": "再发一条",
+    "error": "发送失败。请检查网络连接，几分钟后再试。",
+    "rateLimited": "你在过去一小时内已经发送过反馈。你的消息仍保留在这里，一小时后即可发送。"
   },
   "hero": {
     "title": "宝可梦卡牌游戏 Pocket 最佳卡组和等级列表",
     "subtitle": "使用真实的比赛数据寻找最强的宝可梦卡牌游戏 Pocket 卡组。您可以筛选完整列表，标记您缺少的卡牌，并准确了解接下来该构建什么。主宰环境。",
     "button": "查看等级列表"
+  },
+  "landing": {
+    "stats": {
+      "title": "解读环境",
+      "description": "查看每周哪些卡组在上升或下滑、它们在比赛对局中的占比如何变化，以及各强势卡组之间的对局表现。",
+      "button": "打开统计"
+    }
   },
   "features": {
     "title": "功能",
@@ -210,6 +252,14 @@
     "openSource": {
       "title": "开源",
       "description": "本网站是开源的。您可以在 <0>GitHub</0> 上找到源代码。"
+    },
+    "qrImport": {
+      "title": "二维码导入",
+      "description": "每个卡组页面都有可在 Pokémon TCG Pocket 中扫描导入卡表的二维码，以及可复制的卡组代码。"
+    },
+    "statistics": {
+      "title": "环境统计",
+      "description": "按周追踪每个卡组的环境占比，并查看各对局的胜率。"
     }
   },
   "tierList": {

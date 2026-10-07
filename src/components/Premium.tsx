@@ -16,7 +16,7 @@ const RemoveAdsLink = styled.button`
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--e);
+  color: var(--f);
   white-space: nowrap;
   transition: opacity 0.2s ease;
 
@@ -48,7 +48,7 @@ const Text = styled.p`
 `;
 
 const InlineLink = styled.a`
-  color: var(--e);
+  color: var(--f);
   font-size: inherit;
   text-decoration: underline;
 

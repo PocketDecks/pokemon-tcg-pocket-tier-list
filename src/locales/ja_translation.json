@@ -2,6 +2,12 @@
   "home": {
     "banner": "ランキングの基準日：{{date}}"
   },
+  "a11y": {
+    "skipToContent": "本文へスキップ",
+    "openMenu": "メニューを開く",
+    "closeMenu": "メニューを閉じる",
+    "primaryNav": "メインナビゲーション"
+  },
   "premium": {
     "title": "Top Pocket Decks Premium",
     "manageSubscription": "サブスクリプション管理",
@@ -120,7 +126,8 @@
     "popularityTooltip": "直近14日間の予選済み試合数（現在の拡張パック発売日以降が上限）",
     "winRateTooltip": "現在のウィンドウでの勝率",
     "metaShareTooltip": "予選済み試合でのシェア ± 週次変化",
-    "showTooltip": "説明を表示"
+    "showTooltip": "説明を表示",
+    "energyUsed": "使用エネルギー"
   },
   "energyDropdown": {
     "all": "すべてのエネルギータイプ",
@@ -178,12 +185,47 @@
   },
   "footer": {
     "about": "概要",
-    "privacy": "プライバシーポリシー"
+    "privacy": "プライバシーポリシー",
+    "feedback": "フィードバック"
+  },
+  "feedback": {
+    "title": "フィードバックを送る",
+    "intro": "不具合やおかしなデータを見つけた、またはアイデアがありますか？ぜひ教えてください。すべてのメッセージに目を通しています。",
+    "signInTitle": "フィードバックを送るにはログインしてください",
+    "signInBody": "ログインによりフォームをスパムから守っています。アカウントは、返信を希望された場合にのみ使用します。",
+    "signedInAs": "{{name}} としてログイン中",
+    "categoryLabel": "どんな内容ですか？",
+    "categories": {
+      "idea": "アイデア",
+      "bug": "不具合がある",
+      "data": "データがおかしい",
+      "other": "その他"
+    },
+    "messageLabel": "メッセージ",
+    "messagePlaceholder": "何が起きましたか？サイトをより良くするには何が必要ですか？",
+    "messageHint": "{{min}}文字以上で入力してください。",
+    "messageTooShort": "{{min}}文字以上入力してください。",
+    "contactLabel": "この件について {{email}} 宛てに連絡しても構いません",
+    "submit": "フィードバックを送信",
+    "sending": "送信中…",
+    "successTitle": "ありがとうございます。送信しました",
+    "successBody": "すべてのメッセージに目を通しています。",
+    "successReply": "{{email}} 宛てに返信します。",
+    "sendAnother": "もう一件送る",
+    "error": "送信できませんでした。接続を確認し、数分後にもう一度お試しください。",
+    "rateLimited": "過去1時間以内にすでにフィードバックを送信しています。メッセージはここに残っているので、1時間経過後に送信できます。"
   },
   "hero": {
     "title": "ポケモンカードゲーム ポケット 最強デッキとティアリスト",
     "subtitle": "実際のトーナメントデータを使用して、最強のポケモンカードゲーム ポケットのデッキを見つけましょう。完全なリストをフィルタリングし、足りないカードをマークして、次に何を構築すべきかを正確に確認できます。メタを支配しましょう。",
     "button": "ティアリストを見る"
+  },
+  "landing": {
+    "stats": {
+      "title": "メタを読み解く",
+      "description": "毎週どのデッキが伸びているか、落ちているか、大会での使用率がどう変化しているか、そして上位デッキ同士の相性をチェックできます。",
+      "button": "統計を開く"
+    }
   },
   "features": {
     "title": "機能",
@@ -210,6 +252,14 @@
     "openSource": {
       "title": "オープンソース",
       "description": "このウェブサイトはオープンソースです。ソースコードは<0>GitHub</0>で見つけることができます。"
+    },
+    "qrImport": {
+      "title": "QRインポート",
+      "description": "各デッキページには Pokémon TCG Pocket でスキャンしてレシピを取り込めるQRコードと、コピーできるデッキコードがあります。"
+    },
+    "statistics": {
+      "title": "メタ統計",
+      "description": "各デッキのメタシェアを週ごとに追い、対面ごとの勝率を確認できます。"
     }
   },
   "tierList": {

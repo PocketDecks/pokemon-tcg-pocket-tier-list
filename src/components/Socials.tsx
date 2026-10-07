@@ -18,8 +18,8 @@ const Link = styled.a`
   height: 32px;
 
   @media (max-width: 900px) {
-    width: 24px;
-    height: 24px;
+    width: 4.4rem;
+    height: 4.4rem;
   }
 `;
 

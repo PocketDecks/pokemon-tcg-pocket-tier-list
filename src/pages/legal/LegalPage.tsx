@@ -1,11 +1,9 @@
 import styled from "styled-components";
-import Header from "../../components/Header";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { ReactNode } from "react";
 
 const StyledLegalPage = styled.div`
   width: 100%;
-  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -55,17 +53,8 @@ const Content = styled.article`
     padding-left: 2.4rem;
   }
 
-  /* The global "*" reset sets font-size: 10px on every element directly, which
-     overrides inheritance for inline elements. Force them back to their
-     parent's size so bold text and links aren't shrunk to 1rem. */
-  strong,
-  em,
   a {
-    font-size: inherit;
-  }
-
-  a {
-    color: var(--e);
+    color: var(--f);
     text-decoration: underline;
   }
 
@@ -86,9 +75,7 @@ const LegalPage = ({ children }: Props) => {
 
   return (
     <StyledLegalPage>
-      <Header />
       <Content>{children}</Content>
-      <Header footer />
     </StyledLegalPage>
   );
 };

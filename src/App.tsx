@@ -1,6 +1,7 @@
 import { Suspense, lazy } from "react";
-import { Outlet, Route, Routes } from "react-router";
+import { Outlet, Route, Routes, useLocation } from "react-router";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
 import { DecksProvider } from "./contexts/DecksContext";
@@ -8,6 +9,8 @@ import AdAnchor from "./ads/AdAnchor";
 import AdBlockerNotice from "./components/AdBlockerNotice";
 import { ContentReadyProvider } from "./ads/ContentReadyContext";
 import ErrorBoundary, { LoadingNotice } from "./components/ErrorBoundary";
+import Header, { RAIL_WIDTH } from "./components/Header";
+import HomeBanner from "./components/HomeBanner";
 
 const LandingPage = lazy(() => import("./pages/landing/LandingPage"));
 const TierListPage = lazy(() => import("./pages/tier-list/TierListPage"));
@@ -19,6 +22,7 @@ const StatisticsPage = lazy(() => import("./pages/stats/StatisticsPage"));
 const PrivacyPage = lazy(() => import("./pages/legal/PrivacyPage"));
 const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
 const NotFoundPage = lazy(() => import("./pages/not-found/NotFoundPage"));
+const FeedbackPage = lazy(() => import("./pages/feedback/FeedbackPage"));
 
 export const queryClientOptions = {
   defaultOptions: {
@@ -33,21 +37,89 @@ const queryClient = new QueryClient(queryClientOptions);
 
 const StyledApp = styled.div`
   width: 100%;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: ${RAIL_WIDTH} minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "rail banner"
+    "rail main"
+    "rail footer";
+  background: var(--bg);
+
+  @media (max-width: 900px) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+`;
+
+const Banner = styled.div`
+  grid-area: banner;
+  width: 100%;
+`;
+
+const FooterArea = styled.div`
+  grid-area: footer;
+  width: 100%;
+`;
+
+const SkipLink = styled.a`
+  position: absolute;
+  top: 0.8rem;
+  left: 0.8rem;
+  z-index: 100;
+  padding: 1.2rem 1.6rem;
+  border-radius: 0.6rem;
+  background: var(--focus);
+  color: var(--bg);
+  font-size: 1.6rem;
+  font-weight: 500;
+  transform: translateY(-200%);
+
+  &:focus-visible {
+    transform: none;
+  }
+`;
+
+const Main = styled.main`
+  grid-area: main;
+  width: 100%;
+  min-width: 0;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: var(--bg);
+
+  &:focus {
+    outline: none;
+  }
 `;
 
 const Layout = () => {
+  const { t } = useTranslation();
+  const { pathname } = useLocation();
+
   return (
       <StyledApp>
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingNotice />}>
-            <Outlet />
-          </Suspense>
-        </ErrorBoundary>
-        <AdBlockerNotice />
+        <SkipLink href="#main-content">{t("a11y.skipToContent")}</SkipLink>
+        {pathname === "/" && (
+          <Banner>
+            <HomeBanner />
+          </Banner>
+        )}
+        <Header />
+        <Main id="main-content" tabIndex={-1}>
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingNotice />}>
+              <Outlet />
+            </Suspense>
+          </ErrorBoundary>
+        </Main>
+        <FooterArea>
+          <Header footer />
+          <AdBlockerNotice />
+        </FooterArea>
         <AdAnchor />
       </StyledApp>
   );
@@ -70,6 +142,7 @@ const App = () => {
                     <Route path="stats" element={<StatisticsPage />} />
                     <Route path="privacy" element={<PrivacyPage />} />
                     <Route path="about" element={<AboutPage />} />
+                    <Route path="feedback" element={<FeedbackPage />} />
                     <Route path="404" element={<NotFoundPage />} />
                     <Route path="deck">
                       <Route index element={<DeckFinderPage />} />

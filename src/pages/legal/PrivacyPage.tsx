@@ -29,6 +29,13 @@ const PrivacyPage = () => {
           account and legacy & Premium subscriptions.
         </li>
         <li>
+          <strong>Feedback.</strong> If you send feedback while signed in, we
+          store your message, the topic you chose, the page you came from and
+          your account ID in Firebase so we can read and act on it. We store
+          your email address with it only if you tick the box asking us to
+          reply.
+        </li>
+        <li>
           <strong>Payment information.</strong> Premium subscriptions are
           processed by Stripe. Payments are handled entirely by Stripe and we do
           not receive or store your full card details.

@@ -8,6 +8,7 @@ import Premium from "../components/Premium";
 import { ANCHOR_HEIGHT_DESKTOP, ANCHOR_HEIGHT_MOBILE } from "./adsConfig";
 
 const STRIP_HEIGHT = 18;
+const ANCHOR_BORDER = 1;
 
 const Anchor = styled.div`
   position: fixed;
@@ -20,8 +21,26 @@ const Anchor = styled.div`
   align-items: center;
   width: 100%;
   background: var(--bg);
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: ${ANCHOR_BORDER}px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 1rem;
+    background: var(--bg);
+  }
+
+  @media (min-width: 901px) {
+    display: grid;
+    grid-template-columns: minmax(12rem, 1fr) minmax(0, 72.8rem) minmax(12rem, 1fr);
+    align-items: center;
+    column-gap: 1.6rem;
+    padding: 0 1.6rem;
+  }
 `;
 
 const Strip = styled.div`
@@ -32,6 +51,10 @@ const Strip = styled.div`
   justify-content: space-between;
   padding: 0.2rem 1rem;
   height: ${STRIP_HEIGHT}px;
+
+  @media (min-width: 901px) {
+    display: contents;
+  }
 `;
 
 const Label = styled.span`
@@ -39,15 +62,28 @@ const Label = styled.span`
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.45);
+
+  @media (min-width: 901px) {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+  }
 `;
 
 const Actions = styled.div`
   display: flex;
   align-items: center;
   gap: 1.2rem;
+
+  @media (min-width: 901px) {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+  }
 `;
 
 const CloseButton = styled.button`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -60,6 +96,12 @@ const CloseButton = styled.button`
   cursor: pointer;
   transition: background-color 0.2s ease;
 
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -1.3rem -0.6rem;
+  }
+
   &:hover {
     background: rgba(255, 255, 255, 0.1);
   }
@@ -70,6 +112,11 @@ const AdRow = styled.div`
   max-width: 150rem;
   display: flex;
   justify-content: center;
+
+  @media (min-width: 901px) {
+    grid-column: 2;
+    grid-row: 1;
+  }
 `;
 
 const AnchorAd = styled(AdSlot)`
@@ -113,10 +160,10 @@ const AdAnchor = () => {
     }
 
     const applyHeight = () => {
-      const adHeight = isMobileViewport()
-        ? ANCHOR_HEIGHT_MOBILE
+      const anchorHeight = isMobileViewport()
+        ? ANCHOR_HEIGHT_MOBILE + STRIP_HEIGHT
         : ANCHOR_HEIGHT_DESKTOP;
-      root.style.setProperty("--ad-anchor-h", `${adHeight + STRIP_HEIGHT}px`);
+      root.style.setProperty("--ad-anchor-h", `${anchorHeight + ANCHOR_BORDER}px`);
     };
 
     applyHeight();

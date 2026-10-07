@@ -2,6 +2,12 @@
   "home": {
     "banner": "Clasamentele sunt actualizate la {{date}}."
   },
+  "a11y": {
+    "skipToContent": "Salt la conținut",
+    "openMenu": "Deschide meniul",
+    "closeMenu": "Închide meniul",
+    "primaryNav": "Navigare principală"
+  },
   "premium": {
     "title": "Top Pocket Decks Premium",
     "manageSubscription": "Gestionare abonament",
@@ -120,7 +126,8 @@
     "popularityTooltip": "Meciuri calificate în ultimele 14 zile, limitate la lansarea acestei expansiuni",
     "winRateTooltip": "% de victorii în fereastra curentă",
     "metaShareTooltip": "Ponderea meciurilor calificate ± schimbare săptămânală",
-    "showTooltip": "Afișează explicația"
+    "showTooltip": "Afișează explicația",
+    "energyUsed": "Energie folosită"
   },
   "energyDropdown": {
     "all": "Toate tipurile de energie",
@@ -178,12 +185,47 @@
   },
   "footer": {
     "about": "Despre",
-    "privacy": "Politica de confidențialitate"
+    "privacy": "Politica de confidențialitate",
+    "feedback": "Feedback"
+  },
+  "feedback": {
+    "title": "Trimite feedback",
+    "intro": "Ai găsit o eroare, date ciudate sau ai o idee? Spune-ne. Citim fiecare mesaj.",
+    "signInTitle": "Conectează-te pentru a trimite feedback",
+    "signInBody": "Conectarea ține formularul departe de spam. Contul tău este folosit doar pentru a-ți răspunde, dacă ceri asta.",
+    "signedInAs": "Conectat ca {{name}}",
+    "categoryLabel": "Despre ce este vorba?",
+    "categories": {
+      "idea": "O idee",
+      "bug": "Ceva nu funcționează",
+      "data": "Datele par greșite",
+      "other": "Altceva"
+    },
+    "messageLabel": "Mesajul tău",
+    "messagePlaceholder": "Ce s-a întâmplat sau ce ar face site-ul mai bun?",
+    "messageHint": "Cel puțin {{min}} caractere.",
+    "messageTooShort": "Te rugăm să scrii cel puțin {{min}} caractere.",
+    "contactLabel": "Îmi puteți scrie la {{email}} despre asta",
+    "submit": "Trimite feedback",
+    "sending": "Se trimite…",
+    "successTitle": "Mulțumim, a fost trimis",
+    "successBody": "Citim fiecare mesaj.",
+    "successReply": "Îți vom răspunde la {{email}}.",
+    "sendAnother": "Trimite altul",
+    "error": "Nu s-a putut trimite. Verifică-ți conexiunea și încearcă din nou peste câteva minute.",
+    "rateLimited": "Ai trimis deja feedback în ultima oră. Mesajul tău rămâne aici, așa că îl poți trimite după ce trece ora."
   },
   "hero": {
     "title": "Cele mai bune deck-uri și clasamente pentru Pokemon TCG Pocket",
     "subtitle": "Găsește cele mai puternice deck-uri Pokemon TCG Pocket folosind date reale din turnee. Poți filtra liste complete, poți marca cărțile care îți lipsesc și poți vedea exact ce să construiești mai departe. Domină meta-ul.",
     "button": "Vezi clasamentul"
+  },
+  "landing": {
+    "stats": {
+      "title": "Citește meta",
+      "description": "Vezi ce pachete urcă sau coboară în fiecare săptămână, cum se schimbă ponderea lor în meciurile de turneu și cum se descurcă fiecare pachet de top în confruntări directe.",
+      "button": "Deschide statisticile"
+    }
   },
   "features": {
     "title": "Caracteristici",
@@ -210,6 +252,14 @@
     "openSource": {
       "title": "Open Source",
       "description": "Acest site este open source. Poți găsi codul sursă pe <0>GitHub</0>."
+    },
+    "qrImport": {
+      "title": "Import prin QR",
+      "description": "Fiecare pagină de pachet are un cod QR pe care îl poți scana în Pokémon TCG Pocket pentru a importa lista, plus un cod de pachet de copiat."
+    },
+    "statistics": {
+      "title": "Statistici meta",
+      "description": "Urmărește săptămânal ponderea în meta a fiecărui pachet și verifică ratele de victorie în fiecare confruntare."
     }
   },
   "tierList": {

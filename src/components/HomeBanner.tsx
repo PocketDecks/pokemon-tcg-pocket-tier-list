@@ -23,7 +23,7 @@ const StyledHomeBanner = styled.div`
     var(--b),
     var(--c),
     var(--d),
-    var(--e),
+    var(--f),
     var(--s)
   );
   background-size: 300% 300%;

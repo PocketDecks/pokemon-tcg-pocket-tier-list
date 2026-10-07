@@ -13,6 +13,10 @@ const Page = styled.div`
   @media (max-width: 900px) {
     height: auto;
   }
+
+  @media (min-width: 901px) and (hover: hover) {
+    padding-top: 3.2rem;
+  }
 `;
 
 const FilterContainer = styled.div`

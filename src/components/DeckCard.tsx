@@ -104,15 +104,15 @@ const appear = keyframes`
   }
 `;
 
-const NameBubble = styled.div<{ $below: boolean }>`
+const NameBubble = styled.div`
   position: fixed;
   z-index: 1000;
   max-width: min(32rem, calc(100vw - 2.4rem));
   padding: 0.7rem 1.2rem;
   border-radius: 0.8rem;
   background: rgba(18, 18, 16, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0.6rem 1.6rem rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--focus);
+  box-shadow: 0 0.6rem 1.6rem rgba(0, 0, 0, 0.45), 0 0 1.6rem rgba(255, 223, 128, 0.35);
   color: var(--main);
   font-size: 1.6rem;
   font-weight: 600;
@@ -121,7 +121,7 @@ const NameBubble = styled.div<{ $below: boolean }>`
   overflow: hidden;
   text-overflow: ellipsis;
   pointer-events: none;
-  transform: translateY(${(props) => (props.$below ? "0" : "-100%")});
+  transform: translateY(-100%);
   animation: ${appear} 120ms ease-out 150ms both;
 `;
 
@@ -130,22 +130,20 @@ const BUBBLE_MARGIN = 12;
 
 const NameTip = ({ anchor, text }: { anchor: DOMRect; text: string }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const below = anchor.top < 48;
   const [left, setLeft] = useState(anchor.left + anchor.width / 2);
+  const [top, setTop] = useState(anchor.top - BUBBLE_GAP);
 
   useLayoutEffect(() => {
-    const width = ref.current?.getBoundingClientRect().width ?? 0;
+    const rect = ref.current?.getBoundingClientRect();
+    const width = rect?.width ?? 0;
+    const height = rect?.height ?? 0;
     const centred = anchor.left + anchor.width / 2 - width / 2;
     setLeft(Math.max(BUBBLE_MARGIN, Math.min(centred, window.innerWidth - width - BUBBLE_MARGIN)));
+    setTop(Math.max(BUBBLE_MARGIN + height, anchor.top - BUBBLE_GAP));
   }, [anchor]);
 
   return (
-    <NameBubble
-      ref={ref}
-      aria-hidden="true"
-      $below={below}
-      style={{ left, top: below ? anchor.bottom + BUBBLE_GAP : anchor.top - BUBBLE_GAP }}
-    >
+    <NameBubble ref={ref} aria-hidden="true" style={{ left, top }}>
       {text}
     </NameBubble>
   );

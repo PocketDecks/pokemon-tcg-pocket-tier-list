@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import DeckCard from "../DeckCard";
 import type { FullDeckType } from "../../contexts/DecksContext";
 import type { MetaShareEntry } from "../../types/pipeline-data";
@@ -95,5 +95,69 @@ describe("DeckCard", () => {
     expect(screen.getByText("Mega Blaziken ex / Greninja")).toBeInTheDocument();
     fireEvent.mouseLeave(link);
     expect(screen.queryByText("Mega Blaziken ex / Greninja")).not.toBeInTheDocument();
+  });
+});
+
+const rect = (values: Partial<DOMRect>): DOMRect =>
+  ({
+    top: 0,
+    left: 0,
+    width: 0,
+    height: 0,
+    bottom: 0,
+    right: 0,
+    x: 0,
+    y: 0,
+    toJSON: () => values,
+    ...values,
+  }) as DOMRect;
+
+describe("DeckCard name label geometry", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const stubRects = (tileTop: number, bubbleHeight: number) => {
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      if (this.getAttribute("aria-hidden") === "true" && this.textContent) {
+        return rect({ width: 240, height: bubbleHeight });
+      }
+      return rect({ top: tileTop, left: 100, width: 200, height: 200, bottom: tileTop + 200 });
+    });
+  };
+
+  const hover = () => {
+    render(
+      <MemoryRouter>
+        <DeckCard deck={deck} />
+      </MemoryRouter>
+    );
+    const link = screen.getByRole("link", { name: "Card One" });
+    fireEvent.mouseEnter(link);
+    return link;
+  };
+
+  it("keeps the label above the tile for a tile near the top and one far down", () => {
+    stubRects(15, 40);
+    const link = hover();
+
+    const nearTop = screen.getByText("Card One");
+    expect(nearTop).toHaveStyle({ top: "52px" });
+    expect(nearTop).not.toHaveStyle({ top: "223px" });
+
+    fireEvent.mouseLeave(link);
+    stubRects(500, 40);
+    fireEvent.mouseEnter(link);
+
+    const farDown = screen.getByText("Card One");
+    expect(farDown).toHaveStyle({ top: "492px" });
+    expect(farDown).not.toHaveStyle({ top: "708px" });
+  });
+
+  it("clamps the label top to the bubble margin plus its height", () => {
+    stubRects(15, 60);
+    hover();
+
+    expect(screen.getByText("Card One")).toHaveStyle({ top: "72px" });
   });
 });

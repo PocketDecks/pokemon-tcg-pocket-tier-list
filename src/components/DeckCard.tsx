@@ -3,12 +3,12 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { deckDisplayName } from "../app/deck-display";
 import { deckThumbUrl, onDeckThumbError } from "../app/deck-thumb";
-
-const THUMB_SIZES = { small: 96, large: 183 };
 import { FullDeckType } from "../contexts/DecksContext";
 import { MetaShareEntry } from "../types/pipeline-data";
 import { deltaTrend } from "../app/delta-trend";
 import NavIcon from "./NavIcon";
+
+const THUMB_SIZES = { small: 96, large: 183 };
 
 const Container = styled.div`
   position: relative;

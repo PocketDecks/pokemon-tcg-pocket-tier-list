@@ -2,7 +2,8 @@ import styled from "styled-components";
 import { Link } from "react-router";
 import { FullDeckType } from "../contexts/DecksContext";
 import { MetaShareEntry } from "../types/pipeline-data";
-import { deltaTrend, DeltaTrend } from "../app/delta-trend";
+import { deltaTrend } from "../app/delta-trend";
+import NavIcon from "./NavIcon";
 
 const Container = styled.div`
   position: relative;
@@ -17,6 +18,7 @@ const Container = styled.div`
 
 const StyledDeckCard = styled(Link)`
   position: relative;
+  container-type: inline-size;
   border-radius: 1.2rem;
   color: var(--bg);
   display: flex;
@@ -47,37 +49,37 @@ const DeckImage = styled.img`
   height: 280%;
 `;
 
-const ShareBadge = styled.div<{ $trend: DeltaTrend }>`
-  font-size: 1.4rem;
-  font-weight: 700;
+const Badge = styled.div<{ $tone: "up" | "down" | "flat" | "new" }>`
   position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  text-align: left;
-  padding: 0.3rem 0.8rem;
-  background: rgba(0, 0, 0, 0.75);
-  border-radius: 0.4rem;
+  top: 5cqw;
+  left: 5cqw;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  height: 1.9em;
+  padding: 0 0.55em;
+  border-radius: 0.5em;
+  font-size: clamp(1rem, 13cqw, 1.4rem);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
-
-  color: ${(props) =>
-    props.$trend === "up"
-      ? "#7ddb8a"
-      : props.$trend === "down"
-        ? "#e58a8a"
-        : "rgba(255, 255, 255, 0.85)"};
-`;
-
-const NewTag = styled.div`
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  font-size: 1.2rem;
-  font-weight: 700;
-  padding: 0.2rem 0.6rem;
-  background: #f2b64c;
-  color: #1a1a17;
-  border-radius: 0.4rem;
   pointer-events: none;
+  background: ${(props) => (props.$tone === "new" ? "#f2b64c" : "rgba(10, 10, 9, 0.78)")};
+  color: ${(props) =>
+    props.$tone === "new"
+      ? "#1a1a17"
+      : props.$tone === "up"
+        ? "#7ddb8a"
+        : props.$tone === "down"
+          ? "#e58a8a"
+          : "rgba(255, 255, 255, 0.85)"};
+  box-shadow: 0 0.1em 0.4em rgba(0, 0, 0, 0.35);
+
+  svg {
+    width: 0.9em;
+    height: 0.9em;
+  }
 `;
 
 interface Props {
@@ -88,11 +90,6 @@ interface Props {
 
 const formatShare = (share: number): string => `${(share * 100).toFixed(1)}%`;
 
-const deltaArrow = (trend: DeltaTrend): string => {
-  if (trend === "up") return " ▲";
-  if (trend === "down") return " ▼";
-  return "";
-};
 
 const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
     const share = metaShare?.share ?? null;
@@ -103,12 +100,18 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
         <Container>
             <StyledDeckCard to={`/deck/${deck.id}`}>
                 <DeckImage key={deck.iconPrimary.id} src={deck.iconPrimary.image} alt={deck.iconPrimary.name} />
-                {metaShare && share !== null && (
-                    <ShareBadge $trend={trend} title={metaShareLabel ?? "Meta share"}>
+                {metaShare?.isNew ? (
+                    <Badge $tone="new" title={metaShareLabel ?? "Meta share"}>
+                        NEW
+                    </Badge>
+                ) : metaShare && share !== null ? (
+                    <Badge $tone={trend} title={metaShareLabel ?? "Meta share"}>
                         {formatShare(share)}
-                        {deltaArrow(trend)}
-                    </ShareBadge>
-                )}
+                        {trend !== "flat" && (
+                            <NavIcon name={trend === "up" ? "arrowUp" : "arrowDown"} size={12} />
+                        )}
+                    </Badge>
+                ) : null}
             </StyledDeckCard>
             {deck.iconSecondary && (
                 <SubCard to={`/deck/${deck.id}`}>
@@ -119,7 +122,6 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
                     />
                 </SubCard>
             )}
-            {metaShare?.isNew && <NewTag>NEW</NewTag>}
         </Container>
     );
 };

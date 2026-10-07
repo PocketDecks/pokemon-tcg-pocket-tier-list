@@ -25,7 +25,7 @@ const StyledLogo = styled.img`
 const Logo = () => {
   return (
     <Container to="/">
-      <StyledLogo src={logo} alt="Top Pocket Decks" />
+      <StyledLogo src={logo} alt="Top Pocket Decks" width={160} height={160} />
     </Container>
   );
 };

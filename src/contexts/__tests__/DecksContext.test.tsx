@@ -34,7 +34,7 @@ const decks = [
   },
 ];
 
-const matchupData = { [GOOD_DECK]: [], [DRIFTED_DECK]: [] };
+
 
 const jsonResponse = (body: unknown) =>
   Promise.resolve({
@@ -109,7 +109,7 @@ describe("DecksProvider with a drifted card id", () => {
     vi.spyOn(global, "fetch").mockImplementation((input) => {
       const url = String(input);
       if (url.endsWith("best-decks.json")) return jsonResponse(decks);
-      if (url.endsWith("matchup-data.json")) return jsonResponse(matchupData);
+
       if (url.endsWith("meta-share.json"))
         return jsonResponse({
           generatedAt: "2026-08-24T00:00:00Z",
@@ -143,7 +143,7 @@ describe("DecksProvider with a drifted card id", () => {
       const url = String(input);
       if (url.endsWith("best-decks.json"))
         return jsonResponse([{ ...decks[0], name: unpairedDeck }]);
-      if (url.endsWith("matchup-data.json")) return jsonResponse({ [unpairedDeck]: [] });
+
       if (url.endsWith("meta-share.json"))
         return jsonResponse({ generatedAt: "2026-08-24T00:00:00Z", windowDays: 7, decks: [] });
       return jsonResponse(rawCards);
@@ -159,7 +159,7 @@ describe("DecksProvider with a drifted card id", () => {
       const url = String(input);
       if (url.endsWith("meta-share.json")) return Promise.reject(new Error("network down"));
       if (url.endsWith("best-decks.json")) return jsonResponse(decks);
-      if (url.endsWith("matchup-data.json")) return jsonResponse(matchupData);
+
       return jsonResponse(rawCards);
     });
 
@@ -180,7 +180,7 @@ describe("DecksProvider with a drifted card id", () => {
     vi.spyOn(global, "fetch").mockImplementation((input) => {
       const url = String(input);
       if (url.endsWith("best-decks.json")) return jsonResponse(decks);
-      if (url.endsWith("matchup-data.json")) return jsonResponse(matchupData);
+
       if (url.endsWith("meta-share.json"))
         return jsonResponse({ generatedAt: "nope" }); // missing decks array
       return jsonResponse(rawCards);
@@ -208,6 +208,53 @@ describe("DecksProvider with a drifted card id", () => {
     );
   });
 });
+
+describe("DecksProvider critical-path requests", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("does not request matchup data while rendering the provider", async () => {
+      const requestedUrls: string[] = [];
+      vi.spyOn(global, "fetch").mockImplementation((input) => {
+        const url = String(input);
+        requestedUrls.push(url);
+        if (url.endsWith("best-decks.json")) return jsonResponse(decks);
+        if (url.endsWith("meta-share.json")) return jsonResponse({ decks: [] });
+        return jsonResponse(rawCards);
+      });
+      renderProvider();
+      await screen.findByText(GOOD_DECK);
+      expect(requestedUrls.some((url) => url.endsWith("matchup-data.json"))).toBe(false);
+    });
+
+    it("starts best-decks and meta-share requests before either resolves", async () => {
+      let releaseBestDecks!: () => void;
+      let releaseMetaShare!: () => void;
+      const started = new Promise<void>((resolve) => {
+        vi.spyOn(global, "fetch").mockImplementation((input) => {
+          const url = String(input);
+          if (url.endsWith("best-decks.json")) {
+            return new Promise((resolveResponse) => {
+              releaseBestDecks = () => resolveResponse(jsonResponse(decks));
+              resolve();
+            });
+          }
+          if (url.endsWith("meta-share.json")) {
+            return new Promise((resolveResponse) => {
+              releaseMetaShare = () => resolveResponse(jsonResponse({ decks: [] }));
+            });
+          }
+          return jsonResponse(rawCards);
+        });
+      });
+      renderProvider();
+      await started;
+      expect(releaseMetaShare).toBeTypeOf("function");
+      releaseBestDecks();
+      releaseMetaShare();
+      expect(await screen.findByText(GOOD_DECK)).toBeInTheDocument();
+    });
+    });
+
 
 describe("DecksProvider with a failed fetch", () => {
   afterEach(() => {
@@ -252,8 +299,7 @@ describe("DecksProvider with every deck at zero popularity", () => {
       const url = String(input);
       if (url.endsWith("best-decks.json"))
         return jsonResponse(zeroPopularityDecks);
-      if (url.endsWith("matchup-data.json"))
-        return jsonResponse({ [GOOD_DECK]: [] });
+
       if (url.endsWith("meta-share.json"))
         return jsonResponse({
           generatedAt: "2026-08-24T00:00:00Z",

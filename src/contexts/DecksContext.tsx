@@ -10,7 +10,7 @@ import {
   fetchCards,
 } from "../app/cards-api";
 import useExpansions from "../app/use-expansions";
-import { MetaShareEntry, PipelineMatchupData, PipelineMatchupEntry, PipelineMetaShare, PipelinePartialDeck, PipelineDeckList } from "../types/pipeline-data";
+import { MetaShareEntry, PipelineMatchupData, PipelineMetaShare, PipelinePartialDeck, PipelineDeckList } from "../types/pipeline-data";
 import { FullDeckType, MatchupType } from "../app/deck-types";
 import { SortBy } from "../app/sort-by";
 import {
@@ -112,12 +112,12 @@ const trimPairedDecks = (fullDecks: FullDeckType[]): FullDeckType[] => {
 };
 
 const buildDecks = (
-  decksData: { decks: PartialDeckType[]; matchupData?: Record<string, PipelineMatchupEntry[]> },
+  decksData: { decks: PartialDeckType[] },
   cardsPayload: CardsPayload,
   cardsMapping: Record<string, CardType>,
   options: BuildOptions
 ): FullDeckType[] => {
-  const { decks, matchupData = {} } = decksData;
+  const { decks } = decksData;
   const {
     missingCounts,
     energy,
@@ -191,8 +191,6 @@ const buildDecks = (
 
   const fullDecks = decksFiltered
       .map((oldDeck: PartialDeckType) => {
-        const matchups = matchupData[oldDeck.name];
-
         const lists = buildFullLists(oldDeck.lists, cardsMapping, cardsPayload);
         const bestList = pickBestList(lists, cardsPayload);
 
@@ -215,7 +213,7 @@ const buildDecks = (
           freqScore: oldDeck.freqScore,
           metaScore: oldDeck.metaScore,
           percentOfGames: oldDeck.percentOfGames,
-          matchups,
+
           iconPrimary: cardsMapping[cardIds[0]],
           iconSecondary,
         };
@@ -360,12 +358,15 @@ const useCardsData = () => {
 };
 
 const fetchDeckData = async () => {
-  const decksResponse = await fetch("/data/best-decks.json");
+  const [decksResponse, metaShare] = await Promise.all([
+    fetch("/data/best-decks.json"),
+    loadMetaShare(),
+  ]);
   if (!decksResponse.ok) {
     throw new Error(`Failed to fetch best-decks.json: ${decksResponse.status} ${decksResponse.statusText}`);
   }
   const decks = (await decksResponse.json()) as PartialDeckType[];
-  return { decks, matchupData: {}, metaShare: await loadMetaShare() };
+  return { decks, metaShare };
 };
 
 const useDecksData = () => {
@@ -383,15 +384,12 @@ export const useDeckDetail = (
 ) => {
   const { cardsPayload, cardsMapping } = useCardsData();
   const { data: decksData } = useDecksData();
-  const { matchupsByName } = useMatchups();
-
   return useMemo(() => {
     if (!cardsPayload || !decksData || !deckId) {
       return { deck: null, extinct: false };
     }
     const resolved = resolveDeckDetail(
       decksData.decks,
-      matchupsByName ?? {},
       cardsPayload,
       cardsMapping,
       deckId,
@@ -401,5 +399,5 @@ export const useDeckDetail = (
       deck: resolved?.deck ?? null,
       extinct: resolved?.extinct ?? false,
     };
-  }, [cardsPayload, cardsMapping, decksData, deckId, missingCounts, matchupsByName]);
+  }, [cardsPayload, cardsMapping, decksData, deckId, missingCounts]);
 };

@@ -16,7 +16,7 @@ export type FullDeckType = {
   freqScore: number;
   metaScore: number | null;
   percentOfGames: number;
-  matchups: PipelineMatchupEntry[] | undefined;
+
   iconPrimary: CardType;
   iconSecondary: CardType | null;
 };

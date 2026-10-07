@@ -34,7 +34,7 @@ const deck: FullDeckType = {
   freqScore: 1,
   metaScore: null,
   percentOfGames: 0.5,
-  matchups: [],
+
   iconPrimary: card,
   iconSecondary: null,
 };

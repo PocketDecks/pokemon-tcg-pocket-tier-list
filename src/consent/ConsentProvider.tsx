@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { ConsentBanner, ConsentDialog, ConsentManagerProvider } from "@c15t/react";
 import { gtag } from "@c15t/scripts/google-tag";
+import { useAppVisible } from "../app/app-bootstrap";
 // Import the real component stylesheet directly. The @c15t/react/styles.css
 // entrypoint only re-@imports this via a bare specifier, which CRA's css-loader
 // does not resolve, so the prebuilt styles never load through it.
@@ -30,19 +31,20 @@ const scripts = [
   gtag({ id: GOOGLE_GTAG, category: "marketing" }),
 ];
 
-const ConsentProvider = ({ children }: { children: ReactNode }) => (
-  <ConsentManagerProvider options={{ mode: "offline", scripts, ...consentTheme }}>
+const ConsentProvider = ({ children }: { children: ReactNode }) => {
+  const appVisible = useAppVisible();
+
+  return (
+    <ConsentManagerProvider options={{ mode: "offline", scripts, ...consentTheme }}>
       {children}
-      {isPrerender ? null : (
+      {appVisible && !isPrerender ? (
         <>
           <ConsentBanner hideBranding={!import.meta.env.DEV} />
-          {/* "Customize" only flips the store's activeUI to "dialog", which
-              hides the banner. Without this mounted the banner simply
-              disappears and the visitor has no way back to the categories. */}
           <ConsentDialog />
         </>
-      )}
+      ) : null}
     </ConsentManagerProvider>
-);
+  );
+};
 
 export default ConsentProvider;

@@ -7,6 +7,7 @@ import React, {
   useState,
 } from "react";
 import { useLocation } from "react-router";
+import { notifyContentReady } from "../app/app-bootstrap";
 
 // Tracks whether the *current* route has finished rendering meaningful
 // publisher content. Ads must never show on loading, error, or otherwise
@@ -68,5 +69,6 @@ export const useMarkContentReady = (isReady: boolean): void => {
     // loading/empty state ensures global units like AdAnchor don't linger on a
     // content-less screen.
     markReady(isReady ? pathname : "");
+    if (isReady) notifyContentReady();
   }, [isReady, pathname, markReady]);
 };

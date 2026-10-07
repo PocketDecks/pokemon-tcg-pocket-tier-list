@@ -98,7 +98,7 @@ const MIME = {
 
 // Serves the output dir with SPA fallback so each client-side route boots at
 // its own URL and react-router sees the right location.
-const startServer = () =>
+const startServer = (templateHtml) =>
   new Promise((resolve) => {
     const server = http.createServer((req, res) => {
       const urlPath = decodeURIComponent(new URL(req.url, ORIGIN).pathname);
@@ -114,6 +114,7 @@ const startServer = () =>
       res.writeHead(200, {
         "Content-Type": MIME[ext] || "application/octet-stream",
       });
+      if (path.basename(filePath) === "index.html") return res.end(templateHtml);
       fs.createReadStream(filePath).pipe(res);
     });
     server.listen(PORT, "127.0.0.1", () => resolve(server));
@@ -134,7 +135,7 @@ const main = async () => {
   const templateScripts = [
     ...templateHtml.matchAll(/<script\b[^>]*\bsrc=["']([^"']*)["'][^>]*>/gi),
   ].map((match) => match[1]);
-  const server = await startServer();
+  const server = await startServer(templateHtml);
   const browser = await puppeteer.launch({
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
@@ -166,7 +167,7 @@ const main = async () => {
   const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
   for (const route of ROUTES) {
     await page.goto(`${ORIGIN}${route}`, { waitUntil: "networkidle0" });
-    await page.waitForSelector("#root > *");
+    await page.waitForSelector("#app-root > *, #root > *");
     if (DECK_ANCHOR_ROUTES.has(route)) {
       await page.waitForFunction(
         () => document.querySelectorAll('a[href^="/deck/"]').length > 10,

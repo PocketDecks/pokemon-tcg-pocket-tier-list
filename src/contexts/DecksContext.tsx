@@ -94,7 +94,45 @@ const fetchMatchupData = async (): Promise<PipelineMatchupData> => {
   if (data === null || typeof data !== "object" || Array.isArray(data)) {
     throw new Error("matchup-data.json has an unexpected shape");
   }
-  return data as PipelineMatchupData;
+
+  let dropped = 0;
+  const matchups = Object.fromEntries(
+    Object.entries(data).flatMap(([deckName, rows]) => {
+      if (!Array.isArray(rows)) {
+        dropped += 1;
+        return [];
+      }
+      const validRows = rows.filter((row): row is MatchupType => {
+        const valid =
+          row !== null &&
+          typeof row === "object" &&
+          !Array.isArray(row) &&
+          typeof row.name === "string" &&
+          typeof row.winRate === "number" &&
+          Number.isFinite(row.winRate) &&
+          row.winRate >= 0 &&
+          row.winRate <= 1 &&
+          typeof row.totalGames === "number" &&
+          Number.isFinite(row.totalGames) &&
+          row.totalGames >= 0;
+        if (!valid) dropped += 1;
+        return valid;
+      });
+      if (validRows.length === 0) {
+        dropped += 1;
+        return [];
+      }
+      return [[deckName, validRows]];
+    })
+  ) as PipelineMatchupData;
+
+  if (dropped > 0) {
+    console.warn(`Dropped ${dropped} invalid matchup entries from matchup-data.json`);
+  }
+  if (Object.keys(matchups).length === 0) {
+    throw new Error("matchup-data.json has no valid matchup entries");
+  }
+  return matchups;
 };
 
 interface BuildOptions {

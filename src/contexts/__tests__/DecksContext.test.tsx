@@ -369,4 +369,34 @@ describe("useMatchups", () => {
       await screen.findByText("matchup-data.json has an unexpected shape")
     ).toBeInTheDocument();
   });
+
+  it("rejects an object entry that is not an array", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(global, "fetch").mockImplementation(() =>
+      jsonResponse({ "Deck A": {} })
+    );
+    renderMatchups();
+    expect(
+      await screen.findByText("matchup-data.json has no valid matchup entries")
+    ).toBeInTheDocument();
+  });
+
+  it("keeps valid entries and drops invalid entries and rows", async () => {
+    const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(global, "fetch").mockImplementation(() =>
+      jsonResponse({
+        "Deck A": {},
+        "Deck B": [
+          { name: "Total", winRate: 0.5, totalGames: 10 },
+          { name: "Bad rate", winRate: "0.5", totalGames: 10 },
+        ],
+      })
+    );
+    renderMatchups();
+    expect(await screen.findByText("Deck B")).toBeInTheDocument();
+    expect(consoleWarn).toHaveBeenCalledTimes(1);
+    expect(consoleWarn).toHaveBeenCalledWith(
+      "Dropped 2 invalid matchup entries from matchup-data.json"
+    );
+  });
 });

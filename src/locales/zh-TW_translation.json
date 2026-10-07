@@ -212,7 +212,8 @@
     "successBody": "每則訊息我們都會閱讀。",
     "successReply": "我們會回覆到 {{email}}。",
     "sendAnother": "再傳一則",
-    "error": "傳送失敗。請檢查網路連線，幾分鐘後再試。"
+    "error": "傳送失敗。請檢查網路連線，幾分鐘後再試。",
+    "rateLimited": "你在過去一小時內已經傳送過意見回饋。你的訊息仍保留在這裡，一小時後即可傳送。"
   },
   "hero": {
     "title": "Pokemon TCG Pocket 最佳牌組與強度排行榜",

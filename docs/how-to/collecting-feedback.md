@@ -59,15 +59,15 @@ function isValidFeedback() {
     && data.createdAt == request.time
     && getAfter(feedbackThrottlePath()).data.lastAt == request.time
     && (!exists(feedbackThrottlePath())
-      || get(feedbackThrottlePath()).data.lastAt < request.time - duration.value(5, 'm'));
+      || get(feedbackThrottlePath()).data.lastAt < request.time - duration.value(1, 'h'));
 }
 ```
 
 3. Publish the rules.
 
-These rules let a user signed in with Google create feedback only as themselves, only with the fields and limits the form uses, and at most once every five minutes. Nobody can read, edit or delete feedback from the site. You read it in the console.
+These rules let a user signed in with Google create feedback only as themselves, only with the fields and limits the form uses, and at most once an hour. Nobody can read, edit or delete feedback from the site. You read it in the console.
 
-The rules have not been run against the Firestore emulator. After publishing, send one message from the live site and check that a document appears in `feedback`. Then send a second message straight away and check that the page shows its error message.
+The rules have not been run against the Firestore emulator. After publishing, send one message from the live site and check that a document appears in `feedback`. Then send a second message straight away and check that the page says the account has already sent feedback in the last hour.
 
 ## Read submissions
 

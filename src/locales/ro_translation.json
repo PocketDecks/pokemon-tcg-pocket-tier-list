@@ -212,7 +212,8 @@
     "successBody": "Citim fiecare mesaj.",
     "successReply": "Îți vom răspunde la {{email}}.",
     "sendAnother": "Trimite altul",
-    "error": "Nu s-a putut trimite. Verifică-ți conexiunea și încearcă din nou peste câteva minute."
+    "error": "Nu s-a putut trimite. Verifică-ți conexiunea și încearcă din nou peste câteva minute.",
+    "rateLimited": "Ai trimis deja feedback în ultima oră. Mesajul tău rămâne aici, așa că îl poți trimite după ce trece ora."
   },
   "hero": {
     "title": "Cele mai bune deck-uri și clasamente pentru Pokemon TCG Pocket",

@@ -15,7 +15,7 @@ import {
   type FeedbackCategory,
 } from "../../app/feedback";
 
-type Status = "idle" | "sending" | "sent" | "error";
+type Status = "idle" | "sending" | "sent" | "error" | "limited";
 
 const CATEGORY_ICONS: Record<FeedbackCategory, NavIconName> = {
   idea: "bulb",
@@ -305,8 +305,9 @@ const FeedbackPage = () => {
         page: fromPage,
       });
       setStatus("sent");
-    } catch {
-      setStatus("error");
+    } catch (error) {
+      const code = (error as { code?: string } | null)?.code;
+      setStatus(code === "permission-denied" ? "limited" : "error");
     }
   };
 
@@ -433,6 +434,7 @@ const FeedbackPage = () => {
           </HoneyPot>
 
           {status === "error" && <ErrorText role="alert">{t("feedback.error")}</ErrorText>}
+          {status === "limited" && <ErrorText role="alert">{t("feedback.rateLimited")}</ErrorText>}
 
           <Actions>
             <Button isLoading={status === "sending"}>{t("feedback.submit")}</Button>

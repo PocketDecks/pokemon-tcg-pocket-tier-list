@@ -212,7 +212,8 @@
     "successBody": "We read every message.",
     "successReply": "We'll reply to {{email}}.",
     "sendAnother": "Send another",
-    "error": "That didn't send. Check your connection and try again in a few minutes."
+    "error": "That didn't send. Check your connection and try again in a few minutes.",
+    "rateLimited": "You've already sent feedback in the last hour. Your message is still here, so you can send it once the hour is up."
   },
   "hero": {
     "title": "Pokemon TCG Pocket Best Decks and Tier List",

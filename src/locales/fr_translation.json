@@ -212,7 +212,8 @@
     "successBody": "Nous lisons chaque message.",
     "successReply": "Nous répondrons à {{email}}.",
     "sendAnother": "En envoyer un autre",
-    "error": "L'envoi a échoué. Vérifiez votre connexion et réessayez dans quelques minutes."
+    "error": "L'envoi a échoué. Vérifiez votre connexion et réessayez dans quelques minutes.",
+    "rateLimited": "Vous avez déjà envoyé un avis au cours de la dernière heure. Votre message reste ici, vous pourrez l'envoyer une fois l'heure écoulée."
   },
   "hero": {
     "title": "Meilleurs decks et Tier list Pokemon TCG Pocket",

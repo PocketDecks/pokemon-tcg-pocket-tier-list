@@ -212,7 +212,8 @@
     "successBody": "Wir lesen jede Nachricht.",
     "successReply": "Wir antworten an {{email}}.",
     "sendAnother": "Noch etwas senden",
-    "error": "Das hat nicht geklappt. Prüfe deine Verbindung und versuche es in ein paar Minuten erneut."
+    "error": "Das hat nicht geklappt. Prüfe deine Verbindung und versuche es in ein paar Minuten erneut.",
+    "rateLimited": "Du hast in der letzten Stunde bereits Feedback gesendet. Deine Nachricht bleibt hier, du kannst sie senden, sobald die Stunde um ist."
   },
   "hero": {
     "title": "Pokémon TCG Pocket Beste Decks und Tier-Liste",

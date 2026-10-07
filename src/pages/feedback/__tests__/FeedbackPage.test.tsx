@@ -127,4 +127,16 @@ describe("FeedbackPage", () => {
       "The tier list did not load this morning."
     );
   });
+
+  it("explains the hourly limit when Firestore refuses the message", async () => {
+    submitFeedback.mockRejectedValueOnce(Object.assign(new Error("denied"), { code: "permission-denied" }));
+    renderPage();
+    typeMessage("The tier list did not load this morning.");
+    submit();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("feedback.rateLimited");
+    expect(screen.getByLabelText("feedback.messageLabel")).toHaveValue(
+      "The tier list did not load this morning."
+    );
+  });
 });

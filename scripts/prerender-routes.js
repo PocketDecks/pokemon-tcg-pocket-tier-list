@@ -163,6 +163,11 @@ const main = async () => {
         { timeout: 20000 }
       );
     }
+    await page.evaluate(() => {
+      document.querySelectorAll("style[data-styled]").forEach((el) => {
+        el.textContent = Array.from(el.sheet.cssRules, (rule) => rule.cssText).join("\n");
+      });
+    });
     // Vite stamps lazy-chunk hrefs with the preview origin while the page
     // boots; captured markup must stay root-relative.
     let html = (

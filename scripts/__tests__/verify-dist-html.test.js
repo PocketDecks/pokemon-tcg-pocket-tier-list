@@ -3,7 +3,7 @@ const assert = require("node:assert");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
-const { findLoopbackRefs } = require("../verify-dist-html");
+const { findEmptyStyledTags, findLoopbackRefs } = require("../verify-dist-html");
 
 const makeDist = (files) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "dist-"));
@@ -32,4 +32,22 @@ test("passes clean output untouched", () => {
       '<link rel="canonical" href="https://pocketdecks.top/" />',
   });
   assert.deepStrictEqual(findLoopbackRefs(dir), []);
+});
+
+test("passes HTML with non-empty styled-components CSS", () => {
+  const dir = makeDist({
+    "index.html": '<style data-styled="active">.title{color:red}</style>',
+  });
+  assert.deepStrictEqual(findEmptyStyledTags(dir), []);
+});
+
+test("flags empty styled-components CSS in nested pages", () => {
+  const dir = makeDist({
+    "index.html": '<style data-styled="active"></style>',
+    "deck/x/index.html": '<style data-styled="active">\n  </style>',
+  });
+  const offenders = findEmptyStyledTags(dir);
+  assert.strictEqual(offenders.length, 2);
+  assert.ok(offenders.includes("index.html"));
+  assert.ok(offenders.includes(`deck${path.sep}x${path.sep}index.html`));
 });

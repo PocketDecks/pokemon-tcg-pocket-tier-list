@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { deckDisplayName, formatArchetypeId } from "../../app/deck-display";
 import type { FullDeckType } from "../../app/deck-types";
+import DeckArt from "./DeckArt";
 
 const MatrixWrapper = styled.div`
     width: 100%;
@@ -119,29 +120,6 @@ const TierDot = styled.div<{ $color: string }>`
     border-radius: 50%;
     background: ${(props) => props.$color};
     flex-shrink: 0;
-`;
-
-const DeckArt = ({ src, size }: { src?: string; size: number }) => (
-    <ArtFrame $size={size}>{src && <img src={src} alt="" loading="lazy" />}</ArtFrame>
-);
-
-const ArtFrame = styled.span<{ $size: number }>`
-    position: relative;
-    display: inline-block;
-    flex-shrink: 0;
-    width: ${(props) => props.$size}rem;
-    height: ${(props) => props.$size}rem;
-    border-radius: 0.6rem;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.06);
-
-    img {
-        position: absolute;
-        top: -32%;
-        left: 50%;
-        transform: translateX(-50%);
-        height: 280%;
-    }
 `;
 
 const HeaderArt = styled.span`

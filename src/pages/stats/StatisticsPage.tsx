@@ -22,6 +22,7 @@ import crownIcon from "../../assets/crown.webp";
 import { formatTrendDay } from "./format-trend-day";
 import TrendChart from "./TrendChart";
 import MatchupMatrix from "./MatchupMatrix";
+import DeckArt from "./DeckArt";
 
 const PageContainer = styled.div`
     width: 100%;
@@ -251,29 +252,6 @@ const ScaleBar = styled.span`
     border-radius: 0.4rem;
     background: linear-gradient(to right, #b8312f, #383835, #256abf);
 `;
-
-const ArtFrame = styled.span<{ $size: number }>`
-    position: relative;
-    display: inline-block;
-    flex-shrink: 0;
-    width: ${(props) => props.$size}rem;
-    height: ${(props) => props.$size}rem;
-    border-radius: 0.6rem;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.06);
-
-    img {
-        position: absolute;
-        top: -32%;
-        left: 50%;
-        transform: translateX(-50%);
-        height: 280%;
-    }
-`;
-
-const DeckArt = ({ src, size }: { src?: string; size: number }) => (
-    <ArtFrame $size={size}>{src && <img src={src} alt="" loading="lazy" />}</ArtFrame>
-);
 
 const CrownLink = styled(Link)`
     flex-shrink: 0;

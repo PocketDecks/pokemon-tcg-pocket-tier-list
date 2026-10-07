@@ -128,7 +128,8 @@
     "metaShareTooltip": "Ponderea meciurilor calificate ± schimbare săptămânală",
     "showTooltip": "Afișează explicația",
     "energyUsed": "Energie folosită",
-    "matchupsUnavailable": "Datele deck-ului nu s-au încărcat. Reîncarcă pagina pentru a încerca din nou."
+    "matchupsUnavailable": "Datele deck-ului nu s-au încărcat. Reîncarcă pagina pentru a încerca din nou.",
+    "matchupsLoading": "Se încarcă matchup-urile"
   },
   "energyDropdown": {
     "all": "Toate tipurile de energie",

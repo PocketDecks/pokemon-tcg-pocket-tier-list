@@ -23,7 +23,7 @@ import { formatTrendDay } from "./format-trend-day";
 import TrendChart from "./TrendChart";
 import MatchupMatrix from "./MatchupMatrix";
 import DeckArt from "../../components/DeckArt";
-import { MatchupUnavailable } from "../deck/deck-page.styles";
+import { MatchupUnavailable, VisuallyHidden } from "../deck/deck-page.styles";
 
 const PageContainer = styled.div`
     width: 100%;
@@ -541,7 +541,9 @@ const StatisticsPage = () => {
                 </SectionHeader>
 
                 {matchupsLoading ? (
-                    <MatchupSkeleton aria-label="Loading matchups" />
+                    <MatchupSkeleton role="status" aria-busy="true">
+                        <VisuallyHidden>{t("deckPage.matchupsLoading")}</VisuallyHidden>
+                    </MatchupSkeleton>
                 ) : matchupsError ? (
                     <MatchupUnavailable>{t("deckPage.matchupsUnavailable")}</MatchupUnavailable>
                 ) : (

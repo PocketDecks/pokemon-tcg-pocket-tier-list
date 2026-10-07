@@ -137,7 +137,13 @@ describe("DeckFinderPage", () => {
     renderFinder();
 
     expect(await screen.findByRole("button", { name: /Venusaur ex/ })).toBeInTheDocument();
-    expect(screen.getAllByRole("status", { name: "Loading matchup" }).length).toBeGreaterThan(0);
+
+    // The hero win rate shows a steady, aria-hidden placeholder bar rather
+    // than an announced skeleton, so the loading state adds no live status.
+    const placeholder = screen.getByTestId("win-rate-placeholder");
+    expect(placeholder).toHaveAttribute("aria-hidden", "true");
+    expect(screen.queryAllByLabelText("Loading matchup")).toHaveLength(0);
+
     resolveMatchups(jsonResponse(MATCHUP_JSON) as unknown as Response);
   });
 

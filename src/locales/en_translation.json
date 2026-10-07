@@ -128,7 +128,8 @@
     "metaShareTooltip": "Share of qualified games ± weekly change",
     "showTooltip": "Show explanation",
     "energyUsed": "Energy Used",
-    "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again."
+    "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again.",
+    "matchupsLoading": "Loading matchups"
   },
   "energyDropdown": {
     "all": "All Energy Types",

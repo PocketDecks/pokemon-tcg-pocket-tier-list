@@ -128,7 +128,8 @@
     "metaShareTooltip": "合格对局的份额 ± 每周变化",
     "showTooltip": "显示说明",
     "energyUsed": "使用能量",
-    "matchupsUnavailable": "牌组数据未能加载。请刷新页面重试。"
+    "matchupsUnavailable": "牌组数据未能加载。请刷新页面重试。",
+    "matchupsLoading": "正在加载对战"
   },
   "energyDropdown": {
     "all": "所有能量类型",

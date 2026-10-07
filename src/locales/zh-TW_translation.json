@@ -128,7 +128,8 @@
     "metaShareTooltip": "合格對局占比 ± 每週變化",
     "showTooltip": "顯示說明",
     "energyUsed": "使用能量",
-    "matchupsUnavailable": "牌組資料未能載入。請重新整理頁面再試一次。"
+    "matchupsUnavailable": "牌組資料未能載入。請重新整理頁面再試一次。",
+    "matchupsLoading": "正在載入對戰組合"
   },
   "energyDropdown": {
     "all": "所有能量屬性",

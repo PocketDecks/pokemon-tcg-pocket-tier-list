@@ -128,7 +128,8 @@
     "metaShareTooltip": "Part des parties qualifiées ± variation hebdomadaire",
     "showTooltip": "Afficher l'explication",
     "energyUsed": "Énergie utilisée",
-    "matchupsUnavailable": "Les données du deck ne se sont pas chargées. Rechargez la page pour réessayer."
+    "matchupsUnavailable": "Les données du deck ne se sont pas chargées. Rechargez la page pour réessayer.",
+    "matchupsLoading": "Chargement des matchups"
   },
   "energyDropdown": {
     "all": "Tous les types d'énergie",

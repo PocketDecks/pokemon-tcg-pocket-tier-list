@@ -38,7 +38,10 @@ describe("StatisticsPage matchups", () => {
   it("shows a loading placeholder while matchup data loads", () => {
     useMatchups.mockReturnValue({ matchupsByName: null, loading: true, error: null });
     renderStatistics();
-    expect(screen.getByLabelText("Loading matchups")).toBeInTheDocument();
+    const status = screen.getByRole("status");
+    expect(status).toHaveTextContent("deckPage.matchupsLoading");
+    expect(status).toHaveAttribute("aria-busy", "true");
+    expect(screen.queryByLabelText("Loading matchups")).not.toBeInTheDocument();
   });
 
   it("shows an unavailable message when matchup data fails", () => {

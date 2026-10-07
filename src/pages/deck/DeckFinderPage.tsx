@@ -32,8 +32,8 @@ import {
   StyledDeckPage,
   StyledLink,
   UndoButton,
-  MatchupSkeletonTile,
   MatchupUnavailable,
+  WinRatePlaceholder,
 } from "./deck-page.styles";
 
 const DeckFinderPage = () => {
@@ -102,7 +102,7 @@ const DeckFinderPage = () => {
   const share = metaShareBySlug?.[deck.id]?.share;
   const heroStats: DeckHeroStat[] = [
     ...(matchupsLoading
-      ? [{ label: t("deckPage.winRate"), value: <MatchupSkeletonTile aria-hidden="true" /> }]
+      ? [{ label: t("deckPage.winRate"), value: <WinRatePlaceholder aria-hidden="true" data-testid="win-rate-placeholder" /> }]
       : totalMatchup && !matchupsError
       ? [{ label: t("deckPage.winRate"), value: `${Math.round(totalMatchup.winRate * 100)}%` }]
       : []),

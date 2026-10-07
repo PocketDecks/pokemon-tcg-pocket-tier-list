@@ -129,7 +129,19 @@ describe("DeckDetailPage with a cut card", () => {
     renderDetailPage();
 
     expect(await screen.findByAltText("Venusaur ex")).toBeInTheDocument();
-    expect(screen.getAllByRole("status", { name: "Loading matchup" }).length).toBeGreaterThan(0);
+
+    // One status per loading list (strong and weak), each announcing the
+    // translated loading text once.
+    const statuses = screen.getAllByRole("status");
+    expect(statuses).toHaveLength(2);
+    for (const status of statuses) {
+      expect(status).toHaveTextContent("Loading matchups");
+    }
+
+    // The hero win rate uses a steady, aria-hidden placeholder, not a status.
+    expect(screen.getByTestId("win-rate-placeholder")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.queryAllByLabelText("Loading matchup")).toHaveLength(0);
+
     resolveMatchups(jsonResponse({ [GOOD_DECK]: [] }) as unknown as Response);
   });
 

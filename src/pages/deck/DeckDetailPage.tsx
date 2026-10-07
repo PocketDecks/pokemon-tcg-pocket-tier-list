@@ -52,6 +52,8 @@ import {
   SwapName,
   SwapSide,
   UndoButton,
+  VisuallyHidden,
+  WinRatePlaceholder,
 } from "./deck-page.styles";
 
 const DeckDetailPage = () => {
@@ -190,7 +192,7 @@ const DeckDetailPage = () => {
   const displayName = deckDisplayName(deck);
   const heroStats: DeckHeroStat[] = [
     ...(matchupsLoading
-      ? [{ label: t("deckPage.winRate"), value: <MatchupSkeletonTile aria-hidden="true" /> }]
+      ? [{ label: t("deckPage.winRate"), value: <WinRatePlaceholder aria-hidden="true" data-testid="win-rate-placeholder" /> }]
       : winRatePct !== null
         ? [{ label: t("deckPage.winRate"), value: `${winRatePct}%` }]
         : []),
@@ -321,8 +323,9 @@ const DeckDetailPage = () => {
                 {t("deckPage.strongAgainst")}
               </SubHeader>
               {matchupsLoading ? (
-                <MatchupList>
-                  {Array.from({ length: 6 }, (_, index) => <MatchupSkeletonTile key={index} />)}
+                <MatchupList aria-busy="true">
+                  {Array.from({ length: 6 }, (_, index) => <MatchupSkeletonTile key={index} aria-hidden="true" />)}
+                  <VisuallyHidden role="status">{t("deckPage.matchupsLoading")}</VisuallyHidden>
                 </MatchupList>
               ) : matchupsError ? (
                 <MatchupUnavailable>{t("deckPage.matchupsUnavailable")}</MatchupUnavailable>
@@ -347,8 +350,9 @@ const DeckDetailPage = () => {
                 {t("deckPage.weakAgainst")}
               </SubHeader>
               {matchupsLoading ? (
-                <MatchupList>
-                  {Array.from({ length: 6 }, (_, index) => <MatchupSkeletonTile key={index} />)}
+                <MatchupList aria-busy="true">
+                  {Array.from({ length: 6 }, (_, index) => <MatchupSkeletonTile key={index} aria-hidden="true" />)}
+                  <VisuallyHidden role="status">{t("deckPage.matchupsLoading")}</VisuallyHidden>
                 </MatchupList>
               ) : matchupsError ? (
                 <MatchupUnavailable>{t("deckPage.matchupsUnavailable")}</MatchupUnavailable>

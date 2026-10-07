@@ -115,7 +115,7 @@ export const sanitiseMatchupData = (
       if (valid) validRows.push(row as MatchupType);
       else dropped += 1;
     }
-    if (validRows.length === 0) {
+    if (validRows.length === 0 && rows.length > 0) {
       dropped += 1;
       continue;
     }

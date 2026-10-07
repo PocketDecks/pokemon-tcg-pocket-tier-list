@@ -102,6 +102,11 @@ const renderProvider = () =>
   );
 
 describe("sanitiseMatchupData", () => {
+  it("keeps an empty matchup array without warning", () => {
+    const result = sanitiseMatchupData({ "Deck C": [] });
+    expect(result).toEqual({ matchups: { "Deck C": [] }, dropped: 0 });
+  });
+
   it("keeps valid rows and counts malformed entries", () => {
     expect(
       sanitiseMatchupData({

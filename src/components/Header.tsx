@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import styled from "styled-components";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import Logo from "./Logo";
 import Socials from "./Socials";
 import Navbar from "./Navbar";
@@ -157,6 +157,7 @@ const Header = ({ footer }: Props) => {
   const { isNavOpen, toggleNav } = useUI();
   const isMobile = useIsMobile();
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const { pathname } = useLocation();
 
   useEffect(() => {
     if (footer || !isNavOpen) return;
@@ -176,6 +177,9 @@ const Header = ({ footer }: Props) => {
           <FooterLinks>
             <FooterLink to="/about">{t("footer.about")}</FooterLink>
             <FooterLink to="/privacy">{t("footer.privacy")}</FooterLink>
+            <FooterLink to="/feedback" state={{ from: pathname }}>
+              {t("footer.feedback")}
+            </FooterLink>
           </FooterLinks>
           <FooterTools>
             <LanguageSwitcher />

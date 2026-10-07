@@ -22,6 +22,7 @@ const StatisticsPage = lazy(() => import("./pages/stats/StatisticsPage"));
 const PrivacyPage = lazy(() => import("./pages/legal/PrivacyPage"));
 const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
 const NotFoundPage = lazy(() => import("./pages/not-found/NotFoundPage"));
+const FeedbackPage = lazy(() => import("./pages/feedback/FeedbackPage"));
 
 export const queryClientOptions = {
   defaultOptions: {
@@ -141,6 +142,7 @@ const App = () => {
                     <Route path="stats" element={<StatisticsPage />} />
                     <Route path="privacy" element={<PrivacyPage />} />
                     <Route path="about" element={<AboutPage />} />
+                    <Route path="feedback" element={<FeedbackPage />} />
                     <Route path="404" element={<NotFoundPage />} />
                     <Route path="deck">
                       <Route index element={<DeckFinderPage />} />

@@ -62,6 +62,7 @@ Detailed documentation for maintaining the project is available in the `docs/` d
 - **[Reference: Pipeline output contract](docs/reference/pipeline-output-contract.md)**: The five JSON files under `public/data/`, what each field means, and which pipeline scripts write and frontend components read them.
 - **[How-to guide: Deploying and hosting](docs/how-to/deploying-and-hosting.md)**: What `yarn build` runs stage by stage, how Firebase Hosting caches and rewrites requests, and which workflow deploys on a pull request or merge.
 - **[How-to guide: Adding a language](docs/how-to/adding-a-language.md)**: Steps for contributing a new locale, from choosing the BCP 47 code to passing the translation parity test.
+- **[How-to guide: Collecting feedback](docs/how-to/collecting-feedback.md)**: How the sign-in-only feedback page stores submissions in Firestore, and the security rules to add in the Firebase console.
 - **[Explanation: Advertising, premium and consent](docs/explanation/ads-premium-and-consent.md)**: Why the site gates content and shows ads, how premium status resolves through Stripe subscription states, and how the ad and consent layers stay inside policy.
 
 ## 🙌 Contributing

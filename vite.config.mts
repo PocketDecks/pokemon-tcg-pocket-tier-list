@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   envPrefix: ["VITE_", "REACT_APP_"],
   server: { port: 3000 },
-  build: { target: "chrome78" },
+  build: { target: "chrome78", sourcemap: true },
   test: {
     environment: "jsdom",
     setupFiles: ["./src/setupTests.ts"],

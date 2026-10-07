@@ -1,5 +1,7 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router";
+import { deckDisplayName } from "../app/deck-display";
 import { FullDeckType } from "../contexts/DecksContext";
 import { MetaShareEntry } from "../types/pipeline-data";
 import { deltaTrend } from "../app/delta-trend";
@@ -19,6 +21,12 @@ const Container = styled.div`
 const StyledDeckCard = styled(Link)`
   position: relative;
   container-type: inline-size;
+  transition: box-shadow 150ms ease-out;
+
+  ${Container}:hover & {
+    box-shadow: 0 0 0 2px var(--focus), 0 0 1.6rem rgba(255, 223, 128, 0.35);
+  }
+
   border-radius: 1.2rem;
   color: var(--bg);
   display: flex;
@@ -39,6 +47,11 @@ const SubCard = styled(Link)`
   overflow: hidden;
   border: solid 1px rgba(0, 0, 0, 0.7);
   box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.7);
+  transition: border-color 150ms ease-out;
+
+  ${Container}:hover & {
+    border-color: var(--focus);
+  }
 `;
 
 const DeckImage = styled.img`
@@ -82,6 +95,62 @@ const Badge = styled.div<{ $tone: "up" | "down" | "flat" | "new" }>`
   }
 `;
 
+const appear = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
+const NameBubble = styled.div<{ $below: boolean }>`
+  position: fixed;
+  z-index: 1000;
+  max-width: min(32rem, calc(100vw - 2.4rem));
+  padding: 0.7rem 1.2rem;
+  border-radius: 0.8rem;
+  background: rgba(18, 18, 16, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0.6rem 1.6rem rgba(0, 0, 0, 0.45);
+  color: var(--main);
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  transform: translateY(${(props) => (props.$below ? "0" : "-100%")});
+  animation: ${appear} 120ms ease-out 150ms both;
+`;
+
+const BUBBLE_GAP = 8;
+const BUBBLE_MARGIN = 12;
+
+const NameTip = ({ anchor, text }: { anchor: DOMRect; text: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const below = anchor.top < 48;
+  const [left, setLeft] = useState(anchor.left + anchor.width / 2);
+
+  useLayoutEffect(() => {
+    const width = ref.current?.getBoundingClientRect().width ?? 0;
+    const centred = anchor.left + anchor.width / 2 - width / 2;
+    setLeft(Math.max(BUBBLE_MARGIN, Math.min(centred, window.innerWidth - width - BUBBLE_MARGIN)));
+  }, [anchor]);
+
+  return (
+    <NameBubble
+      ref={ref}
+      aria-hidden="true"
+      $below={below}
+      style={{ left, top: below ? anchor.bottom + BUBBLE_GAP : anchor.top - BUBBLE_GAP }}
+    >
+      {text}
+    </NameBubble>
+  );
+};
+
 interface Props {
   deck: FullDeckType;
   metaShare?: MetaShareEntry | null;
@@ -95,10 +164,48 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
     const share = metaShare?.share ?? null;
     const delta = metaShare?.delta ?? null;
     const trend = deltaTrend(delta);
+    const name = deckDisplayName(deck);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [anchor, setAnchor] = useState<DOMRect | null>(null);
+
+    const show = () => {
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (rect) setAnchor(rect);
+    };
+    const hide = () => setAnchor(null);
+
+    useEffect(() => {
+        if (!anchor) return;
+        const follow = () => {
+            const rect = containerRef.current?.getBoundingClientRect();
+            if (rect) setAnchor(rect);
+        };
+        document.addEventListener("scroll", follow, { capture: true, passive: true });
+        window.addEventListener("resize", follow);
+        return () => {
+            document.removeEventListener("scroll", follow, { capture: true });
+            window.removeEventListener("resize", follow);
+        };
+    }, [anchor]);
+
+    const shareLabel = metaShare?.isNew
+        ? "NEW"
+        : metaShare && share !== null
+          ? `${metaShareLabel ?? "Meta share"} ${formatShare(share)}`
+          : null;
 
     return (
-        <Container>
-            <StyledDeckCard to={`/deck/${deck.id}`}>
+        <Container
+            ref={containerRef}
+            onMouseEnter={show}
+            onMouseLeave={hide}
+            onFocus={show}
+            onBlur={hide}
+        >
+            <StyledDeckCard
+                to={`/deck/${deck.id}`}
+                aria-label={shareLabel ? `${name}, ${shareLabel}` : name}
+            >
                 <DeckImage key={deck.iconPrimary.id} src={deck.iconPrimary.image} alt={deck.iconPrimary.name} />
                 {metaShare?.isNew ? (
                     <Badge $tone="new" title={metaShareLabel ?? "Meta share"}>
@@ -114,7 +221,7 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
                 ) : null}
             </StyledDeckCard>
             {deck.iconSecondary && (
-                <SubCard to={`/deck/${deck.id}`}>
+                <SubCard to={`/deck/${deck.id}`} tabIndex={-1} aria-hidden="true">
                     <DeckImage
                         key={deck.iconSecondary.id}
                         src={deck.iconSecondary.image}
@@ -122,6 +229,7 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
                     />
                 </SubCard>
             )}
+            {anchor && <NameTip anchor={anchor} text={name} />}
         </Container>
     );
 };

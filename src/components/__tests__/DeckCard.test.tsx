@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 import DeckCard from "../DeckCard";
@@ -61,5 +61,39 @@ describe("DeckCard", () => {
     expect(share).toHaveStyle({ color: "rgba(255, 255, 255, 0.85)" });
     expect(share).not.toHaveTextContent("▲");
     expect(share).not.toHaveTextContent("▼");
+  });
+
+  const pairDeck: FullDeckType = {
+    ...deck,
+    iconPrimary: { ...card, id: "card-2", name: "Mega Blaziken ex" },
+    iconSecondary: { ...card, id: "card-3", name: "Greninja" },
+  };
+
+  it("names the deck and its share for assistive technology", () => {
+    render(
+      <MemoryRouter>
+        <DeckCard deck={pairDeck} metaShare={metaShare} metaShareLabel="Meta share" />
+      </MemoryRouter>
+    );
+
+    expect(
+      screen.getByRole("link", { name: "Mega Blaziken ex / Greninja, Meta share 10.0%" })
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole("link")).toHaveLength(1);
+  });
+
+  it("shows the full deck name while the tile is hovered", () => {
+    render(
+      <MemoryRouter>
+        <DeckCard deck={pairDeck} />
+      </MemoryRouter>
+    );
+    const link = screen.getByRole("link", { name: "Mega Blaziken ex / Greninja" });
+
+    expect(screen.queryByText("Mega Blaziken ex / Greninja")).not.toBeInTheDocument();
+    fireEvent.mouseEnter(link);
+    expect(screen.getByText("Mega Blaziken ex / Greninja")).toBeInTheDocument();
+    fireEvent.mouseLeave(link);
+    expect(screen.queryByText("Mega Blaziken ex / Greninja")).not.toBeInTheDocument();
   });
 });

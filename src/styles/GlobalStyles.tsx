@@ -30,7 +30,8 @@ const GlobalStyle = createGlobalStyle`
         box-sizing: border-box;
         margin: 0;
         padding: 0;
-        font-family: "Roboto", sans-serif;
+        font-family: "Manrope Variable", "Manrope", system-ui, -apple-system,
+            "Segoe UI", sans-serif;
         line-height: 1.2;
     }
 

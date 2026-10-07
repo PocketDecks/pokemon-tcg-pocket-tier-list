@@ -7,6 +7,7 @@
   "dependencies": {
     "@c15t/react": "2.2.1",
     "@c15t/scripts": "2.2.0",
+    "@fontsource-variable/manrope": "5.3.0",
     "@invertase/firestore-stripe-payments": "^0.0.8",
     "@tanstack/react-query": "^5.76.0",
     "@types/node": "^16.18.118",

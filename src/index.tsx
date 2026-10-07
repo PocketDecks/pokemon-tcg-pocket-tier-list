@@ -9,6 +9,7 @@ import FilterContextProvider from "./components/FilterContext";
 import { UIProvider } from "./contexts/UIContext";
 import ConsentProvider from "./consent/ConsentProvider";
 import { handlePreloadError } from "./app/preload-reload-guard";
+import "@fontsource-variable/manrope";
 import "./i18n";
 
 window.addEventListener("vite:preloadError", handlePreloadError);

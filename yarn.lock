@@ -1550,6 +1550,11 @@
   resolved "https://registry.yarnpkg.com/@firebase/webchannel-wrapper/-/webchannel-wrapper-1.0.3.tgz#a73bab8eb491d7b8b7be2f0e6c310647835afe83"
   integrity sha512-2xCRM9q9FlzGZCdgDMJwc0gyUkWFtkosy7Xxr6sFgQwn+wMNIWd7xIvYNauU1r64B5L5rsGKy/n9TKJ0aAFeqQ==
 
+"@fontsource-variable/manrope@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/manrope/-/manrope-5.3.0.tgz#da97b427a854b8169141364b8080a9e5f3922518"
+  integrity sha512-6D5dgokHsWDDMtmXHznKa0hK229NN+1a4BLPmUCLqcO1Pw5EEhWY5RFt0AcXnVRAljFFPfRtLkJePQj6LSsV6g==
+
 "@grpc/grpc-js@1.13.6", "@grpc/grpc-js@~1.9.0":
   version "1.13.6"
   resolved "https://registry.yarnpkg.com/@grpc/grpc-js/-/grpc-js-1.13.6.tgz#e876b620597ca2653b06bf11fe6cb9a3168b6be8"

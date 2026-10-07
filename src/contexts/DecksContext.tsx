@@ -90,7 +90,11 @@ const fetchMatchupData = async (): Promise<PipelineMatchupData> => {
       `Failed to fetch matchup-data.json: ${response.status} ${response.statusText}`
     );
   }
-  return (await response.json()) as PipelineMatchupData;
+  const data = await response.json();
+  if (data === null || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("matchup-data.json has an unexpected shape");
+  }
+  return data as PipelineMatchupData;
 };
 
 interface BuildOptions {
@@ -336,6 +340,7 @@ export const useMatchups = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["matchups"],
     queryFn: fetchMatchupData,
+    retry: 1,
   });
   return { matchupsByName: data ?? null, loading: isLoading, error: error ?? null };
 };

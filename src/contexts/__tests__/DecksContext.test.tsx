@@ -329,17 +329,24 @@ describe("useMatchups", () => {
     vi.restoreAllMocks();
   });
 
-  it("returns the matchup map from its query", async () => {
-    vi.spyOn(global, "fetch").mockImplementation(() =>
-      jsonResponse({ "test-deck": [{ name: "Total", winRate: 0.5, totalGames: 10 }] })
-    );
+  const renderMatchups = () =>
     render(
       <QueryClientProvider
-        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+        client={
+          new QueryClient({
+            defaultOptions: { queries: { retry: false, retryDelay: 0 } },
+          })
+        }
       >
         <MatchupsProbe />
       </QueryClientProvider>
     );
+
+  it("returns the matchup map from its query", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(() =>
+      jsonResponse({ "test-deck": [{ name: "Total", winRate: 0.5, totalGames: 10 }] })
+    );
+    renderMatchups();
     expect(await screen.findByText("test-deck")).toBeInTheDocument();
   });
 
@@ -347,15 +354,19 @@ describe("useMatchups", () => {
     vi.spyOn(global, "fetch").mockImplementation(() =>
       errorResponse(500, "Internal Server Error")
     );
-    render(
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-      >
-        <MatchupsProbe />
-      </QueryClientProvider>
-    );
+    renderMatchups();
     expect(
       await screen.findByText("Failed to fetch matchup-data.json: 500 Internal Server Error")
+    ).toBeInTheDocument();
+  });
+
+  it("exposes an error when the body is an array", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(() =>
+      jsonResponse([{ name: "test-deck" }])
+    );
+    renderMatchups();
+    expect(
+      await screen.findByText("matchup-data.json has an unexpected shape")
     ).toBeInTheDocument();
   });
 });

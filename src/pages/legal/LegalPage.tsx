@@ -54,7 +54,7 @@ const Content = styled.article`
   }
 
   a {
-    color: var(--e);
+    color: var(--f);
     text-decoration: underline;
   }
 

@@ -296,7 +296,7 @@ export const MatchupLabel = styled.div<{ $winRate: number }>`
   font-size: 2.4rem;
   font-weight: 500;
   color: ${(props) =>
-      props.$winRate > WINRATE_THRESHOLD ? "var(--e)" : "var(--s)"};
+      props.$winRate > WINRATE_THRESHOLD ? "var(--f)" : "var(--s)"};
 
   @media (max-width: 900px) {
     font-size: 2rem;

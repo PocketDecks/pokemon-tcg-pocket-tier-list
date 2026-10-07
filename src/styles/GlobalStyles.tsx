@@ -10,7 +10,7 @@ const GlobalStyle = createGlobalStyle`
         --b: #FFDF80;
         --c: #FFFF7F;
         --d: #BFFF7F;
-        --e: #7FFF7F;
+        --f: #7FFF7F;
         --focus: #FFDF80;
         /* Bottom space reserved for the sticky ad anchor (0 when no ads). */
         --ad-anchor-h: 0px;

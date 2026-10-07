@@ -43,7 +43,7 @@ const ExpansionListPage = () => {
                     so consistently strong cards rank above packs with lower average value.
                     Cards that arrive through a set's shared pool count toward every pack
                     in that set. Once the averages are calculated, packs are sorted into
-                    tiers from S to E, with S standing for the most valuable pulls in the
+                    tiers from S to F, with S standing for the most valuable pulls in the
                     game.
                   </p>
 

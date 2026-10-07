@@ -14,7 +14,7 @@ const AboutPage = () => {
 
           <h2>Pokémon TCG Pocket deck rankings</h2>
           <p>
-              The tier list ranks current decks from S to E tier and updates as new
+              The tier list ranks current decks from S to F tier and updates as new
               tournament data becomes available. This helps players follow the
               current meta and choose decks with strong tournament support.
           </p>
@@ -23,7 +23,7 @@ const AboutPage = () => {
               <li>
                   <strong>Tier list:</strong>{" "}
                   <a href="/">View the current Pokémon TCG Pocket deck tier list</a>,
-                  ranked from S to E tier.
+                  ranked from S to F tier.
               </li>
               <li>
                   <strong>Best Deck Finder:</strong> Mark the cards you are missing

@@ -27,7 +27,7 @@ const Card = styled.p`
 `;
 
 const Link = styled.a`
-  color: var(--e);
+  color: var(--f);
   text-decoration: underline;
   font-weight: 500;
   font-size: inherit;

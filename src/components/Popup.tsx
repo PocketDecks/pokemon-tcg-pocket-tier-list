@@ -61,7 +61,7 @@ const ModalContent = styled.div<{ $width?: string }>`
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: var(--e);
+    background: var(--f);
   }
 `;
 

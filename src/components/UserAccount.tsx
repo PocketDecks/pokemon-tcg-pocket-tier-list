@@ -127,7 +127,7 @@ const ContactText = styled.p`
 
 const EmailText = styled(ContactText)`
   margin-top: 1rem;
-  color: var(--e);
+  color: var(--f);
 `;
 
 interface Props {

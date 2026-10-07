@@ -143,7 +143,7 @@ const Features = () => {
         />
       ),
       icon: "code",
-      tier: "var(--e)",
+      tier: "var(--f)",
     },
   ];
 

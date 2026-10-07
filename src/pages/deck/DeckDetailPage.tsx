@@ -288,7 +288,7 @@ const DeckDetailPage = () => {
             )}
 
             <MatchupSection>
-              <SubHeader $backgroundColor="var(--e)">
+              <SubHeader $backgroundColor="var(--f)">
                 {t("deckPage.strongAgainst")}
               </SubHeader>
               <MatchupList $blur={!isPremium}>

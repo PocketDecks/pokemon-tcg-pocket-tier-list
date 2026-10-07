@@ -22,7 +22,7 @@ describe("buildTiers", () => {
       "B",
       "C",
       "D",
-      "E",
+      "F",
     ]);
   });
 
@@ -38,12 +38,12 @@ describe("buildTiers", () => {
     );
   });
 
-  it("puts the best score in S and the worst in E", () => {
+  it("puts the best score in S and the worst in F", () => {
     const scored = items(60, 0, 30);
     const tiers = buildTiers(scored, score);
 
     expect(tierOf(tiers, scored[0])).toEqual(["S"]);
-    expect(tierOf(tiers, scored[1])).toEqual(["E"]);
+    expect(tierOf(tiers, scored[1])).toEqual(["F"]);
   });
 
   it("splits an evenly spread range across all six tiers", () => {

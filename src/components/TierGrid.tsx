@@ -42,8 +42,10 @@ const TierRow = styled.div`
   flex: 1;
   border-bottom: 0.4rem solid var(--border);
 
-  @media (min-width: 900px) {
+  @media (min-width: 901px) {
     position: relative;
+    container-type: size;
+
     &::after {
       content: "";
       position: absolute;
@@ -85,8 +87,29 @@ const RowContent = styled.div`
   gap: 2rem;
   width: 100%;
 
-  @media (min-width: 900px) {
+  @media (min-width: 901px) {
     overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+
+    && > * {
+      flex-shrink: 0;
+      height: calc(100cqh - 3.4rem);
+    }
+
+    &::-webkit-scrollbar {
+      height: 0.6rem;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 0.3rem;
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
   }
 
   @media (max-width: 900px) {

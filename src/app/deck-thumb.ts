@@ -6,5 +6,7 @@ export const onDeckThumbError =
     const image = event.currentTarget;
     if (image.dataset.fallback) return;
     image.dataset.fallback = "true";
+    image.removeAttribute("srcset");
+    image.removeAttribute("sizes");
     image.src = remote;
   };

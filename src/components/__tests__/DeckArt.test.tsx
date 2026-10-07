@@ -21,14 +21,16 @@ describe("DeckArt", () => {
     );
   });
 
-  it("falls back to the remote image once when the thumbnail fails", () => {
+  it("clears responsive sources before selecting the remote fallback", () => {
     render(<DeckArt size={2.8} src={REMOTE} />);
     const image = screen.getByRole("presentation");
 
+    expect(image).toHaveAttribute("srcset");
+    expect(image).toHaveAttribute("sizes");
     fireEvent.error(image);
-    expect(image).toHaveAttribute("src", REMOTE);
 
-    fireEvent.error(image);
     expect(image).toHaveAttribute("src", REMOTE);
+    expect(image).not.toHaveAttribute("srcset");
+    expect(image).not.toHaveAttribute("sizes");
   });
 });

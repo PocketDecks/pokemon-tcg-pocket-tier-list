@@ -49,6 +49,9 @@ const metaShare: MetaShareEntry = {
   isNew: false,
 };
 
+const remoteImage =
+  "https://raw.githubusercontent.com/chase-manning/pokemon-tcg-pocket-cards/refs/heads/main/images/webp/cards/b3/081.webp";
+
 describe("DeckCard", () => {
   it("uses the neutral share style and no trend arrow inside the dead-band", () => {
     render(
@@ -80,6 +83,29 @@ describe("DeckCard", () => {
       screen.getByRole("link", { name: "Mega Blaziken ex / Greninja, Meta share 10.0%" })
     ).toBeInTheDocument();
     expect(screen.getAllByRole("link")).toHaveLength(1);
+  });
+
+  it("clears responsive sources on primary and secondary fallback", () => {
+    const remoteDeck: FullDeckType = {
+      ...pairDeck,
+      iconPrimary: { ...pairDeck.iconPrimary, name: "Primary", image: remoteImage },
+      iconSecondary: { ...pairDeck.iconSecondary!, name: "Secondary", image: remoteImage },
+    };
+    render(
+      <MemoryRouter>
+        <DeckCard deck={remoteDeck} />
+      </MemoryRouter>
+    );
+
+    const images = [screen.getByAltText("Primary"), screen.getByAltText("Secondary")];
+    images.forEach((image) => {
+      expect(image).toHaveAttribute("srcset");
+      expect(image).toHaveAttribute("sizes");
+      fireEvent.error(image);
+      expect(image).toHaveAttribute("src", remoteImage);
+      expect(image).not.toHaveAttribute("srcset");
+      expect(image).not.toHaveAttribute("sizes");
+    });
   });
 
   it("shows the full deck name while the tile is hovered", () => {

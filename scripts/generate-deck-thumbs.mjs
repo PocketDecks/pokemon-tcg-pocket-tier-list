@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { pathToFileURL } from "url";
+import { randomUUID } from "crypto";
 import sharp from "sharp";
 import { deckNameToIconIds } from "./deck-name.mjs";
 import { cardIdFromImage, DECK_THUMB_CROP, DECK_THUMB_QUALITY, DECK_THUMB_SIZES, DECK_THUMB_VERSION } from "./deck-thumbs.mjs";
@@ -38,6 +39,39 @@ export const cropArt = (buffer, size) =>
     .webp({ quality: DECK_THUMB_QUALITY })
     .toBuffer();
 
+const isValidThumbnail = async (filePath, size) => {
+  if (!fs.existsSync(filePath)) return false;
+  try {
+    const metadata = await sharp(fs.readFileSync(filePath)).metadata();
+    return metadata.format === "webp" && metadata.width === size && metadata.height === size;
+  } catch {
+    return false;
+  }
+};
+
+export const findMissingThumbnailIds = async (ids, outDir) => {
+  const missing = [];
+  for (const id of ids) {
+    const valid = await Promise.all(
+      DECK_THUMB_SIZES.map((size) => isValidThumbnail(path.join(outDir, `${id}-${size}.webp`), size))
+    );
+    if (valid.some((value) => !value)) missing.push(id);
+  }
+  return missing;
+};
+
+export const writeThumbnail = (outDir, id, size, buffer) => {
+  const destination = path.join(outDir, `${id}-${size}.webp`);
+  const temporary = `${destination}.${process.pid}.${randomUUID()}.tmp`;
+  try {
+    fs.writeFileSync(temporary, buffer);
+    fs.renameSync(temporary, destination);
+  } catch (error) {
+    fs.rmSync(temporary, { force: true });
+    throw error;
+  }
+};
+
 const runWithConcurrency = async (items, worker, concurrency) => {
   const results = [];
   let nextIndex = 0;
@@ -73,9 +107,7 @@ const main = async () => {
   const outDir = path.join(cwd, "public", "thumbs", `v${DECK_THUMB_VERSION}`);
   fs.mkdirSync(outDir, { recursive: true });
 
-  const ids = thumbCardIds(decks).filter((id) =>
-    DECK_THUMB_SIZES.some((size) => !fs.existsSync(path.join(outDir, `${id}-${size}.webp`)))
-  );
+  const ids = await findMissingThumbnailIds(thumbCardIds(decks), outDir);
   const generated = await runWithConcurrency(
     ids,
     async (id) => {
@@ -87,7 +119,7 @@ const main = async () => {
       await Promise.all(
         DECK_THUMB_SIZES.map(async (size) => {
           const thumb = await cropArt(source, size);
-          fs.writeFileSync(path.join(outDir, `${id}-${size}.webp`), thumb);
+          writeThumbnail(outDir, id, size, thumb);
         })
       );
       return id;

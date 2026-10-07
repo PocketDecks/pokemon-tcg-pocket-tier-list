@@ -1,5 +1,9 @@
 const test = require("node:test");
 const assert = require("node:assert");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const sharp = require("sharp");
 
 const {
   ART_SIZE,
@@ -10,6 +14,7 @@ const {
   deriveCropRect,
 } = require("../deck-thumbs.mjs");
 const { deckNameToIconIds } = require("../deck-name.mjs");
+const { findMissingThumbnailIds, writeThumbnail } = require("../generate-deck-thumbs.mjs");
 
 test("derives the tile crop window from the art geometry", () => {
   assert.deepStrictEqual(DECK_THUMB_CROP, {
@@ -61,4 +66,31 @@ test("reads the card id back out of the upstream image url", () => {
     "b3-081"
   );
   assert.strictEqual(cardIdFromImage("/local/thumb.webp"), null);
+});
+
+test("regenerates an invalid cached thumbnail", async () => {
+  const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "deck-thumbs-"));
+  try {
+    fs.writeFileSync(path.join(outDir, "b3-081-96.webp"), Buffer.from("invalid"));
+    fs.writeFileSync(path.join(outDir, "b3-081-183.webp"), Buffer.from("invalid"));
+
+    assert.deepStrictEqual(await findMissingThumbnailIds(["b3-081"], outDir), ["b3-081"]);
+
+    const createBuffer = (size) =>
+      sharp({
+        create: {
+          width: size,
+          height: size,
+          channels: 4,
+          background: { r: 0, g: 0, b: 0, alpha: 1 },
+        },
+      }).webp().toBuffer();
+    writeThumbnail(outDir, "b3-081", 96, await createBuffer(96));
+    writeThumbnail(outDir, "b3-081", 183, await createBuffer(183));
+
+    assert.deepStrictEqual(await findMissingThumbnailIds(["b3-081"], outDir), []);
+    assert.equal((await sharp(fs.readFileSync(path.join(outDir, "b3-081-96.webp"))).metadata()).format, "webp");
+  } finally {
+    fs.rmSync(outDir, { recursive: true, force: true });
+  }
 });

@@ -1,4 +1,5 @@
 /// <reference types="vitest/config" />
+import { replaceManropePreload } from "./scripts/manrope-preload.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin } from "vite";
@@ -48,7 +49,7 @@ const manropePreload = (): Plugin => {
     }
     const htmlPath = path.join(outputDir, "index.html");
     const html = fs.readFileSync(htmlPath, "utf8");
-    fs.writeFileSync(htmlPath, html.replace(MANROPE_PRELOAD, `/${manropeFont}`));
+    fs.writeFileSync(htmlPath, replaceManropePreload(html, manropeFont));
   },
   };
 };

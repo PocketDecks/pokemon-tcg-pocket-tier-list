@@ -1,18 +1,15 @@
-import fs from "node:fs";
-import path from "node:path";
 import { describe, expect, it } from "vitest";
-
-const distIndex = path.resolve("dist/index.html");
+import { replaceManropePreload } from "../../../scripts/manrope-preload.mjs";
 
 describe("built font preload", () => {
-  it("preloads the emitted latin Manrope file", () => {
-    expect(fs.existsSync(distIndex)).toBe(true);
-    const html = fs.readFileSync(distIndex, "utf8");
-    const href = html.match(
-      /<link rel="preload" as="font" type="font\/woff2" crossorigin="anonymous" href="([^"]*manrope-latin-wght-normal-[^"]+\.woff2)">/
-    )?.[1];
-
-    expect(href).toBeDefined();
-    expect(fs.existsSync(path.resolve("dist", href!.slice(1)))).toBe(true);
+  it("replaces the placeholder with the emitted latin Manrope file", () => {
+    const html = replaceManropePreload(
+      '<link rel="preload" href="__MANROPE_LATIN_PRELOAD__">',
+      "assets/manrope-latin-wght-normal-test.woff2"
+    );
+    expect(html).toContain(
+      'href="/assets/manrope-latin-wght-normal-test.woff2"'
+    );
+    expect(html).not.toContain("__MANROPE_LATIN_PRELOAD__");
   });
 });

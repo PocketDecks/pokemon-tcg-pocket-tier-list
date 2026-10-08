@@ -37,6 +37,17 @@ const findEmptyStyledTags = (dir = DIST_DIR) =>
         .map(() => entry);
     });
 
+const BAKED_APP_STATE = ["data-app-visible", "data-consent-pending"];
+
+const findBakedAppState = (dir = DIST_DIR) =>
+  listHtmlFiles(dir).flatMap((entry) => {
+    const html = fs.readFileSync(path.join(dir, entry), "utf8");
+    const tag = html.match(/<html(?:\s[^>]*)?>/i)?.[0] ?? "";
+    return BAKED_APP_STATE.filter((name) => tag.includes(name)).map(
+      (name) => `${entry}: ${name}`
+    );
+  });
+
 const findNonEmptyDeckRoots = (dir = DIST_DIR) => {
   const deckDir = path.join(dir, "deck");
   if (!fs.existsSync(deckDir)) return [];
@@ -162,6 +173,13 @@ const main = () => {
     );
     process.exit(1);
   }
+  const bakedAppState = findBakedAppState();
+  if (bakedAppState.length > 0) {
+    console.error(
+      `Live app state baked into the <html> tag of built HTML:\n${bakedAppState.join("\n")}`
+    );
+    process.exit(1);
+  }
   const preloadDrift = findModulepreloadDrift();
   if (preloadDrift.length > 0) {
     console.error(
@@ -194,6 +212,7 @@ const main = () => {
 if (require.main === module) main();
 
 module.exports = {
+  findBakedAppState,
   findEmptyStyledTags,
   findExternalScripts,
   findLoopbackRefs,

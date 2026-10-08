@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, render, waitFor } from "@testing-library/react";
 import {
   CONSENT_BANNER_HEIGHT_PROPERTY,
   useConsentBannerHeight,
@@ -8,6 +8,11 @@ import {
 const Harness = ({ enabled }: { enabled: boolean }) => {
   useConsentBannerHeight(enabled);
   return <div data-testid="consent-banner-root" />;
+};
+
+const PendingHarness = ({ banner }: { banner: boolean }) => {
+  useConsentBannerHeight(true);
+  return banner ? <div data-testid="consent-banner-root" /> : null;
 };
 
 const stubBannerHeight = (height: number) => {
@@ -55,6 +60,18 @@ describe("useConsentBannerHeight", () => {
       </div>
     );
     expect(reservedHeight()).toBe("0px");
+  });
+
+  it("leaves the stylesheet reservation in place once a pending banner goes away", async () => {
+    stubBannerHeight(312);
+    document.documentElement.setAttribute("data-consent-pending", "");
+    const { rerender } = render(<PendingHarness banner />);
+    expect(reservedHeight()).toBe("312px");
+
+    rerender(<PendingHarness banner={false} />);
+
+    await waitFor(() => expect(reservedHeight()).toBe(""));
+    document.documentElement.removeAttribute("data-consent-pending");
   });
 
   it("clears the variable when disabled", () => {

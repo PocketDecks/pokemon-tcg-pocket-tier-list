@@ -64,7 +64,7 @@ test("strips the live app state from the captured document", () => {
 
   resetPrerenderAppState();
 
-  assert.deepStrictEqual(removed, ["data-app-visible", "--ad-anchor-h", "--consent-banner-h"]);
+  assert.deepStrictEqual(removed, ["data-app-visible", "data-consent-pending", "--ad-anchor-h", "--consent-banner-h"]);
   delete global.document;
 });
 test("captures data-backed routes after their pathname is ready", async () => {

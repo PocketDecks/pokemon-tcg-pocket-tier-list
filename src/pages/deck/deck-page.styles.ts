@@ -306,11 +306,14 @@ export const MatchupSkeletonTile = styled.span`
 
 export const WinRatePlaceholder = styled.span`
   display: inline-block;
-  width: 5ch;
-  height: 1em;
-  vertical-align: middle;
   border-radius: 0.4rem;
   background: var(--line);
+  color: transparent;
+  font-variant-numeric: tabular-nums;
+
+  &::before {
+    content: "00%";
+  }
 `;
 
 export const VisuallyHidden = styled.span`

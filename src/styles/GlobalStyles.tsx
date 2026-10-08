@@ -21,6 +21,24 @@ const GlobalStyle = createGlobalStyle`
         --consent-banner-h: 0px;
     }
 
+    @media (max-width: 900px) {
+        :root[data-consent-pending] {
+            --consent-banner-h: 267px;
+        }
+    }
+
+    @media (max-width: 639px) {
+        :root[data-consent-pending] {
+            --consent-banner-h: 299px;
+        }
+    }
+
+    @media (max-width: 416px) {
+        :root[data-consent-pending] {
+            --consent-banner-h: 324px;
+        }
+    }
+
     :root[data-theme="dark"] {
         color-scheme: dark;
         ${tokenBlock("dark")}

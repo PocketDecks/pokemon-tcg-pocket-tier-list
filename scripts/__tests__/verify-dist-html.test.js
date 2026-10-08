@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const {
+  findBakedAppState,
   findEmptyStyledTags,
   findExternalScripts,
   findLoopbackRefs,
@@ -170,4 +171,24 @@ test("reports missing deck data clearly", () => {
     () => loadDecks(path.join(os.tmpdir(), "missing-deck-data")),
     /Unable to load deck data from .*best-decks\.json/
   );
+});
+
+test("flags live app state baked into the html tag", () => {
+  const dir = makeDist({
+    "index.html": '<html lang="en" data-consent-pending="" data-app-visible="true"><body></body></html>',
+    "about/index.html": '<html lang="en" data-consent-pending><body></body></html>',
+    "privacy/index.html": '<html lang="en"><body></body></html>',
+  });
+  assert.deepStrictEqual(findBakedAppState(dir).sort(), [
+    `about${path.sep}index.html: data-consent-pending`,
+    "index.html: data-app-visible",
+    "index.html: data-consent-pending",
+  ]);
+});
+
+test("ignores the consent attribute outside the html tag", () => {
+  const dir = makeDist({
+    "index.html": '<html lang="en"><head><script>root.setAttribute("data-consent-pending","")</script></head></html>',
+  });
+  assert.deepStrictEqual(findBakedAppState(dir), []);
 });

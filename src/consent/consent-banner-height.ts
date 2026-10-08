@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { CONSENT_PENDING_ATTRIBUTE } from "./consent-pending-keys";
 
 export const CONSENT_BANNER_HEIGHT_PROPERTY = "--consent-banner-h";
 export const CONSENT_BANNER_SELECTOR = '[data-testid="consent-banner-root"]';
@@ -30,6 +31,10 @@ export const useConsentBannerHeight = (enabled: boolean): void => {
       observer = null;
       banner = next;
       if (!banner) {
+        if (root.hasAttribute(CONSENT_PENDING_ATTRIBUTE)) {
+          root.style.removeProperty(CONSENT_BANNER_HEIGHT_PROPERTY);
+          return;
+        }
         publishHeight(root, 0);
         return;
       }

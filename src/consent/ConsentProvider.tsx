@@ -1,13 +1,13 @@
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ConsentBanner,
   ConsentDialog,
   ConsentManagerProvider,
   type ConsentManagerOptions,
+  useConsentManager,
 } from "@c15t/react";
 import { gtag } from "@c15t/scripts/google-tag";
-import { policyPackPresets, type PolicyConfig } from "c15t";
 import { isPrerender } from "../app/prerender";
 import { useAppVisible } from "../app/use-app-visible";
 import { useTheme } from "../contexts/ThemeContext";
@@ -19,8 +19,9 @@ import { consentTheme } from "./consent-theme";
 import { toConsentLanguage } from "./consent-language";
 import { consentMessages } from "./consent-messages";
 import { useConsentBannerHeight } from "./consent-banner-height";
+import { CONSENT_PENDING_ATTRIBUTE } from "./consent-pending-keys";
 import { resolveVisitorRegion, type VisitorRegion } from "./visitor-region";
-import { EUROPE_OPT_IN_EXTRA_COUNTRIES } from "./policy-countries.mjs";
+import { policyPacks } from "./policy-packs";
 
 // c15t injects gtag, sets Consent Mode v2 to denied by default and pushes the
 // update when a visitor chooses. Registering both categories lets one gtag
@@ -44,33 +45,16 @@ const readVisitorRegion = (): VisitorRegion | null => {
   }
 };
 
-const europeOptIn = policyPackPresets.europeOptIn();
-const europe: PolicyConfig = {
-  ...europeOptIn,
-  match: {
-    ...europeOptIn.match,
-    countries: [...(europeOptIn.match.countries ?? []), ...EUROPE_OPT_IN_EXTRA_COUNTRIES],
-  },
-  consent: {
-    ...europeOptIn.consent,
-    categories: ["necessary", "measurement"],
-    scopeMode: "strict",
-  },
-};
+const ConsentPendingSync = (): null => {
+  const { hasFetchedBanner, activeUI } = useConsentManager();
+  const settled = hasFetchedBanner && activeUI === "none";
 
-const canada: PolicyConfig = {
-  ...policyPackPresets.quebecOptIn(),
-  id: "canada_opt_in",
-  match: { countries: ["CA"] },
-};
+  useEffect(() => {
+    if (settled) document.documentElement.removeAttribute(CONSENT_PENDING_ATTRIBUTE);
+  }, [settled]);
 
-const policyPacks: PolicyConfig[] = [
-  europe,
-  policyPackPresets.quebecOptIn(),
-  canada,
-  policyPackPresets.californiaOptOut(),
-  policyPackPresets.worldNoBanner(),
-];
+  return null;
+};
 
 const visitorRegion = readVisitorRegion();
 
@@ -100,6 +84,7 @@ const ConsentProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ConsentManagerProvider options={options}>
       {children}
+      <ConsentPendingSync />
       {appVisible && !isPrerender ? (
         <>
           <ConsentBanner

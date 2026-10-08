@@ -144,6 +144,7 @@ const resetPrerenderTheme = (originalThemeColor) => {
 const resetPrerenderAppState = () => {
   const root = document.documentElement;
   root.removeAttribute("data-app-visible");
+  root.removeAttribute("data-consent-pending");
   root.style.removeProperty("--ad-anchor-h");
   root.style.removeProperty("--consent-banner-h");
 };

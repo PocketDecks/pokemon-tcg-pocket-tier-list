@@ -1,5 +1,6 @@
 /// <reference types="vitest/config" />
 import { replaceManropePreload } from "./scripts/manrope-preload.mjs";
+import { buildConsentPendingData, consentPendingScript } from "./src/consent/consent-pending";
 import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin } from "vite";
@@ -54,8 +55,26 @@ const manropePreload = (): Plugin => {
   };
 };
 
+const consentPending = (): Plugin => {
+  let script: Promise<string> | undefined;
+  return {
+    name: "consent-pending",
+    transformIndexHtml() {
+      script ??= buildConsentPendingData().then(consentPendingScript);
+      return script.then((children) => [
+        {
+          tag: "script",
+          injectTo: "head-prepend" as const,
+          attrs: { "data-consent-init": "true" },
+          children,
+        },
+      ]);
+    },
+  };
+};
+
 export default defineConfig({
-  plugins: [react(), manropePreload()],
+  plugins: [react(), manropePreload(), consentPending()],
   envPrefix: ["VITE_", "REACT_APP_"],
   server: { port: 3000 },
   build: { target: "baseline-widely-available", sourcemap: true },

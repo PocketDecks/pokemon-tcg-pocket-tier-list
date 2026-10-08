@@ -51,6 +51,21 @@ describe("consent styling guard", () => {
     expect(global).toContain("calc(var(--ad-anchor-h, 0px) + var(--consent-banner-h, 0px))");
   });
 
+  it("reserves the banner height before first paint on mobile through the pending attribute", () => {
+    const global = readFileSync(resolve(consentDir, "../styles/GlobalStyles.tsx"), "utf8");
+    const rules = [
+      ...global.matchAll(
+        /@media \(max-width: (\d+)px\) \{\s*:root\[data-consent-pending\] \{\s*--consent-banner-h: (\d+)px;/g
+      ),
+    ];
+
+    expect(rules.map(([, width, height]) => [Number(width), Number(height)])).toEqual([
+      [900, 267],
+      [639, 299],
+      [416, 324],
+    ]);
+  });
+
   it("imports the layer order before c15t's stylesheet", () => {
     const provider = readFileSync(resolve(consentDir, "ConsentProvider.tsx"), "utf8");
     const layers = provider.indexOf('import "../styles/layers.css";');

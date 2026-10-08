@@ -124,6 +124,8 @@ describe("ConsentProvider region policy", () => {
     vi.restoreAllMocks();
     clearCookies();
     localStorage.clear();
+    clearConsentRuntimeCache();
+    document.documentElement.removeAttribute("data-consent-pending");
   });
 
   it.each(rows)("applies the policy for $name", async (row) => {
@@ -159,6 +161,68 @@ describe("ConsentProvider region policy", () => {
       expect(lastConsentParams()?.analytics_storage).toBe(row.analytics);
     });
     expect(lastConsentParams()?.ad_storage).toBe(row.ads);
+  });
+
+  it.each(rows)("settles the pending attribute for $name", async (row) => {
+    if (row.cookie) document.cookie = row.cookie;
+    stubTimeZone(row.timeZone);
+    document.documentElement.setAttribute("data-consent-pending", "");
+    const RegionProvider = await loadProvider();
+
+    let store: ConsentStore | undefined;
+    const Probe = () => {
+      store = useConsentManager();
+      return null;
+    };
+
+    render(
+      <RegionProvider>
+        <Probe />
+      </RegionProvider>
+    );
+
+    await waitFor(() => {
+      expect(store?.lastBannerFetchData).toBeTruthy();
+    });
+
+    if (row.banner) {
+      expect(document.documentElement.hasAttribute("data-consent-pending")).toBe(true);
+    } else {
+      await waitFor(() => {
+        expect(document.documentElement.hasAttribute("data-consent-pending")).toBe(false);
+      });
+    }
+  });
+
+  it("drops the pending attribute once a choice is made", async () => {
+    stubTimeZone("Europe/Berlin");
+    document.documentElement.setAttribute("data-consent-pending", "");
+    const RegionProvider = await loadProvider();
+
+    let store: ConsentStore | undefined;
+    const Probe = () => {
+      store = useConsentManager();
+      return null;
+    };
+
+    render(
+      <RegionProvider>
+        <Probe />
+      </RegionProvider>
+    );
+
+    await waitFor(() => {
+      expect(store?.activeUI).toBe("banner");
+    });
+    expect(document.documentElement.hasAttribute("data-consent-pending")).toBe(true);
+
+    await act(async () => {
+      await store?.saveConsents("necessary");
+    });
+
+    await waitFor(() => {
+      expect(document.documentElement.hasAttribute("data-consent-pending")).toBe(false);
+    });
   });
 });
 

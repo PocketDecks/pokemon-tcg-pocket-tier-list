@@ -25,7 +25,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<ThemeName>(themeFromDocument);
-  const hasStoredTheme = readStoredTheme() !== null;
+  const [hasStoredTheme, setHasStoredTheme] = useState(() => readStoredTheme() !== null);
 
   useEffect(() => {
     if (hasStoredTheme) return;
@@ -43,6 +43,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const nextTheme = theme === "dark" ? "light" : "dark";
     storeTheme(nextTheme);
     applyTheme(nextTheme);
+    setHasStoredTheme(true);
     setTheme(nextTheme);
   }, [theme]);
 

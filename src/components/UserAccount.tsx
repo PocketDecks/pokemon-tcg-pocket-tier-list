@@ -146,7 +146,7 @@ const UserAccount = ({ compact = false }: Props) => {
         {isPremium && (
           <ContactButton
             onClick={() => setIsContactOpen(true)}
-            aria-label="Contact"
+            aria-label={t("premium.features.contact.title")}
           >
             <ContactIcon name="mail" size={34} />
           </ContactButton>

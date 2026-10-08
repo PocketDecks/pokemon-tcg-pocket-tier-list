@@ -292,7 +292,7 @@ const matrixColour =
     (winRate: number): string => {
         const t = Math.max(-1, Math.min(1, (winRate - 0.5) / 0.25));
         const pole = t >= 0 ? scale.favoured : scale.unfavoured;
-        return mixOklab(pole, scale.even, Math.abs(t));
+        return mixOklab(scale.even, pole, Math.abs(t));
     };
 
 const StatisticsPage = () => {

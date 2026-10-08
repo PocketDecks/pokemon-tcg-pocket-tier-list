@@ -116,7 +116,7 @@ const NameBubble = styled.div`
   background: var(--black-94);
   border: 1px solid var(--focus);
   box-shadow: 0 0.6rem 1.6rem var(--shadow-strong), 0 0 1.6rem var(--accent-shadow);
-  color: var(--main);
+  color: var(--text-inverse);
   font-size: 1.6rem;
   font-weight: 600;
   line-height: 1.3;

@@ -1,10 +1,15 @@
+import { forwardRef, type ReactNode, type SelectHTMLAttributes } from "react";
 import styled from "styled-components";
+import NavIcon from "./NavIcon";
 
-const CHEVRON =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")";
+const DropdownFrame = styled.div`
+  position: relative;
+  display: inline-flex;
+`;
 
-const Dropdown = styled.select`
+const StyledSelect = styled.select`
   min-height: 4.4rem;
+  width: 100%;
   padding: 0.8rem 4rem 0.8rem 1.2rem;
   font-size: 1.6rem;
   border-radius: 0.4rem;
@@ -15,10 +20,6 @@ const Dropdown = styled.select`
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-image: ${CHEVRON};
-  background-repeat: no-repeat;
-  background-position: right 1.2rem center;
-  background-size: 1.2em 1.2em;
 
   &:hover {
     border-color: var(--a);
@@ -29,5 +30,29 @@ const Dropdown = styled.select`
     outline-offset: 2px;
   }
 `;
+
+const Chevron = styled(NavIcon)`
+  position: absolute;
+  top: 50%;
+  right: 1.2rem;
+  width: 1.8rem;
+  height: 1.8rem;
+  color: var(--main);
+  pointer-events: none;
+  transform: translateY(-50%);
+`;
+
+const Dropdown = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement> & { children?: ReactNode }>(
+  ({ children, className, ...props }, ref) => (
+    <DropdownFrame>
+      <StyledSelect ref={ref} className={className} {...props}>
+        {children}
+      </StyledSelect>
+      <Chevron name="chevronDown" size={18} />
+    </DropdownFrame>
+  )
+);
+
+Dropdown.displayName = "Dropdown";
 
 export default Dropdown;

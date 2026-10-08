@@ -191,7 +191,6 @@ const main = async () => {
   for (const route of ROUTES) {
     await page.goto(`${ORIGIN}${route}`, { waitUntil: "networkidle0" });
     await page.waitForSelector("#app-root > *, #root > *");
-    await page.evaluate(resetPrerenderTheme, templateThemeColor);
     const html = await captureAfterRouteReady(page, route, async () => {
       if (DECK_ANCHOR_ROUTES.has(route)) {
         await page.waitForFunction(
@@ -218,6 +217,7 @@ const main = async () => {
         templatePreloads,
         templateScripts
       );
+      await page.evaluate(resetPrerenderTheme, templateThemeColor);
       return page.evaluate(
         () => `<!doctype html>\n${document.documentElement.outerHTML}`
       );

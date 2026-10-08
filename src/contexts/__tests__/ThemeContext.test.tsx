@@ -16,6 +16,7 @@ let systemMatches = false;
 
 beforeEach(() => {
   window.localStorage.clear();
+  document.documentElement.removeAttribute("data-theme");
   mediaListeners.length = 0;
   systemMatches = false;
   Object.defineProperty(window, "matchMedia", {
@@ -48,6 +49,26 @@ describe("ThemeProvider", () => {
     expect(window.localStorage.getItem("theme")).toBe("light");
   });
 
+  it("keeps an explicit choice when storage writes fail", () => {
+    vi.spyOn(window.localStorage, "setItem").mockImplementation(() => {
+      throw new Error("storage unavailable");
+    });
+
+    render(
+      <ThemeProvider>
+        <Probe />
+      </ThemeProvider>
+    );
+
+    const button = screen.getByRole("button");
+    fireEvent.click(button);
+    expect(button).toHaveTextContent("light");
+
+    systemMatches = false;
+    mediaListeners.forEach((listener) => listener({ matches: false } as MediaQueryListEvent));
+    expect(button).toHaveTextContent("light");
+  });
+
   it("follows system changes until a choice is saved", async () => {
     render(
       <ThemeProvider>
@@ -55,6 +76,7 @@ describe("ThemeProvider", () => {
       </ThemeProvider>
     );
 
+    expect(screen.getByRole("button")).toHaveTextContent("dark");
     systemMatches = true;
     mediaListeners.forEach((listener) => listener({ matches: true } as MediaQueryListEvent));
     await waitFor(() => expect(screen.getByRole("button")).toHaveTextContent("light"));

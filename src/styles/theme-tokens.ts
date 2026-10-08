@@ -1,8 +1,6 @@
 export type ThemeName = "dark" | "light";
 
-export type TokenName = string;
-
-const darkTokens: Record<TokenName, string> = {
+const darkTokens = {
   bg: "#1A1A17",
   surface: "#1d1d1b",
   "surface-sunk": "#121210",
@@ -96,9 +94,13 @@ const darkTokens: Record<TokenName, string> = {
   "white-10": "rgba(255, 255, 255, 0.1)",
   "white-12": "rgba(255, 255, 255, 0.12)",
   "white-22": "rgba(255, 255, 255, 0.22)",
-};
+} satisfies Record<string, string>;
 
-const lightTokens: Record<TokenName, string> = {
+type TokenName = keyof typeof darkTokens;
+
+type TokenValues = Record<TokenName, string>;
+
+const lightTokens: TokenValues = {
   ...darkTokens,
   bg: "#F5F3EE",
   surface: "#FFFFFF",
@@ -189,7 +191,7 @@ export const chartChrome: Record<ThemeName, ChartChrome> = {
   },
   light: {
     grid: "#E1E0D9",
-    tick: "#898781",
+    tick: "#5F5B52",
     cursor: "#C3C2B7",
     dotRing: "#ECE9E2",
   },
@@ -217,7 +219,7 @@ export const matrixScale: Record<ThemeName, MatrixScale> = {
     unfavoured: "#b8312f",
     frame: "#121210",
     empty: "#1d1d1b",
-    textOnDarkCell: "var(--text)",
+    textOnDarkCell: "var(--text-inverse)",
     textOnLightCell: "var(--on-accent)",
     emptyText: "rgba(255, 255, 255, 0.4)",
     hover: "rgba(255, 255, 255, 0.75)",
@@ -228,7 +230,7 @@ export const matrixScale: Record<ThemeName, MatrixScale> = {
     unfavoured: "#e34948",
     frame: "#ECE9E2",
     empty: "#FFFFFF",
-    textOnDarkCell: "var(--text)",
+    textOnDarkCell: "var(--text-inverse)",
     textOnLightCell: "var(--on-accent)",
     emptyText: "rgba(26, 26, 23, 0.4)",
     hover: "rgba(26, 26, 23, 0.75)",

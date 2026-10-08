@@ -134,7 +134,15 @@ const paths: Record<NavIconName, ReactNode> = {
   ),
 };
 
-const NavIcon = ({ name, size = 22 }: { name: NavIconName; size?: number }) => (
+const NavIcon = ({
+  name,
+  size = 22,
+  className,
+}: {
+  name: NavIconName;
+  size?: number;
+  className?: string;
+}) => (
   <svg
     viewBox="0 0 24 24"
     width={size}
@@ -144,6 +152,7 @@ const NavIcon = ({ name, size = 22 }: { name: NavIconName; size?: number }) => (
     strokeWidth="1.75"
     strokeLinecap="round"
     strokeLinejoin="round"
+    className={className}
     aria-hidden="true"
     focusable="false"
   >

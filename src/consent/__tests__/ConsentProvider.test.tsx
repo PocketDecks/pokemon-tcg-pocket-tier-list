@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ClassNameStyle } from "@c15t/ui/theme";
 import { ThemeProvider, useTheme } from "../../contexts/ThemeContext";
@@ -22,7 +22,7 @@ beforeEach(() => {
   mediaListeners.length = 0;
   document.documentElement.className = "";
   document.documentElement.removeAttribute("data-theme");
-  document.documentElement.removeAttribute("data-app-visible");
+  document.documentElement.dataset.appVisible = "true";
   Object.defineProperty(window, "matchMedia", {
     configurable: true,
     value: vi.fn(() => ({
@@ -117,7 +117,7 @@ describe("ConsentProvider", () => {
     const Probe = () => {
       const { theme, toggle } = useTheme();
       return (
-        <button type="button" onClick={toggle}>
+        <button type="button" aria-label="Current theme" onClick={toggle}>
           {theme}
         </button>
       );
@@ -131,15 +131,20 @@ describe("ConsentProvider", () => {
       </ThemeProvider>
     );
 
-    expect(screen.getByRole("button")).toHaveTextContent("dark");
+    expect(screen.getByRole("button", { name: "Current theme" })).toHaveTextContent("dark");
+    await waitFor(() => expect(screen.getByTestId("consent-banner-card")).toBeInTheDocument());
+    expect(screen.getByTestId("consent-banner-title")).toHaveTextContent("We value your privacy");
+    expect(document.querySelector("#consent-dialog-root")).not.toBeInTheDocument();
     expect(document.documentElement.classList.contains("c15t-dark")).toBe(true);
     expect(themeStyleElement()).toContain(`--c15t-surface: ${themeTokens.dark.bg}`);
 
     await act(async () => {
-      screen.getByRole("button").click();
+      screen.getByRole("button", { name: "Current theme" }).click();
     });
 
-    expect(screen.getByRole("button")).toHaveTextContent("light");
+    expect(screen.getByRole("button", { name: "Current theme" })).toHaveTextContent("light");
+    await waitFor(() => expect(screen.getByTestId("consent-banner-card")).toBeInTheDocument());
+    expect(screen.getByTestId("consent-banner-title")).toHaveTextContent("We value your privacy");
     expect(document.documentElement.classList.contains("c15t-dark")).toBe(false);
     expect(themeStyleElement()).toContain(`--c15t-surface: ${themeTokens.light.bg}`);
     expect(themeStyleElement()).not.toContain(`--c15t-surface: ${themeTokens.dark.bg}`);

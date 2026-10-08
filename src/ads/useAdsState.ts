@@ -11,6 +11,9 @@ export interface AdsState {
   showAds: boolean;
   // Whether to load real AdSense ads vs a dev placeholder.
   useReal: boolean;
+  // Whether the anchor's space is reserved from first paint. Unlike showAds it
+  // ignores the content-ready gate, so the layout does not move when the ad shows.
+  reserved: boolean;
 }
 
 // Single source of truth for ad gating. Nothing renders unless ADS_ENABLED is
@@ -38,8 +41,9 @@ const useAdsState = (): AdsState => {
   const showAds =
     ADS_ENABLED && appVisible && isFree && contentReady && (IS_DEV || marketingConsent);
   const useReal = showAds && !IS_DEV;
+  const reserved = ADS_ENABLED && isPremium !== true && (IS_DEV || marketingConsent);
 
-  return { resolved, showAds, useReal };
+  return { resolved, showAds, useReal, reserved };
 };
 
 export default useAdsState;

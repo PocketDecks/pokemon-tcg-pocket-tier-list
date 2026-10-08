@@ -30,6 +30,7 @@ const withRealAds = (useReal: boolean) =>
     resolved: true,
     showAds: useReal,
     useReal,
+    reserved: useReal,
   });
 
 beforeEach(async () => {

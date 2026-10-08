@@ -141,7 +141,7 @@ const isMobileViewport = (): boolean =>
 // every route change so the anchor reappears on the next page.
 const AdAnchor = () => {
   const { t } = useTranslation();
-  const { showAds } = useAdsState();
+  const { showAds, reserved } = useAdsState();
   const { pathname } = useLocation();
   const [closed, setClosed] = useState(false);
 
@@ -151,10 +151,11 @@ const AdAnchor = () => {
   }, [pathname]);
 
   const visible = showAds && !closed;
+  const reserving = reserved && !closed;
 
   useEffect(() => {
     const root = document.documentElement;
-    if (!visible) {
+    if (!reserving) {
       root.style.setProperty("--ad-anchor-h", "0px");
       return;
     }
@@ -172,7 +173,7 @@ const AdAnchor = () => {
       window.removeEventListener("resize", applyHeight);
       root.style.setProperty("--ad-anchor-h", "0px");
     };
-  }, [visible]);
+  }, [reserving]);
 
   if (!visible) return null;
 

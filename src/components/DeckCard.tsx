@@ -210,7 +210,7 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
                     key={deck.iconPrimary.id}
                     src={deckThumbUrl(deck.iconPrimary.id, THUMB_SIZES.large)}
                     srcSet={`${deckThumbUrl(deck.iconPrimary.id, THUMB_SIZES.small)} ${THUMB_SIZES.small}w, ${deckThumbUrl(deck.iconPrimary.id, THUMB_SIZES.large)} ${THUMB_SIZES.large}w`}
-                    sizes="(max-width: 900px) 25vw, 12vw"
+                    sizes="(max-width: 900px) 25vw, 8vw"
                     onError={onDeckThumbError(deck.iconPrimary.image)}
                     alt={deck.iconPrimary.name}
                     width={183}
@@ -235,7 +235,7 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
                         key={deck.iconSecondary.id}
                         src={deckThumbUrl(deck.iconSecondary.id, THUMB_SIZES.large)}
                         srcSet={`${deckThumbUrl(deck.iconSecondary.id, THUMB_SIZES.small)} ${THUMB_SIZES.small}w, ${deckThumbUrl(deck.iconSecondary.id, THUMB_SIZES.large)} ${THUMB_SIZES.large}w`}
-                        sizes="(max-width: 900px) 25vw, 12vw"
+                        sizes="(max-width: 900px) 25vw, 8vw"
                         onError={onDeckThumbError(deck.iconSecondary.image)}
                         alt={deck.iconSecondary.name}
                         width={183}

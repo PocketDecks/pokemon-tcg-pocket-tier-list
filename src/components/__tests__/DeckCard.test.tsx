@@ -108,6 +108,23 @@ describe("DeckCard", () => {
     });
   });
 
+  it("uses the observed desktop thumbnail size hint", () => {
+    render(
+      <MemoryRouter>
+        <DeckCard deck={pairDeck} />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByAltText("Mega Blaziken ex")).toHaveAttribute(
+      "sizes",
+      "(max-width: 900px) 25vw, 8vw"
+    );
+    expect(screen.getByAltText("Greninja")).toHaveAttribute(
+      "sizes",
+      "(max-width: 900px) 25vw, 8vw"
+    );
+  });
+
   it("shows the full deck name while the tile is hovered", () => {
     render(
       <MemoryRouter>

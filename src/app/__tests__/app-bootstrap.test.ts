@@ -38,6 +38,7 @@ describe("prepareAppMount", () => {
 
   it("swaps the app once when swap is called repeatedly", () => {
     vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+    Object.defineProperty(window, "scrollY", { configurable: true, value: 240 });
     document.body.innerHTML = '<div id="root"><main>Static page</main></div>';
     const root = document.getElementById("root")!;
     const mount = prepareAppMount(root);
@@ -48,7 +49,8 @@ describe("prepareAppMount", () => {
 
     expect(root.textContent).toBe("");
     expect(mount.mount.textContent).toBe("Client page");
-    expect(window.scrollTo).toHaveBeenCalledTimes(0);
+    expect(window.scrollTo).toHaveBeenCalledTimes(1);
+    expect(window.scrollTo).toHaveBeenCalledWith(0, 240);
   });
 
   it("keeps prerendered content when the cap is cancelled", () => {

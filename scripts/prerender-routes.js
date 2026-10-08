@@ -82,6 +82,16 @@ const ROUTE_META = {
 
 const ROUTE_READY_ROUTES = new Set(["/cards-list", "/statistics", "/deck"]);
 
+const captureAfterRouteReady = async (page, route, capture) => {
+  if (ROUTE_READY_ROUTES.has(route)) {
+    await page.waitForFunction(
+      () => document.documentElement.dataset.routeReady === window.location.pathname,
+      { timeout: 20000 }
+    );
+  }
+  return capture();
+};
+
 const MIME = {
   ".html": "text/html",
   ".js": "text/javascript",
@@ -170,22 +180,21 @@ const main = async () => {
   for (const route of ROUTES) {
     await page.goto(`${ORIGIN}${route}`, { waitUntil: "networkidle0" });
     await page.waitForSelector("#app-root > *, #root > *");
-    if (ROUTE_READY_ROUTES.has(route)) {
-      await page.waitForFunction(
-        () => document.documentElement.dataset.routeReady === window.location.pathname,
-        { timeout: 20000 }
-      );
-    }
-    if (DECK_ANCHOR_ROUTES.has(route)) {
-      await page.waitForFunction(
-        () => document.querySelectorAll('a[href^="/deck/"]').length > 10,
-        { timeout: 20000 }
-      );
-    }
-    await page.evaluate(() => {
-      document.querySelectorAll("style[data-styled]").forEach((el) => {
-        el.textContent = Array.from(el.sheet.cssRules, (rule) => rule.cssText).join("\n");
+    const html = await captureAfterRouteReady(page, route, async () => {
+      if (DECK_ANCHOR_ROUTES.has(route)) {
+        await page.waitForFunction(
+          () => document.querySelectorAll('a[href^="/deck/"]').length > 10,
+          { timeout: 20000 }
+        );
+      }
+      await page.evaluate(() => {
+        document.querySelectorAll("style[data-styled]").forEach((el) => {
+          el.textContent = Array.from(el.sheet.cssRules, (rule) => rule.cssText).join("\n");
+        });
       });
+      return page.evaluate(
+        () => `<!doctype html>\n${document.documentElement.outerHTML}`
+      );
     });
     await page.evaluate(
       (preloads, scripts) => {
@@ -203,21 +212,17 @@ const main = async () => {
     );
     // Vite stamps lazy-chunk hrefs with the preview origin while the page
     // boots; captured markup must stay root-relative.
-    let html = (
-      await page.evaluate(
-        () => `<!doctype html>\n${document.documentElement.outerHTML}`
-      )
-    ).split(ORIGIN).join("");
+    let stampedHtml = html.split(ORIGIN).join("");
     const meta = ROUTE_META[route];
     if (meta) {
-      html = stampHead(html, meta);
+      stampedHtml = stampHead(stampedHtml, meta);
     }
     const outFile =
       route === "/"
         ? path.join(DIST_DIR, "index.html")
         : path.join(DIST_DIR, route.slice(1), "index.html");
     fs.mkdirSync(path.dirname(outFile), { recursive: true });
-    fs.writeFileSync(outFile, html);
+    fs.writeFileSync(outFile, stampedHtml);
     console.log(`Prerendered ${route}`);
   }
 
@@ -233,4 +238,4 @@ const main = async () => {
 
 if (require.main === module) main();
 
-module.exports = { ROUTE_READY_ROUTES, ROUTE_META, ROUTES };
+module.exports = { captureAfterRouteReady, ROUTE_READY_ROUTES, ROUTE_META, ROUTES };

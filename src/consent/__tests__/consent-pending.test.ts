@@ -153,6 +153,16 @@ describe("consent pending head script", () => {
     expect(runScript(script, { timeZone: "Europe/Berlin", storage: "not json" })).toBe(true);
   });
 
+  it("shows the banner again when the stored choice requires re-consent", async () => {
+    await prepare();
+    const reconsent = JSON.stringify({
+      consents: {},
+      consentInfo: { time: 1, subjectId: "sub_1", requiresReconsent: true },
+    });
+
+    expect(runScript(script, { timeZone: "Europe/Berlin", storage: reconsent })).toBe(true);
+  });
+
   it("stays quiet once the consent cookie is stored", async () => {
     await prepare();
 

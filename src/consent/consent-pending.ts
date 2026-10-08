@@ -81,7 +81,7 @@ export const consentPendingScript = (data: ConsentPendingData): string => `(func
 try{
 var root=document.documentElement;
 var stored=false;
-try{var raw=localStorage.getItem(${JSON.stringify(CONSENT_STORAGE_KEY)});if(raw){var saved=JSON.parse(raw);stored=!!(saved&&saved.consentInfo)}}catch(e){}
+try{var raw=localStorage.getItem(${JSON.stringify(CONSENT_STORAGE_KEY)});if(raw){var saved=JSON.parse(raw);stored=!!(saved&&saved.consentInfo&&!saved.consentInfo.requiresReconsent)}}catch(e){}
 if(!stored){try{stored=/(?:^|;\\s*)${CONSENT_STORAGE_KEY}=/.test(document.cookie)}catch(e){}}
 if(stored)return;
 var data=${JSON.stringify(data)};

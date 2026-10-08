@@ -14,7 +14,7 @@ const {
   deriveCropRect,
 } = require("../deck-thumbs.mjs");
 const { deckNameToIconIds } = require("../deck-name.mjs");
-const { findMissingThumbnailIds, writeThumbnail } = require("../generate-deck-thumbs.mjs");
+const { findMissingThumbnailIds, generateThumbnails } = require("../generate-deck-thumbs.mjs");
 
 test("derives the tile crop window from the art geometry", () => {
   assert.deepStrictEqual(DECK_THUMB_CROP, {
@@ -71,23 +71,36 @@ test("reads the card id back out of the upstream image url", () => {
 test("regenerates an invalid cached thumbnail", async () => {
   const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "deck-thumbs-"));
   try {
-    fs.writeFileSync(path.join(outDir, "b3-081-96.webp"), Buffer.from("invalid"));
+    const source = await sharp({
+      create: {
+        width: 367,
+        height: 512,
+        channels: 4,
+        background: { r: 0, g: 0, b: 0, alpha: 1 },
+      },
+    }).png().toBuffer();
+    const valid = await sharp({
+      create: {
+        width: 96,
+        height: 96,
+        channels: 4,
+        background: { r: 0, g: 0, b: 0, alpha: 1 },
+      },
+    }).webp().toBuffer();
+    const damaged = Buffer.from(valid);
+    damaged[21] = 0;
+    fs.writeFileSync(path.join(outDir, "b3-081-96.webp"), damaged);
     fs.writeFileSync(path.join(outDir, "b3-081-183.webp"), Buffer.from("invalid"));
 
     assert.deepStrictEqual(await findMissingThumbnailIds(["b3-081"], outDir), ["b3-081"]);
 
-    const createBuffer = (size) =>
-      sharp({
-        create: {
-          width: size,
-          height: size,
-          channels: 4,
-          background: { r: 0, g: 0, b: 0, alpha: 1 },
-        },
-      }).webp().toBuffer();
-    writeThumbnail(outDir, "b3-081", 96, await createBuffer(96));
-    writeThumbnail(outDir, "b3-081", 183, await createBuffer(183));
+    const generated = await generateThumbnails({
+      decks: [{ name: "mega-lucario-ex-b3-081" }],
+      imageById: new Map([["b3-081", source]]),
+      outDir,
+    });
 
+    assert.deepStrictEqual(generated, ["b3-081"]);
     assert.deepStrictEqual(await findMissingThumbnailIds(["b3-081"], outDir), []);
     assert.equal((await sharp(fs.readFileSync(path.join(outDir, "b3-081-96.webp"))).metadata()).format, "webp");
   } finally {

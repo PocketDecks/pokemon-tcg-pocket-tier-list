@@ -42,8 +42,13 @@ export const cropArt = (buffer, size) =>
 const isValidThumbnail = async (filePath, size) => {
   if (!fs.existsSync(filePath)) return false;
   try {
-    const metadata = await sharp(fs.readFileSync(filePath)).metadata();
-    return metadata.format === "webp" && metadata.width === size && metadata.height === size;
+    const buffer = fs.readFileSync(filePath);
+    const metadata = await sharp(buffer).metadata();
+    if (metadata.format !== "webp" || metadata.width !== size || metadata.height !== size) {
+      return false;
+    }
+    await sharp(buffer).raw().toBuffer();
+    return true;
   } catch {
     return false;
   }
@@ -85,28 +90,8 @@ const runWithConcurrency = async (items, worker, concurrency) => {
   return results;
 };
 
-const main = async () => {
-  const cwd = process.cwd();
-  const decksPath = path.join(cwd, "public", "data", "best-decks.json");
-  const decks = JSON.parse(fs.readFileSync(decksPath, "utf8"));
-  const cards = JSON.parse(
-    fs.readFileSync(
-      path.join(
-        cwd,
-        "node_modules",
-        "pokemon-tcg-pocket-cards",
-        "data",
-        "v5",
-        "cards.core.min.json"
-      ),
-      "utf8"
-    )
-  );
-  const imageById = new Map(cards.map((card) => [card.id, card.image]));
-
-  const outDir = path.join(cwd, "public", "thumbs", `v${DECK_THUMB_VERSION}`);
+export const generateThumbnails = async ({ decks, imageById, outDir }) => {
   fs.mkdirSync(outDir, { recursive: true });
-
   const ids = await findMissingThumbnailIds(thumbCardIds(decks), outDir);
   const generated = await runWithConcurrency(
     ids,
@@ -115,7 +100,7 @@ const main = async () => {
       if (!image) {
         throw new Error(`generate-deck-thumbs: no card record for ${id}`);
       }
-      const source = await fetchBuffer(image);
+      const source = Buffer.isBuffer(image) ? image : await fetchBuffer(image);
       await Promise.all(
         DECK_THUMB_SIZES.map(async (size) => {
           const thumb = await cropArt(source, size);
@@ -126,6 +111,21 @@ const main = async () => {
     },
     8
   );
+  return generated;
+};
+
+const main = async () => {
+  const cwd = process.cwd();
+  const decks = JSON.parse(fs.readFileSync(path.join(cwd, "public", "data", "best-decks.json"), "utf8"));
+  const cards = JSON.parse(
+    fs.readFileSync(
+      path.join(cwd, "node_modules", "pokemon-tcg-pocket-cards", "data", "v5", "cards.core.min.json"),
+      "utf8"
+    )
+  );
+  const imageById = new Map(cards.map((card) => [card.id, card.image]));
+  const outDir = path.join(cwd, "public", "thumbs", `v${DECK_THUMB_VERSION}`);
+  const generated = await generateThumbnails({ decks, imageById, outDir });
   console.log(`generate-deck-thumbs: wrote ${generated.length} thumbnails to ${outDir}`);
 };
 

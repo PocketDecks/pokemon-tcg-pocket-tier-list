@@ -1,5 +1,3 @@
-import github from "../assets/github.svg";
-import twitter from "../assets/twitter.svg";
 import cardsPayload from "pokemon-tcg-pocket-cards/data/v5/cards.core.min.json";
 import expansionsPayload from "pokemon-tcg-pocket-cards/data/v5/expansions.min.json";
 
@@ -22,17 +20,17 @@ export const CONTACT_EMAIL = "infoLeonid@protonMail.com";
 export const MANAGE_SUBSCRIPTION_URL =
     "https://billing.stripe.com/p/login/4gM9ASeDk2QcaKq2Y957W00";
 
-export const SOCIALS = [
+export type SocialName = "github" | "twitter";
+
+export const SOCIALS: { url: string; name: SocialName; label: string }[] = [
   {
     url: GITHUB_URL,
-    icon: github,
-    alt: "GitHub",
+    name: "github",
     label: "View source code on GitHub",
   },
   {
     url: TWITTER_URL,
-    icon: twitter,
-    alt: "Twitter",
+    name: "twitter",
     label: "Follow us on Twitter",
   },
 ];

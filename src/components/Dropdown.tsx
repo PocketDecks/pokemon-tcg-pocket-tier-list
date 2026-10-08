@@ -1,5 +1,7 @@
 import styled from "styled-components";
-import ArrowDown from "../assets/arrow-down.svg";
+
+const CHEVRON =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")";
 
 const Dropdown = styled.select`
   min-height: 4.4rem;
@@ -13,7 +15,7 @@ const Dropdown = styled.select`
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-image: url(${ArrowDown});
+  background-image: ${CHEVRON};
   background-repeat: no-repeat;
   background-position: right 1.2rem center;
   background-size: 1.2em 1.2em;

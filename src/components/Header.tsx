@@ -8,10 +8,9 @@ import Navbar from "./Navbar";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 import UserAccount from "./UserAccount";
+import NavIcon from "./NavIcon";
 import { useUI } from "../contexts/UIContext";
 import useIsMobile from "../ads/useIsMobile";
-import menuIcon from "../assets/menu.svg";
-import closeIcon from "../assets/close.svg";
 
 export const RAIL_WIDTH = "9.2rem";
 
@@ -105,7 +104,7 @@ const MenuButton = styled.button`
   }
 `;
 
-const MenuIcon = styled.img`
+const MenuIcon = styled(NavIcon)`
   width: 2.4rem;
   height: 2.4rem;
 `;
@@ -223,7 +222,7 @@ const Header = ({ footer }: Props) => {
             aria-controls="site-nav"
             aria-label={isNavOpen ? t("a11y.closeMenu") : t("a11y.openMenu")}
           >
-            <MenuIcon src={isNavOpen ? closeIcon : menuIcon} alt="" />
+            <MenuIcon name={isNavOpen ? "close" : "menu"} size={24} />
           </MenuButton>
         )}
       </Actions>

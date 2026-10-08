@@ -7,7 +7,6 @@ import Button from "./Button";
 import { useTranslation } from "react-i18next";
 import Premium from "./Premium";
 import useIsPremium from "../app/use-is-premium";
-import contactIcon from "../assets/contact.svg";
 import NavIcon from "./NavIcon";
 
 const StyledUserAccount = styled.div<{ $compact: boolean }>`
@@ -107,7 +106,7 @@ const ContactButton = styled.button`
   cursor: pointer;
 `;
 
-const ContactIcon = styled.img`
+const ContactIcon = styled(NavIcon)`
   width: 3.4rem;
   height: 3.4rem;
   transform: translateY(0.1rem);
@@ -145,8 +144,11 @@ const UserAccount = ({ compact = false }: Props) => {
     <>
       <StyledUserAccount $compact={compact}>
         {isPremium && (
-          <ContactButton onClick={() => setIsContactOpen(true)}>
-            <ContactIcon src={contactIcon} alt="Contact" />
+          <ContactButton
+            onClick={() => setIsContactOpen(true)}
+            aria-label="Contact"
+          >
+            <ContactIcon name="mail" size={34} />
           </ContactButton>
         )}
         {user && (

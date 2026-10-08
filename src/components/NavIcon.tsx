@@ -24,7 +24,11 @@ export type NavIconName =
   | "chat"
   | "info"
   | "sun"
-  | "moon";
+  | "moon"
+  | "menu"
+  | "close"
+  | "chevronDown"
+  | "mail";
 
 const paths: Record<NavIconName, ReactNode> = {
   tierList: <path d="M4 6h16M4 12h11M4 18h6" />,
@@ -119,6 +123,15 @@ const paths: Record<NavIconName, ReactNode> = {
     </>
   ),
   moon: <path d="M20 14.2A8 8 0 0 1 9.8 4a8 8 0 1 0 10.2 10.2z" />,
+  menu: <path d="M4 7h16M4 12h16M4 17h16" />,
+  close: <path d="M6 6l12 12M18 6L6 18" />,
+  chevronDown: <path d="M6 9l6 6 6-6" />,
+  mail: (
+    <>
+      <rect x="3" y="5.5" width="18" height="13" rx="2.5" />
+      <path d="M4 7.5l8 5.5 8-5.5" />
+    </>
+  ),
 };
 
 const NavIcon = ({ name, size = 22 }: { name: NavIconName; size?: number }) => (

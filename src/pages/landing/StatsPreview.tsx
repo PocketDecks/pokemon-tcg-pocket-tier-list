@@ -128,7 +128,7 @@ const Delta = styled.span`
   gap: 0.4rem;
   min-width: 8rem;
   justify-content: flex-end;
-  color: var(--f);
+  color: var(--f-text);
   font-weight: 600;
 `;
 

@@ -9,7 +9,7 @@ export interface ConsentPendingData {
   fallback: 0 | 1;
   unmatched: 0 | 1;
   zones: Record<string, string[]>;
-  countries: string[];
+  countries: Record<string, 0 | 1>;
   regions: Record<string, 0 | 1>;
 }
 
@@ -57,9 +57,9 @@ export const buildConsentPendingData = async (
     }
   }
 
-  const bannerCountries: string[] = [];
-  for (const country of countries) {
-    if ((await showsBanner(policies, { country })) === 1) bannerCountries.push(country);
+  const countryBanners: Record<string, 0 | 1> = {};
+  for (const country of [...countries].sort()) {
+    countryBanners[country] = await showsBanner(policies, { country });
   }
 
   const regions: Record<string, 0 | 1> = {};
@@ -72,7 +72,7 @@ export const buildConsentPendingData = async (
     fallback,
     unmatched: await showsBanner(policies, { country: "ZZ" }),
     zones,
-    countries: bannerCountries.sort(),
+    countries: countryBanners,
     regions,
   };
 };
@@ -96,7 +96,8 @@ if(parts.length===2&&/^[A-Z]{2}$/.test(parts[0])&&parts[0]!=="XX"&&parts[0]!=="T
 var banner;
 if(geo){
 var byRegion=geo.region?data.regions[geo.country+"-"+geo.region]:undefined;
-banner=byRegion!==undefined?byRegion:data.countries.indexOf(geo.country)>=0?1:data.unmatched;
+var byCountry=data.countries[geo.country];
+banner=byRegion!==undefined?byRegion:byCountry!==undefined?byCountry:data.unmatched;
 }else{
 var zone=null;
 try{zone=Intl.DateTimeFormat().resolvedOptions().timeZone}catch(e){}

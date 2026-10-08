@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { OfflineClient } from "c15t";
+import { OfflineClient, policyPackPresets } from "c15t";
 import {
   buildConsentPendingData,
   consentPendingScript,
@@ -173,6 +173,20 @@ describe("consent pending head script", () => {
       runScript(script, { timeZone: "Europe/Berlin", cookie: "theme=dark; c15t=i.t:1" })
     ).toBe(false);
     expect(runScript(script, { timeZone: "Europe/Berlin", cookie: "xc15t=1" })).toBe(true);
+  });
+
+  it("keeps a country whose policy shows no banner off the banner", async () => {
+    const policies = [
+      { ...policyPackPresets.worldNoBanner(), id: "japan_no_banner", match: { countries: ["JP"] } },
+      { ...policyPackPresets.europeOptIn(), id: "rest_opt_in", match: { isDefault: true, fallback: true } },
+    ];
+    const custom = await buildConsentPendingData(policies, {});
+    const customScript = consentPendingScript(custom);
+
+    expect(custom.unmatched).toBe(1);
+    expect(custom.countries.JP).toBe(0);
+    expect(runScript(customScript, { cookie: "pd_geo=JP-", timeZone: "Europe/Berlin" })).toBe(false);
+    expect(runScript(customScript, { cookie: "pd_geo=DE-", timeZone: "Europe/Berlin" })).toBe(true);
   });
 
   it("keeps the injected data small", async () => {

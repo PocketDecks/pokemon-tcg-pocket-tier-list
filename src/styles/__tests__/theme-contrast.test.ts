@@ -70,4 +70,11 @@ describe("theme contrast", () => {
       expect(contrast(theme.link, background)).toBeGreaterThanOrEqual(4.5);
     }
   });
+
+  it.each(["dark", "light"] as ThemeName[])('%s meets the badge chip contrast contract', (themeName) => {
+    const theme = themeTokens[themeName];
+    for (const ink of [theme["status-up"], theme["status-down"], theme.text]) {
+      expect(contrast(ink, theme["badge-bg"])).toBeGreaterThanOrEqual(4.5);
+    }
+  });
 });

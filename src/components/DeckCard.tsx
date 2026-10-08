@@ -81,7 +81,7 @@ const Badge = styled.div<{ $tone: "up" | "down" | "flat" | "new" }>`
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   pointer-events: none;
-  background: ${(props) => (props.$tone === "new" ? "var(--status-new)" : "var(--black-10)")};
+  background: ${(props) => (props.$tone === "new" ? "var(--status-new)" : "var(--badge-bg)")};
   color: ${(props) =>
     props.$tone === "new"
       ? "var(--on-accent)"
@@ -89,7 +89,7 @@ const Badge = styled.div<{ $tone: "up" | "down" | "flat" | "new" }>`
         ? "var(--status-up)"
         : props.$tone === "down"
           ? "var(--status-down)"
-          : "var(--white-85)"};
+          : "var(--text)"};
   box-shadow: 0 0.1em 0.4em var(--shadow-medium);
 
   svg {

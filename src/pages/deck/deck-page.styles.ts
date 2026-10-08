@@ -142,8 +142,8 @@ export const CardNumber = styled.span<{ $count: number }>`
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  background: ${(props) => (props.$count > 1 ? "var(--main)" : "var(--black-18)")};
-  color: ${(props) => (props.$count > 1 ? "var(--bg)" : "var(--main)")};
+  background: ${(props) => (props.$count > 1 ? "var(--main)" : "var(--badge-bg)")};
+  color: ${(props) => (props.$count > 1 ? "var(--bg)" : "var(--text)")};
   box-shadow: 0 0.1em 0.5em var(--shadow-strong);
 
   &::before {

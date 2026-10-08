@@ -10,9 +10,9 @@
  */
 
 @keyframes c15t-accent-drift {
-  0% { background-position: 0 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0 50%; }
+  0% { transform: translateX(0); }
+  50% { transform: translateX(-66.667%); }
+  100% { transform: translateX(0); }
 }
 
 /* The banner is position:fixed;bottom:0, which ignores the body's
@@ -81,6 +81,22 @@
 }
 
 [data-testid="consent-banner-accept-button"] {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: none !important;
+  color: var(--bg) !important;
+  border: none !important;
+}
+
+[data-testid="consent-banner-accept-button"]::before {
+  content: "";
+  position: absolute;
+  top: -100%;
+  left: 0;
+  width: 300%;
+  height: 300%;
+  z-index: -1;
   background: linear-gradient(
     45deg,
     var(--s),
@@ -90,12 +106,10 @@
     var(--d),
     var(--f),
     var(--s)
-  ) !important;
-  background-size: 300% 300% !important;
-  animation: c15t-accent-drift 8s ease infinite !important;
-  color: var(--bg) !important;
-  border: none !important;
+  );
+  animation: c15t-accent-drift 8s ease infinite;
 }
+
 
 /* A single hairline is the whole edge — the ghost treatment draws no fill and
    no ring behind it, so the glass reads straight through. */

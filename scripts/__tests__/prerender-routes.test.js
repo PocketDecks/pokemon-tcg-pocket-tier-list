@@ -1,6 +1,11 @@
 const test = require("node:test");
 const assert = require("node:assert");
-const { ROUTES, ROUTE_META } = require("../prerender-routes");
+const {
+  captureAfterRouteReady,
+  ROUTES,
+  ROUTE_META,
+  ROUTE_READY_ROUTES,
+} = require("../prerender-routes");
 
 test("every route has unique title and description, plus self canonical", () => {
   const titles = new Set();
@@ -16,4 +21,34 @@ test("every route has unique title and description, plus self canonical", () => 
   }
   assert.strictEqual(titles.size, ROUTES.length, "duplicate titles across routes");
   assert.strictEqual(descriptions.size, ROUTES.length, "duplicate descriptions across routes");
+});
+
+test("waits for route content on data-backed pages", () => {
+  assert.deepStrictEqual([...ROUTE_READY_ROUTES], ["/cards-list", "/statistics", "/deck"]);
+});
+
+test("captures data-backed routes after their pathname is ready", async () => {
+  const events = [];
+  const page = {
+    waitForFunction: async (predicate, options) => {
+      events.push("wait");
+      assert.strictEqual(options.timeout, 20000);
+      global.document = { documentElement: { dataset: { routeReady: "/wrong" } } };
+      global.window = { location: { pathname: "/statistics" } };
+      assert.strictEqual(predicate(), false);
+      global.document.documentElement.dataset.routeReady = "/statistics";
+      assert.strictEqual(predicate(), true);
+      events.push("ready");
+    },
+  };
+
+  const html = await captureAfterRouteReady(page, "/statistics", () => {
+    events.push("capture");
+    return "<html></html>";
+  });
+
+  assert.strictEqual(html, "<html></html>");
+  assert.deepStrictEqual(events, ["wait", "ready", "capture"]);
+  delete global.document;
+  delete global.window;
 });

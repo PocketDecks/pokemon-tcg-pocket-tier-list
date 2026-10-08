@@ -11,7 +11,6 @@ import { createDeckCode } from "./deck-code";
 import { deckSlug } from "./deck-slug";
 import type {
   PipelineDeckList,
-  PipelineMatchupEntry,
   PipelinePartialDeck,
 } from "../types/pipeline-data";
 
@@ -37,7 +36,6 @@ export interface ResolvedDeck {
   powerScore: number | null;
   freqScore: number;
   metaScore: number | null;
-  matchups: PipelineMatchupEntry[] | undefined;
   iconPrimary: CardType;
   iconSecondary: CardType | null;
 }
@@ -93,7 +91,6 @@ export const pickBestList = (lists: FullList[], cardsPayload: CardsPayload): Ful
 /// lists render an empty grid (extinct) so Undo stays available.
 export const resolveDeckDetail = (
   decksRaw: PipelinePartialDeck[],
-  matchupData: Record<string, PipelineMatchupEntry[]>,
   cardsPayload: CardsPayload,
   cardsMapping: Record<string, CardType>,
   deckId: string,
@@ -135,7 +132,6 @@ export const resolveDeckDetail = (
       powerScore: oldDeck.powerScore,
       freqScore: oldDeck.freqScore,
       metaScore: oldDeck.metaScore,
-      matchups: matchupData[oldDeck.name],
       iconPrimary: cardsMapping[cardIds[0]],
       iconSecondary,
     },

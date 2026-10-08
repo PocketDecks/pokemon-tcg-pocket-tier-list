@@ -1,6 +1,15 @@
 import { createGlobalStyle } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`
+    @font-face {
+        font-family: "Manrope Fallback";
+        src: local("Arial"), local("ArialMT");
+        size-adjust: 103.1851%;
+        ascent-override: 103.3095%;
+        descent-override: 29.074%;
+        line-gap-override: 0%;
+    }
+
     :root {
         --bg: #1A1A17;
         --border: #000;
@@ -30,7 +39,8 @@ const GlobalStyle = createGlobalStyle`
         box-sizing: border-box;
         margin: 0;
         padding: 0;
-        font-family: "Roboto", sans-serif;
+        font-family: "Manrope Variable", "Manrope", "Manrope Fallback",
+            system-ui, -apple-system, "Segoe UI", sans-serif;
         line-height: 1.2;
     }
 

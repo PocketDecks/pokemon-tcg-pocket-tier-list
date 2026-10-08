@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next";
 import { LAST_UPDATED } from "../app/last-updated";
 
 const drift = keyframes`
-  0% { background-position: 0 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0 50%; }
+  0% { transform: translateX(0); }
+  50% { transform: translateX(-66.667%); }
+  100% { transform: translateX(0); }
 `;
 
 const StyledHomeBanner = styled.div`
@@ -16,18 +16,30 @@ const StyledHomeBanner = styled.div`
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--bg);
-  background: linear-gradient(
-    45deg,
-    var(--s),
-    var(--a),
-    var(--b),
-    var(--c),
-    var(--d),
-    var(--f),
-    var(--s)
-  );
-  background-size: 300% 300%;
-  animation: ${drift} 8s ease infinite;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 300%;
+    height: 300%;
+    z-index: -1;
+    background: linear-gradient(
+      45deg,
+      var(--s),
+      var(--a),
+      var(--b),
+      var(--c),
+      var(--d),
+      var(--f),
+      var(--s)
+    );
+    animation: ${drift} 8s ease infinite;
+  }
 `;
 
 const HomeBanner = () => {

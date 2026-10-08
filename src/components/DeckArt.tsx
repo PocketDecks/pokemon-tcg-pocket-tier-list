@@ -1,4 +1,7 @@
 import styled from "styled-components";
+import { cardIdFromImage, deckThumbUrl, onDeckThumbError } from "../app/deck-thumb";
+
+const THUMB_SIZES = { small: 96, large: 183 };
 
 const ArtFrame = styled.span<{ $size: number }>`
     position: relative;
@@ -9,21 +12,37 @@ const ArtFrame = styled.span<{ $size: number }>`
     border-radius: 0.6rem;
     overflow: hidden;
     background: rgba(255, 255, 255, 0.06);
+`;
 
-    img {
-        position: absolute;
-        top: -32%;
-        left: 50%;
-        transform: translateX(-50%);
-        height: 280%;
-    }
+const Art = styled.img`
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 `;
 
 const DeckArt = ({ src, size }: { src?: string; size: number }) => {
-    const pixels = Math.round(size * 16);
+    const cardId = src ? cardIdFromImage(src) : null;
+    const small = size <= 3.2;
+    const thumbSize = small ? THUMB_SIZES.small : THUMB_SIZES.large;
+    const srcSet = cardId
+        ? `${deckThumbUrl(cardId, THUMB_SIZES.small)} ${THUMB_SIZES.small}w, ${deckThumbUrl(cardId, THUMB_SIZES.large)} ${THUMB_SIZES.large}w`
+        : undefined;
     return (
         <ArtFrame $size={size}>
-            {src && <img src={src} alt="" width={pixels} height={pixels} loading="lazy" />}
+            {src && (
+                <Art
+                    src={cardId ? deckThumbUrl(cardId, thumbSize) : src}
+                    srcSet={srcSet}
+                    sizes={small ? "3.2rem" : "7.2rem"}
+                    onError={onDeckThumbError(src)}
+                    alt=""
+                    width={thumbSize}
+                    height={thumbSize}
+                    loading="lazy"
+                />
+            )}
         </ArtFrame>
     );
 };

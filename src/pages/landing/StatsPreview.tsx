@@ -153,7 +153,7 @@ const StatsPreview = () => {
           <Button to="/statistics">{t("landing.stats.button")}</Button>
         </TextSection>
         {rising.length > 0 && (
-          <Panel to="/statistics" aria-label={t("landing.stats.button")}>
+          <Panel to="/statistics">
             <PanelTitle>{t("statistics.rising")}</PanelTitle>
             {rising.map((entry) => {
               const deck = decks?.find((d) => d.id === entry.name);

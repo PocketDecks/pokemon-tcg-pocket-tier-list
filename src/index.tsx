@@ -9,11 +9,22 @@ import FilterContextProvider from "./components/FilterContext";
 import { UIProvider } from "./contexts/UIContext";
 import ConsentProvider from "./consent/ConsentProvider";
 import { handlePreloadError } from "./app/preload-reload-guard";
+import {
+  prepareAppMount,
+  setContentReadyHandler,
+} from "./app/app-bootstrap";
+import "@fontsource-variable/manrope";
 import "./i18n";
 
 window.addEventListener("vite:preloadError", handlePreloadError);
 
 const rootElement = document.getElementById("root") as HTMLElement;
+const appMount = prepareAppMount(rootElement);
+
+if (appMount.prerendered) {
+  setContentReadyHandler(appMount.swap);
+  appMount.startCap(4000);
+}
 
 const app = (
   <React.StrictMode>
@@ -39,6 +50,6 @@ const app = (
 // first paint diverge. Hydrating that would only produce mismatch errors and a
 // full client re-render, so rendering fresh replaces the static markup cleanly
 // in every language, while the served HTML keeps its SEO and AdSense value.
-createRoot(rootElement).render(app);
+createRoot(appMount.mount).render(app);
 
 reportWebVitals();

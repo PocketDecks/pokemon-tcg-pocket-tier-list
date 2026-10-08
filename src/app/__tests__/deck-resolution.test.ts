@@ -13,7 +13,6 @@ const cardsMapping = Object.fromEntries(
   cardsPayload.cards.map((c) => [c.id, c])
 );
 
-const matchupData: Record<string, never[]> = {};
 
 const decksRaw: PipelinePartialDeck[] = [
   {
@@ -37,7 +36,6 @@ describe("resolveDeckDetail", () => {
   it("resolves the deck's best surviving list once a card is missing", () => {
     const result = resolveDeckDetail(
       decksRaw,
-      matchupData,
       cardsPayload,
       cardsMapping,
       "venusaur-a1-004",
@@ -55,7 +53,6 @@ describe("resolveDeckDetail", () => {
     ];
     const result = resolveDeckDetail(
       decksAllShared,
-      matchupData,
       cardsPayload,
       cardsMapping,
       "venusaur-a1-004",
@@ -69,23 +66,11 @@ describe("resolveDeckDetail", () => {
 
   it("returns null for an unknown deck id", () => {
     expect(
-      resolveDeckDetail(decksRaw, matchupData, cardsPayload, cardsMapping, "nope-a9-999", {})
+      resolveDeckDetail(decksRaw, cardsPayload, cardsMapping, "nope-a9-999", {})
     ).toBeNull();
   });
 
-  it("keeps the matchup entries of the resolved deck", () => {
-    const withMatchups: PipelinePartialDeck = { ...decksRaw[0] };
-    const matchups = [{ name: "Total", totalGames: 100, winRate: 0.6 }];
-    const result = resolveDeckDetail(
-      [withMatchups],
-      { "venusaur-a1-004": matchups },
-      cardsPayload,
-      cardsMapping,
-      "venusaur-a1-004",
-      {}
-    );
-    expect(result?.deck.matchups).toEqual(matchups);
-  });
+
 });
 
 describe("card score display scale", () => {

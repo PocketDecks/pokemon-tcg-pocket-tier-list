@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DecksProvider, useDecks } from "../DecksContext";
+import { DecksProvider, sanitiseMatchupData, useDecks, useMatchups } from "../DecksContext";
 import rawCards from "../../app/__fixtures__/cards.json";
 
 // The only dependency that reaches for Firebase.
@@ -34,7 +34,7 @@ const decks = [
   },
 ];
 
-const matchupData = { [GOOD_DECK]: [], [DRIFTED_DECK]: [] };
+
 
 const jsonResponse = (body: unknown) =>
   Promise.resolve({
@@ -57,6 +57,13 @@ const ErrorProbe = () => {
   if (loading) return <p>loading</p>;
   if (error) return <p>{error.message}</p>;
   return <p>loaded</p>;
+};
+
+const MatchupsProbe = () => {
+  const { matchupsByName, loading, error } = useMatchups();
+  if (loading) return <p>matchups-loading</p>;
+  if (error) return <p>{error.message}</p>;
+  return <p>{matchupsByName ? Object.keys(matchupsByName).join(",") : "no-matchups"}</p>;
 };
 
 const DeckNames = () => {
@@ -94,6 +101,30 @@ const renderProvider = () =>
     </QueryClientProvider>
   );
 
+describe("sanitiseMatchupData", () => {
+  it("keeps an empty matchup array without warning", () => {
+    const result = sanitiseMatchupData({ "Deck C": [] });
+    expect(result).toEqual({ matchups: { "Deck C": [] }, dropped: 0 });
+  });
+
+  it("keeps valid rows and counts malformed entries", () => {
+    expect(
+      sanitiseMatchupData({
+        "Deck A": {},
+        "Deck B": [
+          { name: "Total", winRate: 0.5, totalGames: 10 },
+          { name: "Bad rate", winRate: "0.5", totalGames: 10 },
+        ],
+      })
+    ).toEqual({
+      matchups: {
+        "Deck B": [{ name: "Total", winRate: 0.5, totalGames: 10 }],
+      },
+      dropped: 2,
+    });
+  });
+});
+
 describe("DecksProvider with a drifted card id", () => {
   let consoleWarn: MockInstance;
 
@@ -102,7 +133,7 @@ describe("DecksProvider with a drifted card id", () => {
     vi.spyOn(global, "fetch").mockImplementation((input) => {
       const url = String(input);
       if (url.endsWith("best-decks.json")) return jsonResponse(decks);
-      if (url.endsWith("matchup-data.json")) return jsonResponse(matchupData);
+
       if (url.endsWith("meta-share.json"))
         return jsonResponse({
           generatedAt: "2026-08-24T00:00:00Z",
@@ -136,7 +167,7 @@ describe("DecksProvider with a drifted card id", () => {
       const url = String(input);
       if (url.endsWith("best-decks.json"))
         return jsonResponse([{ ...decks[0], name: unpairedDeck }]);
-      if (url.endsWith("matchup-data.json")) return jsonResponse({ [unpairedDeck]: [] });
+
       if (url.endsWith("meta-share.json"))
         return jsonResponse({ generatedAt: "2026-08-24T00:00:00Z", windowDays: 7, decks: [] });
       return jsonResponse(rawCards);
@@ -152,7 +183,7 @@ describe("DecksProvider with a drifted card id", () => {
       const url = String(input);
       if (url.endsWith("meta-share.json")) return Promise.reject(new Error("network down"));
       if (url.endsWith("best-decks.json")) return jsonResponse(decks);
-      if (url.endsWith("matchup-data.json")) return jsonResponse(matchupData);
+
       return jsonResponse(rawCards);
     });
 
@@ -173,7 +204,7 @@ describe("DecksProvider with a drifted card id", () => {
     vi.spyOn(global, "fetch").mockImplementation((input) => {
       const url = String(input);
       if (url.endsWith("best-decks.json")) return jsonResponse(decks);
-      if (url.endsWith("matchup-data.json")) return jsonResponse(matchupData);
+
       if (url.endsWith("meta-share.json"))
         return jsonResponse({ generatedAt: "nope" }); // missing decks array
       return jsonResponse(rawCards);
@@ -201,6 +232,72 @@ describe("DecksProvider with a drifted card id", () => {
     );
   });
 });
+
+describe("DecksProvider critical-path requests", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("does not request matchup data while rendering the provider", async () => {
+      const requestedUrls: string[] = [];
+      vi.spyOn(global, "fetch").mockImplementation((input) => {
+        const url = String(input);
+        requestedUrls.push(url);
+        if (url.endsWith("best-decks.json")) return jsonResponse(decks);
+        if (url.endsWith("meta-share.json")) return jsonResponse({ decks: [] });
+        return jsonResponse(rawCards);
+      });
+      renderProvider();
+      await screen.findByText(GOOD_DECK);
+      expect(requestedUrls.some((url) => url.endsWith("matchup-data.json"))).toBe(false);
+    });
+
+    it("starts best-decks and meta-share requests before either resolves", async () => {
+      let releaseBestDecks!: () => void;
+      let releaseMetaShare!: () => void;
+      const started = new Promise<void>((resolve) => {
+        vi.spyOn(global, "fetch").mockImplementation((input) => {
+          const url = String(input);
+          if (url.endsWith("best-decks.json")) {
+            return new Promise((resolveResponse) => {
+              releaseBestDecks = () => resolveResponse(jsonResponse(decks));
+              resolve();
+            });
+          }
+          if (url.endsWith("meta-share.json")) {
+            return new Promise((resolveResponse) => {
+              releaseMetaShare = () => resolveResponse(jsonResponse({ decks: [] }));
+            });
+          }
+          return jsonResponse(rawCards);
+        });
+      });
+      renderProvider();
+      await started;
+      expect(releaseMetaShare).toBeTypeOf("function");
+      releaseBestDecks();
+      releaseMetaShare();
+      expect(await screen.findByText(GOOD_DECK)).toBeInTheDocument();
+    });
+
+    it("renders decks while the optional meta-share request is unresolved", async () => {
+      let releaseBestDecks!: () => void;
+      vi.spyOn(global, "fetch").mockImplementation((input) => {
+        const url = String(input);
+        if (url.endsWith("best-decks.json")) {
+          return new Promise((resolveResponse) => {
+            releaseBestDecks = () => resolveResponse(jsonResponse(decks));
+          });
+        }
+        if (url.endsWith("meta-share.json")) return new Promise(() => {});
+        return jsonResponse(rawCards);
+      });
+
+      renderProvider();
+      releaseBestDecks();
+
+      expect(await screen.findByText(GOOD_DECK)).toBeInTheDocument();
+    });
+    });
+
 
 describe("DecksProvider with a failed fetch", () => {
   afterEach(() => {
@@ -245,8 +342,7 @@ describe("DecksProvider with every deck at zero popularity", () => {
       const url = String(input);
       if (url.endsWith("best-decks.json"))
         return jsonResponse(zeroPopularityDecks);
-      if (url.endsWith("matchup-data.json"))
-        return jsonResponse({ [GOOD_DECK]: [] });
+
       if (url.endsWith("meta-share.json"))
         return jsonResponse({
           generatedAt: "2026-08-24T00:00:00Z",
@@ -268,5 +364,83 @@ describe("DecksProvider with every deck at zero popularity", () => {
 
     const item = await screen.findByText("0");
     expect(item.textContent).not.toBe("NaN");
+  });
+});
+
+describe("useMatchups", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const renderMatchups = () =>
+    render(
+      <QueryClientProvider
+        client={
+          new QueryClient({
+            defaultOptions: { queries: { retry: false, retryDelay: 0 } },
+          })
+        }
+      >
+        <MatchupsProbe />
+      </QueryClientProvider>
+    );
+
+  it("returns the matchup map from its query", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(() =>
+      jsonResponse({ "test-deck": [{ name: "Total", winRate: 0.5, totalGames: 10 }] })
+    );
+    renderMatchups();
+    expect(await screen.findByText("test-deck")).toBeInTheDocument();
+  });
+
+  it("exposes a fetch error without throwing past the hook", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(() =>
+      errorResponse(500, "Internal Server Error")
+    );
+    renderMatchups();
+    expect(
+      await screen.findByText("Failed to fetch matchup-data.json: 500 Internal Server Error")
+    ).toBeInTheDocument();
+  });
+
+  it("exposes an error when the body is an array", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(() =>
+      jsonResponse([{ name: "test-deck" }])
+    );
+    renderMatchups();
+    expect(
+      await screen.findByText("matchup-data.json has an unexpected shape")
+    ).toBeInTheDocument();
+  });
+
+  it("rejects an object entry that is not an array", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(global, "fetch").mockImplementation(() =>
+      jsonResponse({ "Deck A": {} })
+    );
+    renderMatchups();
+    expect(
+      await screen.findByText("matchup-data.json has no valid matchup entries")
+    ).toBeInTheDocument();
+  });
+
+  it("keeps valid entries and drops invalid entries and rows", async () => {
+    const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(global, "fetch").mockImplementation(() =>
+      jsonResponse({
+        "Deck A": {},
+        "Deck B": [
+          { name: "Total", winRate: 0.5, totalGames: 10 },
+          { name: "Bad rate", winRate: "0.5", totalGames: 10 },
+        ],
+      })
+    );
+    renderMatchups();
+    expect(await screen.findByText("Deck B")).toBeInTheDocument();
+    expect(screen.queryByText("Bad rate")).not.toBeInTheDocument();
+    expect(consoleWarn).toHaveBeenCalledTimes(1);
+    expect(consoleWarn).toHaveBeenCalledWith(
+      "Dropped 2 invalid matchup entries from matchup-data.json"
+    );
   });
 });

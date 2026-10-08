@@ -1,29 +1,97 @@
-# CodeRabbit configuration
-# Docs: https://docs.coderabbit.ai/getting-started/configure-coderabbit-overview
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 language: "en-GB"
+tone_instructions: "Direct and demanding, never rude. British English. A few high-conviction comments beat many nits. Explain the failure scenario behind each finding."
 early_access: false
 
 reviews:
   profile: "assertive"
   request_changes_workflow: false
-  high_level_summary: true
+
+  high_level_summary: false
+  high_level_summary_in_walkthrough: false
+  collapse_walkthrough: true
+  changed_files_summary: true
+  sequence_diagrams: false
+  estimate_code_review_effort: true
+  assess_linked_issues: true
+  related_issues: true
+  related_prs: true
+  suggested_labels: true
+  suggested_reviewers: false
+  in_progress_fortune: false
   poem: false
   review_status: true
   commit_status: true
-  collapse_walkthrough: false
+
   auto_review:
     enabled: true
     drafts: false
+    auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 0
+
+  path_filters:
+    - "!public/data/**"
+    - "!public/og/**"
+    - "!src/app/__fixtures__/**"
+    - "!.agents/**"
+    - "!**/yarn.lock"
+
   path_instructions:
+    - path: "**"
+      instructions: |
+        House rules that apply to every file:
+        - British English in identifiers, copy, docs and comments ("normalise", "colour", "behaviour").
+        - The codebase deliberately carries no explanatory code comments or docstrings. Never ask for them; flag new ones only when they restate the code.
+        - Commits and PR titles are a single Conventional Commits subject line. Do not ask for commit bodies.
+        - Judge implementation quality, abstraction quality and codebase health, not just local correctness. In priority order: structural regressions; missed simplifications that delete whole branches or layers; spaghetti or branching growth; boundary and type-contract problems; file size and decomposition; modularity; legibility.
+        - Flag: files crossing 1000 lines, ad-hoc conditionals bolted onto unrelated flows, one-off flags that complicate control flow, feature logic leaking into shared paths, thin wrappers that add indirection without clarity, unnecessary casts, `any` or optionality, duplicated logic where a canonical helper exists, needless sequential orchestration, non-atomic updates.
+        - Do not approve merely because behaviour looks correct. The bar is no structural regression, no obvious missed simplification and no spaghetti growth.
     - path: "analysis/src/**"
       instructions: |
-        Review with thermo-nuclear standards: implementation quality, abstraction quality and codebase health, not just local nits. Prioritise in this order: structural regressions, missed dramatic simplifications ("code judo" reframings that delete whole branches or layers), spaghetti/branching growth, boundary and type-contract problems, file-size and decomposition, modularity, legibility. Flag: files crossing 1000 lines, ad-hoc conditionals bolted onto unrelated flows, one-off flags that complicate control flow, feature logic leaking into shared paths, thin wrappers that add indirection without clarity, unnecessary casts/any/optionality, duplicated logic where a canonical helper exists, unnecessary sequential orchestration or non-atomic updates. A characterisation or golden test is not evidence unless it has been mutation-tested (mutate one input at a time; a component with zero output diffs has no coverage). Do not approve merely because behaviour seems correct: the bar is no structural regression, no obvious missed simplification, no spaghetti growth. Prefer a few high-conviction comments over cosmetic nits. Be direct and demanding about quality, but not rude.
+        Data pipeline. A characterisation or golden test is not evidence of coverage unless it has been mutation-tested: mutate one input at a time, and a component with zero output diffs has no coverage. Check that writes to public/data are atomic and that a failed download or partial run cannot leave mixed-generation output. Check tournament format filtering: decks from other formats must not leak into the current snapshot.
     - path: "src/**"
       instructions: |
-        Same thermo-nuclear standards. Frontend-specific checks on top: respect the page/helper layering (pages must not import src/contexts/ except where an inline debt marker allows it; no-restricted-imports in eslint is the enforcement), weight suggestions by mobile fetch cost (bundle size and data volume matter for the deploy target), keep generated data files out of review scope. Components must not grow past healthy size; extract subcomponents rather than letting a file sprawl.
-    - path: "analysis/data/**"
+        Frontend (React 19, styled-components, Vite, React Query). Respect the page/helper layering: pages must not import src/contexts/ except where an inline debt marker allows it (no-restricted-imports enforces this). Weight suggestions by mobile cost: bundle size, data volume and anything on the critical path to first paint. Components must not sprawl; extract subcomponents. Check accessibility on every UI change: accessible names, one live region per loading area, focus visibility, `aria-hidden` actually reaching the DOM (styled-components `.attrs` overrides caller props). User-facing strings must go through i18n, never hard-coded English.
+    - path: "src/locales/**"
       instructions: |
-        Generated data. Do not comment on content, formatting or size; only review the scripts that generate it.
+        Every non-English file must translate each value. Flag any value identical to the English file unless it is a proper noun, brand or number. Interpolation placeholders such as {{min}} and Trans tags such as <0></0> must be preserved exactly. Keys must match en_translation.json.
+    - path: "scripts/**"
+      instructions: |
+        Build and prerender scripts run in CI and gate the deploy. Check that captured HTML stays deterministic and free of runtime-injected or third-party tags, that failures exit non-zero instead of shipping a broken page, and that each new check in verify-dist-html.js has a node --test case in scripts/__tests__.
+    - path: "**/__tests__/**"
+      instructions: |
+        Tests must assert observable behaviour, not implementation details or snapshots. A test that cannot fail when the feature breaks is a finding.
+
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: true
+
+  pre_merge_checks:
+    docstrings:
+      mode: "off"
+    description:
+      mode: "off"
+    title:
+      mode: "warning"
+      requirements: "A single Conventional Commits subject line: type(scope): summary, in British English, imperative mood, lower case after the colon, no trailing full stop."
+    issue_assessment:
+      mode: "warning"
+
+  tools:
+    biome:
+      enabled: false
+    eslint:
+      enabled: true
+    languagetool:
+      enabled: true
+      level: "default"
+
+knowledge_base:
+  learnings:
+    scope: "local"
 
 chat:
   auto_reply: true
+  art: false

@@ -127,7 +127,9 @@
     "winRateTooltip": "% de victorias en la ventana actual",
     "metaShareTooltip": "Cuota de partidas válidas ± cambio semanal",
     "showTooltip": "Mostrar explicación",
-    "energyUsed": "Energía usada"
+    "energyUsed": "Energía usada",
+    "matchupsUnavailable": "Los datos del mazo no se cargaron. Recarga la página para intentarlo de nuevo.",
+    "matchupsLoading": "Cargando enfrentamientos"
   },
   "energyDropdown": {
     "all": "Todos los tipos de Energía",

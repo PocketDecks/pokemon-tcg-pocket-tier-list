@@ -123,6 +123,43 @@ describe("DeckFinderPage", () => {
     vi.restoreAllMocks();
   });
 
+  it("shows a loading placeholder while matchup data loads", async () => {
+    let resolveMatchups!: (response: Response) => void;
+    vi.spyOn(global, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("best-decks.json")) return jsonResponse(DECKS_JSON);
+      if (url.endsWith("matchup-data.json"))
+        return new Promise((resolve) => { resolveMatchups = resolve; });
+      if (url.endsWith("meta-share.json"))
+        return jsonResponse({ generatedAt: "2026-08-24T00:00:00Z", windowDays: 7, decks: [] });
+      return jsonResponse(rawCards);
+    });
+    renderFinder();
+
+    expect(await screen.findByRole("button", { name: /Venusaur ex/ })).toBeInTheDocument();
+
+    const placeholder = screen.getByTestId("win-rate-placeholder");
+    expect(placeholder).toHaveAttribute("aria-hidden", "true");
+    expect(screen.queryAllByLabelText("Loading matchup")).toHaveLength(0);
+
+    resolveMatchups(jsonResponse(MATCHUP_JSON) as unknown as Response);
+  });
+
+  it("shows an unavailable message when matchup data fails", async () => {
+    vi.spyOn(global, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("best-decks.json")) return jsonResponse(DECKS_JSON);
+      if (url.endsWith("matchup-data.json")) return Promise.reject(new Error("network down"));
+      if (url.endsWith("meta-share.json"))
+        return jsonResponse({ generatedAt: "2026-08-24T00:00:00Z", windowDays: 7, decks: [] });
+      return jsonResponse(rawCards);
+    });
+    renderFinder();
+
+    expect(await screen.findAllByText("Matchup data didn't load. Refresh the page to try again.", {}, { timeout: 3000 })).toHaveLength(1);
+    expect(screen.getByRole("button", { name: /Venusaur ex/ })).toBeInTheDocument();
+  });
+
   it("uses the tier-list leader as the relative-strength baseline", async () => {
     vi.spyOn(global, "fetch").mockImplementation((input) => {
       const url = String(input);

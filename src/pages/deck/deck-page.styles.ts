@@ -296,6 +296,39 @@ export const MatchupList = styled.div<{ $blur?: boolean }>`
   }
 `;
 
+export const MatchupSkeletonTile = styled.span`
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.08);
+`;
+
+export const WinRatePlaceholder = styled.span`
+  display: inline-block;
+  width: 5ch;
+  height: 1em;
+  vertical-align: middle;
+  border-radius: 0.4rem;
+  background: rgba(255, 255, 255, 0.08);
+`;
+
+export const VisuallyHidden = styled.span`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+`;
+
+export const MatchupUnavailable = styled.p`
+  width: 100%;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.5;
+`;
+
 export const MatchupContainer = styled.div`
   display: flex;
   flex-direction: column;

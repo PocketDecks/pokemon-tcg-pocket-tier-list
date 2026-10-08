@@ -11,7 +11,7 @@ import usePipelineTrends from "../../app/use-pipeline-trends";
 import SeoContent from "../../components/SeoContent";
 import AdInContent from "../../ads/AdInContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
-import { useDecks } from "../../app/use-decks";
+import { useDecks, useMatchups } from "../../app/use-decks";
 import { buildTiers } from "../../app/tier-helper";
 import { deckDisplayName, formatArchetypeId } from "../../app/deck-display";
 import { latestExpansionName } from "../../app/use-expansions";
@@ -23,6 +23,7 @@ import { formatTrendDay } from "./format-trend-day";
 import TrendChart from "./TrendChart";
 import MatchupMatrix from "./MatchupMatrix";
 import DeckArt from "../../components/DeckArt";
+import { MatchupUnavailable, VisuallyHidden } from "../deck/deck-page.styles";
 
 const PageContainer = styled.div`
     width: 100%;
@@ -273,6 +274,12 @@ const Loading = styled.div`
     font-weight: 500;
 `;
 
+const MatchupSkeleton = styled.div`
+    min-height: 40rem;
+    border-radius: 0.8rem;
+    background: rgba(255, 255, 255, 0.06);
+`;
+
 const MATRIX_EVEN = "#383835";
 const MATRIX_FAVOURED = "#256abf";
 const MATRIX_UNFAVOURED = "#b8312f";
@@ -286,6 +293,7 @@ const matrixColour = (winRate: number): string => {
 const StatisticsPage = () => {
     const { t, i18n } = useTranslation();
     const { decks, metaShare, loading, error } = useDecks();
+    const { matchupsByName, loading: matchupsLoading, error: matchupsError } = useMatchups();
     const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
     const [pinnedSeries, setPinnedSeries] = useState<string | null>(null);
     const activeSeries = hoveredSeries ?? pinnedSeries;
@@ -532,11 +540,20 @@ const StatisticsPage = () => {
                     </ScaleLegend>
                 </SectionHeader>
 
-                <MatchupMatrix
-                    decks={matrixDecks}
-                    tierMap={tierMap}
-                    matrixColour={matrixColour}
-                />
+                {matchupsLoading ? (
+                    <MatchupSkeleton role="status" aria-busy="true">
+                        <VisuallyHidden>{t("deckPage.matchupsLoading")}</VisuallyHidden>
+                    </MatchupSkeleton>
+                ) : matchupsError ? (
+                    <MatchupUnavailable>{t("deckPage.matchupsUnavailable")}</MatchupUnavailable>
+                ) : (
+                    <MatchupMatrix
+                        decks={matrixDecks}
+                        tierMap={tierMap}
+                        matrixColour={matrixColour}
+                        matchupsByName={matchupsByName}
+                    />
+                )}
             </Section>
             </>
         );

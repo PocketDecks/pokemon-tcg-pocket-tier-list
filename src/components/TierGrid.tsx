@@ -13,6 +13,7 @@ const Page = styled.div`
   @media (max-width: 900px) {
     height: auto;
   }
+
 `;
 
 const FilterContainer = styled.div`

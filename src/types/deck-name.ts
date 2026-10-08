@@ -1,8 +1,3 @@
-export const deckNameToIconIds = (name: string): string[] =>
-  name.split("&").map((cardName: string) => {
-    const cardNameParts = cardName.split("-");
-    return [
-      cardNameParts[cardNameParts.length - 2],
-      cardNameParts[cardNameParts.length - 1],
-    ].join("-");
-  });
+import { deckNameToIconIds as resolveIconIds } from "../../scripts/deck-name.mjs";
+
+export const deckNameToIconIds = (name: string): string[] => resolveIconIds(name);

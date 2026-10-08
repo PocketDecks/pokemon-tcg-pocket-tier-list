@@ -10,7 +10,7 @@ import {
   fetchCards,
 } from "../app/cards-api";
 import useExpansions from "../app/use-expansions";
-import { MetaShareEntry, PipelineMatchupEntry, PipelineMetaShare, PipelinePartialDeck, PipelineDeckList } from "../types/pipeline-data";
+import { MetaShareEntry, PipelineMatchupData, PipelineMetaShare, PipelinePartialDeck, PipelineDeckList } from "../types/pipeline-data";
 import { FullDeckType, MatchupType } from "../app/deck-types";
 import { SortBy } from "../app/sort-by";
 import {
@@ -83,6 +83,70 @@ const loadMetaShare = async (): Promise<PipelineMetaShare | null> => {
   }
 };
 
+export interface SanitisedMatchupData {
+  matchups: PipelineMatchupData;
+  dropped: number;
+}
+
+export const sanitiseMatchupData = (
+  data: Record<string, unknown>
+): SanitisedMatchupData => {
+  let dropped = 0;
+  const matchups: PipelineMatchupData = {};
+  for (const [deckName, rows] of Object.entries(data)) {
+    if (!Array.isArray(rows)) {
+      dropped += 1;
+      continue;
+    }
+    const validRows: MatchupType[] = [];
+    for (const row of rows) {
+      const valid =
+        row !== null &&
+        typeof row === "object" &&
+        !Array.isArray(row) &&
+        typeof row.name === "string" &&
+        typeof row.winRate === "number" &&
+        Number.isFinite(row.winRate) &&
+        row.winRate >= 0 &&
+        row.winRate <= 1 &&
+        typeof row.totalGames === "number" &&
+        Number.isFinite(row.totalGames) &&
+        row.totalGames >= 0;
+      if (valid) validRows.push(row as MatchupType);
+      else dropped += 1;
+    }
+    if (validRows.length === 0 && rows.length > 0) {
+      dropped += 1;
+      continue;
+    }
+    matchups[deckName] = validRows;
+  }
+  return { matchups, dropped };
+};
+
+const fetchMatchupData = async (): Promise<PipelineMatchupData> => {
+  const response = await fetch("/data/matchup-data.json");
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch matchup-data.json: ${response.status} ${response.statusText}`
+    );
+  }
+  const data = await response.json();
+  if (data === null || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("matchup-data.json has an unexpected shape");
+  }
+
+  const { matchups, dropped } = sanitiseMatchupData(data);
+
+  if (dropped > 0) {
+    console.warn(`Dropped ${dropped} invalid matchup entries from matchup-data.json`);
+  }
+  if (Object.keys(matchups).length === 0) {
+    throw new Error("matchup-data.json has no valid matchup entries");
+  }
+  return matchups;
+};
+
 interface BuildOptions {
   missingCounts: Record<string, number>;
   energy: string | null;
@@ -102,12 +166,12 @@ const trimPairedDecks = (fullDecks: FullDeckType[]): FullDeckType[] => {
 };
 
 const buildDecks = (
-  decksData: { decks: PartialDeckType[]; matchupData: Record<string, PipelineMatchupEntry[]> },
+  decksData: { decks: PartialDeckType[] },
   cardsPayload: CardsPayload,
   cardsMapping: Record<string, CardType>,
   options: BuildOptions
 ): FullDeckType[] => {
-  const { decks, matchupData } = decksData;
+  const { decks } = decksData;
   const {
     missingCounts,
     energy,
@@ -181,8 +245,6 @@ const buildDecks = (
 
   const fullDecks = decksFiltered
       .map((oldDeck: PartialDeckType) => {
-        const matchups = matchupData[oldDeck.name];
-
         const lists = buildFullLists(oldDeck.lists, cardsMapping, cardsPayload);
         const bestList = pickBestList(lists, cardsPayload);
 
@@ -205,7 +267,6 @@ const buildDecks = (
           freqScore: oldDeck.freqScore,
           metaScore: oldDeck.metaScore,
           percentOfGames: oldDeck.percentOfGames,
-          matchups,
           iconPrimary: cardsMapping[cardIds[0]],
           iconSecondary,
         };
@@ -239,6 +300,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
   const { cardsPayload, cardsMapping, isLoading: cardsLoading } = useCardsData();
 
   const { data: decksData, isLoading: decksLoading, error: decksError } = useDecksData();
+  const { data: metaShare } = useMetaShareData();
 
   const scoreBaseline = useMemo(
     () => (decksData ? getScoreBaseline(decksData.decks) : null),
@@ -246,12 +308,12 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   const metaShareBySlug = useMemo(() => {
-    const share: PipelineMetaShare | null | undefined = decksData?.metaShare;
+    const share: PipelineMetaShare | null | undefined = metaShare;
     if (!share) return null;
     return Object.fromEntries(
       share.decks.map((d) => [d.name, d])
     ) as Record<string, MetaShareEntry>;
-  }, [decksData]);
+  }, [metaShare]);
 
   const latestExpansionId = useMemo(() => {
     return expansions && expansions.length > 0
@@ -295,7 +357,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
     () => ({
       decks,
       scoreBaseline,
-      metaShare: decksData?.metaShare ?? null,
+      metaShare: metaShare ?? null,
       metaShareBySlug,
       loading: cardsLoading || decksLoading,
       error: decksError ?? null,
@@ -303,7 +365,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
     [
       decks,
       scoreBaseline,
-      decksData,
+      metaShare,
       metaShareBySlug,
       cardsLoading,
       decksLoading,
@@ -324,6 +386,15 @@ export const useDecks = () => {
   return context;
 };
 
+export const useMatchups = () => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["matchups"],
+    queryFn: fetchMatchupData,
+    retry: 1,
+  });
+  return { matchupsByName: data ?? null, loading: isLoading, error: error ?? null };
+};
+
 /// Shared between DecksProvider and useDeckDetail: one React Query cache
 /// entry per key, so a detail page pays no second fetch.
 const useCardsData = () => {
@@ -341,29 +412,26 @@ const useCardsData = () => {
   return { cardsPayload, cardsMapping, isLoading };
 };
 
+const fetchDeckData = async () => {
+  const decksResponse = await fetch("/data/best-decks.json");
+  if (!decksResponse.ok) {
+    throw new Error(`Failed to fetch best-decks.json: ${decksResponse.status} ${decksResponse.statusText}`);
+  }
+  const decks = (await decksResponse.json()) as PartialDeckType[];
+  return { decks };
+};
+
 const useDecksData = () => {
   return useQuery({
     queryKey: ["decks"],
-    queryFn: async () => {
-      const [decksResponse, matchupDataResponse] = await Promise.all([
-        fetch("/data/best-decks.json"),
-        fetch("/data/matchup-data.json"),
-      ]);
+    queryFn: fetchDeckData,
+  });
+};
 
-      if (!decksResponse.ok) {
-        throw new Error(`Failed to fetch best-decks.json: ${decksResponse.status} ${decksResponse.statusText}`);
-      }
-      if (!matchupDataResponse.ok) {
-        throw new Error(`Failed to fetch matchup-data.json: ${matchupDataResponse.status} ${matchupDataResponse.statusText}`);
-      }
-
-      const [decksData, matchupData] = await Promise.all([
-        decksResponse.json(),
-        matchupDataResponse.json(),
-      ]);
-
-      return { decks: decksData, matchupData, metaShare: await loadMetaShare() };
-    },
+const useMetaShareData = () => {
+  return useQuery({
+    queryKey: ["meta-share"],
+    queryFn: loadMetaShare,
   });
 };
 
@@ -375,14 +443,12 @@ export const useDeckDetail = (
 ) => {
   const { cardsPayload, cardsMapping } = useCardsData();
   const { data: decksData } = useDecksData();
-
   return useMemo(() => {
     if (!cardsPayload || !decksData || !deckId) {
       return { deck: null, extinct: false };
     }
     const resolved = resolveDeckDetail(
       decksData.decks,
-      decksData.matchupData,
       cardsPayload,
       cardsMapping,
       deckId,
@@ -392,5 +458,5 @@ export const useDeckDetail = (
       deck: resolved?.deck ?? null,
       extinct: resolved?.extinct ?? false,
     };
-  }, [cardsPayload, decksData, cardsMapping, deckId, missingCounts]);
+  }, [cardsPayload, cardsMapping, decksData, deckId, missingCounts]);
 };

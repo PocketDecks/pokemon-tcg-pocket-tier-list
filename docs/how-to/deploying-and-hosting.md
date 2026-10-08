@@ -17,16 +17,16 @@ Yarn's lifecycle hooks turn one command into a seven-stage pipeline. In order:
 3. Lint. `yarn lint` runs ESLint with `--max-warnings 0`.
 4. Bundle. `vite build` transforms the app into `dist/`, emitting hashed
    chunks under `dist/assets/`.
-5. Route prerendering. `node scripts/prerender-routes.js` serves `dist/` on
+5. Deck prerendering. `node scripts/prerender-decks.js` writes one
+   `dist/deck/<slug>/index.html` per deck in `best-decks.json`, each stamped
+   with Open Graph and Twitter meta plus BreadcrumbList JSON-LD.
+6. Route prerendering. `node scripts/prerender-routes.js` serves `dist/` on
    `127.0.0.1:4173`, loads each static route in headless Chromium through
    Puppeteer, stamps per-route titles, descriptions and canonicals using
    `stampHead` in `scripts/meta-stamp.js`, and writes each result as
    `<route>/index.html`. It aborts third-party requests (ads, Firebase,
    fonts) but allows the external card database, because rendering gates on
    card data loading. Any page error fails the stage.
-6. Deck prerendering. `node scripts/prerender-decks.js` writes one
-   `dist/deck/<slug>/index.html` per deck in `best-decks.json`, each stamped
-   with Open Graph and Twitter meta plus BreadcrumbList JSON-LD.
 7. Dist verification. `node scripts/verify-dist-html.js` scans every built
    HTML file for `127.0.0.1` or `localhost` references and exits non-zero if
    any survive, since a leaked loopback URL would break the deployed page.

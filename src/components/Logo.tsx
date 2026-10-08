@@ -16,6 +16,7 @@ const Container = styled(Link)`
 
 const StyledLogo = styled.img`
   width: 5.2rem;
+  height: auto;
 
   @media (max-width: 900px) {
     width: 4.8rem;
@@ -25,7 +26,7 @@ const StyledLogo = styled.img`
 const Logo = () => {
   return (
     <Container to="/">
-      <StyledLogo src={logo} alt="Top Pocket Decks" />
+      <StyledLogo src={logo} alt="Top Pocket Decks" width={160} height={160} />
     </Container>
   );
 };

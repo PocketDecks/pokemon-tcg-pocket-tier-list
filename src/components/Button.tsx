@@ -4,13 +4,13 @@ import { ReactNode } from "react";
 
 const rainbowAnimation = keyframes`
   0% {
-    background-position: 0 50%;
+    transform: translateX(0);
   }
   50% {
-    background-position: 100% 50%;
+    transform: translateX(-66.667%);
   }
   100% {
-    background-position: 0 50%;
+    transform: translateX(0);
   }
 `;
 
@@ -47,7 +47,19 @@ const buttonBase = css<{ $isLoading: boolean; $wide: boolean }>`
   height: 5.4rem;
   padding: 0 3.2rem;
   border-radius: 0.8rem;
-  background: linear-gradient(
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 300%;
+    height: 300%;
+    z-index: -1;
+    background: linear-gradient(
       45deg,
       var(--s),
       var(--a),
@@ -56,14 +68,15 @@ const buttonBase = css<{ $isLoading: boolean; $wide: boolean }>`
       var(--d),
       var(--f),
       var(--s)
-  );
-  background-size: 300% 300%;
-  animation: ${rainbowAnimation} 8s ease infinite;
+    );
+    animation: ${rainbowAnimation} 8s ease infinite;
+  }
+
   color: var(--bg);
   font-size: 2.1rem;
   font-weight: 600;
   cursor: ${(props) => (props.$isLoading ? "not-allowed" : "pointer")};
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
   border: 2px solid transparent;
   position: relative;
   width: ${(props) => (props.$wide ? "100%" : "auto")};

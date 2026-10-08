@@ -32,7 +32,7 @@ const deck = (id: string, iconName: string, powerScore: number | null) => ({
   freqScore: 0,
   metaScore: powerScore,
   percentOfGames: 0.01,
-  matchups: [],
+
   iconPrimary: card(`${id}-icon`, iconName),
   iconSecondary: null,
 });

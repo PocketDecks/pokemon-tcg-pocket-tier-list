@@ -23,7 +23,8 @@ export const consentTheme: UIOptions = {
     colors: dark,
     dark,
     typography: {
-      fontFamily: '"Roboto", sans-serif',
+      fontFamily:
+        '"Manrope Variable", "Manrope", "Manrope Fallback", system-ui, -apple-system, "Segoe UI", sans-serif',
       fontSize: { sm: "1.4rem", base: "1.6rem", lg: "2.2rem" },
     },
     spacing: {

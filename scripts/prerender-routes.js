@@ -80,6 +80,18 @@ const ROUTE_META = {
   },
 };
 
+const ROUTE_READY_ROUTES = new Set(["/cards-list", "/statistics", "/deck"]);
+
+const captureAfterRouteReady = async (page, route, capture) => {
+  if (ROUTE_READY_ROUTES.has(route)) {
+    await page.waitForFunction(
+      () => document.documentElement.dataset.routeReady === window.location.pathname,
+      { timeout: 20000 }
+    );
+  }
+  return capture();
+};
+
 const MIME = {
   ".html": "text/html",
   ".js": "text/javascript",
@@ -98,7 +110,7 @@ const MIME = {
 
 // Serves the output dir with SPA fallback so each client-side route boots at
 // its own URL and react-router sees the right location.
-const startServer = () =>
+const startServer = (templateHtml) =>
   new Promise((resolve) => {
     const server = http.createServer((req, res) => {
       const urlPath = decodeURIComponent(new URL(req.url, ORIGIN).pathname);
@@ -114,17 +126,28 @@ const startServer = () =>
       res.writeHead(200, {
         "Content-Type": MIME[ext] || "application/octet-stream",
       });
+      if (path.basename(filePath) === "index.html") return res.end(templateHtml);
       fs.createReadStream(filePath).pipe(res);
     });
     server.listen(PORT, "127.0.0.1", () => resolve(server));
   });
 
 const main = async () => {
-  if (!fs.existsSync(path.join(DIST_DIR, "index.html"))) {
+  const indexPath = path.join(DIST_DIR, "index.html");
+  if (!fs.existsSync(indexPath)) {
     console.error(`No index.html in ${DIST_DIR}; run \`yarn build\` first.`);
     process.exit(1);
   }
-  const server = await startServer();
+  const templateHtml = fs.readFileSync(indexPath, "utf8");
+  const templatePreloads = [...templateHtml.matchAll(/<link\b[^>]*>/gi)]
+    .map((match) => match[0])
+    .filter((tag) => /rel=["']modulepreload["']/i.test(tag))
+    .map((tag) => (tag.match(/href=["']([^"']*)["']/i) || [])[1])
+    .filter((href) => href !== undefined);
+  const templateScripts = [
+    ...templateHtml.matchAll(/<script\b[^>]*\bsrc=["']([^"']*)["'][^>]*>/gi),
+  ].map((match) => match[1]);
+  const server = await startServer(templateHtml);
   const browser = await puppeteer.launch({
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
@@ -156,30 +179,50 @@ const main = async () => {
   const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
   for (const route of ROUTES) {
     await page.goto(`${ORIGIN}${route}`, { waitUntil: "networkidle0" });
-    await page.waitForSelector("#root > *");
-    if (DECK_ANCHOR_ROUTES.has(route)) {
-      await page.waitForFunction(
-        () => document.querySelectorAll('a[href^="/deck/"]').length > 10,
-        { timeout: 20000 }
+    await page.waitForSelector("#app-root > *, #root > *");
+    const html = await captureAfterRouteReady(page, route, async () => {
+      if (DECK_ANCHOR_ROUTES.has(route)) {
+        await page.waitForFunction(
+          () => document.querySelectorAll('a[href^="/deck/"]').length > 10,
+          { timeout: 20000 }
+        );
+      }
+      await page.evaluate(() => {
+        document.querySelectorAll("style[data-styled]").forEach((el) => {
+          el.textContent = Array.from(el.sheet.cssRules, (rule) => rule.cssText).join("\n");
+        });
+      });
+      await page.evaluate(
+        (preloads, scripts) => {
+          const allowedPreloads = new Set(preloads);
+          const allowedScripts = new Set(scripts);
+          document.querySelectorAll('link[rel="modulepreload"]').forEach((el) => {
+            if (!allowedPreloads.has(el.getAttribute("href"))) el.remove();
+          });
+          document.querySelectorAll("script[src]").forEach((el) => {
+            if (!allowedScripts.has(el.getAttribute("src"))) el.remove();
+          });
+        },
+        templatePreloads,
+        templateScripts
       );
-    }
+      return page.evaluate(
+        () => `<!doctype html>\n${document.documentElement.outerHTML}`
+      );
+    });
     // Vite stamps lazy-chunk hrefs with the preview origin while the page
     // boots; captured markup must stay root-relative.
-    let html = (
-      await page.evaluate(
-        () => `<!doctype html>\n${document.documentElement.outerHTML}`
-      )
-    ).split(ORIGIN).join("");
+    let stampedHtml = html.split(ORIGIN).join("");
     const meta = ROUTE_META[route];
     if (meta) {
-      html = stampHead(html, meta);
+      stampedHtml = stampHead(stampedHtml, meta);
     }
     const outFile =
       route === "/"
         ? path.join(DIST_DIR, "index.html")
         : path.join(DIST_DIR, route.slice(1), "index.html");
     fs.mkdirSync(path.dirname(outFile), { recursive: true });
-    fs.writeFileSync(outFile, html);
+    fs.writeFileSync(outFile, stampedHtml);
     console.log(`Prerendered ${route}`);
   }
 
@@ -195,4 +238,4 @@ const main = async () => {
 
 if (require.main === module) main();
 
-module.exports = { ROUTE_META, ROUTES };
+module.exports = { captureAfterRouteReady, ROUTE_READY_ROUTES, ROUTE_META, ROUTES };

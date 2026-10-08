@@ -21,9 +21,9 @@ If you start from scratch, you must create these files and initialise them with 
 
 ## Running the fetch script
 
-Set your API key as an environment variable and run the download script. The script skips any tournament already listed in your `processed-tournaments.json` file.    
+The pipeline reads the key from `LIMITLESS_API_KEY` in the root `.env` file. From the repository root, copy `.env.example` to `.env` and add your key. Then return to `analysis/` and run the download script. The script skips any tournament already listed in your `processed-tournaments.json` file.
 ```bash
-export API_KEY=your_very_own_limitless_api_key
+cd analysis
 yarn download
 ```
 

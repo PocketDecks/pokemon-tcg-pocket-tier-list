@@ -45,8 +45,7 @@ export interface ResolvedDeck {
 /// inference has exactly one implementation.
 export const buildFullLists = (
   lists: PipelineDeckList[],
-  cardsMapping: Record<string, CardType>,
-  cardsPayload: CardsPayload
+  cardsMapping: Record<string, CardType>
 ): FullList[] =>
   lists.map((oldList) => {
     const newCards: CardType[] = [];
@@ -112,7 +111,7 @@ export const resolveDeckDetail = (
   const extinct = affordableLists.length === 0;
   const listsToUse = extinct ? resolvedLists : affordableLists;
 
-  const fullLists = buildFullLists(listsToUse, cardsMapping, cardsPayload);
+  const fullLists = buildFullLists(listsToUse, cardsMapping);
   const bestList = pickBestList(fullLists, cardsPayload);
 
   const cardIds = deckNameToIconIds(oldDeck.name);

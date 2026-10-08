@@ -68,17 +68,17 @@ interface State {
 
 /** Degrades a render-time throw to a notice instead of a blank page. */
 class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false };
+  override state: State = { hasError: false };
 
   static getDerivedStateFromError(): State {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught render error:", error, errorInfo.componentStack);
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) return <ErrorNotice />;
     return this.props.children;
   }

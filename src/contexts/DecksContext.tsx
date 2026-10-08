@@ -160,7 +160,9 @@ interface BuildOptions {
   applyPairedTrim: boolean;
 }
 const trimPairedDecks = (fullDecks: FullDeckType[]): FullDeckType[] => {
-  const lastPairedIndex = fullDecks.findLastIndex((deck) => deck.name.includes("&"));
+  const lastPairedIndex = fullDecks.findLastIndex(
+    (deck: FullDeckType) => deck.name.includes("&")
+  );
   if (lastPairedIndex === -1) return fullDecks;
   return fullDecks.slice(0, lastPairedIndex + 1);
 };
@@ -245,7 +247,7 @@ const buildDecks = (
 
   const fullDecks = decksFiltered
       .map((oldDeck: PartialDeckType) => {
-        const lists = buildFullLists(oldDeck.lists, cardsMapping, cardsPayload);
+        const lists = buildFullLists(oldDeck.lists, cardsMapping);
         const bestList = pickBestList(lists, cardsPayload);
 
         const cardIds = deckNameToIconIds(oldDeck.name);

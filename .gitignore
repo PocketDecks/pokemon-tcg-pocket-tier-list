@@ -17,7 +17,6 @@ out/
 
 # test and lint cache
 coverage/
-.jest-cache/
 .eslintcache
 
 # environment

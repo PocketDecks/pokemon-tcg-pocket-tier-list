@@ -83,7 +83,7 @@ const SkipLink = styled.a`
   }
 `;
 
-const Layout = () => {
+export const Layout = () => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
 

@@ -310,7 +310,7 @@ describe("DeckDetailPage with a cut card", () => {
       </QueryClientProvider>
     );
 
-    await screen.findByText("Loading...");
+    await screen.findByText("Loading deck");
     expect(await screen.findByText("Deck not found")).toBeInTheDocument();
   });
 });

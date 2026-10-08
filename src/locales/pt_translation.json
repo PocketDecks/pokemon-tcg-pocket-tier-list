@@ -131,7 +131,8 @@
     "showTooltip": "Mostrar explicação",
     "energyUsed": "Energia usada",
     "matchupsUnavailable": "Os dados do deck não carregaram. Recarregue a página para tentar novamente.",
-    "matchupsLoading": "A carregar confrontos"
+    "matchupsLoading": "A carregar confrontos",
+    "loading": "A carregar deck"
   },
   "energyDropdown": {
     "all": "Todos os Tipos de Energia",

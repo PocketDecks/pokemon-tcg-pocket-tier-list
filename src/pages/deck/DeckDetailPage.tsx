@@ -21,6 +21,7 @@ import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { countById, oneSwapAlternatives } from "../../app/deck-diff";
 import { deckDisplayName } from "../../app/deck-display";
 import DeckHero, { type DeckHeroStat } from "./DeckHero";
+import DeckPageSkeleton from "./DeckPageSkeleton";
 import EnergyList from "./EnergyList";
 import useDeckTiers, { tierForDeck } from "../../app/use-deck-tiers";
 import {
@@ -151,7 +152,7 @@ const DeckDetailPage = () => {
     };
   }, [deck, deckMap, deckMatchups, extinct]);
 
-  if (loading) return <Overlay>Loading...</Overlay>;
+  if (loading) return <DeckPageSkeleton />;
   if (error) return <Overlay>Error loading data: {error.message}</Overlay>;
   if (!derived || !deck) return <Overlay>Deck not found</Overlay>;
 

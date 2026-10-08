@@ -131,7 +131,8 @@
     "showTooltip": "Mostra spiegazione",
     "energyUsed": "Energia usata",
     "matchupsUnavailable": "I dati del mazzo non sono stati caricati. Ricarica la pagina per riprovare.",
-    "matchupsLoading": "Caricamento dei matchup"
+    "matchupsLoading": "Caricamento dei matchup",
+    "loading": "Caricamento del mazzo"
   },
   "energyDropdown": {
     "all": "Tutti i Tipi di Energia",

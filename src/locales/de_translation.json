@@ -131,7 +131,8 @@
     "showTooltip": "Erklärung anzeigen",
     "energyUsed": "Genutzte Energie",
     "matchupsUnavailable": "Matchup-Daten konnten nicht geladen werden. Lade die Seite neu, um es erneut zu versuchen.",
-    "matchupsLoading": "Matchups werden geladen"
+    "matchupsLoading": "Matchups werden geladen",
+    "loading": "Deck wird geladen"
   },
   "energyDropdown": {
     "all": "Alle Energietypen",

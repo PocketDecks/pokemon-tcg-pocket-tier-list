@@ -131,7 +131,8 @@
     "showTooltip": "显示说明",
     "energyUsed": "使用能量",
     "matchupsUnavailable": "牌组数据未能加载。请刷新页面重试。",
-    "matchupsLoading": "正在加载对战"
+    "matchupsLoading": "正在加载对战",
+    "loading": "正在加载卡组"
   },
   "energyDropdown": {
     "all": "所有能量类型",

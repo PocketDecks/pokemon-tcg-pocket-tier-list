@@ -131,7 +131,8 @@
     "showTooltip": "Show explanation",
     "energyUsed": "Energy Used",
     "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again.",
-    "matchupsLoading": "Loading matchups"
+    "matchupsLoading": "Loading matchups",
+    "loading": "Loading deck"
   },
   "energyDropdown": {
     "all": "All Energy Types",

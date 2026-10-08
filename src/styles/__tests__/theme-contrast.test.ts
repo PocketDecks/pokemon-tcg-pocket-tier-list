@@ -63,4 +63,11 @@ describe("theme contrast", () => {
     expect(contrast(theme["line-strong"], theme.bg)).toBeGreaterThanOrEqual(1.5);
     expect(contrast(theme["input-border"], theme.bg)).toBeGreaterThanOrEqual(3);
   });
+
+  it.each(["dark", "light"] as ThemeName[])('%s meets the link contrast contract', (themeName) => {
+    const theme = themeTokens[themeName];
+    for (const background of [theme.bg, theme.surface]) {
+      expect(contrast(theme.link, background)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
 });

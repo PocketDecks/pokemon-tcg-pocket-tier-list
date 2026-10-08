@@ -48,7 +48,7 @@ const Section = styled.section`
   }
 
   a {
-    color: var(--f);
+    color: var(--link);
     text-decoration: underline;
   }
 `;

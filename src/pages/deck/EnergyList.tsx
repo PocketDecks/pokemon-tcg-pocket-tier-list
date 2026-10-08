@@ -1,15 +1,23 @@
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
+import grassIcon from "../../assets/energy/grass.webp";
+import fireIcon from "../../assets/energy/fire.webp";
+import waterIcon from "../../assets/energy/water.webp";
+import lightningIcon from "../../assets/energy/lightning.webp";
+import psychicIcon from "../../assets/energy/psychic.webp";
+import fightingIcon from "../../assets/energy/fighting.webp";
+import darkIcon from "../../assets/energy/dark.webp";
+import steelIcon from "../../assets/energy/steel.webp";
 
 const ENERGIES: Record<number, { name: string; icon: string }> = {
-  1: { name: "Grass", icon: "/energy/grass.webp" },
-  2: { name: "Fire", icon: "/energy/fire.webp" },
-  3: { name: "Water", icon: "/energy/water.webp" },
-  4: { name: "Lightning", icon: "/energy/lightning.webp" },
-  5: { name: "Psychic", icon: "/energy/psychic.webp" },
-  6: { name: "Fighting", icon: "/energy/fighting.webp" },
-  7: { name: "Darkness", icon: "/energy/dark.webp" },
-  8: { name: "Metal", icon: "/energy/steel.webp" },
+  1: { name: "Grass", icon: grassIcon },
+  2: { name: "Fire", icon: fireIcon },
+  3: { name: "Water", icon: waterIcon },
+  4: { name: "Lightning", icon: lightningIcon },
+  5: { name: "Psychic", icon: psychicIcon },
+  6: { name: "Fighting", icon: fightingIcon },
+  7: { name: "Darkness", icon: darkIcon },
+  8: { name: "Metal", icon: steelIcon },
 };
 
 const List = styled.ul`

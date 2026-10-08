@@ -5,10 +5,10 @@ export const FREE_DECK_AMOUNT = 30;
 export const CARDS_URL = cardsPayload;
 export const EXPANSIONS_URL = expansionsPayload;
 export const GITHUB_URL =
-  "https://github.com/chase-manning/pokemon-tcg-pocket-tier-list";
+  "https://github.com/PocketDecks/pokemon-tcg-pocket-tier-list";
 export const CARDS_REPO_URL =
   "https://github.com/chase-mew/pokemon-tcg-pocket-cards";
-export const TWITTER_URL = "https://x.com/pocketdecks";
+export const TWITTER_URL = "https://twitter.com/pocketdecks";
 export const GOOGLE_ADSENSE_URL = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3547629432918335';
 export const GOOGLE_ANALYTICS_URL = 'https://www.googletagmanager.com/gtag/js?id=G-SBZ51J3S1R';
 export const GOOGLE_GTAG = 'G-SBZ51J3S1R';

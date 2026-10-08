@@ -54,7 +54,7 @@ const Message = styled.p`
   font-size: 1.7rem;
   line-height: 1.7;
   max-width: 52rem;
-  color: rgba(255, 255, 255, 0.82);
+  color: var(--white-82);
 
   strong,
   em,

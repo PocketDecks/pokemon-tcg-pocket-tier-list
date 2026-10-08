@@ -54,7 +54,7 @@ const TierRow = styled.div`
       right: 0;
       width: 100px;
       height: 100%;
-      background: linear-gradient(to right, rgba(255, 255, 255, 0), var(--bg));
+      background: linear-gradient(to right, var(--transparent-white), var(--bg));
     }
   }
 
@@ -67,7 +67,7 @@ const RowHeader = styled.div<{ $backgroundColor: string }>`
   height: 100%;
   aspect-ratio: 1 / 1;
   background: ${(props) => props.$backgroundColor};
-  color: rgba(0, 0, 0, 0.7);
+  color: var(--shadow-dark);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -92,7 +92,7 @@ const RowContent = styled.div`
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+    scrollbar-color: var(--white-22) transparent;
 
     && > * {
       flex-shrink: 0;
@@ -105,7 +105,7 @@ const RowContent = styled.div`
 
     &::-webkit-scrollbar-thumb {
       border-radius: 0.3rem;
-      background: rgba(255, 255, 255, 0.22);
+      background: var(--white-22);
     }
 
     &::-webkit-scrollbar-track {
@@ -187,7 +187,7 @@ const TierGrid = <T,>({
       ))}
       {unranked.length > 0 && (
         <TierRow key="unranked" data-testid="unranked-row">
-          <RowHeader $backgroundColor="var(--unranked, #3a3a36)">?</RowHeader>
+          <RowHeader $backgroundColor="var(--unranked, var(--unranked))">?</RowHeader>
           <RowContent>
             {unranked.map((item) => (
               <React.Fragment key={getKey(item)}>

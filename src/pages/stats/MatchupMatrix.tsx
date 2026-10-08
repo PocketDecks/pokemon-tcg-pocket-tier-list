@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import { deckDisplayName, formatArchetypeId } from "../../app/deck-display";
-import type { FullDeckType } from "../../app/deck-types";
+import type { FullDeckType, MatchupType } from "../../app/deck-types";
 import DeckArt from "../../components/DeckArt";
-import type { MatchupType } from "../../app/deck-types";
+import { matrixScale } from "../../styles/theme-tokens";
 
 const MatrixWrapper = styled.div`
     width: 100%;
@@ -33,8 +33,8 @@ const MatrixTable = styled.table<{ $columns: number }>`
     th,
     td {
         padding: 0.5rem;
-        border-bottom: 2px solid #121210;
-        border-right: 2px solid #121210;
+        border-bottom: 2px solid var(--surface-sunk);
+        border-right: 2px solid var(--surface-sunk);
         width: 64px;
         min-width: 64px;
         height: 52px;
@@ -45,7 +45,7 @@ const MatrixTable = styled.table<{ $columns: number }>`
         position: sticky;
         top: 0;
         z-index: 2;
-        background: #121210;
+        background: var(--surface-sunk);
         color: var(--main);
         font-weight: 600;
         height: auto;
@@ -71,7 +71,7 @@ const DeckLabelHeader = styled.th`
     left: 0 !important;
     top: 0 !important;
     z-index: 3 !important;
-    background: #121210 !important;
+    background: var(--surface-sunk) !important;
     text-align: left;
     vertical-align: bottom;
     width: 260px !important;
@@ -87,7 +87,7 @@ const DeckLabelCell = styled.td`
     position: sticky !important;
     left: 0 !important;
     z-index: 1 !important;
-    background: #121210 !important;
+    background: var(--surface-sunk) !important;
     text-align: left;
     font-weight: 500;
     white-space: nowrap;
@@ -129,7 +129,7 @@ const HeaderArt = styled.span`
 
     & > * + * {
         margin-left: -0.8rem;
-        box-shadow: 0 0 0 2px #121210;
+        box-shadow: 0 0 0 2px var(--surface-sunk);
     }
 `;
 
@@ -143,8 +143,8 @@ const VisuallyHidden = styled.span`
 `;
 
 const MatrixCell = styled.td<{ $bg?: string; $isPopulated: boolean }>`
-    background: ${(props) => props.$bg || "#1d1d1b"};
-    color: ${(props) => (props.$isPopulated ? "#fff" : "rgba(255, 255, 255, 0.4)")};
+    background: ${(props) => props.$bg || matrixScale.dark.empty};
+    color: ${(props) => (props.$isPopulated ? matrixScale.dark.populatedText : matrixScale.dark.emptyText)};
     font-size: 1.3rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -152,7 +152,7 @@ const MatrixCell = styled.td<{ $bg?: string; $isPopulated: boolean }>`
     transition: box-shadow 160ms ease-out;
 
     &:hover {
-        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.75);
+        box-shadow: inset 0 0 0 2px var(--white-75);
     }
 `;
 

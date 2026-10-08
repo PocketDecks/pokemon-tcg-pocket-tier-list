@@ -61,7 +61,7 @@ describe("DeckCard", () => {
     );
 
     const share = screen.getByText("10.0%");
-    expect(share).toHaveStyle({ color: "rgba(255, 255, 255, 0.85)" });
+    expect(share).toHaveStyle({ color: "var(--white-85)" });
     expect(share).not.toHaveTextContent("▲");
     expect(share).not.toHaveTextContent("▼");
   });

@@ -52,7 +52,7 @@ const Intro = styled.p`
   max-width: 56ch;
   font-size: 1.7rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--white-72);
 `;
 
 const Panel = styled.div`
@@ -62,8 +62,8 @@ const Panel = styled.div`
   min-height: 20rem;
   padding: 3.2rem;
   border-radius: 1.6rem;
-  background: #121210;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-sunk);
+  border: 1px solid var(--line);
 
   @media (max-width: 900px) {
     padding: 2.4rem 2rem;
@@ -77,7 +77,7 @@ const StateChip = styled.span<{ $color: string }>`
   height: 4.8rem;
   border-radius: 1.2rem;
   background: ${(props) => props.$color};
-  color: rgba(0, 0, 0, 0.78);
+  color: var(--black-78);
 `;
 
 const PanelTitle = styled.h2`
@@ -90,7 +90,7 @@ const PanelText = styled.p`
   max-width: 56ch;
   font-size: 1.6rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--white-72);
 `;
 
 const Form = styled.form`
@@ -101,7 +101,7 @@ const Form = styled.form`
 
 const SignedInAs = styled.p`
   font-size: 1.4rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--white-60);
 `;
 
 const Fieldset = styled.fieldset`
@@ -136,15 +136,15 @@ const Choice = styled.label<{ $checked: boolean }>`
   padding: 1rem 1.4rem;
   border-radius: 1.2rem;
   border: 1px solid
-    ${(props) => (props.$checked ? "var(--main)" : "rgba(255, 255, 255, 0.14)")};
-  background: ${(props) => (props.$checked ? "rgba(255, 255, 255, 0.08)" : "transparent")};
+    ${(props) => (props.$checked ? "var(--main)" : "var(--white-14)")};
+  background: ${(props) => (props.$checked ? "var(--line)" : "transparent")};
   font-size: 1.5rem;
   font-weight: 500;
   cursor: pointer;
   transition: border-color 160ms ease-out, background-color 160ms ease-out;
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: var(--white-40);
   }
 
   &:focus-within {
@@ -176,7 +176,7 @@ const TextArea = styled.textarea<{ $invalid: boolean }>`
   padding: 1.4rem 1.6rem;
   border-radius: 1.2rem;
   border: 1px solid
-    ${(props) => (props.$invalid ? "var(--s)" : "rgba(255, 255, 255, 0.18)")};
+    ${(props) => (props.$invalid ? "var(--s)" : "var(--white-18)")};
   background: var(--bg);
   color: var(--main);
   font-family: inherit;
@@ -186,11 +186,11 @@ const TextArea = styled.textarea<{ $invalid: boolean }>`
   transition: border-color 160ms ease-out;
 
   &::placeholder {
-    color: rgba(255, 255, 255, 0.45);
+    color: var(--white-45);
   }
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.36);
+    border-color: var(--white-36);
   }
 
   &:focus-visible {
@@ -204,7 +204,7 @@ const FieldMeta = styled.div`
   justify-content: space-between;
   gap: 1.6rem;
   font-size: 1.3rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--white-60);
   font-variant-numeric: tabular-nums;
 `;
 

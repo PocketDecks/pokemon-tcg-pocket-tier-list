@@ -29,7 +29,7 @@ const SignInButton = styled.button`
   font-weight: 500;
   padding: 0.8rem 1.6rem;
   border-radius: 0.8rem;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid var(--white-22);
   background: transparent;
   color: var(--main);
   cursor: pointer;
@@ -38,8 +38,8 @@ const SignInButton = styled.button`
   transition: background-color 160ms ease-out, border-color 160ms ease-out;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.36);
+    background: var(--line);
+    border-color: var(--white-36);
   }
 
   @media (max-width: 900px) {

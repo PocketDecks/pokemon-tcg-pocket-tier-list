@@ -10,6 +10,7 @@ import {
     type TooltipContentProps,
 } from "recharts";
 import type { PipelineTrendRow } from "../../types/pipeline-data";
+import { chartChrome, chartSeries } from "../../styles/theme-tokens";
 
 const ChartContainer = styled.div`
     font-size: 1.2rem;
@@ -39,7 +40,7 @@ const SeriesButton = styled.button<{ $dimmed: boolean }>`
 
     &:hover,
     &[aria-pressed="true"] {
-        background: rgba(255, 255, 255, 0.07);
+        background: var(--white-07);
     }
 
     @media (max-width: 900px) {
@@ -59,9 +60,9 @@ const TooltipCard = styled.div`
     min-width: 24rem;
     padding: 1.2rem 1.4rem;
     border-radius: 1rem;
-    background: #1d1d1b;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0.8rem 2.4rem rgba(0, 0, 0, 0.45);
+    background: var(--surface);
+    border: 1px solid var(--white-10);
+    box-shadow: 0 0.8rem 2.4rem var(--shadow-strong);
     font-size: 1.3rem;
     color: var(--main);
 `;
@@ -69,7 +70,7 @@ const TooltipCard = styled.div`
 const TooltipDate = styled.p`
     margin-bottom: 0.8rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.72);
+    color: var(--white-72);
 `;
 
 const TooltipRow = styled.div`
@@ -90,14 +91,8 @@ const ChartLoading = styled.div`
     font-weight: 500;
 `;
 
-const SERIES_COLOURS = [
-    "#3987e5",
-    "#d95926",
-    "#199e70",
-    "#c98500",
-    "#d55181",
-    "#008300",
-];
+const SERIES_COLOURS = chartSeries.dark;
+const CHART_CHROME = chartChrome.dark;
 
 interface Props {
     data: PipelineTrendRow[];
@@ -157,26 +152,26 @@ const TrendChart = ({
                         >
                             <CartesianGrid
                                 vertical={false}
-                                stroke="rgba(255, 255, 255, 0.07)"
+                                stroke={CHART_CHROME.grid}
                             />
                             <XAxis
                                 dataKey="date"
                                 axisLine={false}
                                 tickLine={false}
-                                tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
+                                tick={{ fill: CHART_CHROME.tick }}
                                 tickFormatter={formatDay}
                                 minTickGap={24}
                             />
                             <YAxis
                                 axisLine={false}
                                 tickLine={false}
-                                tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
+                                tick={{ fill: CHART_CHROME.tick }}
                                 tickFormatter={(value) => `${value}%`}
                                 width={48}
                             />
                             <Tooltip
                                 content={renderTooltip}
-                                cursor={{ stroke: "rgba(255, 255, 255, 0.24)", strokeWidth: 1 }}
+                                cursor={{ stroke: CHART_CHROME.cursor, strokeWidth: 1 }}
                             />
                             {names.map((name, index) => (
                                 <Line
@@ -188,7 +183,7 @@ const TrendChart = ({
                                     strokeWidth={activeSeries === name ? 3 : 2}
                                     strokeOpacity={activeSeries && activeSeries !== name ? 0.18 : 1}
                                     dot={false}
-                                    activeDot={{ r: 4, stroke: "#121210", strokeWidth: 2 }}
+                                    activeDot={{ r: 4, stroke: CHART_CHROME.dotRing, strokeWidth: 2 }}
                                     isAnimationActive={false}
                                 />
                             ))}

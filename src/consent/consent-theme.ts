@@ -1,20 +1,17 @@
 import type { UIOptions } from "@c15t/ui/theme";
+import { themeTokens } from "../styles/theme-tokens";
 
-// The site sets a 10px root font size, so c15t's rem-based defaults (base
-// 1rem) render at ~10px and look cramped. These tokens restyle the banner to
-// the app's own scale and dark palette. Values are rem against the 10px root,
-// matching the rest of the UI.
 const dark = {
-  primary: "#FFBF7E",
-  primaryHover: "#FFDF80",
-  surface: "#1A1A17",
-  surfaceHover: "#26241F",
-  border: "rgba(255, 255, 255, 0.12)",
-  borderHover: "rgba(255, 255, 255, 0.22)",
-  text: "#FFFFFF",
-  textMuted: "rgba(255, 255, 255, 0.66)",
-  textOnPrimary: "#1A1A17",
-  overlay: "rgba(0, 0, 0, 0.6)",
+  primary: themeTokens.dark.a,
+  primaryHover: themeTokens.dark.b,
+  surface: themeTokens.dark.bg,
+  surfaceHover: themeTokens.dark["consent-surface-hover"],
+  border: themeTokens.dark["line-strong"],
+  borderHover: themeTokens.dark["white-22"],
+  text: themeTokens.dark.text,
+  textMuted: themeTokens.dark["white-66"],
+  textOnPrimary: themeTokens.dark["on-accent"],
+  overlay: themeTokens.dark.overlay,
 };
 
 export const consentTheme: UIOptions = {
@@ -50,11 +47,11 @@ export const consentTheme: UIOptions = {
     slots: {
       consentBannerCard: {
         style: {
-          background: "rgba(26, 26, 23, 0.72)",
+          background: themeTokens.dark["consent-card"],
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
-          border: "1px solid rgba(255, 255, 255, 0.12)",
-          boxShadow: "0 0.8rem 4rem rgba(0, 0, 0, 0.45)",
+          border: `1px solid ${themeTokens.dark["consent-card-border"]}`,
+          boxShadow: `0 0.8rem 4rem ${themeTokens.dark["consent-shadow"]}`,
         },
       },
       consentBannerFooter: {

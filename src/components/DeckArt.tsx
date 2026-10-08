@@ -11,7 +11,7 @@ const ArtFrame = styled.span<{ $size: number }>`
     height: ${(props) => props.$size}rem;
     border-radius: 0.6rem;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--fill-hover);
 `;
 
 const Art = styled.img`

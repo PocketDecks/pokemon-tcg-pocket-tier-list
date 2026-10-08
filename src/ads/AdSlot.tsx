@@ -27,16 +27,16 @@ const DevPlaceholder = styled.div<{ $minHeight: number }>`
   justify-content: center;
   align-items: center;
   gap: 0.4rem;
-  border: 1px dashed rgba(255, 255, 255, 0.35);
+  border: 1px dashed var(--white-35);
   border-radius: 0.8rem;
   background: repeating-linear-gradient(
     45deg,
-    rgba(255, 255, 255, 0.03),
-    rgba(255, 255, 255, 0.03) 10px,
-    rgba(255, 255, 255, 0.06) 10px,
-    rgba(255, 255, 255, 0.06) 20px
+    var(--white-03),
+    var(--white-03) 10px,
+    var(--fill-hover) 10px,
+    var(--fill-hover) 20px
   );
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--white-55);
   font-size: 1.2rem;
   font-weight: 500;
   letter-spacing: 0.05em;

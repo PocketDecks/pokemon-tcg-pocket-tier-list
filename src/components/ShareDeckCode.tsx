@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { QRCodeCanvas } from "qrcode.react";
 import { deckSlug } from "../app/deck-slug";
 import logo from "../assets/logo.webp";
+import { themeTokens } from "../styles/theme-tokens";
 
 const Wrapper = styled.section`
   display: flex;
@@ -22,7 +23,7 @@ const Title = styled.h3`
 
 const QRTile = styled.div`
   padding: 1.2rem;
-  background: #ffffff;
+  background: var(--text);
   border-radius: 0.8rem;
   line-height: 0;
 `;
@@ -37,7 +38,7 @@ const RawCode = styled.code`
   margin: 0 auto;
   padding: 1rem;
   border-radius: 0.8rem;
-  background: var(--card, rgba(255, 255, 255, 0.08));
+  background: var(--card, var(--fill-hover));
   user-select: all;
   cursor: pointer;
 
@@ -137,8 +138,8 @@ const ShareDeckCode = ({ deckName, code, energyCount }: ShareDeckCodeProps) => {
           size={220}
           level="H"
           marginSize={4}
-          bgColor="#ffffff"
-          fgColor="#111111"
+          bgColor={themeTokens.dark["qr-background"]}
+          fgColor={themeTokens.dark["qr-foreground"]}
           title={`${deckName} ${t("deckPage.shareQrTitle", "share QR")}`}
           imageSettings={{
             src: logo,

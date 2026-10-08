@@ -300,6 +300,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
   const { cardsPayload, cardsMapping, isLoading: cardsLoading } = useCardsData();
 
   const { data: decksData, isLoading: decksLoading, error: decksError } = useDecksData();
+  const { data: metaShare } = useMetaShareData();
 
   const scoreBaseline = useMemo(
     () => (decksData ? getScoreBaseline(decksData.decks) : null),
@@ -307,12 +308,12 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   const metaShareBySlug = useMemo(() => {
-    const share: PipelineMetaShare | null | undefined = decksData?.metaShare;
+    const share: PipelineMetaShare | null | undefined = metaShare;
     if (!share) return null;
     return Object.fromEntries(
       share.decks.map((d) => [d.name, d])
     ) as Record<string, MetaShareEntry>;
-  }, [decksData]);
+  }, [metaShare]);
 
   const latestExpansionId = useMemo(() => {
     return expansions && expansions.length > 0
@@ -356,7 +357,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
     () => ({
       decks,
       scoreBaseline,
-      metaShare: decksData?.metaShare ?? null,
+      metaShare: metaShare ?? null,
       metaShareBySlug,
       loading: cardsLoading || decksLoading,
       error: decksError ?? null,
@@ -364,7 +365,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
     [
       decks,
       scoreBaseline,
-      decksData,
+      metaShare,
       metaShareBySlug,
       cardsLoading,
       decksLoading,
@@ -412,21 +413,25 @@ const useCardsData = () => {
 };
 
 const fetchDeckData = async () => {
-  const [decksResponse, metaShare] = await Promise.all([
-    fetch("/data/best-decks.json"),
-    loadMetaShare(),
-  ]);
+  const decksResponse = await fetch("/data/best-decks.json");
   if (!decksResponse.ok) {
     throw new Error(`Failed to fetch best-decks.json: ${decksResponse.status} ${decksResponse.statusText}`);
   }
   const decks = (await decksResponse.json()) as PartialDeckType[];
-  return { decks, metaShare };
+  return { decks };
 };
 
 const useDecksData = () => {
   return useQuery({
     queryKey: ["decks"],
     queryFn: fetchDeckData,
+  });
+};
+
+const useMetaShareData = () => {
+  return useQuery({
+    queryKey: ["meta-share"],
+    queryFn: loadMetaShare,
   });
 };
 

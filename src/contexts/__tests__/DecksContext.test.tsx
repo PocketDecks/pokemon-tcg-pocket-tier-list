@@ -277,6 +277,25 @@ describe("DecksProvider critical-path requests", () => {
       releaseMetaShare();
       expect(await screen.findByText(GOOD_DECK)).toBeInTheDocument();
     });
+
+    it("renders decks while the optional meta-share request is unresolved", async () => {
+      let releaseBestDecks!: () => void;
+      vi.spyOn(global, "fetch").mockImplementation((input) => {
+        const url = String(input);
+        if (url.endsWith("best-decks.json")) {
+          return new Promise((resolveResponse) => {
+            releaseBestDecks = () => resolveResponse(jsonResponse(decks));
+          });
+        }
+        if (url.endsWith("meta-share.json")) return new Promise(() => {});
+        return jsonResponse(rawCards);
+      });
+
+      renderProvider();
+      releaseBestDecks();
+
+      expect(await screen.findByText(GOOD_DECK)).toBeInTheDocument();
+    });
     });
 
 

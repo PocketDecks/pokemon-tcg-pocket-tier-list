@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { buildTiers } from "../app/tier-helper";
+import { buildTiers, TIER_COUNT } from "../app/tier-helper";
 import React, { type ReactNode } from "react";
 
 const Page = styled.div`
@@ -46,7 +46,7 @@ const TierRow = styled.div`
   @media (min-width: 901px) {
     position: relative;
     container-type: size;
-    max-height: calc((100dvh - var(--ad-anchor-h, 0px)) / 6);
+    max-height: calc((100dvh - var(--ad-anchor-h, 0px)) / ${TIER_COUNT});
 
     &::after {
       content: "";

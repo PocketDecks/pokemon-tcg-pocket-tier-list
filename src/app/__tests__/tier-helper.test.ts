@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildTiers } from "../tier-helper";
+import { buildTiers, TIER_COUNT } from "../tier-helper";
 
 const score = (item: { score: number }) => item.score;
 const items = (...scores: number[]) => scores.map((s) => ({ score: s }));
@@ -24,6 +24,11 @@ describe("buildTiers", () => {
       "D",
       "F",
     ]);
+  });
+
+  it("builds one tier per TIER_COUNT, which the grid uses to size its rows", () => {
+    expect(TIER_COUNT).toBe(6);
+    expect(buildTiers(items(1, 2, 3), score)).toHaveLength(TIER_COUNT);
   });
 
   it("places every item in exactly one tier", () => {

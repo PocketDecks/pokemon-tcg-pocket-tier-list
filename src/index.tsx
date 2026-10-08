@@ -1,7 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
-import reportWebVitals from "./reportWebVitals";
 import GlobalStyles from "./styles/GlobalStyles";
 import { BrowserRouter } from "react-router";
 import MissingContextProvider from "./components/MissingContext";
@@ -51,5 +50,3 @@ const app = (
 // full client re-render, so rendering fresh replaces the static markup cleanly
 // in every language, while the served HTML keeps its SEO and AdSense value.
 createRoot(appMount.mount).render(app);
-
-reportWebVitals();

@@ -12,7 +12,7 @@ const puppeteer = require("puppeteer");
 const { stampHead } = require("./meta-stamp");
 
 const ROOT = path.join(__dirname, "..");
-// BUILD_DIR lets this run against CRA's build/ before the Vite cutover.
+// BUILD_DIR allows an alternative Vite output directory for this script.
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
   : path.join(ROOT, "dist");

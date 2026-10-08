@@ -1,8 +1,8 @@
 // scripts/generate-sitemap.js
 //
 // Regenerates public/sitemap.xml from the current deck list plus the site's
-// static routes. Run as a prebuild step so CRA copies the fresh file into
-// build/ automatically — Firebase Hosting serves static files under public/
+// static routes. Run as a prebuild step so Vite copies the fresh file into
+// dist/ automatically. Firebase Hosting serves static files under public/
 // ahead of the SPA rewrite rule (firebase.json's "**" -> /index.html), so
 // this is reachable at /sitemap.xml with no hosting config change.
 const fs = require("fs");

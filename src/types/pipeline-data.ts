@@ -6,10 +6,8 @@
 // why this exists. A hand-maintained duplicate of these shapes drifted out
 // of step once before, and PR2 fixed the card schema as a result.
 //
-// Lives inside src/ (not a top-level shared/ folder) because CRA's webpack
-// build will not bundle imports from outside src/. The frontend has to be
-// able to import this file without a build config change, so analysis/'s
-// tsconfig is widened instead. It has no equivalent restriction.
+// Lives inside src/ so the frontend can import it directly. The analysis
+// tsconfig includes this shared type module.
 
 /** One card entry as written into a Deck's `cards` array, before normalisation. */
 export interface PipelineCard {

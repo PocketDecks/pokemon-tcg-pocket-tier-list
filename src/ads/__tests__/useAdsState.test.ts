@@ -15,8 +15,16 @@ vi.mock("../../app/use-is-premium", () => ({
   default: () => false,
 }));
 
+const environment = { appVisible: true, prerender: false };
+
 vi.mock("../../app/use-app-visible", () => ({
-  useAppVisible: () => true,
+  useAppVisible: () => environment.appVisible,
+}));
+
+vi.mock("../../app/prerender", () => ({
+  get isPrerender() {
+    return environment.prerender;
+  },
 }));
 
 const readiness = { ready: true };
@@ -34,6 +42,8 @@ beforeEach(() => {
   consent.has = () => false;
   consent.policyCategories = null;
   readiness.ready = true;
+  environment.appVisible = true;
+  environment.prerender = false;
 });
 
 describe("useAdsState marketing consent", () => {
@@ -74,5 +84,23 @@ describe("useAdsState marketing consent", () => {
     const { result } = renderHook(() => useAdsState());
 
     expect(result.current).toEqual({ resolved: true, showAds: true, useReal: true, reserved: true });
+  });
+
+  it("reserves nothing until the app swap makes it visible", () => {
+    consent.policyCategories = ["necessary", "measurement"];
+    environment.appVisible = false;
+
+    const { result } = renderHook(() => useAdsState());
+
+    expect(result.current).toEqual({ resolved: true, showAds: false, useReal: false, reserved: false });
+  });
+
+  it("shows and reserves nothing while the build prerenders the page", () => {
+    consent.policyCategories = ["necessary", "measurement"];
+    environment.prerender = true;
+
+    const { result } = renderHook(() => useAdsState());
+
+    expect(result.current).toEqual({ resolved: true, showAds: false, useReal: false, reserved: false });
   });
 });

@@ -46,6 +46,7 @@ const TierRow = styled.div`
   @media (min-width: 901px) {
     position: relative;
     container-type: size;
+    max-height: calc((100dvh - var(--ad-anchor-h, 0px)) / 6);
 
     &::after {
       content: "";

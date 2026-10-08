@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert");
-const { captureAfterRouteReady, resetPrerenderTheme, ROUTES, ROUTE_META, ROUTE_READY_ROUTES } = require("../prerender-routes");
+const { captureAfterRouteReady, resetPrerenderAppState, resetPrerenderTheme, ROUTES, ROUTE_META, ROUTE_READY_ROUTES } = require("../prerender-routes");
 
 test("every route has unique title and description, plus self canonical", () => {
   const titles = new Set();
@@ -51,6 +51,20 @@ test("removes runtime theme state before prerender capture", () => {
   assert.strictEqual(document.documentElement.dataset.theme, undefined);
   assert.strictEqual(document.documentElement.style.colorScheme, "");
   assert.strictEqual(document.querySelector().getAttribute("content"), "#121210");
+  delete global.document;
+});
+test("strips the live app state from the captured document", () => {
+  const removed = [];
+  global.document = {
+    documentElement: {
+      removeAttribute: (name) => removed.push(name),
+      style: { removeProperty: (name) => removed.push(name) },
+    },
+  };
+
+  resetPrerenderAppState();
+
+  assert.deepStrictEqual(removed, ["data-app-visible", "--ad-anchor-h", "--consent-banner-h"]);
   delete global.document;
 });
 test("captures data-backed routes after their pathname is ready", async () => {

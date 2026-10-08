@@ -141,6 +141,13 @@ const resetPrerenderTheme = (originalThemeColor) => {
   );
 };
 
+const resetPrerenderAppState = () => {
+  const root = document.documentElement;
+  root.removeAttribute("data-app-visible");
+  root.style.removeProperty("--ad-anchor-h");
+  root.style.removeProperty("--consent-banner-h");
+};
+
 const main = async () => {
   const indexPath = path.join(DIST_DIR, "index.html");
   if (!fs.existsSync(indexPath)) {
@@ -218,6 +225,7 @@ const main = async () => {
         templateScripts
       );
       await page.evaluate(resetPrerenderTheme, templateThemeColor);
+      await page.evaluate(resetPrerenderAppState);
       return page.evaluate(
         () => `<!doctype html>\n${document.documentElement.outerHTML}`
       );
@@ -250,4 +258,4 @@ const main = async () => {
 
 if (require.main === module) main();
 
-module.exports = { captureAfterRouteReady, resetPrerenderTheme, ROUTE_READY_ROUTES, ROUTE_META, ROUTES };
+module.exports = { captureAfterRouteReady, resetPrerenderAppState, resetPrerenderTheme, ROUTE_READY_ROUTES, ROUTE_META, ROUTES };

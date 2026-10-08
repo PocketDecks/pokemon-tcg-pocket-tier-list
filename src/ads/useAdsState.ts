@@ -1,4 +1,5 @@
 import { useConsentManager } from "@c15t/react";
+import { isPrerender } from "../app/prerender";
 import useIsPremium from "../app/use-is-premium";
 import { ADS_ENABLED, IS_DEV } from "./adsConfig";
 import { useAppVisible } from "../app/use-app-visible";
@@ -39,9 +40,9 @@ const useAdsState = (): AdsState => {
   // Only show ads once the current page has rendered real content, so ads never
   // appear on loading, error, or content-less screens (AdSense policy).
   const showAds =
-    ADS_ENABLED && appVisible && isFree && contentReady && (IS_DEV || marketingConsent);
+    ADS_ENABLED && !isPrerender && appVisible && isFree && contentReady && (IS_DEV || marketingConsent);
   const useReal = showAds && !IS_DEV;
-  const reserved = ADS_ENABLED && isPremium !== true && (IS_DEV || marketingConsent);
+  const reserved = ADS_ENABLED && !isPrerender && appVisible && isPremium !== true && (IS_DEV || marketingConsent);
 
   return { resolved, showAds, useReal, reserved };
 };

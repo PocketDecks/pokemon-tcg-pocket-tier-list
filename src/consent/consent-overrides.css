@@ -1,9 +1,3 @@
-/*
- * Keep this file to what tokens and slots genuinely cannot express: the solid
- * accept action, the switch's own custom properties and the body of an
- * expanded category.
- */
-
 [data-testid="consent-banner-accept-button"],
 [data-testid="consent-widget-footer-accept-button"] {
   --button-primary: var(--f);

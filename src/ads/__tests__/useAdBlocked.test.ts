@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, renderHook, waitFor } from "@testing-library/react";
-import useAdBlocked from "../useAdBlocked";
 import { ADSENSE_SCRIPT_URL } from "../adsConfig";
+
+type UseAdBlocked = (enabled: boolean) => boolean;
 
 const settle = () =>
   act(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
@@ -14,8 +15,11 @@ const hangUntilAborted = (_url: string, init?: RequestInit) =>
   });
 
 let fetchMock: ReturnType<typeof vi.fn>;
+let useAdBlocked: UseAdBlocked;
 
-beforeEach(() => {
+beforeEach(async () => {
+  vi.resetModules();
+  ({ default: useAdBlocked } = await import("../useAdBlocked"));
   fetchMock = vi.fn().mockResolvedValue({ type: "opaque" });
   vi.stubGlobal("fetch", fetchMock);
 });
@@ -72,7 +76,7 @@ describe("useAdBlocked", () => {
     expect(result.current).toBe(false);
   });
 
-  it("reports blocked when the request times out after 2500 ms", async () => {
+  it("reports not blocked when the request times out, even though the abort later rejects it", async () => {
     vi.useFakeTimers();
     fetchMock.mockImplementation(hangUntilAborted);
     const { result } = renderHook(() => useAdBlocked(true));
@@ -81,6 +85,31 @@ describe("useAdBlocked", () => {
     expect(result.current).toBe(false);
 
     await act(() => vi.advanceTimersByTimeAsync(1));
-    expect(result.current).toBe(true);
+    await act(() => vi.advanceTimersByTimeAsync(100));
+    expect(result.current).toBe(false);
+  });
+
+  it("probes once per page load across remounts", async () => {
+    const first = renderHook(() => useAdBlocked(true));
+    await settle();
+    first.unmount();
+
+    renderHook(() => useAdBlocked(true));
+    await settle();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("probes once per page load when enabled flips back on", async () => {
+    const { rerender } = renderHook(({ enabled }) => useAdBlocked(enabled), {
+      initialProps: { enabled: true },
+    });
+    await settle();
+
+    rerender({ enabled: false });
+    rerender({ enabled: true });
+    await settle();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

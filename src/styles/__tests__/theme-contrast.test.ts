@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { themeTokens, type ThemeName } from "../theme-tokens";
+import { chartChrome, themeTokens, type ThemeName } from "../theme-tokens";
 
 type Rgb = [number, number, number];
 
@@ -68,6 +68,13 @@ describe("theme contrast", () => {
     const theme = themeTokens[themeName];
     for (const background of [theme.bg, theme.surface]) {
       expect(contrast(theme.link, background)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("keeps the light chart tick readable on the page and the tooltip card", () => {
+    const theme = themeTokens.light;
+    for (const background of ["#FFFFFF", theme.bg, theme.surface]) {
+      expect(contrast(chartChrome.light.tick, background)).toBeGreaterThanOrEqual(4.5);
     }
   });
 

@@ -12,6 +12,7 @@ import {
 import { policyPacks } from "../policy-packs";
 import { timeZoneCountries } from "../time-zone-countries";
 import { resolveVisitorRegion } from "../visitor-region";
+import { rows } from "./region-matrix";
 
 interface Visitor {
   cookie?: string;
@@ -166,6 +167,12 @@ describe("consent pending head script", () => {
       runScript(script, { timeZone: "Europe/Berlin", cookie: "theme=dark; c15t=i.t:1" })
     ).toBe(false);
     expect(runScript(script, { timeZone: "Europe/Berlin", cookie: "xc15t=1" })).toBe(true);
+  });
+
+  it.each(rows)("agrees with the provider banner for $name", async (row) => {
+    await prepare();
+
+    expect(runScript(script, { cookie: row.cookie, timeZone: row.timeZone })).toBe(row.banner);
   });
 
   it("keeps a country whose policy shows no banner off the banner", async () => {

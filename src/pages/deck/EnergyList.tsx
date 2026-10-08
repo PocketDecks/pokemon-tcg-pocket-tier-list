@@ -39,6 +39,8 @@ const Icon = styled.img`
   width: 2.2rem;
   height: 2.2rem;
   object-fit: contain;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1.5px var(--energy-ring);
 `;
 
 const EnergyList = ({ energyIds }: { energyIds: number[] }) => {

@@ -105,7 +105,9 @@ const loadDecks = (dataDir = DATA_DIR) => {
   try {
     return JSON.parse(fs.readFileSync(decksPath, "utf8"));
   } catch (error) {
-    throw new Error(`Unable to load deck data from ${decksPath}: ${error.message}`);
+    throw new Error(`Unable to load deck data from ${decksPath}: ${error.message}`, {
+      cause: error,
+    });
   }
 };
 

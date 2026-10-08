@@ -38,7 +38,6 @@ export const pushAd = (): void => {
   try {
     (window.adsbygoogle = window.adsbygoogle || []).push({});
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error("AdSense error:", err);
   }
 };

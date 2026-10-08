@@ -4,7 +4,7 @@ import { pathToFileURL } from "url";
 import { randomUUID } from "crypto";
 import sharp from "sharp";
 import { deckNameToIconIds } from "./deck-name.mjs";
-import { cardIdFromImage, DECK_THUMB_CROP, DECK_THUMB_QUALITY, DECK_THUMB_SIZES, DECK_THUMB_VERSION } from "./deck-thumbs.mjs";
+import { DECK_THUMB_CROP, DECK_THUMB_QUALITY, DECK_THUMB_SIZES, DECK_THUMB_VERSION } from "./deck-thumbs.mjs";
 
 const ATTEMPTS = 3;
 

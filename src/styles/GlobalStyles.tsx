@@ -23,6 +23,7 @@ const GlobalStyle = createGlobalStyle`
         --focus: #FFDF80;
         /* Bottom space reserved for the sticky ad anchor (0 when no ads). */
         --ad-anchor-h: 0px;
+        --consent-banner-h: 0px;
     }
 
     html {
@@ -31,7 +32,7 @@ const GlobalStyle = createGlobalStyle`
     }
 
     body {
-        padding-bottom: var(--ad-anchor-h, 0px);
+        padding-bottom: calc(var(--ad-anchor-h, 0px) + var(--consent-banner-h, 0px));
         background-color: var(--bg);
     }
 

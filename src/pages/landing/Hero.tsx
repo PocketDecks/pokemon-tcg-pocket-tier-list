@@ -19,7 +19,7 @@ const StyledHero = styled.div`
   padding: 4rem;
 
   @media (max-width: 900px) {
-    padding: 2.4rem 2rem;
+    padding: max(0px, calc(2.4rem - var(--consent-banner-h, 0px))) 2rem 2.4rem;
     min-height: 0;
   }
 `;

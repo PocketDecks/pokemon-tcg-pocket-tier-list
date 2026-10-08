@@ -58,7 +58,7 @@ export const consentTheme: UIOptions = {
     // Every action defaults to `stroke`, which paints an opaque `surface` fill
     // and an inset 1px ring in `surfaceHover`. The ring is a hard opaque
     // outline inside each button, which is the last thing a glass panel wants.
-    // `filled` and `ghost` declare no ring at all, so the accept gradient and
+    // `filled` and `ghost` declare no ring at all, so the accept fill and
     // the ghost borders are the only edges drawn, and c15t's :focus-visible
     // ring is free to show through.
     consentActions: {
@@ -78,6 +78,7 @@ export const consentTheme: UIOptions = {
       consentBannerCard: {
         style: {
           ...neutralButtonVariables,
+          outline: "none",
           padding: "2.4rem",
           background: "rgba(26, 26, 23, 0.72)",
           backdropFilter: "blur(16px)",

@@ -1,43 +1,14 @@
 /*
- * Keep this file to what tokens and slots genuinely cannot express — a
- * pseudo-element gradient, the switch's own custom properties and the body of
- * an expanded category. Colour, fill and button treatment belong in
+ * Keep this file to what tokens and slots genuinely cannot express — the
+ * solid accept action, the switch's own custom properties and the body of an
+ * expanded category. Colour, fill and button treatment belong in
  * consent-theme.ts.
  */
 
-@keyframes c15t-accent-drift {
-  0% { transform: translateX(0); }
-  50% { transform: translateX(-66.667%); }
-  100% { transform: translateX(0); }
-}
-
 [data-testid="consent-banner-accept-button"],
 [data-testid="consent-widget-footer-accept-button"] {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-}
-
-[data-testid="consent-banner-accept-button"]::before,
-[data-testid="consent-widget-footer-accept-button"]::before {
-  content: "";
-  position: absolute;
-  top: -100%;
-  left: 0;
-  width: 300%;
-  height: 300%;
-  z-index: -1;
-  background: linear-gradient(
-    45deg,
-    var(--s),
-    var(--a),
-    var(--b),
-    var(--c),
-    var(--d),
-    var(--f),
-    var(--s)
-  );
-  animation: c15t-accent-drift 8s ease infinite;
+  --button-primary: #7FFF7F;
+  --button-primary-hover: #7FFF7F;
 }
 
 [data-slot="preference-item-content-viewport"] {

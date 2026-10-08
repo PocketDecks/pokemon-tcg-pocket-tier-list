@@ -16,6 +16,7 @@ import { GOOGLE_GTAG } from "../app/constants";
 import { consentTheme } from "./consent-theme";
 import { toConsentLanguage } from "./consent-language";
 import { consentMessages } from "./consent-messages";
+import { useConsentBannerHeight } from "./consent-banner-height";
 import { resolveVisitorRegion, type VisitorRegion } from "./visitor-region";
 import { EUROPE_OPT_IN_EXTRA_COUNTRIES } from "./policy-countries.mjs";
 
@@ -100,6 +101,8 @@ const ConsentProvider = ({ children }: { children: ReactNode }) => {
     }),
     [i18n.language]
   );
+
+  useConsentBannerHeight(appVisible && !isPrerender);
 
   return (
     <ConsentManagerProvider options={options}>

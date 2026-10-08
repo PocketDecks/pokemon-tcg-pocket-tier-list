@@ -6,6 +6,7 @@ import { baseTranslations } from "@c15t/translations/all";
 import { createInstance, type i18n as I18nInstance } from "i18next";
 import { I18nextProvider } from "react-i18next";
 import type { ReactNode } from "react";
+import { consentTheme } from "../consent-theme";
 
 vi.mock("@c15t/scripts/google-tag", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@c15t/scripts/google-tag")>();
@@ -117,6 +118,21 @@ describe("ConsentProvider presentation", () => {
     );
     expect(banner).toHaveTextContent("analyse site traffic");
     expect(banner).toHaveTextContent("personalised content");
+  });
+
+  it("portals the fixed banner outside the app content", async () => {
+    await renderWithLanguage("en", null);
+
+    const banner = await screen.findByTestId("consent-banner-root");
+    expect(banner.parentElement).toBe(document.body);
+    expect(document.querySelector('[data-testid="consent-banner-root"]')).not.toBeNull();
+  });
+
+  it("uses a filled accept action", () => {
+    expect(consentTheme.theme?.consentActions?.accept).toEqual({
+      variant: "primary",
+      mode: "filled",
+    });
   });
 
   it.each([

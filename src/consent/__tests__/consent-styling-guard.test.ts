@@ -30,6 +30,27 @@ describe("consent styling guard", () => {
     expect(offenders).toEqual([]);
   });
 
+  it("paints the accept action with the solid F green and no gradient", () => {
+    const overrides = sources.find(({ file }) => file.endsWith("consent-overrides.css"));
+    expect(overrides?.text).toContain("#7FFF7F");
+    expect(overrides?.text).not.toContain("linear-gradient");
+    expect(overrides?.text).not.toContain("c15t-accent-drift");
+
+    const theme = sources.find(({ file }) => file.endsWith("consent-theme.ts"));
+    expect(theme?.text).not.toContain("linear-gradient");
+    expect(theme?.text).toContain('outline: "none"');
+  });
+
+  it("reserves the banner height through a measured CSS variable", () => {
+    const height = sources.find(({ file }) => file.endsWith("consent-banner-height.ts"));
+    expect(height?.text).toContain('"--consent-banner-h"');
+    expect(height?.text).toContain("ResizeObserver");
+
+    const global = readFileSync(resolve(consentDir, "../styles/GlobalStyles.tsx"), "utf8");
+    expect(global).toContain("--consent-banner-h");
+    expect(global).toContain("calc(var(--ad-anchor-h, 0px) + var(--consent-banner-h, 0px))");
+  });
+
   it("imports the layer order before c15t's stylesheet", () => {
     const provider = readFileSync(resolve(consentDir, "ConsentProvider.tsx"), "utf8");
     const layers = provider.indexOf('import "../styles/layers.css";');

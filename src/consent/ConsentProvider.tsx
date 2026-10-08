@@ -1,4 +1,5 @@
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ConsentBanner,
   ConsentDialog,
@@ -8,10 +9,13 @@ import {
 import { gtag } from "@c15t/scripts/google-tag";
 import { policyPackPresets, type PolicyConfig } from "c15t";
 import { useAppVisible } from "../app/use-app-visible";
+import "../styles/layers.css";
 import "@c15t/react/styles.css";
 import "./consent-overrides.css";
 import { GOOGLE_GTAG } from "../app/constants";
 import { consentTheme } from "./consent-theme";
+import { toConsentLanguage } from "./consent-language";
+import { consentMessages } from "./consent-messages";
 import { resolveVisitorRegion, type VisitorRegion } from "./visitor-region";
 import { EUROPE_OPT_IN_EXTRA_COUNTRIES } from "./policy-countries.mjs";
 
@@ -81,23 +85,39 @@ const consentOptions: ConsentManagerOptions = {
   mode: "offline",
   offlinePolicy: { policyPacks },
   scripts,
+  legalLinks: { privacyPolicy: { href: "/privacy/", target: "_self" } },
+  i18n: { locale: "en", messages: consentMessages },
   ...consentTheme,
-  ...(visitorRegion ? { overrides: visitorRegion } : {}),
 };
 
 const ConsentProvider = ({ children }: { children: ReactNode }) => {
   const appVisible = useAppVisible();
+  const { i18n } = useTranslation();
+  const options = useMemo<ConsentManagerOptions>(
+    () => ({
+      ...consentOptions,
+      overrides: { ...visitorRegion, language: toConsentLanguage(i18n.language) },
+    }),
+    [i18n.language]
+  );
 
   return (
-    <ConsentManagerProvider options={consentOptions}>
+    <ConsentManagerProvider options={options}>
       {children}
       {appVisible && !isPrerender ? (
         <>
-          <ConsentBanner hideBranding={!import.meta.env.DEV} />
+          <ConsentBanner
+            hideBranding={!import.meta.env.DEV}
+            legalLinks={["privacyPolicy"]}
+          />
           {/* "Customize" only flips the store's activeUI to "dialog", which
               hides the banner. Without this mounted the banner simply
               disappears and the visitor has no way back to the categories. */}
-          <ConsentDialog />
+          <ConsentDialog
+            hideBranding={!import.meta.env.DEV}
+            legalLinks={["privacyPolicy"]}
+            models={["opt-in", "opt-out", null]}
+          />
         </>
       ) : null}
     </ConsentManagerProvider>

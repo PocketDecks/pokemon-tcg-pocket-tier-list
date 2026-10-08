@@ -17,6 +17,21 @@ const dark = {
   overlay: "rgba(0, 0, 0, 0.6)",
 };
 
+const actionButton = {
+  fontSize: "var(--c15t-font-size-base)",
+  fontWeight: 500,
+  minHeight: "4.2rem",
+  borderRadius: "1rem",
+  whiteSpace: "nowrap",
+};
+
+const legalLinkVariables = {
+  "--legal-links-color": "var(--c15t-primary)",
+  "--legal-links-focus-color-dark": "var(--c15t-primary)",
+  "--legal-links-font-size": "var(--c15t-font-size-sm)",
+  "--legal-links-text-decoration": "underline",
+};
+
 export const consentTheme: UIOptions = {
   colorScheme: "dark",
   theme: {
@@ -36,18 +51,37 @@ export const consentTheme: UIOptions = {
     },
     radius: { sm: "0.8rem", md: "1.2rem", lg: "1.6rem", full: "9999px" },
     // Every action defaults to `stroke`, which paints an opaque `surface` fill
-    // and an inset 1px ring in `surfaceHover`. The fill is already flattened by
-    // the app's global `button { background: none }` reset, but the ring is
-    // not — it survives as a hard opaque outline inside each button, which is
-    // the last thing a glass panel wants. `filled` and `ghost` declare no ring
-    // at all, so the accept gradient and the ghost borders below are the only
-    // edges drawn, and c15t's :focus-visible ring is free to show through.
+    // and an inset 1px ring in `surfaceHover`. The ring is a hard opaque
+    // outline inside each button, which is the last thing a glass panel wants.
+    // `filled` and `ghost` declare no ring at all, so the accept gradient and
+    // the ghost borders are the only edges drawn, and c15t's :focus-visible
+    // ring is free to show through.
     consentActions: {
       accept: { variant: "primary", mode: "filled" },
       reject: { variant: "neutral", mode: "ghost" },
       customize: { variant: "neutral", mode: "ghost" },
     },
     slots: {
+      // The banner is position:fixed;bottom:0, which ignores the body's
+      // padding-bottom that reserves space for the sticky AdAnchor bar. Offset it by
+      // the same --ad-anchor-h so its buttons never sit under the ad bar on mobile
+      // (where both occupy the bottom strip). The banner is portaled to <body> while
+      // the AdAnchor lives inside #root, so a modest z-index on the banner can still
+      // lose a stacking-context comparison against the anchor; pin it to the maximum
+      // so it unambiguously wins regardless of context. Do NOT downgrade c15t's own
+      // banner z-index (it ships 999999998) — that only weakens the stack.
+      //
+      // Set on the banner's own root only: the dialog and the widget switches share
+      // the c15t root class prefix, and the dialog overlay is a full-viewport
+      // inset:0 layer that must not be lifted off the bottom edge.
+      consentBanner: {
+        style: {
+          bottom: "var(--ad-anchor-h, 0px)",
+          zIndex: 2147483647,
+          "--consent-banner-max-width": "54rem",
+          ...legalLinkVariables,
+        },
+      },
       consentBannerCard: {
         style: {
           background: "rgba(26, 26, 23, 0.72)",
@@ -63,10 +97,47 @@ export const consentTheme: UIOptions = {
           // sits on the blurred card and reads as a hard-edged rectangle
           // around the button row. The glass is the background here.
           background: "transparent",
-          // c15t's own footer padding lives in @layer components and loses the
-          // cascade to the app's unlayered `* { padding: 0 }` reset, which is
-          // why the row otherwise butts straight against the description.
-          paddingTop: "1.6rem",
+          gap: "1rem",
+        },
+      },
+      consentBannerTitle: {
+        style: {
+          fontSize: "var(--c15t-font-size-lg)",
+          fontWeight: 600,
+        },
+      },
+      consentBannerDescription: {
+        style: {
+          fontSize: "var(--c15t-font-size-base)",
+          lineHeight: 1.55,
+        },
+      },
+      consentDialogCard: {
+        style: {
+          "--consent-dialog-max-width": "44rem",
+          ...legalLinkVariables,
+        },
+      },
+      consentDialogTitle: {
+        style: {
+          fontSize: "var(--c15t-font-size-lg)",
+          fontWeight: 600,
+        },
+      },
+      consentWidget: {
+        style: {
+          "--consent-widget-accordion-stack-gap": "1.2rem",
+          "--consent-widget-accordion-icon-size": "2.4rem",
+          "--accordion-icon-size": "2.4rem",
+        },
+      },
+      buttonPrimary: {
+        style: actionButton,
+      },
+      buttonSecondary: {
+        style: {
+          ...actionButton,
+          border: "1px solid rgba(255, 255, 255, 0.28)",
         },
       },
     },

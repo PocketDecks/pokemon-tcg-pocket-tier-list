@@ -31,6 +31,13 @@ describe("GlobalStyles", () => {
     expect(manropeCss).toContain("font-family: 'Manrope Variable'");
   });
 
+  it("keeps the element reset in the reset cascade layer", () => {
+    const css = collectCss();
+
+    expect(css).toMatch(/@layer reset\{[^]*\*\{box-sizing:border-box/);
+    expect(css).toMatch(/@layer reset\{[^]*button\{background:none/);
+  });
+
   it("uses the same app font family in the consent banner", () => {
     const fontFamily = consentTheme.theme?.typography?.fontFamily;
 

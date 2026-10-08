@@ -26,11 +26,9 @@ const useAdsState = (): AdsState => {
   const resolved = isPremium !== null;
   const isFree = resolved && !isPremium;
 
-  // In production a slot renders only after the visitor consents to marketing,
-  // so no ad script or cookie loads beforehand. Where the active policy does not
-  // scope marketing (EEA, UK and Switzerland), c15t never asks, and Google's own
-  // CMP gates the ads instead. Development still shows the placeholder without a
-  // consent choice, so the layout can be checked.
+  // In production a slot renders only after marketing consent, unless the active
+  // policy does not ask for it. Development still shows the placeholder without
+  // a consent choice, so the layout can be checked.
   const marketingOutOfScope =
     policyCategories !== null && !policyCategories.includes("marketing");
   const marketingConsent = marketingOutOfScope || has("marketing");

@@ -27,8 +27,11 @@ export const readRegionCookie = (cookie: string): VisitorRegion | null => {
   return REGION_PATTERN.test(region) ? { country, region } : null;
 };
 
-export const regionFromTimeZone = (timeZone: string): VisitorRegion | null =>
-  Object.hasOwn(timeZoneCountries, timeZone) ? { ...timeZoneCountries[timeZone] } : null;
+export const regionFromTimeZone = (timeZone: string): VisitorRegion | null => {
+  if (!Object.hasOwn(timeZoneCountries, timeZone)) return null;
+  const [country, region] = timeZoneCountries[timeZone].split("-");
+  return region === undefined ? { country } : { country, region };
+};
 
 export const resolveVisitorRegion = ({
   cookie,

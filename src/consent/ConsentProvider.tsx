@@ -13,6 +13,7 @@ import "./consent-overrides.css";
 import { GOOGLE_GTAG } from "../app/constants";
 import { consentTheme } from "./consent-theme";
 import { resolveVisitorRegion, type VisitorRegion } from "./visitor-region";
+import { EUROPE_OPT_IN_EXTRA_COUNTRIES } from "./policy-countries.mjs";
 
 // During the postbuild route prerender, c15t portals <ConsentBanner/> to
 // document.body — outside #root. The client uses createRoot (not hydrateRoot),
@@ -51,7 +52,7 @@ const europe: PolicyConfig = {
   ...europeOptIn,
   match: {
     ...europeOptIn.match,
-    countries: [...(europeOptIn.match.countries ?? []), "CH"],
+    countries: [...(europeOptIn.match.countries ?? []), ...EUROPE_OPT_IN_EXTRA_COUNTRIES],
   },
   consent: {
     ...europeOptIn.consent,

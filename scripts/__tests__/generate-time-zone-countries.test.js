@@ -13,9 +13,10 @@ test("maps a zone claimed by one country to that country", () => {
     countries: ["JP"],
     timeZonesOf: lookup({ JP: ["Asia/Tokyo"] }),
     overrides: {},
+    aliases: [],
   });
 
-  assert.deepStrictEqual(table, { "Asia/Tokyo": { country: "JP" } });
+  assert.deepStrictEqual(table, { "Asia/Tokyo": "JP" });
 });
 
 test("keeps the first country for a shared zone when all claimants share an outcome", () => {
@@ -26,12 +27,13 @@ test("keeps the first country for a shared zone when all claimants share an outc
       FR: ["Europe/Paris", "Europe/Shared"],
     }),
     overrides: {},
+    aliases: [],
   });
 
   assert.deepStrictEqual(table, {
-    "Europe/Berlin": { country: "DE" },
-    "Europe/Paris": { country: "FR" },
-    "Europe/Shared": { country: "DE" },
+    "Europe/Berlin": "DE",
+    "Europe/Paris": "FR",
+    "Europe/Shared": "DE",
   });
 });
 
@@ -43,11 +45,12 @@ test("drops a shared zone whose claimants have different outcomes", () => {
       CA: ["America/Vancouver", "America/Shared"],
     }),
     overrides: {},
+    aliases: [],
   });
 
   assert.deepStrictEqual(table, {
-    "America/New_York": { country: "US" },
-    "America/Vancouver": { country: "CA" },
+    "America/New_York": "US",
+    "America/Vancouver": "CA",
   });
 });
 
@@ -59,10 +62,11 @@ test("treats Switzerland as part of the European opt-in outcome", () => {
       GB: ["Europe/London", "Europe/Shared"],
     }),
     overrides: {},
+    aliases: [],
   });
 
-  assert.deepStrictEqual(table["Europe/Shared"], { country: "CH" });
-  assert.deepStrictEqual(table["Europe/Zurich"], { country: "CH" });
+  assert.strictEqual(table["Europe/Shared"], "CH");
+  assert.strictEqual(table["Europe/Zurich"], "CH");
 });
 
 test("drops a zone shared between Switzerland and the rest of the world", () => {
@@ -73,6 +77,45 @@ test("drops a zone shared between Switzerland and the rest of the world", () => 
       JP: ["Europe/Shared"],
     }),
     overrides: {},
+    aliases: [],
+  });
+
+  assert.deepStrictEqual(table, {});
+});
+
+test("treats the EU outermost regions and Aland as European", () => {
+  const table = buildTimeZoneCountries({
+    countries: ["RE", "AX", "GF", "YT", "MF", "MQ", "GP"],
+    timeZonesOf: lookup({
+      RE: ["Indian/Reunion"],
+      AX: ["Europe/Mariehamn"],
+      GF: ["America/Cayenne"],
+      YT: ["Indian/Mayotte"],
+      MF: ["America/Marigot"],
+      MQ: ["America/Martinique"],
+      GP: ["America/Guadeloupe"],
+    }),
+    overrides: {},
+    aliases: [],
+  });
+
+  assert.deepStrictEqual(table, {
+    "America/Cayenne": "GF",
+    "America/Guadeloupe": "GP",
+    "America/Marigot": "MF",
+    "America/Martinique": "MQ",
+    "Europe/Mariehamn": "AX",
+    "Indian/Mayotte": "YT",
+    "Indian/Reunion": "RE",
+  });
+});
+
+test("drops a zone shared between an EU outermost region and the rest of the world", () => {
+  const table = buildTimeZoneCountries({
+    countries: ["RE", "US"],
+    timeZonesOf: lookup({ RE: ["Indian/Shared"], US: ["Indian/Shared"] }),
+    overrides: {},
+    aliases: [],
   });
 
   assert.deepStrictEqual(table, {});
@@ -82,22 +125,54 @@ test("adds the region overrides even when the lookup does not return their zones
   const table = buildTimeZoneCountries({
     countries: ["CA", "US"],
     timeZonesOf: lookup({ CA: ["America/Vancouver"], US: ["America/Denver"] }),
+    aliases: [],
   });
 
-  assert.deepStrictEqual(table["America/Montreal"], { country: "CA", region: "QC" });
-  assert.deepStrictEqual(table["America/Toronto"], { country: "CA", region: "QC" });
-  assert.deepStrictEqual(table["America/Los_Angeles"], { country: "US", region: "CA" });
-  assert.deepStrictEqual(table["America/Vancouver"], { country: "CA" });
+  assert.strictEqual(table["America/Montreal"], "CA-QC");
+  assert.strictEqual(table["America/Toronto"], "CA-QC");
+  assert.strictEqual(table["America/Los_Angeles"], "US-CA");
+  assert.strictEqual(table["America/Vancouver"], "CA");
 });
 
 test("replaces a claimed zone with its region override", () => {
   const table = buildTimeZoneCountries({
     countries: ["US"],
     timeZonesOf: lookup({ US: ["America/Los_Angeles"] }),
-    overrides: { "America/Los_Angeles": { country: "US", region: "CA" } },
+    overrides: { "America/Los_Angeles": "US-CA" },
+    aliases: [],
   });
 
-  assert.deepStrictEqual(table, { "America/Los_Angeles": { country: "US", region: "CA" } });
+  assert.deepStrictEqual(table, { "America/Los_Angeles": "US-CA" });
+});
+
+test("emits the current name for a legacy zone and the legacy name for a current one", () => {
+  const table = buildTimeZoneCountries({
+    countries: ["IN", "UA"],
+    timeZonesOf: lookup({ IN: ["Asia/Calcutta"], UA: ["Europe/Kyiv"] }),
+    overrides: {},
+    aliases: [
+      ["Asia/Calcutta", "Asia/Kolkata"],
+      ["Europe/Kiev", "Europe/Kyiv"],
+    ],
+  });
+
+  assert.deepStrictEqual(table, {
+    "Asia/Calcutta": "IN",
+    "Asia/Kolkata": "IN",
+    "Europe/Kiev": "UA",
+    "Europe/Kyiv": "UA",
+  });
+});
+
+test("does not overwrite an alias that the lookup already returned", () => {
+  const table = buildTimeZoneCountries({
+    countries: ["IN"],
+    timeZonesOf: lookup({ IN: ["Asia/Calcutta", "Asia/Kolkata"] }),
+    overrides: {},
+    aliases: [["Asia/Calcutta", "Asia/Kolkata"]],
+  });
+
+  assert.deepStrictEqual(table, { "Asia/Calcutta": "IN", "Asia/Kolkata": "IN" });
 });
 
 test("ignores countries whose lookup returns nothing", () => {
@@ -105,24 +180,25 @@ test("ignores countries whose lookup returns nothing", () => {
     countries: ["BV"],
     timeZonesOf: () => undefined,
     overrides: {},
+    aliases: [],
   });
 
   assert.deepStrictEqual(table, {});
 });
 
-test("renders a generated header and one entry per zone", () => {
+test("renders a generated header and one string entry per zone", () => {
   const source = renderTimeZoneCountries({
-    "America/Toronto": { country: "CA", region: "QC" },
-    "Asia/Tokyo": { country: "JP" },
+    "America/Toronto": "CA-QC",
+    "Asia/Tokyo": "JP",
   });
 
   assert.strictEqual(
     source,
     [
       "// Generated by scripts/generate-time-zone-countries.mjs. Do not edit.",
-      "export const timeZoneCountries: Record<string, { country: string; region?: string }> = {",
-      '  "America/Toronto": { country: "CA", region: "QC" },',
-      '  "Asia/Tokyo": { country: "JP" },',
+      "export const timeZoneCountries: Record<string, string> = {",
+      '  "America/Toronto": "CA-QC",',
+      '  "Asia/Tokyo": "JP",',
       "};",
       "",
     ].join("\n")

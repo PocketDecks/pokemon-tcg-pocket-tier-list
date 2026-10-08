@@ -85,7 +85,7 @@ const buttonBase = css<{ $isLoading: boolean; $wide: boolean }>`
   &:hover {
     transform: ${(props) => (props.$isLoading ? "none" : "scale(1.02)")};
     box-shadow: ${(props) =>
-        props.$isLoading ? "none" : "0 0 15px var(--white-30)"};
+        props.$isLoading ? "none" : "0 0.2rem 0.8rem var(--shadow)"};
   }
 
   &:disabled {

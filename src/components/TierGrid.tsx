@@ -72,7 +72,7 @@ const RowHeader = styled.div<{ $backgroundColor: string }>`
   justify-content: center;
   align-items: center;
   font-size: 3.3rem;
-  font-weight: 400;
+  font-weight: 700;
 
   @media (max-width: 900px) {
     width: 100%;

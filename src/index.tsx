@@ -6,6 +6,7 @@ import { BrowserRouter } from "react-router";
 import MissingContextProvider from "./components/MissingContext";
 import FilterContextProvider from "./components/FilterContext";
 import { UIProvider } from "./contexts/UIContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import ConsentProvider from "./consent/ConsentProvider";
 import { handlePreloadError } from "./app/preload-reload-guard";
 import {
@@ -31,10 +32,12 @@ const app = (
       <UIProvider>
         <MissingContextProvider>
           <FilterContextProvider>
-            <GlobalStyles />
-            <ConsentProvider>
-              <App />
-            </ConsentProvider>
+            <ThemeProvider>
+              <GlobalStyles />
+              <ConsentProvider>
+                <App />
+              </ConsentProvider>
+            </ThemeProvider>
           </FilterContextProvider>
         </MissingContextProvider>
       </UIProvider>

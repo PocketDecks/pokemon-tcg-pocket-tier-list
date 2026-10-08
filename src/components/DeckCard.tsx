@@ -27,7 +27,7 @@ const StyledDeckCard = styled(Link)`
   transition: box-shadow 150ms ease-out;
 
   ${Container}:hover & {
-    box-shadow: 0 0 0 2px var(--focus), 0 0 1.6rem rgba(255, 223, 128, 0.35);
+    box-shadow: 0 0 0 2px var(--focus), 0 0 1.6rem var(--accent-shadow);
   }
 
   border-radius: 1.2rem;
@@ -48,8 +48,8 @@ const SubCard = styled(Link)`
   height: 50%;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  border: solid 1px rgba(0, 0, 0, 0.7);
-  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.7);
+  border: solid 1px var(--shadow-dark);
+  box-shadow: 0 0 0.5rem var(--shadow-dark);
   transition: border-color 150ms ease-out;
 
   ${Container}:hover & {
@@ -81,16 +81,16 @@ const Badge = styled.div<{ $tone: "up" | "down" | "flat" | "new" }>`
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   pointer-events: none;
-  background: ${(props) => (props.$tone === "new" ? "#f2b64c" : "rgba(10, 10, 9, 0.78)")};
+  background: ${(props) => (props.$tone === "new" ? "var(--status-new)" : "var(--badge-bg)")};
   color: ${(props) =>
     props.$tone === "new"
-      ? "#1a1a17"
+      ? "var(--on-accent)"
       : props.$tone === "up"
-        ? "#7ddb8a"
+        ? "var(--status-up)"
         : props.$tone === "down"
-          ? "#e58a8a"
-          : "rgba(255, 255, 255, 0.85)"};
-  box-shadow: 0 0.1em 0.4em rgba(0, 0, 0, 0.35);
+          ? "var(--status-down)"
+          : "var(--text)"};
+  box-shadow: 0 0.1em 0.4em var(--shadow-medium);
 
   svg {
     width: 0.9em;
@@ -113,10 +113,10 @@ const NameBubble = styled.div`
   max-width: min(32rem, calc(100vw - 2.4rem));
   padding: 0.7rem 1.2rem;
   border-radius: 0.8rem;
-  background: rgba(18, 18, 16, 0.94);
+  background: var(--black-94);
   border: 1px solid var(--focus);
-  box-shadow: 0 0.6rem 1.6rem rgba(0, 0, 0, 0.45), 0 0 1.6rem rgba(255, 223, 128, 0.35);
-  color: var(--main);
+  box-shadow: 0 0.6rem 1.6rem var(--shadow-strong), 0 0 1.6rem var(--accent-shadow);
+  color: var(--text-inverse);
   font-size: 1.6rem;
   font-weight: 600;
   line-height: 1.3;

@@ -7,7 +7,6 @@ import Button from "./Button";
 import { useTranslation } from "react-i18next";
 import Premium from "./Premium";
 import useIsPremium from "../app/use-is-premium";
-import contactIcon from "../assets/contact.svg";
 import NavIcon from "./NavIcon";
 
 const StyledUserAccount = styled.div<{ $compact: boolean }>`
@@ -29,7 +28,7 @@ const SignInButton = styled.button`
   font-weight: 500;
   padding: 0.8rem 1.6rem;
   border-radius: 0.8rem;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid var(--white-22);
   background: transparent;
   color: var(--main);
   cursor: pointer;
@@ -38,8 +37,8 @@ const SignInButton = styled.button`
   transition: background-color 160ms ease-out, border-color 160ms ease-out;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.36);
+    background: var(--line);
+    border-color: var(--white-36);
   }
 
   @media (max-width: 900px) {
@@ -107,7 +106,7 @@ const ContactButton = styled.button`
   cursor: pointer;
 `;
 
-const ContactIcon = styled.img`
+const ContactIcon = styled(NavIcon)`
   width: 3.4rem;
   height: 3.4rem;
   transform: translateY(0.1rem);
@@ -127,7 +126,7 @@ const ContactText = styled.p`
 
 const EmailText = styled(ContactText)`
   margin-top: 1rem;
-  color: var(--f);
+  color: var(--link);
 `;
 
 interface Props {
@@ -145,8 +144,11 @@ const UserAccount = ({ compact = false }: Props) => {
     <>
       <StyledUserAccount $compact={compact}>
         {isPremium && (
-          <ContactButton onClick={() => setIsContactOpen(true)}>
-            <ContactIcon src={contactIcon} alt="Contact" />
+          <ContactButton
+            onClick={() => setIsContactOpen(true)}
+            aria-label={t("premium.features.contact.title")}
+          >
+            <ContactIcon name="mail" size={34} />
           </ContactButton>
         )}
         {user && (

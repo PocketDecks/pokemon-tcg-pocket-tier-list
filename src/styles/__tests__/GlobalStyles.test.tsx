@@ -32,7 +32,7 @@ describe("GlobalStyles", () => {
   });
 
   it("uses the same app font family in the consent banner", () => {
-    const fontFamily = consentTheme.theme?.typography?.fontFamily;
+    const fontFamily = consentTheme("dark").theme?.typography?.fontFamily;
 
     expect(fontFamily).toBe(APP_FONT_FAMILY);
   });

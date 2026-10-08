@@ -22,7 +22,13 @@ export type NavIconName =
   | "bulb"
   | "bug"
   | "chat"
-  | "info";
+  | "info"
+  | "sun"
+  | "moon"
+  | "menu"
+  | "close"
+  | "chevronDown"
+  | "mail";
 
 const paths: Record<NavIconName, ReactNode> = {
   tierList: <path d="M4 6h16M4 12h11M4 18h6" />,
@@ -110,9 +116,33 @@ const paths: Record<NavIconName, ReactNode> = {
       <path d="M14 14h2.5v2.5M20 14v6h-3M14 18.5V20" />
     </>
   ),
+  sun: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4" />
+    </>
+  ),
+  moon: <path d="M20 14.2A8 8 0 0 1 9.8 4a8 8 0 1 0 10.2 10.2z" />,
+  menu: <path d="M4 7h16M4 12h16M4 17h16" />,
+  close: <path d="M6 6l12 12M18 6L6 18" />,
+  chevronDown: <path d="M6 9l6 6 6-6" />,
+  mail: (
+    <>
+      <rect x="3" y="5.5" width="18" height="13" rx="2.5" />
+      <path d="M4 7.5l8 5.5 8-5.5" />
+    </>
+  ),
 };
 
-const NavIcon = ({ name, size = 22 }: { name: NavIconName; size?: number }) => (
+const NavIcon = ({
+  name,
+  size = 22,
+  className,
+}: {
+  name: NavIconName;
+  size?: number;
+  className?: string;
+}) => (
   <svg
     viewBox="0 0 24 24"
     width={size}
@@ -122,6 +152,7 @@ const NavIcon = ({ name, size = 22 }: { name: NavIconName; size?: number }) => (
     strokeWidth="1.75"
     strokeLinecap="round"
     strokeLinejoin="round"
+    className={className}
     aria-hidden="true"
     focusable="false"
   >

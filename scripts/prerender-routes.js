@@ -132,6 +132,15 @@ const startServer = (templateHtml) =>
     server.listen(PORT, "127.0.0.1", () => resolve(server));
   });
 
+const resetPrerenderTheme = (originalThemeColor) => {
+  document.documentElement.removeAttribute("data-theme");
+  document.documentElement.style.removeProperty("color-scheme");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute(
+    "content",
+    originalThemeColor
+  );
+};
+
 const main = async () => {
   const indexPath = path.join(DIST_DIR, "index.html");
   if (!fs.existsSync(indexPath)) {
@@ -139,6 +148,8 @@ const main = async () => {
     process.exit(1);
   }
   const templateHtml = fs.readFileSync(indexPath, "utf8");
+  const templateThemeColor =
+    templateHtml.match(/<meta\s+name=["']theme-color["']\s+content=["']([^"']*)["']/i)?.[1] ?? "#121210";
   const templatePreloads = [...templateHtml.matchAll(/<link\b[^>]*>/gi)]
     .map((match) => match[0])
     .filter((tag) => /rel=["']modulepreload["']/i.test(tag))
@@ -206,6 +217,7 @@ const main = async () => {
         templatePreloads,
         templateScripts
       );
+      await page.evaluate(resetPrerenderTheme, templateThemeColor);
       return page.evaluate(
         () => `<!doctype html>\n${document.documentElement.outerHTML}`
       );
@@ -238,4 +250,4 @@ const main = async () => {
 
 if (require.main === module) main();
 
-module.exports = { captureAfterRouteReady, ROUTE_READY_ROUTES, ROUTE_META, ROUTES };
+module.exports = { captureAfterRouteReady, resetPrerenderTheme, ROUTE_READY_ROUTES, ROUTE_META, ROUTES };

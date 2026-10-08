@@ -59,7 +59,7 @@ const StyledSubheader = styled.p`
   font-size: 1.9rem;
   line-height: 1.55;
   max-width: 56ch;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--white-72);
   text-wrap: pretty;
 
   @media (max-width: 900px) { font-size: 1.6rem; }
@@ -81,7 +81,7 @@ const SecondaryLink = styled(Link)`
   font-weight: 600;
   color: var(--main);
   text-decoration: underline;
-  text-decoration-color: rgba(255, 255, 255, 0.3);
+  text-decoration-color: var(--white-30);
   text-underline-offset: 0.4rem;
   transition: text-decoration-color 160ms ease-out;
 
@@ -103,15 +103,15 @@ const Preview = styled.section`
   flex-direction: column;
   border-radius: 1.6rem;
   overflow: hidden;
-  background: #121210;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 2.4rem 4.8rem rgba(0, 0, 0, 0.35);
+  background: var(--surface-sunk);
+  border: 1px solid var(--line);
+  box-shadow: 0 2.4rem 4.8rem var(--shadow-medium);
 `;
 
 const PreviewRow = styled.div`
   display: flex;
   height: 11.2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--fill-hover);
 
   &:last-of-type {
     border-bottom: none;
@@ -128,7 +128,7 @@ const RowHeader = styled.div<{ $color: string }>`
   place-items: center;
   width: 7.2rem;
   background: ${(props) => props.$color};
-  color: rgba(0, 0, 0, 0.72);
+  color: var(--black-72);
   font-size: 2.8rem;
   font-weight: 600;
 
@@ -172,15 +172,15 @@ const MoreTile = styled(Link)<{ $desktopHidden: boolean }>`
   height: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 1.2rem;
-  border: 1px dashed rgba(255, 255, 255, 0.24);
-  color: rgba(255, 255, 255, 0.72);
+  border: 1px dashed var(--white-24);
+  color: var(--white-72);
   font-size: 1.8rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   transition: border-color 160ms ease-out, color 160ms ease-out;
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.6);
+    border-color: var(--white-60);
     color: var(--main);
   }
 
@@ -195,7 +195,7 @@ const SkeletonTile = styled.span`
   height: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 1.2rem;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--fill-hover);
 
   @media (max-width: 900px) {
     height: auto;

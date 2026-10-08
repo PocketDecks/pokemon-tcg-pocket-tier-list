@@ -43,7 +43,7 @@ const Content = styled.article`
   li {
     font-size: 1.7rem;
     line-height: 1.7;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--white-85);
   }
 
   ul {
@@ -54,13 +54,13 @@ const Content = styled.article`
   }
 
   a {
-    color: var(--f);
+    color: var(--link);
     text-decoration: underline;
   }
 
   .updated {
     font-size: 1.4rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--white-50);
   }
 `;
 

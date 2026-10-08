@@ -6,7 +6,9 @@
     "skipToContent": "本文へスキップ",
     "openMenu": "メニューを開く",
     "closeMenu": "メニューを閉じる",
-    "primaryNav": "メインナビゲーション"
+    "primaryNav": "メインナビゲーション",
+    "switchToLight": "ライトモードに切り替え",
+    "switchToDark": "ダークモードに切り替え"
   },
   "premium": {
     "title": "Top Pocket Decks Premium",

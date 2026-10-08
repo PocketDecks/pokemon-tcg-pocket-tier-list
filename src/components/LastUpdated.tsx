@@ -57,11 +57,11 @@ const LastUpdated = () => {
 
   let dotColor: string;
   if (daysDiff <= 2) {
-    dotColor = "#4CAF50"; // Green
+    dotColor = "var(--status-green)"; // Green
   } else if (daysDiff <= 7) {
-    dotColor = "#FF9800"; // Orange
+    dotColor = "var(--status-orange)"; // Orange
   } else {
-    dotColor = "#F44336"; // Red
+    dotColor = "var(--status-red)"; // Red
   }
 
   return (

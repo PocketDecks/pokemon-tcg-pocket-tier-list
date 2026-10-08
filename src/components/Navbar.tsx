@@ -21,8 +21,8 @@ const Nav = styled.nav<{ $open: boolean }>`
     z-index: 60;
     gap: 0.2rem;
     background: var(--bg);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 1.6rem 3.2rem rgba(0, 0, 0, 0.45);
+    border-bottom: 1px solid var(--white-10);
+    box-shadow: 0 1.6rem 3.2rem var(--shadow-strong);
     padding: 0.8rem 1.2rem 1.6rem;
     opacity: ${(props) => (props.$open ? 1 : 0)};
     transform: ${(props) =>
@@ -69,7 +69,7 @@ const NavItem = styled(NavLink)<{ $tier: string }>`
   gap: 0.5rem;
   padding: 0.8rem 0.2rem;
   border-radius: 1rem;
-  color: rgba(255, 255, 255, 0.64);
+  color: var(--text-muted);
   transition: color 160ms ease-out;
 
   &:hover {
@@ -77,7 +77,7 @@ const NavItem = styled(NavLink)<{ $tier: string }>`
   }
 
   &:hover ${Chip} {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--line);
   }
 
   &.active {
@@ -90,7 +90,7 @@ const NavItem = styled(NavLink)<{ $tier: string }>`
 
   &.active ${Chip} {
     background: ${(props) => props.$tier};
-    color: rgba(0, 0, 0, 0.8);
+    color: var(--black-80);
   }
 
   @media (max-width: 900px) {

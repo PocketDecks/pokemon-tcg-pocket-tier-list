@@ -8,7 +8,7 @@ const ModalOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: var(--shadow-dark);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -31,7 +31,7 @@ const ModalContent = styled.div<{ $width?: string }>`
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px var(--shadow-soft);
   font-size: 1.25rem;
   line-height: 1.6;
   display: flex;
@@ -84,7 +84,7 @@ const CloseButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--white-10);
   }
 
   @media (max-width: 900px) {

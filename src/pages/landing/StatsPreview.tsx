@@ -13,7 +13,7 @@ const StyledStatsPreview = styled.section`
   width: 100%;
   max-width: 150rem;
   padding: 8rem 4rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--fill-hover);
 
   @media (max-width: 900px) {
     padding: 5.6rem 2rem;
@@ -58,7 +58,7 @@ const Description = styled.p`
   max-width: 52ch;
   font-size: 1.7rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--white-72);
   text-wrap: pretty;
 
   @media (max-width: 900px) {
@@ -72,14 +72,14 @@ const Panel = styled(Link)`
   gap: 0.4rem;
   padding: 2rem;
   border-radius: 1.6rem;
-  background: #121210;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 2.4rem 4.8rem rgba(0, 0, 0, 0.35);
+  background: var(--surface-sunk);
+  border: 1px solid var(--line);
+  box-shadow: 0 2.4rem 4.8rem var(--shadow-medium);
   color: var(--main);
   transition: border-color 200ms ease-out;
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.24);
+    border-color: var(--white-24);
   }
 `;
 
@@ -106,7 +106,7 @@ const Row = styled.span`
   align-items: center;
   gap: 1.4rem;
   padding: 1rem 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--fill-hover);
   font-size: 1.5rem;
   font-variant-numeric: tabular-nums;
 `;
@@ -119,7 +119,7 @@ const Name = styled.span`
 `;
 
 const Share = styled.span`
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--white-72);
 `;
 
 const Delta = styled.span`
@@ -128,7 +128,7 @@ const Delta = styled.span`
   gap: 0.4rem;
   min-width: 8rem;
   justify-content: flex-end;
-  color: var(--f);
+  color: var(--f-text);
   font-weight: 600;
 `;
 

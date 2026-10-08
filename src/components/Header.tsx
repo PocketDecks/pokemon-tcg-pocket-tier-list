@@ -2,15 +2,15 @@ import { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Link, useLocation } from "react-router";
 import Logo from "./Logo";
+import ThemeToggle from "./ThemeToggle";
 import Socials from "./Socials";
 import Navbar from "./Navbar";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 import UserAccount from "./UserAccount";
+import NavIcon from "./NavIcon";
 import { useUI } from "../contexts/UIContext";
 import useIsMobile from "../ads/useIsMobile";
-import menuIcon from "../assets/menu.svg";
-import closeIcon from "../assets/close.svg";
 
 export const RAIL_WIDTH = "9.2rem";
 
@@ -27,8 +27,8 @@ const Rail = styled.header`
   align-items: center;
   gap: 2.4rem;
   padding: 1.6rem 0 2rem;
-  background: #121210;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-sunk);
+  border-right: 1px solid var(--line);
   overflow-y: auto;
   scrollbar-width: none;
 
@@ -43,8 +43,21 @@ const Rail = styled.header`
     margin-bottom: 1rem;
     background: var(--bg);
     border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--line);
     overflow: visible;
+  }
+`;
+
+const Brand = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+
+  @media (max-width: 900px) {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.8rem;
   }
 `;
 
@@ -79,11 +92,11 @@ const MenuButton = styled.button`
   border-radius: 1rem;
   color: var(--main);
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--fill-hover);
   transition: background 150ms ease-out;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: var(--fill-active);
   }
 
   @media (max-width: 900px) {
@@ -91,14 +104,14 @@ const MenuButton = styled.button`
   }
 `;
 
-const MenuIcon = styled.img`
+const MenuIcon = styled(NavIcon)`
   width: 2.4rem;
   height: 2.4rem;
 `;
 
 const FooterBar = styled.footer`
   width: 100%;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--line);
   margin-top: 4rem;
   padding: 0 2.4rem;
 `;
@@ -124,7 +137,7 @@ const FooterLinks = styled.div`
 const FooterLink = styled(Link)`
   font-size: 1.4rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.64);
+  color: var(--text-muted);
   transition: color 160ms ease-out;
 
   &:hover {
@@ -192,7 +205,10 @@ const Header = ({ footer }: Props) => {
 
   return (
     <Rail>
-      <Logo />
+      <Brand>
+        <Logo />
+        <ThemeToggle />
+      </Brand>
       <NavArea>
         <Navbar />
       </NavArea>
@@ -206,7 +222,7 @@ const Header = ({ footer }: Props) => {
             aria-controls="site-nav"
             aria-label={isNavOpen ? t("a11y.closeMenu") : t("a11y.openMenu")}
           >
-            <MenuIcon src={isNavOpen ? closeIcon : menuIcon} alt="" />
+            <MenuIcon name={isNavOpen ? "close" : "menu"} size={24} />
           </MenuButton>
         )}
       </Actions>

@@ -72,7 +72,7 @@ const buttonBase = css<{ $isLoading: boolean; $wide: boolean }>`
     animation: ${rainbowAnimation} 8s ease infinite;
   }
 
-  color: var(--bg);
+  color: var(--on-accent);
   font-size: 2.1rem;
   font-weight: 600;
   cursor: ${(props) => (props.$isLoading ? "not-allowed" : "pointer")};
@@ -85,7 +85,7 @@ const buttonBase = css<{ $isLoading: boolean; $wide: boolean }>`
   &:hover {
     transform: ${(props) => (props.$isLoading ? "none" : "scale(1.02)")};
     box-shadow: ${(props) =>
-        props.$isLoading ? "none" : "0 0 15px rgba(255, 255, 255, 0.3)"};
+        props.$isLoading ? "none" : "0 0.2rem 0.8rem var(--shadow)"};
   }
 
   &:disabled {

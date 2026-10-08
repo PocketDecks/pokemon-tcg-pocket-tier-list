@@ -1,8 +1,9 @@
 import styled from "styled-components";
 import { deckDisplayName, formatArchetypeId } from "../../app/deck-display";
-import type { FullDeckType } from "../../app/deck-types";
+import type { FullDeckType, MatchupType } from "../../app/deck-types";
 import DeckArt from "../../components/DeckArt";
-import type { MatchupType } from "../../app/deck-types";
+import { matrixScale, type MatrixScale } from "../../styles/theme-tokens";
+import { useTheme } from "../../app/use-theme";
 
 const MatrixWrapper = styled.div`
     width: 100%;
@@ -21,7 +22,7 @@ const MatrixWrapper = styled.div`
     }
 `;
 
-const MatrixTable = styled.table<{ $columns: number }>`
+const MatrixTable = styled.table<{ $columns: number; $frame: string }>`
     border-collapse: separate;
     border-spacing: 0;
     font-size: 1.3rem;
@@ -33,8 +34,8 @@ const MatrixTable = styled.table<{ $columns: number }>`
     th,
     td {
         padding: 0.5rem;
-        border-bottom: 2px solid #121210;
-        border-right: 2px solid #121210;
+        border-bottom: 2px solid ${(props) => props.$frame};
+        border-right: 2px solid ${(props) => props.$frame};
         width: 64px;
         min-width: 64px;
         height: 52px;
@@ -45,7 +46,7 @@ const MatrixTable = styled.table<{ $columns: number }>`
         position: sticky;
         top: 0;
         z-index: 2;
-        background: #121210;
+        background: var(--surface-sunk);
         color: var(--main);
         font-weight: 600;
         height: auto;
@@ -71,7 +72,7 @@ const DeckLabelHeader = styled.th`
     left: 0 !important;
     top: 0 !important;
     z-index: 3 !important;
-    background: #121210 !important;
+    background: var(--surface-sunk) !important;
     text-align: left;
     vertical-align: bottom;
     width: 260px !important;
@@ -87,7 +88,7 @@ const DeckLabelCell = styled.td`
     position: sticky !important;
     left: 0 !important;
     z-index: 1 !important;
-    background: #121210 !important;
+    background: var(--surface-sunk) !important;
     text-align: left;
     font-weight: 500;
     white-space: nowrap;
@@ -129,7 +130,7 @@ const HeaderArt = styled.span`
 
     & > * + * {
         margin-left: -0.8rem;
-        box-shadow: 0 0 0 2px #121210;
+        box-shadow: 0 0 0 2px var(--surface-sunk);
     }
 `;
 
@@ -142,9 +143,13 @@ const VisuallyHidden = styled.span`
     white-space: nowrap;
 `;
 
-const MatrixCell = styled.td<{ $bg?: string; $isPopulated: boolean }>`
-    background: ${(props) => props.$bg || "#1d1d1b"};
-    color: ${(props) => (props.$isPopulated ? "#fff" : "rgba(255, 255, 255, 0.4)")};
+const MatrixCell = styled.td<{
+    $bg: string;
+    $text: string;
+    $hover: string;
+}>`
+    background: ${(props) => props.$bg};
+    color: ${(props) => props.$text};
     font-size: 1.3rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -152,7 +157,7 @@ const MatrixCell = styled.td<{ $bg?: string; $isPopulated: boolean }>`
     transition: box-shadow 160ms ease-out;
 
     &:hover {
-        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.75);
+        box-shadow: inset 0 0 0 2px ${(props) => props.$hover};
     }
 `;
 
@@ -163,9 +168,32 @@ interface Props {
     matchupsByName: Record<string, MatchupType[]> | null;
 }
 
-const MatchupMatrix = ({ decks, tierMap, matrixColour, matchupsByName }: Props) => (
+// Relative luminance (WCAG) of an sRGB hex, used to pick a readable ink for a
+// populated cell instead of a fixed one.
+const hexLuminance = (hex: string): number => {
+    const value = hex.replace("#", "");
+    const channels = [0, 2, 4].map((offset) => Number.parseInt(value.slice(offset, offset + 2), 16) / 255);
+    const [r, g, b] = channels.map((channel) =>
+        channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
+    );
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+// A populated cell whose resolved colour is a concrete hex flips to the
+// light-cell ink once its luminance climbs past the point where the dark-cell
+// ink stops being readable.
+const readableText = (scale: MatrixScale, colour: string | undefined): string => {
+    if (!colour || !/^#[0-9a-f]{6}$/i.test(colour)) return scale.textOnDarkCell;
+    return hexLuminance(colour) > 0.45 ? scale.textOnLightCell : scale.textOnDarkCell;
+};
+
+const MatchupMatrix = ({ decks, tierMap, matrixColour, matchupsByName }: Props) => {
+    const { theme } = useTheme();
+    const scale = matrixScale[theme];
+
+    return (
     <MatrixWrapper>
-        <MatrixTable $columns={decks.length}>
+        <MatrixTable $columns={decks.length} $frame={scale.frame}>
             <thead>
                 <tr>
                     <DeckLabelHeader>Deck Archetype</DeckLabelHeader>
@@ -201,7 +229,12 @@ const MatchupMatrix = ({ decks, tierMap, matrixColour, matchupsByName }: Props) 
                         {decks.map((colDeck) => {
                             if (rowDeck.id === colDeck.id) {
                                 return (
-                                    <MatrixCell key={colDeck.id} $isPopulated={false}>
+                                    <MatrixCell
+                                        key={colDeck.id}
+                                        $bg={scale.empty}
+                                        $text={scale.emptyText}
+                                        $hover={scale.hover}
+                                    >
                                         —
                                     </MatrixCell>
                                 );
@@ -210,6 +243,7 @@ const MatchupMatrix = ({ decks, tierMap, matrixColour, matchupsByName }: Props) 
                             const match = matchupsByName?.[rowDeck.name]?.find((m) => m.name === colDeck.name);
                             const winRate = match?.winRate;
                             const isPopulated = winRate !== undefined;
+                            const cellBg = isPopulated ? matrixColour(winRate) : scale.empty;
                             const winRateText = isPopulated
                                 ? `${Math.round(winRate * 100)}%`
                                 : "N/A";
@@ -222,8 +256,9 @@ const MatchupMatrix = ({ decks, tierMap, matrixColour, matchupsByName }: Props) 
                             return (
                                 <MatrixCell
                                     key={colDeck.id}
-                                    $bg={isPopulated ? matrixColour(winRate) : undefined}
-                                    $isPopulated={isPopulated}
+                                    $bg={cellBg}
+                                    $text={isPopulated ? readableText(scale, cellBg) : scale.emptyText}
+                                    $hover={scale.hover}
                                     title={hoverText}
                                 >
                                     {winRateText}
@@ -235,6 +270,7 @@ const MatchupMatrix = ({ decks, tierMap, matrixColour, matchupsByName }: Props) 
             </tbody>
         </MatrixTable>
     </MatrixWrapper>
-);
+    );
+};
 
 export default MatchupMatrix;

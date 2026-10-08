@@ -43,14 +43,14 @@
 [class*="c15t-ui-title"] {
   font-size: 2rem !important;
   font-weight: 600 !important;
-  color: #fff !important;
+  color: var(--text) !important;
   margin-bottom: 0.6rem !important;
 }
 
 [class*="c15t-ui-description"] {
   font-size: 1.5rem !important;
   line-height: 1.55 !important;
-  color: rgba(255, 255, 255, 0.72) !important;
+  color: var(--white-72) !important;
 }
 
 [class*="c15t-ui-footer"] {
@@ -85,7 +85,7 @@
   isolation: isolate;
   overflow: hidden;
   background: none !important;
-  color: var(--bg) !important;
+  color: var(--on-accent) !important;
   border: none !important;
 }
 
@@ -115,8 +115,8 @@
    no ring behind it, so the glass reads straight through. */
 [data-testid="consent-banner-reject-button"],
 [data-testid="consent-banner-customize-button"] {
-  color: #fff !important;
-  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--white-28) !important;
 }
 
 /* c15t's own hover tint is a background-color in @layer components, which the
@@ -124,8 +124,8 @@
    no hover feedback at all. Restore it here, where the reset can be beaten. */
 [data-testid="consent-banner-reject-button"]:hover,
 [data-testid="consent-banner-customize-button"]:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.4) !important;
+  background: var(--white-10) !important;
+  border-color: var(--white-40) !important;
 }
 
 /* The dialog card centres itself with `margin: 0 auto`, which the app's

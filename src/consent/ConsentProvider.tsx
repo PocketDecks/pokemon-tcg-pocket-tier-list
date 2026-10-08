@@ -2,13 +2,14 @@ import { ReactNode } from "react";
 import { ConsentBanner, ConsentDialog, ConsentManagerProvider } from "@c15t/react";
 import { gtag } from "@c15t/scripts/google-tag";
 import { useAppVisible } from "../app/use-app-visible";
+import { useTheme } from "../contexts/ThemeContext";
 import "@c15t/react/styles.css";
 import "./consent-overrides.css";
 import { GOOGLE_GTAG } from "../app/constants";
 import { consentTheme } from "./consent-theme";
 
 // During the postbuild route prerender, c15t portals <ConsentBanner/> to
-// document.body — outside #root. The client uses createRoot (not hydrateRoot),
+// document.body, outside #root. The client uses createRoot (not hydrateRoot),
 // so it never adopts that prerendered markup and a second, handler-less banner
 // is frozen on screen forever (and on reload-with-consent-stored it is the ONLY
 // copy, so Accept/Reject/Personalise do nothing). Skip the banner while the
@@ -30,9 +31,14 @@ const scripts = [
 
 const ConsentProvider = ({ children }: { children: ReactNode }) => {
   const appVisible = useAppVisible();
+  const { theme } = useTheme();
 
+  // Rebuilding `options` on every theme change is what swaps the banner: c15t
+  // memoises the resolved theme off this object and re-runs the colour-scheme
+  // effect, so both the banner and the dialog repaint with the new tokens
+  // while they stay mounted.
   return (
-    <ConsentManagerProvider options={{ mode: "offline", scripts, ...consentTheme }}>
+    <ConsentManagerProvider options={{ mode: "offline", scripts, ...consentTheme(theme) }}>
       {children}
       {appVisible && !isPrerender ? (
         <>

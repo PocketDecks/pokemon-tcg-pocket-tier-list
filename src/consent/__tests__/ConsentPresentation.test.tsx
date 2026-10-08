@@ -5,6 +5,8 @@ import { clearConsentRuntimeCache } from "c15t";
 import { baseTranslations } from "@c15t/translations/all";
 import { createInstance, type i18n as I18nInstance } from "i18next";
 import { I18nextProvider } from "react-i18next";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import type { ReactNode } from "react";
 import { consentTheme } from "../consent-theme";
 
@@ -133,6 +135,26 @@ describe("ConsentProvider presentation", () => {
       variant: "primary",
       mode: "filled",
     });
+  });
+
+  it("resolves the accept action to the solid F green under the forced dark scheme", async () => {
+    const overrides = readFileSync(resolve(process.cwd(), "src/consent/consent-overrides.css"), "utf8");
+    const style = document.createElement("style");
+    style.textContent = overrides;
+    document.head.append(style);
+
+    try {
+      await renderWithLanguage("en", null);
+      const button = await screen.findByTestId("consent-banner-accept-button");
+
+      expect(document.documentElement).toHaveClass("c15t-dark");
+
+      const computed = getComputedStyle(button);
+      expect(computed.getPropertyValue("--button-primary-dark")).toBe("#7FFF7F");
+      expect(computed.getPropertyValue("--button-primary-hover-dark")).toBe("#7FFF7F");
+    } finally {
+      style.remove();
+    }
   });
 
   it.each([

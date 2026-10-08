@@ -13,10 +13,7 @@ const makeRoot = () => {
   return root;
 };
 
-const loadModule = async () => {
-  vi.resetModules();
-  return import("../load-env");
-};
+const loadModule = async () => import("../load-env");
 
 afterEach(() => {
   if (originalLimitlessKey === undefined) delete process.env.LIMITLESS_API_KEY;

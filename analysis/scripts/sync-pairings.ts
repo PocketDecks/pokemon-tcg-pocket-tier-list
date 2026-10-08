@@ -1,7 +1,7 @@
 // Sweeps the Limitless deck pages into src/data/limitless-decks.json. Each set
 // page is one snapshot of its own decks array; a refetch replaces that array
 // and never folds across sets or infers a pairing graph.
-import "../src/load-env";
+import "../src/load-env-side-effect";
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 

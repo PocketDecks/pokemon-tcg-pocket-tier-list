@@ -10,5 +10,3 @@ export const loadEnv = (repoRoot = path.resolve(__dirname, "..", "..")) => {
     console.warn("analysis/.env is ignored; move its values to the root .env");
   }
 };
-
-loadEnv();

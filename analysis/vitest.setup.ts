@@ -1,1 +1,1 @@
-import "./src/load-env";
+import "./src/load-env-side-effect";

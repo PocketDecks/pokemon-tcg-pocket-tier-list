@@ -1,6 +1,32 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script data-theme-init="true">
+      (() => {
+        const setThemeColor = () => {
+          let meta = document.querySelector('meta[name="theme-color"]');
+          if (!meta) {
+            meta = document.createElement("meta");
+            meta.name = "theme-color";
+            document.head.append(meta);
+          }
+          meta.content = "#121210";
+        };
+        try {
+          const stored = localStorage.getItem("theme");
+          const theme = stored === "light" || stored === "dark"
+            ? stored
+            : matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+          setThemeColor();
+        } catch {
+          document.documentElement.dataset.theme = "dark";
+          document.documentElement.style.colorScheme = "dark";
+          setThemeColor();
+        }
+      })();
+    </script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
@@ -9,7 +35,6 @@
     <meta name="description" content="Pokemon TCG Pocket deck tier list based on tournament results. Check deck rankings, win rates, matchups, and card rankings from Top Pocket Decks" />
     <meta name="robots" content="index, follow, noimageai" />
 
-    <meta name="theme-color" content="#030303" />
     <link rel="icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/logo.webp" />
     <link rel="manifest" href="/manifest.json" />

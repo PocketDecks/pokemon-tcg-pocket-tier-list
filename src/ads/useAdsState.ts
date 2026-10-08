@@ -12,8 +12,6 @@ export interface AdsState {
   showAds: boolean;
   // Whether to load real AdSense ads vs a dev placeholder.
   useReal: boolean;
-  // Whether the anchor's space is reserved from first paint. Unlike showAds it
-  // ignores the content-ready gate, so the layout does not move when the ad shows.
   reserved: boolean;
 }
 

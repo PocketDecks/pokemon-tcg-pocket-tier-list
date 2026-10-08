@@ -1,11 +1,18 @@
 import { ReactNode } from "react";
-import { ConsentBanner, ConsentDialog, ConsentManagerProvider } from "@c15t/react";
+import {
+  ConsentBanner,
+  ConsentDialog,
+  ConsentManagerProvider,
+  type ConsentManagerOptions,
+} from "@c15t/react";
 import { gtag } from "@c15t/scripts/google-tag";
+import { policyPackPresets, type PolicyConfig } from "c15t";
 import { useAppVisible } from "../app/use-app-visible";
 import "@c15t/react/styles.css";
 import "./consent-overrides.css";
 import { GOOGLE_GTAG } from "../app/constants";
 import { consentTheme } from "./consent-theme";
+import { resolveVisitorRegion, type VisitorRegion } from "./visitor-region";
 
 // During the postbuild route prerender, c15t portals <ConsentBanner/> to
 // document.body — outside #root. The client uses createRoot (not hydrateRoot),
@@ -28,11 +35,60 @@ const scripts = [
   gtag({ id: GOOGLE_GTAG, category: "marketing" }),
 ];
 
+const readVisitorRegion = (): VisitorRegion | null => {
+  try {
+    return resolveVisitorRegion({
+      cookie: document.cookie,
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    });
+  } catch {
+    return null;
+  }
+};
+
+const europeOptIn = policyPackPresets.europeOptIn();
+const europe: PolicyConfig = {
+  ...europeOptIn,
+  match: {
+    ...europeOptIn.match,
+    countries: [...(europeOptIn.match.countries ?? []), "CH"],
+  },
+  consent: {
+    ...europeOptIn.consent,
+    categories: ["necessary", "measurement"],
+    scopeMode: "strict",
+  },
+};
+
+const canada: PolicyConfig = {
+  ...policyPackPresets.quebecOptIn(),
+  id: "canada_opt_in",
+  match: { countries: ["CA"] },
+};
+
+const policyPacks: PolicyConfig[] = [
+  europe,
+  policyPackPresets.quebecOptIn(),
+  canada,
+  policyPackPresets.californiaOptOut(),
+  policyPackPresets.worldNoBanner(),
+];
+
+const visitorRegion = readVisitorRegion();
+
+const consentOptions: ConsentManagerOptions = {
+  mode: "offline",
+  offlinePolicy: { policyPacks },
+  scripts,
+  ...consentTheme,
+  ...(visitorRegion ? { overrides: visitorRegion } : {}),
+};
+
 const ConsentProvider = ({ children }: { children: ReactNode }) => {
   const appVisible = useAppVisible();
 
   return (
-    <ConsentManagerProvider options={{ mode: "offline", scripts, ...consentTheme }}>
+    <ConsentManagerProvider options={consentOptions}>
       {children}
       {appVisible && !isPrerender ? (
         <>

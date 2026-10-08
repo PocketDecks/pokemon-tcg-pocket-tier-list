@@ -16,20 +16,24 @@ export interface AdsState {
 // Single source of truth for ad gating. Nothing renders unless ADS_ENABLED is
 // on; beyond that, ads are hidden for Premium users (ad-free is a Premium
 // benefit) and never rendered until premium status is known. Real ads also
-// require the visitor's marketing consent. Development shows placeholders in
-// place of real AdSense units.
+// require marketing consent, unless the active policy does not ask for it.
+// Development shows placeholders in place of real AdSense units.
 const useAdsState = (): AdsState => {
   const isPremium = useIsPremium();
   const contentReady = useContentReady();
   const appVisible = useAppVisible();
-  const { has } = useConsentManager();
+  const { has, policyCategories } = useConsentManager();
   const resolved = isPremium !== null;
   const isFree = resolved && !isPremium;
 
   // In production a slot renders only after the visitor consents to marketing,
-  // so no ad script or cookie loads beforehand. Development still shows the
-  // placeholder without a consent choice, so the layout can be checked.
-  const marketingConsent = has("marketing");
+  // so no ad script or cookie loads beforehand. Where the active policy does not
+  // scope marketing (EEA, UK and Switzerland), c15t never asks, and Google's own
+  // CMP gates the ads instead. Development still shows the placeholder without a
+  // consent choice, so the layout can be checked.
+  const marketingOutOfScope =
+    policyCategories !== null && !policyCategories.includes("marketing");
+  const marketingConsent = marketingOutOfScope || has("marketing");
 
   // Only show ads once the current page has rendered real content, so ads never
   // appear on loading, error, or content-less screens (AdSense policy).

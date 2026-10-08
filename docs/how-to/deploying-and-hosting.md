@@ -98,7 +98,10 @@ at `dist/` works; remember that real asset requests carry the immutable cache
 header, so force-reload when iterating.
 
 The post-build scripts accept a `BUILD_DIR` environment variable if you want
-them to act on a different output directory than `dist/`.
+them to act on a different output directory than `dist/`. They load the root
+`.env` before running. Set `PUPPETEER_EXECUTABLE_PATH` there when Puppeteer
+should use a system Chrome. Lighthouse does not read that variable; export
+`CHROME_PATH` separately when running Lighthouse.
 
 The scripts have their own unit tests, separate from the Vitest suites:
 

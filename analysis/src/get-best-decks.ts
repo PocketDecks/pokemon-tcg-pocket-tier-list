@@ -1,3 +1,4 @@
+import "./load-env";
 import cardToString from "./utils/card-to-string";
 import getDecks from "./utils/get-decks";
 import getId from "./utils/get-id";

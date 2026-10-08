@@ -30,9 +30,9 @@
   },
   "scripts": {
     "start": "vite",
-    "prebuild": "node scripts/generate-sitemap.js && node scripts/generate-attack-costs.mjs && node scripts/generate-deck-thumbs.mjs",
+    "prebuild": "node --env-file-if-exists=.env scripts/generate-sitemap.js && node --env-file-if-exists=.env scripts/generate-attack-costs.mjs && node --env-file-if-exists=.env scripts/generate-deck-thumbs.mjs",
     "build": "yarn typecheck && yarn lint && vite build",
-    "postbuild": "node scripts/prerender-decks.js && node scripts/prerender-routes.js && node scripts/verify-dist-html.js",
+    "postbuild": "node --env-file-if-exists=.env scripts/prerender-decks.js && node --env-file-if-exists=.env scripts/prerender-routes.js && node --env-file-if-exists=.env scripts/verify-dist-html.js",
     "test": "vitest",
     "test:ci": "vitest run",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",

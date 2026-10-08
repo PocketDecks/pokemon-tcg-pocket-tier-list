@@ -1,4 +1,4 @@
-import "dotenv/config";
+import "./load-env";
 import fs from "fs";
 import { getTournaments } from "./utils/get-tournaments";
 import getTournamentDecks from "./utils/get-tournament-decks";

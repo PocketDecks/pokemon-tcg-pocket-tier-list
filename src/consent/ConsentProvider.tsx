@@ -34,12 +34,17 @@ const scripts = [
   gtag({ id: GOOGLE_GTAG, category: "marketing" }),
 ];
 
+const readTimeZone = (): string | null => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch {
+    return null;
+  }
+};
+
 const readVisitorRegion = (): VisitorRegion | null => {
   try {
-    return resolveVisitorRegion({
-      cookie: document.cookie,
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    });
+    return resolveVisitorRegion({ cookie: document.cookie, timeZone: readTimeZone() });
   } catch {
     return null;
   }

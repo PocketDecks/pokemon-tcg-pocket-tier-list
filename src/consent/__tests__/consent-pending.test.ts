@@ -20,14 +20,7 @@ interface Visitor {
 }
 
 const bannerFor = async ({ cookie = "", timeZone }: Visitor): Promise<boolean> => {
-  const region = (() => {
-    try {
-      if (timeZone === null) throw new RangeError("time zone unavailable");
-      return resolveVisitorRegion({ cookie, timeZone });
-    } catch {
-      return null;
-    }
-  })();
+  const region = resolveVisitorRegion({ cookie, timeZone });
   const headers: Record<string, string> = {};
   if (region?.country) headers["x-c15t-country"] = region.country;
   if (region?.region) headers["x-c15t-region"] = region.region;
@@ -129,7 +122,7 @@ describe("consent pending head script", () => {
   ])("matches the provider policy for the cookie %s", async (cookie) => {
     await prepare();
 
-    for (const timeZone of ["Europe/Berlin", "Asia/Tokyo", "America/New_York", "Etc/UTC"]) {
+    for (const timeZone of ["Europe/Berlin", "Asia/Tokyo", "America/New_York", "Etc/UTC", null]) {
       expect(runScript(script, { cookie, timeZone })).toBe(await bannerFor({ cookie, timeZone }));
     }
   });

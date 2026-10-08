@@ -38,5 +38,6 @@ export const resolveVisitorRegion = ({
   timeZone,
 }: {
   cookie: string;
-  timeZone: string;
-}): VisitorRegion | null => readRegionCookie(cookie) ?? regionFromTimeZone(timeZone);
+  timeZone: string | null;
+}): VisitorRegion | null =>
+  readRegionCookie(cookie) ?? (timeZone === null ? null : regionFromTimeZone(timeZone));

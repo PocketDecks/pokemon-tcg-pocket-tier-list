@@ -91,7 +91,15 @@ describe("resolveVisitorRegion", () => {
     });
   });
 
+  it("keeps a valid cookie when the time zone is unavailable", () => {
+    expect(resolveVisitorRegion({ cookie: "pd_geo=JP-13", timeZone: null })).toEqual({
+      country: "JP",
+      region: "13",
+    });
+  });
+
   it("returns null when neither the cookie nor the time zone resolve", () => {
     expect(resolveVisitorRegion({ cookie: "", timeZone: "Etc/UTC" })).toBeNull();
+    expect(resolveVisitorRegion({ cookie: "", timeZone: null })).toBeNull();
   });
 });

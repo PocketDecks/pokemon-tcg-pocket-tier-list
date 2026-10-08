@@ -52,6 +52,7 @@ const rows: Row[] = [
   { name: "cookie JP-13 over Europe/Berlin", cookie: "pd_geo=JP-13", timeZone: "Europe/Berlin", policyId: "world_no_banner", banner: false, analytics: "granted", ads: "granted" },
   { name: "cookie XX- over Asia/Tokyo", cookie: "pd_geo=XX-", timeZone: "Asia/Tokyo", policyId: "world_no_banner", banner: false, analytics: "granted", ads: "granted" },
   { name: "cookie US-NY over Europe/Berlin", cookie: "pd_geo=US-NY", timeZone: "Europe/Berlin", policyId: "world_no_banner", banner: false, analytics: "granted", ads: "granted" },
+  { name: "cookie JP-13 with missing time zone", cookie: "pd_geo=JP-13", timeZone: null, policyId: "world_no_banner", banner: false, analytics: "granted", ads: "granted" },
 ];
 
 const originalResolvedOptions = Intl.DateTimeFormat.prototype.resolvedOptions;

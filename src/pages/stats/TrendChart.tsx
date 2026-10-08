@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import type { PipelineTrendRow } from "../../types/pipeline-data";
 import { chartChrome, chartSeries } from "../../styles/theme-tokens";
+import { useTheme } from "../../app/use-theme";
 
 const ChartContainer = styled.div`
     font-size: 1.2rem;
@@ -56,21 +57,21 @@ const Swatch = styled.span<{ $color: string }>`
     flex-shrink: 0;
 `;
 
-const TooltipCard = styled.div`
+const TooltipCard = styled.div<{ $border: string }>`
     min-width: 24rem;
     padding: 1.2rem 1.4rem;
     border-radius: 1rem;
     background: var(--surface);
-    border: 1px solid var(--white-10);
+    border: 1px solid ${(props) => props.$border};
     box-shadow: 0 0.8rem 2.4rem var(--shadow-strong);
     font-size: 1.3rem;
     color: var(--main);
 `;
 
-const TooltipDate = styled.p`
+const TooltipDate = styled.p<{ $color: string }>`
     margin-bottom: 0.8rem;
     font-weight: 600;
-    color: var(--white-72);
+    color: ${(props) => props.$color};
 `;
 
 const TooltipRow = styled.div`
@@ -90,9 +91,6 @@ const ChartLoading = styled.div`
     font-size: 2rem;
     font-weight: 500;
 `;
-
-const SERIES_COLOURS = chartSeries.dark;
-const CHART_CHROME = chartChrome.dark;
 
 interface Props {
     data: PipelineTrendRow[];
@@ -121,12 +119,16 @@ const TrendChart = ({
     onHover,
     onPin,
 }: Props) => {
+    const { theme } = useTheme();
+    const seriesColours = chartSeries[theme];
+    const chrome = chartChrome[theme];
+
     const renderTooltip = ({ active, payload, label }: TooltipContentProps) => {
         if (!active || !payload?.length) return null;
         const rows = [...payload].sort((a, b) => Number(b.value ?? 0) - Number(a.value ?? 0));
         return (
-            <TooltipCard role="status" aria-live="assertive">
-                <TooltipDate>{formatDay(String(label))}</TooltipDate>
+            <TooltipCard role="status" aria-live="assertive" $border={chrome.grid}>
+                <TooltipDate $color={chrome.tick}>{formatDay(String(label))}</TooltipDate>
                 {rows.map((row) => (
                     <TooltipRow key={String(row.dataKey)}>
                         <Swatch $color={row.color ?? "var(--main)"} />
@@ -152,26 +154,26 @@ const TrendChart = ({
                         >
                             <CartesianGrid
                                 vertical={false}
-                                stroke={CHART_CHROME.grid}
+                                stroke={chrome.grid}
                             />
                             <XAxis
                                 dataKey="date"
                                 axisLine={false}
                                 tickLine={false}
-                                tick={{ fill: CHART_CHROME.tick }}
+                                tick={{ fill: chrome.tick }}
                                 tickFormatter={formatDay}
                                 minTickGap={24}
                             />
                             <YAxis
                                 axisLine={false}
                                 tickLine={false}
-                                tick={{ fill: CHART_CHROME.tick }}
+                                tick={{ fill: chrome.tick }}
                                 tickFormatter={(value) => `${value}%`}
                                 width={48}
                             />
                             <Tooltip
                                 content={renderTooltip}
-                                cursor={{ stroke: CHART_CHROME.cursor, strokeWidth: 1 }}
+                                cursor={{ stroke: chrome.cursor, strokeWidth: 1 }}
                             />
                             {names.map((name, index) => (
                                 <Line
@@ -179,11 +181,11 @@ const TrendChart = ({
                                     type="linear"
                                     dataKey={name}
                                     name={seriesLabel(name)}
-                                    stroke={SERIES_COLOURS[index]}
+                                    stroke={seriesColours[index]}
                                     strokeWidth={activeSeries === name ? 3 : 2}
                                     strokeOpacity={activeSeries && activeSeries !== name ? 0.18 : 1}
                                     dot={false}
-                                    activeDot={{ r: 4, stroke: CHART_CHROME.dotRing, strokeWidth: 2 }}
+                                    activeDot={{ r: 4, stroke: chrome.dotRing, strokeWidth: 2 }}
                                     isAnimationActive={false}
                                 />
                             ))}
@@ -205,7 +207,7 @@ const TrendChart = ({
                                 onBlur={() => onHover(null)}
                                 onClick={() => onPin(name)}
                             >
-                                <Swatch $color={SERIES_COLOURS[index]} />
+                                <Swatch $color={seriesColours[index]} />
                                 {seriesLabel(name)}
                             </SeriesButton>
                         </li>

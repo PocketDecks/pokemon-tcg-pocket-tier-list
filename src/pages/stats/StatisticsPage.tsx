@@ -24,7 +24,8 @@ import TrendChart from "./TrendChart";
 import MatchupMatrix from "./MatchupMatrix";
 import DeckArt from "../../components/DeckArt";
 import { MatchupUnavailable, VisuallyHidden } from "../deck/deck-page.styles";
-import { matrixScale } from "../../styles/theme-tokens";
+import { matrixScale, mixOklab, type MatrixScale } from "../../styles/theme-tokens";
+import { useTheme } from "../../app/use-theme";
 
 const PageContainer = styled.div`
     width: 100%;
@@ -248,15 +249,15 @@ const ScaleLegend = styled.div`
     font-variant-numeric: tabular-nums;
 `;
 
-const ScaleBar = styled.span`
+const ScaleBar = styled.span<{ $unfavoured: string; $even: string; $favoured: string }>`
     width: 16rem;
     height: 0.8rem;
     border-radius: 0.4rem;
     background: linear-gradient(
         to right,
-        ${matrixScale.dark.unfavoured},
-        ${matrixScale.dark.even},
-        ${matrixScale.dark.favoured}
+        ${(props) => props.$unfavoured},
+        ${(props) => props.$even},
+        ${(props) => props.$favoured}
     );
 `;
 
@@ -286,18 +287,19 @@ const MatchupSkeleton = styled.div`
     background: var(--fill-hover);
 `;
 
-const MATRIX_EVEN = matrixScale.dark.even;
-const MATRIX_FAVOURED = matrixScale.dark.favoured;
-const MATRIX_UNFAVOURED = matrixScale.dark.unfavoured;
-
-const matrixColour = (winRate: number): string => {
-    const t = Math.max(-1, Math.min(1, (winRate - 0.5) / 0.25));
-    const pole = t >= 0 ? MATRIX_FAVOURED : MATRIX_UNFAVOURED;
-    return `color-mix(in oklab, ${pole} ${Math.round(Math.abs(t) * 100)}%, ${MATRIX_EVEN})`;
-};
+const matrixColour =
+    (scale: MatrixScale) =>
+    (winRate: number): string => {
+        const t = Math.max(-1, Math.min(1, (winRate - 0.5) / 0.25));
+        const pole = t >= 0 ? scale.favoured : scale.unfavoured;
+        return mixOklab(pole, scale.even, Math.abs(t));
+    };
 
 const StatisticsPage = () => {
     const { t, i18n } = useTranslation();
+    const { theme } = useTheme();
+    const scale = matrixScale[theme];
+    const matrixColourFor = matrixColour(scale);
     const { decks, metaShare, loading, error } = useDecks();
     const { matchupsByName, loading: matchupsLoading, error: matchupsError } = useMatchups();
     const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
@@ -541,7 +543,11 @@ const StatisticsPage = () => {
                     </SectionTitle>
                     <ScaleLegend aria-hidden="true">
                         <span>25%</span>
-                        <ScaleBar />
+                        <ScaleBar
+                            $unfavoured={scale.unfavoured}
+                            $even={scale.even}
+                            $favoured={scale.favoured}
+                        />
                         <span>75%</span>
                     </ScaleLegend>
                 </SectionHeader>
@@ -556,7 +562,7 @@ const StatisticsPage = () => {
                     <MatchupMatrix
                         decks={matrixDecks}
                         tierMap={tierMap}
-                        matrixColour={matrixColour}
+                        matrixColour={matrixColourFor}
                         matchupsByName={matchupsByName}
                     />
                 )}

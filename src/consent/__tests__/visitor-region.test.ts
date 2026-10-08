@@ -61,6 +61,10 @@ describe("regionFromTimeZone", () => {
     ["America/Martinique", { country: "MQ" }],
     ["America/Marigot", { country: "MF" }],
     ["Europe/Mariehamn", { country: "AX" }],
+    ["Europe/Gibraltar", { country: "GI" }],
+    ["Europe/Guernsey", { country: "GG" }],
+    ["Europe/Isle_of_Man", { country: "IM" }],
+    ["Europe/Jersey", { country: "JE" }],
   ])("maps %s", (timeZone, expected) => {
     expect(regionFromTimeZone(timeZone)).toEqual(expected);
   });

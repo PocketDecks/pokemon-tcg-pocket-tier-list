@@ -110,6 +110,27 @@ test("treats the EU outermost regions and Aland as European", () => {
   });
 });
 
+test("treats Gibraltar and the Crown Dependencies as European", () => {
+  const table = buildTimeZoneCountries({
+    countries: ["GI", "JE", "GG", "IM"],
+    timeZonesOf: lookup({
+      GI: ["Europe/Gibraltar"],
+      JE: ["Europe/Jersey"],
+      GG: ["Europe/Guernsey"],
+      IM: ["Europe/Isle_of_Man"],
+    }),
+    overrides: {},
+    aliases: [],
+  });
+
+  assert.deepStrictEqual(table, {
+    "Europe/Gibraltar": "GI",
+    "Europe/Guernsey": "GG",
+    "Europe/Isle_of_Man": "IM",
+    "Europe/Jersey": "JE",
+  });
+});
+
 test("drops a zone shared between an EU outermost region and the rest of the world", () => {
   const table = buildTimeZoneCountries({
     countries: ["RE", "US"],

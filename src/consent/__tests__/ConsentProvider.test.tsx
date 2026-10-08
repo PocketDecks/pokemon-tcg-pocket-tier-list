@@ -34,6 +34,7 @@ const rows: Row[] = [
   { name: "Europe/Zurich", timeZone: "Europe/Zurich", policyId: "europe_opt_in", banner: true, analytics: "denied", ads: "denied" },
   { name: "Atlantic/Canary", timeZone: "Atlantic/Canary", policyId: "europe_opt_in", banner: true, analytics: "denied", ads: "denied" },
   { name: "Indian/Reunion", timeZone: "Indian/Reunion", policyId: "europe_opt_in", banner: true, analytics: "denied", ads: "denied" },
+  { name: "Europe/Jersey", timeZone: "Europe/Jersey", policyId: "europe_opt_in", banner: true, analytics: "denied", ads: "denied" },
   { name: "Asia/Kolkata", timeZone: "Asia/Kolkata", policyId: "world_no_banner", banner: false, analytics: "granted", ads: "granted" },
   { name: "Europe/Kyiv", timeZone: "Europe/Kyiv", policyId: "world_no_banner", banner: false, analytics: "granted", ads: "granted" },
   { name: "America/Toronto", timeZone: "America/Toronto", policyId: "quebec_opt_in", banner: true, analytics: "denied", ads: "denied" },

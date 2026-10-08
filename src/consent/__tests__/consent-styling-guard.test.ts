@@ -29,4 +29,13 @@ describe("consent styling guard", () => {
     const offenders = sources.filter(({ text }) => text.includes("c15t-ui-")).map(({ file }) => file);
     expect(offenders).toEqual([]);
   });
+
+  it("imports the layer order before c15t's stylesheet", () => {
+    const provider = readFileSync(resolve(consentDir, "ConsentProvider.tsx"), "utf8");
+    const layers = provider.indexOf('import "../styles/layers.css";');
+    const c15tStyles = provider.indexOf('import "@c15t/react/styles.css";');
+
+    expect(layers).toBeGreaterThanOrEqual(0);
+    expect(c15tStyles).toBeGreaterThan(layers);
+  });
 });

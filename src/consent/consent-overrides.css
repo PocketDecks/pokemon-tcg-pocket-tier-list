@@ -11,13 +11,15 @@
   100% { transform: translateX(0); }
 }
 
-[data-testid="consent-banner-accept-button"] {
+[data-testid="consent-banner-accept-button"],
+[data-testid="consent-widget-footer-accept-button"] {
   position: relative;
   isolation: isolate;
   overflow: hidden;
 }
 
-[data-testid="consent-banner-accept-button"]::before {
+[data-testid="consent-banner-accept-button"]::before,
+[data-testid="consent-widget-footer-accept-button"]::before {
   content: "";
   position: absolute;
   top: -100%;

@@ -3,54 +3,18 @@ import type { Translations } from "@c15t/translations";
 export const consentMessages = {
   en: {
     common: {
-      acceptAll: "Accept All",
-      rejectAll: "Reject All",
-      customize: "Customize",
-      save: "Save Settings",
-      close: "Close",
-      securedBy: "Secured by"
+      customize: "Customise"
     },
     cookieBanner: {
-      title: "We value your privacy",
-      description: "This site uses cookies to improve your browsing experience, analyze site traffic, and show personalized content."
+      description: "This site uses cookies to improve your browsing experience, analyse site traffic, and show personalised content."
     },
     consentManagerDialog: {
-      title: "Privacy Settings",
-      description: "Customize your privacy settings here. You can choose which types of cookies and tracking technologies you allow."
+      description: "Customise your privacy settings here. You can choose which types of cookies and tracking technologies you allow."
     },
     consentTypes: {
-      necessary: {
-        title: "Strictly Necessary",
-        description: "These cookies are essential for the website to function properly and cannot be disabled."
-      },
       functionality: {
-        title: "Functionality",
-        description: "These cookies enable enhanced functionality and personalization of the website."
-      },
-      marketing: {
-        title: "Marketing",
-        description: "These cookies are used to deliver relevant advertisements and track their effectiveness."
-      },
-      measurement: {
-        title: "Analytics",
-        description: "These cookies help us understand how visitors interact with the website and improve its performance."
-      },
-      experience: {
-        title: "Experience",
-        description: "These cookies help us provide a better user experience and test new features."
+        description: "These cookies enable enhanced functionality and personalisation of the website."
       }
-    },
-    frame: {
-      title: "Accept {category} consent to view this content.",
-      actionButton: "Enable {category} consent",
-      policyBlocked: "This content is unavailable under your region's consent policy.",
-      loading: "Loading content…",
-      error: "This content could not be loaded."
-    },
-    legalLinks: {
-      privacyPolicy: "Privacy Policy",
-      cookiePolicy: "Cookie Policy",
-      termsOfService: "Terms of Service"
     }
   },
   de: {
@@ -92,17 +56,8 @@ export const consentMessages = {
         description: "Diese Cookies helfen uns dabei, ein besseres Nutzerlebnis zu bieten und neue Funktionen zu testen."
       }
     },
-    frame: {
-      title: "Akzeptieren Sie {category}, um diesen Inhalt anzuzeigen.",
-      actionButton: "Zustimmung für {category} aktivieren",
-      policyBlocked: "This content is unavailable under your region's consent policy.",
-      loading: "Loading content…",
-      error: "This content could not be loaded."
-    },
     legalLinks: {
-      privacyPolicy: "Datenschutzerklärung",
-      cookiePolicy: "Cookie-Richtlinie",
-      termsOfService: "Nutzungsbedingungen"
+      privacyPolicy: "Datenschutzerklärung"
     }
   },
   es: {
@@ -144,17 +99,8 @@ export const consentMessages = {
         description: "Estas cookies nos ayudan a proporcionar una mejor experiencia de usuario y a probar nuevas funciones."
       }
     },
-    frame: {
-      title: "Acepta {category} para ver este contenido.",
-      actionButton: "Habilitar consentimiento de {category}",
-      policyBlocked: "This content is unavailable under your region's consent policy.",
-      loading: "Loading content…",
-      error: "This content could not be loaded."
-    },
     legalLinks: {
-      privacyPolicy: "Política de Privacidad",
-      cookiePolicy: "Política de Cookies",
-      termsOfService: "Términos de Servicio"
+      privacyPolicy: "Política de Privacidad"
     }
   },
   fr: {
@@ -196,17 +142,8 @@ export const consentMessages = {
         description: "Ces cookies nous permettent de fournir une meilleure expérience utilisateur et de tester de nouvelles fonctionnalités."
       }
     },
-    frame: {
-      title: "Acceptez {category} pour afficher ce contenu.",
-      actionButton: "Activer le consentement {category}",
-      policyBlocked: "This content is unavailable under your region's consent policy.",
-      loading: "Loading content…",
-      error: "This content could not be loaded."
-    },
     legalLinks: {
-      privacyPolicy: "Politique de Confidentialité",
-      cookiePolicy: "Politique des Cookies",
-      termsOfService: "Conditions de Service"
+      privacyPolicy: "Politique de Confidentialité"
     }
   },
   it: {
@@ -248,17 +185,8 @@ export const consentMessages = {
         description: "Questi cookies ci aiutano a fornire una migliore esperienza utente e per testare nuove funzionalità."
       }
     },
-    frame: {
-      title: "Accetta {category} per visualizzare questo contenuto",
-      actionButton: "Abilita consenso {category}",
-      policyBlocked: "This content is unavailable under your region's consent policy.",
-      loading: "Loading content…",
-      error: "This content could not be loaded."
-    },
     legalLinks: {
-      privacyPolicy: "Informativa sulla Privacy",
-      cookiePolicy: "Politica sui Cookie",
-      termsOfService: "Termini di Servizio"
+      privacyPolicy: "Informativa sulla Privacy"
     }
   },
   pt: {
@@ -300,17 +228,8 @@ export const consentMessages = {
         description: "Estes cookies nos ajudam a fornecer uma experiência de usuário melhor e testar novas funcionalidades."
       }
     },
-    frame: {
-      title: "Aceite {category} para ver este conteúdo",
-      actionButton: "Ativar consentimento {category}",
-      policyBlocked: "This content is unavailable under your region's consent policy.",
-      loading: "Loading content…",
-      error: "This content could not be loaded."
-    },
     legalLinks: {
-      privacyPolicy: "Política de Privacidade",
-      cookiePolicy: "Política de Cookies",
-      termsOfService: "Termos de Serviço"
+      privacyPolicy: "Política de Privacidade"
     }
   },
   ro: {
@@ -352,17 +271,8 @@ export const consentMessages = {
         description: "Aceste cookie-uri ne ajută să oferim o experiență mai bună utilizatorilor și să testăm funcționalități noi."
       }
     },
-    frame: {
-      title: "Acceptă consimțământul pentru {category} pentru a vizualiza acest conținut.",
-      actionButton: "Activează consimțământul pentru {category}",
-      policyBlocked: "This content is unavailable under your region's consent policy.",
-      loading: "Loading content…",
-      error: "This content could not be loaded."
-    },
     legalLinks: {
-      privacyPolicy: "Politica de confidențialitate",
-      cookiePolicy: "Politica privind cookie-urile",
-      termsOfService: "Termeni și condiții"
+      privacyPolicy: "Politica de confidențialitate"
     }
   },
   zh: {
@@ -404,17 +314,8 @@ export const consentMessages = {
         description: "这些cookies帮助我们提供更好的用户体验并测试新功能。"
       }
     },
-    frame: {
-      title: "接受 {category} 以查看此内容。",
-      actionButton: "启用 {category} 同意",
-      policyBlocked: "This content is unavailable under your region's consent policy.",
-      loading: "Loading content…",
-      error: "This content could not be loaded."
-    },
     legalLinks: {
-      privacyPolicy: "隐私政策",
-      cookiePolicy: "Cookie政策",
-      termsOfService: "服务条款"
+      privacyPolicy: "隐私政策"
     }
   }
 } satisfies Record<string, Partial<Translations>>;

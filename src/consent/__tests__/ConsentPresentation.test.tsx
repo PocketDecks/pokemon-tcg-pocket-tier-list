@@ -99,12 +99,24 @@ describe("ConsentProvider presentation", () => {
     await renderWithLanguage("en", null);
 
     await screen.findByTestId("consent-banner-root");
+    expect(screen.queryByTestId("consent-banner-branding")).toBeNull();
     expect(screen.queryByTestId("consent-widget-branding")).toBeNull();
     expect(screen.queryByTestId("consent-dialog-branding")).toBeNull();
 
     await openDialog(user);
     expect(screen.queryByTestId("consent-dialog-branding")).toBeNull();
     expect(screen.queryByTestId("consent-widget-branding")).toBeNull();
+  });
+
+  it("uses British English in the English banner", async () => {
+    await renderWithLanguage("en", null);
+
+    const banner = await screen.findByTestId("consent-banner-root");
+    expect(banner.querySelector('[data-testid="consent-banner-customize-button"]')).toHaveTextContent(
+      "Customise"
+    );
+    expect(banner).toHaveTextContent("analyse site traffic");
+    expect(banner).toHaveTextContent("personalised content");
   });
 
   it.each([

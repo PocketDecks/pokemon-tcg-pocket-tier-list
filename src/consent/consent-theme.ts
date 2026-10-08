@@ -25,6 +25,11 @@ const actionButton = {
   whiteSpace: "nowrap",
 };
 
+const neutralButtonVariables = {
+  "--button-neutral": "var(--c15t-text)",
+  "--button-neutral-dark": "var(--c15t-text)",
+};
+
 const legalLinkVariables = {
   "--legal-links-color": "var(--c15t-primary)",
   "--legal-links-focus-color-dark": "var(--c15t-primary)",
@@ -62,18 +67,6 @@ export const consentTheme: UIOptions = {
       customize: { variant: "neutral", mode: "ghost" },
     },
     slots: {
-      // The banner is position:fixed;bottom:0, which ignores the body's
-      // padding-bottom that reserves space for the sticky AdAnchor bar. Offset it by
-      // the same --ad-anchor-h so its buttons never sit under the ad bar on mobile
-      // (where both occupy the bottom strip). The banner is portaled to <body> while
-      // the AdAnchor lives inside #root, so a modest z-index on the banner can still
-      // lose a stacking-context comparison against the anchor; pin it to the maximum
-      // so it unambiguously wins regardless of context. Do NOT downgrade c15t's own
-      // banner z-index (it ships 999999998) — that only weakens the stack.
-      //
-      // Set on the banner's own root only: the dialog and the widget switches share
-      // the c15t root class prefix, and the dialog overlay is a full-viewport
-      // inset:0 layer that must not be lifted off the bottom edge.
       consentBanner: {
         style: {
           bottom: "var(--ad-anchor-h, 0px)",
@@ -84,6 +77,8 @@ export const consentTheme: UIOptions = {
       },
       consentBannerCard: {
         style: {
+          ...neutralButtonVariables,
+          padding: "2.4rem",
           background: "rgba(26, 26, 23, 0.72)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
@@ -108,12 +103,14 @@ export const consentTheme: UIOptions = {
       },
       consentBannerDescription: {
         style: {
+          marginTop: "0.6rem",
           fontSize: "var(--c15t-font-size-base)",
           lineHeight: 1.55,
         },
       },
       consentDialogCard: {
         style: {
+          ...neutralButtonVariables,
           "--consent-dialog-max-width": "44rem",
           ...legalLinkVariables,
         },

@@ -192,7 +192,7 @@ const MovementTable = styled.table`
 `;
 
 const Delta = styled.td<{ $rising: boolean }>`
-    color: ${(props) => (props.$rising ? "var(--f)" : "var(--s)")};
+    color: ${(props) => (props.$rising ? "var(--f-text)" : "var(--s-text)")};
     font-weight: 600;
     white-space: nowrap;
 

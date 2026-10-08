@@ -37,23 +37,17 @@ describe("loadEnv", () => {
   });
 
   it("loads the repository-root fixture with the default path", async () => {
+    const root = makeRoot();
     const fixtureEnv = path.resolve(__dirname, "../__fixtures__/load-env-root.env");
-    const repositoryRoot = path.resolve(__dirname, "../../../");
-    const repositoryEnv = path.join(repositoryRoot, ".env");
-    const originalRepositoryEnv = fs.existsSync(repositoryEnv)
-      ? fs.readFileSync(repositoryEnv, "utf8")
-      : undefined;
-
-    fs.copyFileSync(fixtureEnv, repositoryEnv);
+    const moduleDir = path.join(root, "analysis", "src");
+    fs.mkdirSync(moduleDir, { recursive: true });
+    fs.copyFileSync(fixtureEnv, path.join(root, ".env"));
     delete process.env.LIMITLESS_API_KEY;
-    try {
-      const { loadEnv } = await loadModule();
-      loadEnv();
-      expect(process.env.LIMITLESS_API_KEY).toBe("fixture-root-key");
-    } finally {
-      if (originalRepositoryEnv === undefined) fs.rmSync(repositoryEnv, { force: true });
-      else fs.writeFileSync(repositoryEnv, originalRepositoryEnv);
-    }
+
+    const { createLoadEnv } = await loadModule();
+    createLoadEnv(moduleDir)();
+
+    expect(process.env.LIMITLESS_API_KEY).toBe("fixture-root-key");
   });
   it("preserves an existing environment value", async () => {
     const root = makeRoot();

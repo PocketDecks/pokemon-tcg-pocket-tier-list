@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
+import { ConsentManagerProvider } from "@c15t/react";
 import Header from "../Header";
 import { UIProvider } from "../../contexts/UIContext";
 
@@ -13,6 +14,7 @@ vi.mock("react-i18next", () => ({
           "a11y.closeMenu": "Close menu",
           "a11y.primaryNav": "Main navigation",
           "footer.about": "About",
+          "footer.privacySettings": "Privacy settings",
         } as Record<string, string>
       )[key] ?? key,
   }),
@@ -44,11 +46,13 @@ beforeEach(() => {
 
 const renderHeader = (footer = false) =>
   render(
-    <UIProvider>
-      <MemoryRouter>
-        <Header footer={footer} />
-      </MemoryRouter>
-    </UIProvider>
+    <ConsentManagerProvider options={{ mode: "offline" }}>
+      <UIProvider>
+        <MemoryRouter>
+          <Header footer={footer} />
+        </MemoryRouter>
+      </UIProvider>
+    </ConsentManagerProvider>
   );
 
 describe("Header", () => {
@@ -66,6 +70,13 @@ describe("Header", () => {
     expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
     expect(screen.getByRole("contentinfo")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "About" })).toBeInTheDocument();
+  });
+
+  it("names the footer consent link after its visible text", () => {
+    renderHeader(true);
+    expect(
+      screen.getByRole("button", { name: "Privacy settings" })
+    ).toBeInTheDocument();
   });
 
   it("closes the mobile menu on Escape and returns focus to the menu button", () => {

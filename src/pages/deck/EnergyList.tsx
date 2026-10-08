@@ -40,7 +40,9 @@ const Icon = styled.img`
   height: 2.2rem;
   object-fit: contain;
   border-radius: 50%;
-  box-shadow: 0 0 0 1.5px var(--energy-ring);
+  box-shadow:
+    0 0 0 1px var(--energy-ring),
+    0 1px 2px var(--energy-shadow);
 `;
 
 const EnergyList = ({ energyIds }: { energyIds: number[] }) => {

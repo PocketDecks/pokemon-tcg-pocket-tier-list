@@ -85,7 +85,7 @@
   isolation: isolate;
   overflow: hidden;
   background: none !important;
-  color: var(--bg) !important;
+  color: var(--on-accent) !important;
   border: none !important;
 }
 

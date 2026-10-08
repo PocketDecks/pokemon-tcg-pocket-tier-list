@@ -72,7 +72,7 @@ const SkipLink = styled.a`
   padding: 1.2rem 1.6rem;
   border-radius: 0.6rem;
   background: var(--focus);
-  color: var(--bg);
+  color: var(--on-accent);
   font-size: 1.6rem;
   font-weight: 500;
   transform: translateY(-200%);

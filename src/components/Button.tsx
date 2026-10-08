@@ -72,7 +72,7 @@ const buttonBase = css<{ $isLoading: boolean; $wide: boolean }>`
     animation: ${rainbowAnimation} 8s ease infinite;
   }
 
-  color: var(--bg);
+  color: var(--on-accent);
   font-size: 2.1rem;
   font-weight: 600;
   cursor: ${(props) => (props.$isLoading ? "not-allowed" : "pointer")};

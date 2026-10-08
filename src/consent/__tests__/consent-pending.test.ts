@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { OfflineClient, policyPackPresets } from "c15t";
+import { OfflineClient, deleteCookie, policyPackPresets, setCookie } from "c15t";
 import {
   buildConsentPendingData,
   consentPendingScript,
@@ -57,6 +57,13 @@ const runScript = (script: string, { cookie = "", timeZone, storage = null }: Vi
 };
 
 const stored = JSON.stringify({ consents: {}, consentInfo: { time: 1, subjectId: "sub_1" } });
+
+const encodeConsentCookie = (value: unknown): string => {
+  setCookie(CONSENT_STORAGE_KEY, value);
+  const cookie = document.cookie;
+  deleteCookie(CONSENT_STORAGE_KEY);
+  return cookie;
+};
 
 describe("consent pending head script", () => {
   let data: ConsentPendingData;
@@ -167,6 +174,31 @@ describe("consent pending head script", () => {
       runScript(script, { timeZone: "Europe/Berlin", cookie: "theme=dark; c15t=i.t:1" })
     ).toBe(false);
     expect(runScript(script, { timeZone: "Europe/Berlin", cookie: "xc15t=1" })).toBe(true);
+  });
+
+  it("shows the banner again when the consent cookie requires re-consent", async () => {
+    await prepare();
+    const cookie = encodeConsentCookie({
+      consents: { necessary: true },
+      consentInfo: { time: 1, subjectId: "sub_1", requiresReconsent: true },
+    });
+
+    expect(cookie).toContain("requiresReconsent:1");
+    expect(runScript(script, { timeZone: "Europe/Berlin", cookie })).toBe(true);
+    expect(
+      runScript(script, { timeZone: "Europe/Berlin", cookie: `theme=dark; ${cookie}` })
+    ).toBe(true);
+  });
+
+  it("stays quiet once a consent cookie without re-consent is stored", async () => {
+    await prepare();
+    const cookie = encodeConsentCookie({
+      consents: { necessary: true },
+      consentInfo: { time: 1, subjectId: "sub_1" },
+    });
+
+    expect(cookie).not.toContain("requiresReconsent");
+    expect(runScript(script, { timeZone: "Europe/Berlin", cookie })).toBe(false);
   });
 
   it.each(rows)("agrees with the provider banner for $name", async (row) => {

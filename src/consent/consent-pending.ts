@@ -82,7 +82,7 @@ try{
 var root=document.documentElement;
 var stored=false;
 try{var raw=localStorage.getItem(${JSON.stringify(CONSENT_STORAGE_KEY)});if(raw){var saved=JSON.parse(raw);stored=!!(saved&&saved.consentInfo&&!saved.consentInfo.requiresReconsent)}}catch(e){}
-if(!stored){try{stored=/(?:^|;\\s*)${CONSENT_STORAGE_KEY}=/.test(document.cookie)}catch(e){}}
+if(!stored){try{var cookie=document.cookie.split(";").map(function(part){return part.trim()}).filter(function(part){return part.indexOf(${JSON.stringify(CONSENT_STORAGE_KEY + "=")})===0})[0];stored=cookie!==undefined&&!/(?:^|,)i\\.requiresReconsent:1(?:,|$)/.test(cookie.slice(${CONSENT_STORAGE_KEY.length + 1}))}catch(e){}}
 if(stored)return;
 var data=${JSON.stringify(data)};
 var geo=null;

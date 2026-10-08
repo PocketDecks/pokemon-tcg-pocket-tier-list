@@ -192,24 +192,24 @@ const main = async () => {
           el.textContent = Array.from(el.sheet.cssRules, (rule) => rule.cssText).join("\n");
         });
       });
+      await page.evaluate(
+        (preloads, scripts) => {
+          const allowedPreloads = new Set(preloads);
+          const allowedScripts = new Set(scripts);
+          document.querySelectorAll('link[rel="modulepreload"]').forEach((el) => {
+            if (!allowedPreloads.has(el.getAttribute("href"))) el.remove();
+          });
+          document.querySelectorAll("script[src]").forEach((el) => {
+            if (!allowedScripts.has(el.getAttribute("src"))) el.remove();
+          });
+        },
+        templatePreloads,
+        templateScripts
+      );
       return page.evaluate(
         () => `<!doctype html>\n${document.documentElement.outerHTML}`
       );
     });
-    await page.evaluate(
-      (preloads, scripts) => {
-        const allowedPreloads = new Set(preloads);
-        const allowedScripts = new Set(scripts);
-        document.querySelectorAll('link[rel="modulepreload"]').forEach((el) => {
-          if (!allowedPreloads.has(el.getAttribute("href"))) el.remove();
-        });
-        document.querySelectorAll("script[src]").forEach((el) => {
-          if (!allowedScripts.has(el.getAttribute("src"))) el.remove();
-        });
-      },
-      templatePreloads,
-      templateScripts
-    );
     // Vite stamps lazy-chunk hrefs with the preview origin while the page
     // boots; captured markup must stay root-relative.
     let stampedHtml = html.split(ORIGIN).join("");

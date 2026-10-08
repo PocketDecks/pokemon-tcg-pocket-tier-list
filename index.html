@@ -3,14 +3,14 @@
   <head>
     <script data-theme-init="true">
       (() => {
-        const setThemeColor = () => {
+        const setThemeColor = (theme) => {
           let meta = document.querySelector('meta[name="theme-color"]');
           if (!meta) {
             meta = document.createElement("meta");
             meta.name = "theme-color";
             document.head.append(meta);
           }
-          meta.content = "#121210";
+          meta.content = theme === "light" ? "#ECE9E2" : "#121210";
         };
         try {
           const stored = localStorage.getItem("theme");
@@ -19,11 +19,11 @@
             : matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
           document.documentElement.dataset.theme = theme;
           document.documentElement.style.colorScheme = theme;
-          setThemeColor();
+          setThemeColor(theme);
         } catch {
           document.documentElement.dataset.theme = "dark";
           document.documentElement.style.colorScheme = "dark";
-          setThemeColor();
+          setThemeColor("dark");
         }
       })();
     </script>

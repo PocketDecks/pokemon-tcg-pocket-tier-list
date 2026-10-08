@@ -29,12 +29,13 @@ const friendlyName = (deckName) => {
 };
 
 const { deckSlug } = require("./deck-slug.mjs");
+const { cardThumbSrcSet, DECK_CARD_SIZES, firstBestListCardId } = require("./deck-thumbs.mjs");
 
 const slugFor = deckSlug;
 
 
 const renderDeckHtml = (deck, templateHtml) => {
-  const { slug, title, ogImage, ogUrl, description } = deck;
+  const { slug, title, ogImage, ogUrl, description, cardId } = deck;
 
   const eTitle = escapeXml(title);
   const eDesc = escapeXml(description);
@@ -54,6 +55,7 @@ const renderDeckHtml = (deck, templateHtml) => {
       `<meta name="twitter:title" content="${eTitle}" />`,
       `<meta name="twitter:description" content="${eDesc}" />`,
       `<meta name="twitter:image" content="${escapeXml(ogImage)}" />`,
+      `<link rel="preload" as="image" imagesrcset="${escapeXml(cardThumbSrcSet(cardId))}" imagesizes="${escapeXml(DECK_CARD_SIZES)}" fetchpriority="high" />`,
     ],
     jsonLd: {
       "@context": "https://schema.org",
@@ -84,9 +86,10 @@ const main = () => {
     const description = `Pokémon TCG Pocket deck profile for ${name}: card list, matchups, and win rate.`;
     const ogImage = `${SITE_URL}/og/deck/${slug}.png`;
     const ogUrl = `${SITE_URL}/deck/${slug}`;
+    const cardId = firstBestListCardId(deck);
 
     const html = renderDeckHtml(
-      { slug, title, ogImage, ogUrl, description },
+      { slug, title, ogImage, ogUrl, description, cardId },
       template
     );
     const outDir = path.join(BUILD_DIR, "deck", slug);

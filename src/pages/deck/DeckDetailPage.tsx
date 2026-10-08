@@ -25,6 +25,12 @@ import DeckPageSkeleton from "./DeckPageSkeleton";
 import EnergyList from "./EnergyList";
 import useDeckTiers, { tierForDeck } from "../../app/use-deck-tiers";
 import {
+  cardThumbHeight,
+  cardThumbSrcSet,
+  cardThumbUrl,
+  onDeckThumbError,
+} from "../../app/deck-thumb";
+import {
   AlternativeSwap,
   CardSection,
   DeckCardContainer,
@@ -56,6 +62,21 @@ import {
   VisuallyHidden,
   WinRatePlaceholder,
 } from "./deck-page.styles";
+
+const SWAP_THUMB_WIDTH = 240;
+
+const SwapThumb = ({ card }: { card: CardType }) => (
+  <img
+    src={cardThumbUrl(card.id, SWAP_THUMB_WIDTH)}
+    srcSet={cardThumbSrcSet(card.id)}
+    sizes="135px"
+    width={SWAP_THUMB_WIDTH}
+    height={cardThumbHeight(SWAP_THUMB_WIDTH)}
+    alt=""
+    loading="lazy"
+    onError={onDeckThumbError(card.image)}
+  />
+);
 
 const DeckDetailPage = () => {
   const deckId = useParams().deckId;
@@ -298,7 +319,7 @@ const DeckDetailPage = () => {
                     key={`${list.score}-${list.cards.map((c) => c.id).join("-")}`}
                   >
                     <SwapSide $out>
-                      <img src={diff.removed[0].image} alt="" loading="lazy" />
+                      <SwapThumb card={diff.removed[0]} />
                       <SwapLabel>
                         <SwapCount $out>{`−${diff.removed.length}`}</SwapCount>
                         <SwapName>{diff.removed[0].name}</SwapName>
@@ -308,7 +329,7 @@ const DeckDetailPage = () => {
                       <NavIcon name="arrowRight" size={20} />
                     </SwapArrow>
                     <SwapSide $out={false}>
-                      <img src={diff.added[0].image} alt="" loading="lazy" />
+                      <SwapThumb card={diff.added[0]} />
                       <SwapLabel>
                         <SwapCount $out={false}>{`+${diff.added.length}`}</SwapCount>
                         <SwapName>{diff.added[0].name}</SwapName>

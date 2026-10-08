@@ -13,7 +13,7 @@ import rawCards from "../../../app/__fixtures__/cards-full-v510.json";
 import realDecks from "../../../../public/data/best-decks.json";
 import { deckSlug } from "../../../app/deck-slug";
 import { cardToId } from "../../../app/deck-filters";
-import type { RawCardType } from "../../../app/cards-api";
+import { cardThumbUrl } from "../../../app/deck-thumb";
 
 vi.mock("../../../ads/AdInContent", () => ({
   __esModule: true,
@@ -97,9 +97,6 @@ const renderDeck = (deckId: string) =>
 // the cut card must not stay on screen. Hand-picked fixtures need a lucky
 // guess to hit the deck/card combination that trips the trim; every deck's
 // lead card sweeps the whole space.
-const imageUrlOf = (cards: RawCardType[], id: string): string | null =>
-  cards.find((card) => card.id === id)?.image ?? null;
-
 describe.each(
   (realDecks as { name: string; lists: { cards: string[]; score: number }[] }[]).map(
     (d) => {
@@ -110,7 +107,7 @@ describe.each(
         deckId: deckSlug(d.name),
         name: d.name,
         cutCardId,
-        cutCardImage: imageUrlOf(rawCards, cutCardId),
+        cutCardImage: cardThumbUrl(cutCardId, 240),
       };
     }
   )

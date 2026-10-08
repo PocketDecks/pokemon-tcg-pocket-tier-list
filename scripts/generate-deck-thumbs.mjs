@@ -4,9 +4,21 @@ import { pathToFileURL } from "url";
 import { randomUUID } from "crypto";
 import sharp from "sharp";
 import { deckNameToIconIds } from "./deck-name.mjs";
-import { DECK_THUMB_CROP, DECK_THUMB_QUALITY, DECK_THUMB_SIZES, DECK_THUMB_VERSION } from "./deck-thumbs.mjs";
+import {
+  CARD_THUMB_WIDTHS,
+  DECK_THUMB_CROP,
+  DECK_THUMB_QUALITY,
+  DECK_THUMB_SIZES,
+  DECK_THUMB_VERSION,
+  cardThumbHeight,
+  deckListCardIds,
+} from "./deck-thumbs.mjs";
 
 const ATTEMPTS = 3;
+const CARD_DIR = "cards";
+
+const CROP_VARIANTS = DECK_THUMB_SIZES.map((size) => ({ width: size, height: size }));
+const CARD_VARIANTS = CARD_THUMB_WIDTHS.map((width) => ({ width, height: cardThumbHeight(width) }));
 
 const fetchBuffer = async (url) => {
   let lastError;
@@ -39,12 +51,18 @@ export const cropArt = (buffer, size) =>
     .webp({ quality: DECK_THUMB_QUALITY })
     .toBuffer();
 
-const isValidThumbnail = async (filePath, size) => {
+export const cardArt = (buffer, width) =>
+  sharp(buffer)
+    .resize(width, cardThumbHeight(width), { fit: "fill" })
+    .webp({ quality: DECK_THUMB_QUALITY })
+    .toBuffer();
+
+const isValidThumbnail = async (filePath, width, height) => {
   if (!fs.existsSync(filePath)) return false;
   try {
     const buffer = fs.readFileSync(filePath);
     const metadata = await sharp(buffer).metadata();
-    if (metadata.format !== "webp" || metadata.width !== size || metadata.height !== size) {
+    if (metadata.format !== "webp" || metadata.width !== width || metadata.height !== height) {
       return false;
     }
     await sharp(buffer).raw().toBuffer();
@@ -54,16 +72,22 @@ const isValidThumbnail = async (filePath, size) => {
   }
 };
 
-export const findMissingThumbnailIds = async (ids, outDir) => {
+const findMissingVariantIds = async (ids, dir, variants) => {
   const missing = [];
   for (const id of ids) {
     const valid = await Promise.all(
-      DECK_THUMB_SIZES.map((size) => isValidThumbnail(path.join(outDir, `${id}-${size}.webp`), size))
+      variants.map(({ width, height }) => isValidThumbnail(path.join(dir, `${id}-${width}.webp`), width, height))
     );
     if (valid.some((value) => !value)) missing.push(id);
   }
   return missing;
 };
+
+export const findMissingThumbnailIds = (ids, outDir) =>
+  findMissingVariantIds(ids, outDir, CROP_VARIANTS);
+
+export const findMissingCardThumbnailIds = (ids, outDir) =>
+  findMissingVariantIds(ids, path.join(outDir, CARD_DIR), CARD_VARIANTS);
 
 export const writeThumbnail = (outDir, id, size, buffer) => {
   const destination = path.join(outDir, `${id}-${size}.webp`);
@@ -91,8 +115,13 @@ const runWithConcurrency = async (items, worker, concurrency) => {
 };
 
 export const generateThumbnails = async ({ decks, imageById, outDir }) => {
-  fs.mkdirSync(outDir, { recursive: true });
-  const ids = await findMissingThumbnailIds(thumbCardIds(decks), outDir);
+  const cardDir = path.join(outDir, CARD_DIR);
+  fs.mkdirSync(cardDir, { recursive: true });
+  const cropIds = await findMissingThumbnailIds(thumbCardIds(decks), outDir);
+  const cardIds = await findMissingCardThumbnailIds(deckListCardIds(decks), outDir);
+  const cropSet = new Set(cropIds);
+  const cardSet = new Set(cardIds);
+  const ids = [...new Set([...cropIds, ...cardIds])];
   const generated = await runWithConcurrency(
     ids,
     async (id) => {
@@ -101,12 +130,18 @@ export const generateThumbnails = async ({ decks, imageById, outDir }) => {
         throw new Error(`generate-deck-thumbs: no card record for ${id}`);
       }
       const source = Buffer.isBuffer(image) ? image : await fetchBuffer(image);
-      await Promise.all(
-        DECK_THUMB_SIZES.map(async (size) => {
-          const thumb = await cropArt(source, size);
-          writeThumbnail(outDir, id, size, thumb);
-        })
-      );
+      const jobs = [];
+      if (cropSet.has(id)) {
+        for (const size of DECK_THUMB_SIZES) {
+          jobs.push(cropArt(source, size).then((thumb) => writeThumbnail(outDir, id, size, thumb)));
+        }
+      }
+      if (cardSet.has(id)) {
+        for (const width of CARD_THUMB_WIDTHS) {
+          jobs.push(cardArt(source, width).then((thumb) => writeThumbnail(cardDir, id, width, thumb)));
+        }
+      }
+      await Promise.all(jobs);
       return id;
     },
     8
@@ -126,7 +161,7 @@ const main = async () => {
   const imageById = new Map(cards.map((card) => [card.id, card.image]));
   const outDir = path.join(cwd, "public", "thumbs", `v${DECK_THUMB_VERSION}`);
   const generated = await generateThumbnails({ decks, imageById, outDir });
-  console.log(`generate-deck-thumbs: wrote ${generated.length} thumbnails to ${outDir}`);
+  console.log(`generate-deck-thumbs: wrote ${generated.length} thumbnail sets to ${outDir}`);
 };
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

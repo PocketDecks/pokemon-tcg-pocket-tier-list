@@ -1,7 +1,12 @@
 const fs = require("fs");
 const path = require("path");
 const { deckNameToIconIds } = require("./deck-name.mjs");
-const { DECK_THUMB_SIZES, DECK_THUMB_VERSION } = require("./deck-thumbs.mjs");
+const {
+  CARD_THUMB_WIDTHS,
+  DECK_THUMB_SIZES,
+  DECK_THUMB_VERSION,
+  deckListCardIds,
+} = require("./deck-thumbs.mjs");
 
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
@@ -72,20 +77,23 @@ const collectModulepreloads = (html) =>
     .map((tag) => (tag.match(/href=["']([^"']*)["']/i) || [])[1])
     .filter((href) => href !== undefined);
 
+const deckDetailFiles = (dir = DIST_DIR) => {
+  const deckDir = path.join(dir, "deck");
+  if (!fs.existsSync(deckDir)) return [];
+  return fs
+    .readdirSync(deckDir, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name === "index.html")
+    .map((entry) => path.join(entry.parentPath, entry.name))
+    .filter((file) => path.relative(deckDir, file).split(path.sep).length === 2)
+    .sort();
+};
+
 // Deck detail pages are stamped from the built template without a JS render, so
 // they carry the template's preload set verbatim. Fall back to the home page.
 const findTemplateModulepreloads = (dir = DIST_DIR) => {
-  const deckDir = path.join(dir, "deck");
-  if (fs.existsSync(deckDir)) {
-    const detail = fs
-      .readdirSync(deckDir, { recursive: true, withFileTypes: true })
-      .filter((entry) => entry.isFile() && entry.name === "index.html")
-      .map((entry) => path.join(entry.parentPath, entry.name))
-      .filter((file) => path.relative(deckDir, file).split(path.sep).length === 2)
-      .sort();
-    if (detail.length > 0) {
-      return new Set(collectModulepreloads(fs.readFileSync(detail[0], "utf8")));
-    }
+  const detail = deckDetailFiles(dir);
+  if (detail.length > 0) {
+    return new Set(collectModulepreloads(fs.readFileSync(detail[0], "utf8")));
   }
   const home = path.join(dir, "index.html");
   if (fs.existsSync(home)) {
@@ -134,6 +142,40 @@ const findMissingDeckThumbs = (dir = DIST_DIR, decks = loadDecks()) => {
     ).map((size) => `${id}-${size}`)
   );
 };
+
+const findMissingCardThumbs = (dir = DIST_DIR, decks = loadDecks()) => {
+  const cardDir = path.join(dir, "thumbs", `v${DECK_THUMB_VERSION}`, "cards");
+  return deckListCardIds(decks).flatMap((id) =>
+    CARD_THUMB_WIDTHS.filter(
+      (width) => !fs.existsSync(path.join(cardDir, `${id}-${width}.webp`))
+    ).map((width) => `${id}-${width}`)
+  );
+};
+
+const collectImagePreloads = (html) =>
+  [...html.matchAll(/<link\b[^>]*>/gi)]
+    .map((match) => match[0])
+    .filter((tag) => /rel=["']preload["']/i.test(tag) && /as=["']image["']/i.test(tag));
+
+const imageCandidates = (tag) =>
+  (tag.match(/imagesrcset=["']([^"']*)["']/i)?.[1] ?? "")
+    .split(",")
+    .map((candidate) => candidate.trim().split(/\s+/)[0])
+    .filter(Boolean);
+
+const findDeckImagePreloadIssues = (dir = DIST_DIR) =>
+  deckDetailFiles(dir).flatMap((file) => {
+    const entry = path.relative(dir, file);
+    const tags = collectImagePreloads(fs.readFileSync(file, "utf8"));
+    if (tags.length !== 1) {
+      return [`${entry}: expected 1 image preload, found ${tags.length}`];
+    }
+    return imageCandidates(tags[0]).flatMap((candidate) => {
+      const url = candidate.split("?")[0];
+      if (!url.startsWith("/thumbs/")) return [`${entry}: ${candidate} is outside /thumbs/`];
+      return fs.existsSync(path.join(dir, url)) ? [] : [`${entry}: ${url} is not built`];
+    });
+  });
 
 const isExternalHost = (src) => {
   const match = src.match(/^(?:https?:)?\/\/([^/?#]+)/i);
@@ -194,11 +236,25 @@ const main = () => {
     );
     process.exit(1);
   }
+  const imagePreloadIssues = findDeckImagePreloadIssues();
+  if (imagePreloadIssues.length > 0) {
+    console.error(
+      `Deck page image preloads without a built file:\n${imagePreloadIssues.join("\n")}`
+    );
+    process.exit(1);
+  }
   try {
     const missingThumbs = findMissingDeckThumbs();
     if (missingThumbs.length > 0) {
       console.error(
         `Deck icon ids without a built thumbnail:\n${missingThumbs.join("\n")}`
+      );
+      process.exit(1);
+    }
+    const missingCardThumbs = findMissingCardThumbs();
+    if (missingCardThumbs.length > 0) {
+      console.error(
+        `Deck card ids without a built card thumbnail:\n${missingCardThumbs.join("\n")}`
       );
       process.exit(1);
     }
@@ -213,9 +269,11 @@ if (require.main === module) main();
 
 module.exports = {
   findBakedAppState,
+  findDeckImagePreloadIssues,
   findEmptyStyledTags,
   findExternalScripts,
   findLoopbackRefs,
+  findMissingCardThumbs,
   findMissingDeckThumbs,
   findModulepreloadDrift,
   loadDecks,

@@ -44,4 +44,21 @@ describe("BestDeckFinder", () => {
       "/deck"
     );
   });
+
+  it("serves the preview cards from the first-party thumbnails", () => {
+    const { container } = render(
+      <MemoryRouter>
+        <BestDeckFinder />
+      </MemoryRouter>
+    );
+
+    const image = container.querySelector("img");
+    expect(image).toHaveAttribute("src", "/thumbs/v3/cards/card-1-240.webp?v=3");
+    expect(image).toHaveAttribute(
+      "srcset",
+      "/thumbs/v3/cards/card-1-120.webp?v=3 120w, /thumbs/v3/cards/card-1-240.webp?v=3 240w"
+    );
+    expect(image).toHaveAttribute("width", "240");
+    expect(image).toHaveAttribute("height", "335");
+  });
 });

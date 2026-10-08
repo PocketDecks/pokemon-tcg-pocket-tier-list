@@ -30,3 +30,34 @@ export const cardIdFromImage = (image) => {
   const match = image.match(CARD_IMAGE);
   return match ? `${match[1]}-${match[2]}` : null;
 };
+
+export const CARD_THUMB_WIDTHS = [120, 240];
+export const CARD_THUMB_ASPECT = { width: 367, height: 512 };
+
+export const cardThumbHeight = (width) =>
+  Math.round((width * CARD_THUMB_ASPECT.height) / CARD_THUMB_ASPECT.width);
+
+export const cardThumbUrl = (cardId, width) =>
+  `/thumbs/v${DECK_THUMB_VERSION}/cards/${cardId}-${width}.webp?v=${DECK_THUMB_VERSION}`;
+
+export const cardThumbSrcSet = (cardId) =>
+  CARD_THUMB_WIDTHS.map((width) => `${cardThumbUrl(cardId, width)} ${width}w`).join(", ");
+
+export const DECK_CARD_SIZES = "(max-width: 900px) calc(50vw - 36px), 240px";
+
+const deckListCardId = (ref) => ref.split(":")[1];
+
+export const deckListCardIds = (decks) => {
+  const ids = new Set();
+  for (const deck of decks) {
+    for (const list of deck.lists ?? []) {
+      for (const ref of list.cards) ids.add(deckListCardId(ref));
+    }
+  }
+  return [...ids];
+};
+
+export const firstBestListCardId = (deck) => {
+  const best = deck.lists.reduce((top, list) => (list.score > top.score ? list : top));
+  return deckListCardId(best.cards[0]);
+};

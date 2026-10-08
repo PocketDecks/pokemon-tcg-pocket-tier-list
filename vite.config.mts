@@ -58,7 +58,7 @@ export default defineConfig({
   plugins: [react(), manropePreload()],
   envPrefix: ["VITE_", "REACT_APP_"],
   server: { port: 3000 },
-  build: { target: "chrome78", sourcemap: true },
+  build: { target: "baseline-widely-available", sourcemap: true },
   test: {
     environment: "jsdom",
     setupFiles: ["./src/setupTests.ts"],

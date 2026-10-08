@@ -306,7 +306,7 @@ describe("DecksProvider with a failed fetch", () => {
 
   it("ends loading and exposes the error on a non-OK response", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.spyOn(global, "fetch").mockImplementation((input) =>
+    vi.spyOn(global, "fetch").mockImplementation(() =>
       errorResponse(500, "Internal Server Error")
     );
 

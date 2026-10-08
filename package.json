@@ -35,7 +35,7 @@
     "postbuild": "node scripts/prerender-decks.js && node scripts/prerender-routes.js && node scripts/verify-dist-html.js",
     "test": "vitest",
     "test:ci": "vitest run",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
     "lint": "eslint src --ext .ts,.tsx --max-warnings 0",
     "test:scripts": "node --test \"scripts/__tests__/*.test.js\""
   },

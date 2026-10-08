@@ -4,7 +4,7 @@ import useExpansions, { ExpansionType } from "../../app/use-expansions";
 import Dropdown from "../../components/Dropdown";
 import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
-import React, { type ChangeEvent } from "react";
+import { type ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 import TierGrid from "../../components/TierGrid";
 import PageTitle from "../../components/PageTitle";

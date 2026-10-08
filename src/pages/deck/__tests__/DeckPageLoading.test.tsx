@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes } from "react-router";
 import DeckDetailPage from "../DeckDetailPage";
@@ -66,28 +66,37 @@ describe("deck page loading state", () => {
     vi.restoreAllMocks();
   });
 
-  it("renders the deck skeleton with status text while the detail deck loads", async () => {
-    vi.spyOn(global, "fetch").mockImplementation(() => new Promise(() => {}));
-    renderWithRoute("/deck/venusaur-a1-004", "/deck/:deckId", <DeckDetailPage />);
-
-    expect(await screen.findByRole("status")).toHaveTextContent("Loading deck");
-    expect(screen.getByTestId("deck-page-skeleton")).toBeInTheDocument();
-    expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
-  });
-
-  it("reserves at least the first viewport so the footer sits below it", () => {
+  it("renders the detail skeleton with status text while the deck loads", async () => {
     vi.spyOn(global, "fetch").mockImplementation(() => new Promise(() => {}));
     renderWithRoute("/deck/venusaur-a1-004", "/deck/:deckId", <DeckDetailPage />);
 
     const skeleton = screen.getByTestId("deck-page-skeleton");
-    expect(getComputedStyle(skeleton).minHeight).toBe("100dvh");
+    expect(await screen.findByRole("status")).toHaveTextContent("Loading deck");
+    expect(within(skeleton).getByRole("status")).toBeInTheDocument();
+    expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
   });
 
-  it("renders the finder skeleton with status text while the decks load", async () => {
+  it("lays out the hero, then the card grid, then the matchup panel", () => {
+    vi.spyOn(global, "fetch").mockImplementation(() => new Promise(() => {}));
+    renderWithRoute("/deck/venusaur-a1-004", "/deck/:deckId", <DeckDetailPage />);
+
+    const hero = screen.getByTestId("deck-skeleton-hero");
+    const grid = screen.getByTestId("deck-skeleton-grid");
+    const panel = screen.getByTestId("deck-skeleton-panel");
+    expect(hero.children).toHaveLength(3);
+    expect(within(hero).getByRole("status")).toBeInTheDocument();
+    expect(grid.children).toHaveLength(8);
+    expect(hero.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(grid.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("renders the finder skeleton with status text and no matchup panel", async () => {
     vi.spyOn(global, "fetch").mockImplementation(() => new Promise(() => {}));
     renderWithRoute("/deck", "/deck", <DeckFinderPage />);
 
     expect(await screen.findByRole("status")).toHaveTextContent("Loading deck");
+    expect(screen.getByTestId("deck-skeleton-grid").children).toHaveLength(8);
+    expect(screen.queryByTestId("deck-skeleton-panel")).not.toBeInTheDocument();
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
   });
 });

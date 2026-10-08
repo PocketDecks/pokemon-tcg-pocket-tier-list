@@ -469,11 +469,6 @@ export const SwapArrow = styled.span`
 
 export const DeckSkeleton = styled.div`
   width: 100%;
-  min-height: 100dvh;
-
-  @media (max-width: 900px) {
-    min-height: calc(100dvh - 6rem);
-  }
 `;
 
 export const SkeletonHero = styled.div`

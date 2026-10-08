@@ -27,7 +27,7 @@ const DeckPageSkeleton = ({ showPanel = true }: Props) => {
 
   return (
     <DeckSkeleton data-testid="deck-page-skeleton">
-      <SkeletonHero>
+      <SkeletonHero data-testid="deck-skeleton-hero">
         <SkeletonArt aria-hidden="true" />
         <SkeletonArt aria-hidden="true" />
         <SkeletonBody>
@@ -38,14 +38,14 @@ const DeckPageSkeleton = ({ showPanel = true }: Props) => {
       </SkeletonHero>
       <StyledDeckPage>
         <CardSection>
-          <CardList>
+          <CardList data-testid="deck-skeleton-grid">
             {Array.from({ length: 8 }, (_, index) => (
               <SkeletonCard key={index} aria-hidden="true" />
             ))}
           </CardList>
         </CardSection>
         {showPanel && (
-          <PanelSection>
+          <PanelSection data-testid="deck-skeleton-panel">
             <MatchupSection aria-hidden="true">
               <SkeletonLine />
               <MatchupList>

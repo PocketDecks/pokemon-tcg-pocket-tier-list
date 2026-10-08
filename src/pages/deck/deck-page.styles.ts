@@ -47,7 +47,7 @@ export const FinderHelper = styled.p`
   align-self: flex-start;
   font-size: 1.5rem;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--white-72);
 `;
 
 export const Strength = styled.div`
@@ -60,14 +60,14 @@ export const Strength = styled.div`
 export const StrengthLabel = styled.span`
   font-size: 1.2rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--white-60);
   font-variant-numeric: tabular-nums;
 `;
 
 export const StrengthTrack = styled.span`
   height: 0.8rem;
   border-radius: 0.4rem;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--line);
   overflow: hidden;
 `;
 
@@ -107,8 +107,8 @@ export const CardContainer = styled.button<{ $stacked: boolean }>`
         inset: 0.4rem -0.6rem -0.6rem 0.4rem;
         z-index: -1;
         border-radius: 1rem;
-        background: rgba(255, 255, 255, 0.16);
-        box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.35);
+        background: var(--white-16);
+        box-shadow: 0 0.4rem 1.2rem var(--shadow-medium);
       }
     `}
 
@@ -142,9 +142,9 @@ export const CardNumber = styled.span<{ $count: number }>`
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  background: ${(props) => (props.$count > 1 ? "var(--main)" : "rgba(18, 18, 16, 0.82)")};
-  color: ${(props) => (props.$count > 1 ? "var(--bg)" : "var(--main)")};
-  box-shadow: 0 0.1em 0.5em rgba(0, 0, 0, 0.45);
+  background: ${(props) => (props.$count > 1 ? "var(--main)" : "var(--badge-bg)")};
+  color: ${(props) => (props.$count > 1 ? "var(--bg)" : "var(--text)")};
+  box-shadow: 0 0.1em 0.5em var(--shadow-strong);
 
   &::before {
     content: "×";
@@ -201,7 +201,7 @@ export const EmptyActions = styled.div`
 
 export const Or = styled.span`
   font-size: 1.8rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--white-60);
 `;
 
 export const UndoButton = styled.button<{ $disabled?: boolean }>`
@@ -275,8 +275,8 @@ export const MatchupSection = styled.section`
   height: auto;
   padding: 2rem;
   border-radius: 1.6rem;
-  background: #121210;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--surface-sunk);
+  border: 1px solid var(--fill-hover);
 
   @media (max-width: 900px) {
     width: 100%;
@@ -301,7 +301,7 @@ export const MatchupSkeletonTile = styled.span`
   width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--line);
 `;
 
 export const WinRatePlaceholder = styled.span`
@@ -310,7 +310,7 @@ export const WinRatePlaceholder = styled.span`
   height: 1em;
   vertical-align: middle;
   border-radius: 0.4rem;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--line);
 `;
 
 export const VisuallyHidden = styled.span`
@@ -325,7 +325,7 @@ export const VisuallyHidden = styled.span`
 export const MatchupUnavailable = styled.p`
   width: 100%;
   margin: 0;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--white-72);
   line-height: 1.5;
 `;
 
@@ -417,7 +417,7 @@ export const AlternativeSwap = styled.div`
   align-items: center;
   gap: 1.2rem;
   padding-top: 1.6rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--fill-hover);
 
   &:first-of-type {
     padding-top: 0;
@@ -453,16 +453,16 @@ export const SwapCount = styled.span<{ $out: boolean }>`
   flex-shrink: 0;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: ${(props) => (props.$out ? "#e58a8a" : "#7ddb8a")};
+  color: ${(props) => (props.$out ? "var(--status-down)" : "var(--status-up)")};
 `;
 
 export const SwapName = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--white-85);
 `;
 
 export const SwapArrow = styled.span`
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--white-60);
 `;

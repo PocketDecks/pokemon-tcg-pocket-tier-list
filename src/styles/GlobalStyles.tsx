@@ -1,4 +1,10 @@
 import { createGlobalStyle } from "styled-components";
+import { themeTokens, type ThemeName } from "./theme-tokens";
+
+const tokenBlock = (theme: ThemeName) =>
+  Object.entries(themeTokens[theme])
+    .map(([name, value]) => `--${name}: ${value};`)
+    .join("\n        ");
 
 const GlobalStyle = createGlobalStyle`
     @font-face {
@@ -11,19 +17,20 @@ const GlobalStyle = createGlobalStyle`
     }
 
     :root {
-        --bg: #1A1A17;
-        --border: #000;
-        --main: white;
-        --s: #FF7F7F;
-        --a: #FFBF7E;
-        --b: #FFDF80;
-        --c: #FFFF7F;
-        --d: #BFFF7F;
-        --f: #7FFF7F;
-        --focus: #FFDF80;
-        /* Bottom space reserved for the sticky ad anchor (0 when no ads). */
         --ad-anchor-h: 0px;
         --consent-banner-h: 0px;
+    }
+
+    :root[data-theme="dark"] {
+        color-scheme: dark;
+        ${tokenBlock("dark")}
+        --main: var(--text);
+    }
+
+    :root[data-theme="light"] {
+        color-scheme: light;
+        ${tokenBlock("light")}
+        --main: var(--text);
     }
 
     html {

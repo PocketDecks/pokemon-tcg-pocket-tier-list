@@ -90,7 +90,7 @@ This project uses two data sources:
 
 1. Tournament data from **[Limitless](https://limitlesstcg.com/)**, a platform for Pokémon TCG tournaments.    
 The deck rankings and statistics are based on tournament participation rates, win rates, top cut appearances, and overall performance.
-2. Card data from **[pokemon-tcg-pocket-cards](https://github.com/chase-manning/pokemon-tcg-pocket-cards)**, an open-source repository that provides card information for Pokémon TCG Pocket.   
+2. Card data from **[pokemon-tcg-pocket-cards](https://github.com/PocketDecks/pokemon-tcg-pocket-cards)**, an open-source repository that provides card information for Pokémon TCG Pocket.   
 _This data is used to display detailed card information and deck compositions._
 
 ## 📜 Licence
@@ -100,6 +100,6 @@ This project is licensed under the **[AGPL-3.0 License](https://www.gnu.org/lice
 ## 🙏🏻 Acknowledgements
 
 - [Limitless](https://limitlesstcg.com/) for providing tournament data
-- [pokemon-tcg-pocket-cards](https://github.com/chase-manning/pokemon-tcg-pocket-cards) for maintaining the card database
+- [pokemon-tcg-pocket-cards](https://github.com/PocketDecks/pokemon-tcg-pocket-cards) for maintaining the card database
 - The Pokémon TCG community for their support and feedback
 - All contributors who help improve this project

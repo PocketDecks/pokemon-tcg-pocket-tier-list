@@ -18,7 +18,7 @@ const StyledFeatures = styled.section`
   grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
   gap: 6.4rem;
   padding: 9.6rem 4rem 8rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--fill-hover);
 
   @media (max-width: 1100px) {
     grid-template-columns: 1fr;
@@ -69,7 +69,7 @@ const Chip = styled.span<{ $color: string }>`
   height: 4.8rem;
   border-radius: 1.2rem;
   background: ${(props) => props.$color};
-  color: rgba(0, 0, 0, 0.78);
+  color: var(--black-78);
 `;
 
 const ItemTitle = styled.h3`
@@ -83,7 +83,7 @@ const Description = styled.p`
   max-width: 46ch;
   font-size: 1.6rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--white-72);
   text-wrap: pretty;
 `;
 

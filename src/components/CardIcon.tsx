@@ -16,7 +16,7 @@ const Container = styled.div`
 const StyledCardIcon = styled.button`
   position: relative;
   border-radius: 1.2rem;
-  color: var(--bg);
+  color: var(--on-accent);
   display: flex;
   height: 100%;
   aspect-ratio: 1 / 1;
@@ -37,7 +37,7 @@ const CardNumber = styled.div`
   bottom: 0;
   right: 0;
   background: var(--s);
-  color: var(--bg);
+  color: var(--on-accent);
   font-size: 1.6rem;
   font-weight: 500;
   padding: 0.5rem 1rem;

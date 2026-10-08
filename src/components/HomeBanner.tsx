@@ -15,7 +15,7 @@ const StyledHomeBanner = styled.div`
   text-align: center;
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--bg);
+  color: var(--on-accent);
   position: relative;
   isolation: isolate;
   overflow: hidden;

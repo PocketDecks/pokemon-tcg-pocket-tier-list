@@ -6,7 +6,9 @@
     "skipToContent": "跳到主要內容",
     "openMenu": "開啟選單",
     "closeMenu": "關閉選單",
-    "primaryNav": "主導覽"
+    "primaryNav": "主導覽",
+    "switchToLight": "切換到淺色模式",
+    "switchToDark": "切換到深色模式"
   },
   "premium": {
     "title": "Top Pocket Decks Premium",

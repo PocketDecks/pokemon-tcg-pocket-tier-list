@@ -6,7 +6,9 @@
     "skipToContent": "Pular para o conteúdo",
     "openMenu": "Abrir menu",
     "closeMenu": "Fechar menu",
-    "primaryNav": "Navegação principal"
+    "primaryNav": "Navegação principal",
+    "switchToLight": "Mudar para o modo claro",
+    "switchToDark": "Mudar para o modo escuro"
   },
   "premium": {
     "title": "Top Pocket Decks Premium",

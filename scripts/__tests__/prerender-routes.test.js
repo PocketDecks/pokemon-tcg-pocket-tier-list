@@ -1,11 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert");
-const {
-  captureAfterRouteReady,
-  ROUTES,
-  ROUTE_META,
-  ROUTE_READY_ROUTES,
-} = require("../prerender-routes");
+const { captureAfterRouteReady, resetPrerenderTheme, ROUTES, ROUTE_META, ROUTE_READY_ROUTES } = require("../prerender-routes");
 
 test("every route has unique title and description, plus self canonical", () => {
   const titles = new Set();
@@ -27,6 +22,37 @@ test("waits for route content on data-backed pages", () => {
   assert.deepStrictEqual([...ROUTE_READY_ROUTES], ["/cards-list", "/statistics", "/deck"]);
 });
 
+test("removes runtime theme state before prerender capture", () => {
+  const meta = {
+    content: "#ff00ff",
+    setAttribute: (_name, value) => {
+      meta.content = value;
+    },
+    getAttribute: () => meta.content,
+  };
+  global.document = {
+    documentElement: {
+      dataset: { theme: "light" },
+      style: {
+        colorScheme: "light",
+        removeProperty: (name) => {
+          if (name === "color-scheme") document.documentElement.style.colorScheme = "";
+        },
+      },
+      removeAttribute: (name) => {
+        if (name === "data-theme") delete document.documentElement.dataset.theme;
+      },
+    },
+    querySelector: () => meta,
+  };
+
+  resetPrerenderTheme("#121210");
+
+  assert.strictEqual(document.documentElement.dataset.theme, undefined);
+  assert.strictEqual(document.documentElement.style.colorScheme, "");
+  assert.strictEqual(document.querySelector().getAttribute("content"), "#121210");
+  delete global.document;
+});
 test("captures data-backed routes after their pathname is ready", async () => {
   const events = [];
   const page = {

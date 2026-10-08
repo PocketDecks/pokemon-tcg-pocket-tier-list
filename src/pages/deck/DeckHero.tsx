@@ -75,7 +75,7 @@ const TierChip = styled.span<{ $color: string }>`
   height: 4rem;
   border-radius: 1rem;
   background: ${(props) => props.$color};
-  color: rgba(0, 0, 0, 0.78);
+  color: var(--black-78);
   font-size: 2.2rem;
   font-weight: 700;
 `;
@@ -95,7 +95,7 @@ const StatValue = styled.div`
 const StatLabel = styled.span`
   font-size: 1.2rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--white-60);
 `;
 
 export interface DeckHeroStat {

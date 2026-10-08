@@ -12,7 +12,7 @@ const StyledBestDeckFinder = styled.section`
   width: 100%;
   max-width: 150rem;
   padding: 8rem 4rem 10rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--fill-hover);
 
   @media (max-width: 900px) {
     padding: 5.6rem 2rem 6.4rem;
@@ -53,7 +53,7 @@ const Description = styled.p`
   max-width: 56ch;
   font-size: 1.7rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--white-72);
   text-wrap: pretty;
 
   @media (max-width: 900px) {
@@ -67,14 +67,14 @@ const Preview = styled(Link)`
   gap: 1.6rem;
   padding: 2rem;
   border-radius: 1.6rem;
-  background: #121210;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 2.4rem 4.8rem rgba(0, 0, 0, 0.35);
+  background: var(--surface-sunk);
+  border: 1px solid var(--line);
+  box-shadow: 0 2.4rem 4.8rem var(--shadow-medium);
   color: var(--main);
   transition: border-color 200ms ease-out;
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.24);
+    border-color: var(--white-24);
   }
 `;
 
@@ -95,7 +95,7 @@ const CardImage = styled.img`
   aspect-ratio: 367 / 512;
   border-radius: 0.8rem;
   object-fit: cover;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--fill-hover);
 `;
 
 const BestDeckFinder = () => {

@@ -4,6 +4,7 @@ import { MemoryRouter } from "react-router";
 import { ConsentManagerProvider } from "@c15t/react";
 import Header from "../Header";
 import { UIProvider } from "../../contexts/UIContext";
+import { ThemeProvider } from "../../contexts/ThemeContext";
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -47,11 +48,13 @@ beforeEach(() => {
 const renderHeader = (footer = false) =>
   render(
     <ConsentManagerProvider options={{ mode: "offline" }}>
-      <UIProvider>
-        <MemoryRouter>
-          <Header footer={footer} />
-        </MemoryRouter>
-      </UIProvider>
+      <ThemeProvider>
+        <UIProvider>
+          <MemoryRouter>
+            <Header footer={footer} />
+          </MemoryRouter>
+        </UIProvider>
+      </ThemeProvider>
     </ConsentManagerProvider>
   );
 

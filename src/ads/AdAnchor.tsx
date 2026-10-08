@@ -21,8 +21,8 @@ const Anchor = styled.div`
   align-items: center;
   width: 100%;
   background: var(--bg);
-  border-top: ${ANCHOR_BORDER}px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
+  border-top: ${ANCHOR_BORDER}px solid var(--line-strong);
+  box-shadow: 0 -4px 16px var(--shadow-medium);
 
   &::after {
     content: "";
@@ -61,7 +61,7 @@ const Label = styled.span`
   font-size: 1rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--white-45);
 
   @media (min-width: 901px) {
     grid-column: 1;
@@ -92,7 +92,7 @@ const CloseButton = styled.button`
   border-radius: 50%;
   font-size: 1.4rem;
   line-height: 1;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--white-60);
   cursor: pointer;
   transition: background-color 0.2s ease;
 
@@ -103,7 +103,7 @@ const CloseButton = styled.button`
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--white-10);
   }
 `;
 

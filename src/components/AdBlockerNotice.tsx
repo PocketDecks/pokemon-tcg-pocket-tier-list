@@ -19,7 +19,7 @@ const Card = styled.p`
   margin: 0;
   font-size: 1.5rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--white-78);
   text-align: center;
 
   @media (max-width: 900px) {
@@ -28,7 +28,7 @@ const Card = styled.p`
 `;
 
 const Link = styled.a`
-  color: var(--f);
+  color: var(--link);
   text-decoration: underline;
   font-weight: 500;
   font-size: inherit;

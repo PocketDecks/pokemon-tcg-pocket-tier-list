@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import StatisticsPage from "../StatisticsPage";
+import { ThemeProvider } from "../../../contexts/ThemeContext";
 
 const { useDecks, useMatchups } = vi.hoisted(() => ({
   useDecks: vi.fn(),
@@ -26,12 +27,23 @@ const decks = [{ id: "test-deck", name: "test-deck", powerScore: 80, lists: [], 
 
 const renderStatistics = () => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    <MemoryRouter><StatisticsPage /></MemoryRouter>
+    <ThemeProvider>
+      <MemoryRouter><StatisticsPage /></MemoryRouter>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
 describe("StatisticsPage matchups", () => {
   beforeEach(() => {
+    window.localStorage.clear();
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: () => ({
+        matches: false,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      }),
+    });
     useDecks.mockReturnValue({ decks, metaShare: { decks: [] }, loading: false, error: null });
   });
 

@@ -9,6 +9,7 @@ import {
 import { gtag } from "@c15t/scripts/google-tag";
 import { policyPackPresets, type PolicyConfig } from "c15t";
 import { useAppVisible } from "../app/use-app-visible";
+import { useTheme } from "../contexts/ThemeContext";
 import "../styles/layers.css";
 import "@c15t/react/styles.css";
 import "./consent-overrides.css";
@@ -21,7 +22,7 @@ import { resolveVisitorRegion, type VisitorRegion } from "./visitor-region";
 import { EUROPE_OPT_IN_EXTRA_COUNTRIES } from "./policy-countries.mjs";
 
 // During the postbuild route prerender, c15t portals <ConsentBanner/> to
-// document.body — outside #root. The client uses createRoot (not hydrateRoot),
+// document.body, outside #root. The client uses createRoot (not hydrateRoot),
 // so it never adopts that prerendered markup and a second, handler-less banner
 // is frozen on screen forever (and on reload-with-consent-stored it is the ONLY
 // copy, so Accept/Reject/Personalise do nothing). Skip the banner while the
@@ -88,18 +89,19 @@ const consentOptions: ConsentManagerOptions = {
   scripts,
   legalLinks: { privacyPolicy: { href: "/privacy/", target: "_self" } },
   i18n: { locale: "en", messages: consentMessages },
-  ...consentTheme,
 };
 
 const ConsentProvider = ({ children }: { children: ReactNode }) => {
   const appVisible = useAppVisible();
   const { i18n } = useTranslation();
+  const { theme } = useTheme();
   const options = useMemo<ConsentManagerOptions>(
     () => ({
       ...consentOptions,
+      ...consentTheme(theme),
       overrides: { ...visitorRegion, language: toConsentLanguage(i18n.language) },
     }),
-    [i18n.language]
+    [i18n.language, theme]
   );
 
   useConsentBannerHeight(appVisible && !isPrerender);

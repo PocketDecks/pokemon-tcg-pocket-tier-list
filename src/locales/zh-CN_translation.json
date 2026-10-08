@@ -6,7 +6,9 @@
     "skipToContent": "跳到主要内容",
     "openMenu": "打开菜单",
     "closeMenu": "关闭菜单",
-    "primaryNav": "主导航"
+    "primaryNav": "主导航",
+    "switchToLight": "切换到浅色模式",
+    "switchToDark": "切换到深色模式"
   },
   "premium": {
     "title": "Top Pocket Decks 高级会员",

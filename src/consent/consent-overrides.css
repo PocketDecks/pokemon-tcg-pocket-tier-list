@@ -6,10 +6,12 @@
 
 [data-testid="consent-banner-accept-button"],
 [data-testid="consent-widget-footer-accept-button"] {
-  --button-primary: #7FFF7F;
-  --button-primary-hover: #7FFF7F;
-  --button-primary-dark: #7FFF7F;
-  --button-primary-hover-dark: #7FFF7F;
+  --button-primary: var(--f);
+  --button-primary-hover: var(--f);
+  --button-primary-dark: var(--f);
+  --button-primary-hover-dark: var(--f);
+  --button-background-color: var(--on-accent);
+  --button-background-color-dark: var(--on-accent);
 }
 
 [data-slot="preference-item-content-viewport"] {

@@ -52,7 +52,7 @@ const AboutPage = () => {
               . The ranking model weighs tournament participation, win rates, and
               top-cut performance. Card data comes from the open-source{" "}
               <a
-                  href="https://github.com/chase-manning/pokemon-tcg-pocket-cards"
+                  href="https://github.com/PocketDecks/pokemon-tcg-pocket-cards"
                   target="_blank"
                   rel="noopener noreferrer"
               >

@@ -37,7 +37,7 @@ const Section = styled.section`
   li {
     font-size: 1.6rem;
     line-height: 1.7;
-    color: rgba(255, 255, 255, 0.82);
+    color: var(--white-82);
   }
 
   ul {
@@ -48,7 +48,7 @@ const Section = styled.section`
   }
 
   a {
-    color: var(--f);
+    color: var(--link);
     text-decoration: underline;
   }
 `;

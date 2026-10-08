@@ -42,9 +42,12 @@ const createLanguageInstance = async (language: string): Promise<I18nInstance> =
 const renderWithLanguage = async (language: string, children: ReactNode) => {
   const instance = await createLanguageInstance(language);
   const ConsentProvider = (await import("../ConsentProvider")).default;
+  const { ThemeProvider } = await import("../../contexts/ThemeContext");
   render(
     <I18nextProvider i18n={instance}>
-      <ConsentProvider>{children}</ConsentProvider>
+      <ThemeProvider>
+        <ConsentProvider>{children}</ConsentProvider>
+      </ThemeProvider>
     </I18nextProvider>
   );
   return instance;
@@ -130,14 +133,15 @@ describe("ConsentProvider presentation", () => {
     expect(document.querySelector('[data-testid="consent-banner-root"]')).not.toBeNull();
   });
 
-  it("uses a filled accept action", () => {
-    expect(consentTheme.theme?.consentActions?.accept).toEqual({
+  it.each(["dark", "light"] as const)("uses a filled accept action in the %s theme", (theme) => {
+    expect(consentTheme(theme).theme?.consentActions?.accept).toEqual({
       variant: "primary",
       mode: "filled",
     });
   });
 
-  it("resolves the accept action to the solid F green under the forced dark scheme", async () => {
+  it.each(["dark", "light"] as const)("resolves the accept action to the solid F green token in the %s theme", async (theme) => {
+    localStorage.setItem("theme", theme);
     const overrides = readFileSync(resolve(process.cwd(), "src/consent/consent-overrides.css"), "utf8");
     const style = document.createElement("style");
     style.textContent = overrides;
@@ -147,11 +151,18 @@ describe("ConsentProvider presentation", () => {
       await renderWithLanguage("en", null);
       const button = await screen.findByTestId("consent-banner-accept-button");
 
-      expect(document.documentElement).toHaveClass("c15t-dark");
+      if (theme === "dark") {
+        expect(document.documentElement).toHaveClass("c15t-dark");
+      } else {
+        expect(document.documentElement).not.toHaveClass("c15t-dark");
+      }
 
       const computed = getComputedStyle(button);
-      expect(computed.getPropertyValue("--button-primary-dark")).toBe("#7FFF7F");
-      expect(computed.getPropertyValue("--button-primary-hover-dark")).toBe("#7FFF7F");
+      expect(computed.getPropertyValue("--button-primary")).toBe("var(--f)");
+      expect(computed.getPropertyValue("--button-primary-dark")).toBe("var(--f)");
+      expect(computed.getPropertyValue("--button-primary-hover-dark")).toBe("var(--f)");
+      expect(computed.getPropertyValue("--button-background-color")).toBe("var(--on-accent)");
+      expect(computed.getPropertyValue("--button-background-color-dark")).toBe("var(--on-accent)");
     } finally {
       style.remove();
     }
@@ -188,10 +199,13 @@ describe("ConsentProvider presentation", () => {
     const user = userEvent.setup();
     const ConsentProvider = (await import("../ConsentProvider")).default;
     const { ConsentDialogLink } = await import("@c15t/react");
+    const { ThemeProvider } = await import("../../contexts/ThemeContext");
     render(
-      <ConsentProvider>
-        <ConsentDialogLink>Privacy settings</ConsentDialogLink>
-      </ConsentProvider>
+      <ThemeProvider>
+        <ConsentProvider>
+          <ConsentDialogLink>Privacy settings</ConsentDialogLink>
+        </ConsentProvider>
+      </ThemeProvider>
     );
 
     await user.click(await screen.findByRole("button", { name: "Privacy settings" }));

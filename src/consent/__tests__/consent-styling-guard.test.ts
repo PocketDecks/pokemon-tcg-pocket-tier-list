@@ -30,9 +30,9 @@ describe("consent styling guard", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("paints the accept action with the solid F green and no gradient", () => {
+  it("paints the accept action with the solid F green token and no gradient", () => {
     const overrides = sources.find(({ file }) => file.endsWith("consent-overrides.css"));
-    expect(overrides?.text).toContain("#7FFF7F");
+    expect(overrides?.text).toContain("--button-primary: var(--f)");
     expect(overrides?.text).not.toContain("linear-gradient");
     expect(overrides?.text).not.toContain("c15t-accent-drift");
 

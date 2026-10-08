@@ -6,7 +6,9 @@
     "skipToContent": "본문으로 건너뛰기",
     "openMenu": "메뉴 열기",
     "closeMenu": "메뉴 닫기",
-    "primaryNav": "주 메뉴"
+    "primaryNav": "주 메뉴",
+    "switchToLight": "라이트 모드로 전환",
+    "switchToDark": "다크 모드로 전환"
   },
   "premium": {
     "title": "Top Pocket Decks Premium",

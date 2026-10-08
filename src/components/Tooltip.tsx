@@ -13,7 +13,7 @@ const Trigger = styled.button`
   height: 2.4rem;
   margin-left: 0.6rem;
   border-radius: 50%;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--white-60);
   cursor: help;
   transition: color 160ms ease-out, background-color 160ms ease-out;
 
@@ -26,7 +26,7 @@ const Trigger = styled.button`
   &:hover,
   &[aria-expanded="true"] {
     color: var(--main);
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--line);
   }
 `;
 
@@ -36,9 +36,9 @@ const Bubble = styled.div<{ $open: boolean }>`
   max-width: min(32rem, calc(100vw - ${VIEWPORT_MARGIN * 2}px));
   padding: 1.2rem 1.4rem;
   border-radius: 1rem;
-  background: #1d1d1b;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 1.2rem 3.2rem rgba(0, 0, 0, 0.5);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 1.2rem 3.2rem var(--shadow-deep);
   color: var(--main);
   font-size: 1.4rem;
   font-weight: 400;

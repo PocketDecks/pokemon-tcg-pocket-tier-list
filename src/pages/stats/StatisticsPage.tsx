@@ -24,6 +24,8 @@ import TrendChart from "./TrendChart";
 import MatchupMatrix from "./MatchupMatrix";
 import DeckArt from "../../components/DeckArt";
 import { MatchupUnavailable, VisuallyHidden } from "../deck/deck-page.styles";
+import { matrixScale, mixOklab, type MatrixScale } from "../../styles/theme-tokens";
+import { useTheme } from "../../app/use-theme";
 
 const PageContainer = styled.div`
     width: 100%;
@@ -43,10 +45,10 @@ const Section = styled.section`
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    background: #121210;
+    background: var(--surface-sunk);
     padding: 2.4rem;
     border-radius: 1.6rem;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--fill-hover);
     min-width: 0;
     contain: layout;
 
@@ -98,7 +100,7 @@ const ToggleButton = styled.button<{ $active: boolean; $locked?: boolean }>`
 
     &:hover {
         background: ${(props) =>
-            props.$active ? "var(--main)" : props.$locked ? "transparent" : "rgba(255, 255, 255, 0.08)"};
+            props.$active ? "var(--main)" : props.$locked ? "transparent" : "var(--line)"};
     }
 
     @media (max-width: 900px) {
@@ -118,20 +120,20 @@ const MovementTable = styled.table`
     td {
         padding: 0.8rem 1.2rem;
         text-align: left;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        border-bottom: 1px solid var(--white-07);
     }
 
     th {
         font-size: 1.2rem;
         font-weight: 600;
         letter-spacing: 0.02em;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--white-60);
     }
 
     td:first-child,
     th:first-child {
         width: 4rem;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--white-50);
     }
 
     th:nth-child(3),
@@ -150,7 +152,7 @@ const MovementTable = styled.table`
     }
 
     tbody tr:hover {
-        background: rgba(255, 255, 255, 0.03);
+        background: var(--white-03);
     }
 
     @media (max-width: 600px) {
@@ -190,7 +192,7 @@ const MovementTable = styled.table`
 `;
 
 const Delta = styled.td<{ $rising: boolean }>`
-    color: ${(props) => (props.$rising ? "var(--f)" : "var(--s)")};
+    color: ${(props) => (props.$rising ? "var(--f-text)" : "var(--s-text)")};
     font-weight: 600;
     white-space: nowrap;
 
@@ -217,7 +219,7 @@ const ShareTrack = styled.span`
     flex: 1;
     height: 0.6rem;
     border-radius: 0.3rem;
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--fill-hover);
     overflow: hidden;
 
     @media (max-width: 600px) {
@@ -230,7 +232,7 @@ const ShareFill = styled.span<{ $width: number }>`
     width: ${(props) => props.$width}%;
     height: 100%;
     border-radius: 0.3rem;
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--white-50);
 `;
 
 const ShareValue = styled.span`
@@ -243,15 +245,20 @@ const ScaleLegend = styled.div`
     align-items: center;
     gap: 1rem;
     font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.72);
+    color: var(--white-72);
     font-variant-numeric: tabular-nums;
 `;
 
-const ScaleBar = styled.span`
+const ScaleBar = styled.span<{ $unfavoured: string; $even: string; $favoured: string }>`
     width: 16rem;
     height: 0.8rem;
     border-radius: 0.4rem;
-    background: linear-gradient(to right, #b8312f, #383835, #256abf);
+    background: linear-gradient(
+        to right,
+        ${(props) => props.$unfavoured},
+        ${(props) => props.$even},
+        ${(props) => props.$favoured}
+    );
 `;
 
 const CrownLink = styled(Link)`
@@ -277,21 +284,22 @@ const Loading = styled.div`
 const MatchupSkeleton = styled.div`
     min-height: 40rem;
     border-radius: 0.8rem;
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--fill-hover);
 `;
 
-const MATRIX_EVEN = "#383835";
-const MATRIX_FAVOURED = "#256abf";
-const MATRIX_UNFAVOURED = "#b8312f";
-
-const matrixColour = (winRate: number): string => {
-    const t = Math.max(-1, Math.min(1, (winRate - 0.5) / 0.25));
-    const pole = t >= 0 ? MATRIX_FAVOURED : MATRIX_UNFAVOURED;
-    return `color-mix(in oklab, ${pole} ${Math.round(Math.abs(t) * 100)}%, ${MATRIX_EVEN})`;
-};
+const matrixColour =
+    (scale: MatrixScale) =>
+    (winRate: number): string => {
+        const t = Math.max(-1, Math.min(1, (winRate - 0.5) / 0.25));
+        const pole = t >= 0 ? scale.favoured : scale.unfavoured;
+        return mixOklab(scale.even, pole, Math.abs(t));
+    };
 
 const StatisticsPage = () => {
     const { t, i18n } = useTranslation();
+    const { theme } = useTheme();
+    const scale = matrixScale[theme];
+    const matrixColourFor = matrixColour(scale);
     const { decks, metaShare, loading, error } = useDecks();
     const { matchupsByName, loading: matchupsLoading, error: matchupsError } = useMatchups();
     const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
@@ -535,7 +543,11 @@ const StatisticsPage = () => {
                     </SectionTitle>
                     <ScaleLegend aria-hidden="true">
                         <span>25%</span>
-                        <ScaleBar />
+                        <ScaleBar
+                            $unfavoured={scale.unfavoured}
+                            $even={scale.even}
+                            $favoured={scale.favoured}
+                        />
                         <span>75%</span>
                     </ScaleLegend>
                 </SectionHeader>
@@ -550,7 +562,7 @@ const StatisticsPage = () => {
                     <MatchupMatrix
                         decks={matrixDecks}
                         tierMap={tierMap}
-                        matrixColour={matrixColour}
+                        matrixColour={matrixColourFor}
                         matchupsByName={matchupsByName}
                     />
                 )}

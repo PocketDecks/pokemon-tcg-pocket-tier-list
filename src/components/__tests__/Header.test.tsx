@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import Header from "../Header";
 import { UIProvider } from "../../contexts/UIContext";
+import { ThemeProvider } from "../../contexts/ThemeContext";
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -44,11 +45,13 @@ beforeEach(() => {
 
 const renderHeader = (footer = false) =>
   render(
-    <UIProvider>
-      <MemoryRouter>
-        <Header footer={footer} />
-      </MemoryRouter>
-    </UIProvider>
+    <ThemeProvider>
+      <UIProvider>
+        <MemoryRouter>
+          <Header footer={footer} />
+        </MemoryRouter>
+      </UIProvider>
+    </ThemeProvider>
   );
 
 describe("Header", () => {

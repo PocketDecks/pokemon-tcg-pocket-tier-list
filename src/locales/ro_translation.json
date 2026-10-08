@@ -6,7 +6,9 @@
     "skipToContent": "Salt la conținut",
     "openMenu": "Deschide meniul",
     "closeMenu": "Închide meniul",
-    "primaryNav": "Navigare principală"
+    "primaryNav": "Navigare principală",
+    "switchToLight": "Comută la modul luminos",
+    "switchToDark": "Comută la modul întunecat"
   },
   "premium": {
     "title": "Top Pocket Decks Premium",

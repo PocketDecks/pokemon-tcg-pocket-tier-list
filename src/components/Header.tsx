@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Link, useLocation } from "react-router";
 import Logo from "./Logo";
+import ThemeToggle from "./ThemeToggle";
 import Socials from "./Socials";
 import Navbar from "./Navbar";
 import { useTranslation } from "react-i18next";
@@ -45,6 +46,19 @@ const Rail = styled.header`
     border-right: none;
     border-bottom: 1px solid var(--line);
     overflow: visible;
+  }
+`;
+
+const Brand = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+
+  @media (max-width: 900px) {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.8rem;
   }
 `;
 
@@ -192,7 +206,10 @@ const Header = ({ footer }: Props) => {
 
   return (
     <Rail>
-      <Logo />
+      <Brand>
+        <Logo />
+        <ThemeToggle />
+      </Brand>
       <NavArea>
         <Navbar />
       </NavArea>

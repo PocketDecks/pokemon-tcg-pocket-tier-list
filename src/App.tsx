@@ -11,6 +11,7 @@ import { ContentReadyProvider } from "./ads/ContentReadyContext";
 import ErrorBoundary, { LoadingNotice } from "./components/ErrorBoundary";
 import Header, { RAIL_WIDTH } from "./components/Header";
 import HomeBanner from "./components/HomeBanner";
+import LayoutMain from "./components/LayoutMain";
 
 const LandingPage = lazy(() => import("./pages/landing/LandingPage"));
 const TierListPage = lazy(() => import("./pages/tier-list/TierListPage"));
@@ -82,21 +83,7 @@ const SkipLink = styled.a`
   }
 `;
 
-const Main = styled.main`
-  grid-area: main;
-  width: 100%;
-  min-width: 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  &:focus {
-    outline: none;
-  }
-`;
-
-const Layout = () => {
+export const Layout = () => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
 
@@ -109,13 +96,13 @@ const Layout = () => {
           </Banner>
         )}
         <Header />
-        <Main id="main-content" tabIndex={-1}>
+        <LayoutMain id="main-content" tabIndex={-1}>
           <ErrorBoundary>
             <Suspense fallback={<LoadingNotice />}>
               <Outlet />
             </Suspense>
           </ErrorBoundary>
-        </Main>
+        </LayoutMain>
         <FooterArea>
           <Header footer />
           <AdBlockerNotice />
@@ -139,11 +126,9 @@ const App = () => {
                     <Route path="cards-list" element={<CardsListPage />} />
                     <Route path="expansion-list" element={<ExpansionListPage />} />
                     <Route path="statistics" element={<StatisticsPage />} />
-                    <Route path="stats" element={<StatisticsPage />} />
                     <Route path="privacy" element={<PrivacyPage />} />
                     <Route path="about" element={<AboutPage />} />
                     <Route path="feedback" element={<FeedbackPage />} />
-                    <Route path="404" element={<NotFoundPage />} />
                     <Route path="deck">
                       <Route index element={<DeckFinderPage />} />
                       <Route path=":deckId" element={<DeckDetailPage />} />

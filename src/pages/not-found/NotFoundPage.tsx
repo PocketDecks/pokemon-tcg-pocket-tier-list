@@ -1,5 +1,6 @@
 import styled from "styled-components";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
+import { useTranslation } from "react-i18next";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 
 const Wrapper = styled.div`
@@ -63,6 +64,13 @@ const Message = styled.p`
   }
 `;
 
+const Actions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.2rem;
+`;
+
 const HomeLink = styled(Link)`
   font-size: 1.6rem;
   font-weight: 600;
@@ -83,16 +91,26 @@ const HomeLink = styled(Link)`
 // users to the landing page or a blank screen.
 const NotFoundPage = () => {
   useMarkContentReady(true);
+  const { t } = useTranslation();
+  const { pathname } = useLocation();
+  const retiredDeck = pathname.startsWith("/deck/");
 
   return (
     <Wrapper>
       <Content>
         <Code>404</Code>
-        <Title>Page not found</Title>
+        <Title>{t("notFound.title")}</Title>
         <Message>
-          Sorry, that page doesn&apos;t exist or has moved.
+          {retiredDeck ? t("notFound.deckRetired") : t("notFound.message")}
         </Message>
-        <HomeLink to="/tier-list">Back to the tier list</HomeLink>
+        {retiredDeck ? (
+          <Actions>
+            <HomeLink to="/tier-list">{t("notFound.backToTierList")}</HomeLink>
+            <HomeLink to="/deck">{t("notFound.browseDecks")}</HomeLink>
+          </Actions>
+        ) : (
+          <HomeLink to="/tier-list">{t("notFound.backToTierList")}</HomeLink>
+        )}
       </Content>
     </Wrapper>
   );

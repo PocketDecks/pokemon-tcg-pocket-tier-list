@@ -15,3 +15,11 @@ export const deriveCropRect: (
   scale?: number,
   top?: number
 ) => { left: number; top: number; width: number; height: number };
+export const CARD_THUMB_WIDTHS: number[];
+export const CARD_THUMB_ASPECT: { width: number; height: number };
+export const cardThumbHeight: (width: number) => number;
+export const cardThumbUrl: (cardId: string, width: number) => string;
+export const cardThumbSrcSet: (cardId: string) => string;
+export const DECK_CARD_SIZES: string;
+export const deckListCardIds: (decks: { lists?: { cards: string[] }[] }[]) => string[];
+export const firstBestListCardId: (deck: { lists?: { score: number; cards: string[] }[] }) => string | null;

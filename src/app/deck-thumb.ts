@@ -1,4 +1,11 @@
-export { cardIdFromImage, deckThumbUrl } from "../../scripts/deck-thumbs.mjs";
+export {
+  cardIdFromImage,
+  cardThumbHeight,
+  cardThumbSrcSet,
+  cardThumbUrl,
+  DECK_CARD_SIZES,
+  deckThumbUrl,
+} from "../../scripts/deck-thumbs.mjs";
 
 export const onDeckThumbError =
   (remote: string) =>

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { Link, useLocation } from "react-router";
+import { ConsentDialogLink } from "@c15t/react";
 import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
 import Socials from "./Socials";
@@ -134,7 +135,7 @@ const FooterLinks = styled.div`
   gap: 2.4rem;
 `;
 
-const FooterLink = styled(Link)`
+const footerLinkStyles = css`
   font-size: 1.4rem;
   font-weight: 500;
   color: var(--text-muted);
@@ -149,6 +150,15 @@ const FooterLink = styled(Link)`
     align-items: center;
     min-height: 4.4rem;
   }
+`;
+
+const FooterLink = styled(Link)`
+  ${footerLinkStyles}
+`;
+
+const FooterConsentLink = styled(ConsentDialogLink)`
+  ${footerLinkStyles}
+  cursor: pointer;
 `;
 
 const FooterTools = styled.div`
@@ -190,6 +200,7 @@ const Header = ({ footer }: Props) => {
           <FooterLinks>
             <FooterLink to="/about">{t("footer.about")}</FooterLink>
             <FooterLink to="/privacy">{t("footer.privacy")}</FooterLink>
+            <FooterConsentLink>{t("footer.privacySettings")}</FooterConsentLink>
             <FooterLink to="/feedback" state={{ from: pathname }}>
               {t("footer.feedback")}
             </FooterLink>

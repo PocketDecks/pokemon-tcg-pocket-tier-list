@@ -56,6 +56,14 @@ test("JSON-LD values cannot close the script tag early", () => {
   assert.ok(out.includes("\\u003c/script\\u003e\\u003cscript\\u003e"));
 });
 
+test("robots replaces the template robots tag with the given directive", () => {
+  const withRobots = TEMPLATE.replace("</head>", '<meta name="robots" content="index, follow">\n  </head>');
+  const out = stampHead(withRobots, { robots: "noindex" });
+  assert.strictEqual(out.split('name="robots"').length - 1, 1);
+  assert.ok(out.includes('<meta name="robots" content="noindex">'));
+  assert.ok(!out.includes("index, follow"));
+});
+
 test("throws when head closing tag missing", () => {
   assert.throws(() => stampHead("<html><body></body></html>", { canonical: "x" }));
 });

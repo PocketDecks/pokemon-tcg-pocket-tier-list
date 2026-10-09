@@ -18,6 +18,25 @@ const GlobalStyle = createGlobalStyle`
 
     :root {
         --ad-anchor-h: 0px;
+        --consent-banner-h: 0px;
+    }
+
+    @media (max-width: 900px) {
+        :root[data-consent-pending] {
+            --consent-banner-h: 267px;
+        }
+    }
+
+    @media (max-width: 639px) {
+        :root[data-consent-pending] {
+            --consent-banner-h: 299px;
+        }
+    }
+
+    @media (max-width: 416px) {
+        :root[data-consent-pending] {
+            --consent-banner-h: 324px;
+        }
     }
 
     :root[data-theme="dark"] {
@@ -38,26 +57,47 @@ const GlobalStyle = createGlobalStyle`
     }
 
     body {
-        padding-bottom: var(--ad-anchor-h, 0px);
+        padding-bottom: calc(var(--ad-anchor-h, 0px) + var(--consent-banner-h, 0px));
         background-color: var(--bg);
     }
 
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        font-family: "Manrope Variable", "Manrope", "Manrope Fallback",
-            system-ui, -apple-system, "Segoe UI", sans-serif;
-        line-height: 1.2;
-    }
+    @layer reset {
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Manrope Variable", "Manrope", "Manrope Fallback",
+                system-ui, -apple-system, "Segoe UI", sans-serif;
+            line-height: 1.2;
+        }
 
-    div {
-        color: var(--main);
-    }
+        div {
+            color: var(--main);
+        }
 
-    button {
-        background: none;
-        border: none;
+        button {
+            background: none;
+            border: none;
+        }
+
+        input {
+            border: none;
+            background: none;
+            -moz-appearance: textfield;
+            appearance: textfield;
+
+            // Remove arrows from number input
+            &::-webkit-outer-spin-button,
+            &::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+                display: none;
+            }
+        }
+
+        a {
+            text-decoration: none;
+        }
     }
 
     :focus-visible {
@@ -76,24 +116,6 @@ const GlobalStyle = createGlobalStyle`
         }
     }
 
-    input {
-        border: none;
-        background: none;
-        -moz-appearance: textfield;
-        appearance: textfield;
-
-        // Remove arrows from number input
-        &::-webkit-outer-spin-button,
-        &::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-            display: none;
-        }
-    }
-
-    a {
-        text-decoration: none;
-    }
 `;
 
 const GlobalStyles = (): React.JSX.Element => {

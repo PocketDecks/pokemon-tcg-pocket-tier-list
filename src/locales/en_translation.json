@@ -131,7 +131,8 @@
     "showTooltip": "Show explanation",
     "energyUsed": "Energy Used",
     "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again.",
-    "matchupsLoading": "Loading matchups"
+    "matchupsLoading": "Loading matchups",
+    "loading": "Loading deck"
   },
   "energyDropdown": {
     "all": "All Energy Types",
@@ -190,6 +191,7 @@
   "footer": {
     "about": "About",
     "privacy": "Privacy Policy",
+    "privacySettings": "Privacy settings",
     "feedback": "Feedback"
   },
   "feedback": {
@@ -268,5 +270,85 @@
   },
   "tierList": {
     "metaShare": "Meta share"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "message": "Sorry, that page doesn't exist or has moved.",
+    "backToTierList": "Back to the tier list",
+    "deckRetired": "This deck is no longer in the current meta.",
+    "browseDecks": "Browse all decks"
+  },
+  "privacyPage": {
+    "title": "Privacy Policy",
+    "updated": "Last updated: 9 October 2026",
+    "intro": "This Privacy Policy explains what Top Pocket Decks (\"we\", \"us\" or \"the site\"), available at pocketdecks.top, collects and why. It also explains who receives that information. The practices below apply when you use the site.",
+    "collect": {
+      "heading": "Information we collect",
+      "usage": "<0>Usage data.</0> Google Analytics records the pages you view and standard device and browser details. It runs only after you accept analytics, or where your region's consent banner does not ask for consent.",
+      "account": "<0>Account information.</0> If you sign in with Google, Firebase Authentication gives us your name, email address and profile photo. We show your name and photo while you are signed in, and we use your account ID to check whether you have Premium access.",
+      "feedback": "<0>Feedback.</0> If you send feedback while signed in, we store your account ID, your message, the topic you chose, the page you sent it from and the time you sent it in Cloud Firestore, a database run by Google for Firebase. We store your email address with the message only if you tick the box asking us to reply. We also store the time of your last submission.",
+      "payment": "<0>Payments.</0> Premium checkout is paused. When it reopens, Stripe processes payments and we store your subscription status in Firestore."
+    },
+    "cookies": {
+      "heading": "Cookies and tracking",
+      "intro": "The site sets cookies or uses browser storage for consent, your theme, measurement and advertising. Each entry is listed below.",
+      "consent": "<0>Consent choice.</0> A cookie and a local storage entry, both named c15t, record your consent choices and when you made them. They are strictly necessary, because the site needs them to remember your choice.",
+      "theme": "<0>Theme.</0> A local storage entry named theme records whether you chose light or dark mode.",
+      "reload": "<0>Reload guard.</0> A session storage entry named chunk-reload-at records the time of the last automatic reload. It stops a missing file from reloading the page in a loop, and the browser clears it when the tab closes.",
+      "region": "<0>Region cookie.</0> If a cookie named pd_geo is present, the site reads it to choose which consent rules apply to you. The site does not set this cookie.",
+      "timeZone": "<0>Time zone.</0> Your browser reports its time zone, which the site uses on your device to choose consent rules when no region cookie is present. The site does not send it anywhere.",
+      "gpc": "<0>Global Privacy Control.</0> If your browser sends a Global Privacy Control signal, we treat it as an opt-out. Analytics and advertising are then set to denied.",
+      "language": "<0>Language.</0> The site reads your browser's language setting to choose the language of the page. It stores nothing.",
+      "missing": "<0>Missing cards.</0> The cards you mark as missing are kept only in the page's memory. They are not saved, and reloading the page clears them.",
+      "analytics": "<0>Analytics.</0> Google Analytics uses its own cookies to tell visits apart. Where the consent banner asks for consent, these cookies are set only after you accept analytics.",
+      "ads": "<0>Advertising.</0> Free-tier visitors see ads from Google AdSense. Google and its partners may use cookies to serve ads based on your visits to this and other sites. Premium members do not see ads.",
+      "optOut": "You can opt out of personalised advertising at <0>Google Ads Settings</0>. You can also opt out of some vendors' advertising cookies at <1>www.aboutads.info</1>."
+    },
+    "consent": {
+      "heading": "Consent for users in the EEA, UK, Switzerland and Canada",
+      "body": "If you are in the European Economic Area, the United Kingdom, Switzerland or Canada, the consent banner asks for your choice on analytics and on advertising before the site sets any analytics or advertising cookies. Until you choose, Google Consent Mode keeps analytics and advertising storage denied. You can change or withdraw your choice at any time from the Privacy settings link in the footer."
+    },
+    "legalBasis": {
+      "heading": "Legal basis",
+      "body": "We rely on your consent for analytics and advertising where the consent banner asks for it. For Premium, we rely on our contract with you to provide access and manage your subscription."
+    },
+    "use": {
+      "heading": "How we use information",
+      "item1": "To provide and improve the site and its features.",
+      "item2": "To sign you in, handle your feedback and manage Premium access.",
+      "item3": "To understand usage and measure performance, where analytics is allowed.",
+      "item4": "To show advertising to free-tier visitors, subject to the consent rules above."
+    },
+    "rights": {
+      "heading": "Your rights",
+      "body": "Depending on your location, you may have the right to access, correct or delete your personal data, or to object to or restrict certain processing. To exercise these rights, including a request to delete your feedback or account information, contact us using the details below. Premium subscribers do not see ads."
+    },
+    "thirdParty": {
+      "heading": "Third-party services",
+      "intro": "We rely on third-party providers. Each one receives only the information described here.",
+      "analytics": "Google Analytics receives usage data where analytics is allowed.",
+      "adsense": "Google AdSense receives ad requests from free-tier visitors.",
+      "firebase": "Firebase, a Google service, runs sign-in, the feedback database, subscription records and site hosting. The hosting service receives technical details of each request, such as your IP address and browser type.",
+      "stripe": "Stripe processes Premium payments.",
+      "github": "GitHub serves card images from raw.githubusercontent.com when a card is shown, so GitHub receives your IP address and browser details. GitHub, Twitter and Stripe's billing portal receive your visit only if you follow their links.",
+      "outro": "Those providers use your information under their own privacy policies."
+    },
+    "retention": {
+      "heading": "How long we keep information",
+      "body": "Google Analytics keeps event data for 14 months. It keeps user data for 14 months, and that period resets when you return to the site. We keep your Google sign-in account and stored profile fields until you ask us to delete them, using the contact details below. We keep feedback messages until you ask us to delete them. Google decides how long it keeps advertising data. See its <0>privacy policy</0> and <1>ads policies</1>. Premium checkout is currently paused. When checkout reopens, Stripe keeps payment records as the law requires. The site does not keep web request logs of its own. Firebase, the hosting provider, and Cloudflare, the network provider, keep their standard operational logs under their own terms."
+    },
+    "children": {
+      "heading": "Children",
+      "body": "The site is not directed to children under the age of 13, and we do not knowingly collect personal information from them."
+    },
+    "changes": {
+      "heading": "Changes to this policy",
+      "body": "We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated revision date."
+    },
+    "contact": {
+      "heading": "Contact",
+      "body": "If you have any questions about this Privacy Policy, or want to ask us to delete your information, contact us at <0/>."
+    },
+    "fanNotice": "Top Pocket Decks is a fan-made project and is not affiliated with, endorsed by, or sponsored by Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc., or DeNA."
   }
 }

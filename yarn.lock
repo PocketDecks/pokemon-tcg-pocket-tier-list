@@ -179,39 +179,39 @@
   dependencies:
     css-tree "^3.0.0"
 
-"@c15t/react@2.2.1":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@c15t/react/-/react-2.2.1.tgz#2e0a4cf0557f3d9338fcea760f21f7dae16bbd2f"
-  integrity sha512-Xl/KPHGBDekRwH+k09fAyNXUI2GirDAWz/R87Yr+htsp+b66A51yMN2hzJCcH1gxm4MLjOzDqHP1nAE/fRJ09Q==
+"@c15t/react@2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@c15t/react/-/react-2.3.0.tgz#ec9c0c3c4db0d91c89dd83ebd87f9cb8c2fcf8e9"
+  integrity sha512-noQLwyUUHG+eJ5ZuNLVz/KXEMUvy1xFSHje2mdpPWop09/DNV85Td37lAOwBiTNDYTkuVqOrunUbvbcvJ32R5Q==
   dependencies:
-    "@c15t/ui" "2.2.1"
+    "@c15t/ui" "2.2.2"
     "@types/google.maps" "3.65.3"
-    c15t "2.2.1"
+    c15t "2.3.0"
 
-"@c15t/schema@2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@c15t/schema/-/schema-2.2.0.tgz#21e3376e176f9c134135c51caa04bacb3eaddf46"
-  integrity sha512-rj6H1AlbbSnioNaw9Cvoc3vCchVAV/55Jd/6wrzhzW+2z2ByUyf+pDvZXQnAm0KMfsuQ8oDgqNqmPdqD1aJNFw==
+"@c15t/schema@2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@c15t/schema/-/schema-2.3.0.tgz#90d5fab3b66ded7794dd15e6ccd17145524cbc2d"
+  integrity sha512-n7K5GYp+F1y4qJeAB0SiXT2XtVDzKX3Xbc1YferNeWClrVyFRYj//28Dxou8irocR1A/z9m40lZLb9xMqwvMHA==
   dependencies:
     valibot "1.4.2"
 
-"@c15t/scripts@2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@c15t/scripts/-/scripts-2.2.0.tgz#e05bc60d60c9e17ca9988f8ba0348b66d393969b"
-  integrity sha512-FgmnIW0JL5nalY6QKG5+gzukzALMqq6LpXzn5+iwRA8OVukjoXBdgakdO/eytwSrv/QtxgLyFaiM0nBIZZbk0A==
+"@c15t/scripts@2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@c15t/scripts/-/scripts-2.3.0.tgz#fe1bcf6cb404482ecec23ca9f15661970181035d"
+  integrity sha512-xVaneA3fNHvD6/Tl2P3splSR3psJksbmJAacN0mj82Wgk5M9d3MZTSdUhFRFsy+w5dOrUHPAZL+XyyrkZeX1/A==
 
-"@c15t/translations@2.2.1":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@c15t/translations/-/translations-2.2.1.tgz#20e1972aa89303b831f0bf1f7c388d635c5052d4"
-  integrity sha512-JgYXn+bTyys/7e7SMfu19zVBlW1cED6/CqJ5mbOmmfMr9MSkaAq0/UK/6/29FhcfCJKmHq+kQqKa0igX86mJeA==
+"@c15t/translations@2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@c15t/translations/-/translations-2.3.0.tgz#eebf523711f18d9539b7107ba4bf067d5bfcaaad"
+  integrity sha512-siriyyINJ5+mPEdvQ54tzf+DTbKr8KLmpYVlMsdQWRWeXeogZInSA6ujlXoga+MbP4MvageAXAyLeAlYR2OKcg==
 
-"@c15t/ui@2.2.1":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@c15t/ui/-/ui-2.2.1.tgz#8b7d679c4e6858f0be3aa630cfc0eea5df208617"
-  integrity sha512-OlmEhScePX3xF+sPNWemLZaiJv80KuxsuxTf+Ip0ImREGeXdaOIG7Hp6IBU+8IOeJ723Q4LlD74gyV2NgTbXIQ==
+"@c15t/ui@2.2.2":
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@c15t/ui/-/ui-2.2.2.tgz#c4a729240feb078ce3ee58b68bad178c0cdc8fb6"
+  integrity sha512-kcdglK8pZF9/qwL8YwX3JLkxmbb65Q06r9UX95o1ETrQs8sxqvcdy4FluPzvJh7M7pE1pjZReBo2lEQO7ZvOWg==
   dependencies:
-    "@c15t/translations" "2.2.1"
-    c15t "2.2.1"
+    "@c15t/translations" "2.3.0"
+    c15t "2.3.0"
 
 "@cacheable/memory@^2.2.0":
   version "2.2.0"
@@ -1706,13 +1706,13 @@ browserslist@^4.24.0:
     node-releases "^2.0.57"
     update-browserslist-db "^1.3.3"
 
-c15t@2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/c15t/-/c15t-2.2.1.tgz#cba0c1e6b05d1005d48b0a22628d66e997af09c2"
-  integrity sha512-6/yePflfCveo6Q1qMsX3DaKyE2OEuy41PBIl61Z7wScvJkIos3fky2RvBe8p+cScIGM0AbGoXvSEkOxbBda75g==
+c15t@2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/c15t/-/c15t-2.3.0.tgz#330dcd326a09fc3643d0e229f47985759a585393"
+  integrity sha512-+QBONCgMp2H0Yc3XVrQALasWihf0VFd9Ne+knXp8J1MyCcDM35rleHlD5ptBBnUUreMjTaEfYKxHrQ31imGiDg==
   dependencies:
-    "@c15t/schema" "2.2.0"
-    "@c15t/translations" "2.2.1"
+    "@c15t/schema" "2.3.0"
+    "@c15t/translations" "2.3.0"
     zustand "5.0.14"
 
 cacheable@^2.5.0:

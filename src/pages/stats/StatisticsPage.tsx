@@ -311,7 +311,7 @@ const StatisticsPage = () => {
     const trendData = trendQuery.rows;
     const [movementView, setMovementView] = useState<"rising" | "falling" | "new">("rising");
 
-    useMarkContentReady(!loading && !!decks);
+    useMarkContentReady(!loading && !!decks && !trendQuery.isLoading);
 
     const { data: cardsPayload } = useQuery({
         queryKey: ["cards"],

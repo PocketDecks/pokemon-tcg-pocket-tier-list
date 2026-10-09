@@ -14,7 +14,7 @@ const escapeXml = (s) =>
 
 const stampHead = (
   html,
-  { title, description, canonical, jsonLd, metas } = {}
+  { title, description, canonical, robots, jsonLd, metas } = {}
 ) => {
   if (!/<\/head>/i.test(html)) throw new Error("No </head> in template");
   let out = html;
@@ -22,6 +22,10 @@ const stampHead = (
   if (description) {
     out = out.replace(/<meta[^>]+name="description"[^>]*>/gi, "");
     out = out.replace(/<\/head>/i, `  <meta name="description" content="${escapeXml(description)}">\n  </head>`);
+  }
+  if (robots) {
+    out = out.replace(/<meta[^>]+name="robots"[^>]*>/gi, "");
+    out = out.replace(/<\/head>/i, `  <meta name="robots" content="${escapeXml(robots)}">\n  </head>`);
   }
   if (metas) {
     for (const attr of [

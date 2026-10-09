@@ -5,8 +5,17 @@ import Button from "../../components/Button";
 import { useDecks } from "../../app/use-decks";
 import { sortByPowerScore } from "../../app/score-baseline";
 import { deckDisplayName } from "../../app/deck-display";
+import {
+  cardThumbHeight,
+  cardThumbSrcSet,
+  cardThumbUrl,
+  onDeckThumbError,
+} from "../../app/deck-thumb";
 
 const PREVIEW_CARDS = 8;
+const THUMB_WIDTH = 240;
+const FINDER_CARD_SIZES =
+  "(max-width: 900px) calc(25vw - 29px), (max-width: 1100px) calc(25vw - 39px), 166px";
 
 const StyledBestDeckFinder = styled.section`
   width: 100%;
@@ -92,6 +101,7 @@ const CardGrid = styled.span`
 
 const CardImage = styled.img`
   width: 100%;
+  height: auto;
   aspect-ratio: 367 / 512;
   border-radius: 0.8rem;
   object-fit: cover;
@@ -122,7 +132,17 @@ const BestDeckFinder = () => {
             <PreviewName>{deckDisplayName(topDeck)}</PreviewName>
             <CardGrid>
               {previewCards.map((card) => (
-                <CardImage key={card.id} src={card.image} alt="" loading="lazy" />
+                <CardImage
+                  key={card.id}
+                  src={cardThumbUrl(card.id, THUMB_WIDTH)}
+                  srcSet={cardThumbSrcSet(card.id)}
+                  sizes={FINDER_CARD_SIZES}
+                  width={THUMB_WIDTH}
+                  height={cardThumbHeight(THUMB_WIDTH)}
+                  alt=""
+                  loading="lazy"
+                  onError={onDeckThumbError(card.image)}
+                />
               ))}
             </CardGrid>
           </Preview>

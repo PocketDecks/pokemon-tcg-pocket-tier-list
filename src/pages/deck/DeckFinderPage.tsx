@@ -8,6 +8,7 @@ import {
 import DeckCardGrid from "./DeckCardGrid";
 import DeckHeadTags from "./DeckHeadTags";
 import DeckHero, { type DeckHeroStat } from "./DeckHero";
+import DeckPageSkeleton from "./DeckPageSkeleton";
 import EnergyList from "./EnergyList";
 import useDeckTiers, { tierForDeck } from "../../app/use-deck-tiers";
 import ShareDeckCode from "../../components/ShareDeckCode";
@@ -63,9 +64,9 @@ const DeckFinderPage = () => {
   // loading or "not enough cards" screens.
   useMarkContentReady(!loading && !!decks && !!deck);
 
-  if (loading) return <Overlay>Loading...</Overlay>;
+  if (loading) return <DeckPageSkeleton showPanel={false} />;
   if (error) return <Overlay>Error loading data: {error.message}</Overlay>;
-  if (!decks) return <Overlay>Loading...</Overlay>;
+  if (!decks) return <DeckPageSkeleton showPanel={false} />;
 
   if (!deck) {
     return (

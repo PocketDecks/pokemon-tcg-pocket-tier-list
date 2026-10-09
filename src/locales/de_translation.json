@@ -131,7 +131,8 @@
     "showTooltip": "Erklärung anzeigen",
     "energyUsed": "Genutzte Energie",
     "matchupsUnavailable": "Matchup-Daten konnten nicht geladen werden. Lade die Seite neu, um es erneut zu versuchen.",
-    "matchupsLoading": "Matchups werden geladen"
+    "matchupsLoading": "Matchups werden geladen",
+    "loading": "Deck wird geladen"
   },
   "energyDropdown": {
     "all": "Alle Energietypen",
@@ -190,6 +191,7 @@
   "footer": {
     "about": "Über uns",
     "privacy": "Datenschutz",
+    "privacySettings": "Datenschutzeinstellungen",
     "feedback": "Feedback"
   },
   "feedback": {
@@ -268,5 +270,85 @@
   },
   "tierList": {
     "metaShare": "Meta-Anteil"
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "message": "Diese Seite existiert nicht oder wurde verschoben.",
+    "backToTierList": "Zurück zur Tier-Liste",
+    "deckRetired": "Dieses Deck ist nicht mehr im aktuellen Meta.",
+    "browseDecks": "Alle Decks ansehen"
+  },
+  "privacyPage": {
+    "title": "Datenschutzerklärung",
+    "updated": "Zuletzt aktualisiert: 9. Oktober 2026",
+    "intro": "Diese Datenschutzerklärung erläutert, welche Daten Top Pocket Decks (\"wir\", \"uns\" oder \"die Website\"), erreichbar unter pocketdecks.top, erhebt und warum. Sie erläutert außerdem, wer diese Informationen erhält. Die folgenden Regeln gelten, wenn Sie die Website nutzen.",
+    "collect": {
+      "heading": "Welche Informationen wir erheben",
+      "usage": "<0>Nutzungsdaten.</0> Google Analytics erfasst, welche Seiten Sie aufrufen, sowie übliche Angaben zu Gerät und Browser. Das Tool läuft nur, nachdem Sie Analyse akzeptiert haben, oder dort, wo das Einwilligungsbanner Ihrer Region keine Einwilligung abfragt.",
+      "account": "<0>Kontodaten.</0> Wenn Sie sich mit Google anmelden, erhalten wir über Firebase Authentication Ihren Namen, Ihre E-Mail-Adresse und Ihr Profilfoto. Wir zeigen Ihren Namen und Ihr Foto an, solange Sie angemeldet sind, und prüfen anhand Ihrer Konto-ID, ob Sie Premium-Zugang haben.",
+      "feedback": "<0>Feedback.</0> Wenn Sie als angemeldeter Nutzer Feedback senden, speichern wir Ihre Konto-ID, Ihre Nachricht, das gewählte Thema, die Seite, von der aus Sie es gesendet haben, und den Zeitpunkt in Cloud Firestore, einer von Google für Firebase betriebenen Datenbank. Ihre E-Mail-Adresse speichern wir zusammen mit der Nachricht nur, wenn Sie das Kästchen zur Antwort angeklickt haben. Außerdem speichern wir den Zeitpunkt Ihrer letzten Einsendung.",
+      "payment": "<0>Zahlungen.</0> Die Zahlung für Premium ist derzeit pausiert. Sobald der Kauf wieder möglich ist, verarbeitet Stripe Zahlungen, und wir speichern Ihren Abostatus in Firestore."
+    },
+    "cookies": {
+      "heading": "Cookies und Tracking",
+      "intro": "Die Website setzt Cookies oder nutzt Speicher im Browser für Einwilligung, Ihr Farbschema, Messung und Werbung. Jeder Eintrag ist unten aufgeführt.",
+      "consent": "<0>Einwilligungsauswahl.</0> Ein Cookie und ein Eintrag im lokalen Speicher, beide mit dem Namen c15t, speichern Ihre Einwilligungen und den Zeitpunkt, zu dem Sie sie getroffen haben. Sie sind technisch notwendig, weil die Website sie braucht, um Ihre Auswahl zu merken.",
+      "theme": "<0>Farbschema.</0> Ein Eintrag im lokalen Speicher mit dem Namen theme speichert, ob Sie den hellen oder den dunklen Modus gewählt haben.",
+      "reload": "<0>Neuladeschutz.</0> Ein Eintrag im Sitzungsspeicher mit dem Namen chunk-reload-at speichert den Zeitpunkt des letzten automatischen Neuladens. Er verhindert, dass eine fehlende Datei die Seite in einer Schleife neu lädt. Der Browser löscht ihn, wenn der Tab geschlossen wird.",
+      "region": "<0>Regions-Cookie.</0> Ist ein Cookie mit dem Namen pd_geo vorhanden, liest die Website es, um die für Sie geltenden Einwilligungsregeln auszuwählen. Die Website setzt dieses Cookie nicht.",
+      "timeZone": "<0>Zeitzone.</0> Ihr Browser übermittelt seine Zeitzone, die die Website auf Ihrem Gerät nutzt, um Einwilligungsregeln auszuwählen, wenn kein Regions-Cookie vorhanden ist. Die Website sendet sie nicht an andere Stellen.",
+      "gpc": "<0>Global Privacy Control.</0> Sendet Ihr Browser ein Global-Privacy-Control-Signal, behandeln wir es als Widerspruch. Analyse und Werbung werden dann auf verweigert gesetzt.",
+      "language": "<0>Sprache.</0> Die Website liest die Spracheinstellung Ihres Browsers, um die Sprache der Seite festzulegen. Sie speichert nichts.",
+      "missing": "<0>Fehlende Karten.</0> Karten, die Sie als fehlend markieren, werden nur im Arbeitsspeicher der Seite gehalten. Sie werden nicht gespeichert, und ein Neuladen der Seite löscht sie.",
+      "analytics": "<0>Analyse.</0> Google Analytics verwendet eigene Cookies, um Besuche voneinander zu unterscheiden. Fragt das Einwilligungsbanner nach einer Einwilligung, werden diese Cookies erst gesetzt, nachdem Sie Analyse akzeptiert haben.",
+      "ads": "<0>Werbung.</0> Besucher im kostenlosen Angebot sehen Anzeigen von Google AdSense. Google und seine Partner können Cookies verwenden, um Anzeigen auf Grundlage Ihrer Besuche auf dieser und anderen Websites auszuspielen. Premium-Mitglieder sehen keine Werbung.",
+      "optOut": "Personalisierte Werbung können Sie unter <0>Google-Werbeeinstellungen</0> deaktivieren. Die Werbe-Cookies einiger Anbieter können Sie zusätzlich unter <1>www.aboutads.info</1> deaktivieren."
+    },
+    "consent": {
+      "heading": "Einwilligung für Nutzer im EWR, im Vereinigten Königreich, in der Schweiz und in Kanada",
+      "body": "Befinden Sie sich im Europäischen Wirtschaftsraum, im Vereinigten Königreich, in der Schweiz oder in Kanada, fragt das Einwilligungsbanner Ihre Auswahl zu Analyse und Werbung ab, bevor die Website Analyse- oder Werbe-Cookies setzt. Bis Sie eine Auswahl treffen, hält Google Consent Mode die Speicherung für Analyse und Werbung auf verweigert. Sie können Ihre Auswahl jederzeit über den Link Datenschutzeinstellungen in der Fußzeile ändern oder widerrufen."
+    },
+    "legalBasis": {
+      "heading": "Rechtsgrundlage",
+      "body": "Für Analyse und Werbung stützen wir uns auf Ihre Einwilligung, sofern das Einwilligungsbanner sie abfragt. Für Premium stützen wir uns auf unseren Vertrag mit Ihnen, um den Zugang bereitzustellen und Ihr Abo zu verwalten."
+    },
+    "use": {
+      "heading": "Wie wir Informationen verwenden",
+      "item1": "Um die Website und ihre Funktionen bereitzustellen und zu verbessern.",
+      "item2": "Um Sie anzumelden, Ihr Feedback zu bearbeiten und den Premium-Zugang zu verwalten.",
+      "item3": "Um die Nutzung zu verstehen und die Leistung zu messen, sofern Analyse erlaubt ist.",
+      "item4": "Um Besuchern im kostenlosen Angebot Werbung zu zeigen, vorbehaltlich der oben genannten Einwilligungsregeln."
+    },
+    "rights": {
+      "heading": "Ihre Rechte",
+      "body": "Je nach Ihrem Wohnort haben Sie unter Umständen das Recht, Ihre personenbezogenen Daten einzusehen, zu berichtigen oder zu löschen, oder der Verarbeitung bestimmter Daten zu widersprechen oder sie einzuschränken. Um diese Rechte auszuüben, einschließlich eines Antrags auf Löschung Ihres Feedbacks oder Ihrer Kontodaten, kontaktieren Sie uns über die unten genannten Angaben. Premium-Abonnenten sehen keine Werbung."
+    },
+    "thirdParty": {
+      "heading": "Dienste Dritter",
+      "intro": "Wir arbeiten mit Drittanbietern zusammen. Jeder erhält nur die hier beschriebenen Informationen.",
+      "analytics": "Google Analytics erhält Nutzungsdaten, sofern Analyse erlaubt ist.",
+      "adsense": "Google AdSense erhält Anzeigenanfragen von Besuchern im kostenlosen Angebot.",
+      "firebase": "Firebase, ein Dienst von Google, betreibt die Anmeldung, die Feedback-Datenbank, die Abodaten und das Hosting der Website. Der Hosting-Dienst erhält technische Angaben zu jeder Anfrage, etwa Ihre IP-Adresse und Ihren Browsertyp.",
+      "stripe": "Stripe verarbeitet Premium-Zahlungen.",
+      "github": "GitHub liefert Kartenbilder von raw.githubusercontent.com aus, wenn eine Karte angezeigt wird. GitHub erhält deshalb Ihre IP-Adresse und Browserangaben. GitHub, Twitter und das Kundenportal von Stripe erhalten Ihren Besuch nur, wenn Sie deren Links folgen.",
+      "outro": "Diese Anbieter verwenden Ihre Informationen gemäß ihren eigenen Datenschutzerklärungen."
+    },
+    "retention": {
+      "heading": "Wie lange wir Informationen aufbewahren",
+      "body": "Google Analytics speichert Ereignisdaten 14 Monate lang. Es speichert Nutzerdaten 14 Monate lang, und dieser Zeitraum beginnt neu, wenn Sie zur Website zurückkehren. Ihr Google-Anmeldekonto und die gespeicherten Profilfelder bewahren wir auf, bis Sie deren Löschung über die unten genannten Kontaktdaten verlangen. Wir bewahren Feedback-Nachrichten auf, bis Sie deren Löschung verlangen. Die Aufbewahrungsdauer für Werbedaten legt Google selbst fest. Siehe dazu die <0>Datenschutzerklärung</0> und die <1>Werberichtlinien</1> von Google. Die Zahlung für Premium ist derzeit pausiert. Sobald der Kauf wieder möglich ist, bewahrt Stripe Zahlungsbelege auf, wie es das Gesetz vorschreibt. Die Website speichert keine eigenen Protokolle von Webanfragen. Firebase als Hosting-Anbieter und Cloudflare als Netzwerk-Anbieter bewahren ihre üblichen Betriebsprotokolle nach ihren eigenen Bedingungen auf."
+    },
+    "children": {
+      "heading": "Kinder",
+      "body": "Die Website richtet sich nicht an Kinder unter 13 Jahren, und wir erheben wissentlich keine personenbezogenen Informationen von ihnen."
+    },
+    "changes": {
+      "heading": "Änderungen dieser Erklärung",
+      "body": "Wir können diese Datenschutzerklärung von Zeit zu Zeit aktualisieren. Änderungen werden auf dieser Seite mit einem neuen Datum der letzten Überarbeitung veröffentlicht."
+    },
+    "contact": {
+      "heading": "Kontakt",
+      "body": "Bei Fragen zu dieser Datenschutzerklärung oder wenn Sie uns bitten möchten, Ihre Informationen zu löschen, kontaktieren Sie uns unter <0/>."
+    },
+    "fanNotice": "Top Pocket Decks ist ein Fanprojekt und steht in keiner Verbindung zu Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc. oder DeNA und wird von diesen weder unterstützt noch gesponsert."
   }
 }

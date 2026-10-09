@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildTiers } from "../tier-helper";
+import { buildTiers, TIER_COUNT } from "../tier-helper";
 
 const score = (item: { score: number }) => item.score;
 const items = (...scores: number[]) => scores.map((s) => ({ score: s }));
@@ -24,6 +24,11 @@ describe("buildTiers", () => {
       "D",
       "F",
     ]);
+  });
+
+  it("builds one tier per TIER_COUNT, which the grid uses to size its rows", () => {
+    expect(TIER_COUNT).toBe(6);
+    expect(buildTiers(items(1, 2, 3), score)).toHaveLength(TIER_COUNT);
   });
 
   it("places every item in exactly one tier", () => {
@@ -60,6 +65,29 @@ describe("buildTiers", () => {
     const tiers = buildTiers(scored, score);
 
     expect(tierOf(tiers, scored[1])).toEqual(["S"]);
+  });
+
+  it.each([
+    [51, "S"],
+    [50, "S"],
+    [49, "A"],
+    [41, "A"],
+    [40, "A"],
+    [39, "B"],
+    [31, "B"],
+    [30, "B"],
+    [29, "C"],
+    [21, "C"],
+    [20, "C"],
+    [19, "D"],
+    [11, "D"],
+    [10, "D"],
+    [9, "F"],
+  ])("places a score of %i in tier %s between a best of 60 and a worst of 0", (value, label) => {
+    const scored = items(60, 0, value);
+    const tiers = buildTiers(scored, score);
+
+    expect(tierOf(tiers, scored[2])).toEqual([label]);
   });
 
   it("puts everything in S when all scores are equal (steps === 0)", () => {

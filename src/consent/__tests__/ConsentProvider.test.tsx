@@ -1,10 +1,217 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { useConsentManager } from "@c15t/react";
 import type { ClassNameStyle } from "@c15t/ui/theme";
+import { clearConsentRuntimeCache } from "c15t";
+import type { ReactNode } from "react";
 import { ThemeProvider, useTheme } from "../../contexts/ThemeContext";
 import { themeTokens } from "../../styles/theme-tokens";
 import { consentTheme } from "../consent-theme";
 import ConsentProvider from "../ConsentProvider";
+import { rows } from "./region-matrix";
+
+vi.mock("@c15t/scripts/google-tag", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@c15t/scripts/google-tag")>();
+  return {
+    ...actual,
+    gtag: (options: Parameters<typeof actual.gtag>[0]) => ({
+      ...actual.gtag(options),
+      id: `gtag-${crypto.randomUUID()}`,
+    }),
+  };
+});
+
+type ConsentStore = ReturnType<typeof useConsentManager>;
+type DataLayerEntry = ArrayLike<unknown>;
+
+const originalResolvedOptions = Intl.DateTimeFormat.prototype.resolvedOptions;
+
+const clearCookies = () => {
+  for (const entry of document.cookie.split(";")) {
+    const name = entry.split("=")[0]?.trim();
+    if (name) document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+  }
+};
+
+const stubTimeZone = (timeZone: string | null) => {
+  vi.spyOn(Intl.DateTimeFormat.prototype, "resolvedOptions").mockImplementation(function (
+    this: Intl.DateTimeFormat
+  ) {
+    if (timeZone === null) throw new RangeError("time zone unavailable");
+    return { ...originalResolvedOptions.call(this), timeZone };
+  });
+};
+
+const stubGpc = (value: boolean) => {
+  Object.defineProperty(window.navigator, "globalPrivacyControl", {
+    configurable: true,
+    value,
+  });
+};
+
+const restoreGpc = () => {
+  delete (window.navigator as { globalPrivacyControl?: boolean }).globalPrivacyControl;
+};
+
+const gpcMatrix = [false, true].flatMap((gpc) => rows.map((row) => ({ ...row, gpc })));
+
+const dataLayer = (): DataLayerEntry[] =>
+  (window as unknown as { dataLayer?: DataLayerEntry[] }).dataLayer ?? [];
+
+const consentCommands = (): unknown[][] =>
+  dataLayer()
+    .map((entry) => Array.from(entry))
+    .filter((entry) => entry[0] === "consent");
+
+const lastConsentParams = (): Record<string, string> | undefined =>
+  consentCommands().at(-1)?.[2] as Record<string, string> | undefined;
+
+const firstDefaultParams = (): Record<string, string> | undefined =>
+  consentCommands().find((entry) => entry[1] === "default")?.[2] as
+    | Record<string, string>
+    | undefined;
+
+const loadProvider = async () => {
+  vi.resetModules();
+  const { ThemeProvider: FreshThemeProvider } = await import("../../contexts/ThemeContext");
+  const module = await import("../ConsentProvider");
+  const FreshConsentProvider = module.default;
+  return ({ children }: { children: ReactNode }) => (
+    <FreshThemeProvider>
+      <FreshConsentProvider>{children}</FreshConsentProvider>
+    </FreshThemeProvider>
+  );
+};
+
+describe("ConsentProvider region policy", () => {
+  beforeEach(() => {
+    clearConsentRuntimeCache();
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: (query: string) => ({
+        matches: false,
+        media: query,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      }),
+    });
+    clearCookies();
+    localStorage.clear();
+    delete (window as unknown as { dataLayer?: unknown; gtag?: unknown }).dataLayer;
+    delete (window as unknown as { dataLayer?: unknown; gtag?: unknown }).gtag;
+    document.querySelectorAll("script").forEach((script) => script.remove());
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+    restoreGpc();
+    clearCookies();
+    localStorage.clear();
+    clearConsentRuntimeCache();
+    document.documentElement.removeAttribute("data-consent-pending");
+  });
+
+  it.each(gpcMatrix)("applies the policy for $name with GPC $gpc", async (row) => {
+    if (row.cookie) document.cookie = row.cookie;
+    stubTimeZone(row.timeZone);
+    stubGpc(row.gpc);
+    const analytics = row.gpc ? "denied" : row.analytics;
+    const ads = row.gpc ? "denied" : row.ads;
+    const RegionProvider = await loadProvider();
+
+    let store: ConsentStore | undefined;
+    const Probe = () => {
+      store = useConsentManager();
+      return null;
+    };
+
+    render(
+      <RegionProvider>
+        <Probe />
+      </RegionProvider>
+    );
+
+    await waitFor(() => {
+      expect(store?.lastBannerFetchData).toBeTruthy();
+    });
+
+    expect(store?.lastBannerFetchData?.policyDecision?.policyId).toBe(row.policyId);
+    expect(store?.activeUI === "banner").toBe(row.banner);
+
+    await waitFor(() => {
+      expect(firstDefaultParams()?.analytics_storage).toBe(analytics);
+    });
+    expect(firstDefaultParams()?.ad_storage).toBe(ads);
+
+    await waitFor(() => {
+      expect(lastConsentParams()?.analytics_storage).toBe(analytics);
+    });
+    expect(lastConsentParams()?.ad_storage).toBe(ads);
+  });
+
+  it.each(rows)("settles the pending attribute for $name", async (row) => {
+    if (row.cookie) document.cookie = row.cookie;
+    stubTimeZone(row.timeZone);
+    document.documentElement.setAttribute("data-consent-pending", "");
+    const RegionProvider = await loadProvider();
+
+    let store: ConsentStore | undefined;
+    const Probe = () => {
+      store = useConsentManager();
+      return null;
+    };
+
+    render(
+      <RegionProvider>
+        <Probe />
+      </RegionProvider>
+    );
+
+    await waitFor(() => {
+      expect(store?.lastBannerFetchData).toBeTruthy();
+    });
+
+    if (row.banner) {
+      expect(document.documentElement.hasAttribute("data-consent-pending")).toBe(true);
+    } else {
+      await waitFor(() => {
+        expect(document.documentElement.hasAttribute("data-consent-pending")).toBe(false);
+      });
+    }
+  });
+
+  it("drops the pending attribute once a choice is made", async () => {
+    stubTimeZone("Europe/Berlin");
+    document.documentElement.setAttribute("data-consent-pending", "");
+    const RegionProvider = await loadProvider();
+
+    let store: ConsentStore | undefined;
+    const Probe = () => {
+      store = useConsentManager();
+      return null;
+    };
+
+    render(
+      <RegionProvider>
+        <Probe />
+      </RegionProvider>
+    );
+
+    await waitFor(() => {
+      expect(store?.activeUI).toBe("banner");
+    });
+    expect(document.documentElement.hasAttribute("data-consent-pending")).toBe(true);
+
+    await act(async () => {
+      await store?.saveConsents("necessary");
+    });
+
+    await waitFor(() => {
+      expect(document.documentElement.hasAttribute("data-consent-pending")).toBe(false);
+    });
+  });
+});
 
 const APP_FONT_FAMILY =
   '"Manrope Variable", "Manrope", "Manrope Fallback", system-ui, -apple-system, "Segoe UI", sans-serif';
@@ -106,7 +313,7 @@ describe("consentTheme", () => {
 
     const footer = slotStyle(theme?.slots?.consentBannerFooter);
     expect(footer.style?.background).toBe("transparent");
-    expect(footer.style?.paddingTop).toBe("1.6rem");
+    expect(footer.style?.gap).toBe("1rem");
   });
 });
 

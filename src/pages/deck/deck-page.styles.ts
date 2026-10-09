@@ -123,6 +123,7 @@ export const CardContainer = styled.button<{ $stacked: boolean }>`
 
 export const CardImage = styled.img`
   width: 100%;
+  height: auto;
   aspect-ratio: 63 / 88;
   display: block;
 `;
@@ -306,11 +307,14 @@ export const MatchupSkeletonTile = styled.span`
 
 export const WinRatePlaceholder = styled.span`
   display: inline-block;
-  width: 5ch;
-  height: 1em;
-  vertical-align: middle;
   border-radius: 0.4rem;
   background: var(--line);
+  color: transparent;
+  font-variant-numeric: tabular-nums;
+
+  &::before {
+    content: "00%";
+  }
 `;
 
 export const VisuallyHidden = styled.span`
@@ -433,6 +437,7 @@ export const SwapSide = styled.div<{ $out: boolean }>`
 
   img {
     width: 100%;
+    height: auto;
     aspect-ratio: 63 / 88;
     display: block;
     opacity: ${(props) => (props.$out ? 0.55 : 1)};
@@ -465,4 +470,90 @@ export const SwapName = styled.span`
 
 export const SwapArrow = styled.span`
   color: var(--white-60);
+`;
+
+export const DeckSkeleton = styled.div`
+  width: 100%;
+`;
+
+export const SkeletonHero = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 2.4rem;
+  padding: 3.2rem 3rem 0;
+
+  @media (max-width: 900px) {
+    align-items: flex-start;
+    gap: 1.6rem;
+    padding: 2rem 2.4rem 0;
+  }
+`;
+
+export const SkeletonArt = styled.span`
+  display: block;
+  flex-shrink: 0;
+  width: 7.2rem;
+  height: 7.2rem;
+  border-radius: 1.4rem;
+  background: var(--line);
+
+  & + & {
+    margin-left: -2.4rem;
+    box-shadow: 0 0 0 3px var(--bg);
+  }
+
+  @media (max-width: 900px) {
+    width: 5.6rem;
+    height: 5.6rem;
+
+    & + & {
+      margin-left: -1.6rem;
+    }
+  }
+`;
+
+export const SkeletonBody = styled.div`
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+`;
+
+export const SkeletonTitle = styled.span`
+  display: block;
+  width: min(32rem, 80%);
+  height: 4.4rem;
+  border-radius: 0.8rem;
+  background: var(--line);
+
+  @media (max-width: 900px) {
+    width: 70%;
+    height: 2.9rem;
+  }
+`;
+
+export const SkeletonMeta = styled.span`
+  display: block;
+  width: min(28rem, 100%);
+  height: 4rem;
+  border-radius: 1rem;
+  background: var(--line);
+`;
+
+export const SkeletonCard = styled.span`
+  display: block;
+  width: 100%;
+  aspect-ratio: 63 / 88;
+  border-radius: 1rem;
+  background: var(--line);
+`;
+
+export const SkeletonLine = styled.span`
+  display: block;
+  width: 60%;
+  height: 2.4rem;
+  border-radius: 0.6rem;
+  background: var(--line);
 `;

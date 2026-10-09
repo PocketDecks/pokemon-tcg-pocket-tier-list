@@ -12,6 +12,7 @@ import {
 import type { PipelineTrendRow } from "../../types/pipeline-data";
 import { chartChrome, chartSeries } from "../../styles/theme-tokens";
 import { useTheme } from "../../app/use-theme";
+import { isPrerender } from "../../app/prerender";
 
 const ChartContainer = styled.div`
     font-size: 1.2rem;
@@ -145,7 +146,7 @@ const TrendChart = ({
             <ChartContainer>
                 {failed ? (
                     <ChartLoading>{noDataLabel}</ChartLoading>
-                ) : (
+                ) : isPrerender ? null : (
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart
                             data={data}

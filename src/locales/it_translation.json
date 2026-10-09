@@ -131,7 +131,8 @@
     "showTooltip": "Mostra spiegazione",
     "energyUsed": "Energia usata",
     "matchupsUnavailable": "I dati del mazzo non sono stati caricati. Ricarica la pagina per riprovare.",
-    "matchupsLoading": "Caricamento dei matchup"
+    "matchupsLoading": "Caricamento dei matchup",
+    "loading": "Caricamento del mazzo"
   },
   "energyDropdown": {
     "all": "Tutti i Tipi di Energia",
@@ -190,6 +191,7 @@
   "footer": {
     "about": "Informazioni",
     "privacy": "Informativa sulla Privacy",
+    "privacySettings": "Impostazioni privacy",
     "feedback": "Feedback"
   },
   "feedback": {
@@ -268,5 +270,85 @@
   },
   "tierList": {
     "metaShare": "Condivisione nel Meta"
+  },
+  "notFound": {
+    "title": "Pagina non trovata",
+    "message": "Spiacenti, la pagina non esiste o è stata spostata.",
+    "backToTierList": "Torna alla tier list",
+    "deckRetired": "Questo mazzo non è più nel meta attuale.",
+    "browseDecks": "Sfoglia tutti i mazzi"
+  },
+  "privacyPage": {
+    "title": "Informativa sulla privacy",
+    "updated": "Ultimo aggiornamento: 9 ottobre 2026",
+    "intro": "La presente Informativa sulla privacy spiega quali dati raccoglie Top Pocket Decks (\"noi\" o \"il sito\"), disponibile su pocketdecks.top, e perché. Spiega inoltre chi riceve tali informazioni. Le pratiche descritte di seguito si applicano quando utilizzi il sito.",
+    "collect": {
+      "heading": "Informazioni che raccogliamo",
+      "usage": "<0>Dati di utilizzo.</0> Google Analytics registra le pagine che visualizzi e i dati standard su dispositivo e browser. Viene eseguito solo dopo che hai accettato l'analisi, oppure dove il banner del consenso della tua regione non richiede il consenso.",
+      "account": "<0>Informazioni sull'account.</0> Se accedi con Google, Firebase Authentication ci fornisce il tuo nome, l'indirizzo e-mail e la foto del profilo. Mostriamo il tuo nome e la tua foto mentre sei connesso e usiamo il tuo ID account per verificare se hai l'accesso Premium.",
+      "feedback": "<0>Feedback.</0> Se invii un feedback mentre sei connesso, salviamo il tuo ID account, il messaggio, l'argomento scelto, la pagina da cui lo hai inviato e l'ora dell'invio in Cloud Firestore, un database gestito da Google per Firebase. Salviamo il tuo indirizzo e-mail insieme al messaggio solo se spunti la casella con cui ci chiedi una risposta. Conserviamo anche l'ora del tuo ultimo invio.",
+      "payment": "<0>Pagamenti.</0> Il pagamento Premium è attualmente sospeso. Quando sarà di nuovo disponibile, Stripe elaborerà i pagamenti e conserveremo lo stato del tuo abbonamento in Firestore."
+    },
+    "cookies": {
+      "heading": "Cookie e tracciamento",
+      "intro": "Il sito imposta cookie o usa l'archiviazione del browser per il consenso, il tema, la misurazione e la pubblicità. Ogni voce è elencata di seguito.",
+      "consent": "<0>Scelta del consenso.</0> Un cookie e una voce di archiviazione locale, entrambi chiamati c15t, registrano le tue scelte di consenso e il momento in cui le hai fatte. Sono strettamente necessari, perché il sito ne ha bisogno per ricordare la tua scelta.",
+      "theme": "<0>Tema.</0> Una voce di archiviazione locale chiamata theme registra se hai scelto la modalità chiara o quella scura.",
+      "reload": "<0>Protezione dal ricaricamento.</0> Una voce di archiviazione di sessione chiamata chunk-reload-at registra l'ora dell'ultimo ricaricamento automatico. Impedisce che un file mancante faccia ricaricare la pagina in un ciclo, e il browser la cancella quando chiudi la scheda.",
+      "region": "<0>Cookie di regione.</0> Se è presente un cookie chiamato pd_geo, il sito lo legge per scegliere quali regole di consenso ti si applicano. Il sito non imposta questo cookie.",
+      "timeZone": "<0>Fuso orario.</0> Il browser comunica il proprio fuso orario, che il sito usa sul tuo dispositivo per scegliere le regole di consenso quando non è presente un cookie di regione. Il sito non lo invia a nessuno.",
+      "gpc": "<0>Global Privacy Control.</0> Se il browser invia un segnale Global Privacy Control, lo trattiamo come una richiesta di rifiuto. Analisi e pubblicità vengono quindi impostate come negate.",
+      "language": "<0>Lingua.</0> Il sito legge l'impostazione della lingua del browser per scegliere la lingua della pagina. Non memorizza nulla.",
+      "missing": "<0>Carte mancanti.</0> Le carte che segni come mancanti sono conservate solo nella memoria della pagina. Non vengono salvate, e ricaricare la pagina le cancella.",
+      "analytics": "<0>Analisi.</0> Google Analytics usa cookie propri per distinguere le visite. Quando il banner del consenso chiede il consenso, questi cookie vengono impostati solo dopo che hai accettato l'analisi.",
+      "ads": "<0>Pubblicità.</0> I visitatori del piano gratuito vedono annunci di Google AdSense. Google e i suoi partner possono usare cookie per mostrare annunci in base alle tue visite a questo sito e ad altri. I membri Premium non vedono annunci.",
+      "optOut": "Puoi rifiutare la pubblicità personalizzata tramite le <0>Impostazioni annunci di Google</0>. Puoi anche rifiutare i cookie pubblicitari di alcuni fornitori su <1>www.aboutads.info</1>."
+    },
+    "consent": {
+      "heading": "Consenso per gli utenti del SEE, del Regno Unito, della Svizzera e del Canada",
+      "body": "Se ti trovi nello Spazio economico europeo, nel Regno Unito, in Svizzera o in Canada, il banner del consenso ti chiede la tua scelta su analisi e pubblicità prima che il sito imposti qualsiasi cookie di analisi o pubblicitario. Finché non scegli, Google Consent Mode mantiene negata l'archiviazione per analisi e pubblicità. Puoi modificare o ritirare la tua scelta in qualsiasi momento dal link Impostazioni privacy nel piè di pagina."
+    },
+    "legalBasis": {
+      "heading": "Base giuridica",
+      "body": "Ci basiamo sul tuo consenso per l'analisi e la pubblicità dove il banner del consenso lo richiede. Per Premium ci basiamo sul contratto con te per fornire l'accesso e gestire il tuo abbonamento."
+    },
+    "use": {
+      "heading": "Come usiamo le informazioni",
+      "item1": "Per fornire il sito e le sue funzioni, e per migliorarli.",
+      "item2": "Per accedere al tuo account, gestire il tuo feedback e amministrare l'accesso Premium.",
+      "item3": "Per capire come viene usato il sito e misurarne le prestazioni, dove l'analisi è consentita.",
+      "item4": "Per mostrare pubblicità ai visitatori del piano gratuito, nel rispetto delle regole sul consenso sopra indicate."
+    },
+    "rights": {
+      "heading": "I tuoi diritti",
+      "body": "A seconda di dove ti trovi, puoi avere il diritto di accedere ai tuoi dati personali, correggerli o cancellarli, oppure di opporti o limitare determinati trattamenti. Per esercitare questi diritti, incluse eventuali richieste di cancellazione del tuo feedback o dei dati del tuo account, contattaci con i recapiti indicati di seguito. Gli abbonati Premium non vedono annunci."
+    },
+    "thirdParty": {
+      "heading": "Servizi di terze parti",
+      "intro": "Ci affidiamo a fornitori terzi. Ognuno riceve solo le informazioni descritte qui.",
+      "analytics": "Google Analytics riceve i dati di utilizzo dove l'analisi è consentita.",
+      "adsense": "Google AdSense riceve le richieste di annunci dai visitatori del piano gratuito.",
+      "firebase": "Firebase, un servizio di Google, gestisce l'accesso, il database dei feedback, i record degli abbonamenti e l'hosting del sito. Il servizio di hosting riceve i dati tecnici di ogni richiesta, come l'indirizzo IP e il tipo di browser.",
+      "stripe": "Stripe elabora i pagamenti Premium.",
+      "github": "GitHub fornisce le immagini delle carte da raw.githubusercontent.com quando una carta viene mostrata, quindi GitHub riceve il tuo indirizzo IP e i dati del browser. GitHub, Twitter e il portale di fatturazione di Stripe ricevono la tua visita solo se segui i loro link.",
+      "outro": "Questi fornitori usano le tue informazioni secondo le proprie informative sulla privacy."
+    },
+    "retention": {
+      "heading": "Per quanto tempo conserviamo le informazioni",
+      "body": "Google Analytics conserva i dati degli eventi per 14 mesi. Conserva i dati utente per 14 mesi, e il periodo ricomincia quando torni sul sito. Conserviamo il tuo account di accesso Google e i campi del profilo salvati finché non chiedi di eliminarli, usando i recapiti indicati più sotto. Conserviamo i messaggi di feedback finché non ci chiedi di eliminarli. La durata di conservazione dei dati pubblicitari è stabilita da Google. Consulta la <0>informativa sulla privacy</0> e le <1>norme sulla pubblicità</1> di Google. Il pagamento Premium è attualmente sospeso. Quando sarà di nuovo disponibile, Stripe conserverà i registri dei pagamenti come richiede la legge. Il sito non conserva registri propri delle richieste web. Firebase, il fornitore di hosting, e Cloudflare, il fornitore di rete, conservano i log operativi standard secondo i propri termini."
+    },
+    "children": {
+      "heading": "Minori",
+      "body": "Il sito non è rivolto a minori di 13 anni e non raccogliamo consapevolmente informazioni personali che li riguardano."
+    },
+    "changes": {
+      "heading": "Modifiche a questa informativa",
+      "body": "Possiamo aggiornare la presente Informativa sulla privacy di tanto in tanto. Le modifiche saranno pubblicate in questa pagina con una data di revisione aggiornata."
+    },
+    "contact": {
+      "heading": "Contatti",
+      "body": "Per qualsiasi domanda su questa Informativa sulla privacy, o per chiederci di cancellare le tue informazioni, contattaci all'indirizzo <0/>."
+    },
+    "fanNotice": "Top Pocket Decks è un progetto di fan e non è affiliato, approvato o sponsorizzato da Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc. o DeNA."
   }
 }

@@ -1,22 +1,27 @@
-import { ReactNode } from "react";
-import { ConsentBanner, ConsentDialog, ConsentManagerProvider } from "@c15t/react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  ConsentBanner,
+  ConsentDialog,
+  ConsentManagerProvider,
+  type ConsentManagerOptions,
+  useConsentManager,
+} from "@c15t/react";
 import { gtag } from "@c15t/scripts/google-tag";
+import { isPrerender } from "../app/prerender";
 import { useAppVisible } from "../app/use-app-visible";
 import { useTheme } from "../contexts/ThemeContext";
+import "../styles/layers.css";
 import "@c15t/react/styles.css";
 import "./consent-overrides.css";
 import { GOOGLE_GTAG } from "../app/constants";
 import { consentTheme } from "./consent-theme";
-
-// During the postbuild route prerender, c15t portals <ConsentBanner/> to
-// document.body, outside #root. The client uses createRoot (not hydrateRoot),
-// so it never adopts that prerendered markup and a second, handler-less banner
-// is frozen on screen forever (and on reload-with-consent-stored it is the ONLY
-// copy, so Accept/Reject/Personalise do nothing). Skip the banner while the
-// prerenderer drives the page so it stays out of the static HTML; the live
-// client still renders it.
-const isPrerender =
-  typeof navigator !== "undefined" && navigator.userAgent === "prerender-routes";
+import { toConsentLanguage } from "./consent-language";
+import { consentMessages } from "./consent-messages";
+import { useConsentBannerHeight } from "./consent-banner-height";
+import { CONSENT_PENDING_ATTRIBUTE } from "./consent-pending-keys.mjs";
+import { resolveVisitorRegion, type VisitorRegion } from "./visitor-region.mjs";
+import { policyPacks } from "./policy-packs.mjs";
 
 // c15t injects gtag, sets Consent Mode v2 to denied by default and pushes the
 // update when a visitor chooses. Registering both categories lets one gtag
@@ -29,24 +34,75 @@ const scripts = [
   gtag({ id: GOOGLE_GTAG, category: "marketing" }),
 ];
 
+const readTimeZone = (): string | null => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch {
+    return null;
+  }
+};
+
+const readVisitorRegion = (): VisitorRegion | null => {
+  try {
+    return resolveVisitorRegion({ cookie: document.cookie, timeZone: readTimeZone() });
+  } catch {
+    return null;
+  }
+};
+
+const ConsentPendingSync = (): null => {
+  const { hasFetchedBanner, activeUI } = useConsentManager();
+  const settled = hasFetchedBanner && activeUI === "none";
+
+  useEffect(() => {
+    if (settled) document.documentElement.removeAttribute(CONSENT_PENDING_ATTRIBUTE);
+  }, [settled]);
+
+  return null;
+};
+
+const consentOptions: ConsentManagerOptions = {
+  mode: "offline",
+  offlinePolicy: { policyPacks },
+  scripts,
+  legalLinks: { privacyPolicy: { href: "/privacy/", target: "_self" } },
+  i18n: { locale: "en", messages: consentMessages },
+};
+
 const ConsentProvider = ({ children }: { children: ReactNode }) => {
   const appVisible = useAppVisible();
+  const { i18n } = useTranslation();
   const { theme } = useTheme();
+  const [visitorRegion] = useState<VisitorRegion | null>(readVisitorRegion);
+  const options = useMemo<ConsentManagerOptions>(
+    () => ({
+      ...consentOptions,
+      ...consentTheme(theme),
+      overrides: { ...visitorRegion, language: toConsentLanguage(i18n.language) },
+    }),
+    [i18n.language, theme, visitorRegion]
+  );
 
-  // Rebuilding `options` on every theme change is what swaps the banner: c15t
-  // memoises the resolved theme off this object and re-runs the colour-scheme
-  // effect, so both the banner and the dialog repaint with the new tokens
-  // while they stay mounted.
+  useConsentBannerHeight(appVisible && !isPrerender);
+
   return (
-    <ConsentManagerProvider options={{ mode: "offline", scripts, ...consentTheme(theme) }}>
+    <ConsentManagerProvider options={options}>
       {children}
+      <ConsentPendingSync />
       {appVisible && !isPrerender ? (
         <>
-          <ConsentBanner hideBranding={!import.meta.env.DEV} />
+          <ConsentBanner
+            hideBranding={!import.meta.env.DEV}
+            legalLinks={["privacyPolicy"]}
+          />
           {/* "Customize" only flips the store's activeUI to "dialog", which
               hides the banner. Without this mounted the banner simply
               disappears and the visitor has no way back to the categories. */}
-          <ConsentDialog />
+          <ConsentDialog
+            hideBranding={!import.meta.env.DEV}
+            legalLinks={["privacyPolicy"]}
+            models={["opt-in", "opt-out", null]}
+          />
         </>
       ) : null}
     </ConsentManagerProvider>

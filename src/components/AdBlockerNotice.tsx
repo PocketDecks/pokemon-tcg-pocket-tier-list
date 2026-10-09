@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import useAdBlocked from "../ads/useAdBlocked";
+import useAdsState from "../ads/useAdsState";
 import { useTranslation } from "react-i18next";
 
 const Notice = styled.div`
@@ -42,7 +43,8 @@ const PRIVACY_URL = "https://archive.is/4bjZ6";
 
 const AdBlockerNotice = () => {
   const { t } = useTranslation();
-  const blocked = useAdBlocked();
+  const { useReal } = useAdsState();
+  const blocked = useAdBlocked(useReal);
   if (!blocked) return null;
 
   return (

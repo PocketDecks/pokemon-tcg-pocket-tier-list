@@ -1,6 +1,12 @@
 const test = require("node:test");
 const assert = require("node:assert");
-const { captureAfterRouteReady, resetPrerenderTheme, ROUTES, ROUTE_META, ROUTE_READY_ROUTES } = require("../prerender-routes");
+const { captureAfterRouteReady, NOT_FOUND_META, resetPrerenderAppState, resetPrerenderTheme, ROUTES, ROUTE_META, ROUTE_READY_ROUTES } = require("../prerender-routes");
+
+test("the 404 page is noindex with a title and no canonical", () => {
+  assert.strictEqual(NOT_FOUND_META.robots, "noindex");
+  assert.ok(NOT_FOUND_META.title.length > 0);
+  assert.strictEqual(NOT_FOUND_META.canonical, undefined);
+});
 
 test("every route has unique title and description, plus self canonical", () => {
   const titles = new Set();
@@ -30,9 +36,13 @@ test("removes runtime theme state before prerender capture", () => {
     },
     getAttribute: () => meta.content,
   };
+  const classes = new Set(["c15t-dark", "app-shell"]);
   global.document = {
     documentElement: {
       dataset: { theme: "light" },
+      classList: {
+        remove: (...names) => names.forEach((name) => classes.delete(name)),
+      },
       style: {
         colorScheme: "light",
         removeProperty: (name) => {
@@ -49,8 +59,25 @@ test("removes runtime theme state before prerender capture", () => {
   resetPrerenderTheme("#121210");
 
   assert.strictEqual(document.documentElement.dataset.theme, undefined);
+  assert.deepStrictEqual([...classes], ["app-shell"]);
   assert.strictEqual(document.documentElement.style.colorScheme, "");
   assert.strictEqual(document.querySelector().getAttribute("content"), "#121210");
+  delete global.document;
+});
+test("strips the live app state from the captured document", () => {
+  const removed = [];
+  global.document = {
+    documentElement: {
+      dataset: { routeReady: "/statistics" },
+      removeAttribute: (name) => removed.push(name),
+      style: { removeProperty: (name) => removed.push(name) },
+    },
+  };
+
+  resetPrerenderAppState();
+
+  assert.deepStrictEqual(removed, ["data-app-visible", "data-consent-pending", "--ad-anchor-h", "--consent-banner-h"]);
+  assert.strictEqual("routeReady" in document.documentElement.dataset, false);
   delete global.document;
 });
 test("captures data-backed routes after their pathname is ready", async () => {

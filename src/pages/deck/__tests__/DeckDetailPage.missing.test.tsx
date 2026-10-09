@@ -11,6 +11,7 @@ import FilterContextProvider from "../../../components/FilterContext";
 import useFilters from "../../../app/use-filters";
 import { UIProvider } from "../../../contexts/UIContext";
 import rawCards from "../../../app/__fixtures__/cards.json";
+import { declaredStyle } from "../../../test-utils/declared-style";
 
 vi.mock("../../../ads/AdInContent", () => ({
   __esModule: true,
@@ -291,7 +292,24 @@ describe("DeckDetailPage with a cut card", () => {
     expect(screen.queryByText("Deck not found")).not.toBeInTheDocument();
   });
 
-  it("still reports an unknown deck id as not found", async () => {
+  it("keeps the alternatives thumbnails at their natural aspect ratio", async () => {
+    decks[0].lists.push({ cards: ["2:a1-004", "1:a1-001"], score: 9, strength: 4 });
+    const { container } = renderDetailPage();
+
+    await screen.findByAltText("Venusaur ex");
+    const thumbs = await waitFor(() => {
+      const found = container.querySelectorAll<HTMLImageElement>('img[sizes="135px"]');
+      expect(found).toHaveLength(2);
+      return found;
+    });
+    for (const thumb of thumbs) {
+      expect(thumb).toHaveAttribute("width", "240");
+      expect(thumb).toHaveAttribute("height", "335");
+      expect(declaredStyle(thumb, "height")).toBe("auto");
+    }
+  });
+
+  it("reports an unknown deck id as no longer in the current meta", async () => {
     render(
       <QueryClientProvider
         client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
@@ -310,7 +328,7 @@ describe("DeckDetailPage with a cut card", () => {
       </QueryClientProvider>
     );
 
-    await screen.findByText("Loading...");
-    expect(await screen.findByText("Deck not found")).toBeInTheDocument();
+    await screen.findByText("Loading deck");
+    expect(await screen.findByText("This deck is no longer in the current meta.")).toBeInTheDocument();
   });
 });

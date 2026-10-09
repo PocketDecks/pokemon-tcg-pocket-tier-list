@@ -9,7 +9,6 @@ export const GITHUB_URL =
 export const CARDS_REPO_URL =
   "https://github.com/chase-mew/pokemon-tcg-pocket-cards";
 export const TWITTER_URL = "https://twitter.com/pocketdecks";
-export const GOOGLE_ADSENSE_URL = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3547629432918335';
 export const GOOGLE_ANALYTICS_URL = 'https://www.googletagmanager.com/gtag/js?id=G-SBZ51J3S1R';
 export const GOOGLE_GTAG = 'G-SBZ51J3S1R';
 export const CONTACT_EMAIL = "infoLeonid@protonMail.com";

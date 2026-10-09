@@ -39,3 +39,8 @@ export type AdPlacement = keyof typeof ADSENSE_SLOTS;
 // The anchor hosts a short horizontal banner; in-content units are larger.
 export const ANCHOR_HEIGHT_MOBILE = 60;
 export const ANCHOR_HEIGHT_DESKTOP = 90;
+export const ANCHOR_STRIP_HEIGHT = 18;
+export const ANCHOR_BORDER = 1;
+export const ANCHOR_MOBILE_MAX_WIDTH = 900;
+export const ANCHOR_RESERVE_MOBILE = ANCHOR_HEIGHT_MOBILE + ANCHOR_STRIP_HEIGHT + ANCHOR_BORDER;
+export const ANCHOR_RESERVE_DESKTOP = ANCHOR_HEIGHT_DESKTOP + ANCHOR_BORDER;

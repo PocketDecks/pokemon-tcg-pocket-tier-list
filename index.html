@@ -27,6 +27,13 @@
         }
       })();
     </script>
+    <style>
+      @media (max-width: 900px) {
+        :root:not([data-consent-pending]) {
+          --ad-anchor-h: 79px;
+        }
+      }
+    </style>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
@@ -56,7 +63,7 @@
 
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>Please enable JavaScript to use the interactive features on this site.</noscript>
     <div id="root"></div>
     <script type="module" src="/src/index.tsx"></script>
   </body>

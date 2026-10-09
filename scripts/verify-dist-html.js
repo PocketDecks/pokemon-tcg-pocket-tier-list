@@ -8,6 +8,7 @@ const {
   deckListCardIds,
 } = require("./deck-thumbs.mjs");
 const { resolveHosting } = require("./firebase-hosting");
+const { inlineScriptHashes, parsePolicy, reportOnlyPolicy } = require("./content-security-policy");
 const { DELUXE_EXPANSION_IDS, newestExpansion } = require("../src/app/expansion-policy.mjs");
 
 const DIST_DIR = process.env.BUILD_DIR
@@ -320,6 +321,22 @@ const findExternalScripts = (dir = DIST_DIR) =>
       .map((src) => `${entry}: ${src}`);
   });
 
+const findCspHashIssues = (
+  dir = DIST_DIR,
+  firebase = JSON.parse(fs.readFileSync(FIREBASE_CONFIG_PATH, "utf8"))
+) => {
+  const policy = reportOnlyPolicy(firebase);
+  if (policy === undefined) {
+    return ["firebase.json: no Content-Security-Policy-Report-Only header on **"];
+  }
+  const allowed = new Set(parsePolicy(policy).get("script-src") ?? []);
+  return listHtmlFiles(dir).flatMap((entry) =>
+    inlineScriptHashes(fs.readFileSync(path.join(dir, entry), "utf8"))
+      .filter((hash) => !allowed.has(hash))
+      .map((hash) => `${entry}: ${hash} is not in script-src`)
+  );
+};
+
 const main = () => {
   const offenders = findLoopbackRefs();
   if (offenders.length > 0) {
@@ -398,6 +415,13 @@ const main = () => {
     );
     process.exit(1);
   }
+  const cspHashIssues = findCspHashIssues();
+  if (cspHashIssues.length > 0) {
+    console.error(
+      `Inline scripts missing from the Report-Only CSP in firebase.json:\n${cspHashIssues.join("\n")}`
+    );
+    process.exit(1);
+  }
   const imagePreloadIssues = findDeckImagePreloadIssues();
   if (imagePreloadIssues.length > 0) {
     console.error(
@@ -432,6 +456,7 @@ if (require.main === module) main();
 module.exports = {
   findBakedAppState,
   findCanonicalIssues,
+  findCspHashIssues,
   findShellPageIssues,
   findUnresolvedAppRoutes,
   findDeckImagePreloadIssues,

@@ -7,7 +7,7 @@ const changeLanguage = vi.fn();
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     i18n: { language: "en", changeLanguage },
-    t: (key: string, fallback?: string) => fallback ?? key,
+    t: (key: string) => (key === "a11y.selectLanguage" ? "Choose your language" : key),
   }),
 }));
 
@@ -18,7 +18,7 @@ beforeEach(() => {
 describe("LanguageSwitcher", () => {
   it("renders the desktop selector and changes language", () => {
     render(<LanguageSwitcher />);
-    const selector = screen.getByRole("combobox", { name: "Select language" });
+    const selector = screen.getByRole("combobox", { name: "Choose your language" });
 
     expect(selector).toHaveValue("en");
     fireEvent.change(selector, { target: { value: "de" } });

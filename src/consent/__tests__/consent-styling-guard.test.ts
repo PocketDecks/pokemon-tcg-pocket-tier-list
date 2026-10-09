@@ -1,6 +1,10 @@
+import { createElement } from "react";
+import { renderToString } from "react-dom/server";
+import { ServerStyleSheet } from "styled-components";
 import { describe, expect, it } from "vitest";
 import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import GlobalStyles from "../../styles/GlobalStyles";
 
 const consentDir = resolve(process.cwd(), "src/consent");
 const thisFileName = "consent-styling-guard.test.ts";
@@ -43,9 +47,17 @@ describe("consent styling guard", () => {
   });
 
   it("does not reserve fixed consent UI in document flow", () => {
-    const global = readFileSync(resolve(consentDir, "../styles/GlobalStyles.tsx"), "utf8");
-    expect(global).toContain("padding-bottom: var(--ad-anchor-h, 0px)");
-    expect(global).not.toContain("calc(var(--ad-anchor-h, 0px) + var(--consent-banner-h, 0px))");
+    const sheet = new ServerStyleSheet();
+    renderToString(sheet.collectStyles(createElement(GlobalStyles)));
+    const css = sheet.getStyleTags();
+    sheet.seal();
+
+    const bodyPaddings = Array.from(css.matchAll(/(?:^|[}\s])body\{([^}]*)\}/g))
+      .flatMap(([, block]) => Array.from(block.matchAll(/padding(?:-bottom)?:([^;}]+)/g)))
+      .map(([, value]) => value.trim());
+
+    expect(bodyPaddings).toEqual(["var(--ad-anchor-h, 0px)"]);
+    expect(css).not.toContain("consent-banner-h");
   });
 
   it("imports the layer order before c15t's stylesheet", () => {

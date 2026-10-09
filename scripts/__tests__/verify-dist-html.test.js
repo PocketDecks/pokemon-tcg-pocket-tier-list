@@ -1,11 +1,13 @@
 const test = require("node:test");
 const assert = require("node:assert");
 const fs = require("node:fs");
+const { createHash } = require("node:crypto");
 const os = require("node:os");
 const path = require("node:path");
 const {
   findBakedAppState,
   findCanonicalIssues,
+  findCspHashIssues,
   findShellPageIssues,
   findUnresolvedAppRoutes,
   findDeckImagePreloadIssues,
@@ -423,4 +425,60 @@ test("findExpansionListIssues needs the newest set and rejects deluxe packs", ()
   assert.deepEqual(findExpansionListIssues(deluxe, list), [
     "expansion-list/index.html: deluxe pack /packs/b4b- is listed",
   ]);
+});
+
+const cspFirebase = (scriptSrc, extra = []) => ({
+  hosting: {
+    headers: [
+      {
+        source: "**",
+        headers: [
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+          ...(scriptSrc === null
+            ? []
+            : [{ key: "Content-Security-Policy-Report-Only", value: `default-src 'self'; script-src 'self' ${scriptSrc}` }]),
+          ...extra,
+        ],
+      },
+    ],
+  },
+});
+const sha = (body) => `'sha256-${createHash("sha256").update(body, "utf8").digest("base64")}'`;
+const inlineHtml = (body) => `<html><head><script>${body}</script></head></html>`;
+
+test("passes built HTML whose inline scripts are all hashed in script-src", () => {
+  const body = "window.theme='dark';";
+  const dir = makeDist({ "index.html": inlineHtml(body), "tier-list/index.html": inlineHtml(body) });
+  assert.deepStrictEqual(findCspHashIssues(dir, cspFirebase(sha(body))), []);
+});
+
+test("flags an inline script whose hash is not in script-src, naming the page and hash", () => {
+  const dir = makeDist({ "index.html": inlineHtml("window.drift=1;") });
+  const expected = `index.html: ${sha("window.drift=1;")} is not in script-src`;
+  assert.deepStrictEqual(findCspHashIssues(dir, cspFirebase(sha("window.theme='dark';"))), [expected]);
+});
+
+test("flags a hash placed in another directive instead of script-src", () => {
+  const body = "window.x=1;";
+  const dir = makeDist({ "index.html": inlineHtml(body) });
+  const firebase = cspFirebase("");
+  firebase.hosting.headers[0].headers[1].value += `; style-src ${sha(body)}`;
+  assert.deepStrictEqual(findCspHashIssues(dir, firebase), [
+    `index.html: ${sha(body)} is not in script-src`,
+  ]);
+});
+
+test("flags a missing Report-Only header", () => {
+  const dir = makeDist({ "index.html": inlineHtml("x") });
+  assert.deepStrictEqual(findCspHashIssues(dir, cspFirebase(null)), [
+    "firebase.json: no Content-Security-Policy-Report-Only header on **",
+  ]);
+});
+
+test("the shipped firebase.json policy passes a page carrying the template theme script", () => {
+  const body = fs.readFileSync(path.join(__dirname, "..", "..", "index.html"), "utf8")
+    .match(/<script data-theme-init="true">([\s\S]*?)<\/script>/)[1];
+  const dir = makeDist({ "index.html": `<script data-theme-init="true">${body}</script>` });
+  const firebase = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "firebase.json"), "utf8"));
+  assert.deepStrictEqual(findCspHashIssues(dir, firebase), []);
 });

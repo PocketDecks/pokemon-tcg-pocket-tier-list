@@ -42,6 +42,19 @@ const stubTimeZone = (timeZone: string | null) => {
   });
 };
 
+const stubGpc = (value: boolean) => {
+  Object.defineProperty(window.navigator, "globalPrivacyControl", {
+    configurable: true,
+    value,
+  });
+};
+
+const restoreGpc = () => {
+  delete (window.navigator as { globalPrivacyControl?: boolean }).globalPrivacyControl;
+};
+
+const gpcMatrix = [false, true].flatMap((gpc) => rows.map((row) => ({ ...row, gpc })));
+
 const dataLayer = (): DataLayerEntry[] =>
   (window as unknown as { dataLayer?: DataLayerEntry[] }).dataLayer ?? [];
 
@@ -92,15 +105,19 @@ describe("ConsentProvider region policy", () => {
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
+    restoreGpc();
     clearCookies();
     localStorage.clear();
     clearConsentRuntimeCache();
     document.documentElement.removeAttribute("data-consent-pending");
   });
 
-  it.each(rows)("applies the policy for $name", async (row) => {
+  it.each(gpcMatrix)("applies the policy for $name with GPC $gpc", async (row) => {
     if (row.cookie) document.cookie = row.cookie;
     stubTimeZone(row.timeZone);
+    stubGpc(row.gpc);
+    const analytics = row.gpc ? "denied" : row.analytics;
+    const ads = row.gpc ? "denied" : row.ads;
     const RegionProvider = await loadProvider();
 
     let store: ConsentStore | undefined;
@@ -123,14 +140,14 @@ describe("ConsentProvider region policy", () => {
     expect(store?.activeUI === "banner").toBe(row.banner);
 
     await waitFor(() => {
-      expect(firstDefaultParams()?.analytics_storage).toBe(row.analytics);
+      expect(firstDefaultParams()?.analytics_storage).toBe(analytics);
     });
-    expect(firstDefaultParams()?.ad_storage).toBe(row.ads);
+    expect(firstDefaultParams()?.ad_storage).toBe(ads);
 
     await waitFor(() => {
-      expect(lastConsentParams()?.analytics_storage).toBe(row.analytics);
+      expect(lastConsentParams()?.analytics_storage).toBe(analytics);
     });
-    expect(lastConsentParams()?.ad_storage).toBe(row.ads);
+    expect(lastConsentParams()?.ad_storage).toBe(ads);
   });
 
   it.each(rows)("settles the pending attribute for $name", async (row) => {

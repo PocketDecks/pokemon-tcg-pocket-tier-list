@@ -33,6 +33,8 @@ import {
 } from "../../app/deck-thumb";
 import {
   AlternativeSwap,
+  BackIcon,
+  BackToTierList,
   CardSection,
   DeckCardContainer,
   EmptyActions,
@@ -231,6 +233,10 @@ const DeckDetailPage = () => {
     <>
       <DeckHeadTags deck={deck} />
       <DeckHero deck={deck} tier={tierForDeck(tiers, deck.id)} stats={heroStats} />
+      <BackToTierList to="/tier-list">
+        <BackIcon name="arrowRight" size={18} />
+        {t("notFound.backToTierList", "Back to the tier list")}
+      </BackToTierList>
       <StyledDeckPage>
         <CardSection>
           <DeckCardGrid cards={uniqueCards} counts={cardCounts} />

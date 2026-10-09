@@ -66,6 +66,26 @@
     ],
     "redirects": [
       {
+        "source": "/cards",
+        "destination": "/cards-list/",
+        "type": 301
+      },
+      {
+        "source": "/cards/",
+        "destination": "/cards-list/",
+        "type": 301
+      },
+      {
+        "source": "/expansions",
+        "destination": "/expansion-list/",
+        "type": 301
+      },
+      {
+        "source": "/expansions/",
+        "destination": "/expansion-list/",
+        "type": 301
+      },
+      {
         "source": "/stats",
         "destination": "/statistics/",
         "type": 301

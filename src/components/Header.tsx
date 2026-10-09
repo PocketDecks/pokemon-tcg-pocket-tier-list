@@ -131,8 +131,13 @@ const FooterBarInner = styled.div`
 
 const FooterLinks = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 2.4rem;
+
+  @media (max-width: 900px) {
+    row-gap: 1.2rem;
+  }
 `;
 
 const footerLinkStyles = css`
@@ -167,6 +172,8 @@ const FooterTools = styled.div`
   gap: 2rem;
 
   @media (max-width: 900px) {
+    width: 100%;
+    justify-content: space-between;
     gap: 1.6rem;
   }
 `;

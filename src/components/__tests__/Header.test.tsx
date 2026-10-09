@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { ConsentManagerProvider } from "@c15t/react";
 import Header from "../Header";
@@ -28,7 +28,7 @@ vi.mock("../UserAccount", () => ({
 
 vi.mock("../LanguageSwitcher", () => ({
   __esModule: true,
-  default: () => null,
+  default: () => <div data-testid="language-switcher" />,
 }));
 
 let mobile = true;
@@ -64,6 +64,18 @@ describe("Header", () => {
     expect(screen.getByRole("banner")).toBeInTheDocument();
     expect(
       screen.getByRole("navigation", { name: "Main navigation" })
+    ).toBeInTheDocument();
+  });
+
+  it("keeps the language switcher out of the top bar and menu", () => {
+    renderHeader();
+    expect(screen.queryByTestId("language-switcher")).not.toBeInTheDocument();
+  });
+
+  it("renders the language switcher in the footer", () => {
+    renderHeader(true);
+    expect(
+      within(screen.getByRole("contentinfo")).getByTestId("language-switcher")
     ).toBeInTheDocument();
   });
 

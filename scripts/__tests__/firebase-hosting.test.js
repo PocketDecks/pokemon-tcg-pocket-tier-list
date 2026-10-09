@@ -45,6 +45,29 @@ test("stats permanently redirects to statistics", () => {
   assert.deepStrictEqual(resolve("/stats/"), redirect);
 });
 
+test("legacy card and expansion paths permanently redirect", () => {
+  assert.deepStrictEqual(resolve("/cards"), {
+    kind: "redirect",
+    status: 301,
+    location: "/cards-list/",
+  });
+  assert.deepStrictEqual(resolve("/cards/"), {
+    kind: "redirect",
+    status: 301,
+    location: "/cards-list/",
+  });
+  assert.deepStrictEqual(resolve("/expansions"), {
+    kind: "redirect",
+    status: 301,
+    location: "/expansion-list/",
+  });
+  assert.deepStrictEqual(resolve("/expansions/"), {
+    kind: "redirect",
+    status: 301,
+    location: "/expansion-list/",
+  });
+});
+
 test("feedback is served by the app shell with status 200", () => {
   const rewrite = { kind: "rewrite", status: 200, file: "app-shell.html" };
   assert.deepStrictEqual(resolve("/feedback"), rewrite);

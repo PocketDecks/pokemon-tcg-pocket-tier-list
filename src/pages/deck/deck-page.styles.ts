@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { Link } from "react-router";
 import { WINRATE_THRESHOLD } from "../../app/config";
+import NavIcon from "../../components/NavIcon";
 
 export const StyledDeckPage = styled.div`
   width: 100%;
@@ -14,6 +15,34 @@ export const StyledDeckPage = styled.div`
     flex-direction: column;
     align-items: center;
   }
+`;
+
+export const BackToTierList = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  align-self: flex-start;
+  margin: 2.4rem 3rem 0;
+  min-height: 4.4rem;
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.3rem;
+
+  &:hover {
+    color: var(--main);
+    text-decoration-color: var(--main);
+  }
+
+  @media (max-width: 900px) {
+    margin: 2rem 2.4rem 0;
+  }
+`;
+
+export const BackIcon = styled(NavIcon)`
+  transform: rotate(180deg);
 `;
 
 export const CardSection = styled.div`

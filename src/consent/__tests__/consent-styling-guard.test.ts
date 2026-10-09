@@ -1,23 +1,14 @@
-import { describe, expect, it } from "vitest";
-import { readdirSync, readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { ServerStyleSheet } from "styled-components";
+import { describe, expect, it } from "vitest";
+import { readdirSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 import GlobalStyles from "../../styles/GlobalStyles";
 
 const consentDir = resolve(process.cwd(), "src/consent");
 const thisFileName = "consent-styling-guard.test.ts";
 
-const collectCss = (): string => {
-  const sheet = new ServerStyleSheet();
-  try {
-    renderToString(sheet.collectStyles(createElement(GlobalStyles)));
-    return sheet.getStyleTags();
-  } finally {
-    sheet.seal();
-  }
-};
 
 const listFiles = (dir: string): string[] =>
   readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -55,30 +46,18 @@ describe("consent styling guard", () => {
     expect(theme?.text).toContain('outline: "none"');
   });
 
-  it("reserves the banner height through a measured CSS variable", () => {
-    const height = sources.find(({ file }) => file.endsWith("consent-banner-height.ts"));
-    expect(height?.text).toContain('"--consent-banner-h"');
-    expect(height?.text).toContain("ResizeObserver");
+  it("does not reserve fixed consent UI in document flow", () => {
+    const sheet = new ServerStyleSheet();
+    renderToString(sheet.collectStyles(createElement(GlobalStyles)));
+    const css = sheet.getStyleTags();
+    sheet.seal();
 
-    const global = readFileSync(resolve(consentDir, "../styles/GlobalStyles.tsx"), "utf8");
-    expect(global).toContain("--consent-banner-h");
-    expect(global).toContain("calc(var(--ad-anchor-h, 0px) + var(--consent-banner-h, 0px))");
-  });
+    const bodyPaddings = Array.from(css.matchAll(/(?:^|[}\s])body\{([^}]*)\}/g))
+      .flatMap(([, block]) => Array.from(block.matchAll(/padding(?:-bottom)?:([^;}]+)/g)))
+      .map(([, value]) => value.trim());
 
-  it("reserves the banner height before first paint on mobile through the pending attribute", () => {
-    const css = collectCss();
-    const reservedHeight = (width: number) =>
-      css.match(
-        new RegExp(
-          `@media \\(max-width:\\s*${width}px\\)\\s*\\{\\s*:root\\[data-consent-pending\\]\\s*\\{\\s*--consent-banner-h:\\s*(\\d+)px`
-        )
-      )?.[1];
-
-    expect([900, 639, 416].map((width) => [width, Number(reservedHeight(width))])).toEqual([
-      [900, 267],
-      [639, 299],
-      [416, 324],
-    ]);
+    expect(bodyPaddings).toEqual(["var(--ad-anchor-h, 0px)"]);
+    expect(css).not.toContain("consent-banner-h");
   });
 
   it("imports the layer order before c15t's stylesheet", () => {

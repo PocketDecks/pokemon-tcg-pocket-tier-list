@@ -107,7 +107,10 @@ describe("DeckPage head tags", () => {
 
     await waitFor(() => expect(document.title).toContain("Venusaur ex"));
 
-    expect(await screen.findByText(/Scan to import/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /back to the tier list/i })).toHaveAttribute(
+      "href",
+      "/tier-list"
+    );
 
     expect(document.title).not.toContain("a1-004");
 

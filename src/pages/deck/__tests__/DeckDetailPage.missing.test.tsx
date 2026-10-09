@@ -303,7 +303,8 @@ describe("DeckDetailPage with a cut card", () => {
       return found;
     });
     for (const thumb of thumbs) {
-      expect(thumb).toHaveAttribute("height");
+      expect(thumb).toHaveAttribute("width", "240");
+      expect(thumb).toHaveAttribute("height", "335");
       expect(declaredStyle(thumb, "height")).toBe("auto");
     }
   });

@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ConsentBanner,
@@ -61,8 +61,6 @@ const ConsentPendingSync = (): null => {
   return null;
 };
 
-const visitorRegion = readVisitorRegion();
-
 const consentOptions: ConsentManagerOptions = {
   mode: "offline",
   offlinePolicy: { policyPacks },
@@ -75,13 +73,14 @@ const ConsentProvider = ({ children }: { children: ReactNode }) => {
   const appVisible = useAppVisible();
   const { i18n } = useTranslation();
   const { theme } = useTheme();
+  const [visitorRegion] = useState<VisitorRegion | null>(readVisitorRegion);
   const options = useMemo<ConsentManagerOptions>(
     () => ({
       ...consentOptions,
       ...consentTheme(theme),
       overrides: { ...visitorRegion, language: toConsentLanguage(i18n.language) },
     }),
-    [i18n.language, theme]
+    [i18n.language, theme, visitorRegion]
   );
 
   useConsentBannerHeight(appVisible && !isPrerender);

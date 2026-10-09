@@ -1,6 +1,12 @@
 const test = require("node:test");
 const assert = require("node:assert");
-const { captureAfterRouteReady, resetPrerenderAppState, resetPrerenderTheme, ROUTES, ROUTE_META, ROUTE_READY_ROUTES } = require("../prerender-routes");
+const { captureAfterRouteReady, NOT_FOUND_META, resetPrerenderAppState, resetPrerenderTheme, ROUTES, ROUTE_META, ROUTE_READY_ROUTES } = require("../prerender-routes");
+
+test("the 404 page is noindex with a title and no canonical", () => {
+  assert.strictEqual(NOT_FOUND_META.robots, "noindex");
+  assert.ok(NOT_FOUND_META.title.length > 0);
+  assert.strictEqual(NOT_FOUND_META.canonical, undefined);
+});
 
 test("every route has unique title and description, plus self canonical", () => {
   const titles = new Set();

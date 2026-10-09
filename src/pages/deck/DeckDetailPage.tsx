@@ -22,6 +22,7 @@ import { countById, oneSwapAlternatives } from "../../app/deck-diff";
 import { deckDisplayName } from "../../app/deck-display";
 import DeckHero, { type DeckHeroStat } from "./DeckHero";
 import DeckPageSkeleton from "./DeckPageSkeleton";
+import NotFoundPage from "../not-found/NotFoundPage";
 import EnergyList from "./EnergyList";
 import useDeckTiers, { tierForDeck } from "../../app/use-deck-tiers";
 import {
@@ -175,7 +176,7 @@ const DeckDetailPage = () => {
 
   if (loading) return <DeckPageSkeleton />;
   if (error) return <Overlay>Error loading data: {error.message}</Overlay>;
-  if (!derived || !deck) return <Overlay>Deck not found</Overlay>;
+  if (!derived || !deck) return <NotFoundPage />;
 
   if (extinct) {
     return (

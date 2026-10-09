@@ -270,5 +270,12 @@
   },
   "tierList": {
     "metaShare": "メタシェア"
+  },
+  "notFound": {
+    "title": "ページが見つかりません",
+    "message": "お探しのページは存在しないか、移動しました。",
+    "backToTierList": "ティアリストに戻る",
+    "deckRetired": "このデッキは現在のメタに含まれていません。",
+    "browseDecks": "すべてのデッキを見る"
   }
 }

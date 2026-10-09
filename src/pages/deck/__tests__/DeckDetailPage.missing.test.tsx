@@ -308,7 +308,7 @@ describe("DeckDetailPage with a cut card", () => {
     }
   });
 
-  it("still reports an unknown deck id as not found", async () => {
+  it("reports an unknown deck id as no longer in the current meta", async () => {
     render(
       <QueryClientProvider
         client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
@@ -328,6 +328,6 @@ describe("DeckDetailPage with a cut card", () => {
     );
 
     await screen.findByText("Loading deck");
-    expect(await screen.findByText("Deck not found")).toBeInTheDocument();
+    expect(await screen.findByText("This deck is no longer in the current meta.")).toBeInTheDocument();
   });
 });

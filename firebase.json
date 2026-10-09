@@ -64,10 +64,22 @@
         ]
       }
     ],
+    "redirects": [
+      {
+        "source": "/stats",
+        "destination": "/statistics/",
+        "type": 301
+      },
+      {
+        "source": "/stats/",
+        "destination": "/statistics/",
+        "type": 301
+      }
+    ],
     "rewrites": [
       {
-        "source": "!/assets/**",
-        "destination": "/index.html"
+        "source": "/feedback/**",
+        "destination": "/app-shell.html"
       }
     ]
   }

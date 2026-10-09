@@ -5,7 +5,9 @@ const os = require("node:os");
 const path = require("node:path");
 const {
   findBakedAppState,
-  findDeckCanonicalIssues,
+  findCanonicalIssues,
+  findShellPageIssues,
+  findUnresolvedAppRoutes,
   findDeckImagePreloadIssues,
   findEmptyDeckRoots,
   findEmptyStyledTags,
@@ -84,7 +86,7 @@ test("passes a deck page with exactly one canonical of its own", () => {
     "deck/a&b/index.html": '<link rel="canonical" href="https://pocketdecks.top/deck/a&amp;b/">',
     "deck/team-rocket's/index.html": '<link rel="canonical" href="https://pocketdecks.top/deck/team-rocket&apos;s/">',
   });
-  assert.deepStrictEqual(findDeckCanonicalIssues(dir), []);
+  assert.deepStrictEqual(findCanonicalIssues(dir), []);
 });
 
 test("flags a deck page with no canonical or a second one", () => {
@@ -94,7 +96,7 @@ test("flags a deck page with no canonical or a second one", () => {
       '<link rel="canonical" href="https://pocketdecks.top/deck/y/">' +
       '<link rel="canonical" href="https://pocketdecks.top/">',
   });
-  assert.deepStrictEqual(findDeckCanonicalIssues(dir), [
+  assert.deepStrictEqual(findCanonicalIssues(dir), [
     `${path.join("deck", "x", "index.html")}: expected 1 canonical, found 0`,
     `${path.join("deck", "y", "index.html")}: expected 1 canonical, found 2`,
   ]);
@@ -104,7 +106,7 @@ test("flags a deck page whose canonical is not its own", () => {
   const dir = makeDist({
     "deck/x/index.html": '<link rel="canonical" href="https://pocketdecks.top/">',
   });
-  assert.deepStrictEqual(findDeckCanonicalIssues(dir), [
+  assert.deepStrictEqual(findCanonicalIssues(dir), [
     `${path.join("deck", "x", "index.html")}: canonical https://pocketdecks.top/ is not https://pocketdecks.top/deck/x/`,
   ]);
 });
@@ -293,4 +295,110 @@ test("flags a deck card without a built card thumbnail", () => {
     "thumbs/v3/cards/pa-007-120.webp": "x",
   });
   assert.deepStrictEqual(findMissingCardThumbs(dir, decks), ["pa-007-240"]);
+});
+
+test("passes every prerendered page with a canonical equal to its own URL", () => {
+  const dir = makeDist({
+    "index.html": '<link rel="canonical" href="https://pocketdecks.top/">',
+    "tier-list/index.html": '<link rel="canonical" href="https://pocketdecks.top/tier-list/">',
+    "deck/index.html": '<link rel="canonical" href="https://pocketdecks.top/deck/">',
+  });
+  assert.deepStrictEqual(findCanonicalIssues(dir), []);
+});
+
+test("flags a prerendered route whose canonical points at the home page", () => {
+  const dir = makeDist({
+    "statistics/index.html": '<link rel="canonical" href="https://pocketdecks.top/">',
+  });
+  assert.deepStrictEqual(findCanonicalIssues(dir), [
+    `${path.join("statistics", "index.html")}: canonical https://pocketdecks.top/ is not https://pocketdecks.top/statistics/`,
+  ]);
+});
+
+test("passes a noindex 404 page and app shell without a canonical", () => {
+  const dir = makeDist({
+    "404.html": '<meta name="robots" content="noindex">',
+    "app-shell.html": '<meta name="robots" content="noindex">',
+  });
+  assert.deepStrictEqual(findShellPageIssues(dir), []);
+});
+
+test("flags a 404 page that is indexable or declares a canonical, and a missing app shell", () => {
+  const dir = makeDist({
+    "404.html":
+      '<meta name="robots" content="index, follow"><link rel="canonical" href="https://pocketdecks.top/">',
+  });
+  assert.deepStrictEqual(findShellPageIssues(dir), [
+    "404.html: no noindex robots meta",
+    "404.html: has a canonical",
+    "app-shell.html: missing",
+  ]);
+});
+
+const APP_ROUTES = `
+<Routes>
+  <Route path="/" element={<Layout />}>
+    <Route index element={<LandingPage />} />
+    <Route path="tier-list" element={<TierListPage />} />
+    <Route path="stats" element={<StatisticsPage />} />
+    <Route path="feedback" element={<FeedbackPage />} />
+    <Route path="about" element={<AboutPage />} />
+    <Route path="deck">
+      <Route index element={<DeckFinderPage />} />
+      <Route path=":deckId" element={<DeckDetailPage />} />
+    </Route>
+    <Route path="*" element={<NotFoundPage />} />
+  </Route>
+</Routes>`;
+
+const HOSTING = {
+  hosting: {
+    redirects: [{ source: "/stats", destination: "/statistics/", type: 301 }],
+    rewrites: [{ source: "/feedback/**", destination: "/app-shell.html" }],
+  },
+};
+
+test("flags app routes with no file, redirect, rewrite or deck page", () => {
+  const dir = makeDist({
+    "index.html": "",
+    "tier-list/index.html": "",
+    "app-shell.html": "",
+  });
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING }),
+    [
+      "/about: no file, redirect or rewrite",
+      "/deck: no file, redirect or rewrite",
+      "/deck/:deckId: no prerendered page under /deck/",
+    ]
+  );
+});
+
+test("passes app routes served by a file, a redirect or a built rewrite", () => {
+  const dir = makeDist({
+    "index.html": "",
+    "tier-list/index.html": "",
+    "about/index.html": "",
+    "deck/index.html": "",
+    "deck/x/index.html": "",
+    "app-shell.html": "",
+  });
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING }),
+    []
+  );
+});
+
+test("flags a rewrite whose target is not built", () => {
+  const dir = makeDist({
+    "index.html": "",
+    "tier-list/index.html": "",
+    "about/index.html": "",
+    "deck/index.html": "",
+    "deck/x/index.html": "",
+  });
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING }),
+    ["/feedback: rewrite target app-shell.html is not built"]
+  );
 });

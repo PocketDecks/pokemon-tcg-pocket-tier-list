@@ -270,5 +270,12 @@
   },
   "tierList": {
     "metaShare": "Meta share"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "message": "Sorry, that page doesn't exist or has moved.",
+    "backToTierList": "Back to the tier list",
+    "deckRetired": "This deck is no longer in the current meta.",
+    "browseDecks": "Browse all decks"
   }
 }

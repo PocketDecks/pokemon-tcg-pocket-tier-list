@@ -270,5 +270,12 @@
   },
   "tierList": {
     "metaShare": "環境占比"
+  },
+  "notFound": {
+    "title": "找不到頁面",
+    "message": "抱歉，該頁面不存在或已被移動。",
+    "backToTierList": "返回強度榜",
+    "deckRetired": "該牌組已不在目前環境中。",
+    "browseDecks": "瀏覽所有牌組"
   }
 }

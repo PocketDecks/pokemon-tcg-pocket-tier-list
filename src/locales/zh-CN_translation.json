@@ -270,5 +270,12 @@
   },
   "tierList": {
     "metaShare": "环境占比"
+  },
+  "notFound": {
+    "title": "页面未找到",
+    "message": "抱歉，该页面不存在或已被移动。",
+    "backToTierList": "返回强度榜",
+    "deckRetired": "该卡组已不在当前环境中。",
+    "browseDecks": "浏览所有卡组"
   }
 }

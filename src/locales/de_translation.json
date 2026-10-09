@@ -270,5 +270,12 @@
   },
   "tierList": {
     "metaShare": "Meta-Anteil"
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "message": "Diese Seite existiert nicht oder wurde verschoben.",
+    "backToTierList": "Zurück zur Tier-Liste",
+    "deckRetired": "Dieses Deck ist nicht mehr im aktuellen Meta.",
+    "browseDecks": "Alle Decks ansehen"
   }
 }

@@ -270,5 +270,12 @@
   },
   "tierList": {
     "metaShare": "Cuota del meta"
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "message": "Lo sentimos, esa página no existe o se ha movido.",
+    "backToTierList": "Volver a la lista de tiers",
+    "deckRetired": "Este mazo ya no está en el meta actual.",
+    "browseDecks": "Ver todos los mazos"
   }
 }

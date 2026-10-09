@@ -89,6 +89,13 @@ const ROUTE_META = {
 
 const ROUTE_READY_ROUTES = new Set(["/cards-list", "/statistics", "/deck"]);
 
+const NOT_FOUND_ROUTE = "/404";
+const NOT_FOUND_META = {
+  title: "Page not found | Top Pocket Decks",
+  description: "That page is not on Top Pocket Decks. Head back to the Pokemon TCG Pocket tier list for the current deck rankings.",
+  robots: "noindex",
+};
+
 const captureAfterRouteReady = async (page, route, capture) => {
   if (ROUTE_READY_ROUTES.has(route)) {
     await waitForRouteReady(page);
@@ -103,6 +110,10 @@ const main = async () => {
     process.exit(1);
   }
   const template = readTemplate(fs.readFileSync(indexPath, "utf8"));
+  fs.writeFileSync(
+    path.join(DIST_DIR, "app-shell.html"),
+    stampHead(template.html, { robots: "noindex" })
+  );
   const server = await startServer(DIST_DIR, template.html);
   const browser = await launchBrowser();
   const pageErrors = [];
@@ -135,6 +146,13 @@ const main = async () => {
     console.log(`Prerendered ${route}`);
   }
 
+  await openDocument(page, NOT_FOUND_ROUTE);
+  const notFoundHtml = await captureDocument(page, template);
+  fs.writeFileSync(
+    path.join(DIST_DIR, "404.html"),
+    stampHead(notFoundHtml, NOT_FOUND_META)
+  );
+
   await browser.close();
   server.close();
 
@@ -147,4 +165,4 @@ const main = async () => {
 
 if (require.main === module) main();
 
-module.exports = { captureAfterRouteReady, resetPrerenderAppState, resetPrerenderTheme, ROUTE_READY_ROUTES, ROUTE_META, ROUTES };
+module.exports = { captureAfterRouteReady, NOT_FOUND_META, resetPrerenderAppState, resetPrerenderTheme, ROUTE_READY_ROUTES, ROUTE_META, ROUTES };

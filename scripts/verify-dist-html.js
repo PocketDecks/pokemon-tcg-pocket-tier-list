@@ -7,10 +7,13 @@ const {
   DECK_THUMB_VERSION,
   deckListCardIds,
 } = require("./deck-thumbs.mjs");
+const { resolveHosting } = require("./firebase-hosting");
 
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
   : path.join(__dirname, "..", "dist");
+const APP_SOURCE_PATH = path.join(__dirname, "..", "src", "App.tsx");
+const FIREBASE_CONFIG_PATH = path.join(__dirname, "..", "firebase.json");
 const DATA_DIR = process.env.BUILD_DIR
   ? path.join(DIST_DIR, "data")
   : path.join(__dirname, "..", "public", "data");
@@ -80,17 +83,94 @@ const decodeXmlEntities = (value) =>
     .replace(/&gt;/g, ">")
     .replace(/&amp;/g, "&");
 
-const findDeckCanonicalIssues = (dir = DIST_DIR) =>
-  deckDetailFiles(dir).flatMap((file) => {
-    const entry = path.relative(dir, file);
-    const expected = `https://${SITE_HOST}/deck/${path.basename(path.dirname(file))}/`;
-    const tags = fs.readFileSync(file, "utf8").match(CANONICAL_TAG) ?? [];
-    if (tags.length !== 1) {
-      return [`${entry}: expected 1 canonical, found ${tags.length}`];
-    }
-    const href = decodeXmlEntities(tags[0].match(/\bhref=["']([^"']*)["']/i)?.[1] ?? "");
-    return href === expected ? [] : [`${entry}: canonical ${href} is not ${expected}`];
+const SHELL_PAGES = new Set(["404.html", "app-shell.html"]);
+
+const expectedCanonical = (entry) => {
+  const dir = path.posix.dirname(entry.split(path.sep).join("/"));
+  return dir === "." ? `https://${SITE_HOST}/` : `https://${SITE_HOST}/${dir}/`;
+};
+
+const findCanonicalIssues = (dir = DIST_DIR) =>
+  listHtmlFiles(dir)
+    .filter((entry) => !SHELL_PAGES.has(entry))
+    .flatMap((entry) => {
+      const tags = fs.readFileSync(path.join(dir, entry), "utf8").match(CANONICAL_TAG) ?? [];
+      if (tags.length !== 1) {
+        return [`${entry}: expected 1 canonical, found ${tags.length}`];
+      }
+      const href = decodeXmlEntities(tags[0].match(/\bhref=["']([^"']*)["']/i)?.[1] ?? "");
+      const expected = expectedCanonical(entry);
+      return href === expected ? [] : [`${entry}: canonical ${href} is not ${expected}`];
+    });
+
+const findShellPageIssues = (dir = DIST_DIR) =>
+  [...SHELL_PAGES].flatMap((entry) => {
+    const file = path.join(dir, entry);
+    if (!fs.existsSync(file)) return [`${entry}: missing`];
+    const html = fs.readFileSync(file, "utf8");
+    const robots = (html.match(/<meta\b[^>]*>/gi) ?? []).filter((tag) => /\bname=["']robots["']/i.test(tag));
+    const issues = [];
+    if (!robots.some((tag) => /\bnoindex\b/i.test(tag))) issues.push(`${entry}: no noindex robots meta`);
+    if ((html.match(CANONICAL_TAG) ?? []).length > 0) issues.push(`${entry}: has a canonical`);
+    return issues;
   });
+
+const readAppRoutePaths = (source) => {
+  const tokens = [...source.matchAll(/<Route\b|<\/Route>/g)];
+  const stack = [];
+  const routes = [];
+  tokens.forEach((token, index) => {
+    if (token[0] === "</Route>") {
+      stack.pop();
+      return;
+    }
+    const end = index + 1 < tokens.length ? tokens[index + 1].index : source.length;
+    const segment = source.slice(token.index, end);
+    const parent = stack[stack.length - 1] ?? "";
+    const own = segment.match(/\spath="([^"]*)"/)?.[1];
+    const full =
+      own === undefined
+        ? parent || "/"
+        : own.startsWith("/")
+          ? own
+          : `${parent.replace(/\/$/, "")}/${own}`;
+    if (own !== undefined) routes.push(full);
+    if (!/\/>\s*$/.test(segment.trimEnd())) stack.push(full);
+  });
+  return routes;
+};
+
+const findUnresolvedAppRoutes = (
+  dir = DIST_DIR,
+  {
+    source = fs.readFileSync(APP_SOURCE_PATH, "utf8"),
+    firebase = JSON.parse(fs.readFileSync(FIREBASE_CONFIG_PATH, "utf8")),
+  } = {}
+) => {
+  const files = new Set(
+    fs
+      .readdirSync(dir, { recursive: true, withFileTypes: true })
+      .filter((entry) => entry.isFile())
+      .map((entry) => path.relative(dir, path.join(entry.parentPath, entry.name)).split(path.sep).join("/"))
+  );
+  return readAppRoutePaths(source)
+    .filter((route) => !route.includes("*"))
+    .flatMap((route) => {
+      if (route.includes("/:")) {
+        const prefix = route.slice(1, route.indexOf("/:"));
+        const hasPage = [...files].some(
+          (file) => file.startsWith(`${prefix}/`) && file.split("/").length === 3 && file.endsWith("/index.html")
+        );
+        return hasPage ? [] : [`${route}: no prerendered page under /${prefix}/`];
+      }
+      const resolved = resolveHosting(firebase, files, route);
+      if (resolved.kind === "not-found") return [`${route}: no file, redirect or rewrite`];
+      if (resolved.kind === "rewrite" && !files.has(resolved.file)) {
+        return [`${route}: rewrite target ${resolved.file} is not built`];
+      }
+      return [];
+    });
+};
 
 const collectModulepreloads = (html) =>
   [...html.matchAll(/<link\b[^>]*>/gi)]
@@ -244,10 +324,24 @@ const main = () => {
     );
     process.exit(1);
   }
-  const deckCanonicalIssues = findDeckCanonicalIssues();
-  if (deckCanonicalIssues.length > 0) {
+  const canonicalIssues = findCanonicalIssues();
+  if (canonicalIssues.length > 0) {
     console.error(
-      `Deck pages without exactly one canonical of their own:\n${deckCanonicalIssues.join("\n")}`
+      `Pages without exactly one canonical of their own:\n${canonicalIssues.join("\n")}`
+    );
+    process.exit(1);
+  }
+  const shellIssues = findShellPageIssues();
+  if (shellIssues.length > 0) {
+    console.error(
+      `404 and app-shell pages must be noindex without a canonical:\n${shellIssues.join("\n")}`
+    );
+    process.exit(1);
+  }
+  const routeGaps = findUnresolvedAppRoutes();
+  if (routeGaps.length > 0) {
+    console.error(
+      `App routes with no built file, redirect or explicit rewrite:\n${routeGaps.join("\n")}`
     );
     process.exit(1);
   }
@@ -305,7 +399,9 @@ if (require.main === module) main();
 
 module.exports = {
   findBakedAppState,
-  findDeckCanonicalIssues,
+  findCanonicalIssues,
+  findShellPageIssues,
+  findUnresolvedAppRoutes,
   findDeckImagePreloadIssues,
   findEmptyDeckRoots,
   findEmptyStyledTags,

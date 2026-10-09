@@ -130,7 +130,6 @@ const App = () => {
                     <Route path="privacy" element={<PrivacyPage />} />
                     <Route path="about" element={<AboutPage />} />
                     <Route path="feedback" element={<FeedbackPage />} />
-                    <Route path="404" element={<NotFoundPage />} />
                     <Route path="deck">
                       <Route index element={<DeckFinderPage />} />
                       <Route path=":deckId" element={<DeckDetailPage />} />

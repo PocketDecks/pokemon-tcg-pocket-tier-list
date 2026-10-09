@@ -270,5 +270,12 @@
   },
   "tierList": {
     "metaShare": "메타 점유율"
+  },
+  "notFound": {
+    "title": "페이지를 찾을 수 없음",
+    "message": "죄송합니다. 요청하신 페이지가 없거나 이동되었습니다.",
+    "backToTierList": "티어 리스트로 돌아가기",
+    "deckRetired": "이 덱은 현재 메타에 더 이상 없습니다.",
+    "browseDecks": "모든 덱 보기"
   }
 }

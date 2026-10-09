@@ -270,5 +270,12 @@
   },
   "tierList": {
     "metaShare": "Cotă meta"
+  },
+  "notFound": {
+    "title": "Pagina nu a fost găsită",
+    "message": "Ne pare rău, pagina nu există sau a fost mutată.",
+    "backToTierList": "Înapoi la lista de tiers",
+    "deckRetired": "Acest deck nu mai face parte din meta-ul actual.",
+    "browseDecks": "Vezi toate deck-urile"
   }
 }

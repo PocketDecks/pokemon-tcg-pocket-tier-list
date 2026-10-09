@@ -270,5 +270,12 @@
   },
   "tierList": {
     "metaShare": "Part du méta"
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "message": "Désolé, cette page n'existe pas ou a été déplacée.",
+    "backToTierList": "Retour au tier list",
+    "deckRetired": "Ce deck ne fait plus partie du méta actuel.",
+    "browseDecks": "Parcourir tous les decks"
   }
 }

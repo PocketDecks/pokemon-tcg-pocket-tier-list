@@ -18,9 +18,9 @@ interface CardRecord {
 
 const norm = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
-// A4b is a deluxe reprint set, so its cards fold onto the earliest earlier
-// printing to stop one card spanning several rows.
-export const REPRINT_SETS = new Set(["A4b"]);
+// A4b and B4b are deluxe reprint sets, so their cards fold onto the earliest
+// earlier printing to stop one card spanning several rows.
+export const REPRINT_SETS = new Set(["A4b", "B4b"]);
 
 const cardIndex = new Map<string, IndexedCard[]>();
 const unknownSetCodes = new Set<string>();

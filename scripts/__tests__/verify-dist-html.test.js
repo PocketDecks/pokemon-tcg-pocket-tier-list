@@ -11,6 +11,7 @@ const {
   findDeckImagePreloadIssues,
   findEmptyDeckRoots,
   findEmptyStyledTags,
+  findExpansionListIssues,
   findExternalScripts,
   findLoopbackRefs,
   findMissingCardThumbs,
@@ -401,4 +402,25 @@ test("flags a rewrite whose target is not built", () => {
     findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING }),
     ["/feedback: rewrite target app-shell.html is not built"]
   );
+});
+
+test("findExpansionListIssues needs the newest set and rejects deluxe packs", () => {
+  const list = [
+    { id: "b4a", name: "Team Rocket's Ambition", release_date: "2026-08-27", packs: [{ id: "b4a-booster", image: "https://example.test/packs/b4a-booster.webp" }] },
+    { id: "b4b", name: "Deluxe Pack: Mega", release_date: "2026-09-30", packs: [{ id: "b4b-booster", image: "https://example.test/packs/b4b-booster.webp" }] },
+  ];
+  const good = makeDist({ "expansion-list/index.html": '<img src="https://example.test/packs/b4a-booster.webp">' });
+  const missing = makeDist({ "expansion-list/index.html": "<div></div>" });
+  const dataSrc = makeDist({ "expansion-list/index.html": '<img data-src="https://example.test/packs/b4a-booster.webp">' });
+  const deluxe = makeDist({ "expansion-list/index.html": '<img src="https://example.test/packs/b4a-booster.webp"><img src="https://example.test/packs/b4b-booster.webp">' });
+  assert.deepEqual(findExpansionListIssues(good, list), []);
+  assert.deepEqual(findExpansionListIssues(missing, list), [
+    "expansion-list/index.html: missing the newest set /packs/b4a-",
+  ]);
+  assert.deepEqual(findExpansionListIssues(dataSrc, list), [
+    "expansion-list/index.html: missing the newest set /packs/b4a-",
+  ]);
+  assert.deepEqual(findExpansionListIssues(deluxe, list), [
+    "expansion-list/index.html: deluxe pack /packs/b4b- is listed",
+  ]);
 });

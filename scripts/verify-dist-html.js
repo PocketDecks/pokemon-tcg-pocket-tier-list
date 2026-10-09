@@ -8,6 +8,7 @@ const {
   deckListCardIds,
 } = require("./deck-thumbs.mjs");
 const { resolveHosting } = require("./firebase-hosting");
+const { DELUXE_EXPANSION_IDS, newestExpansion } = require("../src/app/expansion-policy.mjs");
 
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
@@ -230,6 +231,32 @@ const loadDecks = (dataDir = DATA_DIR) => {
   }
 };
 
+const loadExpansions = () =>
+  require("pokemon-tcg-pocket-cards/data/v5/expansions.json");
+
+const EXPANSION_LIST_ENTRY = "expansion-list/index.html";
+
+const imageSrcs = (html) =>
+  [...html.matchAll(/<img\b[^>]*\ssrc=["']([^"']*)["']/gi)].map((match) => match[1]);
+
+const findExpansionListIssues = (dir = DIST_DIR, list = loadExpansions()) => {
+  const html = fs.readFileSync(path.join(dir, EXPANSION_LIST_ENTRY), "utf8");
+  const sources = imageSrcs(html);
+  const newest = newestExpansion(list);
+  const issues = [];
+  if (!newest) {
+    issues.push(`${EXPANSION_LIST_ENTRY}: no eligible expansion`);
+  } else if (!sources.some((src) => src.includes(`/packs/${newest.id}-`))) {
+    issues.push(`${EXPANSION_LIST_ENTRY}: missing the newest set /packs/${newest.id}-`);
+  }
+  for (const id of DELUXE_EXPANSION_IDS) {
+    if (sources.some((src) => src.includes(`/packs/${id}-`))) {
+      issues.push(`${EXPANSION_LIST_ENTRY}: deluxe pack /packs/${id}- is listed`);
+    }
+  }
+  return issues;
+};
+
 const findMissingDeckThumbs = (dir = DIST_DIR, decks = loadDecks()) => {
   const thumbDir = path.join(dir, "thumbs", `v${DECK_THUMB_VERSION}`);
   const ids = new Set();
@@ -336,6 +363,13 @@ const main = () => {
     );
     process.exit(1);
   }
+  const expansionListIssues = findExpansionListIssues();
+  if (expansionListIssues.length > 0) {
+    console.error(
+      `Expansion list missing the newest set or showing a deluxe pack:\n${expansionListIssues.join("\n")}`
+    );
+    process.exit(1);
+  }
   const routeGaps = findUnresolvedAppRoutes();
   if (routeGaps.length > 0) {
     console.error(
@@ -403,6 +437,7 @@ module.exports = {
   findDeckImagePreloadIssues,
   findEmptyDeckRoots,
   findEmptyStyledTags,
+  findExpansionListIssues,
   findExternalScripts,
   findLoopbackRefs,
   findMissingCardThumbs,
@@ -410,5 +445,6 @@ module.exports = {
   findModulepreloadDrift,
   findUncapturedDeckStyles,
   loadDecks,
+  loadExpansions,
   findTemplateModulepreloads,
 };

@@ -76,6 +76,8 @@ describe("canonSet", () => {
     // its cards onto an earlier printing.
     expect(canonSet("A4b")).toBe("A4b");
     expect(canonSet("a4b")).toBe("A4b");
+    expect(canonSet("B4b")).toBe("B4b");
+    expect(canonSet("b4b")).toBe("B4b");
   });
 
   it("keeps every set code already stored stable", () => {

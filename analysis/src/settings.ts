@@ -2,24 +2,30 @@ import expansions from "pokemon-tcg-pocket-cards/data/v5/expansions.json";
 
 // export const DEBUG: boolean = false;
 
-const EXCLUDED_SET_IDS = new Set(["a4b"]);
+export const DELUXE_SET_IDS = new Set(["a4b", "b4b"]);
 
 const FALLBACK_RELEASE_DATE = new Date("2026-08-27");
 
-const latestReleaseDate = (): Date => {
-  const list = expansions as { id: string; release_date: string | null }[];
-  for (let i = list.length - 1; i >= 0; i--) {
-    const entry = list[i];
-    if (!entry || EXCLUDED_SET_IDS.has(entry.id)) continue;
+export const latestReleaseDate = (
+  list: readonly { id: string; release_date: string | null }[]
+): Date => {
+  let newest: Date | null = null;
+  for (const entry of list) {
+    if (DELUXE_SET_IDS.has(entry.id)) continue;
     if (!entry.release_date) continue;
     const parsed = new Date(entry.release_date);
-    if (!Number.isNaN(parsed.getTime())) return parsed;
+    if (Number.isNaN(parsed.getTime())) continue;
+    if (!newest || parsed.getTime() > newest.getTime()) {
+      newest = parsed;
+    }
   }
-  return FALLBACK_RELEASE_DATE;
+  return newest ?? FALLBACK_RELEASE_DATE;
 };
 
 // Release date of the newest expansion; the win-rate ramp and new-set multiplier are timed from it.
-export const EXPANSION_RELEASE_DATE: Date = latestReleaseDate();
+export const EXPANSION_RELEASE_DATE: Date = latestReleaseDate(
+  expansions as { id: string; release_date: string | null }[]
+);
 
 // Exclude ex-only decks from analysis.
 export const NOEX: boolean = false;

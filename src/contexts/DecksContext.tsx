@@ -10,6 +10,7 @@ import {
   fetchCards,
 } from "../app/cards-api";
 import useExpansions from "../app/use-expansions";
+import { newestExpansion } from "../app/expansion-policy.mjs";
 import { MetaShareEntry, PipelineMatchupData, PipelineMetaShare, PipelinePartialDeck, PipelineDeckList } from "../types/pipeline-data";
 import { FullDeckType, MatchupType } from "../app/deck-types";
 import { SortBy } from "../app/sort-by";
@@ -318,9 +319,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [metaShare]);
 
   const latestExpansionId = useMemo(() => {
-    return expansions && expansions.length > 0
-        ? expansions[expansions.length - 1].id
-        : null;
+    return newestExpansion(expansions ?? [])?.id ?? null;
   }, [expansions]);
 
   const decks = useMemo(() => {

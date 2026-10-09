@@ -287,7 +287,7 @@
       "usage": "<0>Usage data.</0> Google Analytics records the pages you view and standard device and browser details. It runs only after you accept analytics, or where your region's consent banner does not ask for consent.",
       "account": "<0>Account information.</0> If you sign in with Google, Firebase Authentication gives us your name, email address and profile photo. We show your name and photo while you are signed in, and we use your account ID to check whether you have Premium access.",
       "feedback": "<0>Feedback.</0> If you send feedback while signed in, we store your account ID, your message, the topic you chose, the page you sent it from and the time you sent it in Cloud Firestore, a database run by Google for Firebase. We store your email address with the message only if you tick the box asking us to reply. We also store the time of your last submission.",
-      "payment": "<0>Payments.</0> Premium checkout is paused. When it is open, Stripe processes payments and we store your subscription status in Firestore."
+      "payment": "<0>Payments.</0> Premium checkout is paused. When it reopens, Stripe processes payments and we store your subscription status in Firestore."
     },
     "cookies": {
       "heading": "Cookies and tracking",

@@ -306,7 +306,7 @@
     },
     "consent": {
       "heading": "Consentement des utilisateurs de l'EEE, du Royaume-Uni et de la Suisse",
-      "body": "Si vous vous trouvez dans l'Espace économique européen, au Royaume-Uni ou en Suisse, la bannière de consentement vous demande votre choix concernant l'analyse et la publicité avant que le site ne dépose tout cookie d'analyse ou de publicité. Tant que vous n'avez pas choisi, Google Consent Mode maintient le stockage pour l'analyse et la publicité à refusé. Vous pouvez modifier ou retirer votre choix à tout moment depuis le lien Paramètres de confidentialité en bas de page."
+      "body": "Si vous vous trouvez dans l'Espace économique européen, au Royaume-Uni ou en Suisse, la bannière de consentement vous demande votre choix concernant l'analyse et la publicité avant que le site ne dépose tout cookie d'analyse ou de publicité. Tant que vous n'avez pas choisi, Google Consent Mode refuse le stockage pour l'analyse et la publicité. Vous pouvez modifier ou retirer votre choix à tout moment depuis le lien Paramètres de confidentialité en bas de page."
     },
     "legalBasis": {
       "heading": "Base juridique",

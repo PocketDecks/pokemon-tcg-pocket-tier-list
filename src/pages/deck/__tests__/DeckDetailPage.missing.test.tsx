@@ -11,6 +11,7 @@ import FilterContextProvider from "../../../components/FilterContext";
 import useFilters from "../../../app/use-filters";
 import { UIProvider } from "../../../contexts/UIContext";
 import rawCards from "../../../app/__fixtures__/cards.json";
+import { declaredStyle } from "../../../test-utils/declared-style";
 
 vi.mock("../../../ads/AdInContent", () => ({
   __esModule: true,
@@ -289,6 +290,35 @@ describe("DeckDetailPage with a cut card", () => {
 
     expect(screen.getByAltText("Venusaur ex")).toBeInTheDocument();
     expect(screen.queryByText("Deck not found")).not.toBeInTheDocument();
+  });
+
+  it("keeps the alternatives thumbnails at their natural aspect ratio", async () => {
+    decks = [
+      {
+        name: GOOD_DECK,
+        lists: [
+          { cards: ["2:a1-004", "1:a1-219"], score: 10, strength: 5 },
+          { cards: ["2:a1-004", "1:a1-001"], score: 9, strength: 4 },
+        ],
+        percentOfGames: 50,
+        popularity: 100,
+        powerScore: null,
+        freqScore: 50,
+        metaScore: null,
+      },
+    ];
+    const { container } = renderDetailPage();
+
+    await screen.findByAltText("Venusaur ex");
+    const thumbs = await waitFor(() => {
+      const found = container.querySelectorAll<HTMLImageElement>('img[sizes="135px"]');
+      expect(found).toHaveLength(2);
+      return found;
+    });
+    for (const thumb of thumbs) {
+      expect(thumb).toHaveAttribute("height");
+      expect(declaredStyle(thumb, "height")).toBe("auto");
+    }
   });
 
   it("still reports an unknown deck id as not found", async () => {

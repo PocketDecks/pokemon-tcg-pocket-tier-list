@@ -67,6 +67,29 @@ describe("buildTiers", () => {
     expect(tierOf(tiers, scored[1])).toEqual(["S"]);
   });
 
+  it.each([
+    [51, "S"],
+    [50, "S"],
+    [49, "A"],
+    [41, "A"],
+    [40, "A"],
+    [39, "B"],
+    [31, "B"],
+    [30, "B"],
+    [29, "C"],
+    [21, "C"],
+    [20, "C"],
+    [19, "D"],
+    [11, "D"],
+    [10, "D"],
+    [9, "F"],
+  ])("places a score of %i in tier %s between a best of 60 and a worst of 0", (value, label) => {
+    const scored = items(60, 0, value);
+    const tiers = buildTiers(scored, score);
+
+    expect(tierOf(tiers, scored[2])).toEqual([label]);
+  });
+
   it("puts everything in S when all scores are equal (steps === 0)", () => {
     const scored = items(7, 7, 7);
     const tiers = buildTiers(scored, score);

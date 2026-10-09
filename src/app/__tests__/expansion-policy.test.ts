@@ -30,6 +30,15 @@ describe("expansion policy", () => {
     expect(newestExpansion([fixture[1], fixture[4]])).toBeNull();
   });
 
+  it("breaks a same-date tie with the lexically larger id in either order", () => {
+    const sameDate: Entry[] = [
+      { id: "b4a", name: "Team Rocket's Ambition", release_date: "2026-08-27" },
+      { id: "b4c", name: "Mega Rising", release_date: "2026-08-27" },
+    ];
+    expect(newestExpansion(sameDate)?.id).toBe("b4c");
+    expect(newestExpansion([...sameDate].reverse())?.id).toBe("b4c");
+  });
+
   it("keeps promo pools listed and drops deluxe sets", () => {
     expect(fixture.filter(isListedExpansion).map((e) => e.id)).toEqual([
       "b4",

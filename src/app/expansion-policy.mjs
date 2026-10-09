@@ -7,6 +7,10 @@ export const newestExpansion = (list) =>
     .filter((expansion) => isListedExpansion(expansion) && expansion.release_date)
     .reduce(
       (newest, expansion) =>
-        !newest || expansion.release_date > newest.release_date ? expansion : newest,
+        !newest ||
+        expansion.release_date > newest.release_date ||
+        (expansion.release_date === newest.release_date && expansion.id > newest.id)
+          ? expansion
+          : newest,
       null
     );

@@ -10,12 +10,20 @@ export const latestReleaseDate = (
   list: readonly { id: string; release_date: string | null }[]
 ): Date => {
   let newest: Date | null = null;
+  let newestId = "";
   for (const entry of list) {
     if (DELUXE_SET_IDS.has(entry.id)) continue;
     if (!entry.release_date) continue;
     const parsed = new Date(entry.release_date);
     if (Number.isNaN(parsed.getTime())) continue;
-    if (!newest || parsed.getTime() > newest.getTime()) newest = parsed;
+    if (
+      !newest ||
+      parsed.getTime() > newest.getTime() ||
+      (parsed.getTime() === newest.getTime() && entry.id > newestId)
+    ) {
+      newest = parsed;
+      newestId = entry.id;
+    }
   }
   return newest ?? FALLBACK_RELEASE_DATE;
 };

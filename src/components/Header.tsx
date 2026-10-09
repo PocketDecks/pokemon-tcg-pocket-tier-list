@@ -226,6 +226,9 @@ const Header = ({ footer }: Props) => {
       <Actions>
         <UserAccount compact={!isMobile} />
         {isMobile && (
+          <LanguageSwitcher mobile />
+        )}
+        {isMobile && (
           <MenuButton
             ref={menuButtonRef}
             onClick={toggleNav}

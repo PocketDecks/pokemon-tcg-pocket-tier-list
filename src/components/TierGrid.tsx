@@ -41,7 +41,7 @@ const TierRow = styled.div`
   width: 100%;
   display: flex;
   flex: 1;
-  border-bottom: 0.4rem solid var(--border);
+  border-bottom: 0.4rem solid var(--line-strong);
 
   @media (min-width: 901px) {
     position: relative;

@@ -19,7 +19,7 @@ const StyledHero = styled.div`
   padding: 4rem;
 
   @media (max-width: 900px) {
-    padding: max(0px, calc(2.4rem - var(--consent-banner-h, 0px))) 2rem 2.4rem;
+    padding: 2.4rem 2rem;
     min-height: 0;
   }
 `;
@@ -43,11 +43,6 @@ const TextSection = styled.div`
   flex-direction: column;
   gap: 2.8rem;
 
-  @media (max-width: 900px) {
-    :root[data-consent-pending] & {
-      gap: 2rem;
-    }
-  }
 `;
 
 const StyledHeader = styled.h1`
@@ -70,10 +65,6 @@ const StyledSubheader = styled.p`
 
   @media (max-width: 900px) {
     font-size: 1.6rem;
-
-    :root[data-consent-pending] & {
-      line-height: 1.4;
-    }
   }
 `;
 

@@ -2,7 +2,7 @@ import styled from "styled-components";
 import AdSlot from "./AdSlot";
 import useAdsState from "./useAdsState";
 import useIsMobile from "./useIsMobile";
-import { AdPlacement } from "./adsConfig";
+import { ADSENSE_SLOTS, AdPlacement, IS_DEV } from "./adsConfig";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -35,6 +35,7 @@ const AdInContent = ({ placement, minHeight = 250, mobileOnly = false }: Props) 
   const { showAds } = useAdsState();
   const isMobile = useIsMobile();
   if (!showAds) return null;
+  if (!IS_DEV && !ADSENSE_SLOTS[placement]) return null;
   if (mobileOnly && !isMobile) return null;
 
   return (

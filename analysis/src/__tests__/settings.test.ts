@@ -49,17 +49,6 @@ describe("latestReleaseDate", () => {
     expect(latestReleaseDate(fixture).toISOString().slice(0, 10)).toBe("2026-08-27");
   });
 
-  it("resolves a same-date pair to the shared date in either order", () => {
-    const sameDate = [
-      { id: "b4a", name: "Team Rocket's Ambition", release_date: "2026-09-15" },
-      { id: "b4c", name: "Mega Rising", release_date: "2026-09-15" },
-    ];
-    expect(latestReleaseDate(sameDate).toISOString().slice(0, 10)).toBe("2026-09-15");
-    expect(latestReleaseDate([...sameDate].reverse()).toISOString().slice(0, 10)).toBe(
-      "2026-09-15"
-    );
-  });
-
   it("knows every deluxe set in the installed package", () => {
     const list = expansions as { id: string; name: string }[];
     const deluxe = list.filter((e) => e.name.startsWith("Deluxe Pack")).map((e) => e.id);

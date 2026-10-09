@@ -277,5 +277,78 @@
     "backToTierList": "Înapoi la lista de tiers",
     "deckRetired": "Acest deck nu mai face parte din meta-ul actual.",
     "browseDecks": "Vezi toate deck-urile"
+  },
+  "privacyPage": {
+    "title": "Politica de confidențialitate",
+    "updated": "Ultima actualizare: 9 octombrie 2026",
+    "intro": "Această Politică de confidențialitate explică ce date colectează Top Pocket Decks (\"noi\" sau \"site-ul\"), disponibil la pocketdecks.top, și de ce. De asemenea, explică cine primește aceste informații. Practicile descrise mai jos se aplică atunci când utilizați site-ul.",
+    "collect": {
+      "heading": "Informațiile pe care le colectăm",
+      "usage": "<0>Date de utilizare.</0> Google Analytics înregistrează paginile pe care le vizualizați și datele standard despre dispozitiv și browser. Rulează doar după ce acceptați analiza sau acolo unde bannerul de consimțământ din regiunea dumneavoastră nu cere consimțământ.",
+      "account": "<0>Informații despre cont.</0> Dacă vă conectați cu Google, Firebase Authentication ne furnizează numele, adresa de e-mail și fotografia de profil. Vă afișăm numele și fotografia cât timp sunteți conectat, iar ID-ul contului îl folosim pentru a verifica dacă aveți acces Premium.",
+      "feedback": "<0>Feedback.</0> Dacă trimiteți feedback în timp ce sunteți conectat, salvăm ID-ul contului, mesajul, tema aleasă, pagina de unde l-ați trimis și momentul trimiterii, în Cloud Firestore, o bază de date administrată de Google pentru Firebase. Vă salvăm adresa de e-mail împreună cu mesajul doar dacă bifați caseta prin care cereți un răspuns. Păstrăm și momentul ultimei trimiteri.",
+      "payment": "<0>Plăți.</0> Abonamentele Premium se plătesc prin Stripe, care gestionează datele cardului dumneavoastră. Noi nu le primim și nu le stocăm. Extensia Stripe pentru Firebase scrie în Firestore înregistrări de clienți și abonamente, iar site-ul citește aceste înregistrări pentru a verifica dacă aveți acces Premium."
+    },
+    "cookies": {
+      "heading": "Cookie-uri și urmărire",
+      "intro": "Site-ul plasează cookie-uri sau folosește spațiul de stocare al browserului pentru consimțământ, tema dumneavoastră, măsurare și publicitate. Fiecare element este enumerat mai jos.",
+      "consent": "<0>Alegerea de consimțământ.</0> Un cookie și o intrare din stocarea locală, ambele numite c15t, înregistrează alegerile dumneavoastră de consimțământ și momentul în care le-ați făcut. Sunt strict necesare, deoarece site-ul are nevoie de ele pentru a vă reține alegerea.",
+      "theme": "<0>Tema.</0> O intrare din stocarea locală numită theme reține dacă ați ales modul luminos sau modul întunecat.",
+      "reload": "<0>Protecție la reîncărcare.</0> O intrare din stocarea sesiunii numită chunk-reload-at reține momentul ultimei reîncărcări automate. Împiedică un fișier lipsă să reîncarce pagina în buclă, iar browserul o șterge când închideți fila.",
+      "region": "<0>Cookie de regiune.</0> Dacă există un cookie numit pd_geo, site-ul îl citește pentru a alege regulile de consimțământ aplicabile dumneavoastră. Site-ul nu plasează acest cookie.",
+      "timeZone": "<0>Fusul orar.</0> Browserul dumneavoastră transmite fusul orar, pe care site-ul îl folosește pe dispozitivul dumneavoastră pentru a alege regulile de consimțământ atunci când nu există un cookie de regiune. Site-ul nu îl trimite nicăieri.",
+      "gpc": "<0>Global Privacy Control.</0> Dacă browserul dumneavoastră trimite un semnal Global Privacy Control, îl tratăm ca pe o opțiune de refuz. Analiza și publicitatea sunt atunci setate ca refuzate.",
+      "language": "<0>Limba.</0> Site-ul citește setarea de limbă a browserului pentru a alege limba paginii. Nu stochează nimic.",
+      "missing": "<0>Cărți lipsă.</0> Cărțile pe care le marcați ca lipsă sunt păstrate doar în memoria paginii. Nu sunt salvate, iar reîncărcarea paginii le șterge.",
+      "analytics": "<0>Analiză.</0> Google Analytics folosește propriile cookie-uri pentru a deosebi vizitele. Acolo unde bannerul de consimțământ cere consimțământ, aceste cookie-uri sunt plasate doar după ce acceptați analiza.",
+      "ads": "<0>Publicitate.</0> Vizitatorii din planul gratuit văd reclame de la Google AdSense. Google și partenerii săi pot folosi cookie-uri pentru a afișa reclame în funcție de vizitele dumneavoastră pe acest site și pe altele. Membrii Premium nu văd reclame.",
+      "optOut": "Puteți refuza publicitatea personalizată din <0>Setările pentru anunțuri Google</0>. Puteți refuza și cookie-urile publicitare ale unor furnizori la <1>www.aboutads.info</1>."
+    },
+    "consent": {
+      "heading": "Consimțământul utilizatorilor din SEE, Regatul Unit și Elveția",
+      "body": "Dacă vă aflați în Spațiul Economic European, în Regatul Unit sau în Elveția, bannerul de consimțământ vă cere alegerea înainte ca orice cookie de analiză să fie plasat. Până alegeți, Google Consent Mode menține stocarea pentru analiză și publicitate refuzată. Puteți modifica sau retrage alegerea oricând din linkul Setări de confidențialitate din subsol."
+    },
+    "legalBasis": {
+      "heading": "Temeiul juridic",
+      "body": "Ne bazăm pe consimțământul dumneavoastră pentru analiză și publicitate acolo unde bannerul de consimțământ îl cere. Pentru Premium, ne bazăm pe contractul cu dumneavoastră pentru a asigura accesul și a gestiona abonamentul."
+    },
+    "use": {
+      "heading": "Cum folosim informațiile",
+      "item1": "Pentru a furniza site-ul și funcțiile sale și pentru a le îmbunătăți.",
+      "item2": "Pentru a vă autentifica, a gestiona feedbackul și a administra accesul Premium.",
+      "item3": "Pentru a înțelege utilizarea site-ului și a măsura performanța, acolo unde analiza este permisă.",
+      "item4": "Pentru a afișa publicitate vizitatorilor din planul gratuit, sub rezerva regulilor de consimțământ de mai sus."
+    },
+    "rights": {
+      "heading": "Drepturile dumneavoastră",
+      "body": "În funcție de locul în care vă aflați, puteți avea dreptul de a accesa, corecta sau șterge datele dumneavoastră personale, sau dreptul de a vă opune sau de a restricționa anumite prelucrări. Pentru a vă exercita aceste drepturi, inclusiv o cerere de ștergere a feedbackului sau a informațiilor din cont, contactați-ne prin datele de mai jos. Abonații Premium nu văd reclame."
+    },
+    "thirdParty": {
+      "heading": "Servicii terțe",
+      "intro": "Colaborăm cu furnizori terți. Fiecare primește doar informațiile descrise aici.",
+      "analytics": "Google Analytics primește date de utilizare acolo unde analiza este permisă.",
+      "adsense": "Google AdSense primește cererile de reclame de la vizitatorii din planul gratuit.",
+      "firebase": "Firebase, un serviciu Google, asigură autentificarea, baza de date a feedbackului, înregistrările abonamentelor și găzduirea site-ului. Serviciul de găzduire primește detalii tehnice despre fiecare cerere, cum ar fi adresa IP și tipul browserului.",
+      "stripe": "Stripe procesează plățile Premium.",
+      "github": "GitHub livrează imaginile cărților de la raw.githubusercontent.com atunci când o carte este afișată, deci GitHub primește adresa IP și datele browserului. GitHub, Twitter și portalul de facturare al Stripe primesc vizita dumneavoastră doar dacă urmați linkurile lor.",
+      "outro": "Acești furnizori folosesc informațiile dumneavoastră conform propriilor politici de confidențialitate."
+    },
+    "retention": {
+      "heading": "Cât timp păstrăm informațiile",
+      "body": "Site-ul nu stabilește propriile perioade de păstrare. Fiecare furnizor păstrează informațiile conform propriilor reguli de retenție."
+    },
+    "children": {
+      "heading": "Copii",
+      "body": "Site-ul nu se adresează copiilor sub 13 ani și nu colectăm în cunoștință de cauză informații personale de la aceștia."
+    },
+    "changes": {
+      "heading": "Modificări ale acestei politici",
+      "body": "Putem actualiza această Politică de confidențialitate din când în când. Modificările vor fi publicate pe această pagină, cu o dată de revizuire actualizată."
+    },
+    "contact": {
+      "heading": "Contact",
+      "body": "Dacă aveți întrebări despre această Politică de confidențialitate sau doriți să ne cereți ștergerea informațiilor dumneavoastră, contactați-ne la <0/>."
+    },
+    "fanNotice": "Top Pocket Decks este un proiect al fanilor și nu este afiliat, susținut sau sponsorizat de Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc. sau DeNA."
   }
 }

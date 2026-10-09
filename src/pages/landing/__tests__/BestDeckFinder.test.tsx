@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
+import { declaredStyle } from "../../../test-utils/declared-style";
 import BestDeckFinder from "../BestDeckFinder";
 
 const deck = {
@@ -60,5 +61,6 @@ describe("BestDeckFinder", () => {
     );
     expect(image).toHaveAttribute("width", "240");
     expect(image).toHaveAttribute("height", "335");
+    expect(declaredStyle(image as Element, "height")).toBe("auto");
   });
 });

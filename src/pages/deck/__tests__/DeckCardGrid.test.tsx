@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import type { CardType } from "../../../app/cards-api";
+import { declaredStyle } from "../../../test-utils/declared-style";
 import DeckCardGrid from "../DeckCardGrid";
 
 const card = (id: string, name: string): CardType => ({
@@ -33,6 +34,7 @@ describe("DeckCardGrid", () => {
     expect(image).toHaveAttribute("sizes", "(max-width: 900px) calc(50vw - 36px), 240px");
     expect(image).toHaveAttribute("width", "240");
     expect(image).toHaveAttribute("height", "335");
+    expect(declaredStyle(image, "height")).toBe("auto");
   });
 
   it("loads the first card eagerly with high fetch priority and lazy-loads the rest", () => {

@@ -101,6 +101,7 @@ const CardGrid = styled.span`
 
 const CardImage = styled.img`
   width: 100%;
+  height: auto;
   aspect-ratio: 367 / 512;
   border-radius: 0.8rem;
   object-fit: cover;

@@ -123,6 +123,7 @@ export const CardContainer = styled.button<{ $stacked: boolean }>`
 
 export const CardImage = styled.img`
   width: 100%;
+  height: auto;
   aspect-ratio: 63 / 88;
   display: block;
 `;
@@ -436,6 +437,7 @@ export const SwapSide = styled.div<{ $out: boolean }>`
 
   img {
     width: 100%;
+    height: auto;
     aspect-ratio: 63 / 88;
     display: block;
     opacity: ${(props) => (props.$out ? 0.55 : 1)};

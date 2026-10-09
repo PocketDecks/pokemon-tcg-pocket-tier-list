@@ -305,8 +305,8 @@
       "optOut": "Puteți refuza publicitatea personalizată din <0>Setările pentru anunțuri Google</0>. Puteți refuza și cookie-urile publicitare ale unor furnizori la <1>www.aboutads.info</1>."
     },
     "consent": {
-      "heading": "Consimțământul utilizatorilor din SEE, Regatul Unit și Elveția",
-      "body": "Dacă vă aflați în Spațiul Economic European, în Regatul Unit sau în Elveția, bannerul de consimțământ vă cere alegerea privind analiza și publicitatea înainte ca site-ul să plaseze orice cookie de analiză sau de publicitate. Până alegeți, Google Consent Mode menține stocarea pentru analiză și publicitate refuzată. Puteți modifica sau retrage alegerea oricând din linkul Setări de confidențialitate din subsol."
+      "heading": "Consimțământul utilizatorilor din SEE, Regatul Unit, Elveția și Canada",
+      "body": "Dacă vă aflați în Spațiul Economic European, în Regatul Unit, în Elveția sau în Canada, bannerul de consimțământ vă cere alegerea privind analiza și publicitatea înainte ca site-ul să plaseze orice cookie de analiză sau de publicitate. Până alegeți, Google Consent Mode menține stocarea pentru analiză și publicitate refuzată. Puteți modifica sau retrage alegerea oricând din linkul Setări de confidențialitate din subsol."
     },
     "legalBasis": {
       "heading": "Temeiul juridic",

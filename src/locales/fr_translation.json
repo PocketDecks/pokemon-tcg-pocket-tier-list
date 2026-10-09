@@ -305,8 +305,8 @@
       "optOut": "Vous pouvez refuser la publicité personnalisée dans les <0>Paramètres des annonces Google</0>. Vous pouvez aussi refuser les cookies publicitaires de certains prestataires sur <1>www.aboutads.info</1>."
     },
     "consent": {
-      "heading": "Consentement des utilisateurs de l'EEE, du Royaume-Uni et de la Suisse",
-      "body": "Si vous vous trouvez dans l'Espace économique européen, au Royaume-Uni ou en Suisse, la bannière de consentement vous demande votre choix concernant l'analyse et la publicité avant que le site ne dépose tout cookie d'analyse ou de publicité. Tant que vous n'avez pas choisi, Google Consent Mode refuse le stockage pour l'analyse et la publicité. Vous pouvez modifier ou retirer votre choix à tout moment depuis le lien Paramètres de confidentialité en bas de page."
+      "heading": "Consentement des utilisateurs de l'EEE, du Royaume-Uni, de la Suisse et du Canada",
+      "body": "Si vous vous trouvez dans l'Espace économique européen, au Royaume-Uni, en Suisse ou au Canada, la bannière de consentement vous demande votre choix concernant l'analyse et la publicité avant que le site ne dépose tout cookie d'analyse ou de publicité. Tant que vous n'avez pas choisi, Google Consent Mode refuse le stockage pour l'analyse et la publicité. Vous pouvez modifier ou retirer votre choix à tout moment depuis le lien Paramètres de confidentialité en bas de page."
     },
     "legalBasis": {
       "heading": "Base juridique",

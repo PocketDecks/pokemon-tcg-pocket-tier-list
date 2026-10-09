@@ -305,8 +305,8 @@
       "optOut": "Puoi rifiutare la pubblicità personalizzata tramite le <0>Impostazioni annunci di Google</0>. Puoi anche rifiutare i cookie pubblicitari di alcuni fornitori su <1>www.aboutads.info</1>."
     },
     "consent": {
-      "heading": "Consenso per gli utenti di SEE, Regno Unito e Svizzera",
-      "body": "Se ti trovi nello Spazio economico europeo, nel Regno Unito o in Svizzera, il banner del consenso ti chiede la tua scelta su analisi e pubblicità prima che il sito imposti qualsiasi cookie di analisi o pubblicitario. Finché non scegli, Google Consent Mode mantiene negata l'archiviazione per analisi e pubblicità. Puoi modificare o ritirare la tua scelta in qualsiasi momento dal link Impostazioni privacy nel piè di pagina."
+      "heading": "Consenso per gli utenti del SEE, del Regno Unito, della Svizzera e del Canada",
+      "body": "Se ti trovi nello Spazio economico europeo, nel Regno Unito, in Svizzera o in Canada, il banner del consenso ti chiede la tua scelta su analisi e pubblicità prima che il sito imposti qualsiasi cookie di analisi o pubblicitario. Finché non scegli, Google Consent Mode mantiene negata l'archiviazione per analisi e pubblicità. Puoi modificare o ritirare la tua scelta in qualsiasi momento dal link Impostazioni privacy nel piè di pagina."
     },
     "legalBasis": {
       "heading": "Base giuridica",

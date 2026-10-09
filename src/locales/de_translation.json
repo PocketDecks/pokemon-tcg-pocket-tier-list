@@ -305,8 +305,8 @@
       "optOut": "Personalisierte Werbung können Sie unter <0>Google-Werbeeinstellungen</0> deaktivieren. Die Werbe-Cookies einiger Anbieter können Sie zusätzlich unter <1>www.aboutads.info</1> deaktivieren."
     },
     "consent": {
-      "heading": "Einwilligung für Nutzer im EWR, im Vereinigten Königreich und in der Schweiz",
-      "body": "Befinden Sie sich im Europäischen Wirtschaftsraum, im Vereinigten Königreich oder in der Schweiz, fragt das Einwilligungsbanner Ihre Auswahl zu Analyse und Werbung ab, bevor die Website Analyse- oder Werbe-Cookies setzt. Bis Sie eine Auswahl treffen, hält Google Consent Mode die Speicherung für Analyse und Werbung auf verweigert. Sie können Ihre Auswahl jederzeit über den Link Datenschutzeinstellungen in der Fußzeile ändern oder widerrufen."
+      "heading": "Einwilligung für Nutzer im EWR, im Vereinigten Königreich, in der Schweiz und in Kanada",
+      "body": "Befinden Sie sich im Europäischen Wirtschaftsraum, im Vereinigten Königreich, in der Schweiz oder in Kanada, fragt das Einwilligungsbanner Ihre Auswahl zu Analyse und Werbung ab, bevor die Website Analyse- oder Werbe-Cookies setzt. Bis Sie eine Auswahl treffen, hält Google Consent Mode die Speicherung für Analyse und Werbung auf verweigert. Sie können Ihre Auswahl jederzeit über den Link Datenschutzeinstellungen in der Fußzeile ändern oder widerrufen."
     },
     "legalBasis": {
       "heading": "Rechtsgrundlage",

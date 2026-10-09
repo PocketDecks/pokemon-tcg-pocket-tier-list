@@ -12,6 +12,7 @@ import zhCN from "../zh-CN_translation.json";
 import zhTW from "../zh-TW_translation.json";
 
 const locales: Record<string, object> = {
+  en,
   de,
   es,
   fr,
@@ -22,6 +23,20 @@ const locales: Record<string, object> = {
   ro,
   "zh-CN": zhCN,
   "zh-TW": zhTW,
+};
+
+const canadaNames: Record<string, string> = {
+  de: "Kanada",
+  en: "Canada",
+  es: "Canadá",
+  fr: "Canada",
+  it: "Canada",
+  ja: "カナダ",
+  ko: "캐나다",
+  pt: "Canadá",
+  ro: "Canada",
+  "zh-CN": "加拿大",
+  "zh-TW": "加拿大",
 };
 
 export const flattenKeys = (obj: Record<string, unknown>, prefix = ""): string[] =>
@@ -54,5 +69,12 @@ describe("translation key parity", () => {
       );
       expect(stale).toEqual([]);
     }
+  });
+
+  it.each(Object.entries(locales))("%s consent copy names Canada", (locale, localeData) => {
+    const consent = (localeData as { privacyPage: { consent: { heading: string; body: string } } })
+      .privacyPage.consent;
+    expect(consent.heading).toContain(canadaNames[locale]);
+    expect(consent.body).toContain(canadaNames[locale]);
   });
 });

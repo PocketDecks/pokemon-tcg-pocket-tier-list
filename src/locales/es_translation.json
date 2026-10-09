@@ -305,8 +305,8 @@
       "optOut": "Puede desactivar la publicidad personalizada en <0>Configuración de anuncios de Google</0>. También puede desactivar las cookies publicitarias de algunos proveedores en <1>www.aboutads.info</1>."
     },
     "consent": {
-      "heading": "Consentimiento para usuarios del EEE, el Reino Unido y Suiza",
-      "body": "Si se encuentra en el Espacio Económico Europeo, el Reino Unido o Suiza, el banner de consentimiento le pide su elección sobre análisis y publicidad antes de que el sitio establezca cualquier cookie de análisis o publicidad. Hasta que elija, Google Consent Mode mantiene denegado el almacenamiento para análisis y publicidad. Puede cambiar o retirar su elección en cualquier momento desde el enlace Configuración de privacidad del pie de página."
+      "heading": "Consentimiento para usuarios del EEE, el Reino Unido, Suiza y Canadá",
+      "body": "Si se encuentra en el Espacio Económico Europeo, el Reino Unido, Suiza o Canadá, el banner de consentimiento le pide su elección sobre análisis y publicidad antes de que el sitio establezca cualquier cookie de análisis o publicidad. Hasta que elija, Google Consent Mode mantiene denegado el almacenamiento para análisis y publicidad. Puede cambiar o retirar su elección en cualquier momento desde el enlace Configuración de privacidad del pie de página."
     },
     "legalBasis": {
       "heading": "Base jurídica",

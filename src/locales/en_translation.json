@@ -305,8 +305,8 @@
       "optOut": "You can opt out of personalised advertising at <0>Google Ads Settings</0>. You can also opt out of some vendors' advertising cookies at <1>www.aboutads.info</1>."
     },
     "consent": {
-      "heading": "Consent for users in the EEA, UK and Switzerland",
-      "body": "If you are in the European Economic Area, the United Kingdom or Switzerland, the consent banner asks for your choice on analytics and on advertising before the site sets any analytics or advertising cookies. Until you choose, Google Consent Mode keeps analytics and advertising storage denied. You can change or withdraw your choice at any time from the Privacy settings link in the footer."
+      "heading": "Consent for users in the EEA, UK, Switzerland and Canada",
+      "body": "If you are in the European Economic Area, the United Kingdom, Switzerland or Canada, the consent banner asks for your choice on analytics and on advertising before the site sets any analytics or advertising cookies. Until you choose, Google Consent Mode keeps analytics and advertising storage denied. You can change or withdraw your choice at any time from the Privacy settings link in the footer."
     },
     "legalBasis": {
       "heading": "Legal basis",

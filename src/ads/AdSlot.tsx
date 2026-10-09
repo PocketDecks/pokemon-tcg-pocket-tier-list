@@ -17,6 +17,7 @@ const Container = styled.div<{ $minHeight: number }>`
 const Ins = styled.ins`
   display: block;
   width: 100%;
+  max-height: 100%;
 `;
 
 const DevPlaceholder = styled.div<{ $minHeight: number }>`
@@ -50,6 +51,7 @@ interface Props {
   // AdSense ad format. "auto" for in-content; "horizontal" for the anchor so it
   // serves a short banner that fits the sticky bar.
   format?: "auto" | "horizontal" | "rectangle";
+  fullWidthResponsive?: boolean;
   className?: string;
 }
 
@@ -61,6 +63,7 @@ const AdSlot = ({
   placement,
   minHeight = 100,
   format = "auto",
+  fullWidthResponsive = true,
   className,
 }: Props) => {
   const { showAds, useReal } = useAdsState();
@@ -99,7 +102,7 @@ const AdSlot = ({
         data-ad-client={ADSENSE_CLIENT}
         data-ad-slot={slot}
         data-ad-format={format}
-        data-full-width-responsive="true"
+        data-full-width-responsive={fullWidthResponsive ? "true" : "false"}
       />
     </Container>
   );

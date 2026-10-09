@@ -204,6 +204,7 @@ const AdAnchor = () => {
         <AnchorAd
           placement="anchor"
           format="horizontal"
+          fullWidthResponsive={false}
           minHeight={ANCHOR_HEIGHT_MOBILE}
         />
       </AdRow>

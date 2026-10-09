@@ -287,7 +287,7 @@
       "usage": "<0>Date de utilizare.</0> Google Analytics înregistrează paginile pe care le vizualizați și datele standard despre dispozitiv și browser. Rulează doar după ce acceptați analiza sau acolo unde bannerul de consimțământ din regiunea dumneavoastră nu cere consimțământ.",
       "account": "<0>Informații despre cont.</0> Dacă vă conectați cu Google, Firebase Authentication ne furnizează numele, adresa de e-mail și fotografia de profil. Vă afișăm numele și fotografia cât timp sunteți conectat, iar ID-ul contului îl folosim pentru a verifica dacă aveți acces Premium.",
       "feedback": "<0>Feedback.</0> Dacă trimiteți feedback în timp ce sunteți conectat, salvăm ID-ul contului, mesajul, tema aleasă, pagina de unde l-ați trimis și momentul trimiterii, în Cloud Firestore, o bază de date administrată de Google pentru Firebase. Vă salvăm adresa de e-mail împreună cu mesajul doar dacă bifați caseta prin care cereți un răspuns. Păstrăm și momentul ultimei trimiteri.",
-      "payment": "<0>Plăți.</0> Abonamentele Premium se plătesc prin Stripe, care gestionează datele cardului dumneavoastră. Noi nu le primim și nu le stocăm. Extensia Stripe pentru Firebase scrie în Firestore înregistrări de clienți și abonamente, iar site-ul citește aceste înregistrări pentru a verifica dacă aveți acces Premium."
+      "payment": "<0>Plăți.</0> Plata pentru Premium este momentan suspendată. Când va fi din nou disponibilă, Stripe va procesa plățile, iar noi vom stoca starea abonamentului dvs. în Firestore."
     },
     "cookies": {
       "heading": "Cookie-uri și urmărire",
@@ -306,7 +306,7 @@
     },
     "consent": {
       "heading": "Consimțământul utilizatorilor din SEE, Regatul Unit și Elveția",
-      "body": "Dacă vă aflați în Spațiul Economic European, în Regatul Unit sau în Elveția, bannerul de consimțământ vă cere alegerea privind analiza și publicitatea înainte ca orice cookie de analiză sau de publicitate să fie plasat. Până alegeți, Google Consent Mode menține stocarea pentru analiză și publicitate refuzată. Puteți modifica sau retrage alegerea oricând din linkul Setări de confidențialitate din subsol."
+      "body": "Dacă vă aflați în Spațiul Economic European, în Regatul Unit sau în Elveția, bannerul de consimțământ vă cere alegerea privind analiza și publicitatea înainte ca site-ul să plaseze orice cookie de analiză sau de publicitate. Până alegeți, Google Consent Mode menține stocarea pentru analiză și publicitate refuzată. Puteți modifica sau retrage alegerea oricând din linkul Setări de confidențialitate din subsol."
     },
     "legalBasis": {
       "heading": "Temeiul juridic",
@@ -335,7 +335,7 @@
     },
     "retention": {
       "heading": "Cât timp păstrăm informațiile",
-      "body": "Google Analytics păstrează datele evenimentelor timp de 14 luni. Datele utilizatorilor sunt păstrate și ele timp de 14 luni, iar această perioadă se reia când reveniți pe site. Contul dvs. de conectare Google și câmpurile de profil salvate sunt păstrate până când cereți ștergerea, prin datele de contact de mai jos. Mesajele de feedback sunt păstrate până la ștergere, pe care o efectuăm la cerere. Perioada de păstrare a datelor publicitare este stabilită de Google. Consultați <0>politica de confidențialitate</0> și <1>politicile privind publicitatea</1> ale Google. Plata pentru Premium este momentan suspendată. Când va fi din nou disponibilă, Stripe păstrează înregistrările de plată, cum cere legea. Site-ul nu păstrează jurnale proprii ale cererilor web. Firebase, furnizorul de găzduire, și Cloudflare, furnizorul de rețea, își păstrează jurnalele operaționale standard conform propriilor condiții."
+      "body": "Google Analytics păstrează datele evenimentelor timp de 14 luni. Păstrează datele utilizatorilor timp de 14 luni, iar această perioadă se reia când reveniți pe site. Contul dvs. de conectare Google și câmpurile de profil salvate sunt păstrate până când cereți ștergerea, prin datele de contact de mai jos. Păstrăm mesajele de feedback până când ne cereți să le ștergem. Perioada de păstrare a datelor publicitare este stabilită de Google. Consultați <0>politica de confidențialitate</0> și <1>politicile privind publicitatea</1> ale Google. Plata pentru Premium este momentan suspendată. Când va fi din nou disponibilă, Stripe păstrează înregistrările de plată, cum cere legea. Site-ul nu păstrează jurnale proprii ale cererilor web. Firebase, furnizorul de găzduire, și Cloudflare, furnizorul de rețea, își păstrează jurnalele operaționale standard conform propriilor condiții."
     },
     "children": {
       "heading": "Copii",

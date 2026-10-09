@@ -287,7 +287,7 @@
       "usage": "<0>Usage data.</0> Google Analytics records the pages you view and standard device and browser details. It runs only after you accept analytics, or where your region's consent banner does not ask for consent.",
       "account": "<0>Account information.</0> If you sign in with Google, Firebase Authentication gives us your name, email address and profile photo. We show your name and photo while you are signed in, and we use your account ID to check whether you have Premium access.",
       "feedback": "<0>Feedback.</0> If you send feedback while signed in, we store your account ID, your message, the topic you chose, the page you sent it from and the time you sent it in Cloud Firestore, a database run by Google for Firebase. We store your email address with the message only if you tick the box asking us to reply. We also store the time of your last submission.",
-      "payment": "<0>Payments.</0> Premium subscriptions are paid through Stripe, which handles your card details. We do not receive or store them. The Stripe extension for Firebase writes customer and subscription records to Firestore, and the site reads those records to check whether you have Premium access."
+      "payment": "<0>Payments.</0> Premium checkout is paused. When it is open, Stripe processes payments and we store your subscription status in Firestore."
     },
     "cookies": {
       "heading": "Cookies and tracking",
@@ -306,7 +306,7 @@
     },
     "consent": {
       "heading": "Consent for users in the EEA, UK and Switzerland",
-      "body": "If you are in the European Economic Area, the United Kingdom or Switzerland, the consent banner asks for your choice on analytics and on advertising before any analytics or advertising cookies are set. Until you choose, Google Consent Mode keeps analytics and advertising storage denied. You can change or withdraw your choice at any time from the Privacy settings link in the footer."
+      "body": "If you are in the European Economic Area, the United Kingdom or Switzerland, the consent banner asks for your choice on analytics and on advertising before the site sets any analytics or advertising cookies. Until you choose, Google Consent Mode keeps analytics and advertising storage denied. You can change or withdraw your choice at any time from the Privacy settings link in the footer."
     },
     "legalBasis": {
       "heading": "Legal basis",
@@ -335,7 +335,7 @@
     },
     "retention": {
       "heading": "How long we keep information",
-      "body": "Google Analytics keeps event data for 14 months. User data is also kept for 14 months, and that period resets when you return to the site. We keep your Google sign-in account and stored profile fields until you ask us to delete them, using the contact details below. Feedback messages are kept until they are deleted, and we delete them on request. Google decides how long it keeps advertising data. See its <0>privacy policy</0> and <1>ads policies</1>. Premium checkout is currently paused. When checkout reopens, Stripe keeps payment records as the law requires. The site does not keep web request logs of its own. Firebase, the hosting provider, and Cloudflare, the network provider, keep their standard operational logs under their own terms."
+      "body": "Google Analytics keeps event data for 14 months. It keeps user data for 14 months, and that period resets when you return to the site. We keep your Google sign-in account and stored profile fields until you ask us to delete them, using the contact details below. We keep feedback messages until you ask us to delete them. Google decides how long it keeps advertising data. See its <0>privacy policy</0> and <1>ads policies</1>. Premium checkout is currently paused. When checkout reopens, Stripe keeps payment records as the law requires. The site does not keep web request logs of its own. Firebase, the hosting provider, and Cloudflare, the network provider, keep their standard operational logs under their own terms."
     },
     "children": {
       "heading": "Children",

@@ -287,7 +287,7 @@
       "usage": "<0>Dados de utilização.</0> O Google Analytics regista as páginas que visualiza e os dados habituais do dispositivo e do navegador. Só funciona depois de aceitar a análise ou, onde o banner de consentimento da sua região não pedir consentimento, sem que seja necessário.",
       "account": "<0>Informações da conta.</0> Se iniciar sessão com o Google, o Firebase Authentication fornece-nos o seu nome, endereço de e-mail e foto de perfil. Mostramos o seu nome e a sua foto enquanto tiver sessão iniciada, e usamos o seu ID de conta para verificar se tem acesso Premium.",
       "feedback": "<0>Feedback.</0> Se enviar feedback com sessão iniciada, guardamos o seu ID de conta, a mensagem, o tema escolhido, a página a partir da qual o enviou e a hora do envio no Cloud Firestore, uma base de dados gerida pela Google para o Firebase. Guardamos o seu endereço de e-mail com a mensagem apenas se marcar a caixa que pede uma resposta. Também guardamos a hora do seu último envio.",
-      "payment": "<0>Pagamentos.</0> As subscrições Premium são pagas através da Stripe, que trata dos dados do seu cartão. Nós não os recebemos nem os guardamos. A extensão da Stripe para o Firebase escreve registos de clientes e subscrições no Firestore, e o site lê esses registos para verificar se tem acesso Premium."
+      "payment": "<0>Pagamentos.</0> O pagamento de Premium está atualmente suspenso. Quando voltar a estar disponível, a Stripe processará os pagamentos e guardaremos o estado da sua subscrição no Firestore."
     },
     "cookies": {
       "heading": "Cookies e rastreio",
@@ -306,7 +306,7 @@
     },
     "consent": {
       "heading": "Consentimento para utilizadores do EEE, do Reino Unido e da Suíça",
-      "body": "Se estiver no Espaço Económico Europeu, no Reino Unido ou na Suíça, o banner de consentimento pede a sua escolha sobre análise e publicidade antes de ser definido qualquer cookie de análise ou de publicidade. Até escolher, o Google Consent Mode mantém o armazenamento para análise e publicidade recusado. Pode alterar ou retirar a sua escolha a qualquer momento através da ligação Definições de privacidade no rodapé."
+      "body": "Se estiver no Espaço Económico Europeu, no Reino Unido ou na Suíça, o banner de consentimento pede a sua escolha sobre análise e publicidade antes de o site definir qualquer cookie de análise ou de publicidade. Até escolher, o Google Consent Mode mantém o armazenamento para análise e publicidade recusado. Pode alterar ou retirar a sua escolha a qualquer momento através da ligação Definições de privacidade no rodapé."
     },
     "legalBasis": {
       "heading": "Fundamento jurídico",
@@ -335,7 +335,7 @@
     },
     "retention": {
       "heading": "Durante quanto tempo guardamos as informações",
-      "body": "O Google Analytics conserva os dados de eventos durante 14 meses. Os dados de utilizador também são conservados durante 14 meses, e esse prazo recomeça quando regressa ao site. Conservamos a sua conta de início de sessão Google e os campos de perfil guardados até nos pedir a eliminação, através dos contactos indicados abaixo. As mensagens de feedback são conservadas até serem eliminadas, e eliminamo-las a pedido. O prazo de conservação dos dados publicitários é definido pela Google. Consulte a <0>política de privacidade</0> e as <1>políticas de anúncios</1> da Google. O pagamento de Premium está atualmente suspenso. Quando voltar a estar disponível, a Stripe conserva os registos de pagamento conforme a lei exige. O site não conserva registos próprios dos pedidos web. O Firebase, fornecedor de alojamento, e a Cloudflare, fornecedor de rede, conservam os seus registos operacionais habituais de acordo com as respetivas condições."
+      "body": "O Google Analytics conserva os dados de eventos durante 14 meses. Conserva os dados de utilizador durante 14 meses, e esse prazo recomeça quando regressa ao site. Conservamos a sua conta de início de sessão Google e os campos de perfil guardados até nos pedir a eliminação, através dos contactos indicados abaixo. Conservamos as mensagens de feedback até nos pedir que as eliminemos. O prazo de conservação dos dados publicitários é definido pela Google. Consulte a <0>política de privacidade</0> e as <1>políticas de anúncios</1> da Google. O pagamento de Premium está atualmente suspenso. Quando voltar a estar disponível, a Stripe conserva os registos de pagamento conforme a lei exige. O site não conserva registos próprios dos pedidos web. O Firebase, fornecedor de alojamento, e a Cloudflare, fornecedor de rede, conservam os seus registos operacionais habituais de acordo com as respetivas condições."
     },
     "children": {
       "heading": "Crianças",

@@ -287,7 +287,7 @@
       "usage": "<0>Données d'utilisation.</0> Google Analytics enregistre les pages que vous consultez ainsi que les informations habituelles sur l'appareil et le navigateur. Il ne fonctionne qu'après que vous avez accepté l'analyse, ou là où la bannière de consentement de votre région ne demande pas de consentement.",
       "account": "<0>Informations de compte.</0> Si vous vous connectez avec Google, Firebase Authentication nous transmet votre nom, votre adresse e-mail et votre photo de profil. Nous affichons votre nom et votre photo lorsque vous êtes connecté, et nous utilisons votre identifiant de compte pour vérifier si vous avez un accès Premium.",
       "feedback": "<0>Commentaires.</0> Si vous envoyez un commentaire en étant connecté, nous enregistrons votre identifiant de compte, votre message, le sujet que vous avez choisi, la page depuis laquelle vous l'avez envoyé et l'heure d'envoi, dans Cloud Firestore, une base de données exploitée par Google pour Firebase. Nous n'enregistrons votre adresse e-mail avec le message que si vous cochez la case demandant une réponse. Nous conservons aussi l'heure de votre dernier envoi.",
-      "payment": "<0>Paiements.</0> Les abonnements Premium sont réglés par l'intermédiaire de Stripe, qui gère les données de votre carte. Nous ne les recevons ni ne les conservons. L'extension Stripe pour Firebase écrit des enregistrements de clients et d'abonnements dans Firestore, et le site lit ces enregistrements pour vérifier si vous avez un accès Premium."
+      "payment": "<0>Paiements.</0> Le paiement Premium est actuellement suspendu. Lorsqu'il sera de nouveau disponible, Stripe traitera les paiements et nous enregistrerons le statut de votre abonnement dans Firestore."
     },
     "cookies": {
       "heading": "Cookies et suivi",
@@ -306,7 +306,7 @@
     },
     "consent": {
       "heading": "Consentement des utilisateurs de l'EEE, du Royaume-Uni et de la Suisse",
-      "body": "Si vous vous trouvez dans l'Espace économique européen, au Royaume-Uni ou en Suisse, la bannière de consentement vous demande votre choix concernant l'analyse et la publicité avant que tout cookie d'analyse ou de publicité ne soit déposé. Tant que vous n'avez pas choisi, Google Consent Mode maintient le stockage pour l'analyse et la publicité à refusé. Vous pouvez modifier ou retirer votre choix à tout moment depuis le lien Paramètres de confidentialité en bas de page."
+      "body": "Si vous vous trouvez dans l'Espace économique européen, au Royaume-Uni ou en Suisse, la bannière de consentement vous demande votre choix concernant l'analyse et la publicité avant que le site ne dépose tout cookie d'analyse ou de publicité. Tant que vous n'avez pas choisi, Google Consent Mode maintient le stockage pour l'analyse et la publicité à refusé. Vous pouvez modifier ou retirer votre choix à tout moment depuis le lien Paramètres de confidentialité en bas de page."
     },
     "legalBasis": {
       "heading": "Base juridique",
@@ -335,7 +335,7 @@
     },
     "retention": {
       "heading": "Durée de conservation des informations",
-      "body": "Google Analytics conserve les données d'événements pendant 14 mois. Les données utilisateur sont elles aussi conservées pendant 14 mois, et cette durée repart à zéro lorsque vous revenez sur le site. Nous conservons votre compte de connexion Google et les champs de profil enregistrés jusqu'à ce que vous demandiez leur suppression, par les coordonnées indiquées ci-dessous. Les messages de retour sont conservés jusqu'à leur suppression, que nous effectuons sur demande. La durée de conservation des données publicitaires est fixée par Google. Consultez la <0>politique de confidentialité</0> et les <1>règles relatives à la publicité</1> de Google. Le paiement Premium est actuellement suspendu. Lorsqu'il sera de nouveau disponible, Stripe conservera les justificatifs de paiement, comme la loi l'exige. Le site ne conserve aucun journal propre des requêtes web. Firebase, notre hébergeur, et Cloudflare, notre fournisseur réseau, conservent leurs journaux d'exploitation standard selon leurs propres conditions."
+      "body": "Google Analytics conserve les données d'événements pendant 14 mois. Il conserve les données utilisateur pendant 14 mois, et cette durée repart à zéro lorsque vous revenez sur le site. Nous conservons votre compte de connexion Google et les champs de profil enregistrés jusqu'à ce que vous demandiez leur suppression, par les coordonnées indiquées ci-dessous. Nous conservons les messages de retour jusqu'à ce que vous nous demandiez de les supprimer. La durée de conservation des données publicitaires est fixée par Google. Consultez la <0>politique de confidentialité</0> et les <1>règles relatives à la publicité</1> de Google. Le paiement Premium est actuellement suspendu. Lorsqu'il sera de nouveau disponible, Stripe conservera les justificatifs de paiement, comme la loi l'exige. Le site ne conserve aucun journal propre des requêtes web. Firebase, notre hébergeur, et Cloudflare, notre fournisseur réseau, conservent leurs journaux d'exploitation standard selon leurs propres conditions."
     },
     "children": {
       "heading": "Enfants",

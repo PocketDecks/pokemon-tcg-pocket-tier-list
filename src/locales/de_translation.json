@@ -287,7 +287,7 @@
       "usage": "<0>Nutzungsdaten.</0> Google Analytics erfasst, welche Seiten Sie aufrufen, sowie übliche Angaben zu Gerät und Browser. Das Tool läuft nur, nachdem Sie Analyse akzeptiert haben, oder dort, wo das Einwilligungsbanner Ihrer Region keine Einwilligung abfragt.",
       "account": "<0>Kontodaten.</0> Wenn Sie sich mit Google anmelden, erhalten wir über Firebase Authentication Ihren Namen, Ihre E-Mail-Adresse und Ihr Profilfoto. Wir zeigen Ihren Namen und Ihr Foto an, solange Sie angemeldet sind, und prüfen anhand Ihrer Konto-ID, ob Sie Premium-Zugang haben.",
       "feedback": "<0>Feedback.</0> Wenn Sie als angemeldeter Nutzer Feedback senden, speichern wir Ihre Konto-ID, Ihre Nachricht, das gewählte Thema, die Seite, von der aus Sie es gesendet haben, und den Zeitpunkt in Cloud Firestore, einer von Google für Firebase betriebenen Datenbank. Ihre E-Mail-Adresse speichern wir zusammen mit der Nachricht nur, wenn Sie das Kästchen zur Antwort angeklickt haben. Außerdem speichern wir den Zeitpunkt Ihrer letzten Einsendung.",
-      "payment": "<0>Zahlungen.</0> Premium-Abos werden über Stripe bezahlt. Stripe verarbeitet Ihre Kartendaten. Wir erhalten und speichern diese nicht. Die Stripe-Erweiterung für Firebase schreibt Kunden- und Abodaten in Firestore, und die Website liest diese Daten, um zu prüfen, ob Sie Premium-Zugang haben."
+      "payment": "<0>Zahlungen.</0> Die Zahlung für Premium ist derzeit pausiert. Sobald der Kauf wieder möglich ist, verarbeitet Stripe Zahlungen, und wir speichern Ihren Abostatus in Firestore."
     },
     "cookies": {
       "heading": "Cookies und Tracking",
@@ -306,7 +306,7 @@
     },
     "consent": {
       "heading": "Einwilligung für Nutzer im EWR, im Vereinigten Königreich und in der Schweiz",
-      "body": "Befinden Sie sich im Europäischen Wirtschaftsraum, im Vereinigten Königreich oder in der Schweiz, fragt das Einwilligungsbanner Ihre Auswahl zu Analyse und Werbung ab, bevor Analyse- oder Werbe-Cookies gesetzt werden. Bis Sie eine Auswahl treffen, halten Google Consent Mode die Speicherung für Analyse und Werbung auf verweigert. Sie können Ihre Auswahl jederzeit über den Link Datenschutzeinstellungen in der Fußzeile ändern oder widerrufen."
+      "body": "Befinden Sie sich im Europäischen Wirtschaftsraum, im Vereinigten Königreich oder in der Schweiz, fragt das Einwilligungsbanner Ihre Auswahl zu Analyse und Werbung ab, bevor die Website Analyse- oder Werbe-Cookies setzt. Bis Sie eine Auswahl treffen, hält Google Consent Mode die Speicherung für Analyse und Werbung auf verweigert. Sie können Ihre Auswahl jederzeit über den Link Datenschutzeinstellungen in der Fußzeile ändern oder widerrufen."
     },
     "legalBasis": {
       "heading": "Rechtsgrundlage",
@@ -335,7 +335,7 @@
     },
     "retention": {
       "heading": "Wie lange wir Informationen aufbewahren",
-      "body": "Google Analytics speichert Ereignisdaten 14 Monate lang. Nutzerdaten werden ebenfalls 14 Monate lang gespeichert, und dieser Zeitraum beginnt neu, wenn Sie zur Website zurückkehren. Ihr Google-Anmeldekonto und die gespeicherten Profilfelder bewahren wir auf, bis Sie deren Löschung über die unten genannten Kontaktdaten verlangen. Feedback-Nachrichten werden bis zu ihrer Löschung gespeichert, und wir löschen sie auf Anfrage. Die Aufbewahrungsdauer für Werbedaten legt Google selbst fest. Siehe dazu die <0>Datenschutzerklärung</0> und die <1>Werberichtlinien</1> von Google. Die Zahlung für Premium ist derzeit pausiert. Sobald der Kauf wieder möglich ist, bewahrt Stripe Zahlungsbelege auf, wie es das Gesetz vorschreibt. Die Website speichert keine eigenen Protokolle von Webanfragen. Firebase als Hosting-Anbieter und Cloudflare als Netzwerk-Anbieter bewahren ihre üblichen Betriebsprotokolle nach ihren eigenen Bedingungen auf."
+      "body": "Google Analytics speichert Ereignisdaten 14 Monate lang. Es speichert Nutzerdaten 14 Monate lang, und dieser Zeitraum beginnt neu, wenn Sie zur Website zurückkehren. Ihr Google-Anmeldekonto und die gespeicherten Profilfelder bewahren wir auf, bis Sie deren Löschung über die unten genannten Kontaktdaten verlangen. Wir bewahren Feedback-Nachrichten auf, bis Sie deren Löschung verlangen. Die Aufbewahrungsdauer für Werbedaten legt Google selbst fest. Siehe dazu die <0>Datenschutzerklärung</0> und die <1>Werberichtlinien</1> von Google. Die Zahlung für Premium ist derzeit pausiert. Sobald der Kauf wieder möglich ist, bewahrt Stripe Zahlungsbelege auf, wie es das Gesetz vorschreibt. Die Website speichert keine eigenen Protokolle von Webanfragen. Firebase als Hosting-Anbieter und Cloudflare als Netzwerk-Anbieter bewahren ihre üblichen Betriebsprotokolle nach ihren eigenen Bedingungen auf."
     },
     "children": {
       "heading": "Kinder",

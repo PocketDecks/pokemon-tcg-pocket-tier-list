@@ -216,7 +216,7 @@ test("renders one string entry per zone", () => {
   assert.strictEqual(
     source,
     [
-      "export const timeZoneCountries: Record<string, string> = {",
+      "export const timeZoneCountries = {",
       '  "America/Toronto": "CA-QC",',
       '  "Asia/Tokyo": "JP",',
       "};",

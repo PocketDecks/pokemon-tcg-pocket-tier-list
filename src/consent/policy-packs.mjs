@@ -1,8 +1,8 @@
-import { policyPackPresets, type PolicyConfig } from "c15t";
+import { policyPackPresets } from "c15t";
 import { EUROPE_OPT_IN_EXTRA_COUNTRIES } from "./policy-countries.mjs";
 
 const europeOptIn = policyPackPresets.europeOptIn();
-const europe: PolicyConfig = {
+const europe = {
   ...europeOptIn,
   match: {
     ...europeOptIn.match,
@@ -15,13 +15,13 @@ const europe: PolicyConfig = {
   },
 };
 
-const canada: PolicyConfig = {
+const canada = {
   ...policyPackPresets.quebecOptIn(),
   id: "canada_opt_in",
   match: { countries: ["CA"] },
 };
 
-export const policyPacks: PolicyConfig[] = [
+export const policyPacks = [
   europe,
   policyPackPresets.quebecOptIn(),
   canada,

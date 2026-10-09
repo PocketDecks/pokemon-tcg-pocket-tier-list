@@ -1,6 +1,6 @@
 /// <reference types="vitest/config" />
 import { replaceManropePreload } from "./scripts/manrope-preload.mjs";
-import { buildConsentPendingData, consentPendingScript } from "./src/consent/consent-pending";
+import { buildConsentPendingData, consentPendingScript } from "./src/consent/consent-pending.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin } from "vite";

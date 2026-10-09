@@ -1,4 +1,4 @@
-export const timeZoneCountries: Record<string, string> = {
+export const timeZoneCountries = {
   "Africa/Abidjan": "CI",
   "Africa/Accra": "GH",
   "Africa/Addis_Ababa": "ET",

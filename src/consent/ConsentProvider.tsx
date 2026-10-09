@@ -19,9 +19,9 @@ import { consentTheme } from "./consent-theme";
 import { toConsentLanguage } from "./consent-language";
 import { consentMessages } from "./consent-messages";
 import { useConsentBannerHeight } from "./consent-banner-height";
-import { CONSENT_PENDING_ATTRIBUTE } from "./consent-pending-keys";
-import { resolveVisitorRegion, type VisitorRegion } from "./visitor-region";
-import { policyPacks } from "./policy-packs";
+import { CONSENT_PENDING_ATTRIBUTE } from "./consent-pending-keys.mjs";
+import { resolveVisitorRegion, type VisitorRegion } from "./visitor-region.mjs";
+import { policyPacks } from "./policy-packs.mjs";
 
 // c15t injects gtag, sets Consent Mode v2 to denied by default and pushes the
 // update when a visitor chooses. Registering both categories lets one gtag

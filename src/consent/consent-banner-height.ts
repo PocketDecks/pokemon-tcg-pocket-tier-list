@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { CONSENT_PENDING_ATTRIBUTE } from "./consent-pending-keys";
+import { CONSENT_PENDING_ATTRIBUTE } from "./consent-pending-keys.mjs";
 
 export const CONSENT_BANNER_HEIGHT_PROPERTY = "--consent-banner-h";
 export const CONSENT_BANNER_SELECTOR = '[data-testid="consent-banner-root"]';

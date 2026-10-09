@@ -102,7 +102,7 @@ export const buildTimeZoneCountries = ({
 
 export const renderTimeZoneCountries = (table) =>
   [
-    "export const timeZoneCountries: Record<string, string> = {",
+    "export const timeZoneCountries = {",
     ...Object.entries(table).map(
       ([zone, value]) => `  ${JSON.stringify(zone)}: ${JSON.stringify(value)},`
     ),
@@ -110,7 +110,7 @@ export const renderTimeZoneCountries = (table) =>
     "",
   ].join("\n");
 
-const TARGET_PATH = fileURLToPath(new URL("../src/consent/time-zone-countries.ts", import.meta.url));
+const TARGET_PATH = fileURLToPath(new URL("../src/consent/time-zone-countries.mjs", import.meta.url));
 
 const main = () => {
   const table = buildTimeZoneCountries({

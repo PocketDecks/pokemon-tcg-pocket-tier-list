@@ -1,16 +1,11 @@
-import { timeZoneCountries } from "./time-zone-countries";
-
-export interface VisitorRegion {
-  country: string;
-  region?: string;
-}
+import { timeZoneCountries } from "./time-zone-countries.mjs";
 
 const REGION_COOKIE = "pd_geo";
 const COUNTRY_PATTERN = /^[A-Z]{2}$/;
 const REGION_PATTERN = /^[A-Z0-9]{1,3}$/;
 const UNKNOWN_COUNTRIES = new Set(["XX", "T1"]);
 
-export const readRegionCookie = (cookie: string): VisitorRegion | null => {
+export const readRegionCookie = (cookie) => {
   const prefix = `${REGION_COOKIE}=`;
   const entry = cookie
     .split(";")
@@ -27,7 +22,7 @@ export const readRegionCookie = (cookie: string): VisitorRegion | null => {
   return REGION_PATTERN.test(region) ? { country, region } : null;
 };
 
-export const regionFromTimeZone = (timeZone: string): VisitorRegion | null => {
+export const regionFromTimeZone = (timeZone) => {
   if (!Object.hasOwn(timeZoneCountries, timeZone)) return null;
   const [country, region] = timeZoneCountries[timeZone].split("-");
   return region === undefined ? { country } : { country, region };
@@ -36,8 +31,5 @@ export const regionFromTimeZone = (timeZone: string): VisitorRegion | null => {
 export const resolveVisitorRegion = ({
   cookie,
   timeZone,
-}: {
-  cookie: string;
-  timeZone: string | null;
-}): VisitorRegion | null =>
+}) =>
   readRegionCookie(cookie) ?? (timeZone === null ? null : regionFromTimeZone(timeZone));

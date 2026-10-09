@@ -4,14 +4,14 @@ import {
   buildConsentPendingData,
   consentPendingScript,
   type ConsentPendingData,
-} from "../consent-pending";
+} from "../consent-pending.mjs";
 import {
   CONSENT_PENDING_ATTRIBUTE,
   CONSENT_STORAGE_KEY,
-} from "../consent-pending-keys";
-import { policyPacks } from "../policy-packs";
-import { timeZoneCountries } from "../time-zone-countries";
-import { resolveVisitorRegion } from "../visitor-region";
+} from "../consent-pending-keys.mjs";
+import { policyPacks } from "../policy-packs.mjs";
+import { timeZoneCountries } from "../time-zone-countries.mjs";
+import { resolveVisitorRegion } from "../visitor-region.mjs";
 import { rows } from "./region-matrix";
 
 interface Visitor {

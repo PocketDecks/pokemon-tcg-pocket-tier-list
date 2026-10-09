@@ -1,25 +1,12 @@
-import { OfflineClient, type PolicyConfig } from "c15t";
-import { policyPacks } from "./policy-packs";
-import { regionFromTimeZone } from "./visitor-region";
-import { timeZoneCountries } from "./time-zone-countries";
-import { CONSENT_PENDING_ATTRIBUTE, CONSENT_STORAGE_KEY, REGION_COOKIE } from "./consent-pending-keys";
+import { OfflineClient } from "c15t";
+import { policyPacks } from "./policy-packs.mjs";
+import { regionFromTimeZone } from "./visitor-region.mjs";
+import { timeZoneCountries } from "./time-zone-countries.mjs";
+import { CONSENT_PENDING_ATTRIBUTE, CONSENT_STORAGE_KEY, REGION_COOKIE } from "./consent-pending-keys.mjs";
 
 
-export interface ConsentPendingData {
-  fallback: 0 | 1;
-  unmatched: 0 | 1;
-  zones: Record<string, string[]>;
-  countries: Record<string, 0 | 1>;
-  regions: Record<string, 0 | 1>;
-}
-
-type Place = { country?: string; region?: string };
-
-const showsBanner = async (
-  policies: PolicyConfig[],
-  { country, region }: Place
-): Promise<0 | 1> => {
-  const headers: Record<string, string> = {};
+const showsBanner = async (policies, { country, region }) => {
+  const headers = {};
   if (country) headers["x-c15t-country"] = country;
   if (region) headers["x-c15t-region"] = region;
   const response = await new OfflineClient(undefined, undefined, undefined, {
@@ -32,12 +19,12 @@ const showsBanner = async (
 };
 
 export const buildConsentPendingData = async (
-  policies: PolicyConfig[] = policyPacks,
-  table: Record<string, string> = timeZoneCountries
-): Promise<ConsentPendingData> => {
+  policies = policyPacks,
+  table = timeZoneCountries
+) => {
   const fallback = await showsBanner(policies, {});
 
-  const zones: Record<string, string[]> = {};
+  const zones = {};
   for (const zone of Object.keys(table)) {
     const region = regionFromTimeZone(zone);
     if (!region) continue;
@@ -48,8 +35,8 @@ export const buildConsentPendingData = async (
     (zones[key] ??= []).push(rest);
   }
 
-  const countries = new Set<string>();
-  const regionKeys = new Set<string>();
+  const countries = new Set();
+  const regionKeys = new Set();
   for (const policy of policies) {
     for (const country of policy.match.countries ?? []) countries.add(country);
     for (const { country, region } of policy.match.regions ?? []) {
@@ -57,12 +44,12 @@ export const buildConsentPendingData = async (
     }
   }
 
-  const countryBanners: Record<string, 0 | 1> = {};
+  const countryBanners = {};
   for (const country of [...countries].sort()) {
     countryBanners[country] = await showsBanner(policies, { country });
   }
 
-  const regions: Record<string, 0 | 1> = {};
+  const regions = {};
   for (const key of regionKeys) {
     const [country, region] = key.split("-");
     regions[key] = await showsBanner(policies, { country, region });
@@ -77,7 +64,7 @@ export const buildConsentPendingData = async (
   };
 };
 
-export const consentPendingScript = (data: ConsentPendingData): string => `(function(){
+export const consentPendingScript = (data) => `(function(){
 try{
 var root=document.documentElement;
 var stored=false;

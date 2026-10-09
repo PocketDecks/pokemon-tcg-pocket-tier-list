@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readRegionCookie, regionFromTimeZone, resolveVisitorRegion } from "../visitor-region";
+import { readRegionCookie, regionFromTimeZone, resolveVisitorRegion } from "../visitor-region.mjs";
 
 describe("readRegionCookie", () => {
   it.each([

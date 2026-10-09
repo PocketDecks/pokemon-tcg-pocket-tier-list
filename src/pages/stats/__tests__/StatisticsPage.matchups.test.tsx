@@ -63,6 +63,13 @@ describe("StatisticsPage matchups", () => {
     expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(true);
   });
 
+  it("marks the page ready when the trend data fails", () => {
+    useMatchups.mockReturnValue({ matchupsByName: {}, loading: false, error: null });
+    usePipelineTrends.mockReturnValue({ rows: [], isLoading: false, failed: true });
+    renderStatistics();
+    expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(true);
+  });
+
   it("shows a loading placeholder while matchup data loads", () => {
     useMatchups.mockReturnValue({ matchupsByName: null, loading: true, error: null });
     renderStatistics();

@@ -88,6 +88,7 @@ const ROUTE_META = {
 };
 
 const ROUTE_READY_ROUTES = new Set(["/cards-list", "/statistics", "/deck"]);
+const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
 
 const NOT_FOUND_ROUTE = "/404";
 const NOT_FOUND_META = {
@@ -120,11 +121,6 @@ const main = async () => {
   try {
     const page = await createPrerenderPage(browser, pageErrors);
 
-    // Only the tier list paints deck anchors; other routes render their own
-    // content without them. Waiting there would burn the full timeout per route,
-    // and letting it fail silently would ship a "Loading..." snapshot if this
-    // route's render ever regressed, so failure propagates instead.
-    const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
     for (const route of ROUTES) {
       await openDocument(page, route);
       const html = await captureAfterRouteReady(page, route, async () => {
@@ -148,6 +144,7 @@ const main = async () => {
     }
 
     await openDocument(page, NOT_FOUND_ROUTE);
+    await waitForRouteReady(page);
     const notFoundHtml = await captureDocument(page, template);
     fs.writeFileSync(
       path.join(DIST_DIR, "404.html"),

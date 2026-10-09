@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderHook } from "@testing-library/react";
 import useAdsState from "../useAdsState";
 
@@ -98,6 +98,37 @@ describe("useAdsState marketing consent", () => {
   it("shows and reserves nothing while the build prerenders the page", () => {
     consent.policyCategories = ["necessary", "measurement"];
     environment.prerender = true;
+
+    const { result } = renderHook(() => useAdsState());
+
+    expect(result.current).toEqual({ resolved: true, showAds: false, useReal: false, reserved: false });
+  });
+});
+
+describe("useAdsState Global Privacy Control", () => {
+  const setGpc = (value: boolean) =>
+    Object.defineProperty(window.navigator, "globalPrivacyControl", {
+      configurable: true,
+      value,
+    });
+
+  afterEach(() => {
+    delete (window.navigator as { globalPrivacyControl?: boolean }).globalPrivacyControl;
+  });
+
+  it("keeps ads hidden with GPC where the policy does not scope marketing", () => {
+    setGpc(true);
+    consent.policyCategories = ["necessary", "measurement"];
+
+    const { result } = renderHook(() => useAdsState());
+
+    expect(result.current).toEqual({ resolved: true, showAds: false, useReal: false, reserved: false });
+  });
+
+  it("keeps ads hidden with GPC even when marketing consent was given", () => {
+    setGpc(true);
+    consent.policyCategories = ["necessary", "marketing"];
+    consent.has = (name) => name === "marketing";
 
     const { result } = renderHook(() => useAdsState());
 

@@ -31,16 +31,18 @@ const useAdsState = (): AdsState => {
   // In production a slot renders only after marketing consent, unless the active
   // policy does not ask for it. Development still shows the placeholder without
   // a consent choice, so the layout can be checked.
+  const gpc = (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true;
   const marketingOutOfScope =
     policyCategories !== null && !policyCategories.includes("marketing");
-  const marketingConsent = marketingOutOfScope || has("marketing");
+  const marketingConsent = !gpc && (marketingOutOfScope || has("marketing"));
+  const adsPermitted = IS_DEV ? !gpc : marketingConsent;
 
   // Only show ads once the current page has rendered real content, so ads never
   // appear on loading, error, or content-less screens (AdSense policy).
   const showAds =
-    ADS_ENABLED && !isPrerender && appVisible && isFree && contentReady && (IS_DEV || marketingConsent);
+    ADS_ENABLED && !isPrerender && appVisible && isFree && contentReady && adsPermitted;
   const useReal = showAds && !IS_DEV;
-  const reserved = ADS_ENABLED && !isPrerender && appVisible && isPremium !== true && (IS_DEV || marketingConsent);
+  const reserved = ADS_ENABLED && !isPrerender && appVisible && isPremium !== true && adsPermitted;
 
   return { resolved, showAds, useReal, reserved };
 };

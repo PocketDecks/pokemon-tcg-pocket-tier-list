@@ -30,7 +30,8 @@ const startServer = (distDir, templateHtml) =>
     const server = http.createServer((req, res) => {
       const urlPath = decodeURIComponent(new URL(req.url, ORIGIN).pathname);
       let filePath = path.join(distDir, urlPath);
-      if (!filePath.startsWith(distDir)) {
+      const relative = path.relative(distDir, filePath);
+      if (relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
         res.writeHead(403);
         return res.end();
       }
@@ -42,7 +43,9 @@ const startServer = (distDir, templateHtml) =>
         "Content-Type": MIME[ext] || "application/octet-stream",
       });
       if (path.basename(filePath) === "index.html") return res.end(templateHtml);
-      fs.createReadStream(filePath).pipe(res);
+      fs.createReadStream(filePath)
+        .on("error", () => res.end())
+        .pipe(res);
     });
     server.listen(PORT, "127.0.0.1", () => resolve(server));
   });

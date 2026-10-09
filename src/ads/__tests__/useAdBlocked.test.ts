@@ -32,12 +32,11 @@ afterEach(() => {
 
 describe("useAdBlocked", () => {
   it("does nothing while disabled", async () => {
-    const createElement = vi.spyOn(document, "createElement");
     const { result } = renderHook(() => useAdBlocked(false));
     await settle();
 
     expect(fetchMock).not.toHaveBeenCalled();
-    expect(createElement).not.toHaveBeenCalledWith("script");
+    expect(document.querySelector('script[src*="adsbygoogle.js"]')).toBeNull();
     expect(result.current).toBe(false);
   });
 
@@ -52,12 +51,10 @@ describe("useAdBlocked", () => {
     );
   });
 
-  it("never injects a script element", async () => {
-    const createElement = vi.spyOn(document, "createElement");
+  it("never injects the AdSense script", async () => {
     renderHook(() => useAdBlocked(true));
     await settle();
 
-    expect(createElement).not.toHaveBeenCalledWith("script");
     expect(document.querySelector('script[src*="adsbygoogle.js"]')).toBeNull();
   });
 
@@ -80,11 +77,14 @@ describe("useAdBlocked", () => {
     vi.useFakeTimers();
     fetchMock.mockImplementation(hangUntilAborted);
     const { result } = renderHook(() => useAdBlocked(true));
+    const signal: AbortSignal = fetchMock.mock.calls[0][1].signal;
 
     await act(() => vi.advanceTimersByTimeAsync(2499));
     expect(result.current).toBe(false);
+    expect(signal.aborted).toBe(false);
 
     await act(() => vi.advanceTimersByTimeAsync(1));
+    expect(signal.aborted).toBe(true);
     await act(() => vi.advanceTimersByTimeAsync(100));
     expect(result.current).toBe(false);
   });

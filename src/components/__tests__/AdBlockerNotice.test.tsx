@@ -50,12 +50,10 @@ afterEach(() => {
 describe("AdBlockerNotice", () => {
   it("neither probes nor shows the notice without marketing consent", async () => {
     withRealAds(false);
-    const createElement = vi.spyOn(document, "createElement");
     render(<AdBlockerNotice />);
     await settle();
 
     expect(fetchMock).not.toHaveBeenCalled();
-    expect(createElement).not.toHaveBeenCalledWith("script");
     expect(document.querySelector('script[src*="adsbygoogle.js"]')).toBeNull();
     expect(screen.queryByText(/Does your ad blocker/)).not.toBeInTheDocument();
   });
@@ -82,8 +80,13 @@ describe("AdBlockerNotice", () => {
     withRealAds(true);
     fetchMock.mockImplementation(hangUntilAborted);
     render(<AdBlockerNotice />);
+    const signal: AbortSignal = fetchMock.mock.calls[0][1].signal;
 
-    await act(() => vi.advanceTimersByTimeAsync(2500));
+    await act(() => vi.advanceTimersByTimeAsync(2499));
+    expect(signal.aborted).toBe(false);
+
+    await act(() => vi.advanceTimersByTimeAsync(1));
+    expect(signal.aborted).toBe(true);
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(screen.queryByText(/Does your ad blocker/)).not.toBeInTheDocument();

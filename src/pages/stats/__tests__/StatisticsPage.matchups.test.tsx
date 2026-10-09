@@ -4,7 +4,7 @@ import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import StatisticsPage from "../StatisticsPage";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
-import { useMarkContentReady } from "../../../ads/ContentReadyContext";
+import { ContentReadyProvider } from "../../../ads/ContentReadyContext";
 
 const { useDecks, useMatchups, usePipelineTrends } = vi.hoisted(() => ({
   useDecks: vi.fn(),
@@ -22,7 +22,6 @@ vi.mock("../TrendChart", () => ({ __esModule: true, default: () => null }));
 vi.mock("../../../components/PageTitle", () => ({ __esModule: true, default: ({ children }: { children: React.ReactNode }) => <h1>{children}</h1> }));
 vi.mock("../../../components/NavIcon", () => ({ __esModule: true, default: () => null }));
 vi.mock("../../../components/DeckArt", () => ({ __esModule: true, default: () => null }));
-vi.mock("../../../ads/ContentReadyContext", () => ({ useMarkContentReady: vi.fn() }));
 vi.mock("../../../app/use-expansions", () => ({ latestExpansionName: () => "" }));
 
 const decks = [{ id: "test-deck", name: "test-deck", powerScore: 80, lists: [], iconPrimary: null }];
@@ -30,7 +29,9 @@ const decks = [{ id: "test-deck", name: "test-deck", powerScore: 80, lists: [], 
 const renderStatistics = () => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
     <ThemeProvider>
-      <MemoryRouter><StatisticsPage /></MemoryRouter>
+      <ContentReadyProvider>
+        <MemoryRouter><StatisticsPage /></MemoryRouter>
+      </ContentReadyProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );
@@ -38,6 +39,7 @@ const renderStatistics = () => render(
 describe("StatisticsPage matchups", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    delete document.documentElement.dataset.routeReady;
     Object.defineProperty(window, "matchMedia", {
       writable: true,
       value: () => ({
@@ -50,24 +52,24 @@ describe("StatisticsPage matchups", () => {
     usePipelineTrends.mockReturnValue({ rows: [], isLoading: false, failed: false });
   });
 
-  it("holds the content-ready signal until the trend data has loaded", () => {
+  it("holds the route-ready attribute until the trend data has loaded", () => {
     useMatchups.mockReturnValue({ matchupsByName: {}, loading: false, error: null });
     usePipelineTrends.mockReturnValue({ rows: [], isLoading: true, failed: false });
     renderStatistics();
-    expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(false);
+    expect(document.documentElement.dataset.routeReady).toBeUndefined();
   });
 
-  it("marks the page ready once the trend data has loaded", () => {
+  it("sets the route-ready attribute once the trend data has loaded", () => {
     useMatchups.mockReturnValue({ matchupsByName: {}, loading: false, error: null });
     renderStatistics();
-    expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(true);
+    expect(document.documentElement.dataset.routeReady).toBe("/");
   });
 
-  it("marks the page ready when the trend data fails", () => {
+  it("sets the route-ready attribute when the trend data fails", () => {
     useMatchups.mockReturnValue({ matchupsByName: {}, loading: false, error: null });
     usePipelineTrends.mockReturnValue({ rows: [], isLoading: false, failed: true });
     renderStatistics();
-    expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(true);
+    expect(document.documentElement.dataset.routeReady).toBe("/");
   });
 
   it("shows a loading placeholder while matchup data loads", () => {

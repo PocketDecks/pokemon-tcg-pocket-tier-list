@@ -99,6 +99,15 @@ describe("ConsentProvider presentation", () => {
     expect(dialogLink).toHaveTextContent(baseTranslations.en.legalLinks.privacyPolicy);
   });
 
+  it("offers marketing in the dialog for visitors in Europe", async () => {
+    document.cookie = "pd_geo=DE-";
+    const user = userEvent.setup();
+    await renderWithLanguage("en", null);
+
+    const dialog = await openDialog(user);
+    expect(dialog).toHaveTextContent(baseTranslations.en.consentTypes.marketing.title);
+  });
+
   it("shows no c15t branding in the dialog or the banner", async () => {
     vi.stubEnv("DEV", false);
     const user = userEvent.setup();

@@ -18,23 +18,20 @@ export interface AdsState {
 // Single source of truth for ad gating. Nothing renders unless ADS_ENABLED is
 // on; beyond that, ads are hidden for Premium users (ad-free is a Premium
 // benefit) and never rendered until premium status is known. Real ads also
-// require marketing consent, unless the active policy does not ask for it.
-// Development shows placeholders in place of real AdSense units.
+// require marketing consent. Development shows placeholders in place of real
+// AdSense units.
 const useAdsState = (): AdsState => {
   const isPremium = useIsPremium();
   const contentReady = useContentReady();
   const appVisible = useAppVisible();
-  const { has, policyCategories } = useConsentManager();
+  const { has } = useConsentManager();
   const resolved = isPremium !== null;
   const isFree = resolved && !isPremium;
 
-  // In production a slot renders only after marketing consent, unless the active
-  // policy does not ask for it. Development still shows the placeholder without
-  // a consent choice, so the layout can be checked.
+  // In production a slot renders only after marketing consent. Development still
+  // shows the placeholder without a consent choice, so the layout can be checked.
   const gpc = (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true;
-  const marketingOutOfScope =
-    policyCategories !== null && !policyCategories.includes("marketing");
-  const marketingConsent = !gpc && (marketingOutOfScope || has("marketing"));
+  const marketingConsent = !gpc && has("marketing");
   const adsPermitted = IS_DEV ? !gpc : marketingConsent;
 
   // Only show ads once the current page has rendered real content, so ads never

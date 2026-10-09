@@ -10,7 +10,7 @@ const europe = {
   },
   consent: {
     ...europeOptIn.consent,
-    categories: ["necessary", "measurement"],
+    categories: ["necessary", "measurement", "marketing"],
     scopeMode: "strict",
   },
 };

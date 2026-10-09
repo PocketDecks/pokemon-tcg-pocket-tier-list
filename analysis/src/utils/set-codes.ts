@@ -1,18 +1,18 @@
 // The single set-code enumeration behind the pairing key contract. Both sides
 // of the language boundary fold a raw set code into one canonical form, so a
-// pairing key is always "Name SET N" with SET one of the closed 23-value list.
+// pairing key is always "Name SET N" with SET one of the closed 24-value list.
 // Promo and variant-letter casing collapse here so the scraper and the
 // matcher cannot drift apart.
 
-// Set codes in the current standard format, oldest to newest. PA/PB are promo pools and A4b a reprint set whose cards fold onto an earlier printing.
+// Set codes in the current standard format, oldest to newest. PA/PB are promo pools and A4b and B4b are reprint sets whose cards fold onto an earlier printing.
 export const STANDARD_SET_CODES = [
   "A1", "A1a", "A2", "A2a", "A2b", "A3", "A3a", "A3b",
   "A4", "A4a", "B1", "B1a", "B2", "B2a", "B2b", "B3",
   "B3a", "B3b", "B4", "B4a",
 ] as const;
 
-// Set codes outside the standard format (promo pools and the A4b reprint).
-export const NON_STANDARD_SET_CODES = ["PA", "PB", "A4b"] as const;
+// Set codes outside the standard format (promo pools and the A4b and B4b reprints).
+export const NON_STANDARD_SET_CODES = ["PA", "PB", "A4b", "B4b"] as const;
 
 // Every set code, standard and non-standard.
 export const SET_CODES: readonly string[] = [

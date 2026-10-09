@@ -33,7 +33,7 @@ export interface DeckListingStore {
 // Scrape order: standard sets oldest to newest. Only these have a Limitless
 // tournament page, so only these are ever fetched.
 //
-// PA, PB and A4b have no deck page of their own. Scraping them fetched
+// PA, PB, A4b and B4b have no deck page of their own. Scraping them fetched
 // whatever a missing page returns and filed it under three set keys, so one
 // body was committed as four separate snapshots and the promo pools carried
 // hundreds of archetype rows that belong to no promo set. A snapshot is only

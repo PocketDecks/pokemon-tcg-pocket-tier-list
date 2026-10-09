@@ -1,8 +1,29 @@
-import { cardKey } from "../utils/set-codes";
+import coreCards from "pokemon-tcg-pocket-cards/data/v5/cards.core.no-image.json";
+import { canonSet, cardKey, STANDARD_SET_CODES } from "../utils/set-codes";
 import { resolveSlug, slugTokens } from "../utils/slug-cards";
 
 const keys = (slug: string): string[] =>
   resolveSlug(slug).map((c) => cardKey(c.name, c.set, c.number));
+
+type CoreCard = {
+  id: string;
+  name: string;
+  set_code: string;
+  deckBuilderNr?: number;
+};
+const core = coreCards as CoreCard[];
+const standardCodes = new Set(
+  STANDARD_SET_CODES.map((code) => code.toLowerCase())
+);
+const b4bCards = core.filter((card) => card.set_code === "b4b");
+const b4bVenusaur = b4bCards.find((card) => card.name === "Mega Venusaur ex");
+const venusaurBase = b4bVenusaur
+  ? core.find(
+      (card) =>
+        standardCodes.has(card.set_code) &&
+        card.deckBuilderNr === b4bVenusaur.deckBuilderNr
+    )
+  : undefined;
 
 describe("slugTokens", () => {
   it("splits a two-card slug into name/set pairs", () => {
@@ -40,6 +61,18 @@ describe("resolveSlug", () => {
     // A4b is a deluxe reprint set, so its listings must not span an extra row.
     expect(keys("palkia-ex-a4b")).toEqual(["Palkia ex A2 49"]);
   });
+
+  it.skipIf(b4bCards.length === 0)(
+    "folds reprint-set (B4b) cards onto the earliest earlier printing",
+    () => {
+      expect(b4bVenusaur).toBeDefined();
+      expect(venusaurBase).toBeDefined();
+      const base = venusaurBase!;
+      const number = String(Number(base.id.split("-").pop()));
+      const expected = cardKey(base.name, canonSet(base.set_code), number);
+      expect(keys("mega-venusaur-ex-b4b")).toEqual([expected]);
+    }
+  );
 
   it("expands the rockets spelling to the apostrophe card name", () => {
     expect(keys("team-rockets-mewtwo-ex-b3")).toEqual([

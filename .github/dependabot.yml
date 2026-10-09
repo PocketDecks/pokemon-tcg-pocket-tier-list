@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directories:
+      - "/"
+      - "/analysis"
+    schedule:
+      interval: "daily"
+    allow:
+      - dependency-name: "pokemon-tcg-pocket-cards"
+    groups:
+      card-data:
+        patterns:
+          - "pokemon-tcg-pocket-cards"
+        group-by: "dependency-name"
+    commit-message:
+      prefix: "build(deps)"
+    labels:
+      - "automated"
+    open-pull-requests-limit: 1

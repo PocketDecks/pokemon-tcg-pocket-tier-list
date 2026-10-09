@@ -154,6 +154,19 @@ test("takes the first card of the highest-scoring list, keeping the first on a t
   );
 });
 
+test("skips higher-scoring lists without cards", () => {
+  assert.strictEqual(
+    firstBestListCardId({
+      lists: [
+        { score: 0.9, cards: [] },
+        { score: 0.7, cards: ["2:b1-184"] },
+      ],
+    }),
+    "b1-184"
+  );
+  assert.strictEqual(firstBestListCardId({ lists: [{ score: 0.9, cards: [] }] }), null);
+});
+
 test("regenerates full-card thumbnails at their widths and reports the missing ones", async () => {
   const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "deck-card-thumbs-"));
   try {

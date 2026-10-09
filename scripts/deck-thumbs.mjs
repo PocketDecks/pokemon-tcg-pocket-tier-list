@@ -58,6 +58,7 @@ export const deckListCardIds = (decks) => {
 };
 
 export const firstBestListCardId = (deck) => {
+  if (!deck.lists?.length) return null;
   const best = deck.lists.reduce((top, list) => (list.score > top.score ? list : top));
-  return deckListCardId(best.cards[0]);
+  return best.cards.length > 0 ? deckListCardId(best.cards[0]) : null;
 };

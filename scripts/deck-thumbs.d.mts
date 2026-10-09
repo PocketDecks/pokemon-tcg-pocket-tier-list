@@ -22,4 +22,4 @@ export const cardThumbUrl: (cardId: string, width: number) => string;
 export const cardThumbSrcSet: (cardId: string) => string;
 export const DECK_CARD_SIZES: string;
 export const deckListCardIds: (decks: { lists?: { cards: string[] }[] }[]) => string[];
-export const firstBestListCardId: (deck: { lists: { score: number; cards: string[] }[] }) => string;
+export const firstBestListCardId: (deck: { lists?: { score: number; cards: string[] }[] }) => string | null;

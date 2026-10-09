@@ -112,7 +112,9 @@ const main = async () => {
     process.exit(1);
   }
   const template = readTemplate(fs.readFileSync(path.join(BUILD_DIR, "index.html"), "utf8"));
-  const jobs = JSON.parse(fs.readFileSync(DATA_FILE, "utf8")).map(deckJob);
+  const jobs = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"))
+    .map(deckJob)
+    .filter((job) => job.cardId !== null);
 
   const server = await startServer(BUILD_DIR, template.html);
   const browser = await launchBrowser();

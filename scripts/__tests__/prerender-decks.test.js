@@ -71,3 +71,26 @@ test("renders a high-priority preload for the first card, matching its sizes", (
   assert.ok(preloads[0].includes('imagesizes="(max-width: 900px) calc(50vw - 36px), 240px"'));
   assert.ok(preloads[0].includes('fetchpriority="high"'));
 });
+
+test("keeps the captured deck list and replaces the captured canonical with the deck's own", () => {
+  const captured =
+    '<!doctype html><html><head><link rel="canonical" href="https://pocketdecks.top/">' +
+    "<title>Deck</title></head>" +
+    '<body><div id="root"><main>Deck list</main></div></body></html>';
+  const html = renderDeckHtml(
+    {
+      slug: "mega-altaria-ex-b1-102&espeon-b3a-020",
+      title: "Mega Altaria ex | Pokémon TCG Pocket Deck Stats and Matchups",
+      ogImage: "https://pocketdecks.top/og/deck/x.png",
+      ogUrl: "https://pocketdecks.top/deck/x",
+      description: "deck profile",
+      cardId: "b1-184",
+    },
+    captured
+  );
+  assert.ok(html.includes('<div id="root"><main>Deck list</main></div>'));
+  const canonicals = html.match(/<link[^>]+rel="canonical"[^>]*>/g) ?? [];
+  assert.deepStrictEqual(canonicals, [
+    '<link rel="canonical" href="https://pocketdecks.top/deck/mega-altaria-ex-b1-102&amp;espeon-b3a-020/">',
+  ]);
+});

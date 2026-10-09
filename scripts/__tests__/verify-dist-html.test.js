@@ -5,15 +5,17 @@ const os = require("node:os");
 const path = require("node:path");
 const {
   findBakedAppState,
+  findDeckCanonicalIssues,
   findDeckImagePreloadIssues,
+  findEmptyDeckRoots,
   findEmptyStyledTags,
   findExternalScripts,
   findLoopbackRefs,
   findMissingCardThumbs,
   findMissingDeckThumbs,
+  findUncapturedDeckStyles,
   loadDecks,
   findModulepreloadDrift,
-  findNonEmptyDeckRoots,
 } = require("../verify-dist-html");
 
 const makeDist = (files) => {
@@ -47,20 +49,63 @@ test("passes clean output untouched", () => {
   assert.deepStrictEqual(findLoopbackRefs(dir), []);
 });
 
-test("passes deck pages with empty roots", () => {
+test("passes deck pages with prerendered roots", () => {
   const dir = makeDist({
-    "deck/index.html": '<div id="root"><main>Finder</main></div>',
-    "deck/x/index.html": '<div id="root"></div>',
+    "deck/index.html": '<div id="root"></div>',
+    "deck/x/index.html": '<div id="root"><main>Deck list</main></div>',
   });
-  assert.deepStrictEqual(findNonEmptyDeckRoots(dir), []);
+  assert.deepStrictEqual(findEmptyDeckRoots(dir), []);
 });
 
-test("flags deck pages with non-empty roots", () => {
+test("flags deck pages with empty roots", () => {
   const dir = makeDist({
-    "deck/x/index.html": '<div id="root"><main>Home page</main></div>',
+    "deck/x/index.html": '<div id="root"></div>',
   });
-  assert.deepStrictEqual(findNonEmptyDeckRoots(dir), [
+  assert.deepStrictEqual(findEmptyDeckRoots(dir), [
     path.join("deck", "x", "index.html"),
+  ]);
+});
+
+test("flags deck pages without captured styled-components CSS", () => {
+  const dir = makeDist({
+    "deck/x/index.html": '<div id="root"><main>Deck list</main></div>',
+    "deck/y/index.html": '<style data-styled="active"></style><div id="root"><main>Deck</main></div>',
+    "deck/z/index.html": '<style data-styled="active">.a{color:red}</style><div id="root"><main>Deck</main></div>',
+  });
+  assert.deepStrictEqual(findUncapturedDeckStyles(dir), [
+    path.join("deck", "x", "index.html"),
+    path.join("deck", "y", "index.html"),
+  ]);
+});
+
+test("passes a deck page with exactly one canonical of its own", () => {
+  const dir = makeDist({
+    "deck/x/index.html": '<link rel="canonical" href="https://pocketdecks.top/deck/x/">',
+    "deck/a&b/index.html": '<link rel="canonical" href="https://pocketdecks.top/deck/a&amp;b/">',
+    "deck/team-rocket's/index.html": '<link rel="canonical" href="https://pocketdecks.top/deck/team-rocket&apos;s/">',
+  });
+  assert.deepStrictEqual(findDeckCanonicalIssues(dir), []);
+});
+
+test("flags a deck page with no canonical or a second one", () => {
+  const dir = makeDist({
+    "deck/x/index.html": "<head></head>",
+    "deck/y/index.html":
+      '<link rel="canonical" href="https://pocketdecks.top/deck/y/">' +
+      '<link rel="canonical" href="https://pocketdecks.top/">',
+  });
+  assert.deepStrictEqual(findDeckCanonicalIssues(dir), [
+    `${path.join("deck", "x", "index.html")}: expected 1 canonical, found 0`,
+    `${path.join("deck", "y", "index.html")}: expected 1 canonical, found 2`,
+  ]);
+});
+
+test("flags a deck page whose canonical is not its own", () => {
+  const dir = makeDist({
+    "deck/x/index.html": '<link rel="canonical" href="https://pocketdecks.top/">',
+  });
+  assert.deepStrictEqual(findDeckCanonicalIssues(dir), [
+    `${path.join("deck", "x", "index.html")}: canonical https://pocketdecks.top/ is not https://pocketdecks.top/deck/x/`,
   ]);
 });
 

@@ -30,9 +30,13 @@ test("removes runtime theme state before prerender capture", () => {
     },
     getAttribute: () => meta.content,
   };
+  const classes = new Set(["c15t-dark", "app-shell"]);
   global.document = {
     documentElement: {
       dataset: { theme: "light" },
+      classList: {
+        remove: (...names) => names.forEach((name) => classes.delete(name)),
+      },
       style: {
         colorScheme: "light",
         removeProperty: (name) => {
@@ -49,6 +53,7 @@ test("removes runtime theme state before prerender capture", () => {
   resetPrerenderTheme("#121210");
 
   assert.strictEqual(document.documentElement.dataset.theme, undefined);
+  assert.deepStrictEqual([...classes], ["app-shell"]);
   assert.strictEqual(document.documentElement.style.colorScheme, "");
   assert.strictEqual(document.querySelector().getAttribute("content"), "#121210");
   delete global.document;

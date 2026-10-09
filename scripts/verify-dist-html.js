@@ -53,22 +53,44 @@ const findBakedAppState = (dir = DIST_DIR) =>
     );
   });
 
-const findNonEmptyDeckRoots = (dir = DIST_DIR) => {
-  const deckDir = path.join(dir, "deck");
-  if (!fs.existsSync(deckDir)) return [];
-  return fs
-    .readdirSync(deckDir, { recursive: true, withFileTypes: true })
-    .filter((entry) => entry.isFile() && entry.name === "index.html")
-    .map((entry) => {
-      const file = path.join(entry.parentPath, entry.name);
-      const relativeFile = path.relative(deckDir, file);
-      if (relativeFile.split(path.sep).length !== 2) return null;
-      const html = fs.readFileSync(file, "utf8");
-      const root = html.match(/<div\b[^>]*id=["']root["'][^>]*>([\s\S]*?)<\/div>/i);
-      return root && root[1].trim() ? path.relative(dir, file) : null;
-    })
-    .filter(Boolean);
-};
+const EMPTY_ROOT = /<div\b[^>]*id=["']root["'][^>]*>\s*<\/div>/i;
+
+const findEmptyDeckRoots = (dir = DIST_DIR) =>
+  deckDetailFiles(dir)
+    .filter((file) => EMPTY_ROOT.test(fs.readFileSync(file, "utf8")))
+    .map((file) => path.relative(dir, file));
+
+const hasCapturedStyles = (html) =>
+  [...html.matchAll(/<style\b[^>]*data-styled[^>]*>([\s\S]*?)<\/style>/gi)].some(
+    (match) => match[1].trim() !== ""
+  );
+
+const findUncapturedDeckStyles = (dir = DIST_DIR) =>
+  deckDetailFiles(dir)
+    .filter((file) => !hasCapturedStyles(fs.readFileSync(file, "utf8")))
+    .map((file) => path.relative(dir, file));
+
+const CANONICAL_TAG = /<link\b[^>]*\brel=["']canonical["'][^>]*>/gi;
+
+const decodeXmlEntities = (value) =>
+  value
+    .replace(/&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
+
+const findDeckCanonicalIssues = (dir = DIST_DIR) =>
+  deckDetailFiles(dir).flatMap((file) => {
+    const entry = path.relative(dir, file);
+    const expected = `https://${SITE_HOST}/deck/${path.basename(path.dirname(file))}/`;
+    const tags = fs.readFileSync(file, "utf8").match(CANONICAL_TAG) ?? [];
+    if (tags.length !== 1) {
+      return [`${entry}: expected 1 canonical, found ${tags.length}`];
+    }
+    const href = decodeXmlEntities(tags[0].match(/\bhref=["']([^"']*)["']/i)?.[1] ?? "");
+    return href === expected ? [] : [`${entry}: canonical ${href} is not ${expected}`];
+  });
 
 const collectModulepreloads = (html) =>
   [...html.matchAll(/<link\b[^>]*>/gi)]
@@ -88,8 +110,8 @@ const deckDetailFiles = (dir = DIST_DIR) => {
     .sort();
 };
 
-// Deck detail pages are stamped from the built template without a JS render, so
-// they carry the template's preload set verbatim. Fall back to the home page.
+// Deck detail pages keep only the template's modulepreloads, as the routes do.
+// Fall back to the home page when there are no deck pages.
 const findTemplateModulepreloads = (dir = DIST_DIR) => {
   const detail = deckDetailFiles(dir);
   if (detail.length > 0) {
@@ -208,10 +230,24 @@ const main = () => {
     );
     process.exit(1);
   }
-  const nonEmptyDeckRoots = findNonEmptyDeckRoots();
-  if (nonEmptyDeckRoots.length > 0) {
+  const emptyDeckRoots = findEmptyDeckRoots();
+  if (emptyDeckRoots.length > 0) {
     console.error(
-      `Non-empty deck roots found in built HTML:\n${nonEmptyDeckRoots.join("\n")}`
+      `Empty deck roots found in built HTML:\n${emptyDeckRoots.join("\n")}`
+    );
+    process.exit(1);
+  }
+  const uncapturedDeckStyles = findUncapturedDeckStyles();
+  if (uncapturedDeckStyles.length > 0) {
+    console.error(
+      `Deck pages without captured styled-components CSS:\n${uncapturedDeckStyles.join("\n")}`
+    );
+    process.exit(1);
+  }
+  const deckCanonicalIssues = findDeckCanonicalIssues();
+  if (deckCanonicalIssues.length > 0) {
+    console.error(
+      `Deck pages without exactly one canonical of their own:\n${deckCanonicalIssues.join("\n")}`
     );
     process.exit(1);
   }
@@ -269,14 +305,16 @@ if (require.main === module) main();
 
 module.exports = {
   findBakedAppState,
+  findDeckCanonicalIssues,
   findDeckImagePreloadIssues,
+  findEmptyDeckRoots,
   findEmptyStyledTags,
   findExternalScripts,
   findLoopbackRefs,
   findMissingCardThumbs,
   findMissingDeckThumbs,
   findModulepreloadDrift,
+  findUncapturedDeckStyles,
   loadDecks,
-  findNonEmptyDeckRoots,
   findTemplateModulepreloads,
 };

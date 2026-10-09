@@ -6,18 +6,25 @@
 // unmaintained and cannot parse Vite's <script type="module"> markup.
 // Deck detail pages are stamped separately by prerender-decks.js.
 const fs = require("fs");
-const http = require("http");
 const path = require("path");
-const puppeteer = require("puppeteer");
 const { stampHead } = require("./meta-stamp");
+const {
+  captureDocument,
+  createPrerenderPage,
+  launchBrowser,
+  openDocument,
+  readTemplate,
+  resetPrerenderAppState,
+  resetPrerenderTheme,
+  startServer,
+  waitForRouteReady,
+} = require("./prerender-shared");
 
 const ROOT = path.join(__dirname, "..");
 // BUILD_DIR allows an alternative Vite output directory for this script.
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
   : path.join(ROOT, "dist");
-const PORT = 4173;
-const ORIGIN = `http://127.0.0.1:${PORT}`;
 const ROUTES = [
   "/",
   "/tier-list",
@@ -84,69 +91,9 @@ const ROUTE_READY_ROUTES = new Set(["/cards-list", "/statistics", "/deck"]);
 
 const captureAfterRouteReady = async (page, route, capture) => {
   if (ROUTE_READY_ROUTES.has(route)) {
-    await page.waitForFunction(
-      () => document.documentElement.dataset.routeReady === window.location.pathname,
-      { timeout: 20000 }
-    );
+    await waitForRouteReady(page);
   }
   return capture();
-};
-
-const MIME = {
-  ".html": "text/html",
-  ".js": "text/javascript",
-  ".css": "text/css",
-  ".json": "application/json",
-  ".webp": "image/webp",
-  ".png": "image/png",
-  ".svg": "image/svg+xml",
-  ".ico": "image/x-icon",
-  ".txt": "text/plain",
-  ".xml": "application/xml",
-  ".map": "application/json",
-  ".woff": "font/woff",
-  ".woff2": "font/woff2",
-};
-
-// Serves the output dir with SPA fallback so each client-side route boots at
-// its own URL and react-router sees the right location.
-const startServer = (templateHtml) =>
-  new Promise((resolve) => {
-    const server = http.createServer((req, res) => {
-      const urlPath = decodeURIComponent(new URL(req.url, ORIGIN).pathname);
-      let filePath = path.join(DIST_DIR, urlPath);
-      if (!filePath.startsWith(DIST_DIR)) {
-        res.writeHead(403);
-        return res.end();
-      }
-      if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
-        filePath = path.join(DIST_DIR, "index.html");
-      }
-      const ext = path.extname(filePath).toLowerCase();
-      res.writeHead(200, {
-        "Content-Type": MIME[ext] || "application/octet-stream",
-      });
-      if (path.basename(filePath) === "index.html") return res.end(templateHtml);
-      fs.createReadStream(filePath).pipe(res);
-    });
-    server.listen(PORT, "127.0.0.1", () => resolve(server));
-  });
-
-const resetPrerenderTheme = (originalThemeColor) => {
-  document.documentElement.removeAttribute("data-theme");
-  document.documentElement.style.removeProperty("color-scheme");
-  document.querySelector('meta[name="theme-color"]')?.setAttribute(
-    "content",
-    originalThemeColor
-  );
-};
-
-const resetPrerenderAppState = () => {
-  const root = document.documentElement;
-  root.removeAttribute("data-app-visible");
-  root.removeAttribute("data-consent-pending");
-  root.style.removeProperty("--ad-anchor-h");
-  root.style.removeProperty("--consent-banner-h");
 };
 
 const main = async () => {
@@ -155,41 +102,11 @@ const main = async () => {
     console.error(`No index.html in ${DIST_DIR}; run \`yarn build\` first.`);
     process.exit(1);
   }
-  const templateHtml = fs.readFileSync(indexPath, "utf8");
-  const templateThemeColor =
-    templateHtml.match(/<meta\s+name=["']theme-color["']\s+content=["']([^"']*)["']/i)?.[1] ?? "#121210";
-  const templatePreloads = [...templateHtml.matchAll(/<link\b[^>]*>/gi)]
-    .map((match) => match[0])
-    .filter((tag) => /rel=["']modulepreload["']/i.test(tag))
-    .map((tag) => (tag.match(/href=["']([^"']*)["']/i) || [])[1])
-    .filter((href) => href !== undefined);
-  const templateScripts = [
-    ...templateHtml.matchAll(/<script\b[^>]*\bsrc=["']([^"']*)["'][^>]*>/gi),
-  ].map((match) => match[1]);
-  const server = await startServer(templateHtml);
-  const browser = await puppeteer.launch({
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
-  const page = await browser.newPage();
-  await page.setUserAgent("prerender-routes");
+  const template = readTemplate(fs.readFileSync(indexPath, "utf8"));
+  const server = await startServer(DIST_DIR, template.html);
+  const browser = await launchBrowser();
   const pageErrors = [];
-
-  page.on("pageerror", (err) =>
-    pageErrors.push(`${page.url()}: ${err.message}`)
-  );
-
-  // Third-party traffic (ads, Firebase, fonts) must neither hang the render
-  // nor leak into the snapshot; this mirrors react-snap's
-  // skipThirdPartyRequests. The external card DB is exempt: DecksContext gates
-  // rendering on cardsLoading || decksLoading, so blocking it leaves every
-  // route captured as "Loading..." forever.
-  await page.setRequestInterception(true);
-  const CARD_DB_ORIGIN = "https://raw.githubusercontent.com/chase-mew/pokemon-tcg-pocket-cards";
-  page.on("request", (req) => {
-    const url = req.url();
-    if (url.startsWith(ORIGIN) || url.startsWith(CARD_DB_ORIGIN)) req.continue();
-    else req.abort();
-  });
+  const page = await createPrerenderPage(browser, pageErrors);
 
   // Only the tier list paints deck anchors; other routes render their own
   // content without them. Waiting there would burn the full timeout per route,
@@ -197,8 +114,7 @@ const main = async () => {
   // route's render ever regressed, so failure propagates instead.
   const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
   for (const route of ROUTES) {
-    await page.goto(`${ORIGIN}${route}`, { waitUntil: "networkidle0" });
-    await page.waitForSelector("#app-root > *, #root > *");
+    await openDocument(page, route);
     const html = await captureAfterRouteReady(page, route, async () => {
       if (DECK_ANCHOR_ROUTES.has(route)) {
         await page.waitForFunction(
@@ -206,38 +122,10 @@ const main = async () => {
           { timeout: 20000 }
         );
       }
-      await page.evaluate(() => {
-        document.querySelectorAll("style[data-styled]").forEach((el) => {
-          el.textContent = Array.from(el.sheet.cssRules, (rule) => rule.cssText).join("\n");
-        });
-      });
-      await page.evaluate(
-        (preloads, scripts) => {
-          const allowedPreloads = new Set(preloads);
-          const allowedScripts = new Set(scripts);
-          document.querySelectorAll('link[rel="modulepreload"]').forEach((el) => {
-            if (!allowedPreloads.has(el.getAttribute("href"))) el.remove();
-          });
-          document.querySelectorAll("script[src]").forEach((el) => {
-            if (!allowedScripts.has(el.getAttribute("src"))) el.remove();
-          });
-        },
-        templatePreloads,
-        templateScripts
-      );
-      await page.evaluate(resetPrerenderTheme, templateThemeColor);
-      await page.evaluate(resetPrerenderAppState);
-      return page.evaluate(
-        () => `<!doctype html>\n${document.documentElement.outerHTML}`
-      );
+      return captureDocument(page, template);
     });
-    // Vite stamps lazy-chunk hrefs with the preview origin while the page
-    // boots; captured markup must stay root-relative.
-    let stampedHtml = html.split(ORIGIN).join("");
     const meta = ROUTE_META[route];
-    if (meta) {
-      stampedHtml = stampHead(stampedHtml, meta);
-    }
+    const stampedHtml = meta ? stampHead(html, meta) : html;
     const outFile =
       route === "/"
         ? path.join(DIST_DIR, "index.html")

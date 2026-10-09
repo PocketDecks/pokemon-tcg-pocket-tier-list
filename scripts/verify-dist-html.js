@@ -237,7 +237,7 @@ const loadExpansions = () =>
 const EXPANSION_LIST_ENTRY = "expansion-list/index.html";
 
 const imageSrcs = (html) =>
-  [...html.matchAll(/<img\b[^>]*\bsrc=["']([^"']*)["']/gi)].map((match) => match[1]);
+  [...html.matchAll(/<img\b[^>]*\ssrc=["']([^"']*)["']/gi)].map((match) => match[1]);
 
 const findExpansionListIssues = (dir = DIST_DIR, list = loadExpansions()) => {
   const html = fs.readFileSync(path.join(dir, EXPANSION_LIST_ENTRY), "utf8");

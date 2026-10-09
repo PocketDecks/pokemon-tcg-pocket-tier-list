@@ -411,9 +411,13 @@ test("findExpansionListIssues needs the newest set and rejects deluxe packs", ()
   ];
   const good = makeDist({ "expansion-list/index.html": '<img src="https://example.test/packs/b4a-booster.webp">' });
   const missing = makeDist({ "expansion-list/index.html": "<div></div>" });
+  const dataSrc = makeDist({ "expansion-list/index.html": '<img data-src="https://example.test/packs/b4a-booster.webp">' });
   const deluxe = makeDist({ "expansion-list/index.html": '<img src="https://example.test/packs/b4a-booster.webp"><img src="https://example.test/packs/b4b-booster.webp">' });
   assert.deepEqual(findExpansionListIssues(good, list), []);
   assert.deepEqual(findExpansionListIssues(missing, list), [
+    "expansion-list/index.html: missing the newest set /packs/b4a-",
+  ]);
+  assert.deepEqual(findExpansionListIssues(dataSrc, list), [
     "expansion-list/index.html: missing the newest set /packs/b4a-",
   ]);
   assert.deepEqual(findExpansionListIssues(deluxe, list), [

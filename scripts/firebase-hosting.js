@@ -1,9 +1,3 @@
-// scripts/firebase-hosting.js
-//
-// Picks the response Firebase Hosting gives a request path: redirects first,
-// then static files (a directory's index.html, with a 301 to the trailing
-// slash), then rewrites, and finally the 404 page. Paths are matched against
-// the set of built files, so the rules can be tested without the emulator.
 const escapeRegExp = (value) => value.replace(/[.+?^${}()|[\]\\]/g, "\\$&");
 
 const sourceMatcher = (source) => {

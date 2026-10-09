@@ -92,11 +92,6 @@ const createPrerenderPage = async (target, pageErrors) => {
     pageErrors.push(`${page.url()}: ${err.message}`)
   );
 
-  // Third-party traffic (ads, Firebase, fonts) must neither hang the render
-  // nor leak into the snapshot; this mirrors react-snap's
-  // skipThirdPartyRequests. The external card DB is exempt: DecksContext gates
-  // rendering on cardsLoading || decksLoading, so blocking it leaves every
-  // route captured as "Loading..." forever.
   await page.setRequestInterception(true);
   page.on("request", (req) => {
     const url = req.url();
@@ -142,8 +137,6 @@ const captureDocument = async (page, template) => {
   const html = await page.evaluate(
     () => `<!doctype html>\n${document.documentElement.outerHTML}`
   );
-  // Vite stamps lazy-chunk hrefs with the preview origin while the page
-  // boots; captured markup must stay root-relative.
   return html.split(ORIGIN).join("");
 };
 

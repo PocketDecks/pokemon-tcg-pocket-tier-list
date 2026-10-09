@@ -42,7 +42,8 @@ export const consentTheme = (theme: ThemeName): UIOptions => {
     // c15t reads this to toggle the `c15t-dark` class on <html>, which is what
     // selects the dark token block. The app drives its own theme through
     // `data-theme`, not a `.dark` class, so the scheme has to be passed
-    // explicitly.
+    // explicitly; left undefined, c15t only watches for a `.dark` class that
+    // never appears and the banner would sit on the default light tokens.
     colorScheme: theme,
     theme: {
       colors,

@@ -55,13 +55,12 @@ const manropePreload = (): Plugin => {
   };
 };
 
-const consentPending = (): Plugin => {
-  let script: Promise<string> | undefined;
-  return {
-    name: "consent-pending",
-    transformIndexHtml() {
-      script ??= buildConsentPendingData().then(consentPendingScript);
-      return script.then((children) => [
+const consentPending = (): Plugin => ({
+  name: "consent-pending",
+  transformIndexHtml() {
+    return buildConsentPendingData()
+      .then(consentPendingScript)
+      .then((children) => [
         {
           tag: "script",
           injectTo: "head-prepend" as const,
@@ -69,9 +68,8 @@ const consentPending = (): Plugin => {
           children,
         },
       ]);
-    },
-  };
-};
+  },
+});
 
 export default defineConfig({
   plugins: [react(), manropePreload(), consentPending()],

@@ -117,44 +117,45 @@ const main = async () => {
   const server = await startServer(DIST_DIR, template.html);
   const browser = await launchBrowser();
   const pageErrors = [];
-  const page = await createPrerenderPage(browser, pageErrors);
+  try {
+    const page = await createPrerenderPage(browser, pageErrors);
 
-  // Only the tier list paints deck anchors; other routes render their own
-  // content without them. Waiting there would burn the full timeout per route,
-  // and letting it fail silently would ship a "Loading..." snapshot if this
-  // route's render ever regressed, so failure propagates instead.
-  const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
-  for (const route of ROUTES) {
-    await openDocument(page, route);
-    const html = await captureAfterRouteReady(page, route, async () => {
-      if (DECK_ANCHOR_ROUTES.has(route)) {
-        await page.waitForFunction(
-          () => document.querySelectorAll('a[href^="/deck/"]').length > 10,
-          { timeout: 20000 }
-        );
-      }
-      return captureDocument(page, template);
-    });
-    const meta = ROUTE_META[route];
-    const stampedHtml = meta ? stampHead(html, meta) : html;
-    const outFile =
-      route === "/"
-        ? path.join(DIST_DIR, "index.html")
-        : path.join(DIST_DIR, route.slice(1), "index.html");
-    fs.mkdirSync(path.dirname(outFile), { recursive: true });
-    fs.writeFileSync(outFile, stampedHtml);
-    console.log(`Prerendered ${route}`);
+    // Only the tier list paints deck anchors; other routes render their own
+    // content without them. Waiting there would burn the full timeout per route,
+    // and letting it fail silently would ship a "Loading..." snapshot if this
+    // route's render ever regressed, so failure propagates instead.
+    const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
+    for (const route of ROUTES) {
+      await openDocument(page, route);
+      const html = await captureAfterRouteReady(page, route, async () => {
+        if (DECK_ANCHOR_ROUTES.has(route)) {
+          await page.waitForFunction(
+            () => document.querySelectorAll('a[href^="/deck/"]').length > 10,
+            { timeout: 20000 }
+          );
+        }
+        return captureDocument(page, template);
+      });
+      const meta = ROUTE_META[route];
+      const stampedHtml = meta ? stampHead(html, meta) : html;
+      const outFile =
+        route === "/"
+          ? path.join(DIST_DIR, "index.html")
+          : path.join(DIST_DIR, route.slice(1), "index.html");
+      fs.mkdirSync(path.dirname(outFile), { recursive: true });
+      fs.writeFileSync(outFile, stampedHtml);
+      console.log(`Prerendered ${route}`);
+    }
+
+    await openDocument(page, NOT_FOUND_ROUTE);
+    const notFoundHtml = await captureDocument(page, template);
+    fs.writeFileSync(
+      path.join(DIST_DIR, "404.html"),
+      stampHead(notFoundHtml, NOT_FOUND_META)
+    );
+  } finally {
+    await browser.close().finally(() => server.close());
   }
-
-  await openDocument(page, NOT_FOUND_ROUTE);
-  const notFoundHtml = await captureDocument(page, template);
-  fs.writeFileSync(
-    path.join(DIST_DIR, "404.html"),
-    stampHead(notFoundHtml, NOT_FOUND_META)
-  );
-
-  await browser.close();
-  server.close();
 
   if (pageErrors.length > 0) {
     console.error(`Page errors during prerender:\n${pageErrors.join("\n")}`);

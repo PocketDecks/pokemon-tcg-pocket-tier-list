@@ -105,8 +105,8 @@ const NotFoundPage = () => {
         </Message>
         {retiredDeck ? (
           <Actions>
-            <HomeLink to="/tier-list/">{t("notFound.backToTierList")}</HomeLink>
-            <HomeLink to="/deck/">{t("notFound.browseDecks")}</HomeLink>
+            <HomeLink to="/tier-list">{t("notFound.backToTierList")}</HomeLink>
+            <HomeLink to="/deck">{t("notFound.browseDecks")}</HomeLink>
           </Actions>
         ) : (
           <HomeLink to="/tier-list">{t("notFound.backToTierList")}</HomeLink>

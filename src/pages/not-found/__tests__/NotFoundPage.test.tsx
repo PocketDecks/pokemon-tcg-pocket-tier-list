@@ -33,9 +33,9 @@ describe("NotFoundPage", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Back to the tier list" })
-    ).toHaveAttribute("href", "/tier-list/");
+    ).toHaveAttribute("href", "/tier-list");
     expect(
       screen.getByRole("link", { name: "Browse all decks" })
-    ).toHaveAttribute("href", "/deck/");
+    ).toHaveAttribute("href", "/deck");
   });
 });

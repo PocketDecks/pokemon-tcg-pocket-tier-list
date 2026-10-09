@@ -80,3 +80,10 @@ test("hashes only executable inline scripts", () => {
   );
   assert.deepStrictEqual(inlineScriptHashes(html), expected);
 });
+
+test("allows the AdSense traffic quality frames and scripts seen in the preview run", () => {
+  assert.ok(policy.get("frame-src").includes("https://*.adtrafficquality.google"));
+  assert.ok(policy.get("frame-src").includes("https://www.google.com"));
+  assert.ok(policy.get("script-src").includes("https://*.adtrafficquality.google"));
+  assert.ok(policy.get("connect-src").includes("https://*.adtrafficquality.google"));
+});

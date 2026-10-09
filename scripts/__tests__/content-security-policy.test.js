@@ -1,6 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert");
 const fs = require("node:fs");
+const { createHash } = require("node:crypto");
 const path = require("node:path");
 const { pathToFileURL } = require("node:url");
 const {
@@ -74,5 +75,8 @@ test("hashes only executable inline scripts", () => {
     "<script>window.a=1</script>",
     '<script type="module">window.b=2</script>',
   ].join("");
-  assert.strictEqual(inlineScriptHashes(html).length, 2);
+  const expected = ["window.a=1", "window.b=2"].map(
+    (body) => `'sha256-${createHash("sha256").update(body, "utf8").digest("base64")}'`
+  );
+  assert.deepStrictEqual(inlineScriptHashes(html), expected);
 });

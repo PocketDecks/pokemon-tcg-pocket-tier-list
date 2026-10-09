@@ -190,8 +190,6 @@ const deckDetailFiles = (dir = DIST_DIR) => {
     .sort();
 };
 
-// Deck detail pages keep only the template's modulepreloads, as the routes do.
-// Fall back to the home page when there are no deck pages.
 const findTemplateModulepreloads = (dir = DIST_DIR) => {
   const detail = deckDetailFiles(dir);
   if (detail.length > 0) {

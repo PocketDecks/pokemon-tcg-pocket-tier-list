@@ -1,34 +1,30 @@
 import styled from "styled-components";
+import type { ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
-import React from "react";
 import Dropdown from "./Dropdown";
 
-const Container = styled.div<{ $mobile: boolean }>`
+const Container = styled.div`
   position: relative;
   display: flex;
   align-items: center;
-
-  @media (max-width: 900px) {
-    display: ${(props) => (props.$mobile ? "flex" : "none")};
-  }
-
-  @media (min-width: 901px) {
-    display: ${(props) => (props.$mobile ? "none" : "flex")};
-  }
 `;
 
-const LanguageDropdown = styled(Dropdown)<{ $mobile: boolean }>`
+const LanguageDropdown = styled(Dropdown)`
   padding: 0.8rem 2.4rem 0.8rem 1.2rem;
   font-size: 1.4rem;
   background-position: right 0.8rem center;
 
-  ${(props) => props.$mobile && `
-    width: 9rem;
-    padding-inline: 0.8rem 2.8rem;
-    font-size: 1.3rem;
+  @media (max-width: 900px) {
+    min-height: 4.4rem;
+    padding: 0.8rem 3.2rem 0.8rem 1.4rem;
+    font-size: 1.6rem;
+    border-radius: 0.8rem;
     border-color: var(--line-strong);
-    background: var(--fill-hover);
-  `}
+
+    &:hover {
+      border-color: var(--line-strong);
+    }
+  }
 `;
 
 const languages = [
@@ -45,15 +41,14 @@ const languages = [
   { code: "zh-TW", name: "繁體中文" },
 ];
 
-const LanguageSwitcher = ({ mobile = false }: { mobile?: boolean }) => {
+const LanguageSwitcher = () => {
   const { i18n, t } = useTranslation();
 
   return (
-    <Container $mobile={mobile}>
+    <Container>
       <LanguageDropdown
-        $mobile={mobile}
         value={i18n.language}
-        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => i18n.changeLanguage(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLSelectElement>) => i18n.changeLanguage(e.target.value)}
         aria-label={t("a11y.selectLanguage", "Select language")}
       >
         {languages.map((lang) => (

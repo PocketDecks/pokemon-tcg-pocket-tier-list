@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import LanguageSwitcher from "../LanguageSwitcher";
 
 const changeLanguage = vi.fn();
@@ -11,9 +11,13 @@ vi.mock("react-i18next", () => ({
   }),
 }));
 
+beforeEach(() => {
+  changeLanguage.mockClear();
+});
+
 describe("LanguageSwitcher", () => {
-  it("renders the mobile selector with an accessible name and changes language", () => {
-    render(<LanguageSwitcher mobile />);
+  it("renders the desktop selector and changes language", () => {
+    render(<LanguageSwitcher />);
     const selector = screen.getByRole("combobox", { name: "Select language" });
 
     expect(selector).toHaveValue("en");

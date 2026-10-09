@@ -4,15 +4,17 @@ import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import StatisticsPage from "../StatisticsPage";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import { useMarkContentReady } from "../../../ads/ContentReadyContext";
 
-const { useDecks, useMatchups } = vi.hoisted(() => ({
+const { useDecks, useMatchups, usePipelineTrends } = vi.hoisted(() => ({
   useDecks: vi.fn(),
   useMatchups: vi.fn(),
+  usePipelineTrends: vi.fn(),
 }));
 
 vi.mock("../../../app/use-decks", () => ({ useDecks, useMatchups }));
 vi.mock("../../../app/use-is-premium", () => ({ __esModule: true, default: () => true }));
-vi.mock("../../../app/use-pipeline-trends", () => ({ __esModule: true, default: () => ({ rows: [], failed: false }) }));
+vi.mock("../../../app/use-pipeline-trends", () => ({ __esModule: true, default: usePipelineTrends }));
 vi.mock("../../../app/cards-api", () => ({ fetchCards: vi.fn().mockResolvedValue({ cards: [] }) }));
 vi.mock("../../../ads/AdInContent", () => ({ __esModule: true, default: () => null }));
 vi.mock("../../../components/SeoContent", () => ({ __esModule: true, default: ({ children }: { children: React.ReactNode }) => <>{children}</> }));
@@ -45,6 +47,20 @@ describe("StatisticsPage matchups", () => {
       }),
     });
     useDecks.mockReturnValue({ decks, metaShare: { decks: [] }, loading: false, error: null });
+    usePipelineTrends.mockReturnValue({ rows: [], isLoading: false, failed: false });
+  });
+
+  it("holds the content-ready signal until the trend data has loaded", () => {
+    useMatchups.mockReturnValue({ matchupsByName: {}, loading: false, error: null });
+    usePipelineTrends.mockReturnValue({ rows: [], isLoading: true, failed: false });
+    renderStatistics();
+    expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(false);
+  });
+
+  it("marks the page ready once the trend data has loaded", () => {
+    useMatchups.mockReturnValue({ matchupsByName: {}, loading: false, error: null });
+    renderStatistics();
+    expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(true);
   });
 
   it("shows a loading placeholder while matchup data loads", () => {

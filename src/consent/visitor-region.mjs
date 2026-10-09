@@ -1,9 +1,9 @@
 import { timeZoneCountries } from "./time-zone-countries.mjs";
+import { REGION_COOKIE } from "./consent-pending-keys.mjs";
 
-const REGION_COOKIE = "pd_geo";
-const COUNTRY_PATTERN = /^[A-Z]{2}$/;
-const REGION_PATTERN = /^[A-Z0-9]{1,3}$/;
-const UNKNOWN_COUNTRIES = new Set(["XX", "T1"]);
+export const COUNTRY_PATTERN = /^[A-Z]{2}$/;
+export const REGION_PATTERN = /^[A-Z0-9]{1,3}$/;
+export const UNKNOWN_COUNTRIES = new Set(["XX", "T1"]);
 
 export const readRegionCookie = (cookie) => {
   const prefix = `${REGION_COOKIE}=`;

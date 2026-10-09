@@ -1,6 +1,6 @@
 import { OfflineClient } from "c15t";
 import { policyPacks } from "./policy-packs.mjs";
-import { regionFromTimeZone } from "./visitor-region.mjs";
+import { COUNTRY_PATTERN, REGION_PATTERN, UNKNOWN_COUNTRIES, regionFromTimeZone } from "./visitor-region.mjs";
 import { timeZoneCountries } from "./time-zone-countries.mjs";
 import { CONSENT_PENDING_ATTRIBUTE, CONSENT_STORAGE_KEY, REGION_COOKIE } from "./consent-pending-keys.mjs";
 
@@ -84,7 +84,7 @@ try{
 var entry=document.cookie.split(";").map(function(part){return part.trim()}).filter(function(part){return part.indexOf(${JSON.stringify(REGION_COOKIE + "=")})===0})[0];
 if(entry!==undefined){
 var parts=entry.slice(${REGION_COOKIE.length + 1}).split("-");
-if(parts.length===2&&/^[A-Z]{2}$/.test(parts[0])&&parts[0]!=="XX"&&parts[0]!=="T1"&&(parts[1]===""||/^[A-Z0-9]{1,3}$/.test(parts[1])))geo={country:parts[0],region:parts[1]}
+if(parts.length===2&&${COUNTRY_PATTERN}.test(parts[0])&&${JSON.stringify([...UNKNOWN_COUNTRIES])}.indexOf(parts[0])<0&&(parts[1]===""||${REGION_PATTERN}.test(parts[1])))geo={country:parts[0],region:parts[1]}
 }
 }catch(e){}
 var banner;

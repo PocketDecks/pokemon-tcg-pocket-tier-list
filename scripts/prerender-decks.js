@@ -134,9 +134,8 @@ const main = async () => {
       }
     });
   } finally {
-    await Promise.all(contexts.map((context) => context.close()));
-    await browser.close();
-    server.close();
+    await Promise.allSettled(contexts.map((context) => context.close()));
+    await browser.close().finally(() => server.close());
   }
 
   if (pageErrors.length > 0) {

@@ -117,11 +117,14 @@ const main = async () => {
   const server = await startServer(BUILD_DIR, template.html);
   const browser = await launchBrowser();
   const pageErrors = [];
+  const contexts = [];
   try {
     const pages = await Promise.all(
-      Array.from({ length: Math.min(DECK_CONCURRENCY, jobs.length) }, () =>
-        createPrerenderPage(browser, pageErrors)
-      )
+      Array.from({ length: Math.min(DECK_CONCURRENCY, jobs.length) }, async () => {
+        const context = await browser.createBrowserContext();
+        contexts.push(context);
+        return createPrerenderPage(context, pageErrors);
+      })
     );
     await mapWithConcurrency(jobs, pages.length, async (job, lane) => {
       try {
@@ -131,6 +134,7 @@ const main = async () => {
       }
     });
   } finally {
+    await Promise.all(contexts.map((context) => context.close()));
     await browser.close();
     server.close();
   }

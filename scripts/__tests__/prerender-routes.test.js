@@ -62,6 +62,7 @@ test("strips the live app state from the captured document", () => {
   const removed = [];
   global.document = {
     documentElement: {
+      dataset: { routeReady: "/statistics" },
       removeAttribute: (name) => removed.push(name),
       style: { removeProperty: (name) => removed.push(name) },
     },
@@ -70,6 +71,7 @@ test("strips the live app state from the captured document", () => {
   resetPrerenderAppState();
 
   assert.deepStrictEqual(removed, ["data-app-visible", "data-consent-pending", "--ad-anchor-h", "--consent-banner-h"]);
+  assert.strictEqual("routeReady" in document.documentElement.dataset, false);
   delete global.document;
 });
 test("captures data-backed routes after their pathname is ready", async () => {

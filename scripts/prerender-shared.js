@@ -73,6 +73,7 @@ const resetPrerenderTheme = (originalThemeColor) => {
 
 const resetPrerenderAppState = () => {
   const root = document.documentElement;
+  delete root.dataset.routeReady;
   root.removeAttribute("data-app-visible");
   root.removeAttribute("data-consent-pending");
   root.style.removeProperty("--ad-anchor-h");
@@ -84,8 +85,8 @@ const launchBrowser = () =>
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
-const createPrerenderPage = async (browser, pageErrors) => {
-  const page = await browser.newPage();
+const createPrerenderPage = async (target, pageErrors) => {
+  const page = await target.newPage();
   await page.setUserAgent(PRERENDER_USER_AGENT);
   page.on("pageerror", (err) =>
     pageErrors.push(`${page.url()}: ${err.message}`)

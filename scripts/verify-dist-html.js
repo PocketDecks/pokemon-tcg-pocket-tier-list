@@ -241,13 +241,16 @@ const imageSrcs = (html) =>
 
 const findExpansionListIssues = (dir = DIST_DIR, list = loadExpansions()) => {
   const html = fs.readFileSync(path.join(dir, EXPANSION_LIST_ENTRY), "utf8");
+  const sources = imageSrcs(html);
   const newest = newestExpansion(list);
   const issues = [];
-  if (newest && !html.includes(`/packs/${newest.id}-`)) {
+  if (!newest) {
+    issues.push(`${EXPANSION_LIST_ENTRY}: no eligible expansion`);
+  } else if (!sources.some((src) => src.includes(`/packs/${newest.id}-`))) {
     issues.push(`${EXPANSION_LIST_ENTRY}: missing the newest set /packs/${newest.id}-`);
   }
   for (const id of DELUXE_EXPANSION_IDS) {
-    if (imageSrcs(html).some((src) => src.includes(`/packs/${id}-`))) {
+    if (sources.some((src) => src.includes(`/packs/${id}-`))) {
       issues.push(`${EXPANSION_LIST_ENTRY}: deluxe pack /packs/${id}- is listed`);
     }
   }

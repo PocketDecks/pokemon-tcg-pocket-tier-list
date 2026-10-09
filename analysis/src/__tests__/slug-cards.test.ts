@@ -62,17 +62,15 @@ describe("resolveSlug", () => {
     expect(keys("palkia-ex-a4b")).toEqual(["Palkia ex A2 49"]);
   });
 
-  it.skipIf(b4bCards.length === 0)(
-    "folds reprint-set (B4b) cards onto the earliest earlier printing",
-    () => {
-      expect(b4bVenusaur).toBeDefined();
-      expect(venusaurBase).toBeDefined();
-      const base = venusaurBase!;
-      const number = String(Number(base.id.split("-").pop()));
-      const expected = cardKey(base.name, canonSet(base.set_code), number);
-      expect(keys("mega-venusaur-ex-b4b")).toEqual([expected]);
-    }
-  );
+  it("folds reprint-set (B4b) cards onto the earliest earlier printing", () => {
+    expect(b4bCards.length).toBeGreaterThan(0);
+    expect(b4bVenusaur).toBeDefined();
+    expect(venusaurBase).toBeDefined();
+    const base = venusaurBase!;
+    const number = String(Number(base.id.split("-").pop()));
+    const expected = cardKey(base.name, canonSet(base.set_code), number);
+    expect(keys("mega-venusaur-ex-b4b")).toEqual([expected]);
+  });
 
   it("expands the rockets spelling to the apostrophe card name", () => {
     expect(keys("team-rockets-mewtwo-ex-b3")).toEqual([

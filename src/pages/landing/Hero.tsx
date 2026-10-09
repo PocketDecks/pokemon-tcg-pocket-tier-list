@@ -42,7 +42,6 @@ const TextSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2.8rem;
-
 `;
 
 const StyledHeader = styled.h1`

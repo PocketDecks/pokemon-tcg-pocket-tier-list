@@ -22,13 +22,20 @@ export const buildConsentPendingData = async (
   policies = policyPacks,
   table = timeZoneCountries
 ) => {
-  const fallback = await showsBanner(policies, {});
+  const lookups = new Map();
+  const bannerFor = (geo) => {
+    const key = JSON.stringify([geo.country ?? null, geo.region ?? null]);
+    if (!lookups.has(key)) lookups.set(key, showsBanner(policies, geo));
+    return lookups.get(key);
+  };
+
+  const fallback = await bannerFor({});
 
   const zones = {};
   for (const zone of Object.keys(table)) {
     const region = regionFromTimeZone(zone);
     if (!region) continue;
-    if ((await showsBanner(policies, region)) === fallback) continue;
+    if ((await bannerFor(region)) === fallback) continue;
     const slash = zone.indexOf("/");
     const key = slash < 0 ? zone : zone.slice(0, slash);
     const rest = slash < 0 ? "" : zone.slice(slash + 1);
@@ -46,18 +53,18 @@ export const buildConsentPendingData = async (
 
   const countryBanners = {};
   for (const country of [...countries].sort()) {
-    countryBanners[country] = await showsBanner(policies, { country });
+    countryBanners[country] = await bannerFor({ country });
   }
 
   const regions = {};
   for (const key of regionKeys) {
     const [country, region] = key.split("-");
-    regions[key] = await showsBanner(policies, { country, region });
+    regions[key] = await bannerFor({ country, region });
   }
 
   return {
     fallback,
-    unmatched: await showsBanner(policies, { country: "ZZ" }),
+    unmatched: await bannerFor({ country: "ZZ" }),
     zones,
     countries: countryBanners,
     regions,

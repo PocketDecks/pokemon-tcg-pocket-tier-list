@@ -293,20 +293,7 @@ describe("DeckDetailPage with a cut card", () => {
   });
 
   it("keeps the alternatives thumbnails at their natural aspect ratio", async () => {
-    decks = [
-      {
-        name: GOOD_DECK,
-        lists: [
-          { cards: ["2:a1-004", "1:a1-219"], score: 10, strength: 5 },
-          { cards: ["2:a1-004", "1:a1-001"], score: 9, strength: 4 },
-        ],
-        percentOfGames: 50,
-        popularity: 100,
-        powerScore: null,
-        freqScore: 50,
-        metaScore: null,
-      },
-    ];
+    decks[0].lists.push({ cards: ["2:a1-004", "1:a1-001"], score: 9, strength: 4 });
     const { container } = renderDetailPage();
 
     await screen.findByAltText("Venusaur ex");

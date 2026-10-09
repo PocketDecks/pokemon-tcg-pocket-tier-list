@@ -306,7 +306,7 @@
     },
     "consent": {
       "heading": "Consentimiento para usuarios del EEE, el Reino Unido y Suiza",
-      "body": "Si se encuentra en el Espacio Económico Europeo, el Reino Unido o Suiza, el banner de consentimiento le pide su elección antes de establecer cualquier cookie de análisis. Hasta que elija, Google Consent Mode mantiene denegado el almacenamiento para análisis y publicidad. Puede cambiar o retirar su elección en cualquier momento desde el enlace Configuración de privacidad del pie de página."
+      "body": "Si se encuentra en el Espacio Económico Europeo, el Reino Unido o Suiza, el banner de consentimiento le pide su elección sobre análisis y publicidad antes de establecer cualquier cookie de análisis o publicidad. Hasta que elija, Google Consent Mode mantiene denegado el almacenamiento para análisis y publicidad. Puede cambiar o retirar su elección en cualquier momento desde el enlace Configuración de privacidad del pie de página."
     },
     "legalBasis": {
       "heading": "Base jurídica",
@@ -335,7 +335,7 @@
     },
     "retention": {
       "heading": "Cuánto tiempo conservamos la información",
-      "body": "El sitio no fija plazos de conservación propios. Cada proveedor conserva la información según sus propias normas de retención."
+      "body": "Google Analytics conserva los datos de eventos durante 14 meses. Los datos de usuario también se conservan durante 14 meses, y ese plazo se reinicia cuando vuelve al sitio. Conservamos su cuenta de inicio de sesión de Google y los campos de perfil guardados hasta que nos pida que los eliminemos, a través de los datos de contacto indicados más abajo. Los mensajes de comentarios se conservan hasta que se eliminan, y los borramos cuando nos lo pida. Google decide cuánto tiempo conserva sus datos publicitarios. Consulte la <0>política de privacidad</0> y las <1>políticas de anuncios</1> de Google. El pago de Premium está pausado actualmente. Cuando se reactive, Stripe conservará los registros de pago según exige la ley. El sitio no conserva registros propios de las solicitudes web. Firebase, el proveedor de alojamiento, y Cloudflare, el proveedor de red, conservan sus registros operativos habituales según sus propias condiciones."
     },
     "children": {
       "heading": "Menores",

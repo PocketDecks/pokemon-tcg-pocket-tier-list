@@ -15,6 +15,8 @@ const PrivacyPage = () => {
   const adsSettingsLink = <ExternalLink href="https://www.google.com/settings/ads" />;
   const aboutAdsLink = <ExternalLink href="https://www.aboutads.info" />;
   const mailLink = <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>;
+  const googlePrivacyLink = <ExternalLink href="https://policies.google.com/privacy" />;
+  const googleAdsPoliciesLink = <ExternalLink href="https://policies.google.com/technologies/ads" />;
 
   return (
     <LegalPage>
@@ -109,7 +111,12 @@ const PrivacyPage = () => {
       <p>{t("privacyPage.thirdParty.outro")}</p>
 
       <h2>{t("privacyPage.retention.heading")}</h2>
-      <p>{t("privacyPage.retention.body")}</p>
+      <p>
+        <Trans
+          i18nKey="privacyPage.retention.body"
+          components={[googlePrivacyLink, googleAdsPoliciesLink]}
+        />
+      </p>
 
       <h2>{t("privacyPage.children.heading")}</h2>
       <p>{t("privacyPage.children.body")}</p>

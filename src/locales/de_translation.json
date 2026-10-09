@@ -306,7 +306,7 @@
     },
     "consent": {
       "heading": "Einwilligung für Nutzer im EWR, im Vereinigten Königreich und in der Schweiz",
-      "body": "Befinden Sie sich im Europäischen Wirtschaftsraum, im Vereinigten Königreich oder in der Schweiz, fragt das Einwilligungsbanner Ihre Auswahl ab, bevor Analyse-Cookies gesetzt werden. Bis Sie eine Auswahl treffen, halten Google Consent Mode die Speicherung für Analyse und Werbung auf verweigert. Sie können Ihre Auswahl jederzeit über den Link Datenschutzeinstellungen in der Fußzeile ändern oder widerrufen."
+      "body": "Befinden Sie sich im Europäischen Wirtschaftsraum, im Vereinigten Königreich oder in der Schweiz, fragt das Einwilligungsbanner Ihre Auswahl zu Analyse und Werbung ab, bevor Analyse- oder Werbe-Cookies gesetzt werden. Bis Sie eine Auswahl treffen, halten Google Consent Mode die Speicherung für Analyse und Werbung auf verweigert. Sie können Ihre Auswahl jederzeit über den Link Datenschutzeinstellungen in der Fußzeile ändern oder widerrufen."
     },
     "legalBasis": {
       "heading": "Rechtsgrundlage",
@@ -335,7 +335,7 @@
     },
     "retention": {
       "heading": "Wie lange wir Informationen aufbewahren",
-      "body": "Die Website legt keine eigenen Aufbewahrungsfristen fest. Jeder Anbieter bewahrt Informationen nach seinen eigenen Aufbewahrungsregeln auf."
+      "body": "Google Analytics speichert Ereignisdaten 14 Monate lang. Nutzerdaten werden ebenfalls 14 Monate lang gespeichert, und dieser Zeitraum beginnt neu, wenn Sie zur Website zurückkehren. Ihr Google-Anmeldekonto und die gespeicherten Profilfelder bewahren wir auf, bis Sie deren Löschung über die unten genannten Kontaktdaten verlangen. Feedback-Nachrichten werden bis zu ihrer Löschung gespeichert, und wir löschen sie auf Anfrage. Die Aufbewahrungsdauer für Werbedaten legt Google selbst fest. Siehe dazu die <0>Datenschutzerklärung</0> und die <1>Werberichtlinien</1> von Google. Die Zahlung für Premium ist derzeit pausiert. Sobald der Kauf wieder möglich ist, bewahrt Stripe Zahlungsbelege auf, wie es das Gesetz vorschreibt. Die Website speichert keine eigenen Protokolle von Webanfragen. Firebase als Hosting-Anbieter und Cloudflare als Netzwerk-Anbieter bewahren ihre üblichen Betriebsprotokolle nach ihren eigenen Bedingungen auf."
     },
     "children": {
       "heading": "Kinder",

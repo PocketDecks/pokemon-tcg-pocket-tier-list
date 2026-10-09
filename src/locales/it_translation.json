@@ -306,7 +306,7 @@
     },
     "consent": {
       "heading": "Consenso per gli utenti di SEE, Regno Unito e Svizzera",
-      "body": "Se ti trovi nello Spazio economico europeo, nel Regno Unito o in Svizzera, il banner del consenso ti chiede la tua scelta prima che venga impostato qualsiasi cookie di analisi. Finché non scegli, Google Consent Mode mantiene negato l'archiviazione per analisi e pubblicità. Puoi modificare o ritirare la tua scelta in qualsiasi momento dal link Impostazioni privacy nel piè di pagina."
+      "body": "Se ti trovi nello Spazio economico europeo, nel Regno Unito o in Svizzera, il banner del consenso ti chiede la tua scelta su analisi e pubblicità prima che venga impostato qualsiasi cookie di analisi o pubblicitario. Finché non scegli, Google Consent Mode mantiene negato l'archiviazione per analisi e pubblicità. Puoi modificare o ritirare la tua scelta in qualsiasi momento dal link Impostazioni privacy nel piè di pagina."
     },
     "legalBasis": {
       "heading": "Base giuridica",
@@ -335,7 +335,7 @@
     },
     "retention": {
       "heading": "Per quanto tempo conserviamo le informazioni",
-      "body": "Il sito non stabilisce periodi di conservazione propri. Ogni fornitore conserva le informazioni secondo le proprie regole di conservazione."
+      "body": "Google Analytics conserva i dati degli eventi per 14 mesi. Anche i dati utente vengono conservati per 14 mesi, e il periodo ricomincia quando torni sul sito. Conserviamo il tuo account di accesso Google e i campi del profilo salvati finché non chiedi di eliminarli, usando i recapiti indicati più sotto. I messaggi di feedback vengono conservati finché non vengono eliminati, e li eliminiamo su richiesta. La durata di conservazione dei dati pubblicitari è stabilita da Google. Consulta la <0>informativa sulla privacy</0> e le <1>norme sulla pubblicità</1> di Google. Il pagamento Premium è attualmente sospeso. Quando sarà di nuovo disponibile, Stripe conserverà i registri dei pagamenti come richiede la legge. Il sito non conserva registri propri delle richieste web. Firebase, il fornitore di hosting, e Cloudflare, il fornitore di rete, conservano i log operativi standard secondo i propri termini."
     },
     "children": {
       "heading": "Minori",

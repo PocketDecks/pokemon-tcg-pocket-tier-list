@@ -306,7 +306,7 @@
     },
     "consent": {
       "heading": "Consent for users in the EEA, UK and Switzerland",
-      "body": "If you are in the European Economic Area, the United Kingdom or Switzerland, the consent banner asks for your choice before any analytics cookies are set. Until you choose, Google Consent Mode keeps analytics and advertising storage denied. You can change or withdraw your choice at any time from the Privacy settings link in the footer."
+      "body": "If you are in the European Economic Area, the United Kingdom or Switzerland, the consent banner asks for your choice on analytics and on advertising before any analytics or advertising cookies are set. Until you choose, Google Consent Mode keeps analytics and advertising storage denied. You can change or withdraw your choice at any time from the Privacy settings link in the footer."
     },
     "legalBasis": {
       "heading": "Legal basis",
@@ -335,7 +335,7 @@
     },
     "retention": {
       "heading": "How long we keep information",
-      "body": "The site does not set its own retention periods. Each provider keeps information under its own retention rules."
+      "body": "Google Analytics keeps event data for 14 months. User data is also kept for 14 months, and that period resets when you return to the site. We keep your Google sign-in account and stored profile fields until you ask us to delete them, using the contact details below. Feedback messages are kept until they are deleted, and we delete them on request. Google decides how long it keeps advertising data. See its <0>privacy policy</0> and <1>ads policies</1>. Premium checkout is currently paused. When checkout reopens, Stripe keeps payment records as the law requires. The site does not keep web request logs of its own. Firebase, the hosting provider, and Cloudflare, the network provider, keep their standard operational logs under their own terms."
     },
     "children": {
       "heading": "Children",

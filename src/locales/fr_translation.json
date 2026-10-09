@@ -306,7 +306,7 @@
     },
     "consent": {
       "heading": "Consentement des utilisateurs de l'EEE, du Royaume-Uni et de la Suisse",
-      "body": "Si vous vous trouvez dans l'Espace économique européen, au Royaume-Uni ou en Suisse, la bannière de consentement vous demande votre choix avant que tout cookie d'analyse ne soit déposé. Tant que vous n'avez pas choisi, Google Consent Mode maintient le stockage pour l'analyse et la publicité à refusé. Vous pouvez modifier ou retirer votre choix à tout moment depuis le lien Paramètres de confidentialité en bas de page."
+      "body": "Si vous vous trouvez dans l'Espace économique européen, au Royaume-Uni ou en Suisse, la bannière de consentement vous demande votre choix concernant l'analyse et la publicité avant que tout cookie d'analyse ou de publicité ne soit déposé. Tant que vous n'avez pas choisi, Google Consent Mode maintient le stockage pour l'analyse et la publicité à refusé. Vous pouvez modifier ou retirer votre choix à tout moment depuis le lien Paramètres de confidentialité en bas de page."
     },
     "legalBasis": {
       "heading": "Base juridique",
@@ -335,7 +335,7 @@
     },
     "retention": {
       "heading": "Durée de conservation des informations",
-      "body": "Le site ne fixe pas de durées de conservation propres. Chaque prestataire conserve les informations selon ses propres règles de conservation."
+      "body": "Google Analytics conserve les données d'événements pendant 14 mois. Les données utilisateur sont elles aussi conservées pendant 14 mois, et cette durée repart à zéro lorsque vous revenez sur le site. Nous conservons votre compte de connexion Google et les champs de profil enregistrés jusqu'à ce que vous demandiez leur suppression, par les coordonnées indiquées ci-dessous. Les messages de retour sont conservés jusqu'à leur suppression, que nous effectuons sur demande. La durée de conservation des données publicitaires est fixée par Google. Consultez la <0>politique de confidentialité</0> et les <1>règles relatives à la publicité</1> de Google. Le paiement Premium est actuellement suspendu. Lorsqu'il sera de nouveau disponible, Stripe conservera les justificatifs de paiement, comme la loi l'exige. Le site ne conserve aucun journal propre des requêtes web. Firebase, notre hébergeur, et Cloudflare, notre fournisseur réseau, conservent leurs journaux d'exploitation standard selon leurs propres conditions."
     },
     "children": {
       "heading": "Enfants",

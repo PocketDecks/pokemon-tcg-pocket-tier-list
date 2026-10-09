@@ -73,7 +73,7 @@ const consentPending = (): Plugin => ({
 
 export default defineConfig({
   plugins: [react(), manropePreload(), consentPending()],
-  envPrefix: ["VITE_", "REACT_APP_"],
+  envPrefix: "VITE_",
   server: { port: 3000 },
   build: { target: "baseline-widely-available", sourcemap: true },
   test: {

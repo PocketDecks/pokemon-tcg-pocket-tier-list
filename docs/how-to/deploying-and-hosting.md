@@ -94,7 +94,7 @@ Three workflows in `.github/workflows/` cover deployment and checks:
   gates before invoking Firebase.
 
 Both deploy workflows inject the Firebase web configuration as
-`REACT_APP_FIREBASE_*` environment variables from repository secrets.
+`VITE_FIREBASE_*` environment variables from repository secrets.
 
 All three workflows pin Node to `24.18.1` through `actions/setup-node@v7`,
 and the pin is deliberate. Node `24.19.0` broke the deploy action's

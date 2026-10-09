@@ -13,6 +13,7 @@ describe("buildExpansionPackData", () => {
         {
           id: "b4a",
           name: "Team Rocket's Ambition",
+          release_date: null,
           packs: [
             {
               id: "b4a-booster",
@@ -24,6 +25,7 @@ describe("buildExpansionPackData", () => {
         {
           id: "a1",
           name: "Genetic Apex",
+          release_date: null,
           packs: [
             {
               id: "a1-pikachu",
@@ -51,6 +53,7 @@ describe("buildExpansionPackData", () => {
           {
             id: "a1",
             name: "Genetic Apex",
+            release_date: null,
             packs: [
               { id: "a1-pikachu", name: "Pikachu", image: "pikachu.webp" },
               { id: "a1-charizard", name: "Charizard", image: "charizard.webp" },
@@ -59,6 +62,7 @@ describe("buildExpansionPackData", () => {
           {
             id: "pa",
             name: "Promo-A",
+            release_date: null,
             packs: [{ id: "pa-shop", name: "Shop", image: null }],
           },
         ]

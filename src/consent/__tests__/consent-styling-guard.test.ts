@@ -1,9 +1,23 @@
 import { describe, expect, it } from "vitest";
 import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { createElement } from "react";
+import { renderToString } from "react-dom/server";
+import { ServerStyleSheet } from "styled-components";
+import GlobalStyles from "../../styles/GlobalStyles";
 
 const consentDir = resolve(process.cwd(), "src/consent");
 const thisFileName = "consent-styling-guard.test.ts";
+
+const collectCss = (): string => {
+  const sheet = new ServerStyleSheet();
+  try {
+    renderToString(sheet.collectStyles(createElement(GlobalStyles)));
+    return sheet.getStyleTags();
+  } finally {
+    sheet.seal();
+  }
+};
 
 const listFiles = (dir: string): string[] =>
   readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -52,14 +66,15 @@ describe("consent styling guard", () => {
   });
 
   it("reserves the banner height before first paint on mobile through the pending attribute", () => {
-    const global = readFileSync(resolve(consentDir, "../styles/GlobalStyles.tsx"), "utf8");
-    const rules = [
-      ...global.matchAll(
-        /@media \(max-width: (\d+)px\) \{\s*:root\[data-consent-pending\] \{\s*--consent-banner-h: (\d+)px;/g
-      ),
-    ];
+    const css = collectCss();
+    const reservedHeight = (width: number) =>
+      css.match(
+        new RegExp(
+          `@media \\(max-width:\\s*${width}px\\)\\s*\\{\\s*:root\\[data-consent-pending\\]\\s*\\{\\s*--consent-banner-h:\\s*(\\d+)px`
+        )
+      )?.[1];
 
-    expect(rules.map(([, width, height]) => [Number(width), Number(height)])).toEqual([
+    expect([900, 639, 416].map((width) => [width, Number(reservedHeight(width))])).toEqual([
       [900, 267],
       [639, 299],
       [416, 324],

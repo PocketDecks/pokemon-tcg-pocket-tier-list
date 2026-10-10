@@ -636,13 +636,10 @@ const StatisticsPage = () => {
 
                 <h3>Effective tournament games</h3>
                 <p>
-                    You might notice that the total game counts displayed on hover are
-                    rounded estimates of exact totals. The analysis pipeline applies a
-                    recency multiplier to older tournament results, meaning a game played
-                    yesterday carries slightly more weight than a game played three weeks
-                    ago. This keeps the matchup matrix highly responsive to recent
-                    deckbuilding innovations without throwing away valuable historical
-                    data.
+                    Game counts are estimates of exact totals. Each artefact covers a
+                    fixed window, currently 20 days on the default view, and every
+                    game inside a window carries the same weight. Switching windows
+                    changes which games count rather than how much each one counts.
                 </p>
             </SeoContent>
         </PageContainer>

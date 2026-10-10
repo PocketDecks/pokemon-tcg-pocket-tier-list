@@ -8,8 +8,8 @@ pipeline to file a UI bug.
 ## Filing a report
 
 Open [the new issue chooser](https://github.com/PocketDecks/pokemon-tcg-pocket-tier-list/issues/new/choose)
-and pick the form that matches. A blank issue is still available for anything
-the three forms do not cover.
+and pick the form that matches. A blank issue is available to maintainers only,
+so a contributor files through one of the three forms.
 
 - **Application bug** covers the site: a page, the deck finder, sign-in,
   layout. It asks for the page, what happened, what you expected, steps, and

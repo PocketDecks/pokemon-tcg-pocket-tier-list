@@ -32,7 +32,7 @@ This bound applies to both win rate and popularity. Card scores are a weighted c
 
 Tiering uses Power Score, not the card composite. `build-deck-power.ts` smooths every matchup win rate toward 50% by its own sample size, weights each by that opponent's share of the qualified 14-day field, and rescales so the best deck reads 100 and an even win rate reads exactly 50.
 
-Both sides of that weighted average come from the qualified population. `build-matchup-populations.ts` tallies matchups twice: the public `matchup-data.json` keeps every player's games for the matchup matrix, and a second tally built from qualified decks only feeds Power Score. `meta-share.json` also counts qualified games, so the weights and the win rates describe one population.
+Both sides of that weighted average come from the qualified population. `build-matchup-populations.ts` tallies matchups twice. The windowed artefacts ship the qualified tally for both the public matrix and Power Score, so the ranking's matchup view describes the same population its scores do. Before the window selector landed, the un-suffixed `matchup-data.json` kept every player's games; windowed files always describe the qualified players of their window.
 
 Frequency Score measures play rate against the most-played deck, and Meta Score is the average of the two. Decks whose matchup data covers less than `MIN_FIELD_COVERAGE` of the qualified field are Unranked and shown in their own group rather than given an invented score.
 

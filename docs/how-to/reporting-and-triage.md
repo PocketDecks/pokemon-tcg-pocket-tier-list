@@ -46,10 +46,11 @@ gh label list --repo PocketDecks/pokemon-tcg-pocket-tier-list --limit 100 --json
 node scripts/verify-issue-forms.js --labels .github/labels.snapshot.json
 ```
 
-The check fails on a duplicate field id, an input type outside the schema, an
-attribute or validation that the item type does not accept, a chooser key
-outside the schema, and a label the recorded label list does not contain. Each
-problem prints on its own line with the file it came from.
+The check fails on a duplicate field id, a body with no field that accepts
+input, an input type outside the schema, an attribute or validation that the
+item type does not accept, a chooser key outside the schema, and a label the
+recorded label list does not contain. Labels may be a list or a comma-delimited
+string. Each problem prints on its own line with the file it came from.
 
 `.github/labels.snapshot.json` records the repository's labels, so the check
 needs no network in CI. Refresh it with the `gh label list` command above

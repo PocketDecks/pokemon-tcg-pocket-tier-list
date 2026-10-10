@@ -28,6 +28,12 @@ const STRING_ATTRIBUTES = ["label", "description", "placeholder", "value", "rend
 const unknownKeys = (value, allowed) => Object.keys(value).filter((key) => !allowed.includes(key));
 const isMapping = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 
+const declaredLabels = (labels) => {
+  if (Array.isArray(labels)) return labels;
+  if (typeof labels !== "string") return [];
+  return labels.split(",").map((label) => label.trim()).filter((label) => label.length > 0);
+};
+
 const checkOptions = (item, file, where, push) => {
   const options = item.attributes.options;
   if (!Array.isArray(options) || options.length === 0) {
@@ -144,6 +150,12 @@ const checkForm = (text, file, labels, push) => {
     push(`${file}: needs a non-empty body`);
     return;
   }
+  const inputs = doc.body.filter(
+    (item) => isMapping(item) && item.type !== "markdown"
+  );
+  if (inputs.length === 0) {
+    push(`${file}: needs at least one non-markdown body item`);
+  }
   const ids = doc.body
     .filter((item) => isMapping(item) && typeof item.id === "string")
     .map((item) => item.id);
@@ -152,7 +164,7 @@ const checkForm = (text, file, labels, push) => {
   }
   doc.body.forEach((item, index) => checkBodyItem(item, index, file, push));
   if (labels === null) return;
-  for (const label of Array.isArray(doc.labels) ? doc.labels : []) {
+  for (const label of declaredLabels(doc.labels)) {
     if (!labels.includes(label)) push(`${file}: references the missing label ${label}`);
   }
 };

@@ -124,6 +124,22 @@ test("flags a repeated id", () => {
   assert.deepStrictEqual(issuesFor(dir), ["2-dupe.yml: repeats the id actual"]);
 });
 
+test("flags a body holding only markdown items", () => {
+  const dir = withFiles({
+    "2-mdonly.yml": "name: Markdown only\ndescription: x\nbody:\n  - type: markdown\n    attributes:\n      value: Read this\n  - type: markdown\n    attributes:\n      value: And this\n",
+  });
+  assert.deepStrictEqual(issuesFor(dir), [
+    "2-mdonly.yml: needs at least one non-markdown body item",
+  ]);
+});
+
+test("accepts a body mixing markdown with one input", () => {
+  const dir = withFiles({
+    "2-mixed.yml": "name: Mixed body\ndescription: x\nbody:\n  - type: markdown\n    attributes:\n      value: Read this\n  - type: input\n    id: page\n    attributes:\n      label: Page\n",
+  });
+  assert.deepStrictEqual(issuesFor(dir), []);
+});
+
 test("flags an invalid item type", () => {
   const dir = withFiles({
     "2-type.yml": "name: Bad type\ndescription: x\nbody:\n  - type: rating\n    id: score\n    attributes:\n      label: Score\n",
@@ -156,7 +172,7 @@ test("flags an id with characters outside the schema pattern", () => {
 
 test("flags a markdown item without a value", () => {
   const dir = withFiles({
-    "2-md.yml": "name: Markdown\ndescription: x\nbody:\n  - type: markdown\n    attributes:\n      label: Note\n",
+    "2-md.yml": "name: Markdown\ndescription: x\nbody:\n  - type: markdown\n    attributes:\n      label: Note\n  - type: input\n    id: page\n    attributes:\n      label: Page\n",
   });
   assert.deepStrictEqual(issuesFor(dir), ["2-md.yml: body[0] (markdown) needs attributes.value"]);
 });
@@ -239,6 +255,42 @@ test("flags a label the repository does not have", () => {
   const dir = withFiles({});
   assert.deepStrictEqual(issuesFor(dir, ["enhancement"]), [
     "1-bug.yml: references the missing label bug",
+  ]);
+});
+
+test("checks a comma-delimited label string, trimming each entry", () => {
+  const dir = withFiles({
+    "2-string.yml": [
+      "name: String labels",
+      "description: x",
+      'labels: "bug, area: data"',
+      "body:",
+      "  - type: input",
+      "    id: page",
+      "    attributes:",
+      "      label: Page",
+      "",
+    ].join("\n"),
+  });
+  assert.deepStrictEqual(issuesFor(dir, ["bug", "area: data"]), []);
+});
+
+test("flags a missing label inside a comma-delimited string", () => {
+  const dir = withFiles({
+    "2-string.yml": [
+      "name: String labels",
+      "description: x",
+      'labels: "bug,area: pipeline"',
+      "body:",
+      "  - type: input",
+      "    id: page",
+      "    attributes:",
+      "      label: Page",
+      "",
+    ].join("\n"),
+  });
+  assert.deepStrictEqual(issuesFor(dir, ["bug"]), [
+    "2-string.yml: references the missing label area: pipeline",
   ]);
 });
 

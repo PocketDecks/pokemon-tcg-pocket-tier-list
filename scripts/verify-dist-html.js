@@ -160,8 +160,12 @@ const findUnresolvedAppRoutes = (
     .flatMap((route) => {
       if (route.includes("/:")) {
         const prefix = route.slice(1, route.indexOf("/:"));
+        const depth = prefix.split("/").length + 2;
         const hasPage = [...files].some(
-          (file) => file.startsWith(`${prefix}/`) && file.split("/").length === 3 && file.endsWith("/index.html")
+          (file) =>
+            file.startsWith(`${prefix}/`) &&
+            file.split("/").length === depth &&
+            file.endsWith("/index.html")
         );
         return hasPage ? [] : [`${route}: no prerendered page under /${prefix}/`];
       }

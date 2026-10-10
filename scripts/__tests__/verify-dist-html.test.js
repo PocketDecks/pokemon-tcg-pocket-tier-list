@@ -406,6 +406,53 @@ test("flags a rewrite whose target is not built", () => {
   );
 });
 
+const LOCALE_APP_ROUTES = `
+<Routes>
+  <Route path="/" element={<Layout />}>
+    <Route index element={<LandingPage />} />
+    <Route path="deck">
+      <Route index element={<DeckFinderPage />} />
+      <Route path=":deckId" element={<DeckDetailPage />} />
+    </Route>
+  </Route>
+  <Route path="/ja" element={<Layout />}>
+    <Route index element={<LandingPage />} />
+    <Route path="deck">
+      <Route index element={<DeckFinderPage />} />
+      <Route path=":deckId" element={<DeckDetailPage />} />
+    </Route>
+  </Route>
+</Routes>`;
+
+test("flags a locale dynamic route with no prerendered page under it", () => {
+  const dir = makeDist({
+    "index.html": "",
+    "deck/index.html": "",
+    "deck/x/index.html": "",
+    "ja/index.html": "",
+    "ja/deck/index.html": "",
+  });
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, { source: LOCALE_APP_ROUTES, firebase: HOSTING }),
+    ["/ja/deck/:deckId: no prerendered page under /ja/deck/"]
+  );
+});
+
+test("passes a locale dynamic route once its pages are built", () => {
+  const dir = makeDist({
+    "index.html": "",
+    "deck/index.html": "",
+    "deck/x/index.html": "",
+    "ja/index.html": "",
+    "ja/deck/index.html": "",
+    "ja/deck/x/index.html": "",
+  });
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, { source: LOCALE_APP_ROUTES, firebase: HOSTING }),
+    []
+  );
+});
+
 test("findExpansionListIssues needs the newest set and rejects deluxe packs", () => {
   const list = [
     { id: "b4a", name: "Team Rocket's Ambition", release_date: "2026-08-27", packs: [{ id: "b4a-booster", image: "https://example.test/packs/b4a-booster.webp" }] },

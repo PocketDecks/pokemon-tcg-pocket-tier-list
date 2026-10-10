@@ -2,11 +2,8 @@ import { forwardRef, type ComponentProps, type ReactNode } from "react";
 import { Link, NavLink, useLocation } from "react-router";
 import { localeRoute, splitLocale } from "./locale-route";
 
-/**
- * Locale-aware router links. A route tree per locale means an unprefixed
- * destination drops the visitor out of the locale they are reading, so every
- * internal link resolves through the current path instead.
- */
+// A destination written without the locale would drop the visitor out of the
+// locale they are reading.
 const withLocale = (to: string, locale: string) =>
   to.startsWith("/") ? localeRoute(locale, to) : to;
 

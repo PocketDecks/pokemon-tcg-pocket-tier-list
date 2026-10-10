@@ -81,8 +81,7 @@ describe("translation key parity", () => {
   });
 });
 
-// The SEO namespace ships for en and ja only; the other nine locales fall back
-// to en_seo.json, so only these two files are pinned to each other here.
+// Only en and ja ship SEO prose; the other nine fall back to English.
 describe("seo namespace key parity", () => {
   it("ja_seo.json has every key that en_seo.json has", () => {
     const englishKeys = new Set(flattenKeys(enSeo as Record<string, unknown>));

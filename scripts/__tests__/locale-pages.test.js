@@ -1,9 +1,4 @@
-// scripts/__tests__/locale-pages.test.js
-//
-// Walks a built dist and asserts the locale page graph: canonicals, hreflang
-// reciprocity, the document language, and that the Japanese pages actually
-// carry Japanese prose. Runs against dist/ when it exists, so it is skipped in
-// a plain test run rather than failing on an unbuilt tree.
+// Skips itself when dist/ is absent, so a plain test run does not fail on an unbuilt tree.
 const test = require("node:test");
 const assert = require("node:assert");
 const fs = require("node:fs");

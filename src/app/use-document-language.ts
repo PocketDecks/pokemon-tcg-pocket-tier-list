@@ -2,11 +2,8 @@ import { useEffect } from "react";
 import { useLocation } from "react-router";
 import { splitLocale } from "./locale-route";
 
-/**
- * Keeps the served document's language in step with the URL. Crawlers read the
- * static `lang` attribute, so it has to follow the path rather than the
- * detector, which can disagree when a visitor's browser language differs.
- */
+// Follows the path, not the detector: crawlers read the served `lang`, and the
+// detector can disagree when a visitor's browser language differs.
 export const useDocumentLanguage = (): void => {
   const { pathname } = useLocation();
 

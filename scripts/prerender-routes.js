@@ -94,8 +94,8 @@ const ROUTE_META = {
 const ROUTE_READY_ROUTES = new Set(["/cards-list", "/statistics", "/deck"]);
 const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
 
-// Japanese titles and descriptions are written for a Japanese reader searching
-// for ポケポケ deck rankings, not translated word for word from the English.
+// Titles are written for a Japanese reader searching for ポケポケ deck rankings,
+// not translated word for word from the English.
 const JA_ROUTE_META = {
   "/": {
     title: "ポケポケ 最強デッキ ティアリスト | Top Pocket Decks",

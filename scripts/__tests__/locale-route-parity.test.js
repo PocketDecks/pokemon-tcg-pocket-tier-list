@@ -18,8 +18,7 @@ const pageEntries = (dir = DIST_DIR) =>
     .map((entry) => entry.split(path.sep).join("/"))
     .sort();
 
-// Parity is read off the built output, not the route table's source text: a
-// route added to one locale's tree only shows up here as an unmatched page.
+// Parity is read off the built output, not the route table's source text.
 test(
   "every locale serves the same pages as the default locale",
   { skip: !hasDist && "dist/ is not built" },

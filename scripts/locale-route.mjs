@@ -1,8 +1,5 @@
-/**
- * The single locale URL formula. English is the unprefixed default; every other
- * shipped locale lives under its own prefix. Authored as ESM so src/ can import
- * it directly; the build scripts require() it.
- */
+// English is the unprefixed default, so adding a locale here is the only edit
+// a new locale URL needs.
 export const LOCALE_PREFIXES = { en: "", ja: "/ja" };
 
 export const ROUTE_LOCALES = Object.keys(LOCALE_PREFIXES);
@@ -13,10 +10,8 @@ export const localeRoute = (locale, route) => {
   return route === "/" ? `${prefix}/` : `${prefix}${route}`;
 };
 
-/** The canonical, trailing-slashed form of a route. Never doubles a slash. */
 export const routePath = (route) => (route === "/" || route.endsWith("/") ? route : `${route}/`);
 
-/** The absolute URL a locale serves a route at. */
 export const localizedUrl = (siteUrl, locale, route) =>
   `${siteUrl}${routePath(localeRoute(locale, route))}`;
 

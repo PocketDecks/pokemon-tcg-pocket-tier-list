@@ -453,6 +453,37 @@ test("passes a locale dynamic route once its pages are built", () => {
   );
 });
 
+test("flags a locale deck page with an empty root", () => {
+  const dir = makeDist({
+    "deck/x/index.html": '<div id="root"><main>Deck list</main></div>',
+    "ja/deck/x/index.html": '<div id="root"></div>',
+  });
+  assert.deepStrictEqual(findEmptyDeckRoots(dir), [
+    path.join("ja", "deck", "x", "index.html"),
+  ]);
+});
+
+test("flags a locale deck page without captured styled-components CSS", () => {
+  const dir = makeDist({
+    "deck/x/index.html": '<style data-styled="active">.a{color:red}</style><div id="root"><main>Deck</main></div>',
+    "ja/deck/x/index.html": '<div id="root"><main>Deck</main></div>',
+  });
+  assert.deepStrictEqual(findUncapturedDeckStyles(dir), [
+    path.join("ja", "deck", "x", "index.html"),
+  ]);
+});
+
+test("flags a locale deck page without exactly one image preload", () => {
+  const dir = makeDist({
+    "deck/x/index.html": `<head>${IMAGE_PRELOAD}</head>`,
+    "ja/deck/x/index.html": "<head></head>",
+    ...CARD_THUMBS,
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(dir), [
+    `ja${path.sep}deck${path.sep}x${path.sep}index.html: expected 1 image preload, found 0`,
+  ]);
+});
+
 test("findExpansionListIssues needs the newest set and rejects deluxe packs", () => {
   const list = [
     { id: "b4a", name: "Team Rocket's Ambition", release_date: "2026-08-27", packs: [{ id: "b4a-booster", image: "https://example.test/packs/b4a-booster.webp" }] },

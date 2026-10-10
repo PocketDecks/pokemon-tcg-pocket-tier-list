@@ -186,13 +186,15 @@ const collectModulepreloads = (html) =>
     .filter((href) => href !== undefined);
 
 const deckDetailFiles = (dir = DIST_DIR) => {
-  const deckDir = path.join(dir, "deck");
-  if (!fs.existsSync(deckDir)) return [];
+  if (!fs.existsSync(dir)) return [];
   return fs
-    .readdirSync(deckDir, { recursive: true, withFileTypes: true })
+    .readdirSync(dir, { recursive: true, withFileTypes: true })
     .filter((entry) => entry.isFile() && entry.name === "index.html")
     .map((entry) => path.join(entry.parentPath, entry.name))
-    .filter((file) => path.relative(deckDir, file).split(path.sep).length === 2)
+    .filter((file) => {
+      const segments = path.relative(dir, file).split(path.sep);
+      return segments.length >= 3 && segments[segments.length - 3] === "deck";
+    })
     .sort();
 };
 

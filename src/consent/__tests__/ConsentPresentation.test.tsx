@@ -9,6 +9,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { ReactNode } from "react";
 import { consentTheme } from "../consent-theme";
+import { consentMessages } from "../consent-messages";
 
 vi.mock("@c15t/scripts/google-tag", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@c15t/scripts/google-tag")>();
@@ -182,12 +183,19 @@ describe("ConsentProvider presentation", () => {
     ["fr", "fr"],
     ["zh-CN", "zh"],
     ["zh-TW", "en"],
-    ["ja", "en"],
   ])("shows c15t copy for app language %s as %s", async (appLanguage, consentLanguage) => {
     await renderWithLanguage(appLanguage, null);
 
     await waitFor(() => {
       expect(screen.getByText(baseTranslations[consentLanguage as "en"].cookieBanner.title)).toBeInTheDocument();
+    });
+  });
+
+  it("shows the bundled Japanese copy for app language ja", async () => {
+    await renderWithLanguage("ja", null);
+
+    await waitFor(() => {
+      expect(screen.getByText(consentMessages.ja.cookieBanner.title)).toBeInTheDocument();
     });
   });
 

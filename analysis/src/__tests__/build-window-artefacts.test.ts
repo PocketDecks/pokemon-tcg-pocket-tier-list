@@ -169,7 +169,7 @@ describe("buildWindowArtefacts across windows", () => {
         expect(deck.expectedWinRate).toBeGreaterThan(0);
       }
       for (const entry of artefacts.metaShare.decks) {
-        expect(entry.games14).toBeGreaterThan(0);
+        expect(entry.windowGames).toBeGreaterThan(0);
       }
     }
   });
@@ -177,7 +177,7 @@ describe("buildWindowArtefacts across windows", () => {
   it("carries fewer games in the shorter window", () => {
     const games = (w: (typeof WINDOW_IDS)[number]) =>
       buildWindowArtefacts(spread, w, TODAY).metaShare.decks.reduce(
-        (sum, entry) => sum + entry.games14,
+        (sum, entry) => sum + entry.windowGames,
         0
       );
 

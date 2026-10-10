@@ -66,7 +66,8 @@ export interface MetaShareEntry {
   /** share - sharePrev; may be negative. */
   delta: number;
   /** Qualified games in the trailing 14-day window (expansion-capped). */
-  games14: number;
+  /** Qualified games captured in the artefact's window. */
+  windowGames: number;
   /** ISO date of earliest appearance in the qualified pool. */
   firstSeen: string;
   /** True when firstSeen falls inside the current 7-day window. */

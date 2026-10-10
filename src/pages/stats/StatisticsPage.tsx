@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 import useIsPremium from "../../app/use-is-premium";
+import { useMetaWindow } from "../../app/use-meta-window";
+import { META_WINDOW_LENGTH_DAYS } from "../../app/meta-window";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCards } from "../../app/cards-api";
 import { deckNameToIconIds } from "../../app/deck-filters";
@@ -318,7 +320,7 @@ const StatisticsPage = () => {
     const [pinnedSeries, setPinnedSeries] = useState<string | null>(null);
     const activeSeries = hoveredSeries ?? pinnedSeries;
     const isPremium = useIsPremium();
-    const [range, setRange] = useState<"14-day" | "all-time">("14-day");
+    const { window: metaWindow } = useMetaWindow();
     const trendQuery = usePipelineTrends();
     const trendData = trendQuery.rows;
     const [movementView, setMovementView] = useState<"rising" | "falling" | "new">("rising");
@@ -371,12 +373,15 @@ const StatisticsPage = () => {
 
     const filteredTrendData = useMemo(() => {
         if (!trendData.length) return [];
-        if (range === "all-time") return trendData;
+        const days = META_WINDOW_LENGTH_DAYS[metaWindow];
+        if (days === null) return trendData;
 
-        const cutoff = new Date();
-        cutoff.setDate(cutoff.getDate() - 14);
-        return trendData.filter((d) => new Date(d.date) >= cutoff);
-    }, [trendData, range]);
+        // Cut from the newest trend day, not the wall clock, so the slice ends
+        // on the data even when the last scrape is a few days old.
+        const newest = new Date(trendData[trendData.length - 1].date).getTime();
+        const cutoff = newest - days * 24 * 60 * 60 * 1000;
+        return trendData.filter((d) => new Date(d.date).getTime() >= cutoff);
+    }, [trendData, metaWindow]);
 
     const topArchetypeNames =
         trendData.length > 0
@@ -410,27 +415,6 @@ const StatisticsPage = () => {
             <Section>
                 <SectionHeader>
                     <SectionTitle>{t("statistics.trends")}</SectionTitle>
-                    <ToggleRow>
-                        <ToggleContainer>
-                            <ToggleButton
-                                $active={range === "14-day"}
-                                onClick={() => setRange("14-day")}
-                            >
-                                14 Days
-                            </ToggleButton>
-                            <ToggleButton
-                                $active={range === "all-time"}
-                                $locked={!isPremium}
-                                aria-disabled={!isPremium}
-                                onClick={() => {
-                                    if (isPremium) setRange("all-time");
-                                }}
-                            >
-                                All Time
-                                {!isPremium && <NavIcon name="lock" size={14} />}
-                            </ToggleButton>
-                        </ToggleContainer>
-                    </ToggleRow>
                 </SectionHeader>
 
                 <TrendChart
@@ -608,13 +592,14 @@ const StatisticsPage = () => {
 
                 <h3>Track the best decks</h3>
                 <p>
-                    The trend graph plots the top archetypes over a 14-day window. You
-                    can see exactly when a deck peaks in popularity or falls out of
-                    favour as the meta adapts. Premium users can unlock the all-time view
-                    to evaluate long-term trends since a specific expansion release. For
-                    instance, looking closely at the recent data, you will immediately
-                    notice aggressive shifts: when a top-tier threat begins dominating
-                    the standings, counter-decks naturally rise to answer them.
+                    The trend graph plots the top archetypes over the selected window.
+                    You can see exactly when a deck peaks in popularity or falls out of
+                    favour as the meta adapts. The 10 and 20-day views are free to
+                    everyone; Premium unlocks the 30-day and all-time views to evaluate
+                    long-term trends. For instance, looking closely at the recent data,
+                    you will immediately notice aggressive shifts: when a top-tier
+                    threat begins dominating the standings, counter-decks naturally
+                    rise to answer them.
                 </p>
                 <p>
                     Cross-reference these stats with our{" "}

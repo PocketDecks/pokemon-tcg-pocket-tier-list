@@ -194,12 +194,12 @@ export const buildWindowArtefacts = (
   );
 
   const gamesByName = new Map(
-    metaShare.decks.map((entry) => [entry.name, entry.games14])
+    metaShare.decks.map((entry) => [entry.name, entry.windowGames])
   );
   const powerInputs: DeckPowerInput[] = bestDecks.map((deck) => ({
     name: deck.name,
     matchups: powerMatchupData[deck.name] ?? [],
-    games14: gamesByName.get(deck.name) ?? 0,
+    windowGames: gamesByName.get(deck.name) ?? 0,
   }));
   const powerByName = new Map(
     buildDeckPower(powerInputs).map((row) => [row.name, row] as const)

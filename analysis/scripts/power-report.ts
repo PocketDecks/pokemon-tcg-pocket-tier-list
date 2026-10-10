@@ -14,7 +14,7 @@ const matchups = matchupData as PipelineMatchupData;
 const inputs: DeckPowerInput[] = share.decks.map((entry) => ({
   name: entry.name,
   matchups: matchups[entry.name] ?? [],
-  games14: entry.games14,
+  windowGames: entry.windowGames,
 }));
 
 const rows = buildDeckPower(inputs);

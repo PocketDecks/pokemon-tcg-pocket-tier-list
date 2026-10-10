@@ -148,7 +148,7 @@ Each `MetaShareEntry` carries:
 | `share` | number | Share of qualified games in the trailing 7-day window, 0 to 1. Both numerator and denominator count qualified games only. |
 | `sharePrev` | number | Same measure for the window ending 7 days earlier. |
 | `delta` | number | `share - sharePrev`; can be negative. |
-| `games14` | number | Qualified games in the trailing 14-day window. A fresh expansion caps this in practice because the dataset starts at the expansion release date. |
+| `windowGames` | number | Qualified games captured in the artefact's window. A fresh expansion caps this in practice because the dataset starts at the expansion release date. |
 | `firstSeen` | string | Earliest calendar day the archetype appears in the qualified pool. |
 | `isNew` | boolean | True when `firstSeen` falls inside the current window. |
 

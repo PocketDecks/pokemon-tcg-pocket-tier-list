@@ -4,14 +4,14 @@ import {
   toPowerScale,
 } from "../utils/build-deck-power";
 
-// Three decks. games14 of 100/50/100 gives share14 of 0.4/0.2/0.4 and freqScore
+// Three decks. windowGames of 100/50/100 gives share14 of 0.4/0.2/0.4 and freqScore
 // of 100/50/50. With MATCHUP_PRIOR_GAMES = 30 every expected win rate below is
 // checkable on paper. gamma only faces beta, whose 0.2 share sits under the
 // coverage bar, so gamma stays the deliberately unranked deck.
 const fixture = (): DeckPowerInput[] => [
   {
     name: "alpha",
-    games14: 100,
+    windowGames: 100,
     matchups: [
       // (0.6*70 + 30*0.5) / (70+30) = 0.57
       { name: "beta", winRate: 0.6, totalGames: 70 },
@@ -22,7 +22,7 @@ const fixture = (): DeckPowerInput[] => [
   },
   {
     name: "beta",
-    games14: 50,
+    windowGames: 50,
     matchups: [
       // (0.4*70 + 15) / 100 = 0.43
       { name: "alpha", winRate: 0.4, totalGames: 70 },
@@ -33,7 +33,7 @@ const fixture = (): DeckPowerInput[] => [
   },
   {
     name: "gamma",
-    games14: 100,
+    windowGames: 100,
     matchups: [
       // only faces beta, whose 0.2 share is under the bar, so gamma is unranked
       { name: "beta", winRate: 0.6, totalGames: 30 },
@@ -89,14 +89,14 @@ describe("buildDeckPower", () => {
     const rows = buildDeckPower([
       {
         name: "alpha",
-        games14: 100,
+        windowGames: 100,
         matchups: [
           { name: "beta", winRate: 0.6, totalGames: 70 },
           { name: "gamma", winRate: 0.7, totalGames: 3 },
         ],
       },
-      { name: "beta", games14: 100, matchups: [] },
-      { name: "gamma", games14: 50, matchups: [] },
+      { name: "beta", windowGames: 100, matchups: [] },
+      { name: "gamma", windowGames: 50, matchups: [] },
     ]);
     expect(by(rows, "alpha").fieldCoverage).toBeCloseTo(0.6, 10);
   });
@@ -105,10 +105,10 @@ describe("buildDeckPower", () => {
     const rows = buildDeckPower([
       {
         name: "alpha",
-        games14: 100,
+        windowGames: 100,
         matchups: [{ name: "beta", winRate: 0.9, totalGames: 1.5 }],
       },
-      { name: "beta", games14: 50, matchups: [] },
+      { name: "beta", windowGames: 50, matchups: [] },
     ]);
     expect(by(rows, "alpha").fieldCoverage).toBe(0);
   });
@@ -130,12 +130,12 @@ describe("buildDeckPower", () => {
     const rows = buildDeckPower([
       {
         name: "wide",
-        games14: 75,
+        windowGames: 75,
         matchups: [{ name: "narrow", winRate: 0.5, totalGames: 60 }],
       },
       {
         name: "narrow",
-        games14: 25,
+        windowGames: 25,
         matchups: [{ name: "wide", winRate: 0.5, totalGames: 60 }],
       },
     ]);
@@ -147,12 +147,12 @@ describe("buildDeckPower", () => {
     const rows = buildDeckPower([
       {
         name: "wide",
-        games14: 80,
+        windowGames: 80,
         matchups: [{ name: "small", winRate: 0.5, totalGames: 60 }],
       },
       {
         name: "small",
-        games14: 20,
+        windowGames: 20,
         matchups: [{ name: "wide", winRate: 0.5, totalGames: 60 }],
       },
     ]);
@@ -173,7 +173,7 @@ describe("buildDeckPower", () => {
     const rows = buildDeckPower(fixture());
     expect(by(rows, "alpha").freqScore).toBeCloseTo(100, 10);
     expect(by(rows, "beta").freqScore).toBeCloseTo(50, 10);
-    // gamma ties alpha on games14, so it also reads 100 despite being unranked.
+    // gamma ties alpha on windowGames, so it also reads 100 despite being unranked.
     expect(by(rows, "gamma").freqScore).toBeCloseTo(100, 10);
   });
 
@@ -190,7 +190,7 @@ describe("buildDeckPower", () => {
 
   it("marks every deck unranked when none clears the coverage bar", () => {
     const rows = buildDeckPower([
-      { name: "solo", games14: 10, matchups: [{ name: "Total", winRate: 0.5, totalGames: 10 }] },
+      { name: "solo", windowGames: 10, matchups: [{ name: "Total", winRate: 0.5, totalGames: 10 }] },
     ]);
     expect(rows[0].powerScore).toBeNull();
     expect(rows[0].fieldCoverage).toBe(0);

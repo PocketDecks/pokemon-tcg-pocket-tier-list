@@ -16,6 +16,14 @@ const PREMIUM_META_WINDOWS: readonly MetaWindow[] = ["30d", "all"];
 export const isPremiumMetaWindow = (window: MetaWindow): boolean =>
   PREMIUM_META_WINDOWS.includes(window);
 
+/** Trailing day count per window; null means the whole store (All Time). */
+export const META_WINDOW_LENGTH_DAYS: Record<MetaWindow, number | null> = {
+  "10d": 10,
+  "20d": 20,
+  "30d": 30,
+  all: null,
+};
+
 /** i18n key under `windowDays.` holding the human day label per window. */
 export const META_WINDOW_LABEL_DAYS: Record<MetaWindow, string> = {
   "10d": "10d",

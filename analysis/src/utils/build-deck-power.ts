@@ -25,8 +25,8 @@ export interface DeckPowerInput {
   name: string;
   /** The deck's qualified-population matchup rows, including the synthetic Total row. */
   matchups: PipelineMatchupEntry[];
-  /** Qualified games in the trailing 14-day window. */
-  games14: number;
+  /** Qualified games captured in the caller's window. */
+  windowGames: number;
 }
 
 export interface DeckPowerResult {
@@ -65,11 +65,11 @@ export const toPowerScale = (
 export const buildDeckPower = (inputs: DeckPowerInput[]): DeckPowerResult[] => {
   if (!inputs.length) return [];
 
-  const totalGames14 = inputs.reduce((sum, d) => sum + d.games14, 0);
+  const totalWindowGames = inputs.reduce((sum, d) => sum + d.windowGames, 0);
   const share14 = new Map(
-    inputs.map((d) => [d.name, totalGames14 > 0 ? d.games14 / totalGames14 : 0])
+    inputs.map((d) => [d.name, totalWindowGames > 0 ? d.windowGames / totalWindowGames : 0])
   );
-  const maxGames14 = Math.max(...inputs.map((d) => d.games14));
+  const maxWindowGames = Math.max(...inputs.map((d) => d.windowGames));
 
   const partial = inputs.map((deck) => {
     const rows = deck.matchups.filter(
@@ -100,7 +100,7 @@ export const buildDeckPower = (inputs: DeckPowerInput[]): DeckPowerResult[] => {
       name: deck.name,
       expectedWinRate: fieldCoverage > 0 ? weighted / fieldCoverage : 0.5,
       fieldCoverage,
-      freqScore: maxGames14 > 0 ? (100 * deck.games14) / maxGames14 : 0,
+      freqScore: maxWindowGames > 0 ? (100 * deck.windowGames) / maxWindowGames : 0,
       ranked: fieldCoverage >= MIN_FIELD_COVERAGE,
     };
   });

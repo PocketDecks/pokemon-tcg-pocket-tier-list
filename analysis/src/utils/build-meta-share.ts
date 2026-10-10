@@ -110,7 +110,7 @@ export const buildMetaShare = (
       share,
       sharePrev,
       delta: share - sharePrev,
-      games14: gamesPlayed,
+      windowGames: gamesPlayed,
       firstSeen: seen,
       isNew:
         windowStart !== undefined &&

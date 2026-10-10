@@ -299,7 +299,7 @@ const DeckDetailPage = () => {
                     {t("deckPage.popularity")} ({t(`windowDays.${metaWindow}`)}):
                   </span>
                   <KeyStatValue>
-                    {shareEntry ? Math.round(shareEntry.games14).toLocaleString() : "—"}
+                    {shareEntry ? Math.round(shareEntry.windowGames).toLocaleString() : "—"}
                   </KeyStatValue>
                   <Tooltip
                     text={t("deckPage.popularityTooltip", {

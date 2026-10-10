@@ -1,5 +1,4 @@
 import fs from "fs";
-import getMultiplier from "./get-multiplier";
 import { filterDecks } from "./filter-decks";
 import { populateDeckNames } from "./populate-deck-names";
 import { updateDeckResults } from "./update-deck-results";
@@ -31,29 +30,9 @@ const calculateTotalGames = (decks: Deck[]): number => {
   return decks.reduce((acc, deck) => acc + deck.totalGames, 0);
 };
 
-const getNewestDate = (decks: Deck[]): Date => {
-  const uniqueDates = [...new Set(decks.map((deck) => deck.date))];
-  return uniqueDates.reduce(
-    (newest, date) => (new Date(date) > newest ? new Date(date) : newest),
-    new Date(0)
-  );
-};
-
-const applyMultipliers = (decks: Deck[], newestDate: Date): Deck[] => {
-  return decks.map((deck) => {
-    const multiplier = getMultiplier(deck, newestDate);
-    return {
-      ...deck,
-      totalGames: deck.totalGames * multiplier,
-      winCount: deck.winCount * multiplier,
-      wins: deck.wins || [],
-      losses: deck.losses || [],
-      multiplier,
-    };
-  });
-};
-
-// Loads decks from disk, filters them, attaches names and results, then applies recency multipliers.
+// Loads decks from disk, filters them, then attaches names and results. Raw
+// game counts survive: weighting happens per window downstream, where every
+// in-window game counts the same.
 const getDecks = (): Deck[] => {
   const rawDecks = readDecksFromFile();
   const filteredDecks = filterDecks(rawDecks);
@@ -63,10 +42,7 @@ const getDecks = (): Deck[] => {
   const totalGames = calculateTotalGames(decksWithResults);
   console.log("Sample Games:", (totalGames / 2).toLocaleString());
 
-  const newestDate = getNewestDate(decksWithResults);
-  const decksWithMultipliers = applyMultipliers(decksWithResults, newestDate);
-
-  return decksWithMultipliers;
+  return decksWithResults;
 };
 
 export default getDecks;

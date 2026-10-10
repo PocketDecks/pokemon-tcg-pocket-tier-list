@@ -1,9 +1,9 @@
 import expansions from "pokemon-tcg-pocket-cards/data/v5/expansions.json";
 import { DELUXE_SET_IDS, EXPANSION_RELEASE_DATE, latestReleaseDate } from "../settings";
 
-// The ramp (win-rate weight and the new-set multiplier) is timed from the
-// newest expansion. That date is derived from the package, so it has to keep
-// agreeing with the package rather than with a constant that drifts.
+// The win-rate weight ramp is timed from the newest expansion. That date is
+// derived from the package, so it has to keep agreeing with the package rather
+// than with a constant that drifts.
 describe("EXPANSION_RELEASE_DATE", () => {
   const list = expansions as { id: string; release_date: string | null }[];
 

@@ -22,15 +22,13 @@ export const latestReleaseDate = (
   return newest ?? FALLBACK_RELEASE_DATE;
 };
 
-// Release date of the newest expansion; the win-rate ramp and new-set multiplier are timed from it.
+// Release date of the newest expansion; the win-rate weight ramps from it.
 export const EXPANSION_RELEASE_DATE: Date = latestReleaseDate(
   expansions as { id: string; release_date: string | null }[]
 );
 
 // Exclude ex-only decks from analysis.
 export const NOEX: boolean = false;
-// Multiplier applied to pre-expansion decks.
-export const OLD_MULTIPLIER: number = 1;
 // Number of cards in a legal deck.
 export const CARDS_IN_DECK: number = 20;
 export const NOEX_PERCENT_CUTOFF: number = 0.2;
@@ -57,7 +55,6 @@ export const scoringWeights = (now: Date) => {
   return {
     winrateImportance,
     popularityImportance: 1 - winrateImportance,
-    newMultiplier: 1 + weeksLive / 1.5,
   };
 };
 
@@ -66,9 +63,6 @@ const CURRENT_SCORING_WEIGHTS = scoringWeights(new Date());
 export const WINRATE_IMPORTANCE = CURRENT_SCORING_WEIGHTS.winrateImportance;
 // Residual weight given to popularity; the complement of WINRATE_IMPORTANCE.
 export const POPULARITY_IMPORTANCE = CURRENT_SCORING_WEIGHTS.popularityImportance;
-
-// Multiplier applied to decks from the newest expansion; grows with weeks since release.
-export const NEW_MULTIPLIER = CURRENT_SCORING_WEIGHTS.newMultiplier;
 
 // Pseudo-games pulling each matchup win rate toward 50%, so a 4-game matchup
 // barely moves a deck's expected win rate and a 500-game one counts almost

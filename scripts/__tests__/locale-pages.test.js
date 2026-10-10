@@ -86,7 +86,9 @@ test("locale page graph in the built output", { skip: !hasDist && "dist/ is not 
     }
   });
 
-  await t.test("the hreflang set is complete and reciprocal", () => {
+  await t.test("the hreflang set is complete, resolvable and reciprocal", () => {
+    const urlToEntry = new Map(entries.map((entry) => [expectedUrl(entry), entry]));
+
     for (const entry of entries) {
       const html = fs.readFileSync(path.join(DIST_DIR, entry), "utf8");
       const set = alternates(html);
@@ -103,6 +105,20 @@ test("locale page graph in the built output", { skip: !hasDist && "dist/ is not 
         english,
         `${entry}: x-default is not the English URL`
       );
+
+      for (const alternate of set) {
+        const counterpart = urlToEntry.get(alternate.href);
+        assert.ok(
+          counterpart !== undefined,
+          `${entry}: ${alternate.hreflang} points at ${alternate.href}, which is not a built page`
+        );
+        const counterpartHtml = fs.readFileSync(path.join(DIST_DIR, counterpart), "utf8");
+        const back = alternates(counterpartHtml).find((a) => a.href === self);
+        assert.ok(
+          back !== undefined,
+          `${entry}: ${alternate.hreflang} -> ${alternate.href} does not link back`
+        );
+      }
     }
   });
 

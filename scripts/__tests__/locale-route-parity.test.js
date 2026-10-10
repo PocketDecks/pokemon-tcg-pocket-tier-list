@@ -3,58 +3,49 @@ const assert = require("node:assert");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const APP_SOURCE = path.join(__dirname, "..", "..", "src", "App.tsx");
 const { LOCALE_PREFIXES } = require("../locale-route.mjs");
 
-const readAppRoutePaths = (source) => {
-  const tokens = [...source.matchAll(/<Route\b|<\/Route>/g)];
-  const stack = [];
-  const routes = [];
-  tokens.forEach((token, index) => {
-    if (token[0] === "</Route>") {
-      stack.pop();
-      return;
-    }
-    const end = index + 1 < tokens.length ? tokens[index + 1].index : source.length;
-    const segment = source.slice(token.index, end);
-    const parent = stack[stack.length - 1] ?? "";
-    const own = segment.match(/\spath="([^"]*)"/)?.[1];
-    const full =
-      own === undefined
-        ? parent || "/"
-        : own.startsWith("/")
-          ? own
-          : `${parent.replace(/\/$/, "")}/${own}`;
-    if (own !== undefined) routes.push(full);
-    if (!/\/>\s*$/.test(segment.trimEnd())) stack.push(full);
-  });
-  return routes;
-};
+const DIST_DIR = process.env.BUILD_DIR
+  ? path.resolve(process.env.BUILD_DIR)
+  : path.join(__dirname, "..", "..", "dist");
 
-// The locale tables are written out literally because verify-dist-html reads the
-// route paths out of this file; a shared fragment hides them from that check.
-test("every prefixed locale renders the same routes as the default locale", () => {
-  const routes = readAppRoutePaths(fs.readFileSync(APP_SOURCE, "utf8"));
-  const prefixed = Object.values(LOCALE_PREFIXES).filter((prefix) => prefix !== "");
+const hasDist = fs.existsSync(path.join(DIST_DIR, "index.html"));
 
-  const defaultRoutes = routes
-    .filter(
-      (route) =>
-        route !== "/" &&
-        !prefixed.some((prefix) => route === prefix || route.startsWith(`${prefix}/`))
-    )
+const pageEntries = (dir = DIST_DIR) =>
+  fs
+    .readdirSync(dir, { recursive: true })
+    .filter((entry) => entry.endsWith("index.html"))
+    .map((entry) => entry.split(path.sep).join("/"))
     .sort();
 
-  for (const prefix of prefixed) {
-    const localeRoutes = routes
-      .filter((route) => route === prefix || route.startsWith(`${prefix}/`))
-      .map((route) => (route === prefix ? "/" : route.slice(prefix.length)))
-      .filter((route) => route !== "/")
-      .sort();
-    assert.deepStrictEqual(
-      localeRoutes,
-      defaultRoutes,
-      `${prefix} does not render the same routes as the default locale`
+// Parity is read off the built output, not the route table's source text: a
+// route added to one locale's tree only shows up here as an unmatched page.
+test(
+  "every locale serves the same pages as the default locale",
+  { skip: !hasDist && "dist/ is not built" },
+  () => {
+    const entries = new Set(pageEntries());
+    const prefixed = Object.values(LOCALE_PREFIXES).filter((prefix) => prefix !== "");
+    const englishPages = [...entries].filter(
+      (entry) => !prefixed.some((prefix) => entry.startsWith(`${prefix.slice(1)}/`))
     );
+
+    assert.ok(englishPages.length > 0, "no default-locale pages built");
+
+    for (const prefix of prefixed) {
+      const localeDir = prefix.slice(1);
+      const missing = englishPages.filter((entry) => !entries.has(`${localeDir}/${entry}`));
+      assert.deepStrictEqual(missing, [], `${prefix} has no page for: ${missing.join(", ")}`);
+
+      const localePages = [...entries].filter((entry) => entry.startsWith(`${localeDir}/`));
+      const orphaned = localePages.filter(
+        (entry) => !entries.has(entry.slice(localeDir.length + 1))
+      );
+      assert.deepStrictEqual(
+        orphaned,
+        [],
+        `${prefix} has pages with no default-locale counterpart: ${orphaned.join(", ")}`
+      );
+    }
   }
-});
+);

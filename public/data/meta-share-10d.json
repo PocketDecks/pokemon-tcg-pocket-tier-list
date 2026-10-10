@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-10T10:13:05.107Z",
+  "generatedAt": "2026-10-10T10:53:01.884Z",
   "windowDays": 10,
   "decks": [
     {
@@ -7,7 +7,7 @@
       "share": 0.10841983852364476,
       "sharePrev": 0,
       "delta": 0.10841983852364476,
-      "games14": 376,
+      "windowGames": 376,
       "firstSeen": "2026-09-30",
       "isNew": true
     },
@@ -16,7 +16,7 @@
       "share": 0.1046712802768166,
       "sharePrev": 0,
       "delta": 0.1046712802768166,
-      "games14": 363,
+      "windowGames": 363,
       "firstSeen": "2026-09-30",
       "isNew": true
     },
@@ -25,7 +25,7 @@
       "share": 0.08391003460207612,
       "sharePrev": 0,
       "delta": 0.08391003460207612,
-      "games14": 291,
+      "windowGames": 291,
       "firstSeen": "2026-10-01",
       "isNew": true
     },
@@ -34,7 +34,7 @@
       "share": 0.07122260668973472,
       "sharePrev": 0,
       "delta": 0.07122260668973472,
-      "games14": 247,
+      "windowGames": 247,
       "firstSeen": "2026-09-30",
       "isNew": true
     },
@@ -43,7 +43,7 @@
       "share": 0.06430219146482122,
       "sharePrev": 0,
       "delta": 0.06430219146482122,
-      "games14": 223,
+      "windowGames": 223,
       "firstSeen": "2026-09-30",
       "isNew": true
     },
@@ -52,7 +52,7 @@
       "share": 0.06228373702422145,
       "sharePrev": 0,
       "delta": 0.06228373702422145,
-      "games14": 216,
+      "windowGames": 216,
       "firstSeen": "2026-09-30",
       "isNew": true
     },
@@ -61,7 +61,7 @@
       "share": 0.0591118800461361,
       "sharePrev": 0,
       "delta": 0.0591118800461361,
-      "games14": 205,
+      "windowGames": 205,
       "firstSeen": "2026-10-01",
       "isNew": true
     },
@@ -70,7 +70,7 @@
       "share": 0.05334486735870819,
       "sharePrev": 0,
       "delta": 0.05334486735870819,
-      "games14": 185,
+      "windowGames": 185,
       "firstSeen": "2026-09-30",
       "isNew": true
     },
@@ -79,7 +79,7 @@
       "share": 0.046424452133794696,
       "sharePrev": 0,
       "delta": 0.046424452133794696,
-      "games14": 161,
+      "windowGames": 161,
       "firstSeen": "2026-09-30",
       "isNew": true
     },
@@ -88,7 +88,7 @@
       "share": 0.03431372549019608,
       "sharePrev": 0,
       "delta": 0.03431372549019608,
-      "games14": 119,
+      "windowGames": 119,
       "firstSeen": "2026-10-03",
       "isNew": true
     },
@@ -97,7 +97,7 @@
       "share": 0.031141868512110725,
       "sharePrev": 0,
       "delta": 0.031141868512110725,
-      "games14": 108,
+      "windowGames": 108,
       "firstSeen": "2026-09-30",
       "isNew": true
     },
@@ -106,7 +106,7 @@
       "share": 0.025951557093425604,
       "sharePrev": 0,
       "delta": 0.025951557093425604,
-      "games14": 90,
+      "windowGames": 90,
       "firstSeen": "2026-09-30",
       "isNew": true
     },
@@ -115,7 +115,7 @@
       "share": 0.02364475201845444,
       "sharePrev": 0,
       "delta": 0.02364475201845444,
-      "games14": 82,
+      "windowGames": 82,
       "firstSeen": "2026-09-30",
       "isNew": true
     },
@@ -124,7 +124,7 @@
       "share": 0.02306805074971165,
       "sharePrev": 0,
       "delta": 0.02306805074971165,
-      "games14": 80,
+      "windowGames": 80,
       "firstSeen": "2026-09-30",
       "isNew": true
     },
@@ -133,7 +133,7 @@
       "share": 0.02306805074971165,
       "sharePrev": 0,
       "delta": 0.02306805074971165,
-      "games14": 80,
+      "windowGames": 80,
       "firstSeen": "2026-10-03",
       "isNew": true
     },
@@ -142,7 +142,7 @@
       "share": 0.02162629757785467,
       "sharePrev": 0,
       "delta": 0.02162629757785467,
-      "games14": 75,
+      "windowGames": 75,
       "firstSeen": "2026-09-30",
       "isNew": true
     },
@@ -151,7 +151,7 @@
       "share": 0.01903114186851211,
       "sharePrev": 0,
       "delta": 0.01903114186851211,
-      "games14": 66,
+      "windowGames": 66,
       "firstSeen": "2026-10-03",
       "isNew": true
     },
@@ -160,7 +160,7 @@
       "share": 0.01903114186851211,
       "sharePrev": 0,
       "delta": 0.01903114186851211,
-      "games14": 66,
+      "windowGames": 66,
       "firstSeen": "2026-10-03",
       "isNew": true
     },
@@ -169,7 +169,7 @@
       "share": 0.01845444059976932,
       "sharePrev": 0,
       "delta": 0.01845444059976932,
-      "games14": 64,
+      "windowGames": 64,
       "firstSeen": "2026-09-30",
       "isNew": true
     },
@@ -178,7 +178,7 @@
       "share": 0.016724336793540944,
       "sharePrev": 0,
       "delta": 0.016724336793540944,
-      "games14": 58,
+      "windowGames": 58,
       "firstSeen": "2026-10-03",
       "isNew": true
     },
@@ -187,7 +187,7 @@
       "share": 0.014705882352941176,
       "sharePrev": 0,
       "delta": 0.014705882352941176,
-      "games14": 51,
+      "windowGames": 51,
       "firstSeen": "2026-10-03",
       "isNew": true
     },
@@ -196,7 +196,7 @@
       "share": 0.013552479815455595,
       "sharePrev": 0,
       "delta": 0.013552479815455595,
-      "games14": 47,
+      "windowGames": 47,
       "firstSeen": "2026-10-02",
       "isNew": true
     },
@@ -205,7 +205,7 @@
       "share": 0.012110726643598616,
       "sharePrev": 0,
       "delta": 0.012110726643598616,
-      "games14": 42,
+      "windowGames": 42,
       "firstSeen": "2026-10-03",
       "isNew": true
     },
@@ -214,7 +214,7 @@
       "share": 0.010957324106113034,
       "sharePrev": 0,
       "delta": 0.010957324106113034,
-      "games14": 38,
+      "windowGames": 38,
       "firstSeen": "2026-10-02",
       "isNew": true
     },
@@ -223,7 +223,7 @@
       "share": 0.010957324106113034,
       "sharePrev": 0,
       "delta": 0.010957324106113034,
-      "games14": 38,
+      "windowGames": 38,
       "firstSeen": "2026-10-02",
       "isNew": true
     },
@@ -232,7 +232,7 @@
       "share": 0.010092272202998846,
       "sharePrev": 0,
       "delta": 0.010092272202998846,
-      "games14": 35,
+      "windowGames": 35,
       "firstSeen": "2026-10-02",
       "isNew": true
     },
@@ -241,7 +241,7 @@
       "share": 0.00922722029988466,
       "sharePrev": 0,
       "delta": 0.00922722029988466,
-      "games14": 32,
+      "windowGames": 32,
       "firstSeen": "2026-10-02",
       "isNew": true
     },
@@ -250,7 +250,7 @@
       "share": 0.00865051903114187,
       "sharePrev": 0,
       "delta": 0.00865051903114187,
-      "games14": 30,
+      "windowGames": 30,
       "firstSeen": "2026-10-03",
       "isNew": true
     }

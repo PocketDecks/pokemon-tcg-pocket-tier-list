@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-10T10:13:05.107Z",
+  "generatedAt": "2026-10-10T10:53:01.884Z",
   "windowDays": 20,
   "decks": [
     {
@@ -7,7 +7,7 @@
       "share": 0.09818679438932604,
       "sharePrev": 0,
       "delta": 0.09818679438932604,
-      "games14": 574,
+      "windowGames": 574,
       "firstSeen": "2026-09-20",
       "isNew": true
     },
@@ -16,7 +16,7 @@
       "share": 0.08039685254875129,
       "sharePrev": 0,
       "delta": 0.08039685254875129,
-      "games14": 470,
+      "windowGames": 470,
       "firstSeen": "2026-09-21",
       "isNew": true
     },
@@ -25,7 +25,7 @@
       "share": 0.074580910023948,
       "sharePrev": 0,
       "delta": 0.074580910023948,
-      "games14": 436,
+      "windowGames": 436,
       "firstSeen": "2026-09-23",
       "isNew": true
     },
@@ -34,7 +34,7 @@
       "share": 0.06756756756756757,
       "sharePrev": 0,
       "delta": 0.06756756756756757,
-      "games14": 395,
+      "windowGames": 395,
       "firstSeen": "2026-09-21",
       "isNew": true
     },
@@ -43,7 +43,7 @@
       "share": 0.056619911050290794,
       "sharePrev": 0,
       "delta": 0.056619911050290794,
-      "games14": 331,
+      "windowGames": 331,
       "firstSeen": "2026-09-22",
       "isNew": true
     },
@@ -52,7 +52,7 @@
       "share": 0.0552514539856312,
       "sharePrev": 0,
       "delta": 0.0552514539856312,
-      "games14": 323,
+      "windowGames": 323,
       "firstSeen": "2026-09-20",
       "isNew": true
     },
@@ -61,7 +61,7 @@
       "share": 0.0542251111871365,
       "sharePrev": 0,
       "delta": 0.0542251111871365,
-      "games14": 317,
+      "windowGames": 317,
       "firstSeen": "2026-09-20",
       "isNew": true
     },
@@ -70,7 +70,7 @@
       "share": 0.052685596989394456,
       "sharePrev": 0,
       "delta": 0.052685596989394456,
-      "games14": 308,
+      "windowGames": 308,
       "firstSeen": "2026-09-20",
       "isNew": true
     },
@@ -79,7 +79,7 @@
       "share": 0.03318508381799521,
       "sharePrev": 0,
       "delta": 0.03318508381799521,
-      "games14": 194,
+      "windowGames": 194,
       "firstSeen": "2026-09-23",
       "isNew": true
     },
@@ -88,7 +88,7 @@
       "share": 0.03284296955183031,
       "sharePrev": 0,
       "delta": 0.03284296955183031,
-      "games14": 192,
+      "windowGames": 192,
       "firstSeen": "2026-09-20",
       "isNew": true
     },
@@ -97,7 +97,7 @@
       "share": 0.030790283954840916,
       "sharePrev": 0,
       "delta": 0.030790283954840916,
-      "games14": 180,
+      "windowGames": 180,
       "firstSeen": "2026-09-20",
       "isNew": true
     },
@@ -106,7 +106,7 @@
       "share": 0.02959288402326377,
       "sharePrev": 0,
       "delta": 0.02959288402326377,
-      "games14": 173,
+      "windowGames": 173,
       "firstSeen": "2026-09-25",
       "isNew": true
     },
@@ -115,7 +115,7 @@
       "share": 0.023263770099213137,
       "sharePrev": 0,
       "delta": 0.023263770099213137,
-      "games14": 136,
+      "windowGames": 136,
       "firstSeen": "2026-09-23",
       "isNew": true
     },
@@ -124,7 +124,7 @@
       "share": 0.020355798836811496,
       "sharePrev": 0,
       "delta": 0.020355798836811496,
-      "games14": 119,
+      "windowGames": 119,
       "firstSeen": "2026-10-03",
       "isNew": true
     },
@@ -133,7 +133,7 @@
       "share": 0.017447827574409852,
       "sharePrev": 0,
       "delta": 0.017447827574409852,
-      "games14": 102,
+      "windowGames": 102,
       "firstSeen": "2026-09-22",
       "isNew": true
     },
@@ -142,7 +142,7 @@
       "share": 0.016763599042080055,
       "sharePrev": 0,
       "delta": 0.016763599042080055,
-      "games14": 98,
+      "windowGames": 98,
       "firstSeen": "2026-09-25",
       "isNew": true
     },
@@ -151,7 +151,7 @@
       "share": 0.015395141977420458,
       "sharePrev": 0,
       "delta": 0.015395141977420458,
-      "games14": 90,
+      "windowGames": 90,
       "firstSeen": "2026-09-30",
       "isNew": true
     },
@@ -160,7 +160,7 @@
       "share": 0.015224084844338008,
       "sharePrev": 0,
       "delta": 0.015224084844338008,
-      "games14": 89,
+      "windowGames": 89,
       "firstSeen": "2026-09-24",
       "isNew": true
     },
@@ -169,7 +169,7 @@
       "share": 0.01488197057817311,
       "sharePrev": 0,
       "delta": 0.01488197057817311,
-      "games14": 87,
+      "windowGames": 87,
       "firstSeen": "2026-09-25",
       "isNew": true
     },
@@ -178,7 +178,7 @@
       "share": 0.01471091344509066,
       "sharePrev": 0,
       "delta": 0.01471091344509066,
-      "games14": 86,
+      "windowGames": 86,
       "firstSeen": "2026-09-21",
       "isNew": true
     },
@@ -187,7 +187,7 @@
       "share": 0.014197742045843311,
       "sharePrev": 0,
       "delta": 0.014197742045843311,
-      "games14": 83,
+      "windowGames": 83,
       "firstSeen": "2026-09-22",
       "isNew": true
     },
@@ -196,7 +196,7 @@
       "share": 0.013684570646595963,
       "sharePrev": 0,
       "delta": 0.013684570646595963,
-      "games14": 80,
+      "windowGames": 80,
       "firstSeen": "2026-10-03",
       "isNew": true
     },
@@ -205,7 +205,7 @@
       "share": 0.011802942182689019,
       "sharePrev": 0,
       "delta": 0.011802942182689019,
-      "games14": 69,
+      "windowGames": 69,
       "firstSeen": "2026-09-21",
       "isNew": true
     },
@@ -214,7 +214,7 @@
       "share": 0.01128977078344167,
       "sharePrev": 0,
       "delta": 0.01128977078344167,
-      "games14": 66,
+      "windowGames": 66,
       "firstSeen": "2026-10-03",
       "isNew": true
     },
@@ -223,7 +223,7 @@
       "share": 0.01111871365035922,
       "sharePrev": 0,
       "delta": 0.01111871365035922,
-      "games14": 65,
+      "windowGames": 65,
       "firstSeen": "2026-09-25",
       "isNew": true
     },
@@ -232,7 +232,7 @@
       "share": 0.01094765651727677,
       "sharePrev": 0,
       "delta": 0.01094765651727677,
-      "games14": 64,
+      "windowGames": 64,
       "firstSeen": "2026-09-21",
       "isNew": true
     },
@@ -241,7 +241,7 @@
       "share": 0.009408142319534725,
       "sharePrev": 0,
       "delta": 0.009408142319534725,
-      "games14": 55,
+      "windowGames": 55,
       "firstSeen": "2026-09-23",
       "isNew": true
     },
@@ -250,7 +250,7 @@
       "share": 0.009066028053369826,
       "sharePrev": 0,
       "delta": 0.009066028053369826,
-      "games14": 53,
+      "windowGames": 53,
       "firstSeen": "2026-09-20",
       "isNew": true
     },
@@ -259,7 +259,7 @@
       "share": 0.008723913787204926,
       "sharePrev": 0,
       "delta": 0.008723913787204926,
-      "games14": 51,
+      "windowGames": 51,
       "firstSeen": "2026-09-24",
       "isNew": true
     },
@@ -268,7 +268,7 @@
       "share": 0.008723913787204926,
       "sharePrev": 0,
       "delta": 0.008723913787204926,
-      "games14": 51,
+      "windowGames": 51,
       "firstSeen": "2026-10-03",
       "isNew": true
     },
@@ -277,7 +277,7 @@
       "share": 0.008723913787204926,
       "sharePrev": 0,
       "delta": 0.008723913787204926,
-      "games14": 51,
+      "windowGames": 51,
       "firstSeen": "2026-09-24",
       "isNew": true
     },
@@ -286,7 +286,7 @@
       "share": 0.008723913787204926,
       "sharePrev": 0,
       "delta": 0.008723913787204926,
-      "games14": 51,
+      "windowGames": 51,
       "firstSeen": "2026-09-20",
       "isNew": true
     },
@@ -295,7 +295,7 @@
       "share": 0.008381799521040028,
       "sharePrev": 0,
       "delta": 0.008381799521040028,
-      "games14": 49,
+      "windowGames": 49,
       "firstSeen": "2026-09-25",
       "isNew": true
     },
@@ -304,7 +304,7 @@
       "share": 0.007184399589462881,
       "sharePrev": 0,
       "delta": 0.007184399589462881,
-      "games14": 42,
+      "windowGames": 42,
       "firstSeen": "2026-10-03",
       "isNew": true
     },
@@ -313,7 +313,7 @@
       "share": 0.006500171057133082,
       "sharePrev": 0,
       "delta": 0.006500171057133082,
-      "games14": 38,
+      "windowGames": 38,
       "firstSeen": "2026-09-25",
       "isNew": true
     },
@@ -322,7 +322,7 @@
       "share": 0.006500171057133082,
       "sharePrev": 0,
       "delta": 0.006500171057133082,
-      "games14": 38,
+      "windowGames": 38,
       "firstSeen": "2026-10-02",
       "isNew": true
     },
@@ -331,7 +331,7 @@
       "share": 0.0059869996578857335,
       "sharePrev": 0,
       "delta": 0.0059869996578857335,
-      "games14": 35,
+      "windowGames": 35,
       "firstSeen": "2026-09-20",
       "isNew": true
     },
@@ -340,7 +340,7 @@
       "share": 0.005644885391720835,
       "sharePrev": 0,
       "delta": 0.005644885391720835,
-      "games14": 33,
+      "windowGames": 33,
       "firstSeen": "2026-09-28",
       "isNew": true
     },
@@ -349,7 +349,7 @@
       "share": 0.005473828258638385,
       "sharePrev": 0,
       "delta": 0.005473828258638385,
-      "games14": 32,
+      "windowGames": 32,
       "firstSeen": "2026-09-23",
       "isNew": true
     },
@@ -358,7 +358,7 @@
       "share": 0.005473828258638385,
       "sharePrev": 0,
       "delta": 0.005473828258638385,
-      "games14": 32,
+      "windowGames": 32,
       "firstSeen": "2026-09-20",
       "isNew": true
     },
@@ -367,7 +367,7 @@
       "share": 0.005131713992473486,
       "sharePrev": 0,
       "delta": 0.005131713992473486,
-      "games14": 30,
+      "windowGames": 30,
       "firstSeen": "2026-09-23",
       "isNew": true
     },
@@ -376,7 +376,7 @@
       "share": 0.004618542593226137,
       "sharePrev": 0,
       "delta": 0.004618542593226137,
-      "games14": 27,
+      "windowGames": 27,
       "firstSeen": "2026-09-26",
       "isNew": true
     },
@@ -385,7 +385,7 @@
       "share": 0.004447485460143688,
       "sharePrev": 0,
       "delta": 0.004447485460143688,
-      "games14": 26,
+      "windowGames": 26,
       "firstSeen": "2026-09-23",
       "isNew": true
     },
@@ -394,7 +394,7 @@
       "share": 0.004276428327061239,
       "sharePrev": 0,
       "delta": 0.004276428327061239,
-      "games14": 25,
+      "windowGames": 25,
       "firstSeen": "2026-09-28",
       "isNew": true
     }

@@ -24,12 +24,12 @@ so a contributor files through one of the three forms.
 
 Each form applies its own labels on submission: `bug` for the first two,
 `enhancement` for the third, plus `area: data` on the data form and
-`status: needs-triage` on all three. Nothing is assigned automatically, and no
-form sets a project, an assignee or an issue type. Issue types are
-organisation-level, so the form check cannot verify one offline.
+`status: needs-triage` on all three. No form sets an assignee, a project or an
+issue type, and issue types are organisation-level, so the check cannot verify
+one offline.
 
-Anything you do not know can be written as `unknown`. An honest gap is more
-useful than a guess, and a maintainer can ask for the missing value.
+Write `unknown` for anything you do not know. A maintainer can then ask for the
+missing value instead of working from a guess.
 
 Never paste API keys, auth tokens, billing details, email addresses or private
 datasets into an issue. Report security problems through the private route in
@@ -37,10 +37,9 @@ datasets into an issue. Report security problems through the private route in
 
 ## What the forms check
 
-The forms are YAML files in `.github/ISSUE_TEMPLATE`. They are data, not code,
-so nothing about them fails a build on its own. `scripts/verify-issue-forms.js`
-validates them against GitHub's form schema and runs in CI under
-`yarn test:scripts`.
+The forms are YAML files in `.github/ISSUE_TEMPLATE`. They are data, so nothing
+about them fails a build on its own. `scripts/verify-issue-forms.js` checks them
+against GitHub's form schema and runs in CI under `yarn test:scripts`.
 
 ```bash
 gh label list --repo PocketDecks/pokemon-tcg-pocket-tier-list --limit 100 --json name --jq '[.[].name]' > .github/labels.snapshot.json
@@ -52,11 +51,11 @@ attribute or validation that the item type does not accept, a chooser key
 outside the schema, and a label the recorded label list does not contain. Each
 problem prints on its own line with the file it came from.
 
-`.github/labels.snapshot.json` is a snapshot of the repository's labels, so the
-check needs no network in CI. Refresh it with the `gh label list` command above
+`.github/labels.snapshot.json` records the repository's labels, so the check
+needs no network in CI. Refresh it with the `gh label list` command above
 whenever a label is added, renamed or removed. A stale snapshot still catches a
-template that references a label it never had, but it cannot catch a label that
-was deleted from GitHub after the snapshot was written.
+template that references a label it never had, but not one deleted from GitHub
+afterwards.
 
 ## Triage
 
@@ -75,9 +74,9 @@ Maintainers, not reporters, confirm:
 A completed form is a starting point, not evidence. Reproduce the report before
 labelling it confirmed, and ask for the missing field rather than inferring it.
 
-When a report needs a decision rather than a fix, label it
-`status: needs-decision` and name the decision in the issue. When it needs more
-information, label it `status: needs-info` and say exactly what is missing.
+A report that needs a decision rather than a fix gets `status: needs-decision`
+with the decision named in the issue. One that needs more information gets
+`status: needs-info` with exactly what is missing.
 
 ## Stale reports
 

@@ -68,7 +68,9 @@ const main = () => {
 
   const outPath = path.join(__dirname, "..", "public", "sitemap.xml");
   fs.writeFileSync(outPath, sitemap);
-  console.log(`Wrote ${STATIC_ROUTES.length + bestDecks.length} routes to ${outPath}`);
+  console.log(
+    `Wrote ${(STATIC_ROUTES.length + bestDecks.length) * ROUTE_LOCALES.length} routes to ${outPath}`
+  );
 };
 
 if (require.main === module) {

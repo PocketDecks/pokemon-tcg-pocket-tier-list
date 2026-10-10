@@ -192,7 +192,7 @@ const main = async () => {
         const html = await captureAfterRouteReady(page, route, async () => {
           if (DECK_ANCHOR_ROUTES.has(route)) {
             await page.waitForFunction(
-              () => document.querySelectorAll('a[href^="/deck/"]').length > 10,
+              () => document.querySelectorAll('a[href*="/deck/"]').length > 10,
               { timeout: 20000 }
             );
           }

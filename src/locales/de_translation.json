@@ -104,7 +104,7 @@
     "deckFinderHeader": "Klicke auf die Karten, die du nicht hast. Das Deck wird aktualisiert, um die besten Optionen mit deinen verfügbaren Karten anzuzeigen.",
     "relativeStrength": "Relative Stärke",
     "keyStats": "Wichtige Statistiken",
-    "popularity": "Spiele (14 T.)",
+    "popularity": "Spiele",
     "powerScore": "Power-Wert",
     "freqScore": "Häufigkeit",
     "metaScore": "Meta-Wert",
@@ -126,7 +126,7 @@
     "freqScoreTooltip": "Wie häufig dieses Deck in qualifizierten Turnierlisten gespielt wird, skaliert auf 100 für das meistgespielte Deck im aktuellen Zeitraum.",
     "metaScoreTooltip": "Der Durchschnitt aus Power Score und Frequenz. Er gewichtet die erwartete Siegrate gegen die tatsächliche Verbreitung des Decks.",
     "cardScoreTooltip": "Wie stark die einzelnen Karten dieses Decks sind, bewertet über jede Turnierliste. Das misst nur die Kartenqualität, nicht die Gewinnrate, und hat keinen Einfluss auf den Rang.",
-    "popularityTooltip": "Qualifizierte Spiele in den letzten 14 Tagen, begrenzt auf das Erscheinungsdatum dieser Erweiterung",
+    "popularityTooltip": "Qualifizierte Spiele im ausgewählten Zeitfenster ({{days}}).",
     "winRateTooltip": "Sieg-% im aktuellen Fenster",
     "metaShareTooltip": "Anteil qualifizierter Spiele ± wöchentliche Veränderung",
     "showTooltip": "Erklärung anzeigen",
@@ -160,6 +160,13 @@
     "winRate": "Gewinnrate",
     "latestExpansionCards": "Karten aus neuester Erweiterung",
     "latestExpansionCardsAny": "Beliebig"
+  },
+  "window": {
+    "label": "Zeitfenster",
+    "10d": "10 Tage",
+    "20d": "20 Tage",
+    "30d": "30 Tage",
+    "all": "Gesamtzeit"
   },
   "statistics": {
     "trends": "Meta-Trends",
@@ -351,5 +358,15 @@
       "body": "Bei Fragen zu dieser Datenschutzerklärung oder wenn Sie uns bitten möchten, Ihre Informationen zu löschen, kontaktieren Sie uns unter <0/>."
     },
     "fanNotice": "Top Pocket Decks ist ein Fanprojekt und steht in keiner Verbindung zu Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc. oder DeNA und wird von diesen weder unterstützt noch gesponsert."
+  },
+  "gameCounts": {
+    "title": "Effektive Turnierspiele",
+    "body": "Spielzahlen sind Schätzungen der exakten Gesamtsummen. Jedes Artefakt deckt ein festes Zeitfenster ab, standardmäßig 20 Tage, und jedes Spiel innerhalb eines Zeitfensters zählt gleich viel. Der Wechsel des Zeitfensters ändert, welche Spiele zählen, nicht wie stark jedes einzelne zählt."
+  },
+  "windowDays": {
+    "10d": "10 Tage",
+    "20d": "20 Tage",
+    "30d": "30 Tage",
+    "all": "gesamter Zeitraum"
   }
 }

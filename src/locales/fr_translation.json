@@ -104,7 +104,7 @@
     "deckFinderHeader": "Cliquez sur les cartes que vous n'avez pas. Le deck se mettra à jour pour vous montrer les meilleures options avec vos cartes disponibles.",
     "relativeStrength": "Force Relative",
     "keyStats": "Statistiques Clés",
-    "popularity": "Parties (14 j)",
+    "popularity": "Matchs",
     "powerScore": "Score de puissance",
     "freqScore": "Fréquence",
     "metaScore": "Score méta",
@@ -126,7 +126,7 @@
     "freqScoreTooltip": "Fréquence de ce deck dans les listes de tournoi qualifiées, à l'échelle du deck le plus joué de la période actuelle qui atteint 100.",
     "metaScoreTooltip": "La moyenne du Score de puissance et de la Fréquence. Elle équilibre le taux de victoire attendu et la présence réelle du deck.",
     "cardScoreTooltip": "La force des cartes individuelles de ce deck, évaluée sur toutes les listes de tournoi. Cela mesure uniquement la qualité des cartes, pas le taux de victoire, et n'affecte pas le rang.",
-    "popularityTooltip": "Parties qualifiées sur les 14 derniers jours, plafonnées à la sortie de cette extension",
+    "popularityTooltip": "Matchs qualifiés captés dans la fenêtre sélectionnée ({{days}}).",
     "winRateTooltip": "% de victoires dans la fenêtre actuelle",
     "metaShareTooltip": "Part des parties qualifiées ± variation hebdomadaire",
     "showTooltip": "Afficher l'explication",
@@ -160,6 +160,13 @@
     "winRate": "Taux de victoire",
     "latestExpansionCards": "Cartes de la dernière extension",
     "latestExpansionCardsAny": "Tous"
+  },
+  "window": {
+    "label": "Période",
+    "10d": "10 jours",
+    "20d": "20 jours",
+    "30d": "30 jours",
+    "all": "Tout l'historique"
   },
   "statistics": {
     "trends": "Tendances du méta",
@@ -351,5 +358,15 @@
       "body": "Pour toute question concernant la présente politique de confidentialité, ou pour nous demander de supprimer vos informations, contactez-nous à l'adresse <0/>."
     },
     "fanNotice": "Top Pocket Decks est un projet de fans. Il n'est ni affilié à, ni approuvé, ni parrainé par Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc. ou DeNA."
+  },
+  "gameCounts": {
+    "title": "Matchs de tournoi effectifs",
+    "body": "Les comptages de matchs sont des estimations des totaux exacts. Chaque artefact couvre une fenêtre fixe, actuellement 20 jours sur la vue par défaut, et chaque match dans une fenêtre compte autant qu'un autre. Changer de fenêtre change quels matchs comptent, pas leur poids individuel."
+  },
+  "windowDays": {
+    "10d": "10 jours",
+    "20d": "20 jours",
+    "30d": "30 jours",
+    "all": "toute la période"
   }
 }

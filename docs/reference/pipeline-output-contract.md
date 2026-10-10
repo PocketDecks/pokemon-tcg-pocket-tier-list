@@ -137,7 +137,7 @@ Top-level shape: `PipelineMetaShare`.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `generatedAt` | string | Run time as an ISO timestamp. |
-| `windowDays` | number | Length of the comparison window, always 7 (`WINDOW_DAYS`). |
+| `windowDays` | number \| null | Length of the ranking window the artefact scores, 10, 20 or 30; `null` for the all-time view. The share comparison windows use the same length. |
 | `decks` | `MetaShareEntry[]` | One entry per tracked archetype, sorted by `share` descending. |
 
 Each `MetaShareEntry` carries:
@@ -145,12 +145,12 @@ Each `MetaShareEntry` carries:
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `name` | string | Archetype name, identical to the corresponding best-decks entry. |
-| `share` | number | Share of qualified games in the trailing 7-day window, 0 to 1. Both numerator and denominator count qualified games only. |
-| `sharePrev` | number | Same measure for the window ending 7 days earlier. |
+| `share` | number | Share of qualified games in the artefact's comparison window, 0 to 1. Both numerator and denominator count qualified games only. |
+| `sharePrev` | number | Same measure for the equal-length window immediately before it. |
 | `delta` | number | `share - sharePrev`; can be negative. |
-| `games14` | number | Qualified games in the trailing 14-day window. A fresh expansion caps this in practice because the dataset starts at the expansion release date. |
+| `windowGames` | number | Qualified games captured in the artefact's window. A fresh expansion caps this in practice because the dataset starts at the expansion release date. |
 | `firstSeen` | string | Earliest calendar day the archetype appears in the qualified pool. |
-| `isNew` | boolean | True when `firstSeen` falls inside the current window. |
+| `isNew` | boolean | True when `firstSeen` falls inside the artefact's comparison window. |
 
 Coupling on `name`: `DecksContext` indexes the entries into `metaShareBySlug`
 keyed by `name`, and `DeckDetailPage` looks that map up with the route's deck

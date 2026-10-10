@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
 import { DecksProvider } from "./contexts/DecksContext";
+import { MetaWindowProvider } from "./contexts/MetaWindowContext";
 import AdAnchor from "./ads/AdAnchor";
 import AdBlockerNotice from "./components/AdBlockerNotice";
 import { ContentReadyProvider } from "./ads/ContentReadyContext";
@@ -117,27 +118,29 @@ const App = () => {
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <DecksProvider>
-              <ContentReadyProvider>
-                <Routes>
-                  <Route path="/" element={<Layout />}>
-                    <Route index element={<LandingPage />} />
-                    <Route path="tier-list" element={<TierListPage />} />
-                    <Route path="cards-list" element={<CardsListPage />} />
-                    <Route path="expansion-list" element={<ExpansionListPage />} />
-                    <Route path="statistics" element={<StatisticsPage />} />
-                    <Route path="privacy" element={<PrivacyPage />} />
-                    <Route path="about" element={<AboutPage />} />
-                    <Route path="feedback" element={<FeedbackPage />} />
-                    <Route path="deck">
-                      <Route index element={<DeckFinderPage />} />
-                      <Route path=":deckId" element={<DeckDetailPage />} />
+            <MetaWindowProvider>
+              <DecksProvider>
+                <ContentReadyProvider>
+                  <Routes>
+                    <Route path="/" element={<Layout />}>
+                      <Route index element={<LandingPage />} />
+                      <Route path="tier-list" element={<TierListPage />} />
+                      <Route path="cards-list" element={<CardsListPage />} />
+                      <Route path="expansion-list" element={<ExpansionListPage />} />
+                      <Route path="statistics" element={<StatisticsPage />} />
+                      <Route path="privacy" element={<PrivacyPage />} />
+                      <Route path="about" element={<AboutPage />} />
+                      <Route path="feedback" element={<FeedbackPage />} />
+                      <Route path="deck">
+                        <Route index element={<DeckFinderPage />} />
+                        <Route path=":deckId" element={<DeckDetailPage />} />
+                      </Route>
+                      <Route path="*" element={<NotFoundPage />} />
                     </Route>
-                    <Route path="*" element={<NotFoundPage />} />
-                  </Route>
-                </Routes>
-              </ContentReadyProvider>
-            </DecksProvider>
+                  </Routes>
+                </ContentReadyProvider>
+              </DecksProvider>
+            </MetaWindowProvider>
           </AuthProvider>
         </QueryClientProvider>
       </ErrorBoundary>

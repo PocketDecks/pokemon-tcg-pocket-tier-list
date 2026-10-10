@@ -44,7 +44,9 @@ describe("calculateMatchupResults", () => {
     expect(result["Opponent2"].losses).toBe(1);
   });
 
-  it("weights wins and losses by each deck's multiplier", () => {
+  it("counts every game once, whatever the deck's date", () => {
+    // Two same-archetype decks face Foe: one at 1-1, one at 1-0. The recency
+    // ramp is retired, so the tally is the raw count regardless of date.
     const mockDecks: Deck[] = [
       {
         id: "old",
@@ -60,7 +62,6 @@ describe("calculateMatchupResults", () => {
         noTrainerPercent: 0,
         wins: ["Foe"],
         losses: ["Foe"],
-        multiplier: 1,
       },
       {
         id: "new",
@@ -76,14 +77,12 @@ describe("calculateMatchupResults", () => {
         noTrainerPercent: 0,
         wins: ["Foe"],
         losses: [],
-        multiplier: 3,
       },
     ];
 
     const result = calculateMatchupResults(mockDecks, "Test Deck");
 
-    // 1 win @ 1x + 1 win @ 3x = 4 ; 1 loss @ 1x = 1
-    expect(result["Foe"].wins).toBe(4);
+    expect(result["Foe"].wins).toBe(2);
     expect(result["Foe"].losses).toBe(1);
   });
 });

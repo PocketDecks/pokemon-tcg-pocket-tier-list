@@ -22,15 +22,13 @@ export const latestReleaseDate = (
   return newest ?? FALLBACK_RELEASE_DATE;
 };
 
-// Release date of the newest expansion; the win-rate ramp and new-set multiplier are timed from it.
+// Release date of the newest expansion; the win-rate weight ramps from it.
 export const EXPANSION_RELEASE_DATE: Date = latestReleaseDate(
   expansions as { id: string; release_date: string | null }[]
 );
 
 // Exclude ex-only decks from analysis.
 export const NOEX: boolean = false;
-// Multiplier applied to pre-expansion decks.
-export const OLD_MULTIPLIER: number = 1;
 // Number of cards in a legal deck.
 export const CARDS_IN_DECK: number = 20;
 export const NOEX_PERCENT_CUTOFF: number = 0.2;
@@ -57,7 +55,6 @@ export const scoringWeights = (now: Date) => {
   return {
     winrateImportance,
     popularityImportance: 1 - winrateImportance,
-    newMultiplier: 1 + weeksLive / 1.5,
   };
 };
 
@@ -67,21 +64,28 @@ export const WINRATE_IMPORTANCE = CURRENT_SCORING_WEIGHTS.winrateImportance;
 // Residual weight given to popularity; the complement of WINRATE_IMPORTANCE.
 export const POPULARITY_IMPORTANCE = CURRENT_SCORING_WEIGHTS.popularityImportance;
 
-// Multiplier applied to decks from the newest expansion; grows with weeks since release.
-export const NEW_MULTIPLIER = CURRENT_SCORING_WEIGHTS.newMultiplier;
-
 // Pseudo-games pulling each matchup win rate toward 50%, so a 4-game matchup
 // barely moves a deck's expected win rate and a 500-game one counts almost
 // fully. This replaces a hard opponent-games floor, which discarded 41 of 62
 // decks entirely and left the ranking 99% correlated with play rate.
 export const MATCHUP_PRIOR_GAMES: number = 30;
 
-// Matchup rows below this are dropped as noise before smoothing. Note that
-// totalGames is a recency-weighted sum, not a raw count.
-export const MIN_MATCHUP_GAMES: number = 5;
+// Matchup rows below this are dropped as noise before smoothing. Sized on the
+// qualified population Power Score reads: a qualified row holds a median 0.57
+// of the games its all-player counterpart carries, so the floor the all-player
+// tally was cut for keeps only about half the rows that used to clear it.
+export const MIN_MATCHUP_GAMES: number = 2;
 
 // Share of the field a deck's matchup data must cover before it gets a Power
 // Score. Below this the deck is unranked rather than given an invented score.
-// Measured on the 62-deck field: 0.25 ranks 52 decks at rho(power, winRate)
-// 0.726; 0.5 ranks 43 at 0.797; 0.7 ranks 29 at 0.881.
-export const MIN_FIELD_COVERAGE: number = 0.5;
+// The share denominator is the qualified 14-day field, so the coverage it
+// guards is the share of that field the deck has usable qualified matchup rows
+// against.
+//
+// 0.5 was carried over from the all-player tally, where it ranked 40 to 50
+// percent of archetypes; on qualified rows it holds under 30 percent, so the
+// bar follows the coverage distribution down instead of discarding most of the
+// field. The committed pair ranks roughly half to two thirds of archetypes, at
+// or above the published ranking's breadth, with every ranked deck clearing the
+// bar itself.
+export const MIN_FIELD_COVERAGE: number = 0.25;

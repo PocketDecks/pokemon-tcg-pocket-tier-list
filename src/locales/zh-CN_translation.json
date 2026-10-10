@@ -104,7 +104,7 @@
     "deckFinderHeader": "点击您没有的卡牌。卡组将更新以显示您可用卡牌的最佳选项。",
     "relativeStrength": "相对强度",
     "keyStats": "关键数据",
-    "popularity": "对局数 (14天)",
+    "popularity": "对局数",
     "powerScore": "战力评分",
     "freqScore": "使用频率",
     "metaScore": "环境评分",
@@ -126,7 +126,7 @@
     "freqScoreTooltip": "该牌组在合格比赛列表中的出现频率，以当前周期内使用最多的牌组为 100。",
     "metaScoreTooltip": "环境评分与频率的平均值，平衡预期胜率与牌组的实际出场率。",
     "cardScoreTooltip": "这个牌组单卡强度的评分，基于每一份比赛牌表评定。它只衡量卡牌质量，而非胜率，也不影响排名。",
-    "popularityTooltip": "过去 14 天内的合格对局数，以当前扩展包发布时为上限",
+    "popularityTooltip": "所选时间窗口（{{days}}）内记录的合格对局数。",
     "winRateTooltip": "当前窗口的胜率百分比",
     "metaShareTooltip": "合格对局的份额 ± 每周变化",
     "showTooltip": "显示说明",
@@ -160,6 +160,13 @@
     "winRate": "胜率",
     "latestExpansionCards": "最新扩展包卡牌",
     "latestExpansionCardsAny": "任意"
+  },
+  "window": {
+    "label": "时间范围",
+    "10d": "10 天",
+    "20d": "20 天",
+    "30d": "30 天",
+    "all": "全部时间"
   },
   "statistics": {
     "trends": "环境趋势",
@@ -351,5 +358,15 @@
       "body": "如果您对本隐私政策有任何疑问，或希望我们删除您的信息，请通过 <0/> 与我们联系。"
     },
     "fanNotice": "Top Pocket Decks 是一个粉丝项目，与 Nintendo、The Pokémon Company、Creatures Inc.、GAME FREAK Inc. 或 DeNA 没有关联，也未获得其认可或赞助。"
+  },
+  "gameCounts": {
+    "title": "有效比赛对局数",
+    "body": "对局数是精确总数的估计值。每个数据工件覆盖一个固定的时间窗口，默认视图为20天，窗口内的每一局权重相同。切换窗口改变的是哪些对局被计入，而不是每局权重。"
+  },
+  "windowDays": {
+    "10d": "10天",
+    "20d": "20天",
+    "30d": "30天",
+    "all": "全部时间"
   }
 }

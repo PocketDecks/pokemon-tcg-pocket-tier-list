@@ -104,7 +104,7 @@
     "deckFinderHeader": "Click on cards you do not have. The deck will update to show the best options with your available cards.",
     "relativeStrength": "Relative Strength",
     "keyStats": "Key Stats",
-    "popularity": "Games (14d)",
+    "popularity": "Games",
     "powerScore": "Power Score",
     "freqScore": "Frequency",
     "metaScore": "Meta Score",
@@ -126,7 +126,7 @@
     "freqScoreTooltip": "How common this deck is in qualified tournament lists, scaled so the most played deck in the current window scores 100.",
     "metaScoreTooltip": "The average of Power Score and Frequency. It balances expected win rate against how often the deck actually appears.",
     "cardScoreTooltip": "How strong this deck's individual cards are, scored across every tournament list. This measures card quality only, not win rate, and does not affect the tier.",
-    "popularityTooltip": "Qualified games in the last 14 days, capped at this expansion's release",
+    "popularityTooltip": "Qualified games captured in the selected window ({{days}}).",
     "winRateTooltip": "Win % in the current window",
     "metaShareTooltip": "Share of qualified games ± weekly change",
     "showTooltip": "Show explanation",
@@ -160,6 +160,13 @@
     "winRate": "Win Rate",
     "latestExpansionCards": "Cards from latest expansion",
     "latestExpansionCardsAny": "Any"
+  },
+  "window": {
+    "label": "Time window",
+    "10d": "10 Days",
+    "20d": "20 Days",
+    "30d": "30 Days",
+    "all": "All Time"
   },
   "statistics": {
     "trends": "Meta Trends",
@@ -351,5 +358,15 @@
       "body": "If you have any questions about this Privacy Policy, or want to ask us to delete your information, contact us at <0/>."
     },
     "fanNotice": "Top Pocket Decks is a fan-made project and is not affiliated with, endorsed by, or sponsored by Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc., or DeNA."
+  },
+  "gameCounts": {
+    "title": "Effective tournament games",
+    "body": "Game counts are estimates of exact totals. Each artefact covers a fixed window, currently 20 days on the default view, and every game inside a window carries the same weight. Switching windows changes which games count rather than how much each one counts."
+  },
+  "windowDays": {
+    "10d": "10 days",
+    "20d": "20 days",
+    "30d": "30 days",
+    "all": "all time"
   }
 }

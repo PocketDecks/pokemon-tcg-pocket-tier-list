@@ -44,7 +44,7 @@ const metaShare: MetaShareEntry = {
   share: 0.1,
   sharePrev: 0.0998517989051555,
   delta: 0.0001482010948445009,
-  games14: 100,
+  windowGames: 100,
   firstSeen: "2026-01-01",
   isNew: false,
 };

@@ -3,7 +3,7 @@ import { PipelineCard, PipelineMatchupEntry, PipelineDeckList, PipelinePartialDe
 // A single card as it appears in the pipeline.
 export type Card = PipelineCard;
 
-// A deck after enrichment with results, names, and recency multiplier.
+// A deck after enrichment with results and an archetype name.
 export interface Deck {
   id: string;
   name: string;
@@ -18,8 +18,6 @@ export interface Deck {
   noTrainerPercent: number;
   wins: string[];
   losses: string[];
-  // Recency weight set by applyMultipliers; defaults to 1 when unset so older code paths and tests still behave.
-  multiplier?: number;
 }
 
 // A tournament fetched from Limitless.

@@ -1,0 +1,258 @@
+{
+  "generatedAt": "2026-10-10T11:15:34.411Z",
+  "windowDays": 10,
+  "decks": [
+    {
+      "name": "mega-altaria-ex-b1-102&espeon-b3a-020",
+      "share": 0.10841983852364476,
+      "sharePrev": 0,
+      "delta": 0.10841983852364476,
+      "windowGames": 376,
+      "firstSeen": "2026-09-30",
+      "isNew": true
+    },
+    {
+      "name": "mega-lucario-ex-b3-081&lucario-a2-092",
+      "share": 0.1046712802768166,
+      "sharePrev": 0,
+      "delta": 0.1046712802768166,
+      "windowGames": 363,
+      "firstSeen": "2026-09-30",
+      "isNew": true
+    },
+    {
+      "name": "suicune-ex-a4a-020&baxcalibur-b2a-036",
+      "share": 0.08391003460207612,
+      "sharePrev": 0,
+      "delta": 0.08391003460207612,
+      "windowGames": 291,
+      "firstSeen": "2026-10-01",
+      "isNew": true
+    },
+    {
+      "name": "hoopa-ex-b4-103&mega-absol-ex-b1-151",
+      "share": 0.07122260668973472,
+      "sharePrev": 0,
+      "delta": 0.07122260668973472,
+      "windowGames": 247,
+      "firstSeen": "2026-09-30",
+      "isNew": true
+    },
+    {
+      "name": "butterfree-b3b-003&mega-sceptile-ex-b3-008",
+      "share": 0.06430219146482122,
+      "sharePrev": 0,
+      "delta": 0.06430219146482122,
+      "windowGames": 223,
+      "firstSeen": "2026-09-30",
+      "isNew": true
+    },
+    {
+      "name": "dragonair-b4-117&mega-rayquaza-ex-b4-120",
+      "share": 0.06228373702422145,
+      "sharePrev": 0,
+      "delta": 0.06228373702422145,
+      "windowGames": 216,
+      "firstSeen": "2026-09-30",
+      "isNew": true
+    },
+    {
+      "name": "magnezone-b1a-026&miraidon-ex-b3a-019",
+      "share": 0.0591118800461361,
+      "sharePrev": 0,
+      "delta": 0.0591118800461361,
+      "windowGames": 205,
+      "firstSeen": "2026-10-01",
+      "isNew": true
+    },
+    {
+      "name": "vespiquen-ex-b4-011&shuckle-ex-a4-021",
+      "share": 0.05334486735870819,
+      "sharePrev": 0,
+      "delta": 0.05334486735870819,
+      "windowGames": 185,
+      "firstSeen": "2026-09-30",
+      "isNew": true
+    },
+    {
+      "name": "dedenne-ex-b3b-024&indeedee-ex-b1-121",
+      "share": 0.046424452133794696,
+      "sharePrev": 0,
+      "delta": 0.046424452133794696,
+      "windowGames": 161,
+      "firstSeen": "2026-09-30",
+      "isNew": true
+    },
+    {
+      "name": "gyarados-ex-a1a-018&greninja-a1-089",
+      "share": 0.03431372549019608,
+      "sharePrev": 0,
+      "delta": 0.03431372549019608,
+      "windowGames": 119,
+      "firstSeen": "2026-10-03",
+      "isNew": true
+    },
+    {
+      "name": "mega-altaria-ex-b1-102&greninja-a1-089",
+      "share": 0.031141868512110725,
+      "sharePrev": 0,
+      "delta": 0.031141868512110725,
+      "windowGames": 108,
+      "firstSeen": "2026-09-30",
+      "isNew": true
+    },
+    {
+      "name": "mega-gardevoir-ex-b2-066&mega-diancie-ex-b3b-032",
+      "share": 0.025951557093425604,
+      "sharePrev": 0,
+      "delta": 0.025951557093425604,
+      "windowGames": 90,
+      "firstSeen": "2026-09-30",
+      "isNew": true
+    },
+    {
+      "name": "mega-blaziken-ex-b1-036&greninja-a1-089",
+      "share": 0.02364475201845444,
+      "sharePrev": 0,
+      "delta": 0.02364475201845444,
+      "windowGames": 82,
+      "firstSeen": "2026-09-30",
+      "isNew": true
+    },
+    {
+      "name": "mega-blaziken-ex-b1-036&castform-sunny-form-b3-024",
+      "share": 0.02306805074971165,
+      "sharePrev": 0,
+      "delta": 0.02306805074971165,
+      "windowGames": 80,
+      "firstSeen": "2026-09-30",
+      "isNew": true
+    },
+    {
+      "name": "mewtwo-ex-a1-129&gardevoir-a1-132",
+      "share": 0.02306805074971165,
+      "sharePrev": 0,
+      "delta": 0.02306805074971165,
+      "windowGames": 80,
+      "firstSeen": "2026-10-03",
+      "isNew": true
+    },
+    {
+      "name": "hydreigon-b1-157&mega-absol-ex-b1-151",
+      "share": 0.02162629757785467,
+      "sharePrev": 0,
+      "delta": 0.02162629757785467,
+      "windowGames": 75,
+      "firstSeen": "2026-09-30",
+      "isNew": true
+    },
+    {
+      "name": "mega-sceptile-ex-b3-008&greninja-a1-089",
+      "share": 0.01903114186851211,
+      "sharePrev": 0,
+      "delta": 0.01903114186851211,
+      "windowGames": 66,
+      "firstSeen": "2026-10-03",
+      "isNew": true
+    },
+    {
+      "name": "exeggutor-ex-a1-023&serperior-a1a-006",
+      "share": 0.01903114186851211,
+      "sharePrev": 0,
+      "delta": 0.01903114186851211,
+      "windowGames": 66,
+      "firstSeen": "2026-10-03",
+      "isNew": true
+    },
+    {
+      "name": "mega-charizard-y-ex-b1a-014&charizard-b1a-013",
+      "share": 0.01845444059976932,
+      "sharePrev": 0,
+      "delta": 0.01845444059976932,
+      "windowGames": 64,
+      "firstSeen": "2026-09-30",
+      "isNew": true
+    },
+    {
+      "name": "mega-diancie-ex-b3b-032&carbink-b3b-031",
+      "share": 0.016724336793540944,
+      "sharePrev": 0,
+      "delta": 0.016724336793540944,
+      "windowGames": 58,
+      "firstSeen": "2026-10-03",
+      "isNew": true
+    },
+    {
+      "name": "pikachu-ex-a1-096&zapdos-ex-a1-104",
+      "share": 0.014705882352941176,
+      "sharePrev": 0,
+      "delta": 0.014705882352941176,
+      "windowGames": 51,
+      "firstSeen": "2026-10-03",
+      "isNew": true
+    },
+    {
+      "name": "mega-sharpedo-ex-b4-035&gyarados-a4-045",
+      "share": 0.013552479815455595,
+      "sharePrev": 0,
+      "delta": 0.013552479815455595,
+      "windowGames": 47,
+      "firstSeen": "2026-10-02",
+      "isNew": true
+    },
+    {
+      "name": "farfetch'd-a1-198&hitmonlee-a1-154",
+      "share": 0.012110726643598616,
+      "sharePrev": 0,
+      "delta": 0.012110726643598616,
+      "windowGames": 42,
+      "firstSeen": "2026-10-03",
+      "isNew": true
+    },
+    {
+      "name": "flygon-ex-b3-126",
+      "share": 0.010957324106113034,
+      "sharePrev": 0,
+      "delta": 0.010957324106113034,
+      "windowGames": 38,
+      "firstSeen": "2026-10-02",
+      "isNew": true
+    },
+    {
+      "name": "charizard-ex-a1-036&mega-charizard-y-ex-b1a-014",
+      "share": 0.010957324106113034,
+      "sharePrev": 0,
+      "delta": 0.010957324106113034,
+      "windowGames": 38,
+      "firstSeen": "2026-10-02",
+      "isNew": true
+    },
+    {
+      "name": "greninja-a1-089&mega-absol-ex-b1-151",
+      "share": 0.010092272202998846,
+      "sharePrev": 0,
+      "delta": 0.010092272202998846,
+      "windowGames": 35,
+      "firstSeen": "2026-10-02",
+      "isNew": true
+    },
+    {
+      "name": "magnezone-ex-b3-054&magnezone-b1a-026",
+      "share": 0.00922722029988466,
+      "sharePrev": 0,
+      "delta": 0.00922722029988466,
+      "windowGames": 32,
+      "firstSeen": "2026-10-02",
+      "isNew": true
+    },
+    {
+      "name": "beautifly-b4-003&dustox-b4-005",
+      "share": 0.00865051903114187,
+      "sharePrev": 0,
+      "delta": 0.00865051903114187,
+      "windowGames": 30,
+      "firstSeen": "2026-10-03",
+      "isNew": true
+    }
+  ]
+}

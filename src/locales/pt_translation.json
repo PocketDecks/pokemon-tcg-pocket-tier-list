@@ -104,7 +104,7 @@
     "deckFinderHeader": "Clique nas cartas que você não possui. O deck será atualizado para mostrar as melhores opções com as cartas disponíveis.",
     "relativeStrength": "Força Relativa",
     "keyStats": "Estatísticas Principais",
-    "popularity": "Partidas (14d)",
+    "popularity": "Partidas",
     "powerScore": "Pontuação de poder",
     "freqScore": "Frequência",
     "metaScore": "Pontuação meta",
@@ -126,7 +126,7 @@
     "freqScoreTooltip": "Com que frequência este baralho aparece em listas de torneio qualificadas, com o baralho mais jogado da janela atual valendo 100.",
     "metaScoreTooltip": "A média entre Pontuação de poder e Frequência. Equilibra a taxa de vitória esperada com a presença real do baralho.",
     "cardScoreTooltip": "A força das cartas individuais deste deck, pontuada em todas as listas de torneio. Isso mede apenas a qualidade das cartas, não a taxa de vitória, e não afeta o ranking.",
-    "popularityTooltip": "Partidas qualificadas nos últimos 14 dias, limitadas ao lançamento desta expansão",
+    "popularityTooltip": "Partidas qualificadas captadas na janela selecionada ({{days}}).",
     "winRateTooltip": "% de vitória no período atual",
     "metaShareTooltip": "Proporção de partidas qualificadas ± mudança semanal",
     "showTooltip": "Mostrar explicação",
@@ -160,6 +160,13 @@
     "winRate": "Taxa de Vitória",
     "latestExpansionCards": "Cartas da expansão mais recente",
     "latestExpansionCardsAny": "Qualquer"
+  },
+  "window": {
+    "label": "Período",
+    "10d": "10 dias",
+    "20d": "20 dias",
+    "30d": "30 dias",
+    "all": "Todo o período"
   },
   "statistics": {
     "trends": "Tendências do Meta",
@@ -351,5 +358,15 @@
       "body": "Se tiver alguma dúvida sobre esta Política de Privacidade, ou quiser pedir-nos que apaguemos as suas informações, contacte-nos em <0/>."
     },
     "fanNotice": "O Top Pocket Decks é um projeto de fãs e não está afiliado, endossado nem patrocinado pela Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc. ou DeNA."
+  },
+  "gameCounts": {
+    "title": "Partidas de torneio efetivas",
+    "body": "As contagens de partidas são estimativas dos totais exatos. Cada artefato cobre uma janela fixa, atualmente 20 dias na vista predefinida, e cada partida dentro de uma janela tem o mesmo peso. Mudar de janela muda quais partidas contam, não quanto cada uma pesa."
+  },
+  "windowDays": {
+    "10d": "10 dias",
+    "20d": "20 dias",
+    "30d": "30 dias",
+    "all": "todo o período"
   }
 }

@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 import useIsPremium from "../../app/use-is-premium";
+import { useMetaWindow } from "../../app/use-meta-window";
+import { META_WINDOW_LENGTH_DAYS } from "../../app/meta-window";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCards } from "../../app/cards-api";
 import { deckNameToIconIds } from "../../app/deck-filters";
@@ -18,6 +20,7 @@ import { latestExpansionName } from "../../app/use-expansions";
 import { sortByPowerScore } from "../../app/score-baseline";
 import PageTitle from "../../components/PageTitle";
 import NavIcon from "../../components/NavIcon";
+import WindowToggle from "../../components/WindowToggle";
 import crownIcon from "../../assets/crown.webp";
 import { formatTrendDay } from "./format-trend-day";
 import TrendChart from "./TrendChart";
@@ -73,6 +76,17 @@ const SectionTitle = styled.h2`
     font-size: 2.4rem;
     font-weight: 600;
     letter-spacing: -0.01em;
+`;
+
+const ToggleRow = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+
+    @media (max-width: 600px) {
+        width: 100%;
+    }
 `;
 
 const ToggleContainer = styled.div`
@@ -306,7 +320,7 @@ const StatisticsPage = () => {
     const [pinnedSeries, setPinnedSeries] = useState<string | null>(null);
     const activeSeries = hoveredSeries ?? pinnedSeries;
     const isPremium = useIsPremium();
-    const [range, setRange] = useState<"14-day" | "all-time">("14-day");
+    const { window: metaWindow } = useMetaWindow();
     const trendQuery = usePipelineTrends();
     const trendData = trendQuery.rows;
     const [movementView, setMovementView] = useState<"rising" | "falling" | "new">("rising");
@@ -359,12 +373,15 @@ const StatisticsPage = () => {
 
     const filteredTrendData = useMemo(() => {
         if (!trendData.length) return [];
-        if (range === "all-time") return trendData;
+        const days = META_WINDOW_LENGTH_DAYS[metaWindow];
+        if (days === null) return trendData;
 
-        const cutoff = new Date();
-        cutoff.setDate(cutoff.getDate() - 14);
-        return trendData.filter((d) => new Date(d.date) >= cutoff);
-    }, [trendData, range]);
+        // Anchored on the newest data, not the wall clock. Spans N calendar
+        // days; zero-deck days are absent from the rows, so slices can be short.
+        const newest = new Date(trendData[trendData.length - 1].date).getTime();
+        const cutoff = newest - (days - 1) * 24 * 60 * 60 * 1000;
+        return trendData.filter((d) => new Date(d.date).getTime() >= cutoff);
+    }, [trendData, metaWindow]);
 
     const topArchetypeNames =
         trendData.length > 0
@@ -398,25 +415,6 @@ const StatisticsPage = () => {
             <Section>
                 <SectionHeader>
                     <SectionTitle>{t("statistics.trends")}</SectionTitle>
-                    <ToggleContainer>
-                        <ToggleButton
-                            $active={range === "14-day"}
-                            onClick={() => setRange("14-day")}
-                        >
-                            14 Days
-                        </ToggleButton>
-                        <ToggleButton
-                            $active={range === "all-time"}
-                            $locked={!isPremium}
-                            aria-disabled={!isPremium}
-                            onClick={() => {
-                                if (isPremium) setRange("all-time");
-                            }}
-                        >
-                            All Time
-                            {!isPremium && <NavIcon name="lock" size={14} />}
-                        </ToggleButton>
-                    </ToggleContainer>
                 </SectionHeader>
 
                 <TrendChart
@@ -575,6 +573,10 @@ const StatisticsPage = () => {
         <PageContainer>
             <PageTitle>{t("header.statistics")}</PageTitle>
 
+            <ToggleRow>
+                <WindowToggle />
+            </ToggleRow>
+
             {renderContent()}
 
             <SeoContent>
@@ -590,13 +592,14 @@ const StatisticsPage = () => {
 
                 <h3>Track the best decks</h3>
                 <p>
-                    The trend graph plots the top archetypes over a 14-day window. You
-                    can see exactly when a deck peaks in popularity or falls out of
-                    favour as the meta adapts. Premium users can unlock the all-time view
-                    to evaluate long-term trends since a specific expansion release. For
-                    instance, looking closely at the recent data, you will immediately
-                    notice aggressive shifts: when a top-tier threat begins dominating
-                    the standings, counter-decks naturally rise to answer them.
+                    The trend graph plots the top archetypes over the selected window.
+                    You can see exactly when a deck peaks in popularity or falls out of
+                    favour as the meta adapts. The 10 and 20-day views are free to
+                    everyone; Premium unlocks the 30-day and all-time views to evaluate
+                    long-term trends. For instance, looking closely at the recent data,
+                    you will immediately notice aggressive shifts: when a top-tier
+                    threat begins dominating the standings, counter-decks naturally
+                    rise to answer them.
                 </p>
                 <p>
                     Cross-reference these stats with our{" "}
@@ -619,16 +622,8 @@ const StatisticsPage = () => {
                     collection supports building a stronger counter-meta option.
                 </p>
 
-                <h3>Effective tournament games</h3>
-                <p>
-                    You might notice that the total game counts displayed on hover are
-                    rounded estimates of exact totals. The analysis pipeline applies a
-                    recency multiplier to older tournament results, meaning a game played
-                    yesterday carries slightly more weight than a game played three weeks
-                    ago. This keeps the matchup matrix highly responsive to recent
-                    deckbuilding innovations without throwing away valuable historical
-                    data.
-                </p>
+                <h3>{t("gameCounts.title")}</h3>
+                <p>{t("gameCounts.body")}</p>
             </SeoContent>
         </PageContainer>
     );

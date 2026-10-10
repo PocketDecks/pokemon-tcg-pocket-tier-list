@@ -6,10 +6,8 @@
 // Score is play rate against the most-played deck. Meta Score is the simple
 // average of the two, as VS publishes it.
 //
-// Matchup win rates come from all games since the expansion release under a
-// linear recency ramp; field share comes from the trailing 14 days. That
-// asymmetry is deliberate and matches VS: a long window where you need
-// sample, a short one where you need recency.
+// Matchup rates and field share both describe the qualified population of the
+// caller's window; performance is weighted by each opponent's share of it.
 //
 // Pure by design. No file reads, no dates, no globals, so every number here
 // is reproducible from its inputs and the tests never depend on a scrape.
@@ -22,17 +20,17 @@ import {
 
 export interface DeckPowerInput {
   name: string;
-  /** The deck's matchup-data.json rows, including the synthetic Total row. */
+  /** The deck's qualified-population matchup rows, including the synthetic Total row. */
   matchups: PipelineMatchupEntry[];
-  /** Qualified games in the trailing 14-day window. */
-  games14: number;
+  /** Qualified games captured in the caller's window. */
+  windowGames: number;
 }
 
 export interface DeckPowerResult {
   name: string;
   /** 0..1 win rate against the field, always present. */
   expectedWinRate: number;
-  /** 0..1 share of the field this deck has usable matchup data against. */
+  /** 0..1 share of the window's qualified field this deck has usable matchup data against. */
   fieldCoverage: number;
   /** 0..100, or null when fieldCoverage is below MIN_FIELD_COVERAGE. */
   powerScore: number | null;
@@ -64,22 +62,23 @@ export const toPowerScale = (
 export const buildDeckPower = (inputs: DeckPowerInput[]): DeckPowerResult[] => {
   if (!inputs.length) return [];
 
-  const totalGames14 = inputs.reduce((sum, d) => sum + d.games14, 0);
-  const share14 = new Map(
-    inputs.map((d) => [d.name, totalGames14 > 0 ? d.games14 / totalGames14 : 0])
+  const totalWindowGames = inputs.reduce((sum, d) => sum + d.windowGames, 0);
+  const windowShare = new Map(
+    inputs.map((d) => [d.name, totalWindowGames > 0 ? d.windowGames / totalWindowGames : 0])
   );
-  const maxGames14 = Math.max(...inputs.map((d) => d.games14));
+  const maxWindowGames = Math.max(...inputs.map((d) => d.windowGames));
 
   const partial = inputs.map((deck) => {
     const rows = deck.matchups.filter(
       (row) =>
         row.name !== "Total" &&
         row.totalGames >= MIN_MATCHUP_GAMES &&
-        share14.has(row.name)
+        windowShare.has(row.name)
     );
 
+    // Coverage conditions the weights below on what MIN_FIELD_COVERAGE gates.
     const fieldCoverage = rows.reduce(
-      (sum, row) => sum + (share14.get(row.name) ?? 0),
+      (sum, row) => sum + (windowShare.get(row.name) ?? 0),
       0
     );
 
@@ -90,14 +89,14 @@ export const buildDeckPower = (inputs: DeckPowerInput[]): DeckPowerResult[] => {
       const smoothed =
         (wins + MATCHUP_PRIOR_GAMES * 0.5) /
         (row.totalGames + MATCHUP_PRIOR_GAMES);
-      return sum + (share14.get(row.name) ?? 0) * smoothed;
+      return sum + (windowShare.get(row.name) ?? 0) * smoothed;
     }, 0);
 
     return {
       name: deck.name,
       expectedWinRate: fieldCoverage > 0 ? weighted / fieldCoverage : 0.5,
       fieldCoverage,
-      freqScore: maxGames14 > 0 ? (100 * deck.games14) / maxGames14 : 0,
+      freqScore: maxWindowGames > 0 ? (100 * deck.windowGames) / maxWindowGames : 0,
       ranked: fieldCoverage >= MIN_FIELD_COVERAGE,
     };
   });

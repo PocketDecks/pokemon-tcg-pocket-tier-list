@@ -21,7 +21,6 @@ describe("scoringWeights", () => {
     const now = new Date("2026-09-18T00:00:00.000Z");
     const {
       EXPANSION_RELEASE_DATE,
-      NEW_MULTIPLIER,
       POPULARITY_IMPORTANCE,
       scoringWeights,
       WINRATE_IMPORTANCE,
@@ -30,7 +29,6 @@ describe("scoringWeights", () => {
 
     expect(WINRATE_IMPORTANCE).toBe(weights.winrateImportance);
     expect(POPULARITY_IMPORTANCE).toBe(weights.popularityImportance);
-    expect(NEW_MULTIPLIER).toBe(weights.newMultiplier);
     expect(EXPANSION_RELEASE_DATE).toBeInstanceOf(Date);
   });
 
@@ -42,7 +40,6 @@ describe("scoringWeights", () => {
     expect(scoringWeights(weeksAfterRelease(EXPANSION_RELEASE_DATE, 0))).toEqual({
       winrateImportance: 0.2,
       popularityImportance: 0.8,
-      newMultiplier: 1,
     });
   });
 
@@ -54,12 +51,10 @@ describe("scoringWeights", () => {
     expect(scoringWeights(weeksAfterRelease(EXPANSION_RELEASE_DATE, 1))).toEqual({
       winrateImportance: 0.35,
       popularityImportance: 0.65,
-      newMultiplier: 1 + 1 / 1.5,
     });
     expect(scoringWeights(weeksAfterRelease(EXPANSION_RELEASE_DATE, 2))).toEqual({
       winrateImportance: 0.5,
       popularityImportance: 0.5,
-      newMultiplier: 1 + 2 / 1.5,
     });
   });
 
@@ -71,12 +66,10 @@ describe("scoringWeights", () => {
     expect(scoringWeights(weeksAfterRelease(EXPANSION_RELEASE_DATE, 4))).toEqual({
       winrateImportance: 0.75,
       popularityImportance: 0.25,
-      newMultiplier: 1 + 4 / 1.5,
     });
     expect(scoringWeights(weeksAfterRelease(EXPANSION_RELEASE_DATE, 52))).toEqual({
       winrateImportance: 0.75,
       popularityImportance: 0.25,
-      newMultiplier: 1 + 52 / 1.5,
     });
   });
 
@@ -100,7 +93,6 @@ describe("scoringWeights", () => {
     expect(scoringWeights(beforeRelease)).toEqual({
       winrateImportance: 0.2,
       popularityImportance: 0.8,
-      newMultiplier: 1,
     });
   });
 });

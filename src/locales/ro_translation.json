@@ -104,7 +104,7 @@
     "deckFinderHeader": "Apasă pe cărțile pe care nu le ai. Deck-ul se va actualiza pentru a-ți arăta cele mai bune opțiuni cu cărțile disponibile.",
     "relativeStrength": "Putere relativă",
     "keyStats": "Statistici cheie",
-    "popularity": "Meciuri (14 z)",
+    "popularity": "Meciuri",
     "powerScore": "Scor de putere",
     "freqScore": "Frecvență",
     "metaScore": "Scor meta",
@@ -126,7 +126,7 @@
     "freqScoreTooltip": "Cât de des apare acest deck în listele de turneu calificate, scalat astfel încât cel mai jucat deck din fereastra curentă să valoreze 100.",
     "metaScoreTooltip": "Media dintre Scorul de putere și Frecvență. Echilibrează rata de victorie așteptată cu prezența reală a deckului.",
     "cardScoreTooltip": "Cât de puternice sunt cărțile individuale ale acestui deck, notate pe fiecare listă de turneu. Măsoară doar calitatea cărților, nu rata de victorie, și nu afectează rangul.",
-    "popularityTooltip": "Meciuri calificate în ultimele 14 zile, limitate la lansarea acestei expansiuni",
+    "popularityTooltip": "Meciuri calificate înregistrate în fereastra selectată ({{days}}).",
     "winRateTooltip": "% de victorii în fereastra curentă",
     "metaShareTooltip": "Ponderea meciurilor calificate ± schimbare săptămânală",
     "showTooltip": "Afișează explicația",
@@ -160,6 +160,13 @@
     "winRate": "Rată de victorie",
     "latestExpansionCards": "Cărți din cea mai recentă expansiune",
     "latestExpansionCardsAny": "Oricare"
+  },
+  "window": {
+    "label": "Perioadă",
+    "10d": "10 zile",
+    "20d": "20 zile",
+    "30d": "30 zile",
+    "all": "Toată perioada"
   },
   "statistics": {
     "trends": "Tendințe meta",
@@ -351,5 +358,15 @@
       "body": "Dacă aveți întrebări despre această Politică de confidențialitate sau doriți să ne cereți ștergerea informațiilor dumneavoastră, contactați-ne la <0/>."
     },
     "fanNotice": "Top Pocket Decks este un proiect al fanilor și nu este afiliat, susținut sau sponsorizat de Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc. sau DeNA."
+  },
+  "gameCounts": {
+    "title": "Meciuri de turneu efective",
+    "body": "Numărările meciurilor sunt estimări ale totalurilor exacte. Fiecare artefact acoperă o fereastră fixă, în prezent 20 de zile în vizualizarea implicită, iar fiecare meci dintr-o fereastră are aceeași pondere. Schimbarea ferestrei schimbă ce meciuri contează, nu cât cântărește fiecare."
+  },
+  "windowDays": {
+    "10d": "10 zile",
+    "20d": "20 zile",
+    "30d": "30 zile",
+    "all": "toată perioada"
   }
 }

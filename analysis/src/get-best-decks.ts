@@ -1,193 +1,72 @@
 import "./load-env-side-effect";
 import cardToString from "./utils/card-to-string";
 import getDecks from "./utils/get-decks";
-import getId from "./utils/get-id";
-import { calculateDeckScore } from "./utils/calculate-deck-score";
 import { calculateCardScores } from "./utils/calculate-card-scores";
-import { calculateMatchupResults } from "./utils/calculate-matchup-results";
 import { buildTrends } from "./utils/build-trends";
-import { buildMatchupData } from "./utils/build-matchup-data";
-import { buildMetaShare } from "./utils/build-meta-share";
-import { buildDeckPower, DeckPowerInput } from "./utils/build-deck-power";
+import {
+  buildArtefactFiles,
+  buildWindowArtefacts,
+  DEFAULT_WINDOW,
+  qualifiedDecksInWindow,
+  WINDOW_IDS,
+  WindowArtefacts,
+  WindowId,
+} from "./utils/build-window-artefacts";
 import { generateOgImages } from "./utils/generate-og-images";
-import { Deck, DeckList, PartialDeck } from "./utils/types";
-import { convertCardsToIds } from "./utils/convert-cards";
+import { Deck } from "./utils/types";
 import { writeArtefacts } from "./utils/write-artifacts";
 import { deckNameToIconIds } from "../../src/types/deck-name";
-import {
-  MIN_WINRATE_THRESHOLD,
-  MIN_ARCHETYPE_QUALIFIED_GAMES,
-} from "./settings";
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
+
+const buildCardScores = (qualifiedDecks: Deck[]) => {
+  const totalQualifiedGames = qualifiedDecks.reduce(
+    (sum, deck) => sum + deck.totalGames,
+    0
+  );
+  const allCards: Record<string, { winCount: number; totalGames: number }> = {};
+  for (const deck of qualifiedDecks) {
+    for (const card of deck.cards) {
+      const cardName = cardToString(card);
+      const entry = allCards[cardName] ?? { winCount: 0, totalGames: 0 };
+      entry.winCount += deck.winCount;
+      entry.totalGames += deck.totalGames;
+      allCards[cardName] = entry;
+    }
+  }
+
+  return Object.entries(calculateCardScores(allCards, totalQualifiedGames))
+    .map(([name, { score, popularity }]) => ({ name, score, popularity }))
+    .sort((a, b) => b.score - a.score);
+};
 
 const run = async () => {
   try {
     const allDecks = getDecks();
+    const today = new Date();
 
-    const qualifiedDecks = allDecks.filter(
-      (deck: Deck) =>
-        deck.totalGames > 0 &&
-        deck.winCount / deck.totalGames >= MIN_WINRATE_THRESHOLD
-    );
+    const artefacts = Object.fromEntries(
+      WINDOW_IDS.map((window) => [window, buildWindowArtefacts(allDecks, window, today)])
+    ) as Record<WindowId, WindowArtefacts>;
 
-    console.log(
-      `Qualified decks (>=${MIN_WINRATE_THRESHOLD * 100}% winrate): ${qualifiedDecks.length} / ${allDecks.length}`
-    );
-
-    const allQualifiedGames = qualifiedDecks.reduce(
-      (acc: number, deck: Deck) => acc + deck.totalGames,
-      0
-    );
-
-    // Tally qualified games per archetype to drop tiny-sample flukes (1-2 lucky runs) from the rankings.
-    const qualifiedGamesByName = new Map<string, number>();
-    for (const deck of qualifiedDecks) {
-      qualifiedGamesByName.set(
-        deck.name,
-        (qualifiedGamesByName.get(deck.name) ?? 0) + deck.totalGames
+    for (const window of WINDOW_IDS) {
+      console.log(
+        `Window ${window}: ${artefacts[window].bestDecks.length} ranked archetypes`
       );
     }
 
-    const allDeckNames = [...new Set(qualifiedDecks.map((d: Deck) => d.name))];
-    const uniqueDeckNames = allDeckNames.filter(
-      (name: string) =>
-        (qualifiedGamesByName.get(name) ?? 0) >= MIN_ARCHETYPE_QUALIFIED_GAMES
-    );
-    const droppedCount = allDeckNames.length - uniqueDeckNames.length;
-    console.log(
-      `Archetypes ranked: ${uniqueDeckNames.length} (dropped ${droppedCount} below ${MIN_ARCHETYPE_QUALIFIED_GAMES} qualified games)`
-    );
+    // Trends and card scores stay un-windowed, so they read the whole store
+    // through the all-time window and the published page keeps the same
+    // history and card table as before the selector landed.
+    const allQualified = qualifiedDecksInWindow(allDecks, "all", today);
+    const trends = buildTrends(allQualified, artefacts.all.bestDecks);
+    const cardScoresList = buildCardScores(allQualified);
 
-    // Calculate Best Decks
-    const bestDecks: PartialDeck[] = [];
-    const idExists: Record<string, boolean> = {};
-    let matchupResults: Record<
-      string,
-      Record<string, { wins: number; losses: number }>
-    > = {};
-
-    for (const deckName of uniqueDeckNames) {
-      matchupResults[deckName] = {};
-
-      // Qualified decks for this archetype
-      const matchingQualifiedDecks = qualifiedDecks.filter(
-        (game: Deck) => game.name === deckName
-      );
-      const matchingQualifiedGames = matchingQualifiedDecks.reduce(
-        (acc: number, game: Deck) => acc + game.totalGames,
-        0
-      );
-      const percentOfGames = matchingQualifiedGames / allQualifiedGames;
-
-      const cards: Record<
-        string,
-        { winCount: number; totalGames: number; score?: number }
-      > = {};
-      for (const deck of matchingQualifiedDecks) {
-        for (const card of deck.cards) {
-          const cardName = cardToString(card);
-          if (cards[cardName]) {
-            cards[cardName].winCount += deck.winCount;
-            cards[cardName].totalGames += deck.totalGames;
-          } else {
-            cards[cardName] = {
-              winCount: deck.winCount,
-              totalGames: deck.totalGames,
-            };
-          }
-        }
-      }
-
-      // Calculate card scores from qualified decks
-      const scoredCards = calculateCardScores(cards, matchingQualifiedGames);
-
-      // Matchup results use ALL decks (unfiltered) so win rates stay accurate
-      matchupResults[deckName] = calculateMatchupResults(allDecks, deckName);
-
-      // Build lists from qualified decks only
-      const lists: DeckList[] = [];
-      for (const deck of matchingQualifiedDecks) {
-        const id = getId(deck);
-        if (idExists[id]) continue;
-        const deckScore = calculateDeckScore(
-          deck,
-          scoredCards,
-          matchingQualifiedGames,
-          allQualifiedGames
-        );
-        const formattedList: DeckList = {
-          cards: convertCardsToIds(deck.cards),
-          score: deckScore.score,
-          strength: deckScore.strength,
-        };
-        lists.push(formattedList);
-        idExists[id] = true;
-      }
-
-      const deckScore = calculateDeckScore(
-        matchingQualifiedDecks[0],
-        scoredCards,
-        matchingQualifiedGames,
-        allQualifiedGames
-      );
-      bestDecks.push({
-        name: deckName,
-        lists,
-        popularity: deckScore.popularity,
-        percentOfGames,
-        score: lists.length ? Math.max(...lists.map((l) => l.score)) : 0,
-        expectedWinRate: 0.5,
-        fieldCoverage: 0,
-        powerScore: null,
-        freqScore: 0,
-        metaScore: null
-      });
-    }
-
-    // Sort bestDecks by score descending for deterministic ordering
-    bestDecks.sort((a, b) => b.score - a.score);
-
-    const matchupData = buildMatchupData(matchupResults);
-
-    const allCards: Record<string, { winCount: number; totalGames: number }> = {};
-    for (const deck of qualifiedDecks) {
-      for (const card of deck.cards) {
-        const cardName = cardToString(card);
-        if (allCards[cardName]) {
-          allCards[cardName].winCount += deck.winCount;
-          allCards[cardName].totalGames += deck.totalGames;
-        } else {
-          allCards[cardName] = {
-            winCount: deck.winCount,
-            totalGames: deck.totalGames,
-          };
-        }
-      }
-    }
-    const cardScores = calculateCardScores(allCards, allQualifiedGames);
-    const cardScoresList: { name: string; score: number; popularity: number }[] =
-      Object.entries(cardScores).map(([cardName, { score, popularity }]) => ({
-        name: cardName,
-        score,
-        popularity,
-      }));
-    cardScoresList.sort((a, b) => b.score - a.score);
-
-    const cardIds = cards.map((card: any) => card.id);
-    const idExistsInApi: Record<string, boolean> = cardIds.reduce(
-      (acc: Record<string, boolean>, id: string) => {
-        acc[id] = true;
-        return acc;
-      },
-      {}
-    ) as Record<string, boolean>;
-
-    for (const deck of bestDecks) {
+    const cardIds = new Set(cards.map((card: any) => card.id));
+    for (const deck of artefacts[DEFAULT_WINDOW].bestDecks) {
       for (const list of deck.lists) {
         for (const card of list.cards) {
-          const parts = card.split(":");
-          const id = parts[1];
-          if (!idExistsInApi[id]) {
+          const id = card.split(":")[1];
+          if (!cardIds.has(id)) {
             throw new Error(`Card not found in API: ${id}`);
           }
         }
@@ -202,12 +81,17 @@ const run = async () => {
         .filter((card: any): card is any => !!card)
         .sort((a: any, b: any) => Number(!!b.ex) - Number(!!a.ex));
 
+    // OG images cover every deck visible in any window, so switching views
+    // never lands on a missing image.
+    const ogSlugs = new Set(
+      WINDOW_IDS.flatMap((window) => artefacts[window].bestDecks.map((deck) => deck.name))
+    );
     try {
       await generateOgImages(
-        bestDecks.map((deck) => {
-          const icons = iconCards(deck.name);
+        [...ogSlugs].map((name) => {
+          const icons = iconCards(name);
           return {
-            slug: deck.name.toLowerCase().replace(/\s/g, "-"),
+            slug: name.toLowerCase().replace(/\s/g, "-"),
             name: icons.map((card: any) => card.name).join(" & "),
             iconUrls: icons
               .map((card: any) => card.image)
@@ -219,40 +103,16 @@ const run = async () => {
       console.error("OG image generation failed; continuing without images:", error);
     }
 
-    const trends = buildTrends(qualifiedDecks, bestDecks);
-
-    const metaShare = buildMetaShare(qualifiedDecks, bestDecks, new Date());
-
-    // Power and Meta scores need the matchup rows and the 14-day field share,
-    // so this runs after both are built.
-    const games14ByName = new Map(
-      metaShare.decks.map((entry) => [entry.name, entry.games14])
-    );
-    const powerInputs: DeckPowerInput[] = bestDecks.map((deck) => ({
-      name: deck.name,
-      matchups: matchupData[deck.name] ?? [],
-      games14: games14ByName.get(deck.name) ?? 0,
-    }));
-    const powerByName = new Map(
-      buildDeckPower(powerInputs).map((row) => [row.name, row] as const)
-    );
-    for (const deck of bestDecks) {
-      const power = powerByName.get(deck.name);
-      deck.expectedWinRate = power?.expectedWinRate ?? 0.5;
-      deck.fieldCoverage = power?.fieldCoverage ?? 0;
-      deck.powerScore = power?.powerScore ?? null;
-      deck.freqScore = power?.freqScore ?? 0;
-      deck.metaScore = power?.metaScore ?? null;
-    }
-
     writeArtefacts({
+      ...buildArtefactFiles(artefacts),
       "../public/data/historical-trends.json": JSON.stringify(trends, null, 2),
-      "../public/data/meta-share.json": JSON.stringify(metaShare, null, 2),
       "./data/card-scores.json": JSON.stringify(cardScoresList, null, 2),
       "../public/data/card-scores.json": JSON.stringify(cardScoresList, null, 2),
-      "./data/best-decks.json": JSON.stringify(bestDecks, null, 2),
-      "../public/data/best-decks.json": JSON.stringify(bestDecks, null, 2),
-      "../public/data/matchup-data.json": JSON.stringify(matchupData, null, 2),
+      "./data/best-decks.json": JSON.stringify(
+        artefacts[DEFAULT_WINDOW].bestDecks,
+        null,
+        2
+      ),
       "../src/app/last-updated.ts": `export const LAST_UPDATED = new Date("${new Date().toISOString()}");`,
     });
   } catch (error) {

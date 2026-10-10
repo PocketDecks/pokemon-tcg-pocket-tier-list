@@ -14,6 +14,7 @@ import Header, { RAIL_WIDTH } from "./components/Header";
 import HomeBanner from "./components/HomeBanner";
 import LayoutMain from "./components/LayoutMain";
 import { useDocumentLanguage } from "./app/use-document-language";
+import { splitLocale } from "./app/locale-route";
 
 const LandingPage = lazy(() => import("./pages/landing/LandingPage"));
 const TierListPage = lazy(() => import("./pages/tier-list/TierListPage"));
@@ -93,7 +94,7 @@ export const Layout = () => {
   return (
       <StyledApp>
         <SkipLink href="#main-content">{t("a11y.skipToContent")}</SkipLink>
-        {pathname === "/" && (
+        {splitLocale(pathname).rest === "/" && (
           <Banner>
             <HomeBanner />
           </Banner>

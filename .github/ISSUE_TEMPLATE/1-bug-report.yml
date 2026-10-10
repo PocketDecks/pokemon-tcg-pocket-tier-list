@@ -1,0 +1,95 @@
+name: Application bug
+description: A page, deck view, sign-in or layout behaves differently from what you expected
+title: "fix: "
+labels:
+  - bug
+  - "status: needs-triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for the site itself. Data and pipeline reports have their own form.
+
+        Do not paste API keys, auth tokens, billing details, email addresses or private datasets. Report security problems through the private route in [SECURITY.md](https://github.com/PocketDecks/pokemon-tcg-pocket-tier-list/blob/main/SECURITY.md).
+  - type: checkboxes
+    id: duplicate
+    attributes:
+      label: Before you file
+      options:
+        - label: I searched the open issues and this is not already reported
+          required: true
+  - type: input
+    id: page
+    attributes:
+      label: Where did it happen?
+      description: The URL or route you were on.
+      placeholder: https://pocketdecks.top/tier-list
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened?
+      description: What you saw, including any error text.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: If it is not reproducible, write that here instead.
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: input
+    id: frequency
+    attributes:
+      label: How often does it happen?
+      placeholder: Every time, once, or unknown
+    validations:
+      required: false
+  - type: input
+    id: environment
+    attributes:
+      label: Browser and device
+      placeholder: Firefox on Android 15, or unknown
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The deploy date, commit or release you saw it on. Write unknown if you do not know.
+      placeholder: unknown
+    validations:
+      required: false
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Supporting evidence
+      description: Console output, an error message or a screenshot. Redact anything private. Screenshots are optional and do not replace the steps above.
+    validations:
+      required: false
+  - type: textarea
+    id: cause
+    attributes:
+      label: Suspected cause
+      description: Only if you have a hunch about why it happens. Leave this out when you do not.
+    validations:
+      required: false
+  - type: textarea
+    id: impact
+    attributes:
+      label: Who is affected, and how badly?
+      placeholder: Everyone on the deck finder, or only premium accounts on mobile
+    validations:
+      required: false

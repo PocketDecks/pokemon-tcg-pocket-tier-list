@@ -51,6 +51,7 @@
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-react-hooks": "7.1.1",
     "globals": "17.13.0",
+    "js-yaml": "^4.3.2",
     "jsdom": "^30.0.1",
     "puppeteer": "^25.8.0",
     "react-is": "^19.2.0",

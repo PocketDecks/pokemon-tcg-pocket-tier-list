@@ -1,0 +1,71 @@
+name: Improvement or policy change
+description: A change to how the site, the data or a rule behaves
+title: "feat: "
+labels:
+  - enhancement
+  - "status: needs-triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for a change in behaviour, a new capability, or a rule such as a threshold, weight or window definition. A rule change needs maintainer approval before any code moves.
+
+        Do not paste API keys, auth tokens, billing details, email addresses or private datasets. Report security problems through the private route in [SECURITY.md](https://github.com/PocketDecks/pokemon-tcg-pocket-tier-list/blob/main/SECURITY.md).
+  - type: checkboxes
+    id: duplicate
+    attributes:
+      label: Before you file
+      options:
+        - label: I searched the open issues and this is not already reported
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem do you see?
+      description: Describe the current behaviour and why it is a problem.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What outcome do you want?
+    validations:
+      required: true
+  - type: dropdown
+    id: change-kind
+    attributes:
+      label: What kind of change is this?
+      options:
+        - A fix to something broken
+        - A policy change to a threshold, weight or rule
+        - A new capability
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Who does this affect, and how?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+      description: Include the option of leaving things as they are, when that is a real choice.
+    validations:
+      required: false
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints and dependencies
+      description: Anything that limits the work, such as data availability, cost, another issue or an approval.
+    validations:
+      required: false
+  - type: textarea
+    id: success
+    attributes:
+      label: How would you know it worked?
+      description: A measurable or falsifiable outcome. Write unknown when you cannot name one.
+    validations:
+      required: false

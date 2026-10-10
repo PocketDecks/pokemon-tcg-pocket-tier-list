@@ -217,9 +217,6 @@ describe("buildArtefactFiles", () => {
 });
 
 describe("buildWindowArtefacts movement across two adjacent windows", () => {
-  // Anchor 2026-10-10. The 10d artefact compares 10-01..10-10 against
-  // 09-21..09-30, and both windows hold 140 qualified games, so an archetype
-  // with the same games on both sides must report zero delta.
   const movement = [
     makeDeck({ id: "s1", name: "Steady", date: "2026-10-05", winCount: 30, totalGames: 30 }),
     makeDeck({ id: "s2", name: "Steady", date: "2026-09-25", winCount: 30, totalGames: 30 }),
@@ -266,8 +263,6 @@ describe("buildWindowArtefacts movement across two adjacent windows", () => {
   it("places an established archetype's earlier appearance outside the window", () => {
     const earlier = [
       makeDeck({ id: "e1", name: "Earlier", date: "2026-10-05", winCount: 30, totalGames: 30 }),
-      // Day before the comparison window opens, so it sets firstSeen without
-      // contributing a previous share.
       makeDeck({ id: "e2", name: "Earlier", date: "2026-09-20", winCount: 30, totalGames: 30 }),
       makeDeck({ id: "o1", name: "Other", date: "2026-10-10", winCount: 30, totalGames: 30 }),
     ];
@@ -338,8 +333,6 @@ describe("buildWindowArtefacts movement across two adjacent windows", () => {
 });
 
 describe("buildWindowArtefacts movement window boundaries", () => {
-  // Anchor 2026-10-10, so the 10d window opens on 2026-10-01 and the previous
-  // window closes on 2026-09-30. 10-03 and 10-04 carry no decks at all.
   const decks = [
     makeDeck({ id: "g1", name: "Gap", date: "2026-10-02", winCount: 30, totalGames: 30 }),
     makeDeck({ id: "g2", name: "Gap", date: "2026-10-05", winCount: 30, totalGames: 30 }),
@@ -380,5 +373,19 @@ describe("buildWindowArtefacts movement window boundaries", () => {
 
     expect(opening.firstSeen).toBe("2026-10-01");
     expect(opening.isNew).toBe(true);
+  });
+
+  it("dates an archetype from a day below the ranking threshold", () => {
+    const thin = [
+      makeDeck({ id: "t1", name: "Thin", date: "2026-09-20", winCount: 1, totalGames: 1 }),
+      makeDeck({ id: "t2", name: "Thin", date: "2026-10-05", winCount: 40, totalGames: 40 }),
+      makeDeck({ id: "o1", name: "Other", date: "2026-10-05", winCount: 40, totalGames: 40 }),
+    ];
+
+    const thinRow = buildWindowArtefacts(thin, "10d", TODAY).metaShare.decks.find(
+      (entry) => entry.name === "Thin"
+    )!;
+
+    expect(thinRow.firstSeen).toBe("2026-09-20");
   });
 });

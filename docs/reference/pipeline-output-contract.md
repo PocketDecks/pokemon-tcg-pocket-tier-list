@@ -151,7 +151,7 @@ Each `MetaShareEntry` carries:
 | `sharePrev` | number | Same measure for the equal-length window immediately before the artefact's window, 0 when that window holds no qualified games. |
 | `delta` | number | `share - sharePrev`; can be negative. |
 | `windowGames` | number | Qualified games captured in the artefact's window. A fresh expansion caps this in practice because the dataset starts at the expansion release date. |
-| `firstSeen` | string | Earliest calendar day the archetype appears in the whole qualified pool, so an established archetype keeps the date it first ranked even when the artefact's window opens later. |
+| `firstSeen` | string | Earliest calendar day the archetype appears in the whole qualified pool, including days before it clears the ranking floor. |
 | `isNew` | boolean | True when `firstSeen` falls inside the artefact's comparison window. |
 
 Coupling on `name`: `DecksContext` indexes the entries into `metaShareBySlug`

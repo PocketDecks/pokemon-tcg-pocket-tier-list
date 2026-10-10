@@ -163,8 +163,6 @@ export const buildWindowArtefacts = (
   const { bestDecks, rankedNames } = rankDecks(qualifiedDecks);
 
   const shareDays = WINDOW_LENGTH_DAYS[window];
-  // Movement reads the games the ranking window drops, so the share snapshot
-  // takes the whole qualified store.
   const metaShare = buildMetaShare(
     qualifiedDecksInWindow(decks, "all", today),
     bestDecks,

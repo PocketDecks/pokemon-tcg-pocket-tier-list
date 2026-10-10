@@ -6,12 +6,11 @@
 // Score is play rate against the most-played deck. Meta Score is the simple
 // average of the two, as VS publishes it.
 //
-// Matchup win rates come from qualified games since the expansion release
-// under a linear recency ramp; field share comes from qualified games in the
-// trailing 14 days. Performance is therefore weighted by how common each
-// opponent is among qualified players, the population the ranking scores. The
-// long window versus short window asymmetry is deliberate and matches VS: a
-// long window where you need sample, a short one where you need recency.
+// Matchup win rates come from equally weighted games played by qualified
+// players inside the caller's window; field share comes from qualified games
+// over the share window the caller configures. Performance is weighted by how
+// common each opponent is among qualified players, the population the ranking
+// scores.
 //
 // Pure by design. No file reads, no dates, no globals, so every number here
 // is reproducible from its inputs and the tests never depend on a scrape.

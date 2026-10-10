@@ -97,7 +97,15 @@ const TierListPage = () => {
   const ready = !loading && !!decks && decks.length > 0;
   useMarkContentReady(ready);
 
-  if (error) return <div>Error loading data: {error.message}</div>;
+  if (error)
+    return (
+      <>
+        <WindowToggleCorner>
+          <WindowToggle />
+        </WindowToggleCorner>
+        <div>Error loading data: {error.message}</div>
+      </>
+    );
 
   const filters = isPremium ? (
         <>

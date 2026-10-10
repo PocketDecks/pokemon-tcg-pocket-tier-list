@@ -358,5 +358,9 @@
       "body": "如果您對本隱私權政策有任何疑問，或希望我們刪除您的資訊，請透過 <0/> 與我們聯絡。"
     },
     "fanNotice": "Top Pocket Decks 是一個粉絲專案，與 Nintendo、The Pokémon Company、Creatures Inc.、GAME FREAK Inc. 或 DeNA 沒有關聯，也未獲得其認可或贊助。"
+  },
+  "gameCounts": {
+    "title": "有效比賽對局數",
+    "body": "對局數是精確總數的估計值。每個資料工件涵蓋一個固定的時間範圍，預設檢視為20天，範圍內的每一局權重相同。切換範圍改變的是哪些對局被計入，而不是每局權重。"
   }
 }

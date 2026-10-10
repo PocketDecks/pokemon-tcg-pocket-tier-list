@@ -358,5 +358,9 @@
       "body": "Bei Fragen zu dieser Datenschutzerklärung oder wenn Sie uns bitten möchten, Ihre Informationen zu löschen, kontaktieren Sie uns unter <0/>."
     },
     "fanNotice": "Top Pocket Decks ist ein Fanprojekt und steht in keiner Verbindung zu Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc. oder DeNA und wird von diesen weder unterstützt noch gesponsert."
+  },
+  "gameCounts": {
+    "title": "Effektive Turnierspiele",
+    "body": "Spielzahlen sind Schätzungen der exakten Gesamtsummen. Each Artefakt deckt ein festes Zeitfenster ab, standardmäßig 20 Tage, und jedes Spiel innerhalb eines Zeitfensters zählt gleich viel. Der Wechsel des Zeitfensters ändert, welche Spiele zählen, nicht wie stark jedes einzelne zählt."
   }
 }

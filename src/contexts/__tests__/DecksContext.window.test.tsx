@@ -18,15 +18,17 @@ vi.mock("../../app/use-expansions", () => ({
 }));
 
 const GOOD_DECK = "venusaur-a1-004&bulbasaur-a1-001";
+const TEN_DAY_DECK = "altaria-b1-102&swablu-a4-064";
 
-const decks = [
-  {
-    name: GOOD_DECK,
-    lists: [{ cards: ["2:a1-004", "1:a1-219"], score: 10, strength: 5 }],
-    percentOfGames: 50,
-    popularity: 100,
-  },
-];
+const deck = (name: string) => ({
+  name,
+  lists: [{ cards: ["2:a1-004", "1:a1-219"], score: 10, strength: 5 }],
+  percentOfGames: 50,
+  popularity: 100,
+});
+
+const decks = [deck(GOOD_DECK)];
+const tenDayDecks = [deck(TEN_DAY_DECK)];
 
 const matchups = {
   [GOOD_DECK]: [{ name: "Total", winRate: 0.5, totalGames: 10 }],
@@ -87,6 +89,7 @@ beforeEach(() => {
   vi.spyOn(global, "fetch").mockImplementation((input) => {
     const url = String(input);
     requestedUrls.push(url);
+    if (url.includes("best-decks-10d")) return jsonResponse(tenDayDecks);
     if (url.includes("best-decks")) return jsonResponse(decks);
     if (url.includes("meta-share")) return jsonResponse({ decks: [] });
     if (url.includes("matchup-data")) return jsonResponse(matchups);
@@ -126,6 +129,7 @@ describe("window-aware deck fetching", () => {
     await user.click(screen.getByRole("button", { name: "to-10d" }));
 
     expect(await screen.findByTestId("window")).toHaveTextContent("10d");
+    expect(await screen.findByText(TEN_DAY_DECK)).toBeInTheDocument();
     expect(requestedUrls).toContain("/data/best-decks-10d.json");
     expect(requestedUrls).toContain("/data/meta-share-10d.json");
   });
@@ -141,7 +145,7 @@ describe("window-aware deck fetching", () => {
 
     await screen.findByText(GOOD_DECK);
     await user.click(screen.getByRole("button", { name: "to-10d" }));
-    await screen.findByText(GOOD_DECK);
+    await screen.findByText(TEN_DAY_DECK);
     await user.click(screen.getByRole("button", { name: "to-20d" }));
     await screen.findByText(GOOD_DECK);
 

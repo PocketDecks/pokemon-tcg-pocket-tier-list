@@ -358,5 +358,9 @@
       "body": "Pour toute question concernant la présente politique de confidentialité, ou pour nous demander de supprimer vos informations, contactez-nous à l'adresse <0/>."
     },
     "fanNotice": "Top Pocket Decks est un projet de fans. Il n'est ni affilié à, ni approuvé, ni parrainé par Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc. ou DeNA."
+  },
+  "gameCounts": {
+    "title": "Matchs de tournoi effectifs",
+    "body": "Les comptages de matchs sont des estimations des totaux exacts. Chaque artefact couvre une fenêtre fixe, actuellement 20 jours sur la vue par défaut, et chaque match dans une fenêtre compte autant qu'un autre. Changer de fenêtre change quels matchs comptent, pas leur poids individuel."
   }
 }

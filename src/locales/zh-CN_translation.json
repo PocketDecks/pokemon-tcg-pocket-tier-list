@@ -358,5 +358,9 @@
       "body": "如果您对本隐私政策有任何疑问，或希望我们删除您的信息，请通过 <0/> 与我们联系。"
     },
     "fanNotice": "Top Pocket Decks 是一个粉丝项目，与 Nintendo、The Pokémon Company、Creatures Inc.、GAME FREAK Inc. 或 DeNA 没有关联，也未获得其认可或赞助。"
+  },
+  "gameCounts": {
+    "title": "有效比赛对局数",
+    "body": "对局数是精确总数的估计值。每个数据工件覆盖一个固定的时间窗口，默认视图为20天，窗口内的每一局权重相同。切换窗口改变的是哪些对局被计入，而不是每局权重。"
   }
 }

@@ -70,15 +70,10 @@ export const POPULARITY_IMPORTANCE = CURRENT_SCORING_WEIGHTS.popularityImportanc
 // decks entirely and left the ranking 99% correlated with play rate.
 export const MATCHUP_PRIOR_GAMES: number = 30;
 
-// Matchup rows below this are dropped as noise before smoothing. Note that
-// totalGames is a recency-weighted sum, not a raw count.
-//
-// Sized on the qualified population Power Score reads, not the all-player tally
-// this floor was originally cut for. For rows present in both tallies the
-// qualified row holds a median 0.57 of the all-player games, a quarter hold
-// under 0.39, so a floor of 5 keeps only about half of the rows that used to
-// clear it and the ranked field falls to roughly half its size. Run-to-run
-// recency drift moves the exact counts; the ratio does not.
+// Matchup rows below this are dropped as noise before smoothing. Sized on the
+// qualified population Power Score reads: a qualified row holds a median 0.57
+// of the games its all-player counterpart carries, so the floor the all-player
+// tally was cut for keeps only about half the rows that used to clear it.
 export const MIN_MATCHUP_GAMES: number = 2;
 
 // Share of the field a deck's matchup data must cover before it gets a Power
@@ -92,7 +87,5 @@ export const MIN_MATCHUP_GAMES: number = 2;
 // bar follows the coverage distribution down instead of discarding most of the
 // field. The committed pair ranks roughly half to two thirds of archetypes, at
 // or above the published ranking's breadth, with every ranked deck clearing the
-// bar itself. Rank correlation against raw qualified win rate stays within
-// run-to-run noise of the old pair, which measures on a much smaller ranked
-// set; the recency multiplier depends on run time, so exact counts wobble.
+// bar itself.
 export const MIN_FIELD_COVERAGE: number = 0.25;

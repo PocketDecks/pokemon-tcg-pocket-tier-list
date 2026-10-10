@@ -358,5 +358,9 @@
       "body": "Dacă aveți întrebări despre această Politică de confidențialitate sau doriți să ne cereți ștergerea informațiilor dumneavoastră, contactați-ne la <0/>."
     },
     "fanNotice": "Top Pocket Decks este un proiect al fanilor și nu este afiliat, susținut sau sponsorizat de Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc. sau DeNA."
+  },
+  "gameCounts": {
+    "title": "Meciuri de turneu efective",
+    "body": "Numărările meciurilor sunt estimări ale totalurilor exacte. Fiecare artefact acoperă o fereastră fixă, în prezent 20 de zile în vizualizarea implicită, iar fiecare meci dintr-o fereastră are aceeași pondere. Schimbarea ferestrei schimbă ce meciuri contează, nu cât cântărește fiecare."
   }
 }

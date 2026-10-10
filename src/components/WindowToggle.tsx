@@ -11,6 +11,7 @@ import NavIcon from "./NavIcon";
 
 const Container = styled.div`
   display: flex;
+  flex-wrap: wrap;
   gap: 0.8rem;
   background: var(--bg);
   padding: 0.4rem;

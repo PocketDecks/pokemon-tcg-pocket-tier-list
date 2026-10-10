@@ -82,9 +82,9 @@ const qualifiedInWindow = (decks: Deck[]): Deck[] =>
       deck.winCount / deck.totalGames >= MIN_WINRATE_THRESHOLD
   );
 
-// The qualified decks a window ranks. Exposed so the pipeline builds the
-// non-windowed artefacts (trends, card scores) from the default window's set
-// rather than re-deriving the window boundary.
+// The qualified decks a window ranks. Exposed so the pipeline can build the
+// non-windowed artefacts (trends, card scores) from the all-time set without
+// re-deriving the window boundary.
 export const qualifiedDecksInWindow = (
   decks: Deck[],
   window: WindowId,
@@ -177,11 +177,6 @@ export const buildWindowArtefacts = (
   const qualifiedDecks = qualifiedDecksInWindow(decks, window, today);
   const { bestDecks, rankedNames } = rankDecks(qualifiedDecks);
 
-  // Power Score weights each matchup by the opponent's share of the qualified
-  // field, so both the rows and the shares come from the qualified population.
-  // The public matrix is the qualified tally too: the ranking's matchup view
-  // describes the same population its scores do, which also keeps the Power
-  // Score input and the shipped rows identical.
   const shareDays = WINDOW_LENGTH_DAYS[window];
   const metaShare = buildMetaShare(qualifiedDecks, bestDecks, today, {
     shareDays,
@@ -189,11 +184,11 @@ export const buildWindowArtefacts = (
     anchor,
   });
 
-  // The public matrix is the qualified tally: the ranking's matchup view
-  // describes the same population its scores do. Power Score reads the same
-  // rows, so the shipped numbers and the scored ones cannot drift.
+  // The public matrix keeps every player's games so displayed win rates do not
+  // inherit the qualification gate's upward bias. Power Score reads the
+  // qualified tally instead, matching the qualified field shares it weights by.
   const { publicMatchupData, powerMatchupData } = buildMatchupPopulations(
-    qualifiedDecks,
+    decks,
     qualifiedDecks,
     rankedNames
   );

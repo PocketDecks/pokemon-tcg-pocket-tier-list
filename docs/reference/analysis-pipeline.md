@@ -32,7 +32,7 @@ This bound applies to both win rate and popularity. Card scores are a weighted c
 
 Tiering uses Power Score, not the card composite. `build-deck-power.ts` smooths every matchup win rate toward 50% by its own sample size, weights each by that opponent's share of the qualified 14-day field, and rescales so the best deck reads 100 and an even win rate reads exactly 50.
 
-Both sides of that weighted average come from the qualified population. `build-matchup-populations.ts` tallies matchups twice. The windowed artefacts ship the qualified tally for both the public matrix and Power Score, so the ranking's matchup view describes the same population its scores do. Before the window selector landed, the un-suffixed `matchup-data.json` kept every player's games; windowed files always describe the qualified players of their window.
+`build-matchup-populations.ts` tallies matchups twice per window: the public `matchup-data-{w}.json` keeps every player's games in that window, and the second tally, built from the window's qualified decks only, feeds Power Score. `meta-share-{w}.json` also counts the window's qualified games, so the weights and the win rates Power Score consumes describe one population.
 
 Frequency Score measures play rate against the most-played deck, and Meta Score is the average of the two. Decks whose matchup data covers less than `MIN_FIELD_COVERAGE` of the qualified field are Unranked and shown in their own group rather than given an invented score.
 
@@ -46,4 +46,4 @@ The `MIN_WINRATE_THRESHOLD` is `0.6`. A player must win at least 60 percent of t
 
 The `MIN_ARCHETYPE_QUALIFIED_GAMES` is `25`. An archetype needs 25 games in that qualified pool before it can appear in the rankings. This filters out lucky one-off tournament runs.
 
-The Power Score tunables are `MATCHUP_PRIOR_GAMES` at `30`, `MIN_MATCHUP_GAMES` at `2`, and `MIN_FIELD_COVERAGE` at `0.25`. `MATCHUP_PRIOR_GAMES` and `MIN_MATCHUP_GAMES` are measured in weighted games, not raw ones. Both thresholds are calibrated against the qualified tally, because a row survives on roughly half the weighted games it had in the all-player tally. The `settings.ts` comments record the measured ranked counts behind each value.
+The Power Score tunables are `MATCHUP_PRIOR_GAMES` at `30` and `MIN_MATCHUP_GAMES` at `2`, both measured in raw game counts, plus `MIN_FIELD_COVERAGE` at `0.25`. The two game-count thresholds are calibrated against the qualified tally, because a qualified row holds on average fewer games than its all-player counterpart. The `settings.ts` comments record the measured ranked counts behind each value.

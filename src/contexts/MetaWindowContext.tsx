@@ -2,11 +2,17 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
-import { DEFAULT_META_WINDOW, type MetaWindow } from "../app/meta-window";
+import {
+  DEFAULT_META_WINDOW,
+  isPremiumMetaWindow,
+  type MetaWindow,
+} from "../app/meta-window";
+import useIsPremium from "../app/use-is-premium";
 
 interface MetaWindowContextValue {
   window: MetaWindow;
@@ -29,7 +35,17 @@ export const MetaWindowProvider = ({
   initialWindow?: MetaWindow;
 }) => {
   const [window, setWindowState] = useState<MetaWindow>(initialWindow);
+  const isPremium = useIsPremium();
   const setWindow = useCallback((next: MetaWindow) => setWindowState(next), []);
+
+  // A locked window outlives its entitlement when Premium lapses mid-session.
+  // Fall back to the default rather than serving a window the plan no longer
+  // grants. Unknown premium state (null) never resets the selection.
+  useEffect(() => {
+    if (isPremium === false && isPremiumMetaWindow(window)) {
+      setWindowState(DEFAULT_META_WINDOW);
+    }
+  }, [isPremium, window]);
 
   const value = useMemo(() => ({ window, setWindow }), [window, setWindow]);
 

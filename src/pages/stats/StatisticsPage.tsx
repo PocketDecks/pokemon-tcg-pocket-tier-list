@@ -411,7 +411,6 @@ const StatisticsPage = () => {
                 <SectionHeader>
                     <SectionTitle>{t("statistics.trends")}</SectionTitle>
                     <ToggleRow>
-                        <WindowToggle />
                         <ToggleContainer>
                             <ToggleButton
                                 $active={range === "14-day"}
@@ -590,6 +589,10 @@ const StatisticsPage = () => {
         <PageContainer>
             <PageTitle>{t("header.statistics")}</PageTitle>
 
+            <ToggleRow>
+                <WindowToggle />
+            </ToggleRow>
+
             {renderContent()}
 
             <SeoContent>
@@ -634,13 +637,8 @@ const StatisticsPage = () => {
                     collection supports building a stronger counter-meta option.
                 </p>
 
-                <h3>Effective tournament games</h3>
-                <p>
-                    Game counts are estimates of exact totals. Each artefact covers a
-                    fixed window, currently 20 days on the default view, and every
-                    game inside a window carries the same weight. Switching windows
-                    changes which games count rather than how much each one counts.
-                </p>
+                <h3>{t("gameCounts.title")}</h3>
+                <p>{t("gameCounts.body")}</p>
             </SeoContent>
         </PageContainer>
     );

@@ -81,12 +81,17 @@ const run = async () => {
         .filter((card: any): card is any => !!card)
         .sort((a: any, b: any) => Number(!!b.ex) - Number(!!a.ex));
 
+    // One OG image per archetype that ranks in ANY window, so switching views
+    // never lands on a missing image. Orphaned images are pruned below.
+    const ogSlugs = new Set(
+      WINDOW_IDS.flatMap((window) => artefacts[window].bestDecks.map((deck) => deck.name))
+    );
     try {
       await generateOgImages(
-        artefacts[DEFAULT_WINDOW].bestDecks.map((deck) => {
-          const icons = iconCards(deck.name);
+        [...ogSlugs].map((name) => {
+          const icons = iconCards(name);
           return {
-            slug: deck.name.toLowerCase().replace(/\s/g, "-"),
+            slug: name.toLowerCase().replace(/\s/g, "-"),
             name: icons.map((card: any) => card.name).join(" & "),
             iconUrls: icons
               .map((card: any) => card.image)

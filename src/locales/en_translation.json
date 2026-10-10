@@ -358,5 +358,9 @@
       "body": "If you have any questions about this Privacy Policy, or want to ask us to delete your information, contact us at <0/>."
     },
     "fanNotice": "Top Pocket Decks is a fan-made project and is not affiliated with, endorsed by, or sponsored by Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc., or DeNA."
+  },
+  "gameCounts": {
+    "title": "Effective tournament games",
+    "body": "Game counts are estimates of exact totals. Each artefact covers a fixed window, currently 20 days on the default view, and every game inside a window carries the same weight. Switching windows changes which games count rather than how much each one counts."
   }
 }

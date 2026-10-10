@@ -358,5 +358,9 @@
       "body": "Se tiver alguma dúvida sobre esta Política de Privacidade, ou quiser pedir-nos que apaguemos as suas informações, contacte-nos em <0/>."
     },
     "fanNotice": "O Top Pocket Decks é um projeto de fãs e não está afiliado, endossado nem patrocinado pela Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc. ou DeNA."
+  },
+  "gameCounts": {
+    "title": "Partidas de torneio efetivas",
+    "body": "As contagens de partidas são estimativas dos totais exatos. Cada artefato cobre uma janela fixa, atualmente 20 dias na vista predefinida, e cada partida dentro de uma janela tem o mesmo peso. Mudar de janela muda quais partidas contam, não quanto cada uma pesa."
   }
 }

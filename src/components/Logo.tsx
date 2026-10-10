@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import logo from "../assets/logo.webp";
-import { Link } from "react-router";
+import { LocaleLink as Link } from "../app/locale-link";
 
 const Container = styled(Link)`
   display: flex;

@@ -133,7 +133,13 @@
     "energyUsed": "사용 에너지",
     "matchupsUnavailable": "덱 데이터를 불러오지 못했습니다. 페이지를 새로고침하여 다시 시도하세요.",
     "matchupsLoading": "매치업 불러오는 중",
-    "loading": "덱 불러오는 중"
+    "loading": "덱 불러오는 중",
+    "shareQrTitle": "QR 공유",
+    "shareQrHeading": "이 덱을 가져오려면 스캔하세요",
+    "shareQrCopyTitle": "탭하여 덱 코드 복사",
+    "shareQrCopy": "덱 코드 복사",
+    "shareQrCopied": "복사했습니다",
+    "shareQrDownload": "QR 다운로드"
   },
   "energyDropdown": {
     "all": "모든 에너지 타입",

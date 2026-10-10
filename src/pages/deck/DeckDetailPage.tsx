@@ -26,6 +26,7 @@ import DeckPageSkeleton from "./DeckPageSkeleton";
 import NotFoundPage from "../not-found/NotFoundPage";
 import EnergyList from "./EnergyList";
 import useDeckTiers, { tierForDeck } from "../../app/use-deck-tiers";
+import { useLocaleHref } from "../../app/locale-link";
 import {
   cardThumbHeight,
   cardThumbSrcSet,
@@ -89,6 +90,7 @@ const DeckDetailPage = () => {
   const tiers = useDeckTiers(decks);
   const { missing, canUndo, undoMissing, lastRemovedId } = useMissing();
   const { t } = useTranslation();
+  const tierListHref = useLocaleHref("/tier-list");
   const isPremium = useIsPremium();
   const { window: metaWindow } = useMetaWindow();
 
@@ -411,23 +413,20 @@ const DeckDetailPage = () => {
       </StyledDeckPage>
 
       <SeoContent>
-        <h2>{displayName} Deck Guide</h2>
+        <h2>{t("deckDetail.heading", { ns: "seo", deck: displayName })}</h2>
         <p>
-          {displayName} is a top-rated Pokémon TCG Pocket deck, ranked on our{" "}
-          <a href="/tier-list">tier list</a> using recent tournament data.
+          {t("deckDetail.intro", { ns: "seo", deck: displayName })}{" "}
+          <a href={tierListHref}>{t("deckDetail.tierList", { ns: "seo" })}</a>{" "}
+          {t("deckDetail.introAfter", { ns: "seo" })}
           {winRatePct !== null
-            ? ` It currently holds a ${winRatePct}% win rate across tracked matches.`
+            ? t("deckDetail.winRate", { ns: "seo", winRate: winRatePct })
             : ""}
         </p>
+        <p>{t("deckDetail.body", { ns: "seo" })}</p>
         <p>
-          The recommended decklist above includes standard card counts, alternative swap options,
-          and a breakdown of the deck's strengths and weaknesses. Check the matchup data to see
-          which decks it counters and which ones to avoid.
-        </p>
-        <p>
-          If you are missing cards for this build, tap them to rebuild the deck around your
-          collection. You can also browse the <a href="/tier-list">tier list</a> to find other
-          competitive Pokémon TCG Pocket decks.
+          {t("deckDetail.outro", { ns: "seo" })}{" "}
+          <a href={tierListHref}>{t("deckDetail.tierList", { ns: "seo" })}</a>{" "}
+          {t("deckDetail.outroAfter", { ns: "seo" })}
         </p>
       </SeoContent>
     </>

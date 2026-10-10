@@ -14,10 +14,17 @@ const escapeXml = (s) =>
 
 const stampHead = (
   html,
-  { title, description, canonical, robots, jsonLd, metas } = {}
+  { title, description, canonical, robots, jsonLd, metas, alternates, lang } = {}
 ) => {
   if (!/<\/head>/i.test(html)) throw new Error("No </head> in template");
   let out = html;
+  if (lang) {
+    out = out.replace(/<html\b[^>]*>/i, (tag) =>
+      /\slang=/i.test(tag)
+        ? tag.replace(/\slang=["'][^"']*["']/i, ` lang="${escapeXml(lang)}"`)
+        : tag.replace(/>$/, ` lang="${escapeXml(lang)}">`)
+    );
+  }
   if (title) out = out.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeXml(title)}</title>`);
   if (description) {
     out = out.replace(/<meta[^>]+name="description"[^>]*>/gi, "");
@@ -49,6 +56,16 @@ const stampHead = (
   if (canonical) {
     out = out.replace(/<link[^>]+rel="canonical"[^>]*>/gi, "");
     out = out.replace(/<\/head>/i, `  <link rel="canonical" href="${escapeXml(canonical)}">\n  </head>`);
+  }
+  if (alternates) {
+    out = out.replace(/<link[^>]+rel="alternate"[^>]*>/gi, "");
+    const lines = alternates
+      .map(
+        (alternate) =>
+          `  <link rel="alternate" hreflang="${escapeXml(alternate.hreflang)}" href="${escapeXml(alternate.href)}">`
+      )
+      .join("\n");
+    out = out.replace(/<\/head>/i, `${lines}\n  </head>`);
   }
   if (jsonLd) {
     // Raw quotes are correct inside a script tag; do not XML-escape JSON.

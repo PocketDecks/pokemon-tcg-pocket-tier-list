@@ -317,5 +317,48 @@ export const consentMessages = {
     legalLinks: {
       privacyPolicy: "隐私政策"
     }
+  },
+  ja: {
+    common: {
+      acceptAll: "すべて同意する",
+      rejectAll: "すべて拒否する",
+      customize: "カスタマイズ",
+      save: "設定を保存",
+      close: "閉じる",
+      securedBy: "提供"
+    },
+    cookieBanner: {
+      title: "プライバシーを尊重します",
+      description: "本サイトでは、閲覧体験の向上、アクセス解析、パーソナライズされたコンテンツの表示のためにCookieを使用しています。"
+    },
+    consentManagerDialog: {
+      title: "プライバシー設定",
+      description: "ここでプライバシー設定をカスタマイズできます。許可するCookieとトラッキング技術の種類を選択してください。"
+    },
+    consentTypes: {
+      necessary: {
+        title: "必須",
+        description: "これらのCookieは本サイトが正常に動作するために必要であり、無効にすることはできません。"
+      },
+      functionality: {
+        title: "機能",
+        description: "これらのCookieは本サイトの機能とパーソナライズを強化します。"
+      },
+      marketing: {
+        title: "マーケティング",
+        description: "これらのCookieは関連性の高い広告の配信とその効果測定に使用されます。"
+      },
+      measurement: {
+        title: "解析",
+        description: "これらのCookieは、訪問者が本サイトをどのように利用しているかを把握し、改善するために役立ちます。"
+      },
+      experience: {
+        title: "体験",
+        description: "これらのCookieは、より良いユーザー体験の提供と新機能のテストに役立ちます。"
+      }
+    },
+    legalLinks: {
+      privacyPolicy: "プライバシーポリシー"
+    }
   }
 } satisfies Record<string, Partial<Translations>>;

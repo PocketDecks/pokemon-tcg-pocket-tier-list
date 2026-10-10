@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
-import { Link, useLocation } from "react-router";
+import { useLocation } from "react-router";
+import { LocaleLink as Link } from "../app/locale-link";
 import { ConsentDialogLink } from "@c15t/react";
 import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";

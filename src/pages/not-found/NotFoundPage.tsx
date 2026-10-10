@@ -1,5 +1,6 @@
 import styled from "styled-components";
-import { Link, useLocation } from "react-router";
+import { useLocation } from "react-router";
+import { LocaleLink as Link } from "../../app/locale-link";
 import { useTranslation } from "react-i18next";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 

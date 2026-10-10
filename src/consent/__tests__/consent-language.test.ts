@@ -12,7 +12,7 @@ describe("toConsentLanguage", () => {
     ["ro", "ro"],
     ["zh-CN", "zh"],
     ["zh-TW", "en"],
-    ["ja", "en"],
+    ["ja", "ja"],
     ["ko", "en"],
     [undefined, "en"],
     ["xx", "en"],

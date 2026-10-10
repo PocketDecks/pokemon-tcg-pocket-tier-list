@@ -205,53 +205,26 @@ const TierListPage = () => {
         <WindowToggle />
       </WindowToggleCorner>
       <SeoContent>
-        <h2>Pokémon TCG Pocket | Deck Tier List</h2>
+        <h2>{t("tierList.heading", { ns: "seo" })}</h2>
         <p>
-          This tier list ranks the best decks in Pokémon TCG Pocket using competitive
-          results rather than opinion. We score every deck using tournament data from{" "}
+          {t("tierList.intro", { ns: "seo" })}{" "}
           <a href="https://limitlesstcg.com/" target="_blank" rel="noopener noreferrer">
-            Limitless
+            {t("tierList.limitless", { ns: "seo" })}
           </a>{" "}
-          events and sort them into tiers from S to F. The list updates regularly to
-          reflect the current metagame as new expansions and balance changes alter the
-          format.
+          {t("tierList.introAfter", { ns: "seo" })}
         </p>
 
-        <h3>How we calculate deck rankings</h3>
-        <p>
-          Each deck's placement depends on how often it sees play, its tournament
-          performance, and its win rate against the rest of the field. We aggregate
-          decklists from recent tournaments and group them by archetype to calculate
-          an overall score. Decks with high win rates and frequent top-cut appearances
-          move into the S and A tiers. Fringe or underperforming decks drop to the
-          lower tiers.
-        </p>
+        <h3>{t("tierList.calcHeading", { ns: "seo" })}</h3>
+        <p>{t("tierList.calcBody", { ns: "seo" })}</p>
 
-        <h3>Understanding the tiers</h3>
-        <p>
-          The S tier contains the strongest and most consistent decks in the current
-          meta, making them safe choices for ranked play. A and B tier decks are
-          highly competitive and can win events in the right hands or with favourable
-          matchups. C and D tier options remain viable but are less consistent, often
-          serving as budget-friendly or matchup-dependent alternatives. F tier
-          consists of experimental decks that struggle against the top of the meta.
-        </p>
+        <h3>{t("tierList.tiersHeading", { ns: "seo" })}</h3>
+        <p>{t("tierList.tiersBody", { ns: "seo" })}</p>
 
-        <h3>Building your best deck</h3>
-        <p>
-          If you do not own every card, you can open any deck to view its full list
-          alongside card-for-card alternatives. You can also use the Best Deck Finder
-          to mark the cards you are missing and instantly find the strongest deck you
-          can build with your current collection. The tool allows you to filter by
-          energy type and rank decks by popularity or raw strength.
-        </p>
+        <h3>{t("tierList.buildHeading", { ns: "seo" })}</h3>
+        <p>{t("tierList.buildBody", { ns: "seo" })}</p>
 
-        <h3>Tier list updates</h3>
-        <p>
-          The rankings update automatically as fresh tournament results come in. The
-          fastest updates go to Premium members. The date shown in the lower-right corner
-          always reflects the most recent refresh.
-        </p>
+        <h3>{t("tierList.updatesHeading", { ns: "seo" })}</h3>
+        <p>{t("tierList.updatesBody", { ns: "seo" })}</p>
       </SeoContent>
     </>
   );

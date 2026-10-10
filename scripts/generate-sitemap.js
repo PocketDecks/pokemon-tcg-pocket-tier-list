@@ -10,6 +10,7 @@ const path = require("path");
 
 const { deckSlug } = require("./deck-slug.mjs");
 const { escapeXml, SITE_URL } = require("./meta-stamp");
+const { localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
 
 const STATIC_ROUTES = [
   "/",
@@ -22,24 +23,37 @@ const STATIC_ROUTES = [
   "/privacy",
 ];
 
-const buildSitemap = ({ decks, siteUrl = SITE_URL, staticRoutes = STATIC_ROUTES, lastmod }) => {
+const DEFAULT_LOCALE = "en";
+
+const urlFor = (locale, route) => localizedUrl(SITE_URL, locale, route);
+
+const buildSitemap = ({ decks, staticRoutes = STATIC_ROUTES, lastmod }) => {
   // Trailing slashes match the canonical form stamped by the prerenderers;
   // the server 301s slashless paths, and sitemap/canonical must agree.
-  const deckRoutes = decks.map((deck) => `/deck/${deckSlug(deck.name)}/`);
-  const allRoutes = [
-    ...staticRoutes.map((r) => (r === "/" ? "/" : `${r}/`)),
-    ...deckRoutes,
+  const baseRoutes = [
+    ...staticRoutes,
+    ...decks.map((deck) => `/deck/${deckSlug(deck.name)}`),
   ];
 
-  const urlEntries = allRoutes
+  const alternateLines = (route) =>
+    [
+      ...ROUTE_LOCALES.map(
+        (locale) =>
+          `      <xhtml:link rel="alternate" hreflang="${escapeXml(locale)}" href="${escapeXml(urlFor(locale, route))}" />`
+      ),
+      `      <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(urlFor(DEFAULT_LOCALE, route))}" />`,
+    ].join("\n");
+
+  const urlEntries = baseRoutes
+    .flatMap((route) => ROUTE_LOCALES.map((locale) => ({ route, locale })))
     .map(
-      (route) =>
-        `  <url>\n    <loc>${escapeXml(siteUrl + route)}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`
+      ({ route, locale }) =>
+        `  <url>\n    <loc>${escapeXml(urlFor(locale, route))}</loc>\n    <lastmod>${lastmod}</lastmod>\n${alternateLines(route)}\n  </url>`
     )
     .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${urlEntries}
 </urlset>
 `;
@@ -54,7 +68,9 @@ const main = () => {
 
   const outPath = path.join(__dirname, "..", "public", "sitemap.xml");
   fs.writeFileSync(outPath, sitemap);
-  console.log(`Wrote ${STATIC_ROUTES.length + bestDecks.length} routes to ${outPath}`);
+  console.log(
+    `Wrote ${(STATIC_ROUTES.length + bestDecks.length) * ROUTE_LOCALES.length} routes to ${outPath}`
+  );
 };
 
 if (require.main === module) {

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router";
+import { LocaleLink as Link } from "../../app/locale-link";
 
 import useIsPremium from "../../app/use-is-premium";
 import { useMetaWindow } from "../../app/use-meta-window";
@@ -580,46 +580,25 @@ const StatisticsPage = () => {
             {renderContent()}
 
             <SeoContent>
-                <h2>Pokémon TCG Pocket statistics and meta trends</h2>
+                <h2>{t("statistics.heading", { ns: "seo" })}</h2>
                 <p>
-                    Analyse the current Pokémon TCG Pocket metagame using live historical
-                    data and archetype matchup heatmaps. This tracking data maps exactly
-                    how deck popularity and win rates shift over time within the{" "}
-                    {latestExpansionName() ?? ""} format. We pull results straight from recent
-                    competitive events, giving you a statistical edge over players
-                    relying on gut feeling alone.
+                    {t("statistics.intro", { ns: "seo", expansion: latestExpansionName() ?? "" })}
                 </p>
 
-                <h3>Track the best decks</h3>
+                <h3>{t("statistics.trendsHeading", { ns: "seo" })}</h3>
+                <p>{t("statistics.trendsBody", { ns: "seo" })}</p>
                 <p>
-                    The trend graph plots the top archetypes over the selected window.
-                    You can see exactly when a deck peaks in popularity or falls out of
-                    favour as the meta adapts. The 10 and 20-day views are free to
-                    everyone; Premium unlocks the 30-day and all-time views to evaluate
-                    long-term trends. For instance, looking closely at the recent data,
-                    you will immediately notice aggressive shifts: when a top-tier
-                    threat begins dominating the standings, counter-decks naturally
-                    rise to answer them.
-                </p>
-                <p>
-                    Cross-reference these stats with our{" "}
-                    <Link to="/tier-list">tier list</Link> to see how raw data translates
-                    into competitive rankings.
+                    {t("statistics.crossIntro", { ns: "seo" })}{" "}
+                    <Link to="/tier-list">{t("statistics.tierListLink", { ns: "seo" })}</Link>{" "}
+                    {t("statistics.crossAfter", { ns: "seo" })}
                 </p>
 
-                <h3>Read the matchup matrix</h3>
+                <h3>{t("statistics.matrixHeading", { ns: "seo" })}</h3>
+                <p>{t("statistics.matrixBody", { ns: "seo" })}</p>
                 <p>
-                    The matchup matrix breaks down head-to-head win rates across the
-                    board. The grid colours shift from deep blue for highly favourable
-                    matchups to red for the worst counters, passing through grey for even
-                    splits. Hover over any cell to check the total number
-                    of games played. This ensures the sample size is reliable before you
-                    commit to a strategy.
-                </p>
-                <p>
-                    If you spot a severe weakness in your own deck's matchups, use the{" "}
-                    <Link to="/deck">best deck finder</Link> to see if your current card
-                    collection supports building a stronger counter-meta option.
+                    {t("statistics.weakIntro", { ns: "seo" })}{" "}
+                    <Link to="/deck">{t("statistics.deckFinderLink", { ns: "seo" })}</Link>{" "}
+                    {t("statistics.weakAfter", { ns: "seo" })}
                 </p>
 
                 <h3>{t("gameCounts.title")}</h3>

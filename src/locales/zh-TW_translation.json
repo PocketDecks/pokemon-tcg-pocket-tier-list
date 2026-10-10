@@ -133,7 +133,13 @@
     "energyUsed": "使用能量",
     "matchupsUnavailable": "牌組資料未能載入。請重新整理頁面再試一次。",
     "matchupsLoading": "正在載入對戰組合",
-    "loading": "正在載入牌組"
+    "loading": "正在載入牌組",
+    "shareQrTitle": "分享 QR 碼",
+    "shareQrHeading": "掃描以匯入此牌組",
+    "shareQrCopyTitle": "點按複製牌組代碼",
+    "shareQrCopy": "複製牌組代碼",
+    "shareQrCopied": "已複製！",
+    "shareQrDownload": "下載 QR 碼"
   },
   "energyDropdown": {
     "all": "所有能量屬性",

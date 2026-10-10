@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import type { ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router";
+import { localeRoute, splitLocale } from "../app/locale-route";
 import Dropdown from "./Dropdown";
 
 const Container = styled.div`
@@ -43,12 +45,22 @@ const languages = [
 
 const LanguageSwitcher = () => {
   const { i18n, t } = useTranslation();
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  const onChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const next = event.target.value;
+    const { rest } = splitLocale(pathname);
+    const target = localeRoute(next, rest);
+    if (target !== pathname) navigate(target);
+    i18n.changeLanguage(next);
+  };
 
   return (
     <Container>
       <LanguageDropdown
         value={i18n.language}
-        onChange={(e: ChangeEvent<HTMLSelectElement>) => i18n.changeLanguage(e.target.value)}
+        onChange={onChange}
         aria-label={t("a11y.selectLanguage", "Select language")}
       >
         {languages.map((lang) => (

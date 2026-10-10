@@ -104,6 +104,10 @@
       {
         "source": "/feedback/**",
         "destination": "/app-shell.html"
+      },
+      {
+        "source": "/ja/feedback/**",
+        "destination": "/app-shell.html"
       }
     ]
   }

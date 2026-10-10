@@ -25,6 +25,8 @@ const ROOT = path.join(__dirname, "..");
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
   : path.join(ROOT, "dist");
+const { localeRoute, localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
+const { SITE_URL } = require("./meta-stamp");
 const ROUTES = [
   "/",
   "/tier-list",
@@ -35,6 +37,8 @@ const ROUTES = [
   "/about",
   "/privacy",
 ];
+
+const DEFAULT_LOCALE = "en";
 
 // Titles/descriptions are build-time constants: unique per route, keyword-led,
 // en-UK. Canonicals always carry the trailing slash the server 301s to.
@@ -90,6 +94,63 @@ const ROUTE_META = {
 const ROUTE_READY_ROUTES = new Set(["/cards-list", "/statistics", "/deck"]);
 const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
 
+// Japanese titles and descriptions are written for a Japanese reader searching
+// for ポケポケ deck rankings, not translated word for word from the English.
+const JA_ROUTE_META = {
+  "/": {
+    title: "ポケポケ 最強デッキ ティアリスト | Top Pocket Decks",
+    description: "大会結果から作ったポケモンカードゲーム ポケットのティアリストです。最新環境のデッキランキング、勝率、相性を確認できます。",
+  },
+  "/tier-list": {
+    title: "ポケポケ ティアリスト 最強デッキ一覧 | Top Pocket Decks",
+    description: "大会データをもとに全アーキタイプを毎日ランク付けしています。拡張パック、エネルギー、勝率で絞り込んで最強デッキを探せます。",
+  },
+  "/cards-list": {
+    title: "ポケポケ カード ティアリスト 最強カード | Top Pocket Decks",
+    description: "実際に勝てるポケモンカードゲーム ポケットのカードをランキング形式で紹介します。大会のデッキリストからスコアを算出しています。",
+  },
+  "/expansion-list": {
+    title: "ポケポケ 拡張パック一覧と収録カード | Top Pocket Decks",
+    description: "ポケモンカードゲーム ポケットの全拡張パックをカード枚数と環境への影響つきでまとめています。最強の遺伝子から収録しています。",
+  },
+  "/statistics": {
+    title: "ポケポケ 環境統計とメタ推移 | Top Pocket Decks",
+    description: "大会結果から集計したポケモンカードゲーム ポケットのメタシェア、週ごとのデッキ順位変動、相性データを掲載しています。",
+  },
+  "/deck": {
+    title: "ポケポケ デッキ一覧とデッキレシピ | Top Pocket Decks",
+    description: "ランク付けされたポケモンカードゲーム ポケットのデッキを一覧で紹介します。デッキリスト、相性、勝率をデッキごとに確認できます。",
+  },
+  "/about": {
+    title: "Top Pocket Decksについて 集計方法とデータ | Top Pocket Decks",
+    description: "Top Pocket DecksがLimitlessの大会データからポケモンカードゲーム ポケットのデッキをどうランク付けしているかを説明します。",
+  },
+  "/privacy": {
+    title: "プライバシーポリシー | Top Pocket Decks",
+    description: "Top Pocket Decksにおけるアクセス解析、広告、アカウントデータの取り扱いについて説明します。",
+  },
+};
+
+const urlFor = (locale, route) => localizedUrl(SITE_URL, locale, route);
+
+const alternatesFor = (route) => [
+  ...ROUTE_LOCALES.map((locale) => ({ hreflang: locale, href: urlFor(locale, route) })),
+  { hreflang: "x-default", href: urlFor(DEFAULT_LOCALE, route) },
+];
+
+const localeMetaFor = (locale, route) => {
+  const base = ROUTE_META[route];
+  const translated = locale === DEFAULT_LOCALE ? undefined : JA_ROUTE_META[route];
+  return {
+    title: translated?.title ?? base.title,
+    description: translated?.description ?? base.description,
+    canonical: urlFor(locale, route),
+    lang: locale,
+    alternates: alternatesFor(route),
+    jsonLd: locale === DEFAULT_LOCALE ? base.jsonLd : undefined,
+  };
+};
+
 const NOT_FOUND_ROUTE = "/404";
 const NOT_FOUND_META = {
   title: "Page not found | Top Pocket Decks",
@@ -121,26 +182,31 @@ const main = async () => {
   try {
     const page = await createPrerenderPage(browser, pageErrors);
 
-    for (const route of ROUTES) {
-      await openDocument(page, route);
-      const html = await captureAfterRouteReady(page, route, async () => {
-        if (DECK_ANCHOR_ROUTES.has(route)) {
-          await page.waitForFunction(
-            () => document.querySelectorAll('a[href^="/deck/"]').length > 10,
-            { timeout: 20000 }
-          );
-        }
-        return captureDocument(page, template);
+    for (const locale of ROUTE_LOCALES) {
+      await page.setExtraHTTPHeaders({
+        "Accept-Language": locale === DEFAULT_LOCALE ? "en-GB,en;q=0.9" : `${locale},${locale}-JP;q=0.9`,
       });
-      const meta = ROUTE_META[route];
-      const stampedHtml = meta ? stampHead(html, meta) : html;
-      const outFile =
-        route === "/"
-          ? path.join(DIST_DIR, "index.html")
-          : path.join(DIST_DIR, route.slice(1), "index.html");
-      fs.mkdirSync(path.dirname(outFile), { recursive: true });
-      fs.writeFileSync(outFile, stampedHtml);
-      console.log(`Prerendered ${route}`);
+      for (const route of ROUTES) {
+        const url = localeRoute(locale, route);
+        await openDocument(page, url);
+        const html = await captureAfterRouteReady(page, route, async () => {
+          if (DECK_ANCHOR_ROUTES.has(route)) {
+            await page.waitForFunction(
+              () => document.querySelectorAll('a[href^="/deck/"]').length > 10,
+              { timeout: 20000 }
+            );
+          }
+          return captureDocument(page, template);
+        });
+        const meta = localeMetaFor(locale, route);
+        const outFile =
+          url === "/"
+            ? path.join(DIST_DIR, "index.html")
+            : path.join(DIST_DIR, url.slice(1), "index.html");
+        fs.mkdirSync(path.dirname(outFile), { recursive: true });
+        fs.writeFileSync(outFile, stampHead(html, meta));
+        console.log(`Prerendered ${url}`);
+      }
     }
 
     await openDocument(page, NOT_FOUND_ROUTE);
@@ -158,9 +224,9 @@ const main = async () => {
     console.error(`Page errors during prerender:\n${pageErrors.join("\n")}`);
     process.exit(1);
   }
-  console.log(`Prerendered ${ROUTES.length} routes into ${DIST_DIR}`);
+  console.log(`Prerendered ${ROUTES.length * ROUTE_LOCALES.length} routes into ${DIST_DIR}`);
 };
 
 if (require.main === module) main();
 
-module.exports = { captureAfterRouteReady, NOT_FOUND_META, resetPrerenderAppState, resetPrerenderTheme, ROUTE_READY_ROUTES, ROUTE_META, ROUTES };
+module.exports = { alternatesFor, captureAfterRouteReady, DEFAULT_LOCALE, JA_ROUTE_META, localeMetaFor, NOT_FOUND_META, resetPrerenderAppState, resetPrerenderTheme, ROUTE_READY_ROUTES, ROUTE_META, ROUTES };

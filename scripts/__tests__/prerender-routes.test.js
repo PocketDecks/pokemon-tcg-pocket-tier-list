@@ -28,6 +28,59 @@ test("waits for route content on data-backed pages", () => {
   assert.deepStrictEqual([...ROUTE_READY_ROUTES], ["/cards-list", "/statistics", "/deck"]);
 });
 
+const { alternatesFor, localeMetaFor } = require("../prerender-routes");
+
+test("every locale route carries a complete, reciprocal hreflang set", () => {
+  for (const route of ROUTES) {
+    const alternates = alternatesFor(route);
+    assert.deepStrictEqual(
+      alternates.map((a) => a.hreflang),
+      ["en", "ja", "x-default"]
+    );
+    for (const alternate of alternates) {
+      assert.ok(
+        alternate.href.startsWith("https://pocketdecks.top/"),
+        `alternate is not absolute: ${alternate.href}`
+      );
+    }
+    assert.strictEqual(alternates.find((a) => a.hreflang === "x-default").href, alternates[0].href);
+  }
+});
+
+test("each locale canonical matches its own hreflang entry", () => {
+  for (const route of ROUTES) {
+    const en = localeMetaFor("en", route);
+    const ja = localeMetaFor("ja", route);
+    assert.ok(en.alternates.some((a) => a.hreflang === "en" && a.href === en.canonical));
+    assert.ok(ja.alternates.some((a) => a.hreflang === "ja" && a.href === ja.canonical));
+    assert.strictEqual(en.lang, "en");
+    assert.strictEqual(ja.lang, "ja");
+    assert.notStrictEqual(en.canonical, ja.canonical);
+  }
+});
+
+test("Japanese routes carry Japanese titles and descriptions", () => {
+  const titles = new Set();
+  const descriptions = new Set();
+  for (const route of ROUTES) {
+    const meta = localeMetaFor("ja", route);
+    assert.ok(meta.title.length > 0 && meta.title.length <= 65, `ja title too long for ${route}: ${meta.title.length}`);
+    assert.ok(/[\u3040-\u30ff\u4e00-\u9faf]/.test(meta.title), `ja title is not Japanese for ${route}`);
+    assert.ok(/[\u3040-\u30ff\u4e00-\u9faf]/.test(meta.description), `ja description is not Japanese for ${route}`);
+    titles.add(meta.title);
+    descriptions.add(meta.description);
+  }
+  assert.strictEqual(titles.size, ROUTES.length, "duplicate ja titles across routes");
+  assert.strictEqual(descriptions.size, ROUTES.length, "duplicate ja descriptions across routes");
+});
+
+test("Japanese canonicals sit under /ja and keep the trailing slash", () => {
+  assert.strictEqual(localeMetaFor("ja", "/tier-list").canonical, "https://pocketdecks.top/ja/tier-list/");
+  assert.strictEqual(localeMetaFor("ja", "/").canonical, "https://pocketdecks.top/ja/");
+  assert.strictEqual(localeMetaFor("en", "/tier-list").canonical, "https://pocketdecks.top/tier-list/");
+  assert.strictEqual(localeMetaFor("en", "/").canonical, "https://pocketdecks.top/");
+});
+
 test("removes runtime theme state before prerender capture", () => {
   const meta = {
     content: "#ff00ff",

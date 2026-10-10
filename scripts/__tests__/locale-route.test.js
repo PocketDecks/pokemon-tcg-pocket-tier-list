@@ -5,7 +5,9 @@ const {
   LOCALE_PREFIXES,
   ROUTE_LOCALES,
   localeRoute,
+  localizedUrl,
   prefixedLocale,
+  routePath,
   splitLocale,
 } = require("../locale-route.mjs");
 
@@ -53,6 +55,26 @@ test("splitLocale inverts localeRoute for every locale and route", () => {
     for (const route of ["/", "/tier-list", "/deck/x-a1-001", "/about"]) {
       assert.strictEqual(splitLocale(localeRoute(locale, route)).locale, locale);
       assert.strictEqual(splitLocale(localeRoute(locale, route)).rest, route);
+    }
+  }
+});
+
+test("routePath adds exactly one trailing slash", () => {
+  assert.strictEqual(routePath("/"), "/");
+  assert.strictEqual(routePath("/ja/"), "/ja/");
+  assert.strictEqual(routePath("/tier-list"), "/tier-list/");
+  assert.strictEqual(routePath("/ja/tier-list"), "/ja/tier-list/");
+});
+
+test("localizedUrl never doubles a slash, including the locale home page", () => {
+  const site = "https://pocketdecks.top";
+  assert.strictEqual(localizedUrl(site, "en", "/"), "https://pocketdecks.top/");
+  assert.strictEqual(localizedUrl(site, "ja", "/"), "https://pocketdecks.top/ja/");
+  assert.strictEqual(localizedUrl(site, "en", "/tier-list"), "https://pocketdecks.top/tier-list/");
+  assert.strictEqual(localizedUrl(site, "ja", "/tier-list"), "https://pocketdecks.top/ja/tier-list/");
+  for (const locale of ROUTE_LOCALES) {
+    for (const route of ["/", "/tier-list", "/deck/x"]) {
+      assert.ok(!localizedUrl(site, locale, route).includes("//", 8), localizedUrl(site, locale, route));
     }
   }
 });

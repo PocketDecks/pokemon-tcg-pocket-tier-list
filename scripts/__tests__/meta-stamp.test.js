@@ -98,6 +98,66 @@ test("deck pages get self-canonical and breadcrumb JSON-LD", () => {
 
 const { buildSitemap } = require("../generate-sitemap");
 
+test("stamps a complete hreflang set including self and x-default", () => {
+  const out = stampHead(TEMPLATE.replace(/<link[^>]*canonical[^>]*>/, ""), {
+    canonical: "https://pocketdecks.top/tier-list/",
+    alternates: [
+      { hreflang: "en", href: "https://pocketdecks.top/tier-list/" },
+      { hreflang: "ja", href: "https://pocketdecks.top/ja/tier-list/" },
+      { hreflang: "x-default", href: "https://pocketdecks.top/tier-list/" },
+    ],
+  });
+  assert.strictEqual(out.split('rel="alternate"').length - 1, 3);
+  assert.ok(out.includes('hreflang="en" href="https://pocketdecks.top/tier-list/"'));
+  assert.ok(out.includes('hreflang="ja" href="https://pocketdecks.top/ja/tier-list/"'));
+  assert.ok(out.includes('hreflang="x-default" href="https://pocketdecks.top/tier-list/"'));
+});
+
+test("stamping alternates twice does not duplicate the set", () => {
+  const alternates = [
+    { hreflang: "en", href: "https://pocketdecks.top/tier-list/" },
+    { hreflang: "ja", href: "https://pocketdecks.top/ja/tier-list/" },
+  ];
+  const once = stampHead(TEMPLATE.replace(/<link[^>]*canonical[^>]*>/, ""), {
+    canonical: "https://pocketdecks.top/tier-list/",
+    alternates,
+  });
+  const twice = stampHead(once, {
+    canonical: "https://pocketdecks.top/tier-list/",
+    alternates,
+  });
+  assert.strictEqual(twice.split('rel="alternate"').length - 1, 2);
+});
+
+test("alternate hrefs are XML-escaped", () => {
+  const out = stampHead(TEMPLATE.replace(/<link[^>]*canonical[^>]*>/, ""), {
+    canonical: "https://pocketdecks.top/deck/a&b/",
+    alternates: [
+      { hreflang: "en", href: "https://pocketdecks.top/deck/a&b/" },
+      { hreflang: "ja", href: "https://pocketdecks.top/ja/deck/a&b/" },
+    ],
+  });
+  assert.ok(out.includes("https://pocketdecks.top/deck/a&amp;b/"));
+  assert.ok(!/href="[^"]*[^m]&[^a]/.test(out));
+});
+
+test("sets the document language on the html tag", () => {
+  const out = stampHead('<html><head></head></html>', { lang: "ja" });
+  assert.ok(out.includes('<html lang="ja">'));
+});
+
+test("replaces an existing document language rather than adding a second", () => {
+  const out = stampHead('<html lang="en"><head></head></html>', { lang: "ja" });
+  assert.strictEqual(out.split("lang=").length - 1, 1);
+  assert.ok(out.includes('<html lang="ja">'));
+});
+
+test("keeps other html attributes while setting the language", () => {
+  const out = stampHead('<html data-theme="dark"><head></head></html>', { lang: "en" });
+  assert.ok(out.includes('data-theme="dark"'));
+  assert.ok(out.includes('lang="en"'));
+});
+
 test("sitemap URLs carry trailing slashes and match canonical form", () => {
   const xml = buildSitemap({ decks: [{ name: "hoopa-ex-b4-103" }], lastmod: "2026-08-24" });
   assert.ok(xml.includes("<loc>https://pocketdecks.top/tier-list/</loc>"));

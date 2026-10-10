@@ -16,6 +16,14 @@ const PREMIUM_META_WINDOWS: readonly MetaWindow[] = ["30d", "all"];
 export const isPremiumMetaWindow = (window: MetaWindow): boolean =>
   PREMIUM_META_WINDOWS.includes(window);
 
+/** i18n key under `windowDays.` holding the human day label per window. */
+export const META_WINDOW_LABEL_DAYS: Record<MetaWindow, string> = {
+  "10d": "10d",
+  "20d": "20d",
+  "30d": "30d",
+  all: "all",
+};
+
 export const META_WINDOW_LABEL_KEYS: Record<MetaWindow, string> = {
   "10d": "window.10d",
   "20d": "window.20d",

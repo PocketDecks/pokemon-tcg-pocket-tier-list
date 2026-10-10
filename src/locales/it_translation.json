@@ -104,7 +104,7 @@
     "deckFinderHeader": "Clicca sulle carte che non hai. Il mazzo si aggiornerà per mostrare le migliori opzioni con le carte a tua disposizione.",
     "relativeStrength": "Forza Relativa",
     "keyStats": "Statistiche Chiave",
-    "popularity": "Partite (14g)",
+    "popularity": "Partite",
     "powerScore": "Punteggio di potenza",
     "freqScore": "Frequenza",
     "metaScore": "Punteggio meta",
@@ -126,7 +126,7 @@
     "freqScoreTooltip": "Quanto è comune questo mazzo nelle liste di torneo qualificate, con il mazzo più giocato della finestra attuale a 100.",
     "metaScoreTooltip": "La media tra Punteggio di potenza e Frequenza. Bilancia la percentuale di vittoria attesa con la presenza reale del mazzo.",
     "cardScoreTooltip": "Quanto sono forti le singole carte di questo mazzo, valutate su ogni lista torneo. Misura solo la qualità delle carte, non il tasso di vittoria, e non influisce sul rango.",
-    "popularityTooltip": "Partite qualificate negli ultimi 14 giorni, limitate all'uscita di questa espansione",
+    "popularityTooltip": "Partite qualificate acquisite nella finestra selezionata ({{days}}).",
     "winRateTooltip": "% di vittoria nella finestra attuale",
     "metaShareTooltip": "Quota di partite qualificate ± cambiamento settimanale",
     "showTooltip": "Mostra spiegazione",
@@ -362,5 +362,11 @@
   "gameCounts": {
     "title": "Partite di torneo effettive",
     "body": "I conteggi delle partite sono stime dei totali esatti. Ogni artefatto copre una finestra fissa, attualmente 20 giorni nella vista predefinita, e ogni partita all'interno di una finestra ha lo stesso peso. Cambiare finestra cambia quali partite contano, non quanto pesa ciascuna."
+  },
+  "windowDays": {
+    "10d": "10 giorni",
+    "20d": "20 giorni",
+    "30d": "30 giorni",
+    "all": "tutto il periodo"
   }
 }

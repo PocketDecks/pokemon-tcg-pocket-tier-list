@@ -11,6 +11,7 @@ import DeckHeadTags from "./DeckHeadTags";
 import DeckCard from "../../components/DeckCard";
 import { MIN_MATCHUP_GAMES, WINRATE_THRESHOLD } from "../../app/config";
 import useIsPremium from "../../app/use-is-premium";
+import { useMetaWindow } from "../../app/use-meta-window";
 import ShareDeckCode from "../../components/ShareDeckCode";
 import Tooltip from "../../components/Tooltip";
 import type { MetaShareEntry } from "../../types/pipeline-data";
@@ -89,6 +90,7 @@ const DeckDetailPage = () => {
   const { missing, canUndo, undoMissing, lastRemovedId } = useMissing();
   const { t } = useTranslation();
   const isPremium = useIsPremium();
+  const { window: metaWindow } = useMetaWindow();
 
   const missingCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -293,12 +295,16 @@ const DeckDetailPage = () => {
                   />
                 </KeyStatRow>
                 <KeyStatRow>
-                  <span>{t("deckPage.popularity")}:</span>
+                  <span>
+                    {t("deckPage.popularity")} ({t(`windowDays.${metaWindow}`)}):
+                  </span>
                   <KeyStatValue>
                     {shareEntry ? Math.round(shareEntry.games14).toLocaleString() : "—"}
                   </KeyStatValue>
                   <Tooltip
-                    text={t("deckPage.popularityTooltip")}
+                    text={t("deckPage.popularityTooltip", {
+                      days: t(`windowDays.${metaWindow}`),
+                    })}
                     ariaLabel={t("deckPage.showTooltip")}
                   />
                 </KeyStatRow>

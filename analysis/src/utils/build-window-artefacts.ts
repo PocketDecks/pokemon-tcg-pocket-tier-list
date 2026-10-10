@@ -21,7 +21,6 @@ import {
 export const WINDOW_IDS = ["10d", "20d", "30d", "all"] as const;
 export type WindowId = (typeof WINDOW_IDS)[number];
 
-// Trailing calendar-day length per window; null means the whole store.
 export const WINDOW_LENGTH_DAYS: Record<WindowId, number | null> = {
   "10d": 10,
   "20d": 20,
@@ -29,8 +28,6 @@ export const WINDOW_LENGTH_DAYS: Record<WindowId, number | null> = {
   all: null,
 };
 
-// The un-suffixed artefact filenames keep meaning this window, so readers that
-// predate the selector stay on the same numbers.
 export const DEFAULT_WINDOW: WindowId = "20d";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -43,10 +40,8 @@ export interface WindowArtefacts {
   matchupData: PipelineMatchupData;
 }
 
-// A deck row belongs to a window when its date falls inside the trailing N
-// calendar days, inclusive, ending on the run's newest data date. The anchor is
-// the data, not the run clock: a refresh that lands days after the last scrape
-// would otherwise score an empty window.
+// Windows anchor on the newest data date, not the run clock, so a refresh
+// that lands days after the last scrape still fills its window.
 const decksInWindow = (decks: Deck[], window: WindowId, anchor: Date): Deck[] => {
   const days = WINDOW_LENGTH_DAYS[window];
   if (days === null) return decks;
@@ -61,9 +56,6 @@ const decksInWindow = (decks: Deck[], window: WindowId, anchor: Date): Deck[] =>
   });
 };
 
-// Windows on calendar-day keys, so a deck dated mid-day lands on the same
-// boundary as one dated at midnight. The anchor is the newest data date; the
-// run clock only stands in when the store is empty.
 const latestAnchor = (decks: Deck[], fallback: Date): Date => {
   const newestKey = decks.reduce((newest, deck) => {
     const key = dayKey(deck.date);
@@ -72,9 +64,6 @@ const latestAnchor = (decks: Deck[], fallback: Date): Date => {
   return new Date(`${newestKey || dayKey(fallback.toISOString())}T00:00:00Z`);
 };
 
-// The qualification gate: a deck scores only when its player won at least
-// MIN_WINRATE_THRESHOLD of their games. Evaluated per window, since the window
-// holds a subset of the player's games.
 const qualifiedInWindow = (decks: Deck[]): Deck[] =>
   decks.filter(
     (deck) =>
@@ -82,9 +71,8 @@ const qualifiedInWindow = (decks: Deck[]): Deck[] =>
       deck.winCount / deck.totalGames >= MIN_WINRATE_THRESHOLD
   );
 
-// The qualified decks a window ranks. Exposed so the pipeline can build the
-// non-windowed artefacts (trends, card scores) from the all-time set without
-// re-deriving the window boundary.
+// Exported for the non-windowed artefacts: trends and card scores read the
+// all-time qualified set.
 export const qualifiedDecksInWindow = (
   decks: Deck[],
   window: WindowId,
@@ -100,8 +88,6 @@ const rankDecks = (
     0
   );
 
-  // An archetype needs MIN_ARCHETYPE_QUALIFIED_GAMES before it ranks, so a
-  // one-deck fluke in a short window stays out of the table.
   const gamesByName = new Map<string, number>();
   for (const deck of qualifiedDecks) {
     gamesByName.set(deck.name, (gamesByName.get(deck.name) ?? 0) + deck.totalGames);
@@ -165,9 +151,8 @@ const rankDecks = (
   return { bestDecks, rankedNames };
 };
 
-// Rebuilds the four artefacts a window's rankings need. Every in-window game
-// counts once: the recency ramp is retired, so only the window choice changes
-// the weighting. Pure, so the tests drive it without a scrape.
+// Every in-window game counts once; only the window choice changes which
+// games contribute. Pure, so tests drive it without a scrape.
 export const buildWindowArtefacts = (
   decks: Deck[],
   window: WindowId,
@@ -184,10 +169,8 @@ export const buildWindowArtefacts = (
     anchor,
   });
 
-  // The public matrix keeps every player's games in the window, so displayed
-  // win rates do not inherit the qualification gate's upward bias. Power Score
-  // reads the qualified tally instead, matching the qualified field shares it
-  // weights by.
+  // Public rows count every player in the window; Power Score reads the
+  // qualified tally matching the field shares it weights by.
   const { publicMatchupData, powerMatchupData } = buildMatchupPopulations(
     decksInWindow(decks, window, anchor),
     qualifiedDecks,
@@ -219,9 +202,8 @@ export const buildWindowArtefacts = (
 
 const ARTEFACT_BASES = ["best-decks", "meta-share", "matchup-data"] as const;
 
-// Maps every window's payloads onto the files get-best-decks.ts writes. The
-// default window is also written un-suffixed, so readers that predate the
-// selector keep working without a migration.
+// The default window is also written un-suffixed for readers that predate
+// the selector.
 export const buildArtefactFiles = (
   artefacts: Record<WindowId, WindowArtefacts>
 ): Record<string, string> => {

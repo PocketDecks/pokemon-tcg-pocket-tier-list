@@ -376,10 +376,8 @@ const StatisticsPage = () => {
         const days = META_WINDOW_LENGTH_DAYS[metaWindow];
         if (days === null) return trendData;
 
-        // Cut from the newest trend day, not the wall clock, so the slice ends
-        // on the data even when the last scrape is a few days old. The cutoff
-        // spans N calendar days; the trend rows drop zero-deck days, so the
-        // slice can hold fewer than N points.
+        // Anchored on the newest data, not the wall clock. Spans N calendar
+        // days; zero-deck days are absent from the rows, so slices can be short.
         const newest = new Date(trendData[trendData.length - 1].date).getTime();
         const cutoff = newest - (days - 1) * 24 * 60 * 60 * 1000;
         return trendData.filter((d) => new Date(d.date).getTime() >= cutoff);

@@ -81,8 +81,8 @@ const run = async () => {
         .filter((card: any): card is any => !!card)
         .sort((a: any, b: any) => Number(!!b.ex) - Number(!!a.ex));
 
-    // One OG image per archetype that ranks in ANY window, so switching views
-    // never lands on a missing image. Orphaned images are pruned below.
+    // OG images cover every deck visible in any window, so switching views
+    // never lands on a missing image.
     const ogSlugs = new Set(
       WINDOW_IDS.flatMap((window) => artefacts[window].bestDecks.map((deck) => deck.name))
     );

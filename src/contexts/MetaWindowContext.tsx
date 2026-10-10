@@ -19,9 +19,7 @@ interface MetaWindowContextValue {
   setWindow: (window: MetaWindow) => void;
 }
 
-// A default value rather than null keeps the toggle and the query layer
-// usable on surfaces that never mount the provider (page tests, prerender).
-// The default is also the window the prerendered HTML must show.
+// Non-null default keeps tests and the prerender working without the provider.
 const MetaWindowContext = createContext<MetaWindowContextValue>({
   window: DEFAULT_META_WINDOW,
   setWindow: () => {},
@@ -38,9 +36,9 @@ export const MetaWindowProvider = ({
   const isPremium = useIsPremium();
   const setWindow = useCallback((next: MetaWindow) => setWindowState(next), []);
 
-  // A locked window outlives its entitlement when Premium lapses mid-session.
-  // Fall back to the default rather than serving a window the plan no longer
-  // grants. Unknown premium state (null) never resets the selection.
+  // Premium lapse mid-session falls back to the default; unknown premium
+  // state (null) never resets.
+
   useEffect(() => {
     if (isPremium === false && isPremiumMetaWindow(window)) {
       setWindowState(DEFAULT_META_WINDOW);

@@ -8,9 +8,8 @@ export interface MatchupPopulations {
   powerMatchupData: PipelineMatchupData;
 }
 
-// Two tallies over the same deck names: the public matrix counts every
-// player's games so displayed win rates stay unbiased, while Power Score reads
-// the qualified tally that matches the qualified field shares it weights by.
+// Two tallies over the same deck names: public rows count every player,
+// Power Score reads the qualified population its shares come from.
 export const buildMatchupPopulations = (
   allDecks: Deck[],
   qualifiedDecks: Deck[],

@@ -6,10 +6,12 @@
 // Score is play rate against the most-played deck. Meta Score is the simple
 // average of the two, as VS publishes it.
 //
-// Matchup win rates come from all games since the expansion release under a
-// linear recency ramp; field share comes from the trailing 14 days. That
-// asymmetry is deliberate and matches VS: a long window where you need
-// sample, a short one where you need recency.
+// Matchup win rates come from qualified games since the expansion release
+// under a linear recency ramp; field share comes from qualified games in the
+// trailing 14 days. Performance is therefore weighted by how common each
+// opponent is among qualified players, the population the ranking scores. The
+// long window versus short window asymmetry is deliberate and matches VS: a
+// long window where you need sample, a short one where you need recency.
 //
 // Pure by design. No file reads, no dates, no globals, so every number here
 // is reproducible from its inputs and the tests never depend on a scrape.
@@ -22,7 +24,7 @@ import {
 
 export interface DeckPowerInput {
   name: string;
-  /** The deck's matchup-data.json rows, including the synthetic Total row. */
+  /** The deck's qualified-population matchup rows, including the synthetic Total row. */
   matchups: PipelineMatchupEntry[];
   /** Qualified games in the trailing 14-day window. */
   games14: number;
@@ -32,7 +34,7 @@ export interface DeckPowerResult {
   name: string;
   /** 0..1 win rate against the field, always present. */
   expectedWinRate: number;
-  /** 0..1 share of the field this deck has usable matchup data against. */
+  /** 0..1 share of the qualified 14-day field this deck has usable matchup data against. */
   fieldCoverage: number;
   /** 0..100, or null when fieldCoverage is below MIN_FIELD_COVERAGE. */
   powerScore: number | null;
@@ -78,6 +80,8 @@ export const buildDeckPower = (inputs: DeckPowerInput[]): DeckPowerResult[] => {
         share14.has(row.name)
     );
 
+    // Share of the qualified 14-day field the surviving rows cover, so the
+    // weights below are conditioned on the same coverage MIN_FIELD_COVERAGE gates.
     const fieldCoverage = rows.reduce(
       (sum, row) => sum + (share14.get(row.name) ?? 0),
       0

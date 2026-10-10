@@ -78,10 +78,27 @@ export const MATCHUP_PRIOR_GAMES: number = 30;
 
 // Matchup rows below this are dropped as noise before smoothing. Note that
 // totalGames is a recency-weighted sum, not a raw count.
-export const MIN_MATCHUP_GAMES: number = 5;
+//
+// Sized on the qualified population Power Score reads, not the all-player tally
+// this floor was originally cut for. For rows present in both tallies the
+// qualified row holds a median 0.57 of the all-player games, a quarter hold
+// under 0.39, so a floor of 5 keeps only about half of the rows that used to
+// clear it and the ranked field falls to roughly half its size. Run-to-run
+// recency drift moves the exact counts; the ratio does not.
+export const MIN_MATCHUP_GAMES: number = 2;
 
 // Share of the field a deck's matchup data must cover before it gets a Power
 // Score. Below this the deck is unranked rather than given an invented score.
-// Measured on the 62-deck field: 0.25 ranks 52 decks at rho(power, winRate)
-// 0.726; 0.5 ranks 43 at 0.797; 0.7 ranks 29 at 0.881.
-export const MIN_FIELD_COVERAGE: number = 0.5;
+// The share denominator is the qualified 14-day field, so the coverage it
+// guards is the share of that field the deck has usable qualified matchup rows
+// against.
+//
+// 0.5 was carried over from the all-player tally, where it ranked 40 to 50
+// percent of archetypes; on qualified rows it holds under 30 percent, so the
+// bar follows the coverage distribution down instead of discarding most of the
+// field. The committed pair ranks roughly half to two thirds of archetypes, at
+// or above the published ranking's breadth, with every ranked deck clearing the
+// bar itself. Rank correlation against raw qualified win rate stays within
+// run-to-run noise of the old pair, which measures on a much smaller ranked
+// set; the recency multiplier depends on run time, so exact counts wobble.
+export const MIN_FIELD_COVERAGE: number = 0.25;

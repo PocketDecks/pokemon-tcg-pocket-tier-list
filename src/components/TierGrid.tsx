@@ -157,11 +157,13 @@ const TierGrid = <T,>({
   loadingLabel = "Loading...",
   emptyLabel = "No decks found",
 }: Props<T>) => {
-  if (items === null) {
-    return <Loading>{loadingLabel}</Loading>;
-  }
-  if (items.length === 0) {
-    return <Loading>{emptyLabel}</Loading>;
+  if (items === null || items.length === 0) {
+    return (
+      <Page>
+        {filters && <FilterContainer>{filters}</FilterContainer>}
+        <Loading>{items === null ? loadingLabel : emptyLabel}</Loading>
+      </Page>
+    );
   }
 
   // The caller states which items can be banded. Items the predicate rejects

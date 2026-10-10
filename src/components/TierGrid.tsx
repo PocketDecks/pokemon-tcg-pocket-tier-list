@@ -157,50 +157,49 @@ const TierGrid = <T,>({
   loadingLabel = "Loading...",
   emptyLabel = "No decks found",
 }: Props<T>) => {
-  if (items === null || items.length === 0) {
-    return (
-      <Page>
-        {filters && <FilterContainer>{filters}</FilterContainer>}
-        <Loading>{items === null ? loadingLabel : emptyLabel}</Loading>
-      </Page>
-    );
-  }
+  const isEmpty = items === null || items.length === 0;
 
   // The caller states which items can be banded. Items the predicate rejects
   // land in a neutral unranked row, so the grid never infers rankedness from
   // a score's sign.
-  const rankable = items.filter((item) => isRanked(item));
-  const unranked = items.filter((item) => !isRanked(item));
+  const rankable = isEmpty ? [] : items.filter((item) => isRanked(item));
+  const unranked = isEmpty ? [] : items.filter((item) => !isRanked(item));
   const tiers = buildTiers(rankable, getScore);
 
   return (
     <Page>
       {filters && <FilterContainer>{filters}</FilterContainer>}
-      {tiers.map((tier) => (
-        <TierRow key={tier.label}>
-          <RowHeader $backgroundColor={tier.color}>{tier.label}</RowHeader>
-          <RowContent>
-            {tier.data.map((item) => (
-              <React.Fragment key={getKey(item)}>
-                {renderItem(item)}
-              </React.Fragment>
-            ))}
-          </RowContent>
-        </TierRow>
-      ))}
-      {unranked.length > 0 && (
-        <TierRow key="unranked" data-testid="unranked-row">
-          <RowHeader $backgroundColor="var(--unranked, var(--unranked))">?</RowHeader>
-          <RowContent>
-            {unranked.map((item) => (
-              <React.Fragment key={getKey(item)}>
-                {renderItem(item)}
-              </React.Fragment>
-            ))}
-          </RowContent>
-        </TierRow>
+      {isEmpty ? (
+        <Loading>{items === null ? loadingLabel : emptyLabel}</Loading>
+      ) : (
+        <>
+          {tiers.map((tier) => (
+            <TierRow key={tier.label}>
+              <RowHeader $backgroundColor={tier.color}>{tier.label}</RowHeader>
+              <RowContent>
+                {tier.data.map((item) => (
+                  <React.Fragment key={getKey(item)}>
+                    {renderItem(item)}
+                  </React.Fragment>
+                ))}
+              </RowContent>
+            </TierRow>
+          ))}
+          {unranked.length > 0 && (
+            <TierRow key="unranked" data-testid="unranked-row">
+              <RowHeader $backgroundColor="var(--unranked, var(--unranked))">?</RowHeader>
+              <RowContent>
+                {unranked.map((item) => (
+                  <React.Fragment key={getKey(item)}>
+                    {renderItem(item)}
+                  </React.Fragment>
+                ))}
+              </RowContent>
+            </TierRow>
+          )}
+          {footer}
+        </>
       )}
-      {footer}
     </Page>
   );
 };

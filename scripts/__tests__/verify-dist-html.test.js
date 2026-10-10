@@ -406,6 +406,84 @@ test("flags a rewrite whose target is not built", () => {
   );
 });
 
+const LOCALE_APP_ROUTES = `
+<Routes>
+  <Route path="/" element={<Layout />}>
+    <Route index element={<LandingPage />} />
+    <Route path="deck">
+      <Route index element={<DeckFinderPage />} />
+      <Route path=":deckId" element={<DeckDetailPage />} />
+    </Route>
+  </Route>
+  <Route path="/ja" element={<Layout />}>
+    <Route index element={<LandingPage />} />
+    <Route path="deck">
+      <Route index element={<DeckFinderPage />} />
+      <Route path=":deckId" element={<DeckDetailPage />} />
+    </Route>
+  </Route>
+</Routes>`;
+
+test("flags a locale dynamic route with no prerendered page under it", () => {
+  const dir = makeDist({
+    "index.html": "",
+    "deck/index.html": "",
+    "deck/x/index.html": "",
+    "ja/index.html": "",
+    "ja/deck/index.html": "",
+  });
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, { source: LOCALE_APP_ROUTES, firebase: HOSTING }),
+    ["/ja/deck/:deckId: no prerendered page under /ja/deck/"]
+  );
+});
+
+test("passes a locale dynamic route once its pages are built", () => {
+  const dir = makeDist({
+    "index.html": "",
+    "deck/index.html": "",
+    "deck/x/index.html": "",
+    "ja/index.html": "",
+    "ja/deck/index.html": "",
+    "ja/deck/x/index.html": "",
+  });
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, { source: LOCALE_APP_ROUTES, firebase: HOSTING }),
+    []
+  );
+});
+
+test("flags a locale deck page with an empty root", () => {
+  const dir = makeDist({
+    "deck/x/index.html": '<div id="root"><main>Deck list</main></div>',
+    "ja/deck/x/index.html": '<div id="root"></div>',
+  });
+  assert.deepStrictEqual(findEmptyDeckRoots(dir), [
+    path.join("ja", "deck", "x", "index.html"),
+  ]);
+});
+
+test("flags a locale deck page without captured styled-components CSS", () => {
+  const dir = makeDist({
+    "deck/x/index.html": '<style data-styled="active">.a{color:red}</style><div id="root"><main>Deck</main></div>',
+    "ja/deck/x/index.html": '<div id="root"><main>Deck</main></div>',
+  });
+  assert.deepStrictEqual(findUncapturedDeckStyles(dir), [
+    path.join("ja", "deck", "x", "index.html"),
+  ]);
+});
+
+test("flags a locale deck page without exactly one image preload", () => {
+  const dir = makeDist({
+    "deck/x/index.html": `<head>${IMAGE_PRELOAD}</head>`,
+    "ja/deck/x/index.html": "<head></head>",
+    ...CARD_THUMBS,
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(dir), [
+    `ja${path.sep}deck${path.sep}x${path.sep}index.html: expected 1 image preload, found 0`,
+  ]);
+});
+
 test("findExpansionListIssues needs the newest set and rejects deluxe packs", () => {
   const list = [
     { id: "b4a", name: "Team Rocket's Ambition", release_date: "2026-08-27", packs: [{ id: "b4a-booster", image: "https://example.test/packs/b4a-booster.webp" }] },

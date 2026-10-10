@@ -128,7 +128,9 @@ matchup summary.
 
 Produced by `buildMetaShare` in `analysis/src/utils/build-meta-share.ts`,
 which counts qualified games per archetype over inclusive calendar-day windows
-ending on the run date. Consumed twice: `DecksContext` loads it optionally
+ending on the newest data date. It reads the whole qualified store rather than
+the ranking window, so a narrower artefact still compares against the games and
+first appearances that sit outside it. Consumed twice: `DecksContext` loads it optionally
 alongside the other two files (any failure degrades to `null` without blocking
 deck pages), and `StatisticsPage` fetches it directly for the movement table.
 
@@ -146,10 +148,10 @@ Each `MetaShareEntry` carries:
 | --- | --- | --- |
 | `name` | string | Archetype name, identical to the corresponding best-decks entry. |
 | `share` | number | Share of qualified games in the artefact's comparison window, 0 to 1. Both numerator and denominator count qualified games only. |
-| `sharePrev` | number | Same measure for the equal-length window immediately before it. |
+| `sharePrev` | number | Same measure for the equal-length window immediately before the artefact's window, 0 when that window holds no qualified games. |
 | `delta` | number | `share - sharePrev`; can be negative. |
 | `windowGames` | number | Qualified games captured in the artefact's window. A fresh expansion caps this in practice because the dataset starts at the expansion release date. |
-| `firstSeen` | string | Earliest calendar day the archetype appears in the qualified pool. |
+| `firstSeen` | string | Earliest calendar day the archetype appears in the whole qualified pool, including days before it clears the ranking floor. |
 | `isNew` | boolean | True when `firstSeen` falls inside the artefact's comparison window. |
 
 Coupling on `name`: `DecksContext` indexes the entries into `metaShareBySlug`

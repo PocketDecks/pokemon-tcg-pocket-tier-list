@@ -163,11 +163,12 @@ export const buildWindowArtefacts = (
   const { bestDecks, rankedNames } = rankDecks(qualifiedDecks);
 
   const shareDays = WINDOW_LENGTH_DAYS[window];
-  const metaShare = buildMetaShare(qualifiedDecks, bestDecks, today, {
-    shareDays,
-    gamesDays: shareDays,
-    anchor,
-  });
+  const metaShare = buildMetaShare(
+    qualifiedDecksInWindow(decks, "all", today),
+    bestDecks,
+    today,
+    { shareDays, gamesDays: shareDays, anchor }
+  );
 
   // Public rows count every player in the window; Power Score reads the
   // qualified tally matching the field shares it weights by.

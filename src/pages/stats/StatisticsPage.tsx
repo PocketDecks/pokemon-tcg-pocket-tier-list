@@ -377,8 +377,9 @@ const StatisticsPage = () => {
         if (days === null) return trendData;
 
         // Cut from the newest trend day, not the wall clock, so the slice ends
-        // on the data even when the last scrape is a few days old. The rows are
-        // calendar dates, so newest minus days-1 keeps exactly N of them.
+        // on the data even when the last scrape is a few days old. The cutoff
+        // spans N calendar days; the trend rows drop zero-deck days, so the
+        // slice can hold fewer than N points.
         const newest = new Date(trendData[trendData.length - 1].date).getTime();
         const cutoff = newest - (days - 1) * 24 * 60 * 60 * 1000;
         return trendData.filter((d) => new Date(d.date).getTime() >= cutoff);

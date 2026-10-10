@@ -33,9 +33,9 @@ export interface PipelinePartialDeck {
   popularity: number;
   percentOfGames: number;
   score: number;
-  /** 0..1 win rate against the 14-day field. Always present. */
+  /** 0..1 win rate against the window's qualified field. Always present. */
   expectedWinRate: number;
-  /** 0..1 share of the field this deck has usable matchup data against. */
+  /** 0..1 share of the window's qualified field this deck has usable matchup data against. */
   fieldCoverage: number;
   /** 0..100 VS-style Power Score, or null when fieldCoverage is too low. */
   powerScore: number | null;
@@ -59,18 +59,17 @@ export type PipelineMatchupData = Record<string, PipelineMatchupEntry[]>;
 /** One archetype's entry in meta-share.json. */
 export interface MetaShareEntry {
   name: string;
-  /** 0..1 share of qualified games in the trailing 7-day window. */
+  /** 0..1 share of qualified games in the artefact's comparison window. */
   share: number;
-  /** Same measure for the window ending 7 days earlier. */
+  /** Same measure for the equal-length window ending just before it. */
   sharePrev: number;
   /** share - sharePrev; may be negative. */
   delta: number;
-  /** Qualified games in the trailing 14-day window (expansion-capped). */
   /** Qualified games captured in the artefact's window. */
   windowGames: number;
   /** ISO date of earliest appearance in the qualified pool. */
   firstSeen: string;
-  /** True when firstSeen falls inside the current 7-day window. */
+  /** True when firstSeen falls inside the artefact's comparison window. */
   isNew: boolean;
 }
 

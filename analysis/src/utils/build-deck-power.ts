@@ -33,7 +33,7 @@ export interface DeckPowerResult {
   name: string;
   /** 0..1 win rate against the field, always present. */
   expectedWinRate: number;
-  /** 0..1 share of the qualified 14-day field this deck has usable matchup data against. */
+  /** 0..1 share of the window's qualified field this deck has usable matchup data against. */
   fieldCoverage: number;
   /** 0..100, or null when fieldCoverage is below MIN_FIELD_COVERAGE. */
   powerScore: number | null;
@@ -66,7 +66,7 @@ export const buildDeckPower = (inputs: DeckPowerInput[]): DeckPowerResult[] => {
   if (!inputs.length) return [];
 
   const totalWindowGames = inputs.reduce((sum, d) => sum + d.windowGames, 0);
-  const share14 = new Map(
+  const windowShare = new Map(
     inputs.map((d) => [d.name, totalWindowGames > 0 ? d.windowGames / totalWindowGames : 0])
   );
   const maxWindowGames = Math.max(...inputs.map((d) => d.windowGames));
@@ -76,13 +76,13 @@ export const buildDeckPower = (inputs: DeckPowerInput[]): DeckPowerResult[] => {
       (row) =>
         row.name !== "Total" &&
         row.totalGames >= MIN_MATCHUP_GAMES &&
-        share14.has(row.name)
+        windowShare.has(row.name)
     );
 
-    // Share of the qualified 14-day field the surviving rows cover, so the
+    // Share of the window's qualified field the surviving rows cover, so the
     // weights below are conditioned on the same coverage MIN_FIELD_COVERAGE gates.
     const fieldCoverage = rows.reduce(
-      (sum, row) => sum + (share14.get(row.name) ?? 0),
+      (sum, row) => sum + (windowShare.get(row.name) ?? 0),
       0
     );
 
@@ -93,7 +93,7 @@ export const buildDeckPower = (inputs: DeckPowerInput[]): DeckPowerResult[] => {
       const smoothed =
         (wins + MATCHUP_PRIOR_GAMES * 0.5) /
         (row.totalGames + MATCHUP_PRIOR_GAMES);
-      return sum + (share14.get(row.name) ?? 0) * smoothed;
+      return sum + (windowShare.get(row.name) ?? 0) * smoothed;
     }, 0);
 
     return {

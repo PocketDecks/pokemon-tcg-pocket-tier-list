@@ -26,6 +26,7 @@ import DeckPageSkeleton from "./DeckPageSkeleton";
 import NotFoundPage from "../not-found/NotFoundPage";
 import EnergyList from "./EnergyList";
 import useDeckTiers, { tierForDeck } from "../../app/use-deck-tiers";
+import { useLocaleHref } from "../../app/locale-link";
 import {
   cardThumbHeight,
   cardThumbSrcSet,
@@ -89,6 +90,7 @@ const DeckDetailPage = () => {
   const tiers = useDeckTiers(decks);
   const { missing, canUndo, undoMissing, lastRemovedId } = useMissing();
   const { t } = useTranslation();
+  const tierListHref = useLocaleHref("/tier-list");
   const isPremium = useIsPremium();
   const { window: metaWindow } = useMetaWindow();
 
@@ -414,7 +416,7 @@ const DeckDetailPage = () => {
         <h2>{t("deckDetail.heading", { ns: "seo", deck: displayName })}</h2>
         <p>
           {t("deckDetail.intro", { ns: "seo", deck: displayName })}{" "}
-          <a href="/tier-list">{t("deckDetail.tierList", { ns: "seo" })}</a>{" "}
+          <a href={tierListHref}>{t("deckDetail.tierList", { ns: "seo" })}</a>{" "}
           {t("deckDetail.introAfter", { ns: "seo" })}
           {winRatePct !== null
             ? t("deckDetail.winRate", { ns: "seo", winRate: winRatePct })
@@ -423,7 +425,7 @@ const DeckDetailPage = () => {
         <p>{t("deckDetail.body", { ns: "seo" })}</p>
         <p>
           {t("deckDetail.outro", { ns: "seo" })}{" "}
-          <a href="/tier-list">{t("deckDetail.tierList", { ns: "seo" })}</a>{" "}
+          <a href={tierListHref}>{t("deckDetail.tierList", { ns: "seo" })}</a>{" "}
           {t("deckDetail.outroAfter", { ns: "seo" })}
         </p>
       </SeoContent>

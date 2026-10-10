@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import LegalPage from "./LegalPage";
 import { GITHUB_URL, CONTACT_EMAIL } from "../../app/constants";
+import { useLocaleHref } from "../../app/locale-link";
 
 const ExternalLink = ({ href, children }: { href: string; children?: ReactNode }) => (
   <a href={href} target="_blank" rel="noopener noreferrer">
@@ -15,6 +16,7 @@ const InternalLink = ({ href, children }: { href: string; children?: ReactNode }
 
 const AboutPage = () => {
   const { t } = useTranslation();
+  const tierListHref = useLocaleHref("/");
   const strong = <strong />;
   const limitlessLink = <ExternalLink href="https://limitlesstcg.com/" />;
   const cardsLink = (
@@ -22,7 +24,7 @@ const AboutPage = () => {
   );
   const githubLink = <ExternalLink href={GITHUB_URL} />;
   const mailLink = <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>;
-  const tierListLink = <InternalLink href="/" />;
+  const tierListLink = <InternalLink href={tierListHref} />;
 
   return (
       <LegalPage>

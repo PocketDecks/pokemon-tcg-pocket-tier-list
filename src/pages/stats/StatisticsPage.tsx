@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router";
+import { LocaleLink as Link } from "../../app/locale-link";
 
 import useIsPremium from "../../app/use-is-premium";
 import { useMetaWindow } from "../../app/use-meta-window";

@@ -10,9 +10,11 @@ import TierGrid from "../../components/TierGrid";
 import PageTitle from "../../components/PageTitle";
 import CardIcon from "../../components/CardIcon";
 import LastUpdated from "../../components/LastUpdated";
+import { useLocaleHref } from "../../app/locale-link";
 
 const CardsListPage = () => {
   const { t } = useTranslation();
+  const tierListHref = useLocaleHref("/tier-list");
   const cards = useCards(30);
   const { expansion, setExpansion } = useFilters();
   const expansions = useExpansions();
@@ -61,7 +63,7 @@ const CardsListPage = () => {
         <h3>{t("cardsList.usingHeading", { ns: "seo" })}</h3>
         <p>
           {t("cardsList.usingIntro", { ns: "seo" })}{" "}
-          <a href="/tier-list">{t("cardsList.deckTierList", { ns: "seo" })}</a>{" "}
+          <a href={tierListHref}>{t("cardsList.deckTierList", { ns: "seo" })}</a>{" "}
           {t("cardsList.usingAfter", { ns: "seo" })}
         </p>
       </SeoContent>

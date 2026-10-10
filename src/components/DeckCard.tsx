@@ -1,6 +1,6 @@
 import styled, { keyframes } from "styled-components";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Link } from "react-router";
+import { LocaleLink as Link } from "../app/locale-link";
 import { deckDisplayName } from "../app/deck-display";
 import { deckThumbUrl, onDeckThumbError } from "../app/deck-thumb";
 import { FullDeckType } from "../contexts/DecksContext";

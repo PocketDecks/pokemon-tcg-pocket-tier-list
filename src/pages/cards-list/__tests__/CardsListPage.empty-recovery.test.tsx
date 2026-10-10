@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { MemoryRouter } from "react-router";
 import useFilters from "../../../app/use-filters";
 import FilterContextProvider from "../../../components/FilterContext";
 import CardsListPage from "../CardsListPage";
@@ -50,9 +51,11 @@ vi.mock("react-i18next", () => ({
 describe("CardsListPage empty recovery", () => {
   it("keeps the expansion filter available and recovers to All", async () => {
     render(
-      <FilterContextProvider>
-        <CardsListPage />
-      </FilterContextProvider>
+      <MemoryRouter>
+        <FilterContextProvider>
+          <CardsListPage />
+        </FilterContextProvider>
+      </MemoryRouter>
     );
 
     const filter = screen.getByRole("combobox");

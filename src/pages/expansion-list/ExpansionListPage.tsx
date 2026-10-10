@@ -7,9 +7,12 @@ import TierGrid from "../../components/TierGrid";
 import PageTitle from "../../components/PageTitle";
 import ExpansionIcon from "../../components/ExpansionIcon";
 import { buildExpansionPackData } from "../../app/expansion-scores";
+import { useLocaleHref } from "../../app/locale-link";
 
 const ExpansionListPage = () => {
   const { t } = useTranslation();
+  const tierListHref = useLocaleHref("/tier-list");
+  const cardsListHref = useLocaleHref("/cards-list");
   const cards = useCards(1_000_000);
   const expansions = useExpansions();
 
@@ -36,9 +39,9 @@ const ExpansionListPage = () => {
                   <h3>{t("expansionList.worthHeading", { ns: "seo" })}</h3>
                   <p>
                     {t("expansionList.worthIntro", { ns: "seo" })}{" "}
-                    <a href="/tier-list">{t("expansionList.deckTierList", { ns: "seo" })}</a>{" "}
+                    <a href={tierListHref}>{t("expansionList.deckTierList", { ns: "seo" })}</a>{" "}
                     {t("expansionList.worthMid", { ns: "seo" })}{" "}
-                    <a href="/cards-list">{t("expansionList.cardRankings", { ns: "seo" })}</a>{" "}
+                    <a href={cardsListHref}>{t("expansionList.cardRankings", { ns: "seo" })}</a>{" "}
                     {t("expansionList.worthAfter", { ns: "seo" })}
                   </p>
         </SeoContent>

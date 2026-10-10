@@ -17,6 +17,10 @@ export const SUPPORTED_LANGUAGES = [
     "zh-TW",
 ];
 
+export const SEO_NAMESPACE = "seo";
+
+export const NAMESPACES = ["translation", SEO_NAMESPACE];
+
 /**
  * Resolves the language from the URL. Only a locale that owns a URL prefix can
  * be detected this way, so an unprefixed route returns null and the navigator
@@ -49,8 +53,22 @@ i18n
             namespace: string,
             callback: (errorValue: unknown, ret: unknown) => void
         ) {
-            import(`./locales/${language}_${namespace}.json`)
-                .then((resources) => callback(null, resources.default || resources))
+            // English is the SEO namespace's source language, so a locale without
+            // its own file borrows en_seo.json instead of rejecting the load.
+            const load = () =>
+                import(`./locales/${language}_${namespace}.json`).then(
+                    (resources) => resources.default || resources
+                );
+            const fallback = () =>
+                namespace === SEO_NAMESPACE && language !== "en"
+                    ? import("./locales/en_seo.json").then(
+                          (resources) => resources.default || resources
+                      )
+                    : Promise.reject(new Error(`missing ${language}_${namespace}`));
+
+            load()
+                .catch(fallback)
+                .then((resources) => callback(null, resources))
                 .catch((error) => callback(error, null));
         },
     })
@@ -58,6 +76,8 @@ i18n
     .init({
         supportedLngs: SUPPORTED_LANGUAGES,
         fallbackLng: "en",
+        ns: NAMESPACES,
+        defaultNS: "translation",
         interpolation: {
             escapeValue: false,
         },

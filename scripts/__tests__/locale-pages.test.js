@@ -9,8 +9,6 @@ const assert = require("node:assert");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const { ROUTE_LOCALES } = require("../locale-route.mjs");
-
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
   : path.join(__dirname, "..", "..", "dist");

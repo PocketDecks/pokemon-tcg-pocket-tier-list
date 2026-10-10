@@ -10,6 +10,8 @@ import pt from "../pt_translation.json";
 import ro from "../ro_translation.json";
 import zhCN from "../zh-CN_translation.json";
 import zhTW from "../zh-TW_translation.json";
+import enSeo from "../en_seo.json";
+import jaSeo from "../ja_seo.json";
 
 const locales: Record<string, object> = {
   en,
@@ -76,5 +78,24 @@ describe("translation key parity", () => {
       .privacyPage.consent;
     expect(consent.heading).toContain(canadaNames[locale]);
     expect(consent.body).toContain(canadaNames[locale]);
+  });
+});
+
+// The SEO namespace ships for en and ja only; the other nine locales fall back
+// to en_seo.json, so only these two files are pinned to each other here.
+describe("seo namespace key parity", () => {
+  it("ja_seo.json has every key that en_seo.json has", () => {
+    const englishKeys = new Set(flattenKeys(enSeo as Record<string, unknown>));
+    const japaneseKeys = new Set(flattenKeys(jaSeo as Record<string, unknown>));
+    expect(englishKeys.size).toBeGreaterThan(0);
+    expect([...englishKeys].filter((key) => !japaneseKeys.has(key))).toEqual([]);
+  });
+
+  it("ja_seo.json has no keys that en_seo.json lacks", () => {
+    const englishKeys = new Set(flattenKeys(enSeo as Record<string, unknown>));
+    const stale = flattenKeys(jaSeo as Record<string, unknown>).filter(
+      (key) => !englishKeys.has(key)
+    );
+    expect(stale).toEqual([]);
   });
 });

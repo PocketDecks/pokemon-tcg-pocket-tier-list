@@ -153,18 +153,9 @@ const DeckFinderPage = () => {
       </StyledDeckPage>
 
       <SeoContent>
-        <h2>Pokémon TCG Pocket | Best Deck Finder</h2>
-        <p>
-          Find the strongest Pokémon TCG Pocket decks you can build with the cards you actually own.
-          The Best Deck Finder starts with the top-rated list in the current meta. If you are missing a card,
-          simply tap it. The tool recalculates instantly to show you the most competitive alternative
-          that does not rely on that card.
-        </p>
-        <p>
-          Keep removing missing cards until you find a decklist you can complete today. The relative
-          strength indicator shows how your build compares to tournament-winning decks, helping you
-          decide which cards to craft next.
-        </p>
+        <h2>{t("deckFinder.heading", { ns: "seo" })}</h2>
+        <p>{t("deckFinder.intro", { ns: "seo" })}</p>
+        <p>{t("deckFinder.body", { ns: "seo" })}</p>
       </SeoContent>
     </>
   );

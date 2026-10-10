@@ -1,93 +1,78 @@
+import { ReactNode } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import LegalPage from "./LegalPage";
 import { GITHUB_URL, CONTACT_EMAIL } from "../../app/constants";
 
+const ExternalLink = ({ href, children }: { href: string; children?: ReactNode }) => (
+  <a href={href} target="_blank" rel="noopener noreferrer">
+    {children}
+  </a>
+);
+
+const InternalLink = ({ href, children }: { href: string; children?: ReactNode }) => (
+  <a href={href}>{children}</a>
+);
+
 const AboutPage = () => {
+  const { t } = useTranslation();
+  const strong = <strong />;
+  const limitlessLink = <ExternalLink href="https://limitlesstcg.com/" />;
+  const cardsLink = (
+    <ExternalLink href="https://github.com/PocketDecks/pokemon-tcg-pocket-cards" />
+  );
+  const githubLink = <ExternalLink href={GITHUB_URL} />;
+  const mailLink = <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>;
+  const tierListLink = <InternalLink href="/" />;
+
   return (
       <LegalPage>
-          <h1>About Top Pocket Decks</h1>
+          <h1>{t("about.heading", { ns: "seo" })}</h1>
 
-          <p>
-              Top Pocket Decks is a free, data-driven Pokémon TCG Pocket (PTCGP) deck tier list and
-              deck-building tool. It ranks decks with tournament results, win rates,
-              participation data, and top-cut performance, rather than opinion.
-          </p>
+          <p>{t("about.intro", { ns: "seo" })}</p>
 
-          <h2>Pokémon TCG Pocket deck rankings</h2>
-          <p>
-              The tier list ranks current decks from S to F tier and updates as new
-              tournament data becomes available. This helps players follow the
-              current meta and choose decks with strong tournament support.
-          </p>
-          <h2>Tools for players</h2>
+          <h2>{t("about.rankingsHeading", { ns: "seo" })}</h2>
+          <p>{t("about.rankingsBody", { ns: "seo" })}</p>
+          <h2>{t("about.toolsHeading", { ns: "seo" })}</h2>
           <ul>
               <li>
-                  <strong>Tier list:</strong>{" "}
-                  <a href="/">View the current Pokémon TCG Pocket deck tier list</a>,
-                  ranked from S to F tier.
+                  <Trans i18nKey="about.toolsTierList" ns="seo" components={[strong, tierListLink]} />
               </li>
               <li>
-                  <strong>Best Deck Finder:</strong> Mark the cards you are missing
-                  and see the strongest deck you can build with your collection.
+                  <Trans i18nKey="about.toolsFinder" ns="seo" components={[strong]} />
               </li>
               <li>
-                  <strong>Matchups:</strong> See which decks each deck performs well
-                  or poorly against, with win-rate percentages.
+                  <Trans i18nKey="about.toolsMatchups" ns="seo" components={[strong]} />
               </li>
               <li>
-                  <strong>Best cards:</strong> Explore card-level rankings across
-                  expansions.
+                  <Trans i18nKey="about.toolsCards" ns="seo" components={[strong]} />
               </li>
           </ul>
 
-          <h2>Data sources and ranking method</h2>
+          <h2>{t("about.sourcesHeading", { ns: "seo" })}</h2>
           <p>
-              Tournament data comes from{" "}
-              <a
-                  href="https://limitlesstcg.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-              >
-                  Limitless
-              </a>
-              . The ranking model weighs tournament participation, win rates, and
-              top-cut performance. Card data comes from the open-source{" "}
-              <a
-                  href="https://github.com/PocketDecks/pokemon-tcg-pocket-cards"
-                  target="_blank"
-                  rel="noopener noreferrer"
-              >
-                  pokemon-tcg-pocket-cards
-              </a>{" "}
-              project.
+              <Trans
+                  i18nKey="about.sources"
+                  ns="seo"
+                  components={[limitlessLink, cardsLink]}
+              />
           </p>
 
-          <h2 id="premium">Premium</h2>
+          <h2 id="premium">{t("about.premiumHeading", { ns: "seo" })}</h2>
           <p>
-              <strong>The core tools are free.</strong> An optional Premium subscription removes ads
-              and adds features such as detailed matchups, advanced filters,
-              alternative rankings, more decks, and faster updates.
+              <Trans i18nKey="about.premium" ns="seo" components={[strong]} />
           </p>
 
-          <h2>Open source</h2>
+          <h2>{t("about.openSourceHeading", { ns: "seo" })}</h2>
           <p>
-              Top Pocket Decks is open source. You can review the code on{" "}
-              <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-                  GitHub
-              </a>
-              .
+              <Trans i18nKey="about.openSource" ns="seo" components={[githubLink]} />
           </p>
 
-          <h2>Contact</h2>
+          <h2>{t("about.contactHeading", { ns: "seo" })}</h2>
           <p>
-              Send questions, feedback, or feature requests to{" "}
-              <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+              <Trans i18nKey="about.contact" ns="seo" components={[mailLink]} />
           </p>
 
-          <p>
-              "Top Pocket Decks" is a fan-made project and is not affiliated with,
-              endorsed by, or sponsored by Nintendo, The Pokémon Company, Creatures
-              Inc., GAME FREAK Inc., or DeNA. All trademarks belong to their owners.
-          </p>
+          <p>{t("about.fanNotice", { ns: "seo" })}</p>
       </LegalPage>
   );
 };

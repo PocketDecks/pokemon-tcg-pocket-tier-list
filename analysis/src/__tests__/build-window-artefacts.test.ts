@@ -215,3 +215,170 @@ describe("buildArtefactFiles", () => {
     );
   });
 });
+
+describe("buildWindowArtefacts movement across two adjacent windows", () => {
+  // Anchor 2026-10-10. The 10d artefact compares 10-01..10-10 against
+  // 09-21..09-30, and both windows hold 140 qualified games, so an archetype
+  // with the same games on both sides must report zero delta.
+  const movement = [
+    makeDeck({ id: "s1", name: "Steady", date: "2026-10-05", winCount: 30, totalGames: 30 }),
+    makeDeck({ id: "s2", name: "Steady", date: "2026-09-25", winCount: 30, totalGames: 30 }),
+    makeDeck({ id: "r1", name: "Rising", date: "2026-10-05", winCount: 50, totalGames: 50 }),
+    makeDeck({ id: "r2", name: "Rising", date: "2026-09-25", winCount: 30, totalGames: 30 }),
+    makeDeck({ id: "f1", name: "Falling", date: "2026-10-05", winCount: 30, totalGames: 30 }),
+    makeDeck({ id: "f2", name: "Falling", date: "2026-09-25", winCount: 80, totalGames: 80 }),
+    makeDeck({ id: "n1", name: "Fresh", date: "2026-10-08", winCount: 30, totalGames: 30 }),
+  ];
+
+  const entry = (name: string) =>
+    buildWindowArtefacts(movement, "10d", TODAY).metaShare.decks.find(
+      (row) => row.name === name
+    )!;
+
+  it("reports an unchanged archetype as flat rather than newly introduced", () => {
+    const steady = entry("Steady");
+
+    expect(steady.share).toBeCloseTo(30 / 140, 10);
+    expect(steady.sharePrev).toBeCloseTo(30 / 140, 10);
+    expect(steady.delta).toBeCloseTo(0, 10);
+    expect(steady.firstSeen).toBe("2026-09-25");
+    expect(steady.isNew).toBe(false);
+  });
+
+  it("reports rising and falling archetypes against the previous window", () => {
+    const rising = entry("Rising");
+    expect(rising.sharePrev).toBeCloseTo(30 / 140, 10);
+    expect(rising.delta).toBeCloseTo(20 / 140, 10);
+
+    const falling = entry("Falling");
+    expect(falling.sharePrev).toBeCloseTo(80 / 140, 10);
+    expect(falling.delta).toBeCloseTo(-50 / 140, 10);
+  });
+
+  it("keeps a genuinely new archetype at zero previous share", () => {
+    const fresh = entry("Fresh");
+
+    expect(fresh.sharePrev).toBe(0);
+    expect(fresh.firstSeen).toBe("2026-10-08");
+    expect(fresh.isNew).toBe(true);
+  });
+
+  it("places an established archetype's earlier appearance outside the window", () => {
+    const earlier = [
+      makeDeck({ id: "e1", name: "Earlier", date: "2026-10-05", winCount: 30, totalGames: 30 }),
+      // Day before the comparison window opens, so it sets firstSeen without
+      // contributing a previous share.
+      makeDeck({ id: "e2", name: "Earlier", date: "2026-09-20", winCount: 30, totalGames: 30 }),
+      makeDeck({ id: "o1", name: "Other", date: "2026-10-10", winCount: 30, totalGames: 30 }),
+    ];
+
+    const row = buildWindowArtefacts(earlier, "10d", TODAY).metaShare.decks.find(
+      (deck) => deck.name === "Earlier"
+    )!;
+
+    expect(row.sharePrev).toBe(0);
+    expect(row.firstSeen).toBe("2026-09-20");
+    expect(row.isNew).toBe(false);
+  });
+
+  it("counts both appearances of an established archetype in the wider window", () => {
+    const steady = buildWindowArtefacts(movement, "20d", TODAY).metaShare.decks.find(
+      (row) => row.name === "Steady"
+    )!;
+
+    expect(steady.windowGames).toBe(60);
+  });
+
+  it("leaves ranking fields untouched by the wider history", () => {
+    const inWindow = movement.filter((deck) => deck.date >= "2026-10-01");
+    const ranking = (decks: typeof movement) =>
+      buildWindowArtefacts(decks, "10d", TODAY).bestDecks.map((deck) => ({
+        name: deck.name,
+        lists: deck.lists,
+        popularity: deck.popularity,
+        percentOfGames: deck.percentOfGames,
+        score: deck.score,
+        expectedWinRate: deck.expectedWinRate,
+        fieldCoverage: deck.fieldCoverage,
+        powerScore: deck.powerScore,
+        freqScore: deck.freqScore,
+        metaScore: deck.metaScore,
+      }));
+
+    expect(ranking(movement)).toEqual(ranking(inWindow));
+  });
+
+  it("keeps current share and window games unchanged when history is wider", () => {
+    const current = (decks: typeof movement) =>
+      buildWindowArtefacts(decks, "10d", TODAY).metaShare.decks.map((row) => ({
+        name: row.name,
+        share: row.share,
+        windowGames: row.windowGames,
+      }));
+
+    expect(current(movement)).toEqual(
+      current(movement.filter((deck) => deck.date >= "2026-10-01"))
+    );
+  });
+
+  it("reports no movement for the all-time window", () => {
+    const decks = [
+      makeDeck({ id: "a1", name: "Alpha", date: "2026-10-08", winCount: 30, totalGames: 30 }),
+      makeDeck({ id: "a2", name: "Alpha", date: "2026-08-20", winCount: 30, totalGames: 30 }),
+      makeDeck({ id: "b1", name: "Beta", date: "2026-10-08", winCount: 30, totalGames: 30 }),
+      makeDeck({ id: "b2", name: "Beta", date: "2026-08-20", winCount: 30, totalGames: 30 }),
+    ];
+
+    for (const row of buildWindowArtefacts(decks, "all", TODAY).metaShare.decks) {
+      expect(row.sharePrev).toBe(row.share);
+      expect(row.delta).toBe(0);
+      expect(row.isNew).toBe(false);
+    }
+  });
+});
+
+describe("buildWindowArtefacts movement window boundaries", () => {
+  // Anchor 2026-10-10, so the 10d window opens on 2026-10-01 and the previous
+  // window closes on 2026-09-30. 10-03 and 10-04 carry no decks at all.
+  const decks = [
+    makeDeck({ id: "g1", name: "Gap", date: "2026-10-02", winCount: 30, totalGames: 30 }),
+    makeDeck({ id: "g2", name: "Gap", date: "2026-10-05", winCount: 30, totalGames: 30 }),
+    makeDeck({ id: "g3", name: "Gap", date: "2026-09-30", winCount: 70, totalGames: 70 }),
+    makeDeck({ id: "h1", name: "Other", date: "2026-10-10", winCount: 40, totalGames: 40 }),
+  ];
+
+  const row = (name: string, window: "10d" | "all") =>
+    buildWindowArtefacts(decks, window, TODAY).metaShare.decks.find(
+      (entry) => entry.name === name
+    )!;
+
+  it("keeps the current window on its calendar days across a missing day", () => {
+    const gap = row("Gap", "10d");
+
+    expect(gap.windowGames).toBe(60);
+    expect(gap.share).toBeCloseTo(60 / 100, 10);
+  });
+
+  it("counts the day before the window in the previous window only", () => {
+    const gap = row("Gap", "10d");
+
+    expect(gap.sharePrev).toBeCloseTo(70 / 70, 10);
+    expect(gap.delta).toBeCloseTo(60 / 100 - 1, 10);
+    expect(gap.firstSeen).toBe("2026-09-30");
+    expect(gap.isNew).toBe(false);
+  });
+
+  it("flags an archetype whose first appearance is the window's opening day", () => {
+    const decksOnFirstDay = [
+      makeDeck({ id: "o1", name: "Opening", date: "2026-10-01", winCount: 30, totalGames: 30 }),
+      makeDeck({ id: "o2", name: "Other", date: "2026-10-01", winCount: 30, totalGames: 30 }),
+    ];
+
+    const opening = buildWindowArtefacts(decksOnFirstDay, "10d", TODAY).metaShare.decks.find(
+      (entry) => entry.name === "Opening"
+    )!;
+
+    expect(opening.firstSeen).toBe("2026-10-01");
+    expect(opening.isNew).toBe(true);
+  });
+});

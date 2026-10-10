@@ -50,7 +50,7 @@ const windowDayKeys = (
 // window, the previous window's share, the delta, and first-seen date. Windows
 // are inclusive calendar-day ranges; bestDecks must arrive pre-sorted by score.
 export const buildMetaShare = (
-  qualifiedDecks: Deck[],
+  qualifiedHistory: Deck[],
   bestDecks: PipelinePartialDeck[],
   today: Date,
   window: MetaShareWindow = DEFAULT_WINDOW
@@ -62,7 +62,7 @@ export const buildMetaShare = (
   const games: Record<string, Record<string, number>> = {};
   const firstSeen = new Map<string, string>();
 
-  for (const deck of qualifiedDecks) {
+  for (const deck of qualifiedHistory) {
     const day = dayKey(deck.date);
     if (!games[day]) games[day] = {};
 

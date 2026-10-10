@@ -76,7 +76,7 @@ export interface MetaShareEntry {
 /** meta-share.json's full shape, written by get-best-decks.ts each run. */
 export interface PipelineMetaShare {
   generatedAt: string;
-  windowDays: number;
+  windowDays: number | null;
   decks: MetaShareEntry[];
 }
 

@@ -4,9 +4,8 @@ import getDecks from "./utils/get-decks";
 import getId from "./utils/get-id";
 import { calculateDeckScore } from "./utils/calculate-deck-score";
 import { calculateCardScores } from "./utils/calculate-card-scores";
-import { calculateMatchupResults } from "./utils/calculate-matchup-results";
 import { buildTrends } from "./utils/build-trends";
-import { buildMatchupData } from "./utils/build-matchup-data";
+import { buildMatchupPopulations } from "./utils/build-matchup-populations";
 import { buildMetaShare } from "./utils/build-meta-share";
 import { buildDeckPower, DeckPowerInput } from "./utils/build-deck-power";
 import { generateOgImages } from "./utils/generate-og-images";
@@ -61,14 +60,8 @@ const run = async () => {
     // Calculate Best Decks
     const bestDecks: PartialDeck[] = [];
     const idExists: Record<string, boolean> = {};
-    let matchupResults: Record<
-      string,
-      Record<string, { wins: number; losses: number }>
-    > = {};
 
     for (const deckName of uniqueDeckNames) {
-      matchupResults[deckName] = {};
-
       // Qualified decks for this archetype
       const matchingQualifiedDecks = qualifiedDecks.filter(
         (game: Deck) => game.name === deckName
@@ -100,9 +93,6 @@ const run = async () => {
 
       // Calculate card scores from qualified decks
       const scoredCards = calculateCardScores(cards, matchingQualifiedGames);
-
-      // Matchup results use ALL decks (unfiltered) so win rates stay accurate
-      matchupResults[deckName] = calculateMatchupResults(allDecks, deckName);
 
       // Build lists from qualified decks only
       const lists: DeckList[] = [];
@@ -147,7 +137,11 @@ const run = async () => {
     // Sort bestDecks by score descending for deterministic ordering
     bestDecks.sort((a, b) => b.score - a.score);
 
-    const matchupData = buildMatchupData(matchupResults);
+    const { publicMatchupData, powerMatchupData } = buildMatchupPopulations(
+      allDecks,
+      qualifiedDecks,
+      uniqueDeckNames
+    );
 
     const allCards: Record<string, { winCount: number; totalGames: number }> = {};
     for (const deck of qualifiedDecks) {
@@ -230,7 +224,7 @@ const run = async () => {
     );
     const powerInputs: DeckPowerInput[] = bestDecks.map((deck) => ({
       name: deck.name,
-      matchups: matchupData[deck.name] ?? [],
+      matchups: powerMatchupData[deck.name] ?? [],
       games14: games14ByName.get(deck.name) ?? 0,
     }));
     const powerByName = new Map(
@@ -252,7 +246,7 @@ const run = async () => {
       "../public/data/card-scores.json": JSON.stringify(cardScoresList, null, 2),
       "./data/best-decks.json": JSON.stringify(bestDecks, null, 2),
       "../public/data/best-decks.json": JSON.stringify(bestDecks, null, 2),
-      "../public/data/matchup-data.json": JSON.stringify(matchupData, null, 2),
+      "../public/data/matchup-data.json": JSON.stringify(publicMatchupData, null, 2),
       "../src/app/last-updated.ts": `export const LAST_UPDATED = new Date("${new Date().toISOString()}");`,
     });
   } catch (error) {

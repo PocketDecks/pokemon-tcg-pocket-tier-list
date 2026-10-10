@@ -49,7 +49,7 @@ const { cardThumbSrcSet, DECK_CARD_SIZES, firstBestListCardId } = require("./dec
 const slugFor = deckSlug;
 
 const renderDeckHtml = (deck, documentHtml, locale = DEFAULT_LOCALE) => {
-  const { slug, name, title, ogImage, ogUrl, description, cardId } = deck;
+  const { slug, name, title, ogImage, description, cardId } = deck;
 
   const translated = locale !== DEFAULT_LOCALE;
   const localeTitle = translated ? `${name} ${JA_DECK_TITLE_SUFFIX}` : title;
@@ -75,7 +75,7 @@ const renderDeckHtml = (deck, documentHtml, locale = DEFAULT_LOCALE) => {
       `<meta property="og:title" content="${eTitle}" />`,
       `<meta property="og:description" content="${eDesc}" />`,
       `<meta property="og:image" content="${escapeXml(ogImage)}" />`,
-      `<meta property="og:url" content="${escapeXml(ogUrl)}/" />`,
+      `<meta property="og:url" content="${escapeXml(canonical)}" />`,
       `<meta name="twitter:card" content="summary_large_image" />`,
       `<meta name="twitter:title" content="${eTitle}" />`,
       `<meta name="twitter:description" content="${eDesc}" />`,
@@ -104,7 +104,6 @@ const deckJob = (deck) => {
     title: `${name} | Pokémon TCG Pocket Deck Stats and Matchups`,
     description: `Pokémon TCG Pocket deck profile for ${name}: card list, matchups, and win rate.`,
     ogImage: `${SITE_URL}/og/deck/${slug}.png`,
-    ogUrl: `${SITE_URL}/deck/${slug}`,
     cardId: firstBestListCardId(deck),
   };
 };

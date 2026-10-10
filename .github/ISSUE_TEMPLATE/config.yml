@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/PocketDecks/pokemon-tcg-pocket-tier-list/blob/main/SECURITY.md
+    about: Do not open a public issue for a security problem. Use the private route in SECURITY.md.
+  - name: Question about the site or an account
+    url: https://pocketdecks.top/feedback
+    about: Ask about the site, your account or a subscription from the feedback page.

@@ -1,0 +1,110 @@
+name: Data or pipeline defect
+description: A published number, deck or artefact disagrees with the data behind it
+title: "fix(data): "
+labels:
+  - bug
+  - "area: data"
+  - "status: needs-triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form when a published value disagrees with the record it should come from. It covers the ranking pages, the movement table, the deck detail view and the JSON files under `public/data/`.
+
+        Do not paste API keys, auth tokens, billing details, email addresses or private datasets. Report security problems through the private route in [SECURITY.md](https://github.com/PocketDecks/pokemon-tcg-pocket-tier-list/blob/main/SECURITY.md).
+  - type: checkboxes
+    id: duplicate
+    attributes:
+      label: Before you file
+      options:
+        - label: I searched the open issues and this is not already reported
+          required: true
+  - type: input
+    id: artefact
+    attributes:
+      label: Which artefact or view?
+      description: The page, or the file and window.
+      placeholder: /tier-list on the 30 day window, or public/data/best-decks-30d.json
+    validations:
+      required: true
+  - type: input
+    id: record
+    attributes:
+      label: Which deck, archetype or card row?
+      placeholder: charizard-ex-a1-036&moltres-ex-a1-047
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What does it show now?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should it show, and how do you know?
+      description: Name the source record or the calculation you expect. Write unknown when you cannot.
+    validations:
+      required: true
+  - type: textarea
+    id: population
+    attributes:
+      label: Population and window
+      description: Only if it applies. Say what was counted over what, whether the games were qualified, and the window length, anchor and boundaries.
+      placeholder: |
+        Qualified games only, 20 day window anchored on 2026-10-09.
+        Numerator: 143 wins. Denominator: 241 games.
+    validations:
+      required: false
+  - type: textarea
+    id: provenance
+    attributes:
+      label: Data provenance
+      description: The commit, source date and freshness of the data you compared against. Write unknown rather than guessing.
+    validations:
+      required: false
+  - type: textarea
+    id: command
+    attributes:
+      label: Command, runtime and output
+      description: The exact command you ran and what it printed. Leave this out if you only read published files.
+      render: shell
+    validations:
+      required: false
+  - type: dropdown
+    id: reproducibility
+    attributes:
+      label: Can you reproduce it?
+      options:
+        - Every run
+        - Sometimes
+        - I have not tried
+        - Not reproducible
+    validations:
+      required: true
+  - type: dropdown
+    id: change-kind
+    attributes:
+      label: Fix or policy change?
+      description: Thresholds, weights, qualification rules and window definitions are policy decisions that need approval before they move.
+      options:
+        - "A fix: the published value is wrong"
+        - "A policy change: the rule itself should change"
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Who is affected, and how badly?
+      placeholder: Anyone reading the 30 day rankings
+    validations:
+      required: false
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Supporting evidence
+      description: Redacted JSON, a screenshot or a link. Screenshots are optional and do not replace the values above.
+    validations:
+      required: false

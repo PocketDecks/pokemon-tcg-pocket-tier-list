@@ -161,6 +161,13 @@
     "latestExpansionCards": "Carte dall'ultima espansione",
     "latestExpansionCardsAny": "Qualsiasi"
   },
+  "window": {
+    "label": "Periodo",
+    "10d": "10 giorni",
+    "20d": "20 giorni",
+    "30d": "30 giorni",
+    "all": "Sempre"
+  },
   "statistics": {
     "trends": "Tendenze del Meta",
     "matrix": "Matrice dei Matchup",

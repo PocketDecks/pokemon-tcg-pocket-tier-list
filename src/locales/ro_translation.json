@@ -161,6 +161,13 @@
     "latestExpansionCards": "Cărți din cea mai recentă expansiune",
     "latestExpansionCardsAny": "Oricare"
   },
+  "window": {
+    "label": "Perioadă",
+    "10d": "10 zile",
+    "20d": "20 zile",
+    "30d": "30 zile",
+    "all": "Toată perioada"
+  },
   "statistics": {
     "trends": "Tendințe meta",
     "matrix": "Matrice de meciuri",

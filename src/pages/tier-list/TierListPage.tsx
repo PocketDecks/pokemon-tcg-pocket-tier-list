@@ -13,6 +13,7 @@ import React, { type ChangeEvent } from "react";
 import TierGrid from "../../components/TierGrid";
 import PageTitle from "../../components/PageTitle";
 import DeckCard from "../../components/DeckCard";
+import WindowToggle from "../../components/WindowToggle";
 import styled from "styled-components";
 
 const DeckAmountContainer = styled.label`
@@ -21,6 +22,21 @@ const DeckAmountContainer = styled.label`
   gap: 1.2rem;
   font-size: 1.4rem;
   color: var(--main);
+`;
+
+// Sits above LastUpdated, which owns the very bottom-right corner.
+const WindowToggleCorner = styled.div`
+  position: fixed;
+  bottom: 5.4rem;
+  right: 2rem;
+  z-index: 10;
+
+  @media (max-width: 900px) {
+    position: static;
+    margin: 1.6rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+  }
 `;
 
 const DeckAmountSelect = styled(Dropdown)`
@@ -177,6 +193,9 @@ const TierListPage = () => {
           </>
         }
       />
+      <WindowToggleCorner>
+        <WindowToggle />
+      </WindowToggleCorner>
       <SeoContent>
         <h2>Pokémon TCG Pocket | Deck Tier List</h2>
         <p>

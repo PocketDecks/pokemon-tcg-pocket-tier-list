@@ -161,6 +161,13 @@
     "latestExpansionCards": "최신 확장팩 카드",
     "latestExpansionCardsAny": "모두"
   },
+  "window": {
+    "label": "집계 기간",
+    "10d": "10일",
+    "20d": "20일",
+    "30d": "30일",
+    "all": "전체 기간"
+  },
   "statistics": {
     "trends": "메타 트렌드",
     "matrix": "상성 매트릭스",

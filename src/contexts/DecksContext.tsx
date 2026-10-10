@@ -29,6 +29,8 @@ import {
   resolveDeckDetail,
 } from "../app/deck-resolution";
 import { getScoreBaseline, type ScoreBaseline } from "../app/score-baseline";
+import { metaWindowDataFile, type MetaWindow } from "../app/meta-window";
+import { useMetaWindow } from "../app/use-meta-window";
 
 export type { CardType };
 export type { FullDeckType };
@@ -65,9 +67,9 @@ const maxScore = (deck: PartialDeckType): number => {
 
 // Share data is optional: any failure (network, 404, malformed JSON, wrong
 // shape) degrades to null so deck pages and statistics keep loading.
-const loadMetaShare = async (): Promise<PipelineMetaShare | null> => {
+const loadMetaShare = async (window: MetaWindow): Promise<PipelineMetaShare | null> => {
   try {
-    const res = await fetch("/data/meta-share.json");
+    const res = await fetch(`/data/${metaWindowDataFile("meta-share", window)}`);
     if (!res.ok) return null;
     const data = await res.json();
     if (
@@ -125,25 +127,26 @@ export const sanitiseMatchupData = (
   return { matchups, dropped };
 };
 
-const fetchMatchupData = async (): Promise<PipelineMatchupData> => {
-  const response = await fetch("/data/matchup-data.json");
+const fetchMatchupData = async (window: MetaWindow): Promise<PipelineMatchupData> => {
+  const file = metaWindowDataFile("matchup-data", window);
+  const response = await fetch(`/data/${file}`);
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch matchup-data.json: ${response.status} ${response.statusText}`
+      `Failed to fetch ${file}: ${response.status} ${response.statusText}`
     );
   }
   const data = await response.json();
   if (data === null || typeof data !== "object" || Array.isArray(data)) {
-    throw new Error("matchup-data.json has an unexpected shape");
+    throw new Error(`${file} has an unexpected shape`);
   }
 
   const { matchups, dropped } = sanitiseMatchupData(data);
 
   if (dropped > 0) {
-    console.warn(`Dropped ${dropped} invalid matchup entries from matchup-data.json`);
+    console.warn(`Dropped ${dropped} invalid matchup entries from ${file}`);
   }
   if (Object.keys(matchups).length === 0) {
-    throw new Error("matchup-data.json has no valid matchup entries");
+    throw new Error(`${file} has no valid matchup entries`);
   }
   return matchups;
 };
@@ -302,8 +305,10 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const { cardsPayload, cardsMapping, isLoading: cardsLoading } = useCardsData();
 
-  const { data: decksData, isLoading: decksLoading, error: decksError } = useDecksData();
-  const { data: metaShare } = useMetaShareData();
+  const { window } = useMetaWindow();
+
+  const { data: decksData, isLoading: decksLoading, error: decksError } = useDecksData(window);
+  const { data: metaShare } = useMetaShareData(window);
 
   const scoreBaseline = useMemo(
     () => (decksData ? getScoreBaseline(decksData.decks) : null),
@@ -388,9 +393,10 @@ export const useDecks = () => {
 };
 
 export const useMatchups = () => {
+  const { window } = useMetaWindow();
   const { data, isLoading, error } = useQuery({
-    queryKey: ["matchups"],
-    queryFn: fetchMatchupData,
+    queryKey: ["matchups", window],
+    queryFn: () => fetchMatchupData(window),
     retry: 1,
   });
   return { matchupsByName: data ?? null, loading: isLoading, error: error ?? null };
@@ -413,26 +419,27 @@ const useCardsData = () => {
   return { cardsPayload, cardsMapping, isLoading };
 };
 
-const fetchDeckData = async () => {
-  const decksResponse = await fetch("/data/best-decks.json");
+const fetchDeckData = async (window: MetaWindow) => {
+  const file = metaWindowDataFile("best-decks", window);
+  const decksResponse = await fetch(`/data/${file}`);
   if (!decksResponse.ok) {
-    throw new Error(`Failed to fetch best-decks.json: ${decksResponse.status} ${decksResponse.statusText}`);
+    throw new Error(`Failed to fetch ${file}: ${decksResponse.status} ${decksResponse.statusText}`);
   }
   const decks = (await decksResponse.json()) as PartialDeckType[];
   return { decks };
 };
 
-const useDecksData = () => {
+const useDecksData = (window: MetaWindow) => {
   return useQuery({
-    queryKey: ["decks"],
-    queryFn: fetchDeckData,
+    queryKey: ["decks", window],
+    queryFn: () => fetchDeckData(window),
   });
 };
 
-const useMetaShareData = () => {
+const useMetaShareData = (window: MetaWindow) => {
   return useQuery({
-    queryKey: ["meta-share"],
-    queryFn: loadMetaShare,
+    queryKey: ["meta-share", window],
+    queryFn: () => loadMetaShare(window),
   });
 };
 
@@ -443,7 +450,8 @@ export const useDeckDetail = (
   missingCounts: Record<string, number>
 ) => {
   const { cardsPayload, cardsMapping } = useCardsData();
-  const { data: decksData } = useDecksData();
+  const { window } = useMetaWindow();
+  const { data: decksData } = useDecksData(window);
   return useMemo(() => {
     if (!cardsPayload || !decksData || !deckId) {
       return { deck: null, extinct: false };

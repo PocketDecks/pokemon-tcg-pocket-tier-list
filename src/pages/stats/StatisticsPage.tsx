@@ -18,6 +18,7 @@ import { latestExpansionName } from "../../app/use-expansions";
 import { sortByPowerScore } from "../../app/score-baseline";
 import PageTitle from "../../components/PageTitle";
 import NavIcon from "../../components/NavIcon";
+import WindowToggle from "../../components/WindowToggle";
 import crownIcon from "../../assets/crown.webp";
 import { formatTrendDay } from "./format-trend-day";
 import TrendChart from "./TrendChart";
@@ -73,6 +74,17 @@ const SectionTitle = styled.h2`
     font-size: 2.4rem;
     font-weight: 600;
     letter-spacing: -0.01em;
+`;
+
+const ToggleRow = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+
+    @media (max-width: 600px) {
+        width: 100%;
+    }
 `;
 
 const ToggleContainer = styled.div`
@@ -398,25 +410,28 @@ const StatisticsPage = () => {
             <Section>
                 <SectionHeader>
                     <SectionTitle>{t("statistics.trends")}</SectionTitle>
-                    <ToggleContainer>
-                        <ToggleButton
-                            $active={range === "14-day"}
-                            onClick={() => setRange("14-day")}
-                        >
-                            14 Days
-                        </ToggleButton>
-                        <ToggleButton
-                            $active={range === "all-time"}
-                            $locked={!isPremium}
-                            aria-disabled={!isPremium}
-                            onClick={() => {
-                                if (isPremium) setRange("all-time");
-                            }}
-                        >
-                            All Time
-                            {!isPremium && <NavIcon name="lock" size={14} />}
-                        </ToggleButton>
-                    </ToggleContainer>
+                    <ToggleRow>
+                        <WindowToggle />
+                        <ToggleContainer>
+                            <ToggleButton
+                                $active={range === "14-day"}
+                                onClick={() => setRange("14-day")}
+                            >
+                                14 Days
+                            </ToggleButton>
+                            <ToggleButton
+                                $active={range === "all-time"}
+                                $locked={!isPremium}
+                                aria-disabled={!isPremium}
+                                onClick={() => {
+                                    if (isPremium) setRange("all-time");
+                                }}
+                            >
+                                All Time
+                                {!isPremium && <NavIcon name="lock" size={14} />}
+                            </ToggleButton>
+                        </ToggleContainer>
+                    </ToggleRow>
                 </SectionHeader>
 
                 <TrendChart

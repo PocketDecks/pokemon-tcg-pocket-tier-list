@@ -161,6 +161,13 @@
     "latestExpansionCards": "最新拡張パックのカード",
     "latestExpansionCardsAny": "任意"
   },
+  "window": {
+    "label": "集計期間",
+    "10d": "10日間",
+    "20d": "20日間",
+    "30d": "30日間",
+    "all": "全期間"
+  },
   "statistics": {
     "trends": "メタトレンド",
     "matrix": "対戦マトリクス",

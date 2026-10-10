@@ -161,6 +161,13 @@
     "latestExpansionCards": "Cards from latest expansion",
     "latestExpansionCardsAny": "Any"
   },
+  "window": {
+    "label": "Time window",
+    "10d": "10 Days",
+    "20d": "20 Days",
+    "30d": "30 Days",
+    "all": "All Time"
+  },
   "statistics": {
     "trends": "Meta Trends",
     "matrix": "Matchup Matrix",

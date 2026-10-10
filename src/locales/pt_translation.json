@@ -161,6 +161,13 @@
     "latestExpansionCards": "Cartas da expansão mais recente",
     "latestExpansionCardsAny": "Qualquer"
   },
+  "window": {
+    "label": "Período",
+    "10d": "10 dias",
+    "20d": "20 dias",
+    "30d": "30 dias",
+    "all": "Todo o período"
+  },
   "statistics": {
     "trends": "Tendências do Meta",
     "matrix": "Matriz de Confrontos",

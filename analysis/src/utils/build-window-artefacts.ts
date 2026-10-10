@@ -184,11 +184,12 @@ export const buildWindowArtefacts = (
     anchor,
   });
 
-  // The public matrix keeps every player's games so displayed win rates do not
-  // inherit the qualification gate's upward bias. Power Score reads the
-  // qualified tally instead, matching the qualified field shares it weights by.
+  // The public matrix keeps every player's games in the window, so displayed
+  // win rates do not inherit the qualification gate's upward bias. Power Score
+  // reads the qualified tally instead, matching the qualified field shares it
+  // weights by.
   const { publicMatchupData, powerMatchupData } = buildMatchupPopulations(
-    decks,
+    decksInWindow(decks, window, anchor),
     qualifiedDecks,
     rankedNames
   );

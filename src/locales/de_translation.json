@@ -361,7 +361,7 @@
   },
   "gameCounts": {
     "title": "Effektive Turnierspiele",
-    "body": "Spielzahlen sind Schätzungen der exakten Gesamtsummen. Each Artefakt deckt ein festes Zeitfenster ab, standardmäßig 20 Tage, und jedes Spiel innerhalb eines Zeitfensters zählt gleich viel. Der Wechsel des Zeitfensters ändert, welche Spiele zählen, nicht wie stark jedes einzelne zählt."
+    "body": "Spielzahlen sind Schätzungen der exakten Gesamtsummen. Jedes Artefakt deckt ein festes Zeitfenster ab, standardmäßig 20 Tage, und jedes Spiel innerhalb eines Zeitfensters zählt gleich viel. Der Wechsel des Zeitfensters ändert, welche Spiele zählen, nicht wie stark jedes einzelne zählt."
   },
   "windowDays": {
     "10d": "10 Tage",

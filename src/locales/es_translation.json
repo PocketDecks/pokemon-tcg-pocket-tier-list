@@ -133,7 +133,13 @@
     "energyUsed": "Energía usada",
     "matchupsUnavailable": "Los datos del mazo no se cargaron. Recarga la página para intentarlo de nuevo.",
     "matchupsLoading": "Cargando enfrentamientos",
-    "loading": "Cargando mazo"
+    "loading": "Cargando mazo",
+    "shareQrTitle": "compartir QR",
+    "shareQrHeading": "Escanea para importar este mazo",
+    "shareQrCopyTitle": "Toca para copiar el código del mazo",
+    "shareQrCopy": "Copiar código del mazo",
+    "shareQrCopied": "¡Copiado!",
+    "shareQrDownload": "Descargar QR"
   },
   "energyDropdown": {
     "all": "Todos los tipos de Energía",

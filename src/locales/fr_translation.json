@@ -133,7 +133,13 @@
     "energyUsed": "Énergie utilisée",
     "matchupsUnavailable": "Les données du deck ne se sont pas chargées. Rechargez la page pour réessayer.",
     "matchupsLoading": "Chargement des matchups",
-    "loading": "Chargement du deck"
+    "loading": "Chargement du deck",
+    "shareQrTitle": "partager le QR",
+    "shareQrHeading": "Scannez pour importer ce deck",
+    "shareQrCopyTitle": "Touchez pour copier le code du deck",
+    "shareQrCopy": "Copier le code du deck",
+    "shareQrCopied": "Copié !",
+    "shareQrDownload": "Télécharger le QR"
   },
   "energyDropdown": {
     "all": "Tous les types d'énergie",

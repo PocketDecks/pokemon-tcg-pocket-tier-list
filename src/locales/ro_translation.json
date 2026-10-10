@@ -133,7 +133,13 @@
     "energyUsed": "Energie folosită",
     "matchupsUnavailable": "Datele deck-ului nu s-au încărcat. Reîncarcă pagina pentru a încerca din nou.",
     "matchupsLoading": "Se încarcă matchup-urile",
-    "loading": "Se încarcă decul"
+    "loading": "Se încarcă decul",
+    "shareQrTitle": "partajează QR",
+    "shareQrHeading": "Scanează pentru a importa acest deck",
+    "shareQrCopyTitle": "Atinge pentru a copia codul deck-ului",
+    "shareQrCopy": "Copiază codul deck-ului",
+    "shareQrCopied": "Copiat!",
+    "shareQrDownload": "Descarcă QR"
   },
   "energyDropdown": {
     "all": "Toate tipurile de energie",

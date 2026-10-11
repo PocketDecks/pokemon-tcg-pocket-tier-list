@@ -3,8 +3,7 @@ import { useLocation, useNavigationType } from "react-router";
 import { useTranslation } from "react-i18next";
 import { prefixedLocale } from "./locale-route";
 
-// Follows the path, not the detector: crawlers read the served `lang`, and the
-// detector can disagree when a visitor's browser language differs.
+// A locale prefix decides the language; without one the detector's choice stands.
 export const useDocumentLanguage = (): void => {
   const { pathname, key } = useLocation();
   const navigationType = useNavigationType();

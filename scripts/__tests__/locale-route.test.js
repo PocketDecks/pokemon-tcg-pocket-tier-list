@@ -17,6 +17,21 @@ test("the shipped locale set is en and ja", () => {
   assert.strictEqual(LOCALE_PREFIXES.ja, "/ja");
 });
 
+const JAPANESE_ONLY_COPY = [
+  "src/pages/deck/DeckHeadTags.tsx",
+  "scripts/prerender-decks.js",
+  "scripts/prerender-routes.js",
+];
+
+test("a locale beyond en and ja needs its own copy", () => {
+  const extra = ROUTE_LOCALES.filter((locale) => locale !== "en" && locale !== "ja");
+  assert.deepStrictEqual(
+    extra,
+    [],
+    `Adding ${extra.join(", ")} needs locale-specific copy in ${JAPANESE_ONLY_COPY.join(", ")}, which assume Japanese for every non-English locale.`
+  );
+});
+
 test("localeRoute leaves English routes unprefixed and prefixes Japanese ones", () => {
   assert.strictEqual(localeRoute("en", "/tier-list"), "/tier-list");
   assert.strictEqual(localeRoute("ja", "/tier-list"), "/ja/tier-list");

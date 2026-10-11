@@ -1,5 +1,5 @@
-// English is the unprefixed default, so adding a locale here is the only edit
-// a new locale URL needs.
+// A new locale also needs its own copy: the deck head tags, deck prerender and
+// route metadata assume Japanese for every non-English locale.
 export const LOCALE_PREFIXES = { en: "", ja: "/ja" };
 
 export const ROUTE_LOCALES = Object.keys(LOCALE_PREFIXES);

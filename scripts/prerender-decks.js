@@ -85,7 +85,7 @@ const renderDeckHtml = (deck, documentHtml, locale = DEFAULT_LOCALE) => {
           name: translated ? JA_TIER_LIST_LABEL : "Tier List",
           item: localizedUrl(SITE_URL, locale, "/tier-list"),
         },
-        { "@type": "ListItem", position: 3, name: name },
+        { "@type": "ListItem", position: 3, name },
       ],
     },
   });

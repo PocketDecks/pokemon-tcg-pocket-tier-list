@@ -86,7 +86,6 @@ test("deck pages get self-canonical and breadcrumb JSON-LD", () => {
       slug: "hoopa-ex-b4-103",
       title: "Hoopa ex | Pokémon TCG Pocket Deck Stats and Matchups",
       ogImage: "https://pocketdecks.top/og/deck/hoopa-ex-b4-103.png",
-      ogUrl: "https://pocketdecks.top/deck/hoopa-ex-b4-103",
       description: "Pokémon TCG Pocket deck profile for Hoopa ex.",
     },
     TEMPLATE

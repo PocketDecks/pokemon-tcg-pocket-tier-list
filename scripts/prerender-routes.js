@@ -172,7 +172,7 @@ const main = async () => {
   const template = readTemplate(fs.readFileSync(indexPath, "utf8"));
   fs.writeFileSync(
     path.join(DIST_DIR, "app-shell.html"),
-    stampHead(template.html, { robots: "noindex" })
+    stampHead(template.html, { robots: "noindex", lang: DEFAULT_LOCALE })
   );
   const server = await startServer(DIST_DIR, template.html);
   const browser = await launchBrowser();

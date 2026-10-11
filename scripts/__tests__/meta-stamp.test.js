@@ -117,7 +117,16 @@ test("stamping alternates twice does not duplicate the set", () => {
     { hreflang: "en", href: "https://pocketdecks.top/tier-list/" },
     { hreflang: "ja", href: "https://pocketdecks.top/ja/tier-list/" },
   ];
-  const once = stampHead(TEMPLATE.replace(/<link[^>]*canonical[^>]*>/, ""), {
+  const withFeed =
+    TEMPLATE.replace(/<link[^>]*canonical[^>]*>/, "").replace(
+      "</head>",
+      [
+        '<link rel="alternate" type="application/rss+xml" href="/feed.xml">',
+        '<link rel="manifest" href="/manifest.json">',
+        "</head>",
+      ].join("\n")
+    );
+  const once = stampHead(withFeed, {
     canonical: "https://pocketdecks.top/tier-list/",
     alternates,
   });
@@ -125,7 +134,9 @@ test("stamping alternates twice does not duplicate the set", () => {
     canonical: "https://pocketdecks.top/tier-list/",
     alternates,
   });
-  assert.strictEqual(twice.split('rel="alternate"').length - 1, 2);
+  assert.strictEqual(twice.split('rel="alternate"').length - 1, 3);
+  assert.ok(twice.includes('type="application/rss+xml" href="/feed.xml"'));
+  assert.ok(twice.includes('rel="manifest" href="/manifest.json"'));
 });
 
 test("alternate hrefs are XML-escaped", () => {

@@ -58,7 +58,9 @@ const stampHead = (
     out = out.replace(/<\/head>/i, `  <link rel="canonical" href="${escapeXml(canonical)}">\n  </head>`);
   }
   if (alternates) {
-    out = out.replace(/<link[^>]+rel="alternate"[^>]*>/gi, "");
+    out = out.replace(/<link\s[^>]*>/gi, (tag) =>
+      /rel=["']alternate["']/i.test(tag) && /hreflang=/i.test(tag) ? "" : tag
+    );
     const lines = alternates
       .map(
         (alternate) =>

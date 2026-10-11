@@ -61,7 +61,23 @@ describe("consent messages bundled from @c15t/translations 2.3.0", () => {
   });
 
   it("bundles exactly the languages the app maps to", () => {
-    expect(Object.keys(consentMessages).sort()).toEqual(["de", "en", "es", "fr", "it", "pt", "ro", "zh"]);
+    expect(Object.keys(consentMessages).sort()).toEqual([
+      "de",
+      "en",
+      "es",
+      "fr",
+      "it",
+      "ja",
+      "pt",
+      "ro",
+      "zh",
+    ]);
+  });
+
+  it("carries Japanese copy that upstream does not ship", () => {
+    expect(baseTranslations).not.toHaveProperty("ja");
+    expect(flatten(consentMessages.ja)["cookieBanner.title"]).toBeDefined();
+    expect(flatten(consentMessages.ja)["consentTypes.necessary.title"]).toBeDefined();
   });
 
   it("carries only the British English overrides for en", () => {

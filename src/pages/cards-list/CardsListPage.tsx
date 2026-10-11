@@ -10,9 +10,11 @@ import TierGrid from "../../components/TierGrid";
 import PageTitle from "../../components/PageTitle";
 import CardIcon from "../../components/CardIcon";
 import LastUpdated from "../../components/LastUpdated";
+import { useLocaleHref } from "../../app/locale-link";
 
 const CardsListPage = () => {
   const { t } = useTranslation();
+  const tierListHref = useLocaleHref("/tier-list");
   const cards = useCards(30);
   const { expansion, setExpansion } = useFilters();
   const expansions = useExpansions();
@@ -52,30 +54,17 @@ const CardsListPage = () => {
         emptyLabel="No cards found"
       />
       <SeoContent>
-        <h2>Pokémon TCG Pocket | Card Tier List</h2>
-        <p>
-          This tier list ranks individual cards in Pokémon TCG Pocket based on their
-          contribution to winning decks. Instead of guessing which Pokémon and Trainer
-          cards are worth pulling or crafting, you can see exactly which cards appear
-          most frequently in the strongest tournament decks.
-        </p>
+        <h2>{t("cardsList.heading", { ns: "seo" })}</h2>
+        <p>{t("cardsList.intro", { ns: "seo" })}</p>
 
-        <h3>Calculating card scores</h3>
-        <p>
-          A card's score comes directly from the performance and popularity of the
-          decks it appears in. Cards central to multiple high-tier archetypes earn the
-          highest ratings. Cards that see little competitive play settle lower. You
-          can filter the list by expansion to evaluate a specific set before spending
-          your pack points or wonder picks.
-        </p>
+        <h3>{t("cardsList.scoresHeading", { ns: "seo" })}</h3>
+        <p>{t("cardsList.scoresBody", { ns: "seo" })}</p>
 
-        <h3>Using the card rankings</h3>
+        <h3>{t("cardsList.usingHeading", { ns: "seo" })}</h3>
         <p>
-          Pair this list with the <a href="/tier-list">deck tier list</a> and the Best
-          Deck Finder to plan your collection. This helps you prioritise high-tier
-          cards that unlock competitive decks and avoid spending resources on cards
-          with minimal impact. The card rankings refresh automatically alongside the
-          deck data.
+          {t("cardsList.usingIntro", { ns: "seo" })}{" "}
+          <a href={tierListHref}>{t("cardsList.deckTierList", { ns: "seo" })}</a>{" "}
+          {t("cardsList.usingAfter", { ns: "seo" })}
         </p>
       </SeoContent>
     </>

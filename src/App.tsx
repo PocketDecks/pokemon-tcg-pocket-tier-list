@@ -13,6 +13,8 @@ import ErrorBoundary, { LoadingNotice } from "./components/ErrorBoundary";
 import Header, { RAIL_WIDTH } from "./components/Header";
 import HomeBanner from "./components/HomeBanner";
 import LayoutMain from "./components/LayoutMain";
+import { useDocumentLanguage } from "./app/use-document-language";
+import { splitLocale } from "./app/locale-route";
 
 const LandingPage = lazy(() => import("./pages/landing/LandingPage"));
 const TierListPage = lazy(() => import("./pages/tier-list/TierListPage"));
@@ -87,11 +89,12 @@ const SkipLink = styled.a`
 export const Layout = () => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
+  useDocumentLanguage();
 
   return (
       <StyledApp>
         <SkipLink href="#main-content">{t("a11y.skipToContent")}</SkipLink>
-        {pathname === "/" && (
+        {splitLocale(pathname).rest === "/" && (
           <Banner>
             <HomeBanner />
           </Banner>
@@ -123,6 +126,21 @@ const App = () => {
                 <ContentReadyProvider>
                   <Routes>
                     <Route path="/" element={<Layout />}>
+                      <Route index element={<LandingPage />} />
+                      <Route path="tier-list" element={<TierListPage />} />
+                      <Route path="cards-list" element={<CardsListPage />} />
+                      <Route path="expansion-list" element={<ExpansionListPage />} />
+                      <Route path="statistics" element={<StatisticsPage />} />
+                      <Route path="privacy" element={<PrivacyPage />} />
+                      <Route path="about" element={<AboutPage />} />
+                      <Route path="feedback" element={<FeedbackPage />} />
+                      <Route path="deck">
+                        <Route index element={<DeckFinderPage />} />
+                        <Route path=":deckId" element={<DeckDetailPage />} />
+                      </Route>
+                      <Route path="*" element={<NotFoundPage />} />
+                    </Route>
+                    <Route path="/ja" element={<Layout />}>
                       <Route index element={<LandingPage />} />
                       <Route path="tier-list" element={<TierListPage />} />
                       <Route path="cards-list" element={<CardsListPage />} />

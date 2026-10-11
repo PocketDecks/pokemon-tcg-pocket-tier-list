@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes } from "react-router";
@@ -9,6 +9,7 @@ import { UIProvider } from "../../../contexts/UIContext";
 import { ContentReadyProvider } from "../../../ads/ContentReadyContext";
 import DeckDetailPage from "../DeckDetailPage";
 import rawCards from "../../../app/__fixtures__/cards.json";
+import i18n from "../../../i18n";
 
 vi.mock("../../../app/use-is-premium", () => ({
   __esModule: true,
@@ -61,6 +62,11 @@ const metaContent = (selector: string, match?: string): string | null => {
 };
 
 describe("DeckPage head tags", () => {
+  beforeAll(async () => {
+    await i18n.init();
+    await i18n.changeLanguage("en");
+  });
+
   beforeEach(() => {
     vi.spyOn(global, "fetch").mockImplementation((input) => {
       const url = String(input);
@@ -116,7 +122,7 @@ describe("DeckPage head tags", () => {
 
     expect(metaContent('meta[property="og:title"]')).toContain("Venusaur ex");
     expect(metaContent('meta[property="og:url"]')).toBe(
-      `https://pocketdecks.top/deck/${DECK_ID}`
+      `https://pocketdecks.top/deck/${DECK_ID}/`
     );
     expect(metaContent('meta[property="og:image"]')).toBe(
       `https://pocketdecks.top/og/deck/${DECK_ID}.png`

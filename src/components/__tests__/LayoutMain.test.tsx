@@ -5,7 +5,7 @@ import { Layout } from "../../App";
 import LayoutMain from "../LayoutMain";
 
 vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({ t: (key: string) => key, i18n: { language: "en" } }),
 }));
 vi.mock("../Header", () => ({ default: () => null, RAIL_WIDTH: "8rem" }));
 vi.mock("../HomeBanner", () => ({ default: () => null }));

@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { MemoryRouter } from "react-router";
 import ExpansionListPage from "../ExpansionListPage";
 
 vi.mock("../../../app/use-cards", () => ({
@@ -39,7 +40,11 @@ vi.mock("../../../ads/ContentReadyContext", () => ({
 
 describe("ExpansionListPage", () => {
   it("renders pack tiers without deck data", () => {
-    render(<ExpansionListPage />);
+    render(
+      <MemoryRouter>
+        <ExpansionListPage />
+      </MemoryRouter>
+    );
 
     expect(screen.getByText("S")).toBeInTheDocument();
     expect(screen.getByRole("img")).toHaveAttribute("src", "b4a.webp");

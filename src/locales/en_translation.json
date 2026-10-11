@@ -133,7 +133,13 @@
     "energyUsed": "Energy Used",
     "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again.",
     "matchupsLoading": "Loading matchups",
-    "loading": "Loading deck"
+    "loading": "Loading deck",
+    "shareQrTitle": "share QR",
+    "shareQrHeading": "Scan to import this deck",
+    "shareQrCopyTitle": "Tap to copy deck code",
+    "shareQrCopy": "Copy deck code",
+    "shareQrCopied": "Copied!",
+    "shareQrDownload": "Download QR"
   },
   "energyDropdown": {
     "all": "All Energy Types",

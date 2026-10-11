@@ -1,7 +1,7 @@
 import styled, { keyframes } from "styled-components";
-import dateformat from "dateformat";
 import { useTranslation } from "react-i18next";
 import { LAST_UPDATED } from "../app/last-updated";
+import { formatRankingsDate } from "../app/format-rankings-date";
 
 const drift = keyframes`
   0% { transform: translateX(0); }
@@ -43,7 +43,7 @@ const StyledHomeBanner = styled.div`
 `;
 
 const HomeBanner = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <StyledHomeBanner role="status">
@@ -51,7 +51,7 @@ const HomeBanner = () => {
         "home.banner",
         "Rankings are current as of {{date}}.",
         {
-          date: dateformat(LAST_UPDATED, "d mmmm yyyy"),
+          date: formatRankingsDate(LAST_UPDATED, i18n.language),
         }
       )}
     </StyledHomeBanner>

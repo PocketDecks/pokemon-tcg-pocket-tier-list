@@ -1,6 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import i18n from "../../i18n";
 import ShareDeckCode from "../ShareDeckCode";
 
 // jsdom lacks canvas; stand in a labelled image.
@@ -13,6 +14,16 @@ vi.mock("qrcode.react", () => ({
 const CODE = "AAQAAAoAAAoAACgAACgBAg==";
 
 describe("ShareDeckCode", () => {
+  beforeAll(async () => {
+    await i18n.init();
+    await i18n.changeLanguage("en");
+    await i18n.loadNamespaces("translation");
+  });
+
+  afterAll(() => {
+    vi.restoreAllMocks();
+  });
+
   it("renders the QR, the raw code and both actions", () => {
     render(<ShareDeckCode deckName="hoopa-ex-b4-103" code={CODE} energyCount={1} />);
     expect(screen.getByRole("img")).toHaveAttribute("aria-label", expect.stringContaining("hoopa"));

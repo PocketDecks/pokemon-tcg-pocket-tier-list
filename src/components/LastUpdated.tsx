@@ -1,7 +1,7 @@
 import styled, { keyframes } from "styled-components";
 import { LAST_UPDATED } from "../app/last-updated";
-import dateformat from "dateformat";
 import { useTranslation } from "react-i18next";
+import { formatRankingsTimestamp } from "../app/format-rankings-date";
 
 const pulse = keyframes`
   0% {
@@ -49,7 +49,7 @@ const PulseRing = styled.div<{ color: string }>`
 `;
 
 const LastUpdated = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const now = new Date();
   const timeDiff = now.getTime() - LAST_UPDATED.getTime();
@@ -70,7 +70,7 @@ const LastUpdated = () => {
         <StatusDot color={dotColor} />
         <PulseRing color={dotColor} />
       </StatusDotContainer>
-      {t("lastUpdated")} {dateformat(LAST_UPDATED, "yyyy/mm/dd h:MM tt")}
+      {t("lastUpdated")} {formatRankingsTimestamp(LAST_UPDATED, i18n.language)}
     </StyledLastUpdated>
   );
 };

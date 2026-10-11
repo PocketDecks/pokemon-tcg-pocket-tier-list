@@ -55,7 +55,7 @@ const jsonResponse = (body: unknown) =>
     json: () => Promise.resolve(body),
   } as unknown as Response);
 
-const renderDetailPage = () =>
+const renderDetailPage = (entry = "/deck/venusaur-a1-004&bulbasaur-a1-001") =>
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
@@ -65,9 +65,10 @@ const renderDetailPage = () =>
           <FilterContextProvider>
             <DecksProvider>
               <ContentReadyProvider>
-                <MemoryRouter initialEntries={["/deck/venusaur-a1-004&bulbasaur-a1-001"]}>
+                <MemoryRouter initialEntries={[entry]}>
                   <Routes>
                     <Route path="/deck/:deckId" element={<DeckDetailPage />} />
+                    <Route path="/ja/deck/:deckId" element={<DeckDetailPage />} />
                   </Routes>
                 </MemoryRouter>
               </ContentReadyProvider>
@@ -306,6 +307,25 @@ describe("DeckDetailPage with a cut card", () => {
       expect(thumb).toHaveAttribute("width", "240");
       expect(thumb).toHaveAttribute("height", "335");
       expect(declaredStyle(thumb, "height")).toBe("auto");
+    }
+  });
+
+  it("keeps a Japanese deck page's tier-list links inside the Japanese tree", async () => {
+    renderDetailPage("/ja/deck/venusaur-a1-004&bulbasaur-a1-001");
+
+    expect(await screen.findByRole("link", { name: /back to the tier list/i })).toHaveAttribute(
+      "href",
+      "/ja/tier-list"
+    );
+
+    fireEvent.click(await screen.findByAltText("Venusaur ex"));
+
+    expect(await screen.findByRole("link", { name: "try another deck" })).toHaveAttribute(
+      "href",
+      "/ja/tier-list"
+    );
+    for (const link of document.querySelectorAll("a")) {
+      expect(link.getAttribute("href")).not.toContain("/ja/ja/");
     }
   });
 

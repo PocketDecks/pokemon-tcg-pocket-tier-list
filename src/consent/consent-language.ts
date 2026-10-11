@@ -4,6 +4,7 @@ const CONSENT_LANGUAGES: Record<string, string> = {
   es: "es",
   fr: "fr",
   it: "it",
+  ja: "ja",
   pt: "pt",
   ro: "ro",
   "zh-CN": "zh",

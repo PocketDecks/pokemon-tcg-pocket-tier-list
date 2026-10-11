@@ -61,7 +61,9 @@ vi.mock("../../../app/use-filters", () => ({
 vi.mock("../../../app/use-is-premium", () => ({ default: () => false }));
 vi.mock("../../../ads/ContentReadyContext", () => ({ useMarkContentReady: vi.fn() }));
 vi.mock("../../../ads/AdInContent", () => ({ default: () => null }));
-vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({ t: (key: string) => key, i18n: { language: "en" } }),
+}));
 
 describe("TierListPage", () => {
   it("leaves decks without a Power Score off the tier list", () => {

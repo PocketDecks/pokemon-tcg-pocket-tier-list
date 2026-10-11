@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Link } from "react-router";
+import { LocaleLink as Link } from "../../app/locale-link";
 import { useTranslation } from "react-i18next";
 import Button from "../../components/Button";
 import DeckArt from "../../components/DeckArt";

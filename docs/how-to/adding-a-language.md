@@ -59,6 +59,26 @@ The switcher sets `i18n.changeLanguage(value)`, which triggers the backend in
 `src/i18n.ts` to import your file by name. There is no separate registry to
 update.
 
+## Add the SEO namespace
+
+Page prose for the public routes lives in a second namespace, `seo`, so the
+marketing copy on a page can be translated without touching UI chrome. The
+files are `src/locales/en_seo.json` and `src/locales/ja_seo.json`, and both
+carry the same key set: `tierList`, `cardsList`, `expansionList`, `statistics`,
+`deckDetail`, `deckFinder` and `about`. Page components read them with
+`t("tierList.heading", { ns: "seo" })`.
+
+A new locale does not need a `_seo.json` file to work. The backend in
+`src/i18n.ts` resolves `./locales/${language}_seo.json` and falls back to
+`en_seo.json` when that file is absent, so an untranslated locale serves the
+English prose rather than raw keys. Add the file only when you have the
+translated prose; a locale with a partial file ships English for the missing
+keys, which is worse for search engines than serving English throughout.
+
+When you do add one, keep its key set identical to `en_seo.json`. The parity
+suite pins `ja_seo.json` to `en_seo.json` in both directions, so a key added to
+the English file fails the build until the Japanese file carries it too.
+
 ## Add the parity test
 
 Import the new file and add it to the `locales` record in

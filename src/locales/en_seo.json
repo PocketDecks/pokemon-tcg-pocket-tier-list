@@ -1,0 +1,87 @@
+{
+  "tierList": {
+    "heading": "Pokémon TCG Pocket | Deck Tier List",
+    "intro": "This tier list ranks the best decks in Pokémon TCG Pocket using competitive results rather than opinion. We score every deck using tournament data from",
+    "limitless": "Limitless",
+    "introAfter": "events and sort them into tiers from S to F. The list updates regularly to reflect the current metagame as new expansions and balance changes alter the format.",
+    "calcHeading": "How we calculate deck rankings",
+    "calcBody": "Each deck's placement depends on how often it sees play, its tournament performance, and its win rate against the rest of the field. We aggregate decklists from recent tournaments and group them by archetype to calculate an overall score. Decks with high win rates and frequent top-cut appearances move into the S and A tiers. Fringe or underperforming decks drop to the lower tiers.",
+    "tiersHeading": "Understanding the tiers",
+    "tiersBody": "The S tier contains the strongest and most consistent decks in the current meta, making them safe choices for ranked play. A and B tier decks are highly competitive and can win events in the right hands or with favourable matchups. C and D tier options remain viable but are less consistent, often serving as budget-friendly or matchup-dependent alternatives. F tier consists of experimental decks that struggle against the top of the meta.",
+    "buildHeading": "Building your best deck",
+    "buildBody": "If you do not own every card, you can open any deck to view its full list alongside card-for-card alternatives. You can also use the Best Deck Finder to mark the cards you are missing and instantly find the strongest deck you can build with your current collection. The tool allows you to filter by energy type and rank decks by popularity or raw strength.",
+    "updatesHeading": "Tier list updates",
+    "updatesBody": "The rankings update automatically as fresh tournament results come in. The fastest updates go to Premium members. The date shown in the lower-right corner always reflects the most recent refresh."
+  },
+  "cardsList": {
+    "heading": "Pokémon TCG Pocket | Card Tier List",
+    "intro": "This tier list ranks individual cards in Pokémon TCG Pocket based on their contribution to winning decks. Instead of guessing which Pokémon and Trainer cards are worth pulling or crafting, you can see exactly which cards appear most frequently in the strongest tournament decks.",
+    "scoresHeading": "Calculating card scores",
+    "scoresBody": "A card's score comes directly from the performance and popularity of the decks it appears in. Cards central to multiple high-tier archetypes earn the highest ratings. Cards that see little competitive play settle lower. You can filter the list by expansion to evaluate a specific set before spending your pack points or wonder picks.",
+    "usingHeading": "Using the card rankings",
+    "usingIntro": "Pair this list with the",
+    "deckTierList": "deck tier list",
+    "usingAfter": "and the Best Deck Finder to plan your collection. This helps you prioritise high-tier cards that unlock competitive decks and avoid spending resources on cards with minimal impact. The card rankings refresh automatically alongside the deck data."
+  },
+  "expansionList": {
+    "heading": "Pokémon TCG Pocket | Best Expansions to Open",
+    "intro": "This page ranks booster packs by the competitive value of the cards inside them. The scoring comes from real tournament data, not set hype: a pack scores well when the cards you can pull from it appear often in the strongest decks. That makes this list a reliable guide for deciding which packs to open next.",
+    "valueHeading": "How pack value is calculated",
+    "valueBody": "Every card carries a score based on how much tournament-winning decks rely on it. Packs are ranked by the average score of their scored cards, so consistently strong cards rank above packs with lower average value. Cards that arrive through a set's shared pool count toward every pack in that set. Once the averages are calculated, packs are sorted into tiers from S to F, with S standing for the most valuable pulls in the game.",
+    "worthHeading": "Worth opening this week",
+    "worthIntro": "The packs at the top of the list give you the most value per opening because their cards carry over into the current meta directly. These rankings assume a fresh collection, so they suit a new player who is just starting out and has no cards to reuse. Even the lower tiers hold useful cards, so the gap between tiers is a gap in how quickly a card becomes competitive, not in usefulness. Pair this page with the",
+    "deckTierList": "deck tier list",
+    "worthMid": "and the",
+    "cardRankings": "card rankings",
+    "worthAfter": "to see how the same scores shape the strongest decks. Rankings refresh automatically alongside the deck data."
+  },
+  "statistics": {
+    "heading": "Pokémon TCG Pocket statistics and meta trends",
+    "intro": "Analyse the current Pokémon TCG Pocket metagame using live historical data and archetype matchup heatmaps. This tracking data maps exactly how deck popularity and win rates shift over time within the {{expansion}} format. We pull results straight from recent competitive events, giving you a statistical edge over players relying on gut feeling alone.",
+    "trendsHeading": "Track the best decks",
+    "trendsBody": "The trend graph plots the top archetypes over the selected window. You can see exactly when a deck peaks in popularity or falls out of favour as the meta adapts. The 10 and 20-day views are free to everyone; Premium unlocks the 30-day and all-time views to evaluate long-term trends. For instance, looking closely at the recent data, you will immediately notice aggressive shifts: when a top-tier threat begins dominating the standings, counter-decks naturally rise to answer them.",
+    "crossIntro": "Cross-reference these stats with our",
+    "tierListLink": "tier list",
+    "crossAfter": "to see how raw data translates into competitive rankings.",
+    "matrixHeading": "Read the matchup matrix",
+    "matrixBody": "The matchup matrix breaks down head-to-head win rates across the board. The grid colours shift from deep blue for highly favourable matchups to red for the worst counters, passing through grey for even splits. Hover over any cell to check the total number of games played. This ensures the sample size is reliable before you commit to a strategy.",
+    "weakIntro": "If you spot a severe weakness in your own deck's matchups, use the",
+    "deckFinderLink": "best deck finder",
+    "weakAfter": "to see if your current card collection supports building a stronger counter-meta option."
+  },
+  "deckDetail": {
+    "heading": "{{deck}} Deck Guide",
+    "intro": "{{deck}} is a top-rated Pokémon TCG Pocket deck, ranked on our",
+    "tierList": "tier list",
+    "introAfter": "using recent tournament data.",
+    "winRate": " It currently holds a {{winRate}}% win rate across tracked matches.",
+    "body": "The recommended decklist above includes standard card counts, alternative swap options, and a breakdown of the deck's strengths and weaknesses. Check the matchup data to see which decks it counters and which ones to avoid.",
+    "outro": "If you are missing cards for this build, tap them to rebuild the deck around your collection. You can also browse the",
+    "outroAfter": "to find other competitive Pokémon TCG Pocket decks."
+  },
+  "deckFinder": {
+    "heading": "Pokémon TCG Pocket | Best Deck Finder",
+    "intro": "Find the strongest Pokémon TCG Pocket decks you can build with the cards you actually own. The Best Deck Finder starts with the top-rated list in the current meta. If you are missing a card, simply tap it. The tool recalculates instantly to show you the most competitive alternative that does not rely on that card.",
+    "body": "Keep removing missing cards until you find a decklist you can complete today. The relative strength indicator shows how your build compares to tournament-winning decks, helping you decide which cards to craft next."
+  },
+  "about": {
+    "heading": "About Top Pocket Decks",
+    "intro": "Top Pocket Decks is a free, data-driven Pokémon TCG Pocket (PTCGP) deck tier list and deck-building tool. It ranks decks with tournament results, win rates, participation data, and top-cut performance, rather than opinion.",
+    "rankingsHeading": "Pokémon TCG Pocket deck rankings",
+    "rankingsBody": "The tier list ranks current decks from S to F tier and updates as new tournament data becomes available. This helps players follow the current meta and choose decks with strong tournament support.",
+    "toolsHeading": "Tools for players",
+    "toolsTierList": "<0>Tier list:</0> <1>View the current Pokémon TCG Pocket deck tier list</1>, ranked from S to F tier.",
+    "toolsFinder": "<0>Best Deck Finder:</0> Mark the cards you are missing and see the strongest deck you can build with your collection.",
+    "toolsMatchups": "<0>Matchups:</0> See which decks each deck performs well or poorly against, with win-rate percentages.",
+    "toolsCards": "<0>Best cards:</0> Explore card-level rankings across expansions.",
+    "sourcesHeading": "Data sources and ranking method",
+    "sources": "Tournament data comes from <0>Limitless</0>. The ranking model weighs tournament participation, win rates, and top-cut performance. Card data comes from the open-source <1>pokemon-tcg-pocket-cards</1> project.",
+    "premiumHeading": "Premium",
+    "premium": "<0>The core tools are free.</0> An optional Premium subscription removes ads and adds features such as detailed matchups, advanced filters, alternative rankings, more decks, and faster updates.",
+    "openSourceHeading": "Open source",
+    "openSource": "Top Pocket Decks is open source. You can review the code on <0>GitHub</0>.",
+    "contactHeading": "Contact",
+    "contact": "Send questions, feedback, or feature requests to <0/>.",
+    "fanNotice": "\"Top Pocket Decks\" is a fan-made project and is not affiliated with, endorsed by, or sponsored by Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc., or DeNA. All trademarks belong to their owners."
+  }
+}

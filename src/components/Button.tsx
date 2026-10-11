@@ -1,5 +1,5 @@
 import styled, { keyframes, css } from "styled-components";
-import { Link } from "react-router";
+import { LocaleLink as Link } from "../app/locale-link";
 import { ReactNode } from "react";
 
 const rainbowAnimation = keyframes`

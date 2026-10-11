@@ -130,8 +130,8 @@ const ShareDeckCode = ({ deckName, code, energyCount }: ShareDeckCodeProps) => {
   };
 
   return (
-    <Wrapper aria-label={`${deckName} ${t("deckPage.shareQrTitle", "share QR")}`}>
-      <Title>{t("deckPage.shareQrHeading", "Scan to import this deck")}</Title>
+    <Wrapper aria-label={`${deckName} ${t("deckPage.shareQrTitle")}`}>
+      <Title>{t("deckPage.shareQrHeading")}</Title>
       <QRTile ref={tileRef}>
         <QRCodeCanvas
           value={code}
@@ -154,18 +154,18 @@ const ShareDeckCode = ({ deckName, code, energyCount }: ShareDeckCodeProps) => {
         role="button"
         tabIndex={0}
         onKeyDown={handleCodeActivation}
-        title={t("deckPage.shareQrCopyTitle", "Tap to copy deck code")}
+        title={t("deckPage.shareQrCopyTitle")}
       >
         {code}
       </RawCode>
       <Actions>
         <ActionButton onClick={handleCopy}>
           {copied
-            ? t("deckPage.shareQrCopied", "Copied!")
-            : t("deckPage.shareQrCopy", "Copy deck code")}
+            ? t("deckPage.shareQrCopied")
+            : t("deckPage.shareQrCopy")}
         </ActionButton>
         <ActionButton onClick={handleDownload}>
-          {t("deckPage.shareQrDownload", "Download QR")}
+          {t("deckPage.shareQrDownload")}
         </ActionButton>
       </Actions>
       {energyCount === 0 && (

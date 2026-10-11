@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import Button from "../../components/Button";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router";
+import { LocaleLink as Link } from "../../app/locale-link";
 import { useDecks } from "../../app/use-decks";
 import useDeckTiers from "../../app/use-deck-tiers";
 import DeckCard from "../../components/DeckCard";

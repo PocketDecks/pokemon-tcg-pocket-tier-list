@@ -1,6 +1,6 @@
 import { fireEvent, renderHook, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useNavigate } from "react-router";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import i18n from "../../i18n";
 import { useDocumentLanguage } from "../use-document-language";
 
@@ -44,6 +44,10 @@ describe("useDocumentLanguage", () => {
     await i18n.changeLanguage("en");
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("marks an English route as English", () => {
     renderAt("/tier-list");
     expect(document.documentElement.lang).toBe("en");
@@ -63,6 +67,16 @@ describe("useDocumentLanguage", () => {
   it("marks the Japanese home page as Japanese", () => {
     renderAt("/ja/");
     expect(document.documentElement.lang).toBe("ja");
+  });
+
+  it("leaves the content language alone on an unprefixed route", async () => {
+    await i18n.changeLanguage("de");
+    const changeLanguage = vi.spyOn(i18n, "changeLanguage");
+
+    renderAt("/tier-list");
+
+    expect(changeLanguage).not.toHaveBeenCalled();
+    expect(document.documentElement.lang).toBe("de");
   });
 
   it("drops back to English when a back navigation leaves the Japanese tree", async () => {

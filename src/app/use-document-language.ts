@@ -22,6 +22,8 @@ export const useDocumentLanguage = (): void => {
     if ((prefixed !== null || leftLocale) && i18n.language !== locale) {
       i18n.changeLanguage(locale);
     }
-    document.documentElement.lang = locale;
-  }, [pathname, navigationType, i18n]);
+    // An unprefixed URL carries no language of its own, so the document follows
+    // the language the content is rendered in.
+    document.documentElement.lang = prefixed === null ? i18n.language : locale;
+  }, [pathname, navigationType, i18n, i18n.language]);
 };

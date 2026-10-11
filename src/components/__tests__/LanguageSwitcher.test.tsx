@@ -2,15 +2,26 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import LanguageSwitcher from "../LanguageSwitcher";
+import { useDocumentLanguage } from "../../app/use-document-language";
 
-const changeLanguage = vi.fn();
+const { i18nState } = vi.hoisted(() => ({ i18nState: { language: "en" } }));
+
+const changeLanguage = vi.fn((language: string) => {
+  i18nState.language = language;
+  return Promise.resolve();
+});
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
-    i18n: { language: "en", changeLanguage },
+    i18n: { get language() { return i18nState.language; }, changeLanguage },
     t: (key: string) => (key === "a11y.selectLanguage" ? "Choose your language" : key),
   }),
 }));
+
+const DocumentLanguage = () => {
+  useDocumentLanguage();
+  return null;
+};
 
 const LocationProbe = () => {
   const { pathname } = useLocation();
@@ -26,6 +37,7 @@ const renderAt = (entry: string) =>
           element={
             <>
               <LanguageSwitcher />
+              <DocumentLanguage />
               <LocationProbe />
             </>
           }
@@ -38,6 +50,7 @@ const pathname = () => screen.getByTestId("pathname").textContent;
 
 beforeEach(() => {
   changeLanguage.mockClear();
+  i18nState.language = "en";
 });
 
 describe("LanguageSwitcher", () => {
@@ -99,5 +112,6 @@ describe("LanguageSwitcher", () => {
 
     expect(pathname()).toBe("/tier-list");
     expect(changeLanguage).toHaveBeenCalledWith("de");
+    expect(document.documentElement.lang).toBe("de");
   });
 });

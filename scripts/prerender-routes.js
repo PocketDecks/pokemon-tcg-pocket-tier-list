@@ -136,6 +136,14 @@ const alternatesFor = (route) => [
   { hreflang: "x-default", href: urlFor(DEFAULT_LOCALE, route) },
 ];
 
+const localeJsonLd = (locale, route) => {
+  const base = ROUTE_META[route].jsonLd;
+  if (locale === DEFAULT_LOCALE) return base;
+  return route === "/"
+    ? { ...base, url: urlFor(locale, route), inLanguage: locale }
+    : undefined;
+};
+
 const localeMetaFor = (locale, route) => {
   const base = ROUTE_META[route];
   const translated = locale === DEFAULT_LOCALE ? undefined : JA_ROUTE_META[route];
@@ -145,7 +153,7 @@ const localeMetaFor = (locale, route) => {
     canonical: urlFor(locale, route),
     lang: locale,
     alternates: alternatesFor(route),
-    jsonLd: locale === DEFAULT_LOCALE ? base.jsonLd : undefined,
+    jsonLd: localeJsonLd(locale, route),
   };
 };
 

@@ -59,6 +59,29 @@ test("each locale canonical matches its own hreflang entry", () => {
   }
 });
 
+test("the Japanese home page carries a WebSite block of its own", () => {
+  const en = localeMetaFor("en", "/").jsonLd;
+  const ja = localeMetaFor("ja", "/").jsonLd;
+  assert.strictEqual(en.url, "https://pocketdecks.top/");
+  assert.strictEqual(ja["@type"], "WebSite");
+  assert.strictEqual(ja.url, "https://pocketdecks.top/ja/");
+  assert.strictEqual(ja.inLanguage, "ja");
+  assert.strictEqual(ja.name, en.name);
+});
+
+test("only the home page carries structured data, in either locale", () => {
+  for (const route of ROUTES) {
+    const expected = route === "/";
+    for (const locale of ["en", "ja"]) {
+      assert.strictEqual(
+        localeMetaFor(locale, route).jsonLd !== undefined,
+        expected,
+        `${locale} ${route}`
+      );
+    }
+  }
+});
+
 test("Japanese routes carry Japanese titles and descriptions", () => {
   const titles = new Set();
   const descriptions = new Set();

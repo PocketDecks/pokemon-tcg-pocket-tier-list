@@ -70,6 +70,31 @@ test("renders a high-priority preload for the first card, matching its sizes", (
   assert.ok(preloads[0].includes('fetchpriority="high"'));
 });
 
+test("a Japanese deck breadcrumb links and labels in Japanese", () => {
+  const html = renderDeckHtml(
+    {
+      slug: "suicune-ex-a4a-020&baxcalibur-b2a-036",
+      name: "Suicune ex & Baxcalibur",
+      title: "Suicune ex & Baxcalibur | Pokémon TCG Pocket Deck Stats and Matchups",
+      ogImage: "https://pocketdecks.top/og/deck/x.png",
+      description: "deck profile",
+      cardId: "a4a-020",
+    },
+    template,
+    "ja"
+  );
+  const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
+  assert.strictEqual(blocks.length, 1);
+  const jsonLd = JSON.parse(blocks[0][1].replace(/\u0026/g, "&").replace(/\u003c/g, "<").replace(/\u003e/g, ">"));
+  const [home, tierList, deck] = jsonLd.itemListElement;
+  assert.strictEqual(jsonLd["@type"], "BreadcrumbList");
+  assert.strictEqual(home.name, "ホーム");
+  assert.strictEqual(home.item, "https://pocketdecks.top/ja/");
+  assert.strictEqual(tierList.name, "ティアリスト");
+  assert.strictEqual(tierList.item, "https://pocketdecks.top/ja/tier-list/");
+  assert.strictEqual(deck.name, "Suicune ex & Baxcalibur");
+});
+
 test("keeps the captured deck list and replaces the captured canonical with the deck's own", () => {
   const captured =
     '<!doctype html><html><head><link rel="canonical" href="https://pocketdecks.top/">' +

@@ -23,5 +23,9 @@ export const friendlyName = (deckName) => {
 
 export const JA_DECK_TITLE_SUFFIX = "| ポケポケ デッキレシピと相性";
 
+export const JA_HOME_LABEL = "ホーム";
+
+export const JA_TIER_LIST_LABEL = "ティアリスト";
+
 export const JA_DECK_DESCRIPTION_SUFFIX =
   "のデッキレシピ、相性、勝率をまとめたページです。ポケモンカードゲーム ポケットの最新環境での立ち回りを確認できます。";

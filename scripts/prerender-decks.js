@@ -17,31 +17,16 @@ const SITE_URL = "https://pocketdecks.top";
 const ROOT = path.join(__dirname, "..");
 const { localeRoute, localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
 const DEFAULT_LOCALE = "en";
-const JA_DECK_TITLE_SUFFIX = "| ポケポケ デッキレシピと相性";
-const JA_DECK_DESCRIPTION_SUFFIX = "のデッキレシピ、相性、勝率をまとめたページです。ポケモンカードゲーム ポケットの最新環境での立ち回りを確認できます。";
+const {
+  friendlyName,
+  JA_DECK_TITLE_SUFFIX,
+  JA_DECK_DESCRIPTION_SUFFIX,
+} = require("./deck-friendly-name.mjs");
 const BUILD_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
   : path.join(ROOT, "dist");
 const DATA_FILE = path.join(ROOT, "public", "data", "best-decks.json");
 const DECK_CONCURRENCY = 8;
-
-const isEx = (name) => /\bex$/i.test(name.trim());
-
-const deckNameFromId = (id) => {
-  const parts = id.split("-");
-  const nameWords = parts.slice(0, -2);
-  return nameWords
-    .map((w) =>
-      w.toLowerCase() === "ex" ? "ex" : w.charAt(0).toUpperCase() + w.slice(1)
-    )
-    .join(" ");
-};
-
-const friendlyName = (deckName) => {
-  const names = deckName.split("&").map((p) => deckNameFromId(p.trim()));
-  names.sort((a, b) => Number(isEx(b)) - Number(isEx(a)));
-  return names.join(" & ");
-};
 
 const { deckSlug } = require("./deck-slug.mjs");
 const { cardThumbSrcSet, DECK_CARD_SIZES, firstBestListCardId } = require("./deck-thumbs.mjs");

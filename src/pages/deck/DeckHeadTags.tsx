@@ -9,8 +9,7 @@ const DeckHeadTags = ({ deck }: { deck: NamedDeck & { id: string } }) => {
   const { t } = useTranslation();
   const locale = useLocale();
   const displayName = deckDisplayName(deck);
-  // A translated deck page already serves localised tags from the prerender;
-  // hoisting these English defaults would replace the copy Googlebot reads.
+  // The prerender already stamps localised tags, which these English defaults would replace.
   const english = locale === "en";
 
   return (

@@ -20,6 +20,11 @@ const BackButton = () => {
   return <button onClick={() => navigate(-1)}>back</button>;
 };
 
+const PushButton = ({ to }: { to: string }) => {
+  const navigate = useNavigate();
+  return <button onClick={() => navigate(to)}>push</button>;
+};
+
 const renderStack = (entries: string[]) =>
   renderHook(() => useDocumentLanguage(), {
     wrapper: ({ children }) => (
@@ -77,6 +82,48 @@ describe("useDocumentLanguage", () => {
 
     expect(changeLanguage).not.toHaveBeenCalled();
     expect(document.documentElement.lang).toBe("de");
+  });
+
+  it("keeps the language the visitor chose on the entry they are reading", async () => {
+    renderAt("/tier-list");
+    await i18n.changeLanguage("de");
+
+    await waitFor(() => expect(document.documentElement.lang).toBe("de"));
+    expect(document.documentElement.lang).toBe("de");
+  });
+
+  it("restores the language an earlier entry was read in", async () => {
+    await i18n.changeLanguage("de");
+    const changeLanguage = vi.spyOn(i18n, "changeLanguage");
+
+    renderHook(() => useDocumentLanguage(), {
+      wrapper: ({ children }) => (
+        <MemoryRouter initialEntries={["/tier-list"]}>
+          <Routes>
+            <Route
+              path="*"
+              element={
+                <>
+                  {children}
+                  <PushButton to="/ja/tier-list" />
+                  <BackButton />
+                </>
+              }
+            />
+          </Routes>
+        </MemoryRouter>
+      ),
+    });
+
+    const buttons = () => Array.from(document.querySelectorAll("button"));
+    fireEvent.click(buttons()[0]);
+    await waitFor(() => expect(document.documentElement.lang).toBe("ja"));
+
+    fireEvent.click(buttons()[1]);
+
+    await waitFor(() => expect(document.documentElement.lang).toBe("de"));
+    expect(changeLanguage).toHaveBeenLastCalledWith("de");
+    expect(i18n.language).toBe("de");
   });
 
   it("drops back to English when a back navigation leaves the Japanese tree", async () => {

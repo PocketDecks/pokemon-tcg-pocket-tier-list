@@ -22,6 +22,20 @@ describe("NotFoundPage", () => {
     expect(screen.queryByRole("main")).not.toBeInTheDocument();
   });
 
+  it("explains a retired deck URL under a locale prefix", async () => {
+    render(
+      <MemoryRouter initialEntries={["/ja/deck/hydreigon-b1-157/"]}>
+        <NotFoundPage />
+      </MemoryRouter>
+    );
+    expect(
+      await screen.findByText("This deck is no longer in the current meta.")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Back to the tier list" })
+    ).toHaveAttribute("href", "/ja/tier-list");
+  });
+
   it("explains a retired deck URL and links to the tier list and deck finder", async () => {
     render(
       <MemoryRouter initialEntries={["/deck/hydreigon-b1-157/"]}>

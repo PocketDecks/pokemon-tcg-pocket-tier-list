@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { useLocation } from "react-router";
 import { LocaleLink as Link } from "../../app/locale-link";
+import { splitLocale } from "../../app/locale-route";
 import { useTranslation } from "react-i18next";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 
@@ -94,7 +95,7 @@ const NotFoundPage = () => {
   useMarkContentReady(true);
   const { t } = useTranslation();
   const { pathname } = useLocation();
-  const retiredDeck = pathname.startsWith("/deck/");
+  const retiredDeck = splitLocale(pathname).rest.startsWith("/deck/");
 
   return (
     <Wrapper>

@@ -62,8 +62,10 @@ i18n
 
             load()
                 .catch(fallback)
-                .then((resources) => callback(null, resources))
-                .catch((error) => callback(error, null));
+                .then(
+                    (resources) => callback(null, resources),
+                    (error) => callback(error, null)
+                );
         },
     })
     .use(initReactI18next)

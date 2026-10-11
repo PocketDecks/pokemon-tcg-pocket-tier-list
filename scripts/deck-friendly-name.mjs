@@ -1,8 +1,4 @@
-/**
- * The deck display name and the Japanese deck-page copy, authored as ESM so
- * src/ can import them directly; the build scripts require() it, which Node
- * supports for ESM without a top-level await.
- */
+// ESM so src/ can import it and the build scripts can require() it.
 const isEx = (name) => /\bex$/i.test(name.trim());
 
 const deckNameFromId = (id) => {

@@ -14,8 +14,7 @@ const DeckHeadTags = ({ deck }: { deck: NamedDeck & { id: string } }) => {
   const { t } = useTranslation();
   const locale = useLocale();
   const displayName = deckDisplayName(deck);
-  // The ja tags must repeat the prerendered strings, or client navigation would
-  // replace the copy Googlebot reads with an English default.
+  // Client navigation must repeat the prerendered strings, not English defaults.
   const jaName = friendlyName(deck.id);
   const jaTitle = `${jaName} ${JA_DECK_TITLE_SUFFIX}`;
   const jaDescription = `${jaName}${JA_DECK_DESCRIPTION_SUFFIX}`;

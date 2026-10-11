@@ -17,6 +17,8 @@ const DeckHeadTags = ({ deck }: { deck: NamedDeck & { id: string } }) => {
   // The ja tags must repeat the prerendered strings, or client navigation would
   // replace the copy Googlebot reads with an English default.
   const jaName = friendlyName(deck.id);
+  const jaTitle = `${jaName} ${JA_DECK_TITLE_SUFFIX}`;
+  const jaDescription = `${jaName}${JA_DECK_DESCRIPTION_SUFFIX}`;
 
   return (
     <>
@@ -44,11 +46,10 @@ const DeckHeadTags = ({ deck }: { deck: NamedDeck & { id: string } }) => {
         </>
       ) : (
         <>
-          <title>{`${jaName} ${JA_DECK_TITLE_SUFFIX}`}</title>
-          <meta
-            name="description"
-            content={`${jaName}${JA_DECK_DESCRIPTION_SUFFIX}`}
-          />
+          <title>{jaTitle}</title>
+          <meta name="description" content={jaDescription} />
+          <meta property="og:title" content={jaTitle} />
+          <meta property="og:description" content={jaDescription} />
         </>
       )}
       <meta property="og:image" content={`${SITE_URL}/og/deck/${deck.id}.png`} />

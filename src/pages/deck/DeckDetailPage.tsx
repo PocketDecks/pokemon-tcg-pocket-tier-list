@@ -206,7 +206,7 @@ const DeckDetailPage = () => {
         <EmptyActions>
           <UndoButton onClick={undoMissing}>{t("deckPage.undo")}</UndoButton>
           <Or>{t("deckPage.or")}</Or>
-          <StyledLink to="/tier-list">{t("deckPage.tryAnotherDeck")}</StyledLink>
+          <StyledLink to={tierListHref}>{t("deckPage.tryAnotherDeck")}</StyledLink>
         </EmptyActions>
       </Overlay>
     );
@@ -237,7 +237,7 @@ const DeckDetailPage = () => {
     <>
       <DeckHeadTags deck={deck} />
       <DeckHero deck={deck} tier={tierForDeck(tiers, deck.id)} stats={heroStats} />
-      <BackToTierList to="/tier-list">
+      <BackToTierList to={tierListHref}>
         <BackIcon name="arrowRight" size={18} />
         {t("notFound.backToTierList", "Back to the tier list")}
       </BackToTierList>

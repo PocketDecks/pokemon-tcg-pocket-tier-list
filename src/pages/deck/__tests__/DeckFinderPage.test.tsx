@@ -74,7 +74,7 @@ const jsonResponse = (body: unknown) =>
     json: () => Promise.resolve(body),
   } as unknown as Response);
 
-const renderFinder = () =>
+const renderFinder = (entry = "/deck") =>
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
@@ -84,9 +84,10 @@ const renderFinder = () =>
           <FilterContextProvider>
             <ContentReadyProvider>
               <DecksProvider>
-                <MemoryRouter initialEntries={["/deck"]}>
+                <MemoryRouter initialEntries={[entry]}>
                   <Routes>
                     <Route path="/deck" element={<DeckFinderPage />} />
+                    <Route path="/ja/deck" element={<DeckFinderPage />} />
                   </Routes>
                 </MemoryRouter>
               </DecksProvider>
@@ -190,6 +191,16 @@ describe("DeckFinderPage", () => {
 
     expect(await screen.findByAltText("Venusaur ex")).toBeInTheDocument();
     expect(screen.queryByText(/^Relative Strength/)).not.toBeInTheDocument();
+  });
+
+  it("keeps the empty state's tier-list link inside the Japanese tree", async () => {
+    renderFinder("/ja/deck");
+
+    fireEvent.click(await screen.findByRole("button", { name: /Venusaur ex/ }));
+
+    const link = await screen.findByRole("link", { name: "try another deck" });
+    expect(link).toHaveAttribute("href", "/ja/tier-list");
+    expect(link.getAttribute("href")).not.toContain("/ja/ja/");
   });
 
   it("shows the empty state after removing a needed card, and restores on undo", async () => {

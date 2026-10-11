@@ -1,4 +1,3 @@
-// Skips itself when dist/ is absent, so a plain test run does not fail on an unbuilt tree.
 const test = require("node:test");
 const assert = require("node:assert");
 const fs = require("node:fs");

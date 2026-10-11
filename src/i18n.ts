@@ -49,7 +49,6 @@ i18n
             namespace: string,
             callback: (errorValue: unknown, ret: unknown) => void
         ) {
-            // A locale without its own SEO file borrows English rather than failing.
             const load = () =>
                 import(`./locales/${language}_${namespace}.json`).then(
                     (resources) => resources.default || resources

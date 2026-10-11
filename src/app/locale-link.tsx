@@ -2,8 +2,6 @@ import { forwardRef, type ComponentProps, type ReactNode } from "react";
 import { Link, NavLink, useLocation } from "react-router";
 import { localeRoute, splitLocale } from "./locale-route";
 
-// A destination written without the locale would drop the visitor out of the
-// locale they are reading.
 const withLocale = (to: string, locale: string) =>
   to.startsWith("/") ? localeRoute(locale, to) : to;
 

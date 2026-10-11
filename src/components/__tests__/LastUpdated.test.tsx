@@ -4,7 +4,7 @@ import i18n from "../../i18n";
 import LastUpdated from "../LastUpdated";
 
 vi.mock("../../app/last-updated", () => ({
-  LAST_UPDATED: new Date("2026-10-06T00:00:00.000Z"),
+  LAST_UPDATED: new Date("2026-10-06T18:56:00.000Z"),
 }));
 
 describe("LastUpdated", () => {
@@ -22,6 +22,17 @@ describe("LastUpdated", () => {
     render(<LastUpdated />);
 
     expect(screen.getByText(/Last updated:/)).toBeInTheDocument();
-    expect(screen.getByText(/2026\/10\/06/)).toBeInTheDocument();
+    expect(screen.getByText(/6 October 2026 at 18:56/)).toBeInTheDocument();
+  });
+
+  it("writes the time in Japanese rather than with an English am/pm", async () => {
+    await i18n.changeLanguage("ja");
+    render(<LastUpdated />);
+
+    expect(screen.getByText(/最終更新：/)).toBeInTheDocument();
+    expect(screen.getByText(/2026年10月6日 18:56/)).toBeInTheDocument();
+    expect(screen.queryByText(/am|pm/)).not.toBeInTheDocument();
+
+    await i18n.changeLanguage("en");
   });
 });

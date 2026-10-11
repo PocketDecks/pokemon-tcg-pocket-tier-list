@@ -16,7 +16,7 @@ const InternalLink = ({ href, children }: { href: string; children?: ReactNode }
 
 const AboutPage = () => {
   const { t } = useTranslation();
-  const tierListHref = useLocaleHref("/");
+  const tierListHref = useLocaleHref("/tier-list");
   const strong = <strong />;
   const limitlessLink = <ExternalLink href="https://limitlesstcg.com/" />;
   const cardsLink = (

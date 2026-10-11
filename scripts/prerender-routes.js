@@ -214,7 +214,7 @@ const main = async () => {
     const notFoundHtml = await captureDocument(page, template);
     fs.writeFileSync(
       path.join(DIST_DIR, "404.html"),
-      stampHead(notFoundHtml, NOT_FOUND_META)
+      stampHead(notFoundHtml, { ...NOT_FOUND_META, lang: DEFAULT_LOCALE })
     );
   } finally {
     await browser.close().finally(() => server.close());

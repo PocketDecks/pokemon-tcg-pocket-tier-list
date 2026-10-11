@@ -72,10 +72,12 @@ test("locale page graph in the built output", { skip: !hasDist && "dist/ is not 
     }
   });
 
-  await t.test("the app shell is stamped as English", () => {
-    const shell = fs.readFileSync(path.join(DIST_DIR, "app-shell.html"), "utf8");
-    assert.strictEqual(documentLang(shell), "en");
-    assert.strictEqual((shell.match(/<html[^>]*>/i)[0].match(/lang=/gi) || []).length, 1);
+  await t.test("the app shell and the 404 page are stamped as English", () => {
+    for (const shell of ["app-shell.html", "404.html"]) {
+      const html = fs.readFileSync(path.join(DIST_DIR, shell), "utf8");
+      assert.strictEqual(documentLang(html), "en", `${shell}: lang=${documentLang(html)}`);
+      assert.strictEqual((html.match(/<html[^>]*>/i)[0].match(/lang=/gi) || []).length, 1, shell);
+    }
   });
 
   await t.test("every page declares the language of its own directory", () => {

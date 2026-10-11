@@ -32,4 +32,5 @@ export const formatRankingsTimestamp = (date: Date, language: string): string =>
     hour: "2-digit",
     minute: "2-digit",
     timeZone: "UTC",
+    timeZoneName: "short",
   });

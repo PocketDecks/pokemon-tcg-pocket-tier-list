@@ -30,11 +30,11 @@ describe("formatRankingsTimestamp", () => {
   const instant = new Date("2026-10-06T18:56:00.000Z");
 
   it("renders a localised time without an am/pm suffix", () => {
-    expect(formatRankingsTimestamp(instant, "ja")).toBe("2026年10月6日 18:56");
-    expect(formatRankingsTimestamp(instant, "de")).toBe("6. Oktober 2026 um 18:56");
+    expect(formatRankingsTimestamp(instant, "ja")).toBe("2026年10月6日 18:56 UTC");
+    expect(formatRankingsTimestamp(instant, "de")).toBe("6. Oktober 2026 um 18:56 UTC");
   });
 
-  it("keeps the English wording", () => {
-    expect(formatRankingsTimestamp(instant, "en")).toBe("6 October 2026 at 18:56");
+  it("labels the time as UTC, which the prerendered pages are stamped in", () => {
+    expect(formatRankingsTimestamp(instant, "en")).toBe("6 October 2026 at 18:56 UTC");
   });
 });

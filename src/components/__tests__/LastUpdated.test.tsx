@@ -22,7 +22,7 @@ describe("LastUpdated", () => {
     render(<LastUpdated />);
 
     expect(screen.getByText(/Last updated:/)).toBeInTheDocument();
-    expect(screen.getByText(/6 October 2026 at 18:56/)).toBeInTheDocument();
+    expect(screen.getByText(/6 October 2026 at 18:56 UTC/)).toBeInTheDocument();
   });
 
   it("writes the time in Japanese rather than with an English am/pm", async () => {
@@ -30,7 +30,7 @@ describe("LastUpdated", () => {
     render(<LastUpdated />);
 
     expect(screen.getByText(/最終更新：/)).toBeInTheDocument();
-    expect(screen.getByText(/2026年10月6日 18:56/)).toBeInTheDocument();
+    expect(screen.getByText(/2026年10月6日 18:56 UTC/)).toBeInTheDocument();
     expect(screen.queryByText(/am|pm/)).not.toBeInTheDocument();
 
     await i18n.changeLanguage("en");

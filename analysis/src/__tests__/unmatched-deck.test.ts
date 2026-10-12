@@ -7,7 +7,7 @@ import {
   buildWindowArtefacts,
   unmatchedDecksInWindow,
 } from "../utils/build-window-artefacts";
-import { MIN_WINRATE_THRESHOLD } from "../settings";
+import { MIN_ARCHETYPE_QUALIFIED_GAMES, MIN_WINRATE_THRESHOLD } from "../settings";
 import { Deck } from "../utils/types";
 
 const TODAY = new Date("2026-10-10T12:00:00Z");
@@ -87,13 +87,25 @@ describe("a window holding unmatched decks", () => {
     expect(entries).not.toContain(UNMATCHED_DECK);
   });
 
-  it("keeps the bucket out of the matchup tallies", () => {
-    const data = buildWindowArtefacts(field, "10d", TODAY).matchupData;
+  it("gives the bucket no matchup table while a deck that beat it names the bucket as an opponent", () => {
+    const bucketGames = [
+      mkDeck("alpha-1", "Alpha", { wins: Array(30).fill(UNMATCHED_DECK) }),
+      unmatchedDeck("unmatched-1", { losses: Array(30).fill("Alpha") }),
+    ];
+    const bucket = unmatchedDecksInWindow(bucketGames, "10d", TODAY);
 
-    expect(Object.keys(data)).not.toContain(UNMATCHED_DECK);
-    for (const rows of Object.values(data)) {
-      expect(rows.map((row) => row.name)).not.toContain(UNMATCHED_DECK);
-    }
+    expect(bucket.decks).toBe(1);
+    expect(bucket.games).toBeGreaterThanOrEqual(MIN_ARCHETYPE_QUALIFIED_GAMES);
+
+    const data = buildWindowArtefacts(bucketGames, "10d", TODAY).matchupData;
+
+    expect(Object.keys(data)).toEqual(["Alpha"]);
+    expect(data["Alpha"].map((row) => row.name)).toContain(UNMATCHED_DECK);
+    expect(data["Alpha"].find((row) => row.name === UNMATCHED_DECK)).toEqual({
+      name: UNMATCHED_DECK,
+      winRate: 1,
+      totalGames: 30,
+    });
   });
 
   it("divides every real archetype's share by the full qualified field, bucket included", () => {

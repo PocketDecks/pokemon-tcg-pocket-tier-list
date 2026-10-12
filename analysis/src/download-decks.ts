@@ -1,9 +1,10 @@
 import "./load-env-side-effect";
 import fs from "fs";
+import path from "path";
 import { getTournaments } from "./utils/get-tournaments";
 import getTournamentDecks from "./utils/get-tournament-decks";
 import { mapWithConcurrency } from "./utils/limitless-client";
-import { planDeckWrites, readManifest } from "./utils/deck-store";
+import { MANIFEST_FILE, planDeckWrites } from "./utils/deck-store";
 import { decksDir, processedFile } from "./utils/data-paths";
 import { round } from "./utils/round";
 import { writeArtefacts } from "./utils/write-artifacts";
@@ -11,9 +12,9 @@ import { writeArtefacts } from "./utils/write-artifacts";
 export const BATCH_SIZE = 20;
 export const CONCURRENCY = 3;
 
-const readProcessed = (): unknown[] => {
+export const readProcessed = (): unknown[] => {
   const file = processedFile();
-  const hasStore = Object.keys(readManifest(decksDir()).shards).length > 0;
+  const hasStore = fs.existsSync(path.join(decksDir(), MANIFEST_FILE));
   if (!fs.existsSync(file)) {
     if (hasStore) {
       throw new Error("The deck store and processed-tournaments.json must exist together");

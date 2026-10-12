@@ -2,7 +2,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import { vi } from "vitest";
-import { BATCH_SIZE, downloadDecks } from "../download-decks";
+import { BATCH_SIZE, downloadDecks, readProcessed } from "../download-decks";
 import { readDecks, readManifest, verifyStore } from "../utils/deck-store";
 
 const { getTournamentDecks, getTournaments } = vi.hoisted(() => ({
@@ -137,5 +137,40 @@ describe("downloadDecks", () => {
 
     expect(fs.existsSync(path.join(dataDir, "processed-tournaments.json"))).toBe(false);
     expect(Object.keys(readManifest(path.join(dataDir, "decks")).shards)).toEqual([]);
+  });
+
+  describe("readProcessed", () => {
+    const storeDir = () => path.join(dataDir, "decks");
+
+    const writeManifest = (shards: Record<string, unknown>): void => {
+      fs.mkdirSync(storeDir(), { recursive: true });
+      fs.writeFileSync(path.join(storeDir(), "manifest.json"), JSON.stringify({ schema: 1, shards }));
+    };
+
+    const writeProcessed = (entries: { id: string }[]): void =>
+      fs.writeFileSync(path.join(dataDir, "processed-tournaments.json"), JSON.stringify(entries));
+
+    it("returns an empty list for a fresh directory", () => {
+      expect(readProcessed()).toEqual([]);
+    });
+
+    it("refuses a store holding shards when the processed list is missing", () => {
+      writeManifest({ "2026-09": { file: "2026-09.ndjson", count: 1, minDate: DATE, maxDate: DATE } });
+
+      expect(() => readProcessed()).toThrow("must exist together");
+    });
+
+    it("refuses a processed list with entries when the store is missing", () => {
+      writeProcessed([{ id: "t0" }]);
+
+      expect(() => readProcessed()).toThrow("must exist together");
+    });
+
+    it("accepts a processed list when the manifest holds no shards", () => {
+      writeManifest({});
+      writeProcessed([{ id: "t0" }]);
+
+      expect(readProcessed()).toEqual([{ id: "t0" }]);
+    });
   });
 });

@@ -138,4 +138,79 @@ describe("stageOgImages", () => {
       stageOgImages([{ slug: "../escape", name: "x", iconUrls: [fixtureUrl] }])
     ).rejects.toThrow("Invalid OG image slug");
   });
+
+  const stagingDirs = (): string[] =>
+    fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith("og-stage-")).sort();
+
+  it("refuses to stage while a previous image directory is still present", async () => {
+    fs.mkdirSync(outputDir, { recursive: true });
+    fs.writeFileSync(path.join(outputDir, "keep.png"), "old");
+    fs.mkdirSync(`${outputDir}.previous`);
+    const before = stagingDirs();
+
+    await expect(
+      stageOgImages([{ slug: "deck-a", name: "Charizard ex", iconUrls: [fixtureUrl] }])
+    ).rejects.toThrow("a previous image directory is still at");
+
+    expect(stagingDirs()).toEqual(before);
+    expect(fs.readdirSync(outputDir)).toEqual(["keep.png"]);
+  });
+
+  it("removes the staging directory when the swap is refused", async () => {
+    fs.mkdirSync(outputDir, { recursive: true });
+    const before = stagingDirs();
+    const staged = await stageOgImages([
+      { slug: "deck-a", name: "Charizard ex", iconUrls: [fixtureUrl] },
+    ]);
+    fs.mkdirSync(`${outputDir}.previous`);
+
+    expect(() => staged.commit()).toThrow("a previous image directory is still at");
+
+    expect(stagingDirs()).toEqual(before);
+  });
+
+  it("restores the previous image set when the staging rename fails", async () => {
+    fs.mkdirSync(outputDir, { recursive: true });
+    fs.writeFileSync(path.join(outputDir, "keep.png"), "old");
+    const staged = await stageOgImages([
+      { slug: "deck-a", name: "Charizard ex", iconUrls: [fixtureUrl] },
+    ]);
+    const rename = fs.renameSync;
+    const spy = vi.spyOn(fs, "renameSync").mockImplementation((from, to) => {
+      if (String(from).includes("og-stage-")) {
+        throw Object.assign(new Error("EPERM: simulated"), { code: "EPERM" });
+      }
+      return rename(from, to);
+    });
+
+    try {
+      expect(() => staged.commit()).toThrow("EPERM: simulated");
+    } finally {
+      spy.mockRestore();
+    }
+
+    expect(fs.readdirSync(outputDir)).toEqual(["keep.png"]);
+    expect(fs.existsSync(`${outputDir}.previous`)).toBe(false);
+    staged.discard();
+  });
+
+  it("leaves no staging directory behind when a card image cannot be loaded", async () => {
+    const before = stagingDirs();
+
+    await expect(
+      stageOgImages([{ slug: "deck-a", name: "Charizard ex", iconUrls: [missingUrl] }])
+    ).rejects.toThrow("failed to load card image");
+
+    expect(stagingDirs()).toEqual(before);
+  });
+
+  it("removes the previous generation after a successful swap", async () => {
+    fs.mkdirSync(outputDir, { recursive: true });
+    fs.writeFileSync(path.join(outputDir, "old.png"), "old");
+
+    (await stageOgImages([{ slug: "deck-a", name: "Charizard ex", iconUrls: [fixtureUrl] }])).commit();
+
+    expect(fs.readdirSync(outputDir)).toEqual(["deck-a.png"]);
+    expect(fs.existsSync(`${outputDir}.previous`)).toBe(false);
+  });
 });

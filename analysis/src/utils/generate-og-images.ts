@@ -60,6 +60,13 @@ export const stageOgImages = async (decks: OgDeckInput[]): Promise<StagedOgImage
     }
   }
 
+  // The pipeline writes the JSON before commit runs, so a swap that commit
+  // would refuse has to be refused here, before anything is written.
+  const backup = `${target}.previous`;
+  if (fs.existsSync(backup)) {
+    throw new Error(`Refusing to publish: a previous image directory is still at ${backup}`);
+  }
+
   const staging = fs.mkdtempSync(path.join(os.tmpdir(), "og-stage-"));
   // force: commit renames the staging directory into place, so discard may
   // find it already gone.
@@ -131,10 +138,9 @@ export const stageOgImages = async (decks: OgDeckInput[]): Promise<StagedOgImage
   // half-old and half-new if it fails partway, and a reader can observe that
   // window. rename is atomic, so the directory flips in one step and the
   // previous generation survives as the backup until the swap succeeds.
-  const commit = () => {
+  const swap = () => {
     const parent = path.dirname(target);
     fs.mkdirSync(parent, { recursive: true });
-    const backup = `${target}.previous`;
     if (fs.existsSync(backup)) {
       throw new Error(`Refusing to publish: a previous image directory is still at ${backup}`);
     }
@@ -174,6 +180,15 @@ export const stageOgImages = async (decks: OgDeckInput[]): Promise<StagedOgImage
     }
 
     console.log(`Published ${slugs.length} OG images in ${target}`);
+  };
+
+  const commit = () => {
+    try {
+      swap();
+    } catch (error) {
+      discard();
+      throw error;
+    }
   };
 
   return { slugs, commit, discard };

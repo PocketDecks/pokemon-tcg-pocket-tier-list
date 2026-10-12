@@ -1,0 +1,172 @@
+import fs from "fs";
+import os from "os";
+import path from "path";
+import { vi } from "vitest";
+import { planDeckWrites, verifyStore } from "../utils/deck-store";
+import { Deck } from "../utils/types";
+import { purgeNonStandardTournaments } from "../../scripts/purge-nonstandard-tournaments";
+
+// The script loads the root .env on import; these tests stub fetch instead.
+vi.mock("../load-env-side-effect", () => ({}));
+
+const STANDARD_DATE = "2026-09-01T10:00:00.000Z";
+const CUSTOM_DATE = "2026-09-02T10:00:00.000Z";
+
+const makeDeck = (id: string, date: string): Deck => ({
+  id,
+  name: "",
+  cards: [],
+  pokemon: 0,
+  differentPokemon: 0,
+  winCount: 1,
+  lossCount: 1,
+  totalGames: 2,
+  date,
+  tournamentExPercent: 0.5,
+  noTrainerPercent: 0,
+  wins: [],
+  losses: [],
+});
+
+const commit = (files: Record<string, string>) => {
+  for (const [target, content] of Object.entries(files)) {
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, content);
+  }
+};
+
+// Every file in the store, keyed by name, so a dry run can be proved byte-identical.
+const readTree = (dir: string): Record<string, string> => {
+  const tree: Record<string, string> = {};
+  for (const name of fs.readdirSync(dir).sort()) {
+    tree[name] = fs.readFileSync(path.join(dir, name), "utf8");
+  }
+  return tree;
+};
+
+// A request answers by URL; an unrouted URL fails, so no request leaves the test.
+const respondByUrl = (routes: Record<string, unknown>) =>
+  vi.fn().mockImplementation((url: string) => {
+    const key = Object.keys(routes).find((route) => url.includes(route));
+    if (key === undefined) {
+      return Promise.resolve({
+        ok: false,
+        status: 404,
+        statusText: "Not Found",
+        headers: new Headers(),
+        json: () => Promise.resolve({}),
+      });
+    }
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      headers: new Headers(),
+      json: () => Promise.resolve(routes[key]),
+    });
+  });
+
+const listing = [
+  { id: "std", date: STANDARD_DATE, name: "Standard Cup", format: null },
+  { id: "cus", date: CUSTOM_DATE, name: "Throwback", format: "CUSTOM" },
+];
+
+const standardStore = (dir: string) =>
+  commit(
+    planDeckWrites(dir, [
+      makeDeck("std-alice", STANDARD_DATE),
+      makeDeck("std-bob", STANDARD_DATE),
+      makeDeck("cus-carol", CUSTOM_DATE),
+      makeDeck("cus-dave", CUSTOM_DATE),
+    ])
+  );
+
+const customOnlyStore = (dir: string) =>
+  commit(
+    planDeckWrites(dir, [
+      makeDeck("cus-carol", CUSTOM_DATE),
+      makeDeck("cus-dave", CUSTOM_DATE),
+    ])
+  );
+
+const stubFetch = (details: Record<string, unknown> = {}) =>
+  respondByUrl({
+    "/tournaments/std/details": details.std ?? {},
+    "/tournaments/cus/details": details.cus ?? {},
+    "/tournaments?limit=": listing,
+  });
+
+describe("purge-nonstandard-tournaments", () => {
+  let dir: string;
+
+  beforeEach(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), "purge-formats-"));
+    vi.stubEnv("LIMITLESS_API_KEY", "test-key");
+    vi.spyOn(console, "log").mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("lists the non-standard tournament on a dry run and leaves every file byte-identical", async () => {
+    standardStore(dir);
+    const before = readTree(dir);
+    global.fetch = stubFetch();
+
+    const removed = await purgeNonStandardTournaments({ dir });
+
+    expect(removed.map((entry) => entry.id)).toEqual(["cus"]);
+    expect(removed[0]).toEqual(
+      expect.objectContaining({
+        id: "cus",
+        date: CUSTOM_DATE,
+        name: "Throwback",
+        reason: "format CUSTOM",
+        deckCount: 2,
+      })
+    );
+    const printed = vi.mocked(console.log).mock.calls.map((call) => call[0]).join("\n");
+    expect(printed).toContain("cus");
+    expect(printed).toContain("format CUSTOM");
+    expect(printed).toContain("(2 decks)");
+    expect(printed).toContain("total 1 tournaments, 2 decks");
+    expect(readTree(dir)).toEqual(before);
+  });
+
+  it("removes only the non-standard decks on apply and leaves a store that verifies", async () => {
+    standardStore(dir);
+    global.fetch = stubFetch();
+
+    await purgeNonStandardTournaments({ dir, apply: true });
+
+    const remaining = fs
+      .readFileSync(path.join(dir, "b4a.ndjson"), "utf8")
+      .split("\n")
+      .filter((line) => line.length > 0)
+      .map((line) => JSON.parse(line).id);
+    expect(remaining.sort()).toEqual(["std-alice", "std-bob"]);
+
+    const manifest = JSON.parse(fs.readFileSync(path.join(dir, "manifest.json"), "utf8"));
+    expect(manifest.shards.b4a).toEqual({
+      file: "b4a.ndjson",
+      count: 2,
+      minDate: STANDARD_DATE,
+      maxDate: STANDARD_DATE,
+    });
+    expect(verifyStore(dir, { placement: true })).toEqual([]);
+  });
+
+  it("refuses and writes nothing when a shard would be emptied", async () => {
+    customOnlyStore(dir);
+    const before = readTree(dir);
+    global.fetch = stubFetch();
+
+    await expect(purgeNonStandardTournaments({ dir, apply: true })).rejects.toThrow(
+      /would be emptied/
+    );
+    expect(readTree(dir)).toEqual(before);
+  });
+});

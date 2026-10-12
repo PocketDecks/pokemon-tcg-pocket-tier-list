@@ -49,12 +49,11 @@ describe("assertUsablePage", () => {
     expect(() => assertUsablePage("B4a", { decks, unreadableCounts: 1 })).toThrow("no readable counts");
   });
 
-  it("accepts a page with some unreadable counts", () => {
-    const decks = [
-      { name: "A", slug: "a-a1-001", count: 5 },
-      { name: "B", slug: "b-a1-002", count: 0 },
-    ];
-    expect(() => assertUsablePage("B4a", { decks, unreadableCounts: 1 })).not.toThrow();
+  it("rejects a page with an unreadable count beside a readable one", () => {
+    const html = row("charizard-ex-a1-036", "Charizard ex", "10") + row("mew-ex-a1-129", "Mew ex", "n/a");
+    expect(() => assertUsablePage("B4a", parseSetPage(html))).toThrow(
+      "Limitless B4a page had an unreadable count"
+    );
   });
 });
 
@@ -81,5 +80,10 @@ describe("fetchSetPage", () => {
     await expect(fetchSetPage("B4a", respond("<html>Just a moment...</html>"))).rejects.toThrow(
       "page held no deck rows"
     );
+  });
+
+  it("rejects a page whose count could not be read", async () => {
+    const body = row("mew-ex-a1-129", "Mew ex", "10") + row("charizard-ex-a1-036", "Charizard ex", "n/a");
+    await expect(fetchSetPage("B4a", respond(body))).rejects.toThrow("Limitless B4a page had an unreadable count");
   });
 });

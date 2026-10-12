@@ -43,6 +43,9 @@ export const assertUsablePage = (set: string, page: ParsedSetPage): void => {
   if (page.unreadableCounts === page.decks.length) {
     throw new Error(`Limitless ${set} page had no readable counts`);
   }
+  if (page.unreadableCounts > 0) {
+    throw new Error(`Limitless ${set} page had an unreadable count`);
+  }
 };
 
 export const fetchSetPage = async (

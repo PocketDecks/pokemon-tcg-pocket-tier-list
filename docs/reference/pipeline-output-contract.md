@@ -27,6 +27,45 @@ contributes nothing to them and can read 0%. Matchup win rates are the one
 exception: `get-best-decks.ts` computes them from all decks so that winrates
 stay accurate for the population they describe.
 
+## The unmatched-deck bucket
+
+A deck the matcher cannot pair with a listing row is named `UNMATCHED_DECK`
+(`"unmatched-deck"`, `analysis/src/utils/get-deck-name.ts`). The name is
+deliberately not a card slug: it carries no set code and no number, so it can
+never collide with a name `formatName` renders from a card. It stays a real
+deck name, so `populateDeckNames` still resolves every deck id.
+
+The bucket is not an archetype. `buildWindowArtefacts` ranks it with the rest
+of the qualified field, so its games stay in `totalQualifiedGames` and in the
+share every opponent is weighted by, then drops it where the published rows
+are assembled. It therefore appears in no `best-decks-*.json` entry, no
+`meta-share-*.json` entry and no `matchup-data-*.json` table of its own. A deck
+that failed to pair with a listing should not carry a win rate in the published
+ranking.
+
+Dropping the row at the end, after ranking, is what keeps the real archetypes
+still. `buildDeckPower` weights every opponent by that opponent's
+share of the ranked field, so removing the bucket from the field would move
+`expectedWinRate`, `fieldCoverage`, `powerScore` and `metaScore` for every
+archetype. Keeping it in the field and dropping only its published row leaves
+those numbers exactly as they were, with the bucket's row gone.
+
+`percentOfGames` is likewise unchanged: `buildWindowArtefacts` divides by
+`totalQualifiedGames`, which counts every qualified deck whether or not it
+paired. `meta-share.json` divides by the games of the set it tracks, and that
+set is the ranked field, so its `share`, `sharePrev` and `delta` are unchanged
+too; only the bucket's own entry leaves. The bucket's games survive in the
+matchup tallies as opponent rows naming it, where the decks it played against
+still recorded those games.
+
+`get-best-decks.ts` logs the bucket's deck count and qualified games for the
+default window, and passes both to `assertPublishable` beside the qualified
+game total. A run whose unmatched games exceed `MAX_UNMATCHED_DECK_SHARE` of
+that total is refused before anything is written. The limit catches naming
+that has broken outright; a listing store a few sets behind barely moves the
+share, because older rows still name most decks, and the listing-store checks
+catch a missing newest set.
+
 ## Card references
 
 Card references appear in two string shapes:
@@ -35,9 +74,9 @@ Card references appear in two string shapes:
   `convertCardsToIds` in `analysis/src/utils/convert-cards.ts`, parsed by
   `parseDeckListRef` in `src/app/card-ref.ts`.
 - Card score rows use `"count Name Set Number"`, for example
-  `2 Professor's Research PA 7`. Parsed by `parseScoreRef` in the same module,
-  which lowercases the set code (`P-A` becomes `pa`) and pads the number to
-  three digits.
+  `2 Professor's Research PA 7`, where `count` is the copy count most qualified
+  decks ran. Parsed by `parseScoreRef` in the same module, which lowercases the
+  set code (`P-A` becomes `pa`) and pads the number to three digits.
 
 Both parsers return the same `CardRef` object with `id`, `count` and `set`.
 Callers never split these strings themselves.
@@ -66,17 +105,21 @@ and builds each deck's id with `deckSlug` from `scripts/deck-slug.mjs`.
 ## card-scores.json
 
 Produced by `get-best-decks.ts`: it tallies win and game counts per card
-across all qualified decks, scores them with `calculateCardScores` from
-`analysis/src/utils/calculate-card-scores.ts` (a Wilson lower bound shrinks
-small samples toward zero), sorts by score descending and writes the file.
-Consumed by the `useCards` hook in `src/app/use-cards.ts` under the query key
+identity across all qualified decks with `tallyCards`, scores them with
+`calculateCardScores` from `analysis/src/utils/calculate-card-scores.ts` (a
+Wilson lower bound shrinks small samples toward zero), sorts by score
+descending and writes the file. There is one row per card identity: the
+printings of a card share a single row. The row's `name`
+prefixes that identity with the copy count the most qualified decks ran, which
+`modalCopies` in `analysis/src/utils/tally-cards.ts` picks. Consumed by the
+`useCards` hook in `src/app/use-cards.ts` under the query key
 `["card-scores"]`.
 
 Top-level shape: `PipelineCardScore[]`, sorted by `score` descending.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `name` | string | Score reference in the `"count Name Set Number"` shape above. |
+| `name` | string | `"<modal copies> <name> <set> <number>"`, the score reference in the shape above. |
 | `score` | number | Shrinkage-adjusted playability score. |
 | `popularity` | number | Shrinkage-adjusted share of qualified games the card appears in. |
 
@@ -87,9 +130,11 @@ the square root of `score` to the user.
 ## historical-trends.json
 
 Produced by `buildTrends` in `analysis/src/utils/build-trends.ts`, called with
-the sorted best-decks array so the first six archetypes are the top six.
-Consumed by `StatisticsPage`, which fetches it directly in an effect and keeps
-it in local state.
+the names `pickTrendNames` returns from the all-time best-decks array. That
+helper takes the six archetypes with the highest `powerScore`, never an
+unranked one, and breaks ties by composite `score` then by name. Consumed by
+`StatisticsPage` through the `usePipelineTrends` hook in
+`src/app/use-pipeline-trends.ts`.
 
 Top-level shape: `PipelineTrendRow[]`, one row per calendar day that has
 qualified games, sorted by `date` ascending.

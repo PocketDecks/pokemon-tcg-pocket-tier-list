@@ -46,7 +46,7 @@ export interface PipelinePartialDeck {
 }
 
 /** One opponent row in matchup-data.json's per-deck array, including the
- * "Total" sentinel row that get-best-decks.ts always appends. */
+ * "Total" sentinel row that build-matchup-data.ts always appends. */
 export interface PipelineMatchupEntry {
   name: string;
   winRate: number;

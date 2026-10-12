@@ -1,30 +1,32 @@
 import "./load-env-side-effect";
 import fs from "fs";
+import path from "path";
 import { getTournaments } from "./utils/get-tournaments";
 import getTournamentDecks from "./utils/get-tournament-decks";
+import { mapWithConcurrency } from "./utils/limitless-client";
+import { MANIFEST_FILE, planDeckWrites } from "./utils/deck-store";
+import { decksDir, processedFile } from "./utils/data-paths";
 import { round } from "./utils/round";
 import { writeArtefacts } from "./utils/write-artifacts";
 
-const DECKS_FILE = "./data/decks.json";
-const PROCESSED_FILE = "./data/processed-tournaments.json";
+export const BATCH_SIZE = 20;
+export const CONCURRENCY = 3;
 
-const readJsonArray = (filePath: string): unknown[] => {
-  if (!fs.existsSync(filePath)) return [];
-  const value = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-  if (!Array.isArray(value)) throw new Error(`${filePath} must contain an array`);
-  return value;
-};
-
-const readDataPair = (): { decks: unknown[]; processed: unknown[] } => {
-  const decksExists = fs.existsSync(DECKS_FILE);
-  const processedExists = fs.existsSync(PROCESSED_FILE);
-  if (decksExists !== processedExists) {
-    throw new Error("decks.json and processed-tournaments.json must exist together");
+export const readProcessed = (): unknown[] => {
+  const file = processedFile();
+  const hasStore = fs.existsSync(path.join(decksDir(), MANIFEST_FILE));
+  if (!fs.existsSync(file)) {
+    if (hasStore) {
+      throw new Error("The deck store and processed-tournaments.json must exist together");
+    }
+    return [];
   }
-  return {
-    decks: readJsonArray(DECKS_FILE),
-    processed: readJsonArray(PROCESSED_FILE),
-  };
+  const value = JSON.parse(fs.readFileSync(file, "utf-8"));
+  if (!Array.isArray(value)) throw new Error(`${file} must contain an array`);
+  if (value.length > 0 && !hasStore) {
+    throw new Error("The deck store and processed-tournaments.json must exist together");
+  }
+  return value;
 };
 
 export const downloadDecks = async () => {
@@ -34,25 +36,26 @@ export const downloadDecks = async () => {
   const tournaments = await getTournaments();
   console.log(`Downloaded tournaments\n${tournaments.length} to process`);
 
-  const { decks: currentDecks, processed } = readDataPair();
-  const nextDecks = [...currentDecks];
-  const nextProcessed = [...processed];
+  let processed = readProcessed();
+  fs.mkdirSync(decksDir(), { recursive: true });
 
-  for (let i = 0; i < tournaments.length; i++) {
-    const tournament = tournaments[i];
-    const decks = await getTournamentDecks(tournament);
+  for (let start = 0; start < tournaments.length; start += BATCH_SIZE) {
+    const batch = tournaments.slice(start, start + BATCH_SIZE);
+    const downloaded = await mapWithConcurrency(batch, CONCURRENCY, (tournament) =>
+      getTournamentDecks(tournament)
+    );
 
-    nextDecks.push(...decks);
-    nextProcessed.push({ id: tournament.id, date: tournament.date });
+    processed = [
+      ...processed,
+      ...batch.map((tournament) => ({ id: tournament.id, date: tournament.date })),
+    ];
+    writeArtefacts({
+      ...planDeckWrites(decksDir(), downloaded.flat()),
+      [processedFile()]: JSON.stringify(processed),
+    });
 
-    console.log(`${round(((i + 1) / tournaments.length) * 100, 2)}%`);
+    console.log(`${round((Math.min(start + BATCH_SIZE, tournaments.length) / tournaments.length) * 100, 2)}%`);
   }
-
-  fs.mkdirSync("./data", { recursive: true });
-  writeArtefacts({
-    [DECKS_FILE]: JSON.stringify(nextDecks),
-    [PROCESSED_FILE]: JSON.stringify(nextProcessed),
-  });
 };
 
 if (process.argv[1]?.endsWith("download-decks.ts")) {

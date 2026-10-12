@@ -1,18 +1,52 @@
+import fs from "fs";
+import os from "os";
+import path from "path";
+import { vi } from "vitest";
+import fixtureDecks from "../__fixtures__/decks.json";
+import { planDeckWrites } from "../utils/deck-store";
 import getDecks from "../utils/get-decks";
+import { Deck } from "../utils/types";
+
+const commit = (files: Record<string, string>) => {
+  for (const [target, content] of Object.entries(files)) {
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, content);
+  }
+};
 
 describe("getDecks", () => {
-  const previousDecksFile = process.env.DECKS_FILE;
+  let dir: string;
 
   beforeEach(() => {
-    process.env.DECKS_FILE = "./src/__fixtures__/decks.json";
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), "get-decks-"));
+    commit(planDeckWrites(dir, fixtureDecks as Deck[]));
+    vi.stubEnv("DECKS_DIR", dir);
   });
 
   afterEach(() => {
-    if (previousDecksFile === undefined) {
-      delete process.env.DECKS_FILE;
-    } else {
-      process.env.DECKS_FILE = previousDecksFile;
-    }
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("does not open shards that end before the current release", () => {
+    const old = { ...fixtureDecks[0], id: "old-deck", date: "2025-02-01T00:00:00.000Z" } as Deck;
+    commit(planDeckWrites(dir, [old]));
+    const read = vi.spyOn(fs, "readFileSync");
+
+    const ids = getDecks().map((deck) => deck.id);
+
+    expect(ids).not.toContain("old-deck");
+    expect(read.mock.calls.some((call) => String(call[0]).endsWith("a2.ndjson"))).toBe(false);
+  });
+
+  it("names the decks it returns", () => {
+    expect(getDecks().every((deck) => typeof deck.name === "string" && deck.name.length > 0)).toBe(true);
+  });
+
+  it("fails with a clear message when the store is unreadable", () => {
+    fs.writeFileSync(path.join(dir, "manifest.json"), "{not json");
+    expect(() => getDecks()).toThrow("Failed to read decks store");
   });
 
   it("should return decks", () => {

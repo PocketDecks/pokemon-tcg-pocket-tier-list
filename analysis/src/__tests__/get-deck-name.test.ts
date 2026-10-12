@@ -1,4 +1,4 @@
-import getDeckName, { compareRank, UNNAMED_DECK } from "../utils/get-deck-name";
+import getDeckName, { compareRank, UNMATCHED_DECK } from "../utils/get-deck-name";
 import { Deck } from "../utils/types";
 
 const mkDeck = (...cards: [number, string, string, string][]): Deck => ({
@@ -53,7 +53,7 @@ describe("getDeckName", () => {
 
   it("falls back to the unnamed-deck sentinel when nothing matches", () => {
     const deck = mkDeck([2, "Random Card", "A1", "1"]);
-    expect(getDeckName(deck)).toBe(UNNAMED_DECK);
+    expect(getDeckName(deck)).toBe(UNMATCHED_DECK);
   });
 
   it("matches a single-card listing", () => {
@@ -91,7 +91,7 @@ describe("getDeckName", () => {
   });
 
   // A seeded archetype still names the deck against a partner that yields no
-  // listing, so the archetype does not vanish into UNNAMED_DECK.
+  // listing, so the archetype does not vanish into UNMATCHED_DECK.
   it("keeps a seeded archetype when the partner matches no listing", () => {
     const deck = mkDeck([2, "Puppy-Loving Girl", "B3b", "67"], [2, "Lickitung", "A1", "117"]);
     expect(getDeckName(deck)).toBe("puppy-loving-girl-b3b-067");
@@ -147,14 +147,14 @@ describe("row ranking: a fuller listing outranks an anchored shorter one", () =>
 // Machoke and Meowth. A deck holding Machoke and Persian (Meowth's evolution,
 // not Meowth itself) must not take that row: outclassed() would drop Meowth
 // from supportedNames and a check on supportedNames alone would pass it. With
-// the row-level check it falls through to UNNAMED_DECK.
+// the row-level check it falls through to UNMATCHED_DECK.
 describe("containment: a row listing a card the deck lacks is rejected", () => {
   it("does not name a row after a card the deck does not play", () => {
     const deck = mkDeck(
       [2, "Machoke", "A1", "144"],
       [2, "Persian", "A1", "127"]
     );
-    expect(getDeckName(deck)).toBe(UNNAMED_DECK);
+    expect(getDeckName(deck)).toBe(UNMATCHED_DECK);
   });
 });
 

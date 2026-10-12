@@ -1,91 +1,60 @@
 import getId from "../utils/get-id";
-import { Deck } from "../utils/types";
+import { Card, Deck } from "../utils/types";
+
+const pikachu: Card = { name: "Pikachu", count: 4, set: "base", number: "58" };
+const charizard: Card = { name: "Charizard ex", count: 2, set: "base", number: "12" };
+
+const makeDeck = (cards: Card[], overrides: Partial<Deck> = {}): Deck => ({
+  id: "test-id",
+  name: "Test Deck",
+  cards,
+  pokemon: 0,
+  differentPokemon: 0,
+  winCount: 0,
+  lossCount: 0,
+  totalGames: 0,
+  date: "2024-03-20",
+  tournamentExPercent: 0,
+  noTrainerPercent: 0,
+  wins: [],
+  losses: [],
+  ...overrides,
+});
 
 describe("getId", () => {
-  it("should generate a consistent hash for the same deck", () => {
-    const deck: Deck = {
-      id: "test-id",
-      name: "Test Deck",
-      cards: [
-        {
-          name: "Pikachu",
-          count: 4,
-          set: "base",
-          number: "58",
-        },
-        {
-          name: "Charizard ex",
-          count: 2,
-          set: "base",
-          number: "12",
-        },
-      ],
-      pokemon: 6,
-      differentPokemon: 2,
-      winCount: 0,
-      lossCount: 0,
-      totalGames: 0,
-      date: "2024-03-20",
-      tournamentExPercent: 0,
-      noTrainerPercent: 0,
-      wins: [],
-      losses: [],
-    };
-
-    const hash1 = getId(deck);
-    const hash2 = getId(deck);
-    expect(hash1).toBe(hash2);
+  it("is stable for the same deck", () => {
+    const deck = makeDeck([pikachu, charizard]);
+    expect(getId(deck)).toBe(getId(deck));
   });
 
-  it("should generate different hashes for different decks", () => {
-    const deck1: Deck = {
-      id: "test-id-1",
-      name: "Test Deck 1",
-      cards: [
-        {
-          name: "Pikachu",
-          count: 4,
-          set: "base",
-          number: "58",
-        },
-      ],
-      pokemon: 4,
-      differentPokemon: 1,
-      winCount: 0,
-      lossCount: 0,
-      totalGames: 0,
-      date: "2024-03-20",
-      tournamentExPercent: 0,
-      noTrainerPercent: 0,
-      wins: [],
-      losses: [],
-    };
+  it("ignores the order of the cards", () => {
+    expect(getId(makeDeck([pikachu, charizard]))).toBe(getId(makeDeck([charizard, pikachu])));
+  });
 
-    const deck2: Deck = {
-      id: "test-id-2",
-      name: "Test Deck 2",
-      cards: [
-        {
-          name: "Pikachu",
-          count: 3,
-          set: "base",
-          number: "58",
-        },
-      ],
-      pokemon: 3,
-      differentPokemon: 1,
-      winCount: 0,
-      lossCount: 0,
-      totalGames: 0,
-      date: "2024-03-20",
-      tournamentExPercent: 0,
-      noTrainerPercent: 0,
-      wins: [],
-      losses: [],
-    };
+  it("hashes the card list and nothing else", () => {
+    const base = makeDeck([pikachu, charizard]);
+    const other = makeDeck([pikachu, charizard], {
+      id: "another-id",
+      name: "Another Name",
+      winCount: 9,
+      totalGames: 30,
+      date: "2026-01-01",
+    });
+    expect(getId(other)).toBe(getId(base));
+  });
 
-    const hash1 = getId(deck1);
-    const hash2 = getId(deck2);
-    expect(hash1).not.toBe(hash2);
+  it("changes when only a copy count changes", () => {
+    expect(getId(makeDeck([pikachu]))).not.toBe(getId(makeDeck([{ ...pikachu, count: 3 }])));
+  });
+
+  it("changes when only the set or the number changes", () => {
+    expect(getId(makeDeck([pikachu]))).not.toBe(getId(makeDeck([{ ...pikachu, set: "A1" }])));
+    expect(getId(makeDeck([pikachu]))).not.toBe(getId(makeDeck([{ ...pikachu, number: "59" }])));
+  });
+
+  it("does not mutate the deck it hashes", () => {
+    const deck = makeDeck([pikachu, charizard]);
+    getId(deck);
+    expect(deck.cards).toEqual([pikachu, charizard]);
   });
 });

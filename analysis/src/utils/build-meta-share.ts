@@ -48,7 +48,7 @@ const windowDayKeys = (
 
 // Snapshots each tracked archetype's share of qualified games over the trailing
 // window, the previous window's share, the delta, and first-seen date. Windows
-// are inclusive calendar-day ranges; bestDecks must arrive pre-sorted by score.
+// are inclusive calendar-day ranges.
 export const buildMetaShare = (
   qualifiedHistory: Deck[],
   bestDecks: PipelinePartialDeck[],

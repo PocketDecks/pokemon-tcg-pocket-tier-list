@@ -1,29 +1,19 @@
-import fs from "fs";
+import { EXPANSION_RELEASE_DATE } from "../settings";
+import { decksDir } from "./data-paths";
+import { readDecks } from "./deck-store";
 import { filterDecks } from "./filter-decks";
 import { populateDeckNames } from "./populate-deck-names";
 import { updateDeckResults } from "./update-deck-results";
 import { Deck } from "./types";
 
-const deckFilePath = () => process.env.DECKS_FILE || "./data/decks.json";
-
-const readDecksFromFile = (): Deck[] => {
-  let decks: unknown;
+const readDecksFromStore = (): Deck[] => {
   try {
-    const fileContent = fs.readFileSync(deckFilePath(), "utf-8");
-    decks = JSON.parse(fileContent);
+    return readDecks(decksDir(), EXPANSION_RELEASE_DATE);
   } catch (error) {
     throw new Error(
-        `Failed to read decks file: ${
-            error instanceof Error ? error.message : String(error)
-        }`
+      `Failed to read decks store: ${error instanceof Error ? error.message : String(error)}`
     );
   }
-
-  if (!Array.isArray(decks)) {
-    throw new Error("Failed to read decks file: Decks data is not an array");
-  }
-
-  return decks;
 };
 
 const calculateTotalGames = (decks: Deck[]): number => {
@@ -34,7 +24,7 @@ const calculateTotalGames = (decks: Deck[]): number => {
 // game counts survive: weighting happens per window downstream, where every
 // in-window game counts the same.
 const getDecks = (): Deck[] => {
-  const rawDecks = readDecksFromFile();
+  const rawDecks = readDecksFromStore();
   const filteredDecks = filterDecks(rawDecks);
   const { decks: decksWithNames, idToName } = populateDeckNames(filteredDecks);
   const decksWithResults = updateDeckResults(decksWithNames, idToName);

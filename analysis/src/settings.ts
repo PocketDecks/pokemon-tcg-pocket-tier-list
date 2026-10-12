@@ -1,6 +1,5 @@
 import expansions from "pokemon-tcg-pocket-cards/data/v5/expansions.json";
-
-// export const DEBUG: boolean = false;
+import type { WindowId } from "./utils/build-window-artefacts";
 
 export const DELUXE_SET_IDS = new Set(["a4b", "b4b"]);
 
@@ -27,17 +26,13 @@ export const EXPANSION_RELEASE_DATE: Date = latestReleaseDate(
   expansions as { id: string; release_date: string | null }[]
 );
 
-// Exclude ex-only decks from analysis.
-export const NOEX: boolean = false;
 // Number of cards in a legal deck.
 export const CARDS_IN_DECK: number = 20;
 export const NOEX_PERCENT_CUTOFF: number = 0.2;
-// Deck is filtered out above this share of trainer-less games.
+// Tournaments where this share of decks or more run no trainers are filtered out.
 export const NO_TRAINER_PERCENT_CUTOFF: number = 0.1;
 // Tournaments with fewer players than this are ignored.
-export const MIN_GAMES_IN_TOURNAMENT: number = 50;
-// Hard cap on decks analysed per run.
-export const MAX_DECKS_TO_ANALYZE: number = 400_000;
+export const MIN_PLAYERS_IN_TOURNAMENT: number = 50;
 // Per-(player, tournament) win-rate gate: a deck only scores if that player won at least this share of games (0.6 ≈ 5-3 in 8 rounds, 4-2 in 6).
 export const MIN_WINRATE_THRESHOLD: number = 0.6;
 // Minimum qualified games an archetype needs before it ranks, to drop 1-2-deck flukes while keeping fresh archetypes visible.
@@ -45,7 +40,12 @@ export const MIN_ARCHETYPE_QUALIFIED_GAMES: number = 25;
 
 const SECONDS_IN_WEEK = 7 * 24 * 60 * 60 * 1000;
 
-export const scoringWeights = (now: Date) => {
+export interface ScoringWeights {
+  winrateImportance: number;
+  popularityImportance: number;
+}
+
+export const scoringWeights = (now: Date): ScoringWeights => {
   const weeksLive = Math.max(
     0,
     (now.getTime() - EXPANSION_RELEASE_DATE.getTime()) / SECONDS_IN_WEEK
@@ -57,12 +57,6 @@ export const scoringWeights = (now: Date) => {
     popularityImportance: 1 - winrateImportance,
   };
 };
-
-const CURRENT_SCORING_WEIGHTS = scoringWeights(new Date());
-// Weight given to win-rate in the composite deck score; rises with weeks since release.
-export const WINRATE_IMPORTANCE = CURRENT_SCORING_WEIGHTS.winrateImportance;
-// Residual weight given to popularity; the complement of WINRATE_IMPORTANCE.
-export const POPULARITY_IMPORTANCE = CURRENT_SCORING_WEIGHTS.popularityImportance;
 
 // Pseudo-games pulling each matchup win rate toward 50%, so a 4-game matchup
 // barely moves a deck's expected win rate and a 500-game one counts almost
@@ -89,3 +83,33 @@ export const MIN_MATCHUP_GAMES: number = 2;
 // or above the published ranking's breadth, with every ranked deck clearing the
 // bar itself.
 export const MIN_FIELD_COVERAGE: number = 0.25;
+
+// Per-window floors on published archetypes. The 2026-09-24 data publishes
+// 24, 48, 64 and 64; each floor is about half of those.
+export const MIN_PUBLISHED_ARCHETYPES: Record<WindowId, number> = {
+  "10d": 12,
+  "20d": 25,
+  "30d": 32,
+  all: 32,
+};
+
+// A window may shrink by half against the previous publish, no further.
+export const MIN_PREVIOUS_ARCHETYPE_RATIO: number = 0.5;
+
+// Archetypes in the default window that must carry a Power Score. The same
+// data had 42 of 48.
+export const MIN_RANKED_ARCHETYPES: number = 20;
+
+// Days of data over which each window's floors ramp up after a release, so a
+// new expansion publishes while its field fills. A replay of 19 expansions
+// refused 28 of 645 days with the ramp, against 222 without it.
+export const FLOOR_RAMP_DAYS: Record<WindowId, number> = {
+  "10d": 10,
+  "20d": 20,
+  "30d": 30,
+  all: 30,
+};
+
+// The newest qualified deck may be at most this many days older than the run.
+// The longest gap between tournament days since April was 5.
+export const MAX_DATA_AGE_DAYS: number = 7;

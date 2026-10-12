@@ -9,6 +9,26 @@ const PERMITTED_CROSSINGS: Record<string, { specifier: string; reason: string }>
       "fixture and the code cannot drift. The generator is a script by " +
       "convention, not by dependency direction.",
   },
+  "src/__tests__/generate-deck-name-golden-guard.test.ts": {
+    specifier: "../../scripts/generate-deck-name-golden",
+    reason:
+      "the guard that stops the golden shrinking must be tested on the " +
+      "generator that writes it.",
+  },
+  "src/__tests__/verify-deck-store.test.ts": {
+    specifier: "../../scripts/verify-deck-store",
+    reason:
+      "the test must call the script itself, so the store checks are " +
+      "exercised as they run in CI. The script is a script by convention, " +
+      "not by dependency direction.",
+  },
+  "src/__tests__/sync-pairings-guard.test.ts": {
+    specifier: "../../scripts/sync-pairings",
+    reason:
+      "the exit code is the only signal the refresh job reads, so the test " +
+      "must call the guard the script runs. The script is a script by " +
+      "convention, not by dependency direction.",
+  },
 };
 
 describe("analysis/src/ import layering", () => {

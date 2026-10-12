@@ -30,9 +30,11 @@ const SEEDED_ARCHETYPES: readonly SeededArchetype[] = [
   { primary: "Gigalith ex", display: ["Gigalith ex A2 94"] },
 ];
 
-// Slug shared by all decks that match no listing, so the tier list has one
-// "everything else" bucket.
-export const UNNAMED_DECK = "professor's-research-pa-007";
+// Name shared by all decks that match no listing. Deliberately not a card
+// slug, so it can never collide with a real card identity.
+export const UNMATCHED_DECK = "unmatched-deck";
+
+export const isUnmatchedDeck = (name: string): boolean => name === UNMATCHED_DECK;
 
 // One resolved listing row, with its card names for subset matching.
 interface IndexedRow {
@@ -174,11 +176,11 @@ const getDeckName = (deck: Deck): string => {
       if (seen.has(index)) continue;
       seen.add(index);
       const row = ALL_ROWS[index];
+      if (!row.cardNames.every((name) => present.has(name))) continue;
       const supportedNames = row.cardNames.filter(
         (name) => !outclassed(name, present)
       );
       if (supportedNames.length === 0) continue;
-      if (!row.cardNames.every((name) => present.has(name))) continue;
       const sameLine =
         supportedNames.length > 1 && isSameLine(supportedNames[0], supportedNames[1])
           ? 1
@@ -212,15 +214,15 @@ const getDeckName = (deck: Deck): string => {
     }
   }
 
-  if (best) return formatName(deck.cards, best.cards);
+  if (best) return formatName(best.cards);
 
   // No listing matched: a seeded archetype still names the deck when its
   // primary is present, so those decks are not lost to the unnamed bucket.
   for (const seed of SEEDED_ARCHETYPES) {
-    if (present.has(seed.primary)) return formatName(deck.cards, seed.display);
+    if (present.has(seed.primary)) return formatName(seed.display);
   }
 
-  return UNNAMED_DECK;
+  return UNMATCHED_DECK;
 };
 
 export default getDeckName;

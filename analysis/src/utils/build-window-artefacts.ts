@@ -1,5 +1,4 @@
 import {
-  MetaShareEntry,
   PipelineMatchupData,
   PipelinePartialDeck,
 } from "../../../src/types/pipeline-data";
@@ -8,14 +7,16 @@ import { buildMatchupPopulations } from "./build-matchup-populations";
 import { buildMetaShare, WindowMetaShare } from "./build-meta-share";
 import { calculateCardScores } from "./calculate-card-scores";
 import { calculateDeckScore } from "./calculate-deck-score";
-import { calculateMatchupResults } from "./calculate-matchup-results";
-import cardToString from "./card-to-string";
 import { convertCardsToIds } from "./convert-cards";
+import { isUnmatchedDeck } from "./get-deck-name";
 import getId from "./get-id";
+import { tallyCards } from "./tally-cards";
 import { Deck } from "./types";
 import {
   MIN_ARCHETYPE_QUALIFIED_GAMES,
   MIN_WINRATE_THRESHOLD,
+  ScoringWeights,
+  scoringWeights,
 } from "../settings";
 
 export const WINDOW_IDS = ["10d", "20d", "30d", "all"] as const;
@@ -80,8 +81,30 @@ export const qualifiedDecksInWindow = (
 ): Deck[] =>
   qualifiedInWindow(decksInWindow(decks, window, latestAnchor(decks, today)));
 
+export interface UnmatchedDecks {
+  decks: number;
+  games: number;
+}
+
+// How many qualified decks in a window matched no listing, and the games they
+// carry. Reported on every run so a rise in the bucket is visible.
+export const unmatchedDecksInWindow = (
+  decks: Deck[],
+  window: WindowId,
+  today: Date
+): UnmatchedDecks => {
+  const unmatched = qualifiedDecksInWindow(decks, window, today).filter((deck) =>
+    isUnmatchedDeck(deck.name)
+  );
+  return {
+    decks: unmatched.length,
+    games: unmatched.reduce((sum, deck) => sum + deck.totalGames, 0),
+  };
+};
+
 const rankDecks = (
-  qualifiedDecks: Deck[]
+  qualifiedDecks: Deck[],
+  weights: ScoringWeights
 ): { bestDecks: PipelinePartialDeck[]; rankedNames: string[] } => {
   const totalQualifiedGames = qualifiedDecks.reduce(
     (sum, deck) => sum + deck.totalGames,
@@ -103,17 +126,11 @@ const rankDecks = (
     const matching = qualifiedDecks.filter((deck) => deck.name === name);
     const matchingGames = matching.reduce((sum, deck) => sum + deck.totalGames, 0);
 
-    const cards: Record<string, { winCount: number; totalGames: number }> = {};
-    for (const deck of matching) {
-      for (const card of deck.cards) {
-        const key = cardToString(card);
-        const entry = cards[key] ?? { winCount: 0, totalGames: 0 };
-        entry.winCount += deck.winCount;
-        entry.totalGames += deck.totalGames;
-        cards[key] = entry;
-      }
-    }
-    const scoredCards = calculateCardScores(cards, matchingGames);
+    const scoredCards = calculateCardScores(
+      tallyCards(matching),
+      matchingGames,
+      weights
+    );
 
     const lists = [];
     for (const deck of matching) {
@@ -123,7 +140,8 @@ const rankDecks = (
         deck,
         scoredCards,
         matchingGames,
-        totalQualifiedGames
+        totalQualifiedGames,
+        weights
       );
       lists.push({
         cards: convertCardsToIds(deck.cards),
@@ -133,11 +151,12 @@ const rankDecks = (
       idExists[id] = true;
     }
 
+    const share = matchingGames / totalQualifiedGames;
     bestDecks.push({
       name,
       lists,
-      popularity: matchingGames / totalQualifiedGames,
-      percentOfGames: matchingGames / totalQualifiedGames,
+      popularity: share,
+      percentOfGames: share,
       score: lists.length ? Math.max(...lists.map((list) => list.score)) : 0,
       expectedWinRate: 0.5,
       fieldCoverage: 0,
@@ -160,18 +179,23 @@ export const buildWindowArtefacts = (
 ): WindowArtefacts => {
   const anchor = latestAnchor(decks, today);
   const qualifiedDecks = qualifiedDecksInWindow(decks, window, today);
-  const { bestDecks, rankedNames } = rankDecks(qualifiedDecks);
+  const { bestDecks: rankedDecks, rankedNames } = rankDecks(
+    qualifiedDecks,
+    scoringWeights(today)
+  );
 
   const shareDays = WINDOW_LENGTH_DAYS[window];
   const metaShare = buildMetaShare(
     qualifiedDecksInWindow(decks, "all", today),
-    bestDecks,
+    rankedDecks,
     today,
     { shareDays, gamesDays: shareDays, anchor }
   );
 
   // Public rows count every player in the window; Power Score reads the
-  // qualified tally matching the field shares it weights by.
+  // qualified tally matching the field shares it weights by. The ranked field
+  // keeps the unmatched bucket, so its games stay in the denominator every
+  // archetype's shares and coverage are measured against.
   const { publicMatchupData, powerMatchupData } = buildMatchupPopulations(
     decksInWindow(decks, window, anchor),
     qualifiedDecks,
@@ -181,7 +205,7 @@ export const buildWindowArtefacts = (
   const gamesByName = new Map(
     metaShare.decks.map((entry) => [entry.name, entry.windowGames])
   );
-  const powerInputs: DeckPowerInput[] = bestDecks.map((deck) => ({
+  const powerInputs: DeckPowerInput[] = rankedDecks.map((deck) => ({
     name: deck.name,
     matchups: powerMatchupData[deck.name] ?? [],
     windowGames: gamesByName.get(deck.name) ?? 0,
@@ -189,7 +213,7 @@ export const buildWindowArtefacts = (
   const powerByName = new Map(
     buildDeckPower(powerInputs).map((row) => [row.name, row] as const)
   );
-  for (const deck of bestDecks) {
+  for (const deck of rankedDecks) {
     const power = powerByName.get(deck.name);
     deck.expectedWinRate = power?.expectedWinRate ?? 0.5;
     deck.fieldCoverage = power?.fieldCoverage ?? 0;
@@ -198,7 +222,23 @@ export const buildWindowArtefacts = (
     deck.metaScore = power?.metaScore ?? null;
   }
 
-  return { bestDecks, metaShare, matchupData: publicMatchupData };
+  // The bucket is scored with the field so the shares above count its games,
+  // then dropped from every published row: a deck that matched no listing is
+  // not an archetype, so it carries no ranking row, no movement row and no
+  // matchup table of its own. Its games survive as opponent rows in the
+  // tallies above, where the decks it played still name it.
+  const bestDecks = rankedDecks.filter((deck) => !isUnmatchedDeck(deck.name));
+
+  return {
+    bestDecks,
+    metaShare: {
+      ...metaShare,
+      decks: metaShare.decks.filter((entry) => !isUnmatchedDeck(entry.name)),
+    },
+    matchupData: Object.fromEntries(
+      Object.entries(publicMatchupData).filter(([name]) => !isUnmatchedDeck(name))
+    ),
+  };
 };
 
 const ARTEFACT_BASES = ["best-decks", "meta-share", "matchup-data"] as const;

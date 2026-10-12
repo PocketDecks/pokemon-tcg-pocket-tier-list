@@ -86,3 +86,39 @@ describe("calculateMatchupResults", () => {
     expect(result["Foe"].losses).toBe(1);
   });
 });
+
+describe("calculateMatchupResults scope", () => {
+  const base: Deck = {
+    id: "mine",
+    name: "Mine",
+    cards: [],
+    pokemon: 0,
+    differentPokemon: 0,
+    winCount: 1,
+    lossCount: 0,
+    totalGames: 1,
+    date: "2024-01-01",
+    tournamentExPercent: 0,
+    noTrainerPercent: 0,
+    wins: ["Foe"],
+    losses: [],
+  };
+
+  it("ignores decks of other archetypes", () => {
+    const theirs: Deck = { ...base, id: "theirs", name: "Theirs", wins: ["Foe", "Foe"], losses: ["Other"] };
+    expect(calculateMatchupResults([base, theirs], "Mine")).toEqual({ Foe: { wins: 1, losses: 0 } });
+  });
+
+  it("returns nothing for an empty list or an empty archetype name", () => {
+    expect(calculateMatchupResults([], "Mine")).toEqual({});
+    expect(calculateMatchupResults([base], "")).toEqual({});
+  });
+
+  // The filter below returns nothing for these inputs anyway, so the cases
+  // above pass with or without the guard. This one does not: a deck whose own
+  // name is blank would match an empty query, and the guard is what stops it.
+  it("refuses an empty archetype name even when a deck is named blank", () => {
+    const blank: Deck = { ...base, id: "blank", name: "", wins: ["Foe"], losses: [] };
+    expect(calculateMatchupResults([blank], "")).toEqual({});
+  });
+});

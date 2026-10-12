@@ -1,10 +1,6 @@
 import { Card, Deck } from "./types";
-import cardToString from "./card-to-string";
-import {
-  WINRATE_IMPORTANCE,
-  POPULARITY_IMPORTANCE,
-  CARDS_IN_DECK,
-} from "../settings";
+import { cardIdentity } from "./card-to-string";
+import { CARDS_IN_DECK, ScoringWeights } from "../settings";
 
 interface CardStats {
   winCount: number;
@@ -19,7 +15,7 @@ const calculateCardScore = (
 ): number => {
   return (
     cards.reduce((totalScore, card) => {
-      const cardKey = cardToString(card);
+      const cardKey = cardIdentity(card);
       const cardScore = cardStats[cardKey]?.score || 0;
       return totalScore + cardScore * card.count;
     }, 0) / CARDS_IN_DECK
@@ -38,7 +34,8 @@ export const calculateDeckScore = (
   deck: Deck,
   cardStats: Record<string, CardStats>,
   matchingGames: number,
-  totalGames: number
+  totalGames: number,
+  weights: ScoringWeights
 ): DeckScore => {
   if (totalGames <= 0) {
     throw new Error("Total games must be greater than 0");
@@ -48,7 +45,9 @@ export const calculateDeckScore = (
   const cardScore = calculateCardScore(deck.cards, cardStats);
 
   return {
-    score: cardScore * WINRATE_IMPORTANCE + popularity * POPULARITY_IMPORTANCE,
+    score:
+      cardScore * weights.winrateImportance +
+      popularity * weights.popularityImportance,
     popularity,
     strength: cardScore,
   };

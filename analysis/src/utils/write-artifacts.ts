@@ -1,31 +1,16 @@
 import fs from "fs";
+import { renameWithRetry } from "./rename-with-retry";
 
 type Artefact = {
   target: string;
   temporary: string;
   backup: string;
+  marker: string;
   content: string;
   previous: string | null;
   hadTarget: boolean;
   committed: boolean;
   retainTemporary: boolean;
-};
-
-// Windows keeps EPERM-locked targets for as long as a reader holds them, so
-// short retries cover transient locks before the direct-write fallback.
-const renameWithRetry = (source: string, destination: string): void => {
-  const attempts = 3;
-  for (let attempt = 1; ; attempt += 1) {
-    try {
-      fs.renameSync(source, destination);
-      return;
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "EPERM" || attempt >= attempts) {
-        throw error;
-      }
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50 * attempt);
-    }
-  }
 };
 
 export const writeArtefacts = (files: Record<string, string>): void => {
@@ -35,6 +20,7 @@ export const writeArtefacts = (files: Record<string, string>): void => {
       target,
       temporary: `${target}.tmp`,
       backup: `${target}.bak`,
+      marker: `${target}.created`,
       content: files[target],
       previous: hadTarget ? fs.readFileSync(target, "utf8") : null,
       hadTarget,
@@ -44,7 +30,11 @@ export const writeArtefacts = (files: Record<string, string>): void => {
   });
 
   for (const artefact of artefacts) {
-    if (fs.existsSync(artefact.temporary) || fs.existsSync(artefact.backup)) {
+    if (
+      fs.existsSync(artefact.temporary) ||
+      fs.existsSync(artefact.backup) ||
+      fs.existsSync(artefact.marker)
+    ) {
       throw new Error(`Refusing stale staging files for ${artefact.target}`);
     }
   }
@@ -52,6 +42,9 @@ export const writeArtefacts = (files: Record<string, string>): void => {
   try {
     for (const artefact of artefacts) {
       fs.writeFileSync(artefact.temporary, artefact.content);
+      // A target this write creates leaves a marker, so an interrupted run
+      // leaves evidence that the target is new.
+      if (!artefact.hadTarget) fs.writeFileSync(artefact.marker, "");
     }
 
     for (const artefact of artefacts) {
@@ -88,13 +81,16 @@ export const writeArtefacts = (files: Record<string, string>): void => {
       try {
         if (fs.existsSync(artefact.backup)) {
           if (fs.existsSync(artefact.target)) fs.rmSync(artefact.target);
-          fs.renameSync(artefact.backup, artefact.target);
+          renameWithRetry(artefact.backup, artefact.target);
         } else if (artefact.committed) {
           if (artefact.previous !== null) {
             fs.writeFileSync(artefact.target, artefact.previous);
           } else if (fs.existsSync(artefact.target)) {
             fs.rmSync(artefact.target);
           }
+        }
+        if (!fs.existsSync(artefact.target) && fs.existsSync(artefact.marker)) {
+          fs.rmSync(artefact.marker);
         }
       } catch (rollbackError) {
         console.warn(`Could not roll back artefact ${artefact.target}:`, rollbackError);
@@ -120,6 +116,19 @@ export const writeArtefacts = (files: Record<string, string>): void => {
       console.warn(
         `Could not remove artefact backup ${artefact.backup}. The committed ` +
           `target remains active. Verify it and remove the backup before rerunning:`,
+        cleanupError
+      );
+    }
+  }
+
+  for (const artefact of artefacts) {
+    if (!fs.existsSync(artefact.marker)) continue;
+    try {
+      fs.rmSync(artefact.marker);
+    } catch (cleanupError) {
+      console.warn(
+        `Could not remove artefact marker ${artefact.marker}. The committed ` +
+          `target remains active. Verify it and remove the marker before rerunning:`,
         cleanupError
       );
     }

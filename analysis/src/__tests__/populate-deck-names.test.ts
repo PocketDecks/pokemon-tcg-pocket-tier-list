@@ -1,11 +1,11 @@
 import { populateDeckNames } from "../utils/populate-deck-names";
 import { Deck } from "../utils/types";
-import { UNNAMED_DECK } from "../utils/get-deck-name";
+import { UNMATCHED_DECK } from "../utils/get-deck-name";
 
 vi.mock("../utils/get-deck-name", () => ({
   __esModule: true,
   default: vi.fn(),
-  UNNAMED_DECK: "professor's-research-pa-007",
+  UNMATCHED_DECK: "unmatched-deck",
 }));
 
 import getDeckName from "../utils/get-deck-name";
@@ -34,7 +34,7 @@ describe("populateDeckNames", () => {
 
   it("should populate deck names and create idToName mapping", () => {
     vi.mocked(getDeckName).mockImplementation(
-      (deck: Deck) => (deck.id === "valid-id" ? "Test Deck Name" : UNNAMED_DECK)
+      (deck: Deck) => (deck.id === "valid-id" ? "Test Deck Name" : UNMATCHED_DECK)
     );
     const validDeck: Deck = {
       ...mockDeck,
@@ -52,12 +52,12 @@ describe("populateDeckNames", () => {
     expect(resultDecks[0].name).toBe("Test Deck Name");
     expect(idToName).toEqual({
       "valid-id": "Test Deck Name",
-      "unnamed-id": UNNAMED_DECK,
+      "unnamed-id": UNMATCHED_DECK,
     });
   });
 
   it("keeps decks whose name resolves to the unnamed sentinel", () => {
-    vi.mocked(getDeckName).mockImplementation(() => UNNAMED_DECK);
+    vi.mocked(getDeckName).mockImplementation(() => UNMATCHED_DECK);
     const unnamedDeck1: Deck = {
       ...mockDeck,
       id: "unnamed-id-1",
@@ -72,21 +72,21 @@ describe("populateDeckNames", () => {
 
     expect(resultDecks).toHaveLength(2);
     expect(idToName).toEqual({
-      "unnamed-id-1": UNNAMED_DECK,
-      "unnamed-id-2": UNNAMED_DECK,
+      "unnamed-id-1": UNMATCHED_DECK,
+      "unnamed-id-2": UNMATCHED_DECK,
     });
   });
 
-  it("keeps a deck that matches no pairing, filed under UNNAMED_DECK", () => {
+  it("keeps a deck that matches no pairing, filed under UNMATCHED_DECK", () => {
     // getDeckName never returns null; the unnamed bucket is a real name. A
     // truthiness guard here would silently drop these decks if the sentinel
     // ever became falsy.
     vi.mocked(getDeckName).mockImplementation(
-      (deck: Deck) => (deck.id === "valid-id" ? "Test Deck Name" : UNNAMED_DECK)
+      (deck: Deck) => (deck.id === "valid-id" ? "Test Deck Name" : UNMATCHED_DECK)
     );
     const deck = { ...mockDeck, id: "unmatched-id" };
     const { decks, idToName } = populateDeckNames([deck]);
     expect(decks).toHaveLength(1);
-    expect(idToName[deck.id]).toBe(UNNAMED_DECK);
+    expect(idToName[deck.id]).toBe(UNMATCHED_DECK);
   });
 });

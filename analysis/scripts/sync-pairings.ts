@@ -14,60 +14,36 @@ import {
   snapshot,
   DeckListingStore,
 } from "../src/utils/deck-listing-store";
-import { hasUnknownSetCodes, slugTokens, unknownSetCodeList } from "../src/utils/slug-cards";
+import { hasUnknownSetCodes, resolveSlug, unknownSetCodeList } from "../src/utils/slug-cards";
+import { fetchSetPage, ParsedSetPage } from "../src/utils/parse-set-page";
 import { STANDARD_SET_CODES } from "../src/utils/set-codes";
 
 const ROOT = resolve(__dirname, "..");
 // src/data, not data/: analysis/data is git-ignored as it holds the raw scrape.
 const STORE = resolve(ROOT, "src/data/limitless-decks.json");
 
-interface ScrapedDeck {
-  name: string;
-  slug: string;
-  set: string;
-  count: number;
-}
-
 const messageOf = (err: unknown): string =>
   err instanceof Error ? err.message : String(err);
 
-const decksUrl = (set: string): string =>
-  `https://play.limitlesstcg.com/decks?game=pocket&set=${set}`;
+export interface SyncRunState {
+  fetchedSets: number;
+  unknownSetCodes: boolean;
+  unresolvedSlugs: number;
+  failures: number;
+}
 
-const ROW =
-  /<tr[^>]*>.*?<a href="\/decks\/([a-z0-9-]+)\?[^"]*"[^>]*>([^<]+)<\/a>.*?<\/tr>/gs;
-
-// Row cells are rank, blank, name, count, share, record, win rate. The first
-// `<td>` is the row number, so reading it makes count the page position.
-const COUNT_CELL_INDEX = 3;
-
-const countOfRow = (row: string): number => {
-  const cells = [...row.matchAll(/<td[^>]*>(.*?)<\/td>/gs)];
-  const cell = cells[COUNT_CELL_INDEX]?.[1] ?? "";
-  const digits = cell.replace(/<[^>]+>/g, "").replace(/,/g, "").trim();
-  const value = Number(digits);
-  return Number.isFinite(value) ? value : 0;
-};
-
-const fetchSet = async (set: string): Promise<ScrapedDeck[]> => {
-  const res = await fetch(decksUrl(set), { signal: AbortSignal.timeout(20_000) });
-  if (!res.ok) throw new Error(`Limitless ${set} returned ${res.status} ${res.statusText}`);
-  const html = await res.text();
-  const decks: ScrapedDeck[] = [];
-  const seen = new Set();
-  for (const m of html.matchAll(ROW)) {
-    const [, slug, name] = m;
-    if (seen.has(slug)) continue;
-    seen.add(slug);
-    decks.push({
-      name: name.trim(),
-      slug,
-      set,
-      count: countOfRow(m[0]),
-    });
-  }
-  return decks;
-};
+// The exit code is the only signal the refresh job reads: it stops on a
+// non-zero exit, so a run that recorded a failure has to fail. A run that
+// fetched nothing fails as well, because the store is unchanged and the job
+// would treat it as a clean scrape. Unknown set codes mean the card database is
+// stale and must not pass.
+export const exitCodeFor = (state: SyncRunState): number =>
+  state.fetchedSets === 0 ||
+  state.unknownSetCodes ||
+  state.unresolvedSlugs > 0 ||
+  state.failures > 0
+    ? 1
+    : 0;
 
 const main = async () => {
   const store: DeckListingStore = existsSync(STORE)
@@ -80,6 +56,7 @@ const main = async () => {
 
   const unresolved: string[] = [];
   const failures: string[] = [];
+  let unresolvedTotal = 0;
 
   if (hasUnknownSetCodes()) {
     failures.push(
@@ -90,9 +67,9 @@ const main = async () => {
   const fetchedSets = new Set<string>();
   const seenPages = new Map<string, string>();
   for (const set of SETS_SCRAPE_ORDER) {
-    let decks: ScrapedDeck[];
+    let page: ParsedSetPage;
     try {
-      decks = await fetchSet(set);
+      page = await fetchSetPage(set);
     } catch (err) {
       // One bad page must not discard the run; the previous snapshot for this
       // set stays in memory and is written back unchanged.
@@ -100,6 +77,7 @@ const main = async () => {
       process.stdout.write(`${set}! `);
       continue;
     }
+    const decks = page.decks;
     // Two sets never share a page. The same rows twice in one run means one
     // body was served for both, which once filed a single scrape under four
     // set keys and let decks from one format name decks in another.
@@ -115,15 +93,12 @@ const main = async () => {
     for (const deck of decks) {
       // A slug with no known set code cannot be filed under a set; that signals
       // a new set reached Limitless and SET_CODES needs updating.
-      if (slugTokens(deck.slug).length === 0 && unresolved.length < 12) {
-        unresolved.push(`${set}:${deck.slug}`);
+      if (resolveSlug(deck.slug).length === 0) {
+        unresolvedTotal += 1;
+        if (unresolved.length < 12) unresolved.push(`${set}:${deck.slug}`);
       }
     }
-    mergeSetPage(
-      store,
-      set,
-      decks.map((d) => ({ name: d.name, slug: d.slug, count: d.count }))
-    );
+    mergeSetPage(store, set, decks);
     process.stdout.write(`${set} ${decks.length}  `);
   }
 
@@ -160,15 +135,17 @@ const main = async () => {
   if (unresolved.length) console.log(`unresolved slugs: ${unresolved.join(", ")}`);
   if (failures.length) console.log(`set pages skipped: ${failures.join(", ")}`);
 
-  // A run that fetched nothing is a hard failure: the store is unchanged, so
-  // the workflow guard would treat it as a clean scrape. Unknown set codes
-  // mean the card database is stale and must not pass.
-  if (fetchedSets.size === 0 || hasUnknownSetCodes()) {
-    process.exitCode = 1;
-  }
+  process.exitCode = exitCodeFor({
+    fetchedSets: fetchedSets.size,
+    unknownSetCodes: hasUnknownSetCodes(),
+    unresolvedSlugs: unresolvedTotal,
+    failures: failures.length,
+  });
 };
 
-main().catch((err) => {
-  console.error(`sync-pairings failed: ${messageOf(err)}`);
-  process.exit(1);
-});
+if (process.argv[1]?.endsWith("sync-pairings.ts")) {
+  main().catch((err) => {
+    console.error(`sync-pairings failed: ${messageOf(err)}`);
+    process.exit(1);
+  });
+}

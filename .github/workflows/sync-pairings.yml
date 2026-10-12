@@ -1,7 +1,7 @@
 name: Sync pairings
 
 # The local cron misses new archetypes when the machine is off. This CI job
-# runs the stateless scraper weekly; scoring stays local with the 443 MB store.
+# runs the stateless scraper weekly; scoring stays local with the raw deck store.
 on:
   schedule:
     # Mondays 10:00 UTC, once weekend decklists are up.
@@ -29,7 +29,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd analysis
-          yarn install
+          yarn install --frozen-lockfile
 
       - name: Prepare dated branch
         run: |

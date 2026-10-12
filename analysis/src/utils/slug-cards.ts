@@ -1,5 +1,5 @@
-// Card resolution for Limitless deck-page slugs, shared by the scraper and the
-// deck-name matcher so the two never disagree about what a slug means.
+// Card resolution for Limitless deck-page slugs, used by the deck-name matcher
+// and the golden generator.
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
 import { canonSet, SET_CODE_PATTERN } from "./set-codes";
@@ -20,7 +20,7 @@ const norm = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 // A4b and B4b are deluxe reprint sets, so their cards fold onto the earliest
 // earlier printing to stop one card spanning several rows.
-export const REPRINT_SETS = new Set(["A4b", "B4b"]);
+const REPRINT_SETS = new Set(["A4b", "B4b"]);
 
 const cardIndex = new Map<string, IndexedCard[]>();
 const unknownSetCodes = new Set<string>();
@@ -70,21 +70,15 @@ const canonicalCard = (card: IndexedCard): IndexedCard => {
   return original ?? card;
 };
 
-// Resolves one name/set token to a card, trying the spaced and ex variants
-// that Limitless drops from slugs. Pass one prefers a printing that sits in
-// the wanted set, scanning every candidate spelling before settling. Pass
-// two keeps the first printing in any set only when no wanted-set match
-// exists, so a wanted-set hit on a later spelling beats an any-set hit found
-// on an earlier one.
+// Resolves one name/set token to a card, trying the ex variants that
+// Limitless drops from slugs. Pass one prefers a printing in the wanted set
+// across every spelling; pass two keeps the first printing in any set.
 const resolveCard = (rawName: string, rawSet: string): IndexedCard | null => {
   const wanted = canonSet(rawSet).toLowerCase();
-  const spaced = rawName.replace(/-/g, " ");
   const candidates = [
     rawName,
-    rawName.replace("rockets", "rocket's"),
-    spaced,
-    `${spaced} ex`,
-    spaced.replace(/ ex$/, ""),
+    `${rawName}-ex`,
+    rawName.replace(/-ex$/, ""),
   ];
   // Pass one: a wanted-set printing across any spelling wins.
   for (const candidate of candidates) {
@@ -103,7 +97,7 @@ const resolveCard = (rawName: string, rawSet: string): IndexedCard | null => {
 
 // Slugs merge two cards into one token when they share a trailing set code
 // (hydreigon-mega-absol-ex-b1), so try each hyphen split.
-export const resolveToken = (rawName: string, rawSet: string): IndexedCard[] => {
+const resolveToken = (rawName: string, rawSet: string): IndexedCard[] => {
   const direct = resolveCard(rawName, rawSet);
   if (direct) return [direct];
 

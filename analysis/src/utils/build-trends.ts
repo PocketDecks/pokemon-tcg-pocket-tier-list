@@ -4,16 +4,21 @@ import { PipelinePartialDeck, PipelineTrendRow } from "../../../src/types/pipeli
 
 export const TREND_ARCHETYPE_COUNT = 6;
 
+type RankedDeck = PipelinePartialDeck & { powerScore: number };
+
+const hasPowerScore = (deck: PipelinePartialDeck): deck is RankedDeck =>
+  deck.powerScore !== null;
+
 export const pickTrendNames = (
   bestDecks: readonly PipelinePartialDeck[],
   count: number = TREND_ARCHETYPE_COUNT
 ): string[] =>
   bestDecks
     .filter((deck) => !isUnmatchedDeck(deck.name))
-    .filter((deck) => deck.powerScore !== null)
+    .filter(hasPowerScore)
     .sort(
       (a, b) =>
-        (b.powerScore as number) - (a.powerScore as number) ||
+        b.powerScore - a.powerScore ||
         b.score - a.score ||
         a.name.localeCompare(b.name)
     )

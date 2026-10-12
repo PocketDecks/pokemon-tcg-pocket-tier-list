@@ -32,7 +32,7 @@ Windows anchor on the newest data date, so stale raw data still fills every wind
 ## Failure rules
 
 - Do not publish raw tournament data.
-- Do not treat a failed download as a finished one. The store holds the batches that completed, so rerun `yarn.cmd download` and let it finish.
+- Do not treat a failed download as a finished one. The store holds the batches that completed, so rerun `yarn.cmd download` and let it finish. A killed run needs the recovery in step 5 and `yarn.cmd store:verify` before rerunning.
 - Do not override a refusal from `yarn.cmd start`. Report the failures it prints.
 - Do not open a second review for the same dated branch.
 - A run with no tracked output changes is silent.

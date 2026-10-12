@@ -1,53 +1,17 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-
-const loadSettings = async (now: Date) => {
-  vi.resetModules();
-  vi.useFakeTimers();
-  vi.setSystemTime(now);
-  const settings = await import("../settings");
-  vi.useRealTimers();
-  return settings;
-};
+import { EXPANSION_RELEASE_DATE, scoringWeights } from "../settings";
 
 const weeksAfterRelease = (releaseDate: Date, weeks: number): Date =>
   new Date(releaseDate.getTime() + weeks * 7 * 24 * 60 * 60 * 1000);
 
-afterEach(() => {
-  vi.useRealTimers();
-});
-
 describe("scoringWeights", () => {
-  it("derives current exported weights from the pure calculation", async () => {
-    const now = new Date("2026-09-18T00:00:00.000Z");
-    const {
-      EXPANSION_RELEASE_DATE,
-      POPULARITY_IMPORTANCE,
-      scoringWeights,
-      WINRATE_IMPORTANCE,
-    } = await loadSettings(now);
-    const weights = scoringWeights(now);
-
-    expect(WINRATE_IMPORTANCE).toBe(weights.winrateImportance);
-    expect(POPULARITY_IMPORTANCE).toBe(weights.popularityImportance);
-    expect(EXPANSION_RELEASE_DATE).toBeInstanceOf(Date);
-  });
-
-  it("starts with the release-day weights", async () => {
-    const { EXPANSION_RELEASE_DATE, scoringWeights } = await loadSettings(
-      new Date("2026-09-18T00:00:00.000Z")
-    );
-
+  it("starts with the release-day weights", () => {
     expect(scoringWeights(weeksAfterRelease(EXPANSION_RELEASE_DATE, 0))).toEqual({
       winrateImportance: 0.2,
       popularityImportance: 0.8,
     });
   });
 
-  it("ramps weights through the first two weeks", async () => {
-    const { EXPANSION_RELEASE_DATE, scoringWeights } = await loadSettings(
-      new Date("2026-09-18T00:00:00.000Z")
-    );
-
+  it("ramps weights through the first two weeks", () => {
     expect(scoringWeights(weeksAfterRelease(EXPANSION_RELEASE_DATE, 1))).toEqual({
       winrateImportance: 0.35,
       popularityImportance: 0.65,
@@ -58,11 +22,7 @@ describe("scoringWeights", () => {
     });
   });
 
-  it("caps win-rate importance at week four and beyond", async () => {
-    const { EXPANSION_RELEASE_DATE, scoringWeights } = await loadSettings(
-      new Date("2026-09-18T00:00:00.000Z")
-    );
-
+  it("caps win-rate importance at week four and beyond", () => {
     expect(scoringWeights(weeksAfterRelease(EXPANSION_RELEASE_DATE, 4))).toEqual({
       winrateImportance: 0.75,
       popularityImportance: 0.25,
@@ -73,21 +33,14 @@ describe("scoringWeights", () => {
     });
   });
 
-  it("keeps weights summing to one at the boundary and mid-ramp weeks", async () => {
-    const { EXPANSION_RELEASE_DATE, scoringWeights } = await loadSettings(
-      new Date("2026-09-18T00:00:00.000Z")
-    );
-
+  it("keeps weights summing to one at the boundary and mid-ramp weeks", () => {
     for (const weeks of [0, 1, 2.5866, 4, 52]) {
       const weights = scoringWeights(weeksAfterRelease(EXPANSION_RELEASE_DATE, weeks));
       expect(weights.winrateImportance + weights.popularityImportance).toBe(1);
     }
   });
 
-  it("returns the release-day baseline for dates before the release", async () => {
-    const { EXPANSION_RELEASE_DATE, scoringWeights } = await loadSettings(
-      new Date("2026-09-18T00:00:00.000Z")
-    );
+  it("returns the release-day baseline for dates before the release", () => {
     const beforeRelease = weeksAfterRelease(EXPANSION_RELEASE_DATE, -1);
 
     expect(scoringWeights(beforeRelease)).toEqual({

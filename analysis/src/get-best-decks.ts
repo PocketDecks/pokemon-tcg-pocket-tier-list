@@ -13,17 +13,18 @@ import {
   WindowId,
 } from "./utils/build-window-artefacts";
 import { generateOgImages } from "./utils/generate-og-images";
+import { scoringWeights, ScoringWeights } from "./settings";
 import { Deck } from "./utils/types";
 import { writeArtefacts } from "./utils/write-artifacts";
 import { deckNameToIconIds } from "../../src/types/deck-name";
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
-const buildCardScores = (qualifiedDecks: Deck[]) => {
+const buildCardScores = (qualifiedDecks: Deck[], weights: ScoringWeights) => {
   const totalQualifiedGames = qualifiedDecks.reduce(
     (sum, deck) => sum + deck.totalGames,
     0
   );
-  return Object.entries(calculateCardScores(tallyCards(qualifiedDecks), totalQualifiedGames))
+  return Object.entries(calculateCardScores(tallyCards(qualifiedDecks), totalQualifiedGames, weights))
     .map(([name, { score, popularity }]) => ({ name, score, popularity }))
     .sort((a, b) => b.score - a.score);
 };
@@ -48,7 +49,7 @@ const run = async () => {
     // history and card table as before the selector landed.
     const allQualified = qualifiedDecksInWindow(allDecks, "all", today);
     const trends = buildTrends(allQualified, artefacts.all.bestDecks);
-    const cardScoresList = buildCardScores(allQualified);
+    const cardScoresList = buildCardScores(allQualified, scoringWeights(today));
 
     const cardsById = new Map(cards.map((card: any) => [card.id, card] as [string, any]));
     for (const deck of artefacts[DEFAULT_WINDOW].bestDecks) {

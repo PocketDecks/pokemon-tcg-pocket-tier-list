@@ -16,6 +16,8 @@ import { Deck } from "./types";
 import {
   MIN_ARCHETYPE_QUALIFIED_GAMES,
   MIN_WINRATE_THRESHOLD,
+  ScoringWeights,
+  scoringWeights,
 } from "../settings";
 
 export const WINDOW_IDS = ["10d", "20d", "30d", "all"] as const;
@@ -81,7 +83,8 @@ export const qualifiedDecksInWindow = (
   qualifiedInWindow(decksInWindow(decks, window, latestAnchor(decks, today)));
 
 const rankDecks = (
-  qualifiedDecks: Deck[]
+  qualifiedDecks: Deck[],
+  weights: ScoringWeights
 ): { bestDecks: PipelinePartialDeck[]; rankedNames: string[] } => {
   const totalQualifiedGames = qualifiedDecks.reduce(
     (sum, deck) => sum + deck.totalGames,
@@ -103,7 +106,11 @@ const rankDecks = (
     const matching = qualifiedDecks.filter((deck) => deck.name === name);
     const matchingGames = matching.reduce((sum, deck) => sum + deck.totalGames, 0);
 
-    const scoredCards = calculateCardScores(tallyCards(matching), matchingGames);
+    const scoredCards = calculateCardScores(
+      tallyCards(matching),
+      matchingGames,
+      weights
+    );
 
     const lists = [];
     for (const deck of matching) {
@@ -113,7 +120,8 @@ const rankDecks = (
         deck,
         scoredCards,
         matchingGames,
-        totalQualifiedGames
+        totalQualifiedGames,
+        weights
       );
       lists.push({
         cards: convertCardsToIds(deck.cards),
@@ -151,7 +159,7 @@ export const buildWindowArtefacts = (
 ): WindowArtefacts => {
   const anchor = latestAnchor(decks, today);
   const qualifiedDecks = qualifiedDecksInWindow(decks, window, today);
-  const { bestDecks, rankedNames } = rankDecks(qualifiedDecks);
+  const { bestDecks, rankedNames } = rankDecks(qualifiedDecks, scoringWeights(today));
 
   const shareDays = WINDOW_LENGTH_DAYS[window];
   const metaShare = buildMetaShare(

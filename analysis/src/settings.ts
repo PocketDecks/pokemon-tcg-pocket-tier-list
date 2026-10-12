@@ -39,7 +39,12 @@ export const MIN_ARCHETYPE_QUALIFIED_GAMES: number = 25;
 
 const SECONDS_IN_WEEK = 7 * 24 * 60 * 60 * 1000;
 
-export const scoringWeights = (now: Date) => {
+export interface ScoringWeights {
+  winrateImportance: number;
+  popularityImportance: number;
+}
+
+export const scoringWeights = (now: Date): ScoringWeights => {
   const weeksLive = Math.max(
     0,
     (now.getTime() - EXPANSION_RELEASE_DATE.getTime()) / SECONDS_IN_WEEK
@@ -51,12 +56,6 @@ export const scoringWeights = (now: Date) => {
     popularityImportance: 1 - winrateImportance,
   };
 };
-
-const CURRENT_SCORING_WEIGHTS = scoringWeights(new Date());
-// Weight given to win-rate in the composite deck score; rises with weeks since release.
-export const WINRATE_IMPORTANCE = CURRENT_SCORING_WEIGHTS.winrateImportance;
-// Residual weight given to popularity; the complement of WINRATE_IMPORTANCE.
-export const POPULARITY_IMPORTANCE = CURRENT_SCORING_WEIGHTS.popularityImportance;
 
 // Pseudo-games pulling each matchup win rate toward 50%, so a 4-game matchup
 // barely moves a deck's expected win rate and a 500-game one counts almost

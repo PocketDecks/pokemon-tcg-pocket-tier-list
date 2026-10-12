@@ -1,7 +1,4 @@
-import {
-  WINRATE_IMPORTANCE,
-  POPULARITY_IMPORTANCE,
-} from "../settings";
+import { ScoringWeights } from "../settings";
 
 interface CardData {
   winCount: number;
@@ -26,7 +23,8 @@ const wilsonLowerBound = (p: number, n: number, z = 1.96): number => {
 // Scores one card from its win rate and popularity, both shrunk by a Wilson bound so small samples don't saturate.
 const calculateSingleCardScore = (
   { winCount, totalGames }: CardData,
-  totalMatchingGames: number
+  totalMatchingGames: number,
+  weights: ScoringWeights
 ): { score: number; popularity: number } => {
   const rawWinRate = totalGames > 0 ? winCount / totalGames : 0;
   const rawPopularity =
@@ -38,7 +36,8 @@ const calculateSingleCardScore = (
 
   return {
     score:
-      winRate * WINRATE_IMPORTANCE + popularity * POPULARITY_IMPORTANCE,
+      winRate * weights.winrateImportance +
+      popularity * weights.popularityImportance,
     popularity,
   };
 };
@@ -46,7 +45,8 @@ const calculateSingleCardScore = (
 // Scores every card in a record from its win rate and the archetype's qualified game total.
 export const calculateCardScores = (
   cards: Record<string, CardData>,
-  matchingGames: number
+  matchingGames: number,
+  weights: ScoringWeights
 ): Record<string, CardScore> => {
   if (matchingGames <= 0) {
     throw new Error("Total matching games must be greater than 0");
@@ -56,7 +56,7 @@ export const calculateCardScores = (
     (result, [cardName, cardData]) => {
       result[cardName] = {
         ...cardData,
-        ...calculateSingleCardScore(cardData, matchingGames),
+        ...calculateSingleCardScore(cardData, matchingGames, weights),
       };
       return result;
     },

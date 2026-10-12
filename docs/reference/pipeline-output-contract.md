@@ -72,9 +72,9 @@ Card references appear in two string shapes:
   `convertCardsToIds` in `analysis/src/utils/convert-cards.ts`, parsed by
   `parseDeckListRef` in `src/app/card-ref.ts`.
 - Card score rows use `"count Name Set Number"`, for example
-  `2 Professor's Research PA 7`. Parsed by `parseScoreRef` in the same module,
-  which lowercases the set code (`P-A` becomes `pa`) and pads the number to
-  three digits.
+  `2 Professor's Research PA 7`, where `count` is the copy count most qualified
+  decks ran. Parsed by `parseScoreRef` in the same module, which lowercases the
+  set code (`P-A` becomes `pa`) and pads the number to three digits.
 
 Both parsers return the same `CardRef` object with `id`, `count` and `set`.
 Callers never split these strings themselves.
@@ -103,17 +103,21 @@ and builds each deck's id with `deckSlug` from `scripts/deck-slug.mjs`.
 ## card-scores.json
 
 Produced by `get-best-decks.ts`: it tallies win and game counts per card
-across all qualified decks, scores them with `calculateCardScores` from
-`analysis/src/utils/calculate-card-scores.ts` (a Wilson lower bound shrinks
-small samples toward zero), sorts by score descending and writes the file.
-Consumed by the `useCards` hook in `src/app/use-cards.ts` under the query key
+identity across all qualified decks with `tallyCards`, scores them with
+`calculateCardScores` from `analysis/src/utils/calculate-card-scores.ts` (a
+Wilson lower bound shrinks small samples toward zero), sorts by score
+descending and writes the file. There is one row per card identity: the
+printings of a card share a single row. The row's `name`
+prefixes that identity with the copy count the most qualified decks ran, which
+`modalCopies` in `analysis/src/utils/tally-cards.ts` picks. Consumed by the
+`useCards` hook in `src/app/use-cards.ts` under the query key
 `["card-scores"]`.
 
 Top-level shape: `PipelineCardScore[]`, sorted by `score` descending.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `name` | string | Score reference in the `"count Name Set Number"` shape above. |
+| `name` | string | `"<modal copies> <name> <set> <number>"`, the score reference in the shape above. |
 | `score` | number | Shrinkage-adjusted playability score. |
 | `popularity` | number | Shrinkage-adjusted share of qualified games the card appears in. |
 
@@ -124,9 +128,11 @@ the square root of `score` to the user.
 ## historical-trends.json
 
 Produced by `buildTrends` in `analysis/src/utils/build-trends.ts`, called with
-the sorted best-decks array so the first six archetypes are the top six.
-Consumed by `StatisticsPage`, which fetches it directly in an effect and keeps
-it in local state.
+the names `pickTrendNames` returns from the all-time best-decks array. That
+helper takes the six archetypes with the highest `powerScore`, never an
+unranked one, and breaks ties by composite `score` then by name. Consumed by
+`StatisticsPage` through the `usePipelineTrends` hook in
+`src/app/use-pipeline-trends.ts`.
 
 Top-level shape: `PipelineTrendRow[]`, one row per calendar day that has
 qualified games, sorted by `date` ascending.

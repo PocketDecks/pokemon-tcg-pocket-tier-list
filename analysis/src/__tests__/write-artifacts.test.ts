@@ -140,6 +140,40 @@ describe("writeArtefacts", () => {
     expect(fs.readFileSync(`${target}.bak`, "utf8")).toBe("old");
   });
 
+  it("restores every target when a rollback rename needs a retry", () => {
+    const directory = makeTempDirectory();
+    const first = path.join(directory, "first.json");
+    const second = path.join(directory, "second.json");
+    fs.writeFileSync(first, "old first");
+    fs.writeFileSync(second, "old second");
+    const realRenameSync = fs.renameSync;
+    let rollbackAttempts = 0;
+    vi.spyOn(fs, "renameSync").mockImplementation((source, destination) => {
+      if (source === `${second}.tmp` && destination === second) {
+        throw new Error("injected commit failure");
+      }
+      if (source === `${second}.bak` && destination === second) {
+        rollbackAttempts += 1;
+        if (rollbackAttempts === 1) {
+          const error = new Error("injected access denied") as NodeJS.ErrnoException;
+          error.code = "EPERM";
+          throw error;
+        }
+      }
+      return realRenameSync(source, destination);
+    });
+
+    expect(() =>
+      writeArtefacts({ [first]: "new first", [second]: "new second" })
+    ).toThrow("injected commit failure");
+
+    expect(readFiles([first, second])).toEqual([
+      [first, "old first"],
+      [second, "old second"],
+    ]);
+    expect(fs.readdirSync(directory).sort()).toEqual(["first.json", "second.json"]);
+  });
+
   it("commits by direct write when Windows holds the target open", () => {
     const directory = makeTempDirectory();
     const target = path.join(directory, "target.json");

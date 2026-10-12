@@ -72,7 +72,7 @@ export const writeArtefacts = (files: Record<string, string>): void => {
       try {
         if (fs.existsSync(artefact.backup)) {
           if (fs.existsSync(artefact.target)) fs.rmSync(artefact.target);
-          fs.renameSync(artefact.backup, artefact.target);
+          renameWithRetry(artefact.backup, artefact.target);
         } else if (artefact.committed) {
           if (artefact.previous !== null) {
             fs.writeFileSync(artefact.target, artefact.previous);

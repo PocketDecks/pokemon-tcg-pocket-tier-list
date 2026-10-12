@@ -15,11 +15,11 @@ import {
 import { stageOgImages } from "./utils/generate-og-images";
 import { isUnmatchedDeck } from "./utils/get-deck-name";
 import { unmatchedDecksInWindow } from "./utils/build-window-artefacts";
-import { assertPublishable, newestDeckDate, readArchetypeCount } from "./utils/assert-publishable";
+import { assertPublishable, newestDeckDate, readPreviousArchetypeCount } from "./utils/assert-publishable";
 import { DeckListingStore } from "./utils/deck-listing-store";
 import { STANDARD_SET_CODES } from "./utils/set-codes";
 import listings from "./data/limitless-decks.json";
-import { scoringWeights, ScoringWeights } from "./settings";
+import { EXPANSION_RELEASE_DATE, scoringWeights, ScoringWeights } from "./settings";
 import { Deck } from "./utils/types";
 import { writeArtefacts } from "./utils/write-artifacts";
 import { deckNameToIconIds } from "../../src/types/deck-name";
@@ -27,6 +27,8 @@ import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
 const previousBestDecks = (window: WindowId): string =>
   `../public/data/best-decks-${window}.json`;
+const previousMetaShare = (window: WindowId): string =>
+  `../public/data/meta-share-${window}.json`;
 const listingStore = listings as DeckListingStore;
 const newestSet = STANDARD_SET_CODES[STANDARD_SET_CODES.length - 1];
 const slugOf = (name: string): string => name.toLowerCase().replace(/\s/g, "-");
@@ -122,7 +124,11 @@ export const run = async (): Promise<void> => {
       windows: WINDOW_IDS.map((window) => ({
         id: window,
         bestDecks: artefacts[window].bestDecks,
-        previousArchetypeCount: readArchetypeCount(previousBestDecks(window)),
+        previousArchetypeCount: readPreviousArchetypeCount(
+          previousBestDecks(window),
+          previousMetaShare(window),
+          EXPANSION_RELEASE_DATE
+        ),
       })),
       defaultWindow: DEFAULT_WINDOW,
       deckSlugs: [...ogSlugs].map(slugOf),

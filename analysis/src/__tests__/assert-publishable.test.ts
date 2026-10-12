@@ -8,6 +8,7 @@ import {
   publishFailures,
   PublishCheckInput,
   readArchetypeCount,
+  readPreviousArchetypeCount,
   WindowSnapshot,
 } from "../utils/assert-publishable";
 
@@ -249,5 +250,50 @@ describe("readArchetypeCount", () => {
     const object = path.join(dir, "object.json");
     fs.writeFileSync(object, "{}");
     expect(readArchetypeCount(object)).toBeNull();
+  });
+});
+
+describe("readPreviousArchetypeCount", () => {
+  const release = new Date("2026-08-27");
+  let dir: string;
+
+  beforeEach(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), "previous-count-"));
+  });
+
+  afterEach(() => {
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  const write = (name: string, value: unknown): string => {
+    const file = path.join(dir, name);
+    fs.writeFileSync(file, typeof value === "string" ? value : JSON.stringify(value));
+    return file;
+  };
+
+  it("counts a previous publish from the current expansion", () => {
+    const bestDecks = write("best-decks.json", [{ name: "a" }, { name: "b" }]);
+    const metaShare = write("meta-share.json", { generatedAt: "2026-09-01T00:00:00.000Z", decks: [] });
+    expect(readPreviousArchetypeCount(bestDecks, metaShare, release)).toBe(2);
+  });
+
+  it("counts a previous publish made exactly at the release", () => {
+    const bestDecks = write("best-decks.json", [{ name: "a" }]);
+    const metaShare = write("meta-share.json", { generatedAt: "2026-08-27T00:00:00.000Z", decks: [] });
+    expect(readPreviousArchetypeCount(bestDecks, metaShare, release)).toBe(1);
+  });
+
+  it("ignores a previous publish from before the current release", () => {
+    const bestDecks = write("best-decks.json", [{ name: "a" }, { name: "b" }]);
+    const metaShare = write("meta-share.json", { generatedAt: "2026-08-26T23:59:59.000Z", decks: [] });
+    expect(readPreviousArchetypeCount(bestDecks, metaShare, release)).toBeNull();
+  });
+
+  it("ignores a previous publish it cannot date", () => {
+    const bestDecks = write("best-decks.json", [{ name: "a" }]);
+    expect(readPreviousArchetypeCount(bestDecks, path.join(dir, "absent.json"), release)).toBeNull();
+    expect(readPreviousArchetypeCount(bestDecks, write("corrupt.json", "{not json"), release)).toBeNull();
+    expect(readPreviousArchetypeCount(bestDecks, write("undated.json", { decks: [] }), release)).toBeNull();
+    expect(readPreviousArchetypeCount(bestDecks, write("bad-date.json", { generatedAt: "soon" }), release)).toBeNull();
   });
 });

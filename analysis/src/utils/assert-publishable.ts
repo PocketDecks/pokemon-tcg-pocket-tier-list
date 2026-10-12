@@ -56,6 +56,30 @@ export const readArchetypeCount = (file: string): number | null => {
   }
 };
 
+const readGeneratedAt = (file: string): number | null => {
+  if (!fs.existsSync(file)) return null;
+  try {
+    const parsed: unknown = JSON.parse(fs.readFileSync(file, "utf8"));
+    const value = (parsed as { generatedAt?: unknown } | null)?.generatedAt;
+    const time = typeof value === "string" ? Date.parse(value) : Number.NaN;
+    return Number.isNaN(time) ? null : time;
+  } catch {
+    return null;
+  }
+};
+
+// A publish from an earlier expansion says nothing about whether this
+// expansion's data is thin, so only a publish from this one is compared.
+export const readPreviousArchetypeCount = (
+  bestDecksFile: string,
+  metaShareFile: string,
+  release: Date
+): number | null => {
+  const generatedAt = readGeneratedAt(metaShareFile);
+  if (generatedAt === null || generatedAt < release.getTime()) return null;
+  return readArchetypeCount(bestDecksFile);
+};
+
 const isWindowId = (id: string): id is WindowId =>
   Object.prototype.hasOwnProperty.call(MIN_PUBLISHED_ARCHETYPES, id);
 

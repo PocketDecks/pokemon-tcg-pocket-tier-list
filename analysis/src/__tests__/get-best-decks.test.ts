@@ -15,11 +15,13 @@ vi.mock("../utils/generate-og-images", () => ({ stageOgImages }));
 vi.mock("../utils/get-decks", () => ({ default: getDecks }));
 vi.mock("../utils/assert-publishable", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../utils/assert-publishable")>()),
-  readArchetypeCount: () => null,
+  readPreviousArchetypeCount: vi.fn(() => null),
 }));
 
 import { run } from "../get-best-decks";
 import { UNMATCHED_DECK } from "../utils/get-deck-name";
+import { readPreviousArchetypeCount } from "../utils/assert-publishable";
+import { EXPANSION_RELEASE_DATE } from "../settings";
 
 const NOW = new Date("2026-09-24T12:00:00.000Z");
 const ARCHETYPES = 40;
@@ -163,5 +165,17 @@ describe("run", () => {
     );
     expect(writeArtefacts).not.toHaveBeenCalled();
     expect(discard).toHaveBeenCalledTimes(1);
+  });
+
+  it("reads each window's previous count against the current release", async () => {
+    await run();
+
+    expect(vi.mocked(readPreviousArchetypeCount).mock.calls).toEqual(
+      ["10d", "20d", "30d", "all"].map((window) => [
+        `../public/data/best-decks-${window}.json`,
+        `../public/data/meta-share-${window}.json`,
+        EXPANSION_RELEASE_DATE,
+      ])
+    );
   });
 });

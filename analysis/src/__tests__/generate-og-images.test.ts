@@ -177,9 +177,17 @@ describe("stageOgImages", () => {
       { slug: "deck-a", name: "Charizard ex", iconUrls: [fixtureUrl] },
     ]);
     const rename = fs.renameSync;
+    let restoreAttempts = 0;
     const spy = vi.spyOn(fs, "renameSync").mockImplementation((from, to) => {
       if (String(from).includes(`${path.basename(outputDir)}-stage-`)) {
         throw Object.assign(new Error("EPERM: simulated"), { code: "EPERM" });
+      }
+      // The rollback meets a lock that clears on its own, so the retry gets through.
+      if (String(from) === `${outputDir}.previous`) {
+        restoreAttempts += 1;
+        if (restoreAttempts === 1) {
+          throw Object.assign(new Error("EPERM: rollback locked"), { code: "EPERM" });
+        }
       }
       return rename(from, to);
     });

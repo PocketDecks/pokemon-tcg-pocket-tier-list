@@ -191,7 +191,7 @@ export const stageOgImages = async (decks: OgDeckInput[]): Promise<StagedOgImage
     try {
       renameWithRetry(staging, target);
     } catch (error) {
-      if (previous && !fs.existsSync(target)) fs.renameSync(backup, target);
+      if (previous && !fs.existsSync(target)) renameWithRetry(backup, target);
       throw error;
     }
     if (previous) {

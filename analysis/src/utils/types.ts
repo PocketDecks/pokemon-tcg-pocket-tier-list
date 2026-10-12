@@ -25,6 +25,7 @@ export interface Tournament {
   id: string;
   date: string;
   players?: number;
+  format?: string | null;
 }
 
 // One bracket pairing within a tournament.

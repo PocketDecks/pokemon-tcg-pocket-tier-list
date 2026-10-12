@@ -89,6 +89,20 @@ describe("getTournaments", () => {
     expect(result[0].players).toBe(150);
   });
 
+  it("keeps only the standard-format rows in a mixed listing", async () => {
+    global.fetch = respond([
+      { id: "null", players: 150, format: null },
+      { id: "standard", players: 150, format: "STANDARD" },
+      { id: "custom", players: 150, format: "CUSTOM" },
+      { id: "noex", players: 150, format: "NOEX" },
+    ]);
+
+    expect((await getTournaments()).map((tournament) => tournament.id)).toEqual([
+      "null",
+      "standard",
+    ]);
+  });
+
   it("treats a missing processed file as nothing processed", async () => {
     vi.mocked(fs.existsSync).mockReturnValue(false);
     global.fetch = respond([{ id: "1", players: 150 }]);

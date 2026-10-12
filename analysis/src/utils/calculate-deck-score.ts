@@ -1,5 +1,5 @@
 import { Card, Deck } from "./types";
-import cardToString from "./card-to-string";
+import { cardIdentity } from "./card-to-string";
 import { CARDS_IN_DECK, ScoringWeights } from "../settings";
 
 interface CardStats {
@@ -15,7 +15,7 @@ const calculateCardScore = (
 ): number => {
   return (
     cards.reduce((totalScore, card) => {
-      const cardKey = cardToString(card);
+      const cardKey = cardIdentity(card);
       const cardScore = cardStats[cardKey]?.score || 0;
       return totalScore + cardScore * card.count;
     }, 0) / CARDS_IN_DECK

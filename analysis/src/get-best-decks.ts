@@ -2,7 +2,7 @@ import "./load-env-side-effect";
 import getDecks from "./utils/get-decks";
 import { calculateCardScores } from "./utils/calculate-card-scores";
 import { buildTrends } from "./utils/build-trends";
-import { tallyCards } from "./utils/tally-cards";
+import { modalCopies, tallyCards } from "./utils/tally-cards";
 import {
   buildArtefactFiles,
   buildWindowArtefacts,
@@ -24,8 +24,13 @@ const buildCardScores = (qualifiedDecks: Deck[], weights: ScoringWeights) => {
     (sum, deck) => sum + deck.totalGames,
     0
   );
-  return Object.entries(calculateCardScores(tallyCards(qualifiedDecks), totalQualifiedGames, weights))
-    .map(([name, { score, popularity }]) => ({ name, score, popularity }))
+  const tallies = tallyCards(qualifiedDecks);
+  return Object.entries(calculateCardScores(tallies, totalQualifiedGames, weights))
+    .map(([identity, { score, popularity }]) => ({
+      name: `${modalCopies(tallies[identity])} ${identity}`,
+      score,
+      popularity,
+    }))
     .sort((a, b) => b.score - a.score);
 };
 

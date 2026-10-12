@@ -7,8 +7,8 @@ const WEIGHTS = { winrateImportance: 0.6, popularityImportance: 0.4 };
 describe("calculateDeckScore", () => {
   it("calculates strength, popularity, and the weighted composite score", () => {
     const mockCards = {
-      "2 Pikachu base 1": { winCount: 10, totalGames: 20, score: 0.8 },
-      "1 Charizard base 2": { winCount: 15, totalGames: 20, score: 0.9 },
+      "Pikachu base 1": { winCount: 10, totalGames: 20, score: 0.8 },
+      "Charizard base 2": { winCount: 15, totalGames: 20, score: 0.9 },
     };
 
     const mockDeck: Deck = {

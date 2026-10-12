@@ -61,6 +61,8 @@ export const stageOgImages = async (decks: OgDeckInput[]): Promise<StagedOgImage
   }
 
   const staging = fs.mkdtempSync(path.join(os.tmpdir(), "og-stage-"));
+  // force: commit renames the staging directory into place, so discard may
+  // find it already gone.
   const discard = () => fs.rmSync(staging, { recursive: true, force: true });
 
   try {
@@ -125,25 +127,53 @@ export const stageOgImages = async (decks: OgDeckInput[]): Promise<StagedOgImage
 
   const slugs = decks.map((deck) => deck.slug);
 
+  // Publish by renaming directories. A per-file copy leaves the directory
+  // half-old and half-new if it fails partway, and a reader can observe that
+  // window. rename is atomic, so the directory flips in one step and the
+  // previous generation survives as the backup until the swap succeeds.
   const commit = () => {
-    fs.mkdirSync(target, { recursive: true });
-    const current = new Set(slugs);
-    for (const slug of slugs) {
-      const staged = path.join(staging, `${slug}.png`);
-      const published = path.join(target, `${slug}.png`);
-      if (fs.existsSync(published) && fs.readFileSync(published).equals(fs.readFileSync(staged))) {
-        continue;
-      }
-      fs.copyFileSync(staged, published);
+    const parent = path.dirname(target);
+    fs.mkdirSync(parent, { recursive: true });
+    const backup = `${target}.previous`;
+    if (fs.existsSync(backup)) {
+      throw new Error(`Refusing to publish: a previous image directory is still at ${backup}`);
     }
-    for (const entry of fs.readdirSync(target, { withFileTypes: true })) {
-      if (entry.isDirectory() || !entry.name.endsWith(".png")) continue;
-      if (!current.has(entry.name.replace(/\.png$/, ""))) {
-        fs.unlinkSync(path.join(target, entry.name));
+
+    const previous = fs.existsSync(target);
+    // Carry an unchanged image's timestamp onto its staged twin, so the swap
+    // publishes byte-identical files under their original mtime and a cache
+    // still serves them.
+    if (previous) {
+      for (const slug of slugs) {
+        const published = path.join(target, `${slug}.png`);
+        const staged = path.join(staging, `${slug}.png`);
+        if (!fs.existsSync(published) || !fs.existsSync(staged)) continue;
+        if (!fs.readFileSync(published).equals(fs.readFileSync(staged))) continue;
+        const { atime, mtime } = fs.statSync(published);
+        fs.utimesSync(staged, atime, mtime);
       }
     }
+
+    if (previous) fs.renameSync(target, backup);
+    try {
+      fs.renameSync(staging, target);
+    } catch (error) {
+      if (previous && !fs.existsSync(target)) fs.renameSync(backup, target);
+      throw error;
+    }
+    if (previous) {
+      try {
+        fs.rmSync(backup, { recursive: true, force: true });
+      } catch (cleanupError) {
+        console.warn(
+          `Could not remove the previous image directory ${backup}. The published ` +
+            `set is live; remove the backup before rerunning:`,
+          cleanupError
+        );
+      }
+    }
+
     console.log(`Published ${slugs.length} OG images in ${target}`);
-    discard();
   };
 
   return { slugs, commit, discard };

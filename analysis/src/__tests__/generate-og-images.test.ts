@@ -109,6 +109,22 @@ describe("stageOgImages", () => {
     expect(fs.readdirSync(outputDir)).toEqual(["keep.png"]);
   });
 
+  it("leaves the previous image set in place when a stale backup blocks the swap", async () => {
+    fs.mkdirSync(outputDir, { recursive: true });
+    fs.writeFileSync(path.join(outputDir, "keep.png"), "old");
+
+    const staged = await stageOgImages([
+      { slug: "deck-a", name: "Charizard ex", iconUrls: [fixtureUrl] },
+    ]);
+    // A leftover backup from an interrupted run must stop the swap and leave
+    // the generation it belongs to alone.
+    fs.mkdirSync(`${outputDir}.previous`, { recursive: true });
+
+    expect(() => staged.commit()).toThrow("a previous image directory is still at");
+    expect(fs.readdirSync(outputDir)).toEqual(["keep.png"]);
+    staged.discard();
+  });
+
   it("rejects a slug that could escape the directory", async () => {
     await expect(
       stageOgImages([{ slug: "../escape", name: "x", iconUrls: [fixtureUrl] }])

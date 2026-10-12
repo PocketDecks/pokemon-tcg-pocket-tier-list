@@ -9,6 +9,7 @@ import {
   PublishCheckInput,
   readArchetypeCount,
   readPreviousArchetypeCount,
+  daysOfDataSince,
   WindowSnapshot,
 } from "../utils/assert-publishable";
 
@@ -53,6 +54,7 @@ const healthy = (): PublishCheckInput => {
     newestSet: "B4a",
     currentSetListingCount: 40,
     unmatchedDecks: { decks: 6, games: 54, qualifiedGames: 13344 },
+    daysOfData: 30,
   };
 };
 
@@ -194,6 +196,41 @@ describe("publishFailures", () => {
     ]);
   });
 
+  it("ramps every floor with the days of data since the release", () => {
+    const input = {
+      ...healthy(),
+      daysOfData: 3,
+      windows: [snapshot("10d", 4, 3), snapshot("20d", 4, 3), snapshot("30d", 4, 3), snapshot("all", 4, 3)],
+    };
+    expect(publishFailures(input)).toEqual([]);
+  });
+
+  it("names the ramped floor when a young window is still too thin", () => {
+    const input = {
+      ...healthy(),
+      daysOfData: 3,
+      windows: [snapshot("10d", 3, 3), snapshot("20d", 4, 2), snapshot("30d", 4, 3), snapshot("all", 4, 3)],
+    };
+    expect(publishFailures(input)).toEqual([
+      "10d: only 3 archetypes, the floor is 4",
+      "20d: only 2 archetypes have a Power Score, the floor is 3",
+    ]);
+  });
+
+  it("applies the full floors once each window has filled", () => {
+    const input = {
+      ...healthy(),
+      daysOfData: 30,
+      windows: [snapshot("10d", 11, 11), snapshot("20d", 24, 19), snapshot("30d", 31, 31), snapshot("all", 31, 31)],
+    };
+    expect(publishFailures(input)).toEqual([
+      "10d: only 11 archetypes, the floor is 12",
+      "20d: only 24 archetypes, the floor is 25",
+      "20d: only 19 archetypes have a Power Score, the floor is 20",
+      "30d: only 31 archetypes, the floor is 32",
+      "all: only 31 archetypes, the floor is 32",
+    ]);
+  });
 });
 
 describe("assertPublishable", () => {
@@ -295,5 +332,18 @@ describe("readPreviousArchetypeCount", () => {
     expect(readPreviousArchetypeCount(bestDecks, write("corrupt.json", "{not json"), release)).toBeNull();
     expect(readPreviousArchetypeCount(bestDecks, write("undated.json", { decks: [] }), release)).toBeNull();
     expect(readPreviousArchetypeCount(bestDecks, write("bad-date.json", { generatedAt: "soon" }), release)).toBeNull();
+  });
+});
+
+describe("daysOfDataSince", () => {
+  const release = new Date("2026-08-27");
+
+  it("counts whole days from the release to the newest deck, inclusive", () => {
+    expect(daysOfDataSince("2026-08-27T17:00:00.000Z", release)).toBe(1);
+    expect(daysOfDataSince("2026-09-23T02:00:00.000Z", release)).toBe(28);
+  });
+
+  it("is zero with no dated deck", () => {
+    expect(daysOfDataSince(null, release)).toBe(0);
   });
 });

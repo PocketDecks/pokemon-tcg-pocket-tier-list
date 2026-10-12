@@ -13,14 +13,18 @@ vi.mock("../load-env-side-effect", () => ({}));
 vi.mock("../utils/write-artifacts", () => ({ writeArtefacts }));
 vi.mock("../utils/generate-og-images", () => ({ stageOgImages }));
 vi.mock("../utils/get-decks", () => ({ default: getDecks }));
-vi.mock("../utils/assert-publishable", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("../utils/assert-publishable")>()),
-  readPreviousArchetypeCount: vi.fn(() => null),
-}));
+vi.mock("../utils/assert-publishable", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../utils/assert-publishable")>();
+  return {
+    ...actual,
+    assertPublishable: vi.fn(actual.assertPublishable),
+    readPreviousArchetypeCount: vi.fn(() => null),
+  };
+});
 
 import { run } from "../get-best-decks";
 import { UNMATCHED_DECK } from "../utils/get-deck-name";
-import { readPreviousArchetypeCount } from "../utils/assert-publishable";
+import { assertPublishable, readPreviousArchetypeCount } from "../utils/assert-publishable";
 import { EXPANSION_RELEASE_DATE } from "../settings";
 
 const NOW = new Date("2026-09-24T12:00:00.000Z");
@@ -177,5 +181,11 @@ describe("run", () => {
         EXPANSION_RELEASE_DATE,
       ])
     );
+  });
+
+  it("passes the days of data since the release to the gate", async () => {
+    await run();
+
+    expect(vi.mocked(assertPublishable).mock.calls[0][0].daysOfData).toBe(28);
   });
 });

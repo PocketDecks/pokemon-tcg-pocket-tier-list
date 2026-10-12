@@ -1,6 +1,7 @@
 import fs from "fs";
 import { PipelinePartialDeck } from "../../../src/types/pipeline-data";
 import {
+  FLOOR_RAMP_DAYS,
   MAX_DATA_AGE_DAYS,
   MIN_PREVIOUS_ARCHETYPE_RATIO,
   MIN_PUBLISHED_ARCHETYPES,
@@ -32,6 +33,7 @@ export interface PublishCheckInput {
   defaultWindow: string;
   deckSlugs: readonly string[];
   newestDeckDate: string | null;
+  daysOfData: number;
   now: Date;
   currentSet: string | null;
   newestSet: string;
@@ -45,6 +47,12 @@ export const newestDeckDate = (decks: readonly { date: string }[]): string | nul
       newest === null || new Date(deck.date) > new Date(newest) ? deck.date : newest,
     null
   );
+
+// Whole days of data since the release, counting the release day as day 1.
+export const daysOfDataSince = (newest: string | null, release: Date): number =>
+  newest === null
+    ? 0
+    : Math.max(0, Math.floor((Date.parse(`${newest.slice(0, 10)}T00:00:00Z`) - release.getTime()) / DAY_MS) + 1);
 
 export const readArchetypeCount = (file: string): number | null => {
   if (!fs.existsSync(file)) return null;
@@ -83,10 +91,15 @@ export const readPreviousArchetypeCount = (
 const isWindowId = (id: string): id is WindowId =>
   Object.prototype.hasOwnProperty.call(MIN_PUBLISHED_ARCHETYPES, id);
 
-const windowFailures = (window: WindowSnapshot, defaultWindow: string): string[] => {
+const rampedFloor = (floor: number, days: number, rampDays: number): number =>
+  Math.ceil((floor * Math.min(days, rampDays)) / rampDays);
+
+const windowFailures = (window: WindowSnapshot, defaultWindow: string, daysOfData: number): string[] => {
   const failures: string[] = [];
   const total = window.bestDecks.length;
-  const floor = isWindowId(window.id) ? MIN_PUBLISHED_ARCHETYPES[window.id] : undefined;
+  const floor = isWindowId(window.id)
+    ? rampedFloor(MIN_PUBLISHED_ARCHETYPES[window.id], daysOfData, FLOOR_RAMP_DAYS[window.id])
+    : undefined;
 
   if (floor === undefined) {
     failures.push(`${window.id}: no archetype floor is configured for this window`);
@@ -105,9 +118,12 @@ const windowFailures = (window: WindowSnapshot, defaultWindow: string): string[]
 
   if (window.id === defaultWindow) {
     const ranked = window.bestDecks.filter((deck) => deck.powerScore !== null).length;
-    if (ranked < MIN_RANKED_ARCHETYPES) {
+    const rankedFloor = isWindowId(window.id)
+      ? rampedFloor(MIN_RANKED_ARCHETYPES, daysOfData, FLOOR_RAMP_DAYS[window.id])
+      : MIN_RANKED_ARCHETYPES;
+    if (ranked < rankedFloor) {
       failures.push(
-        `${window.id}: only ${ranked} archetypes have a Power Score, the floor is ${MIN_RANKED_ARCHETYPES}`
+        `${window.id}: only ${ranked} archetypes have a Power Score, the floor is ${rankedFloor}`
       );
     }
   }
@@ -122,7 +138,7 @@ export const publishFailures = (input: PublishCheckInput): string[] => {
     failures.push(`default window ${input.defaultWindow} is missing`);
   }
   for (const window of input.windows) {
-    failures.push(...windowFailures(window, input.defaultWindow));
+    failures.push(...windowFailures(window, input.defaultWindow, input.daysOfData));
   }
 
   if (input.newestDeckDate === null) {

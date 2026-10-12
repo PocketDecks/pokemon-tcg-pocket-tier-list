@@ -100,6 +100,16 @@ export const MIN_PREVIOUS_ARCHETYPE_RATIO: number = 0.5;
 // data had 42 of 49.
 export const MIN_RANKED_ARCHETYPES: number = 20;
 
+// Days of data over which each window's floors ramp up after a release, so a
+// new expansion publishes while its field fills. A replay of 19 expansions
+// refused 28 of 645 days with the ramp, against 222 without it.
+export const FLOOR_RAMP_DAYS: Record<WindowId, number> = {
+  "10d": 10,
+  "20d": 20,
+  "30d": 30,
+  all: 30,
+};
+
 // The newest qualified deck may be at most this many days older than the run.
 // The longest gap between tournament days since April was 5.
 export const MAX_DATA_AGE_DAYS: number = 7;

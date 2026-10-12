@@ -15,7 +15,7 @@ import {
 import { stageOgImages } from "./utils/generate-og-images";
 import { isUnmatchedDeck } from "./utils/get-deck-name";
 import { unmatchedDecksInWindow } from "./utils/build-window-artefacts";
-import { assertPublishable, newestDeckDate, readPreviousArchetypeCount } from "./utils/assert-publishable";
+import { assertPublishable, daysOfDataSince, newestDeckDate, readPreviousArchetypeCount } from "./utils/assert-publishable";
 import { DeckListingStore } from "./utils/deck-listing-store";
 import { STANDARD_SET_CODES } from "./utils/set-codes";
 import listings from "./data/limitless-decks.json";
@@ -133,6 +133,7 @@ export const run = async (): Promise<void> => {
       defaultWindow: DEFAULT_WINDOW,
       deckSlugs: [...ogSlugs].map(slugOf),
       newestDeckDate: newestDeckDate(allQualified),
+      daysOfData: daysOfDataSince(newestDeckDate(allQualified), EXPANSION_RELEASE_DATE),
       now: today,
       currentSet: listingStore.currentSet,
       newestSet,

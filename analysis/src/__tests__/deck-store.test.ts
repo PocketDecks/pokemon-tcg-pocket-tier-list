@@ -100,6 +100,17 @@ describe("deck store", () => {
     );
   });
 
+  it("refuses to write a shard file the manifest does not know about", () => {
+    // An orphan shard means the manifest and the directory disagree. Appending
+    // would write a file nothing points at; ignoring it would overwrite decks.
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "b4a.ndjson"), '{"id":"orphan"}\n');
+
+    expect(() =>
+      planDeckWrites(dir, [makeDeck("one", "2026-09-02T10:00:00.000Z")])
+    ).toThrow("the manifest has no entry for it");
+  });
+
   it("refuses a repeated id inside one batch", () => {
     expect(() =>
       planDeckWrites(dir, [

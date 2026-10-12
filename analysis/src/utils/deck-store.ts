@@ -85,7 +85,15 @@ export const planDeckWrites = (dir: string, incoming: readonly StoredDeck[]): Re
     const existing = manifest.shards[id];
     const file = existing?.file ?? `${id}.ndjson`;
     const target = path.join(dir, file);
-    const previousText = existing && fs.existsSync(target) ? fs.readFileSync(target, "utf8") : "";
+    // A target with no manifest entry is a shard the manifest does not know
+    // about. Reading it would append to a file nothing points at, and
+    // ignoring it would overwrite it, so refuse and let a verifier decide.
+    if (!existing && fs.existsSync(target)) {
+      throw new Error(
+        `Shard ${id} exists at ${target} but the manifest has no entry for it; run store:verify before writing`
+      );
+    }
+    const previousText = existing ? fs.readFileSync(target, "utf8") : "";
     const knownIds = new Set(parseLines(previousText).map((deck) => deck.id));
     const duplicate = group.find((deck) => knownIds.has(deck.id));
     if (duplicate) {

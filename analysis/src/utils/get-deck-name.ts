@@ -174,11 +174,11 @@ const getDeckName = (deck: Deck): string => {
       if (seen.has(index)) continue;
       seen.add(index);
       const row = ALL_ROWS[index];
+      if (!row.cardNames.every((name) => present.has(name))) continue;
       const supportedNames = row.cardNames.filter(
         (name) => !outclassed(name, present)
       );
       if (supportedNames.length === 0) continue;
-      if (!row.cardNames.every((name) => present.has(name))) continue;
       const sameLine =
         supportedNames.length > 1 && isSameLine(supportedNames[0], supportedNames[1])
           ? 1

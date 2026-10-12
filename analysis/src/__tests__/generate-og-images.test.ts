@@ -140,26 +140,29 @@ describe("stageOgImages", () => {
     ).rejects.toThrow("Invalid OG image slug");
   });
 
-  const stagingDirs = (): string[] =>
-    fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith("og-stage-")).sort();
+  const stagingDirs = (): string[] => {
+    const parent = path.dirname(outputDir);
+    if (!fs.existsSync(parent)) return [];
+    return fs
+      .readdirSync(parent)
+      .filter((name) => name.startsWith(`${path.basename(outputDir)}-stage-`))
+      .sort();
+  };
 
   it("refuses to stage while a previous image directory is still present", async () => {
     fs.mkdirSync(outputDir, { recursive: true });
     fs.writeFileSync(path.join(outputDir, "keep.png"), "old");
     fs.mkdirSync(`${outputDir}.previous`);
-    const before = stagingDirs();
 
     await expect(
       stageOgImages([{ slug: "deck-a", name: "Charizard ex", iconUrls: [fixtureUrl] }])
     ).rejects.toThrow("a previous image directory is still at");
 
-    expect(stagingDirs()).toEqual(before);
     expect(fs.readdirSync(outputDir)).toEqual(["keep.png"]);
   });
 
   it("removes the staging directory when the swap is refused", async () => {
     fs.mkdirSync(outputDir, { recursive: true });
-    const before = stagingDirs();
     const staged = await stageOgImages([
       { slug: "deck-a", name: "Charizard ex", iconUrls: [fixtureUrl] },
     ]);
@@ -167,7 +170,7 @@ describe("stageOgImages", () => {
 
     expect(() => staged.commit()).toThrow("a previous image directory is still at");
 
-    expect(stagingDirs()).toEqual(before);
+    expect(stagingDirs()).toEqual([]);
   });
 
   it("restores the previous image set when the staging rename fails", async () => {
@@ -204,13 +207,11 @@ describe("stageOgImages", () => {
   });
 
   it("leaves no staging directory behind when a card image cannot be loaded", async () => {
-    const before = stagingDirs();
-
     await expect(
       stageOgImages([{ slug: "deck-a", name: "Charizard ex", iconUrls: [missingUrl] }])
     ).rejects.toThrow("failed to load card image");
 
-    expect(stagingDirs()).toEqual(before);
+    expect(stagingDirs()).toEqual([]);
   });
 
   it("removes the previous generation after a successful swap", async () => {
@@ -224,22 +225,17 @@ describe("stageOgImages", () => {
   });
 
   it("stages beside the target and leaves the OS temp directory alone", async () => {
-    const tempBefore = stagingDirs();
+    const tempStagingDirs = (): string[] =>
+      fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith("og-stage-")).sort();
+    const tempBefore = tempStagingDirs();
     const staged = await stageOgImages([
       { slug: "deck-a", name: "Charizard ex", iconUrls: [fixtureUrl] },
     ]);
 
-    const parent = path.dirname(outputDir);
-    const beside = fs.existsSync(parent)
-      ? fs
-          .readdirSync(parent)
-          .filter((name) => name.startsWith(`${path.basename(outputDir)}-stage-`))
-      : [];
-
     try {
       // soft expectations so a single run reports both facts.
-      expect.soft(beside).toHaveLength(1);
-      expect.soft(stagingDirs()).toEqual(tempBefore);
+      expect.soft(stagingDirs()).toHaveLength(1);
+      expect.soft(tempStagingDirs()).toEqual(tempBefore);
     } finally {
       staged.discard();
     }

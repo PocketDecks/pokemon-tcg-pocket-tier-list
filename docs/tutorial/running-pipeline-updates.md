@@ -54,4 +54,4 @@ Run the start command to score the data and generate the frontend files.
 yarn start
 ```
 
-The command refuses to publish when a check fails, printing each failure and exiting 1. Otherwise it writes the output to `public/data/best-decks.json`, `public/data/card-scores.json`, and `public/data/matchup-data.json`. Start the React server in the root directory to see your changes in the application.
+The command refuses to publish when a check fails, printing each failure and exiting 1. Otherwise it writes the frontend data to `public/data/`: `best-decks`, `meta-share` and `matchup-data` for each window (`10d`, `20d`, `30d`, `all`), the un-suffixed copies of the `20d` files, plus `historical-trends.json` and `card-scores.json`. [Pipeline output contract](../reference/pipeline-output-contract.md) lists every file and field. Start the React server in the root directory to see your changes in the application.

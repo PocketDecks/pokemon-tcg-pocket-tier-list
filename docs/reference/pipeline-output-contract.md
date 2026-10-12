@@ -43,8 +43,8 @@ are assembled. It therefore appears in no `best-decks-*.json` entry, no
 that failed to pair with a listing should not carry a win rate in the published
 ranking.
 
-Dropping the row at the end rather than before ranking is what keeps the real
-archetypes still. `buildDeckPower` weights every opponent by that opponent's
+Dropping the row at the end, after ranking, is what keeps the real archetypes
+still. `buildDeckPower` weights every opponent by that opponent's
 share of the ranked field, so removing the bucket from the field would move
 `expectedWinRate`, `fieldCoverage`, `powerScore` and `metaScore` for every
 archetype. Keeping it in the field and dropping only its published row leaves
@@ -62,7 +62,7 @@ still recorded those games.
 default window, and passes both to `assertPublishable` beside the qualified
 game total. A run whose unmatched games exceed `MAX_UNMATCHED_DECK_SHARE` of
 that total is refused before anything is written, because a pairing-store gap
-is a data failure rather than a meta change.
+is a data failure, not a meta change.
 
 ## Card references
 

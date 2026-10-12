@@ -212,12 +212,12 @@ const getDeckName = (deck: Deck): string => {
     }
   }
 
-  if (best) return formatName(deck.cards, best.cards);
+  if (best) return formatName(best.cards);
 
   // No listing matched: a seeded archetype still names the deck when its
   // primary is present, so those decks are not lost to the unnamed bucket.
   for (const seed of SEEDED_ARCHETYPES) {
-    if (present.has(seed.primary)) return formatName(deck.cards, seed.display);
+    if (present.has(seed.primary)) return formatName(seed.display);
   }
 
   return UNNAMED_DECK;

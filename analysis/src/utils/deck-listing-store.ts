@@ -8,7 +8,7 @@
 // of step before: a hand-maintained duplicate of a pipeline shape once fell
 // behind the source, and a later change had to fix the schema as a result.
 // Import these from this file rather than redeclaring them.
-import { NON_STANDARD_SET_CODES, STANDARD_SET_CODES } from "./set-codes";
+import { STANDARD_SET_CODES } from "./set-codes";
 
 // One row from a Limitless set page, exactly as the page shows it.
 export interface DeckListing {
@@ -81,7 +81,6 @@ export const pickCurrentSet = (
   fetchedSets: ReadonlySet<string>
 ): string | null => (fetchedSets.has(newest) ? newest : current);
 
-// Serialises the set snapshots to a stable string for change detection; the
-// writer uses the same serializer so key order is deterministic.
+// Serialises the set snapshots to a string for change detection.
 export const snapshot = (store: DeckListingStore): string =>
   JSON.stringify(store.sets);

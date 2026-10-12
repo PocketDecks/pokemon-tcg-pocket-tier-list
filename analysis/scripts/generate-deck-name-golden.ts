@@ -22,7 +22,6 @@ import { Deck } from "../src/utils/types";
 import { SetListing } from "../src/utils/deck-listing-store";
 
 const OUT = resolve(__dirname, "../src/__fixtures__/deck-name-golden.json");
-const REAL_DECK_LISTS = resolve(__dirname, "../src/__fixtures__/real-deck-lists.json");
 
 const COPY_SPLITS: readonly (readonly [number, number])[] = [
   [2, 2],

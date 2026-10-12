@@ -1,7 +1,7 @@
 {
   "name": "pokemon-tcg-pocket-analysis",
   "version": "1.0.0",
-  "private": false,
+  "private": true,
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "download": "ts-node src/download-decks.ts",
@@ -10,9 +10,7 @@
     "golden:generate": "ts-node scripts/generate-deck-name-golden.ts",
     "real-decks:generate": "ts-node scripts/generate-real-deck-lists.ts",
     "start": "ts-node src/get-best-decks.ts",
-    "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "dev": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -25,21 +23,14 @@
     "pokemon-tcg-pocket-cards": "^5.4.0"
   },
   "devDependencies": {
-    "@types/node": "^20.11.24",
-    "@types/node-fetch": "^2.6.11",
+    "@types/node": "^24.0.0",
     "@vitest/coverage-v8": "^5.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
     "vite": "^7.3.5",
     "vitest": "^5.0.0"
   },
-  "resolutions": {
-    "@babel/core": "^7.26.0",
-    "brace-expansion": "2.1.7",
-    "form-data": "^4.0.6",
-    "js-yaml": "^4.3.2",
-    "minimatch": "^3.1.4",
-    "picomatch": "^2.3.1",
-    "source-map-js": "1.2.2"
+  "engines": {
+    "node": ">=24.18.1"
   }
 }

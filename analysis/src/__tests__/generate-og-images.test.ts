@@ -3,6 +3,7 @@ import os from "os";
 import path from "path";
 import http from "http";
 import { AddressInfo } from "net";
+import { createCanvas } from "canvas";
 import { stageOgImages } from "../utils/generate-og-images";
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
@@ -18,6 +19,13 @@ describe("stageOgImages", () => {
   let missingUrl: string;
   let server: http.Server;
   const previousOutputDir = process.env.OG_OUTPUT_DIR;
+
+  // The first getContext("2d") call initialises native canvas, which takes
+  // about 3 seconds here. Paying it in beforeAll keeps it out of the first
+  // test's 5s budget, where CPU contention pushed it over and timed it out.
+  beforeAll(() => {
+    createCanvas(1, 1).getContext("2d");
+  }, 60_000);
 
   beforeAll(async () => {
     server = http.createServer((request, response) => {

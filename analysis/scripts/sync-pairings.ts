@@ -25,6 +25,26 @@ const STORE = resolve(ROOT, "src/data/limitless-decks.json");
 const messageOf = (err: unknown): string =>
   err instanceof Error ? err.message : String(err);
 
+export interface SyncRunState {
+  fetchedSets: number;
+  unknownSetCodes: boolean;
+  unresolvedSlugs: number;
+  failures: number;
+}
+
+// The exit code is the only signal the refresh job reads: it stops on a
+// non-zero exit, so a run that recorded a failure has to fail. A run that
+// fetched nothing fails as well, because the store is unchanged and the job
+// would treat it as a clean scrape. Unknown set codes mean the card database is
+// stale and must not pass.
+export const exitCodeFor = (state: SyncRunState): number =>
+  state.fetchedSets === 0 ||
+  state.unknownSetCodes ||
+  state.unresolvedSlugs > 0 ||
+  state.failures > 0
+    ? 1
+    : 0;
+
 const main = async () => {
   const store: DeckListingStore = existsSync(STORE)
     ? readStore(readFileSync(STORE, "utf8"))
@@ -36,7 +56,6 @@ const main = async () => {
 
   const unresolved: string[] = [];
   const failures: string[] = [];
-  let unreadable = 0;
   let unresolvedTotal = 0;
 
   if (hasUnknownSetCodes()) {
@@ -59,7 +78,6 @@ const main = async () => {
       continue;
     }
     const decks = page.decks;
-    unreadable += page.unreadableCounts;
     // Two sets never share a page. The same rows twice in one run means one
     // body was served for both, which once filed a single scrape under four
     // set keys and let decks from one format name decks in another.
@@ -115,18 +133,19 @@ const main = async () => {
       `${setChanged ? `; currentSet set to ${store.currentSet}` : ""}`
   );
   if (unresolved.length) console.log(`unresolved slugs: ${unresolved.join(", ")}`);
-  if (unreadable) console.log(`unreadable counts: ${unreadable}`);
   if (failures.length) console.log(`set pages skipped: ${failures.join(", ")}`);
 
-  // A run that fetched nothing is a hard failure: the store is unchanged, so
-  // the workflow guard would treat it as a clean scrape. Unknown set codes
-  // mean the card database is stale and must not pass.
-  if (fetchedSets.size === 0 || hasUnknownSetCodes() || unresolvedTotal > 0) {
-    process.exitCode = 1;
-  }
+  process.exitCode = exitCodeFor({
+    fetchedSets: fetchedSets.size,
+    unknownSetCodes: hasUnknownSetCodes(),
+    unresolvedSlugs: unresolvedTotal,
+    failures: failures.length,
+  });
 };
 
-main().catch((err) => {
-  console.error(`sync-pairings failed: ${messageOf(err)}`);
-  process.exit(1);
-});
+if (process.argv[1]?.endsWith("sync-pairings.ts")) {
+  main().catch((err) => {
+    console.error(`sync-pairings failed: ${messageOf(err)}`);
+    process.exit(1);
+  });
+}

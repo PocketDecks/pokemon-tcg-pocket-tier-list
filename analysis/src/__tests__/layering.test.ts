@@ -22,6 +22,13 @@ const PERMITTED_CROSSINGS: Record<string, { specifier: string; reason: string }>
       "exercised as they run in CI. The script is a script by convention, " +
       "not by dependency direction.",
   },
+  "src/__tests__/sync-pairings-guard.test.ts": {
+    specifier: "../../scripts/sync-pairings",
+    reason:
+      "the exit code is the only signal the refresh job reads, so the test " +
+      "must call the guard the script runs. The script is a script by " +
+      "convention, not by dependency direction.",
+  },
 };
 
 describe("analysis/src/ import layering", () => {

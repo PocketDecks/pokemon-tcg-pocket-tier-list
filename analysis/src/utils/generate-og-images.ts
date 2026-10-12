@@ -1,7 +1,7 @@
 import fs from "fs";
-import os from "os";
 import path from "path";
 import { createCanvas, loadImage } from "canvas";
+import { renameWithRetry } from "./rename-with-retry";
 
 interface OgDeckInput {
   slug: string;
@@ -67,7 +67,34 @@ export const stageOgImages = async (decks: OgDeckInput[]): Promise<StagedOgImage
     throw new Error(`Refusing to publish: a previous image directory is still at ${backup}`);
   }
 
-  const staging = fs.mkdtempSync(path.join(os.tmpdir(), "og-stage-"));
+  // A file held open inside the live directory blocks its rename on Windows,
+  // so prove the swap can happen before anything is rendered.
+  if (fs.existsSync(target)) {
+    let moved = false;
+    try {
+      renameWithRetry(target, backup);
+      moved = true;
+      renameWithRetry(backup, target);
+    } catch {
+      if (moved) {
+        try {
+          renameWithRetry(backup, target);
+        } catch (restoreError) {
+          console.warn(`Could not restore ${target} from ${backup}:`, restoreError);
+        }
+      }
+      throw new Error(`Refusing to publish: ${target} is locked, so nothing has been written`);
+    }
+  }
+
+  // Staging beside the target keeps the swap on one volume, where the rename
+  // cannot fail with EXDEV.
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  const staging = fs.mkdtempSync(
+    path.join(path.dirname(target), `${path.basename(target)}-stage-`)
+  );
+  // mkdtempSync creates the directory 0700, and the swap publishes that mode.
+  fs.chmodSync(staging, 0o755);
   // force: commit renames the staging directory into place, so discard may
   // find it already gone.
   const discard = () => fs.rmSync(staging, { recursive: true, force: true });
@@ -160,9 +187,9 @@ export const stageOgImages = async (decks: OgDeckInput[]): Promise<StagedOgImage
       }
     }
 
-    if (previous) fs.renameSync(target, backup);
+    if (previous) renameWithRetry(target, backup);
     try {
-      fs.renameSync(staging, target);
+      renameWithRetry(staging, target);
     } catch (error) {
       if (previous && !fs.existsSync(target)) fs.renameSync(backup, target);
       throw error;

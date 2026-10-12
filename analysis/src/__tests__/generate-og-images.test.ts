@@ -5,6 +5,7 @@ import http from "http";
 import { AddressInfo } from "net";
 import { createCanvas } from "canvas";
 import { stageOgImages } from "../utils/generate-og-images";
+import { renameWithRetry } from "../utils/rename-with-retry";
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 const ONE_PIXEL_PNG = Buffer.from(
@@ -177,7 +178,7 @@ describe("stageOgImages", () => {
     ]);
     const rename = fs.renameSync;
     const spy = vi.spyOn(fs, "renameSync").mockImplementation((from, to) => {
-      if (String(from).includes("og-stage-")) {
+      if (String(from).includes(`${path.basename(outputDir)}-stage-`)) {
         throw Object.assign(new Error("EPERM: simulated"), { code: "EPERM" });
       }
       return rename(from, to);
@@ -212,5 +213,82 @@ describe("stageOgImages", () => {
 
     expect(fs.readdirSync(outputDir)).toEqual(["deck-a.png"]);
     expect(fs.existsSync(`${outputDir}.previous`)).toBe(false);
+  });
+
+  it("stages beside the target and leaves the OS temp directory alone", async () => {
+    const tempBefore = stagingDirs();
+    const staged = await stageOgImages([
+      { slug: "deck-a", name: "Charizard ex", iconUrls: [fixtureUrl] },
+    ]);
+
+    const parent = path.dirname(outputDir);
+    const beside = fs.existsSync(parent)
+      ? fs
+          .readdirSync(parent)
+          .filter((name) => name.startsWith(`${path.basename(outputDir)}-stage-`))
+      : [];
+
+    try {
+      // soft expectations so a single run reports both facts.
+      expect.soft(beside).toHaveLength(1);
+      expect.soft(stagingDirs()).toEqual(tempBefore);
+    } finally {
+      staged.discard();
+    }
+  });
+
+  // An open handle inside the directory blocks its rename on Windows only,
+  // where the OS refuses to move a directory holding an open file.
+  it.skipIf(process.platform !== "win32")(
+    "refuses to stage when a file in the target directory is locked",
+    async () => {
+      fs.mkdirSync(outputDir, { recursive: true });
+      fs.writeFileSync(path.join(outputDir, "keep.png"), "old");
+      const handle = fs.openSync(path.join(outputDir, "keep.png"), "r");
+
+      try {
+        await expect(
+          stageOgImages([{ slug: "deck-a", name: "Charizard ex", iconUrls: [fixtureUrl] }])
+        ).rejects.toThrow("nothing has been written");
+      } finally {
+        fs.closeSync(handle);
+      }
+
+      expect(fs.readdirSync(outputDir)).toEqual(["keep.png"]);
+      const beside = fs
+        .readdirSync(path.dirname(outputDir))
+        .filter((name) => name.includes("-stage-"));
+      expect(beside).toEqual([]);
+    }
+  );
+
+  it("retries a rename that fails with EPERM and returns once it succeeds", () => {
+    let attempts = 0;
+    const spy = vi.spyOn(fs, "renameSync").mockImplementation(() => {
+      attempts += 1;
+      if (attempts <= 2) {
+        throw Object.assign(new Error("EPERM: simulated"), { code: "EPERM" });
+      }
+    });
+
+    try {
+      expect(() => renameWithRetry("source", "destination")).not.toThrow();
+      expect(attempts).toBe(3);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it("throws on the first attempt when the rename fails with another error", () => {
+    const spy = vi.spyOn(fs, "renameSync").mockImplementation(() => {
+      throw Object.assign(new Error("EACCES: simulated"), { code: "EACCES" });
+    });
+
+    try {
+      expect(() => renameWithRetry("source", "destination")).toThrow("EACCES: simulated");
+      expect(spy).toHaveBeenCalledTimes(1);
+    } finally {
+      spy.mockRestore();
+    }
   });
 });

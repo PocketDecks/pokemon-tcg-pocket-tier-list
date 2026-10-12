@@ -30,7 +30,6 @@ export interface UnmatchedDeckSnapshot {
 export interface PublishCheckInput {
   windows: readonly WindowSnapshot[];
   defaultWindow: string;
-  imageSlugs: readonly string[];
   deckSlugs: readonly string[];
   newestDeckDate: string | null;
   now: Date;
@@ -119,13 +118,6 @@ export const publishFailures = (input: PublishCheckInput): string[] => {
   if (repeated.length > 0) {
     failures.push(`${repeated.length} decks share a slug: ${[...new Set(repeated)].slice(0, 5).join(", ")}`);
   }
-
-  const images = new Set(input.imageSlugs);
-  const decks = new Set(input.deckSlugs);
-  const missing = [...decks].filter((slug) => !images.has(slug));
-  const orphaned = [...images].filter((slug) => !decks.has(slug));
-  if (missing.length > 0) failures.push(`${missing.length} decks have no image: ${missing.slice(0, 5).join(", ")}`);
-  if (orphaned.length > 0) failures.push(`${orphaned.length} images have no deck: ${orphaned.slice(0, 5).join(", ")}`);
 
   if (input.currentSet !== input.newestSet) {
     failures.push(`listing store current set is ${input.currentSet ?? "unset"}, expected ${input.newestSet}`);

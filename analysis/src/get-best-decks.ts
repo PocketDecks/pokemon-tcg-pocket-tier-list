@@ -125,7 +125,6 @@ export const run = async (): Promise<void> => {
         previousArchetypeCount: readArchetypeCount(previousBestDecks(window)),
       })),
       defaultWindow: DEFAULT_WINDOW,
-      imageSlugs: staged.slugs,
       deckSlugs: [...ogSlugs].map(slugOf),
       newestDeckDate: newestDeckDate(allQualified),
       now: today,

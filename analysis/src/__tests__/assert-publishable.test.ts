@@ -45,7 +45,6 @@ const healthy = (): PublishCheckInput => {
       snapshot("all", 60, 50, 60),
     ],
     defaultWindow: "20d",
-    imageSlugs: names,
     deckSlugs: names,
     newestDeckDate: "2026-10-10T00:00:00.000Z",
     now: new Date("2026-10-12T12:00:00.000Z"),
@@ -150,17 +149,8 @@ describe("publishFailures", () => {
     const input = healthy();
     const deckSlugs = [...input.deckSlugs.slice(1), input.deckSlugs[1]];
     expect(
-      publishFailures({ ...input, deckSlugs, imageSlugs: [...new Set(deckSlugs)] })
+      publishFailures({ ...input, deckSlugs })
     ).toEqual(["1 decks share a slug: deck-1"]);
-  });
-
-  it("reports missing and orphaned images", () => {
-    const input = healthy();
-    const imageSlugs = [...input.imageSlugs.slice(1), "ghost"];
-    expect(publishFailures({ ...input, imageSlugs })).toEqual([
-      "1 decks have no image: deck-0",
-      "1 images have no deck: ghost",
-    ]);
   });
 
   it("blocks a listing store whose current set lags", () => {

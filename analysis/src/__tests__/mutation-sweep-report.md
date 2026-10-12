@@ -146,3 +146,39 @@ All 20 rows of the table in the task brief are present above as T01 to T20, in t
 ## Files this report touches
 
 No source file changed. Every mutation above was reverted, and `git status --short` listed only this report before the commit
+
+## Re-run after the audit remediation
+
+The harness at `private/plans/2026-10-12-pr-123-audit-remediation/harness/mutate.js` was run against head `17e2a40`. It refuses to start on a red baseline, applies each mutation, runs the full analysis suite, and restores every file byte for byte
+
+- `BASELINE` files 48 tests 358 passed 358 failed 0
+- `AFTER` files 48 tests 358 passed 358 failed 0
+
+Task 9 was skipped, so the suite stands at 358 tests and the `K-` row could not apply
+
+| Id | File | Outcome | Failing tests |
+|---|---|---|---|
+| T07 | `analysis/src/utils/calculate-matchup-results.ts` | caught | calculate-matchup-results.test.ts: calculateMatchupResults scope refuses an empty archetype name even when a deck is named blank |
+| T15 | `analysis/src/utils/assert-publishable.ts` | caught | assert-publishable.test.ts: publishFailures blocks a deck a tenth of a day past the age limit |
+| E08 | `analysis/src/utils/tally-cards.ts` | caught | tally-cards.test.ts: modalCopies prefers the lower count when a fractional count ties with a whole one |
+| G-unmatched-window | `analysis/src/get-best-decks.ts` | caught | get-best-decks.test.ts: run refuses a run whose unmatched bucket passes the share limit |
+| G-unmatched-ge | `analysis/src/utils/assert-publishable.ts` | caught | assert-publishable.test.ts: publishFailures blocks an unmatched share a tenth of a point past the limit |
+| S-restore | `analysis/src/utils/generate-og-images.ts` | caught | generate-og-images.test.ts: stageOgImages restores the previous image set when the staging rename fails |
+| S-stagecleanup | `analysis/src/utils/generate-og-images.ts` | caught | generate-og-images.test.ts: stageOgImages leaves no staging directory behind when a card image cannot be loaded |
+| S-backupcleanup | `analysis/src/utils/generate-og-images.ts` | caught | generate-og-images.test.ts: stageOgImages removes the previous generation after a successful swap |
+| OG-precheck | `analysis/src/utils/generate-og-images.ts` | caught | generate-og-images.test.ts: stageOgImages refuses to stage while a previous image directory is still present |
+| OG-commit-discard | `analysis/src/utils/generate-og-images.ts` | caught | generate-og-images.test.ts: stageOgImages removes the staging directory when the swap is refused |
+| RUN-partial-message | `analysis/src/get-best-decks.ts` | caught | get-best-decks.test.ts: run says the JSON is published when the image swap fails after the write |
+| D-batch | `analysis/src/utils/deck-store.ts` | caught | deck-store.test.ts: deck store refuses a repeated id inside one batch; deck-store.test.ts: deck store refuses a repeated id across shards inside one batch; migrate-legacy-decks.test.ts: migrateLegacyDecks rejects a legacy list with a repeated deck id |
+| D-read | `analysis/src/utils/deck-store.ts` | caught | deck-store.test.ts: deck store refuses to read a deck id stored in two shards |
+| D-untracked | `analysis/src/utils/deck-store.ts` | caught | deck-store.test.ts: deck store reports a shard file the manifest does not track |
+| R-scope | `analysis/src/utils/assert-publishable.ts` | caught | assert-publishable.test.ts: readPreviousArchetypeCount ignores a previous publish from before the current release |
+| R-scope-boundary | `analysis/src/utils/assert-publishable.ts` | caught | assert-publishable.test.ts: readPreviousArchetypeCount counts a previous publish made exactly at the release |
+| R-wiring | `analysis/src/get-best-decks.ts` | caught | get-best-decks.test.ts: run reads each window's previous count against the current release |
+| F-ramp | `analysis/src/utils/assert-publishable.ts` | caught | assert-publishable.test.ts: publishFailures ramps every floor with the days of data since the release; assert-publishable.test.ts: publishFailures names the ramped floor when a young window is still too thin |
+| F-ranked | `analysis/src/utils/assert-publishable.ts` | caught | assert-publishable.test.ts: publishFailures ramps every floor with the days of data since the release; assert-publishable.test.ts: publishFailures names the ramped floor when a young window is still too thin |
+| F-wiring | `analysis/src/get-best-decks.ts` | caught | get-best-decks.test.ts: run passes the days of data since the release to the gate |
+| K-query | `analysis/src/utils/limitless-client.ts` | skipped | the target text matched no line: Task 9 was skipped, so the key stayed in the header |
+
+T07, T15 and E08, recorded above as survivors, are caught by tests added after the first sweep.
+T17 and T18 target code that commit dbac988 replaced, so they no longer apply

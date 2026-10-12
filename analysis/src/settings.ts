@@ -84,8 +84,8 @@ export const MIN_MATCHUP_GAMES: number = 2;
 // bar itself.
 export const MIN_FIELD_COVERAGE: number = 0.25;
 
-// Per-window floors on published archetypes. The measured counts on the
-// 2026-09-24 data were 25, 49, 65 and 65; each floor is about half of those.
+// Per-window floors on published archetypes. The 2026-09-24 data publishes
+// 24, 48, 64 and 64; each floor is about half of those.
 export const MIN_PUBLISHED_ARCHETYPES: Record<WindowId, number> = {
   "10d": 12,
   "20d": 25,
@@ -97,7 +97,7 @@ export const MIN_PUBLISHED_ARCHETYPES: Record<WindowId, number> = {
 export const MIN_PREVIOUS_ARCHETYPE_RATIO: number = 0.5;
 
 // Archetypes in the default window that must carry a Power Score. The same
-// data had 42 of 49.
+// data had 42 of 48.
 export const MIN_RANKED_ARCHETYPES: number = 20;
 
 // Days of data over which each window's floors ramp up after a release, so a

@@ -61,8 +61,10 @@ still recorded those games.
 `get-best-decks.ts` logs the bucket's deck count and qualified games for the
 default window, and passes both to `assertPublishable` beside the qualified
 game total. A run whose unmatched games exceed `MAX_UNMATCHED_DECK_SHARE` of
-that total is refused before anything is written, because a pairing-store gap
-is a data failure, not a meta change.
+that total is refused before anything is written. The limit catches naming
+that has broken outright; a listing store a few sets behind barely moves the
+share, because older rows still name most decks, and the listing-store checks
+catch a missing newest set.
 
 ## Card references
 

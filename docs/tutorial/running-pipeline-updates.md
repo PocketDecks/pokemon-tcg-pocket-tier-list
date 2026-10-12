@@ -44,7 +44,7 @@ cd analysis
 yarn download
 ```
 
-The downloader commits a batch at a time, so a run that throws rolls back the batch in flight and keeps the batches that finished. A rerun resumes from them and does not duplicate a deck. A hard kill can stop the write between two renames, leaving the shard and manifest on the new batch while `processed-tournaments.json` holds the old list; the next run then refuses those decks as duplicates. A `.tmp` beside a target means the save did not finish, so move the `.bak` files back over their targets and delete the `.tmp` files; with no `.tmp` left the save finished, so delete the `.bak` files and keep the new ones.
+The downloader commits a batch at a time, so a run that throws rolls back the batch in flight and keeps the batches that finished. A rerun resumes from them and does not duplicate a deck. A hard kill can stop the write between two renames, leaving the shard and manifest on the new batch while `processed-tournaments.json` holds the old list; the next run then refuses those decks as duplicates. A `.tmp` beside a target means the save did not finish, so delete every target that has a `.created` marker beside it together with that marker, move the `.bak` files back over their targets, and delete the `.tmp` files; with no `.tmp` left the save finished, so delete the `.bak` files and every `.created` marker and keep the new ones. If the download still refuses with `Deck ... already exists in shard` or `Shard ... exists at ... but the manifest has no entry for it`, delete `analysis/data/decks/` and `analysis/data/processed-tournaments.json` together and rerun the download, which rebuilds both from the API.
 
 ## Generating the JSON files
 

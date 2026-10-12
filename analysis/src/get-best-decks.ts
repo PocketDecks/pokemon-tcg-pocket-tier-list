@@ -1,7 +1,7 @@
 import "./load-env-side-effect";
 import getDecks from "./utils/get-decks";
 import { calculateCardScores } from "./utils/calculate-card-scores";
-import { buildTrends } from "./utils/build-trends";
+import { buildTrends, pickTrendNames } from "./utils/build-trends";
 import { modalCopies, tallyCards } from "./utils/tally-cards";
 import {
   buildArtefactFiles,
@@ -53,7 +53,7 @@ const run = async () => {
     // through the all-time window and the published page keeps the same
     // history and card table as before the selector landed.
     const allQualified = qualifiedDecksInWindow(allDecks, "all", today);
-    const trends = buildTrends(allQualified, artefacts.all.bestDecks);
+    const trends = buildTrends(allQualified, pickTrendNames(artefacts.all.bestDecks), today);
     const cardScoresList = buildCardScores(allQualified, scoringWeights(today));
 
     const cardsById = new Map(cards.map((card: any) => [card.id, card] as [string, any]));

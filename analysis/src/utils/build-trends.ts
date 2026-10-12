@@ -1,18 +1,31 @@
 import { Deck } from "./types";
 import { PipelinePartialDeck, PipelineTrendRow } from "../../../src/types/pipeline-data";
 
-// Builds the daily meta-share trend series for the top 6 archetypes as a
-// percentage of that day's qualified games. bestDecks must be pre-sorted by
-// score descending, so the first six entries are the top six.
+export const TREND_ARCHETYPE_COUNT = 6;
+
+export const pickTrendNames = (
+  bestDecks: readonly PipelinePartialDeck[],
+  count: number = TREND_ARCHETYPE_COUNT
+): string[] =>
+  bestDecks
+    .filter((deck) => deck.powerScore !== null)
+    .sort(
+      (a, b) =>
+        (b.powerScore as number) - (a.powerScore as number) ||
+        b.score - a.score ||
+        a.name.localeCompare(b.name)
+    )
+    .slice(0, count)
+    .map((deck) => deck.name);
+
 export const buildTrends = (
   qualifiedDecks: Deck[],
-  bestDecks: PipelinePartialDeck[]
+  trendNames: readonly string[],
+  now: Date
 ): PipelineTrendRow[] => {
-  const top6Names = bestDecks.slice(0, 6).map((d) => d.name);
-
   // Day accumulators keep date/totalGames separate from per-archetype tallies, which a single Record<string, number> view would mistype.
   const trendData: Record<string, { date: string; totalGames: number; counts: Record<string, number> }> = {};
-  const currentDate = new Date().toISOString().slice(0, 10);
+  const currentDate = now.toISOString().slice(0, 10);
 
   for (const deck of qualifiedDecks) {
     const dateStr = deck.date.split("T")[0];
@@ -20,11 +33,11 @@ export const buildTrends = (
 
     if (!trendData[dateStr]) {
       trendData[dateStr] = { date: dateStr, totalGames: 0, counts: {} };
-      top6Names.forEach((name) => (trendData[dateStr].counts[name] = 0));
+      trendNames.forEach((name) => (trendData[dateStr].counts[name] = 0));
     }
 
     trendData[dateStr].totalGames += deck.totalGames;
-    if (top6Names.includes(deck.name)) {
+    if (trendNames.includes(deck.name)) {
       trendData[dateStr].counts[deck.name] += deck.totalGames;
     }
   }
@@ -32,7 +45,7 @@ export const buildTrends = (
   return Object.values(trendData)
     .map((day) => {
       const result: PipelineTrendRow = { date: day.date };
-      top6Names.forEach((name) => {
+      trendNames.forEach((name) => {
         result[name] = day.totalGames > 0 ? (day.counts[name] / day.totalGames) * 100 : 0;
       });
       return result;

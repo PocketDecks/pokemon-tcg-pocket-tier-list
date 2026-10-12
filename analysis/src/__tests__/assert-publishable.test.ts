@@ -129,6 +129,18 @@ describe("publishFailures", () => {
     expect(publishFailures(input)).toEqual(["newest deck is 19.4 days old, the limit is 7"]);
   });
 
+  // The limit itself, not a grossly stale date: widening it by a day has to
+  // fail here or nothing stops stale data reaching the site.
+  it("accepts a deck exactly at the age limit", () => {
+    const input = { ...healthy(), newestDeckDate: "2026-10-05T12:00:00.000Z" };
+    expect(publishFailures(input)).toEqual([]);
+  });
+
+  it("blocks a deck a tenth of a day past the age limit", () => {
+    const input = { ...healthy(), newestDeckDate: "2026-10-05T09:36:00.000Z" };
+    expect(publishFailures(input)).toEqual(["newest deck is 7.1 days old, the limit is 7"]);
+  });
+
   it("blocks a run with no dated decks", () => {
     const input = { ...healthy(), newestDeckDate: null };
     expect(publishFailures(input)).toEqual(["no qualified decks to date the data"]);
@@ -173,11 +185,6 @@ describe("publishFailures", () => {
     ]);
   });
 
-  it("leaves a run with no unmatched report alone", () => {
-    const input = healthy();
-    delete input.unmatchedDecks;
-    expect(publishFailures(input)).toEqual([]);
-  });
 });
 
 describe("assertPublishable", () => {

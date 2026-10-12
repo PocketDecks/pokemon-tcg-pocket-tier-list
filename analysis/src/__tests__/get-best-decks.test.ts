@@ -19,6 +19,7 @@ vi.mock("../utils/assert-publishable", async (importOriginal) => ({
 }));
 
 import { run } from "../get-best-decks";
+import { UNMATCHED_DECK } from "../utils/get-deck-name";
 
 const NOW = new Date("2026-09-24T12:00:00.000Z");
 const ARCHETYPES = 40;
@@ -143,5 +144,24 @@ describe("run", () => {
       "The JSON artefacts are published but the OG images are not: rename failed"
     );
     expect(writeArtefacts).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses a run whose unmatched bucket passes the share limit", async () => {
+    const bucket = Array.from({ length: 20 }, (_, index) => ({
+      ...makeDecks()[0],
+      id: `unmatched-${index}`,
+      name: UNMATCHED_DECK,
+      wins: [],
+      losses: [],
+    }));
+    getDecks.mockReturnValue([...makeDecks(), ...bucket]);
+
+    const failure = (await run().catch((error: Error) => error)) as Error;
+
+    expect(failure.message).toContain(
+      "20 decks matched no listing, 33.3% of the qualified games in 20d, the limit is 25%"
+    );
+    expect(writeArtefacts).not.toHaveBeenCalled();
+    expect(discard).toHaveBeenCalledTimes(1);
   });
 });

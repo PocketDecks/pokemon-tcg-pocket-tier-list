@@ -185,6 +185,24 @@ describe("publishFailures", () => {
     ]);
   });
 
+  it("accepts an unmatched share exactly at the limit", () => {
+    const input = {
+      ...healthy(),
+      unmatchedDecks: { decks: 300, games: 3336, qualifiedGames: 13344 },
+    };
+    expect(publishFailures(input)).toEqual([]);
+  });
+
+  it("blocks an unmatched share a tenth of a point past the limit", () => {
+    const input = {
+      ...healthy(),
+      unmatchedDecks: { decks: 300, games: 3350, qualifiedGames: 13344 },
+    };
+    expect(publishFailures(input)).toEqual([
+      "300 decks matched no listing, 25.1% of the qualified games in 20d, the limit is 25%",
+    ]);
+  });
+
 });
 
 describe("assertPublishable", () => {

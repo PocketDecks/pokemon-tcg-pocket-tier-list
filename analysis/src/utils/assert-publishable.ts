@@ -6,6 +6,7 @@ import {
   MIN_PUBLISHED_ARCHETYPES,
   MIN_RANKED_ARCHETYPES,
 } from "../settings";
+import type { WindowId } from "./build-window-artefacts";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -36,7 +37,7 @@ export interface PublishCheckInput {
   currentSet: string | null;
   newestSet: string;
   currentSetListingCount: number;
-  unmatchedDecks?: UnmatchedDeckSnapshot;
+  unmatchedDecks: UnmatchedDeckSnapshot;
 }
 
 export const newestDeckDate = (decks: readonly { date: string }[]): string | null =>
@@ -56,10 +57,13 @@ export const readArchetypeCount = (file: string): number | null => {
   }
 };
 
+const isWindowId = (id: string): id is WindowId =>
+  Object.prototype.hasOwnProperty.call(MIN_PUBLISHED_ARCHETYPES, id);
+
 const windowFailures = (window: WindowSnapshot, defaultWindow: string): string[] => {
   const failures: string[] = [];
   const total = window.bestDecks.length;
-  const floor = MIN_PUBLISHED_ARCHETYPES[window.id];
+  const floor = isWindowId(window.id) ? MIN_PUBLISHED_ARCHETYPES[window.id] : undefined;
 
   if (floor === undefined) {
     failures.push(`${window.id}: no archetype floor is configured for this window`);
@@ -134,14 +138,12 @@ export const publishFailures = (input: PublishCheckInput): string[] => {
   // signal that the pairing store missed something rather than that the meta
   // changed.
   const unmatched = input.unmatchedDecks;
-  if (unmatched) {
-    const share =
-      unmatched.qualifiedGames > 0 ? unmatched.games / unmatched.qualifiedGames : 0;
-    if (share > MAX_UNMATCHED_DECK_SHARE) {
-      failures.push(
-        `${unmatched.decks} decks matched no listing, ${(share * 100).toFixed(1)}% of the qualified games in ${input.defaultWindow}, the limit is ${MAX_UNMATCHED_DECK_SHARE * 100}%`
-      );
-    }
+  const unmatchedShare =
+    unmatched.qualifiedGames > 0 ? unmatched.games / unmatched.qualifiedGames : 0;
+  if (unmatchedShare > MAX_UNMATCHED_DECK_SHARE) {
+    failures.push(
+      `${unmatched.decks} decks matched no listing, ${(unmatchedShare * 100).toFixed(1)}% of the qualified games in ${input.defaultWindow}, the limit is ${MAX_UNMATCHED_DECK_SHARE * 100}%`
+    );
   }
 
   return failures;

@@ -1,4 +1,5 @@
 import expansions from "pokemon-tcg-pocket-cards/data/v5/expansions.json";
+import type { WindowId } from "./utils/build-window-artefacts";
 
 export const DELUXE_SET_IDS = new Set(["a4b", "b4b"]);
 
@@ -85,7 +86,7 @@ export const MIN_FIELD_COVERAGE: number = 0.25;
 
 // Per-window floors on published archetypes. The measured counts on the
 // 2026-09-24 data were 25, 49, 65 and 65; each floor is about half of those.
-export const MIN_PUBLISHED_ARCHETYPES: Record<string, number> = {
+export const MIN_PUBLISHED_ARCHETYPES: Record<WindowId, number> = {
   "10d": 12,
   "20d": 25,
   "30d": 32,

@@ -43,10 +43,17 @@ export const readShard = (dir: string, entry: ShardEntry): Deck[] =>
 export const readDecks = (dir: string, since?: Date): Deck[] => {
   const manifest = readManifest(dir);
   const sinceTime = since ? since.getTime() : Number.NEGATIVE_INFINITY;
-  return Object.keys(manifest.shards)
+  const decks = Object.keys(manifest.shards)
     .sort()
     .filter((id) => new Date(manifest.shards[id].maxDate).getTime() >= sinceTime)
     .flatMap((id) => readShard(dir, manifest.shards[id]));
+  // A deck read twice is counted twice in every share it reaches.
+  const seen = new Set<string>();
+  for (const deck of decks) {
+    if (seen.has(deck.id)) throw new Error(`Deck ${deck.id} appears more than once in the deck store`);
+    seen.add(deck.id);
+  }
+  return decks;
 };
 
 const widen = (entry: ShardEntry | undefined, decks: readonly StoredDeck[], file: string, count: number): ShardEntry => {
@@ -81,6 +88,12 @@ export const planDeckWrites = (dir: string, incoming: readonly StoredDeck[]): Re
   const manifest = readManifest(dir);
   const files: Record<string, string> = {};
 
+  const batchIds = new Set<string>();
+  for (const deck of incoming) {
+    if (batchIds.has(deck.id)) throw new Error(`Deck ${deck.id} appears twice in one batch`);
+    batchIds.add(deck.id);
+  }
+
   for (const [id, group] of groupByShard(incoming)) {
     const existing = manifest.shards[id];
     const file = existing?.file ?? `${id}.ndjson`;
@@ -98,11 +111,6 @@ export const planDeckWrites = (dir: string, incoming: readonly StoredDeck[]): Re
     const duplicate = group.find((deck) => knownIds.has(deck.id));
     if (duplicate) {
       throw new Error(`Deck ${duplicate.id} already exists in shard ${id}`);
-    }
-    const ids = new Set<string>();
-    for (const deck of group) {
-      if (ids.has(deck.id)) throw new Error(`Deck ${deck.id} appears twice in one batch`);
-      ids.add(deck.id);
     }
     files[target] = previousText + toLines(group);
     manifest.shards[id] = widen(existing, group, file, (existing?.count ?? 0) + group.length);

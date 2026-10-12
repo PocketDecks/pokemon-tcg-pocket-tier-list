@@ -165,4 +165,20 @@ describe("deck store", () => {
       "deck a dated 2025-02-01T10:00:00.000Z belongs in shard a2",
     ]);
   });
+
+  it("refuses a repeated id across shards inside one batch", () => {
+    expect(() =>
+      planDeckWrites(dir, [
+        makeDeck("one", "2025-02-01T10:00:00.000Z"),
+        makeDeck("one", "2026-09-02T10:00:00.000Z"),
+      ])
+    ).toThrow("Deck one appears twice in one batch");
+  });
+
+  it("refuses to read a deck id stored in two shards", () => {
+    commit(planDeckWrites(dir, [makeDeck("one", "2025-02-01T10:00:00.000Z")]));
+    commit(planDeckWrites(dir, [makeDeck("one", "2026-09-02T10:00:00.000Z")]));
+
+    expect(() => readDecks(dir)).toThrow("Deck one appears more than once in the deck store");
+  });
 });

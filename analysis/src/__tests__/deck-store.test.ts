@@ -1,0 +1,157 @@
+import fs from "fs";
+import os from "os";
+import path from "path";
+import {
+  MANIFEST_FILE,
+  planDeckWrites,
+  readDecks,
+  readManifest,
+  verifyStore,
+} from "../utils/deck-store";
+import { Deck } from "../utils/types";
+
+const makeDeck = (id: string, date: string): Deck => ({
+  id,
+  name: "",
+  cards: [],
+  pokemon: 0,
+  differentPokemon: 0,
+  winCount: 1,
+  lossCount: 1,
+  totalGames: 2,
+  date,
+  tournamentExPercent: 0.5,
+  noTrainerPercent: 0,
+  wins: [],
+  losses: [],
+});
+
+const commit = (files: Record<string, string>) => {
+  for (const [target, content] of Object.entries(files)) {
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, content);
+  }
+};
+
+describe("deck store", () => {
+  let dir: string;
+
+  beforeEach(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), "deck-store-"));
+  });
+
+  afterEach(() => {
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("reads an absent store as empty", () => {
+    expect(readManifest(dir)).toEqual({ schema: 1, shards: {} });
+    expect(readDecks(dir)).toEqual([]);
+  });
+
+  it("rejects a manifest with an unknown schema", () => {
+    fs.writeFileSync(path.join(dir, MANIFEST_FILE), JSON.stringify({ schema: 2, shards: {} }));
+    expect(() => readManifest(dir)).toThrow("Unsupported deck store manifest");
+  });
+
+  it("routes decks to one file per expansion and records the manifest", () => {
+    const old = makeDeck("old", "2025-02-01T10:00:00.000Z");
+    const recent = makeDeck("recent", "2026-09-01T10:00:00.000Z");
+    commit(planDeckWrites(dir, [recent, old]));
+
+    const manifest = readManifest(dir);
+    expect(Object.keys(manifest.shards).sort()).toEqual(["a2", "b4a"]);
+    expect(manifest.shards.a2).toEqual({
+      file: "a2.ndjson",
+      count: 1,
+      minDate: old.date,
+      maxDate: old.date,
+    });
+    expect(fs.readFileSync(path.join(dir, "b4a.ndjson"), "utf8")).toBe(`${JSON.stringify(recent)}\n`);
+  });
+
+  it("reads back every deck, or only shards that reach the since date", () => {
+    const old = makeDeck("old", "2025-02-01T10:00:00.000Z");
+    const recent = makeDeck("recent", "2026-09-01T10:00:00.000Z");
+    commit(planDeckWrites(dir, [old, recent]));
+
+    expect(readDecks(dir).map((deck) => deck.id).sort()).toEqual(["old", "recent"]);
+    expect(readDecks(dir, new Date("2026-08-27T00:00:00.000Z")).map((deck) => deck.id)).toEqual(["recent"]);
+  });
+
+  it("appends to an existing shard and widens its date range", () => {
+    const first = makeDeck("one", "2026-09-02T10:00:00.000Z");
+    const second = makeDeck("two", "2026-09-05T10:00:00.000Z");
+    const earlier = makeDeck("three", "2026-08-30T10:00:00.000Z");
+    commit(planDeckWrites(dir, [first]));
+    commit(planDeckWrites(dir, [second, earlier]));
+
+    const entry = readManifest(dir).shards.b4a;
+    expect(entry.count).toBe(3);
+    expect(entry.minDate).toBe(earlier.date);
+    expect(entry.maxDate).toBe(second.date);
+    expect(readDecks(dir).map((deck) => deck.id)).toEqual(["one", "two", "three"]);
+  });
+
+  it("refuses a deck id that is already in its shard", () => {
+    commit(planDeckWrites(dir, [makeDeck("one", "2026-09-02T10:00:00.000Z")]));
+    expect(() => planDeckWrites(dir, [makeDeck("one", "2026-09-03T10:00:00.000Z")])).toThrow(
+      "already exists in shard b4a"
+    );
+  });
+
+  it("refuses a repeated id inside one batch", () => {
+    expect(() =>
+      planDeckWrites(dir, [
+        makeDeck("one", "2026-09-02T10:00:00.000Z"),
+        makeDeck("one", "2026-09-03T10:00:00.000Z"),
+      ])
+    ).toThrow("twice in one batch");
+  });
+
+  it("verifies a consistent store as clean", () => {
+    commit(
+      planDeckWrites(dir, [
+        makeDeck("a", "2025-02-01T10:00:00.000Z"),
+        makeDeck("b", "2026-09-01T10:00:00.000Z"),
+      ])
+    );
+    expect(verifyStore(dir, { placement: true })).toEqual([]);
+  });
+
+  it("reports a count mismatch, a missing file and a duplicate across shards", () => {
+    commit(
+      planDeckWrites(dir, [
+        makeDeck("a", "2025-02-01T10:00:00.000Z"),
+        makeDeck("b", "2026-09-01T10:00:00.000Z"),
+      ])
+    );
+    fs.appendFileSync(
+      path.join(dir, "b4a.ndjson"),
+      `${JSON.stringify(makeDeck("a", "2026-09-02T10:00:00.000Z"))}\n`
+    );
+    const manifest = readManifest(dir);
+    manifest.shards.a2.count = 5;
+    manifest.shards.b4a.count = 2;
+    manifest.shards.zzz = { file: "zzz.ndjson", count: 0, minDate: "", maxDate: "" };
+    fs.writeFileSync(path.join(dir, MANIFEST_FILE), JSON.stringify(manifest));
+
+    const messages = verifyStore(dir).map((problem) => problem.message);
+    expect(messages).toContain("manifest count 5 but file holds 1");
+    expect(messages).toContain("deck a also in shard a2");
+    expect(messages).toContain("missing file zzz.ndjson");
+  });
+
+  it("reports a deck stored in the wrong shard only when placement is checked", () => {
+    commit(planDeckWrites(dir, [makeDeck("a", "2025-02-01T10:00:00.000Z")]));
+    const manifest = readManifest(dir);
+    fs.renameSync(path.join(dir, "a2.ndjson"), path.join(dir, "b4a.ndjson"));
+    manifest.shards = { b4a: { ...manifest.shards.a2, file: "b4a.ndjson" } };
+    fs.writeFileSync(path.join(dir, MANIFEST_FILE), JSON.stringify(manifest));
+
+    expect(verifyStore(dir)).toEqual([]);
+    expect(verifyStore(dir, { placement: true }).map((problem) => problem.message)).toEqual([
+      "deck a dated 2025-02-01T10:00:00.000Z belongs in shard a2",
+    ]);
+  });
+});

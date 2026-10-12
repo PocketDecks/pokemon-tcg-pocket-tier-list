@@ -15,6 +15,13 @@ const PERMITTED_CROSSINGS: Record<string, { specifier: string; reason: string }>
       "the guard that stops the golden shrinking must be tested on the " +
       "generator that writes it.",
   },
+  "src/__tests__/verify-deck-store.test.ts": {
+    specifier: "../../scripts/verify-deck-store",
+    reason:
+      "the test must call the script itself, so the store checks are " +
+      "exercised as they run in CI. The script is a script by convention, " +
+      "not by dependency direction.",
+  },
 };
 
 describe("analysis/src/ import layering", () => {

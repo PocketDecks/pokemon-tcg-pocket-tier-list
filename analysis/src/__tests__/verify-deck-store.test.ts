@@ -4,16 +4,7 @@ import path from "path";
 import { vi } from "vitest";
 import { planDeckWrites } from "../utils/deck-store";
 import { Deck } from "../utils/types";
-
-type RunVerify = (options: { dir: string; allowEmpty?: boolean }) => number;
-
-let runVerify: RunVerify;
-
-beforeAll(async () => {
-  // The layering test reads literal import specifiers only, so load the script by path.
-  const scriptPath = path.resolve(__dirname, "../../scripts/verify-deck-store");
-  ({ runVerify } = (await import(scriptPath)) as { runVerify: RunVerify });
-});
+import { runVerify } from "../../scripts/verify-deck-store";
 
 const makeDeck = (id: string, date: string): Deck => ({
   id,

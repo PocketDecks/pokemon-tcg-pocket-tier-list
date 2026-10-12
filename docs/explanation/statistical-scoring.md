@@ -20,3 +20,9 @@ The meta changes quickly. The `get-multiplier.ts` file applies a recency weight 
 ## The qualification threshold
 
 The pipeline ignores weak performances to avoid polluting the data with unoptimised lists or bad piloting. The `MIN_WINRATE_THRESHOLD` is set to `0.6`. A player must win at least 60 percent of their games in a tournament for their deck to enter the main scoring pool. Furthermore, the pipeline evaluates archetypes only if they accumulate at least `25` qualified games (`MIN_ARCHETYPE_QUALIFIED_GAMES`).
+
+## Decks that match no listing
+
+A deck whose cards pair with no Limitless listing row is filed under the `UNMATCHED_DECK` sentinel instead of being given an archetype name. The sentinel is deliberately not a card slug, so it cannot collide with a real archetype's name. The bucket is not ranked: the window artefact ranks it with the qualified field so the field shares stay whole, then drops its row before publishing, so it carries no win rate, no Power Score and no share in the published ranking. Its games still count in the field denominator and in the matchup tallies, because the opponents it played against recorded those games.
+
+The pipeline logs how many decks landed in the bucket and how many qualified games they carry. A rise in that share is the signal that the pairing store missed something, and a run whose unmatched share passes `MAX_UNMATCHED_DECK_SHARE` is refused rather than published.

@@ -13,6 +13,8 @@ import {
   WindowId,
 } from "./utils/build-window-artefacts";
 import { stageOgImages } from "./utils/generate-og-images";
+import { isUnmatchedDeck } from "./utils/get-deck-name";
+import { unmatchedDecksInWindow } from "./utils/build-window-artefacts";
 import { assertPublishable, newestDeckDate, readArchetypeCount } from "./utils/assert-publishable";
 import { DeckListingStore } from "./utils/deck-listing-store";
 import { STANDARD_SET_CODES } from "./utils/set-codes";
@@ -57,6 +59,20 @@ export const run = async (): Promise<void> => {
       `Window ${window}: ${artefacts[window].bestDecks.length} ranked archetypes`
     );
   }
+
+  // Decks that matched no listing are not archetypes, so they leave the
+  // published ranking. Their count and games are logged and gated: a rise in
+  // the bucket means the pairing store missed something.
+  const unmatched = unmatchedDecksInWindow(allDecks, DEFAULT_WINDOW, today);
+  const defaultQualifiedGames = qualifiedDecksInWindow(
+    allDecks,
+    DEFAULT_WINDOW,
+    today
+  ).reduce((sum, deck) => sum + deck.totalGames, 0);
+  console.log(
+    `Unmatched decks in ${DEFAULT_WINDOW}: ${unmatched.decks} ` +
+      `(${unmatched.games} of ${defaultQualifiedGames} qualified games)`
+  );
 
   // Trends and card scores stay un-windowed, so they read the whole store
   // through the all-time window and the published page keeps the same
@@ -116,6 +132,11 @@ export const run = async (): Promise<void> => {
       currentSet: listingStore.currentSet,
       newestSet,
       currentSetListingCount: listingStore.sets[newestSet]?.decks.length ?? 0,
+      unmatchedDecks: {
+        decks: unmatched.decks,
+        games: unmatched.games,
+        qualifiedGames: defaultQualifiedGames,
+      },
     });
 
     writeArtefacts({

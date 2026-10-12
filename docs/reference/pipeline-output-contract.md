@@ -27,6 +27,43 @@ contributes nothing to them and can read 0%. Matchup win rates are the one
 exception: `get-best-decks.ts` computes them from all decks so that winrates
 stay accurate for the population they describe.
 
+## The unmatched-deck bucket
+
+A deck the matcher cannot pair with a listing row is named `UNMATCHED_DECK`
+(`"unmatched-deck"`, `analysis/src/utils/get-deck-name.ts`). The name is
+deliberately not a card slug: it carries no set code and no number, so it can
+never collide with a name `formatName` renders from a card. It stays a real
+deck name, so `populateDeckNames` still resolves every deck id.
+
+The bucket is not an archetype. `buildWindowArtefacts` ranks it with the rest
+of the qualified field, so its games stay in `totalQualifiedGames` and in the
+share every opponent is weighted by, then drops it where the published rows
+are assembled. It therefore appears in no `best-decks-*.json` entry, no
+`meta-share-*.json` entry and no `matchup-data-*.json` table of its own. A deck
+that failed to pair with a listing should not carry a win rate in the published
+ranking.
+
+Dropping the row at the end rather than before ranking is what keeps the real
+archetypes still. `buildDeckPower` weights every opponent by that opponent's
+share of the ranked field, so removing the bucket from the field would move
+`expectedWinRate`, `fieldCoverage`, `powerScore` and `metaScore` for every
+archetype. Keeping it in the field and dropping only its published row leaves
+those numbers exactly as they were, with the bucket's row gone.
+
+`percentOfGames` is likewise unchanged: `buildWindowArtefacts` divides by
+`totalQualifiedGames`, which counts every qualified deck whether or not it
+paired. `meta-share.json` divides by the games of the set it tracks, and that
+set is the ranked field, so its `share`, `sharePrev` and `delta` are unchanged
+too; only the bucket's own entry leaves. The bucket's games survive in the
+matchup tallies as opponent rows naming it, where the decks it played against
+still recorded those games.
+
+`get-best-decks.ts` logs the bucket's deck count and qualified games for the
+default window, and passes both to `assertPublishable` beside the qualified
+game total. A run whose unmatched games exceed `MAX_UNMATCHED_DECK_SHARE` of
+that total is refused before anything is written, because a pairing-store gap
+is a data failure rather than a meta change.
+
 ## Card references
 
 Card references appear in two string shapes:

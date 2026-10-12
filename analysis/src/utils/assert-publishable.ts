@@ -9,10 +9,21 @@ import {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+// Share of the default window's qualified games the unmatched bucket may carry
+// before a run is refused. Decks that pair with no listing are a data gap, not
+// a meta shift, so a run where they grow past this is not published.
+export const MAX_UNMATCHED_DECK_SHARE: number = 0.25;
+
 export interface WindowSnapshot {
   id: string;
   bestDecks: readonly PipelinePartialDeck[];
   previousArchetypeCount: number | null;
+}
+
+export interface UnmatchedDeckSnapshot {
+  decks: number;
+  games: number;
+  qualifiedGames: number;
 }
 
 export interface PublishCheckInput {
@@ -25,6 +36,7 @@ export interface PublishCheckInput {
   currentSet: string | null;
   newestSet: string;
   currentSetListingCount: number;
+  unmatchedDecks?: UnmatchedDeckSnapshot;
 }
 
 export const newestDeckDate = (decks: readonly { date: string }[]): string | null =>
@@ -116,6 +128,20 @@ export const publishFailures = (input: PublishCheckInput): string[] => {
   }
   if (input.currentSetListingCount === 0) {
     failures.push(`listing store has no rows for ${input.newestSet}`);
+  }
+
+  // A swollen bucket means decks stopped matching their listing, which is the
+  // signal that the pairing store missed something rather than that the meta
+  // changed.
+  const unmatched = input.unmatchedDecks;
+  if (unmatched) {
+    const share =
+      unmatched.qualifiedGames > 0 ? unmatched.games / unmatched.qualifiedGames : 0;
+    if (share > MAX_UNMATCHED_DECK_SHARE) {
+      failures.push(
+        `${unmatched.decks} decks matched no listing, ${(share * 100).toFixed(1)}% of the qualified games in ${input.defaultWindow}, the limit is ${MAX_UNMATCHED_DECK_SHARE * 100}%`
+      );
+    }
   }
 
   return failures;

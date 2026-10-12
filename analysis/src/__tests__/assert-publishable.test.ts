@@ -52,6 +52,7 @@ const healthy = (): PublishCheckInput => {
     currentSet: "B4a",
     newestSet: "B4a",
     currentSetListingCount: 40,
+    unmatchedDecks: { decks: 6, games: 54, qualifiedGames: 13344 },
   };
 };
 
@@ -156,6 +157,26 @@ describe("publishFailures", () => {
       "listing store current set is B4, expected B4a",
       "listing store has no rows for B4a",
     ]);
+  });
+
+  it("passes the unmatched share the real data carries", () => {
+    expect(publishFailures(healthy())).toEqual([]);
+  });
+
+  it("blocks a swollen unmatched bucket", () => {
+    const input = {
+      ...healthy(),
+      unmatchedDecks: { decks: 400, games: 4800, qualifiedGames: 13344 },
+    };
+    expect(publishFailures(input)).toEqual([
+      "400 decks matched no listing, 36.0% of the qualified games in 20d, the limit is 25%",
+    ]);
+  });
+
+  it("leaves a run with no unmatched report alone", () => {
+    const input = healthy();
+    delete input.unmatchedDecks;
+    expect(publishFailures(input)).toEqual([]);
   });
 });
 

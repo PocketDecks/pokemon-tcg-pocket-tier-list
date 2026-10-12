@@ -1,3 +1,4 @@
+import { isUnmatchedDeck } from "./get-deck-name";
 import { Deck } from "./types";
 import { PipelinePartialDeck, PipelineTrendRow } from "../../../src/types/pipeline-data";
 
@@ -8,6 +9,7 @@ export const pickTrendNames = (
   count: number = TREND_ARCHETYPE_COUNT
 ): string[] =>
   bestDecks
+    .filter((deck) => !isUnmatchedDeck(deck.name))
     .filter((deck) => deck.powerScore !== null)
     .sort(
       (a, b) =>

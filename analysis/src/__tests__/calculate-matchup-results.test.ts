@@ -86,3 +86,31 @@ describe("calculateMatchupResults", () => {
     expect(result["Foe"].losses).toBe(1);
   });
 });
+
+describe("calculateMatchupResults scope", () => {
+  const base: Deck = {
+    id: "mine",
+    name: "Mine",
+    cards: [],
+    pokemon: 0,
+    differentPokemon: 0,
+    winCount: 1,
+    lossCount: 0,
+    totalGames: 1,
+    date: "2024-01-01",
+    tournamentExPercent: 0,
+    noTrainerPercent: 0,
+    wins: ["Foe"],
+    losses: [],
+  };
+
+  it("ignores decks of other archetypes", () => {
+    const theirs: Deck = { ...base, id: "theirs", name: "Theirs", wins: ["Foe", "Foe"], losses: ["Other"] };
+    expect(calculateMatchupResults([base, theirs], "Mine")).toEqual({ Foe: { wins: 1, losses: 0 } });
+  });
+
+  it("returns nothing for an empty list or an empty archetype name", () => {
+    expect(calculateMatchupResults([], "Mine")).toEqual({});
+    expect(calculateMatchupResults([base], "")).toEqual({});
+  });
+});

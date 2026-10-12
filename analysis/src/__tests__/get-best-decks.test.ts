@@ -114,7 +114,7 @@ describe("run", () => {
   });
 
   it("discards the staged images when writing fails", async () => {
-    writeArtefacts.mockImplementation(() => {
+    writeArtefacts.mockImplementationOnce(() => {
       throw new Error("disk full");
     });
 
@@ -132,5 +132,16 @@ describe("run", () => {
     await expect(run()).rejects.toThrow("Card not found in API: a1-9999");
 
     expect(stageOgImages).not.toHaveBeenCalled();
+  });
+
+  it("says the JSON is published when the image swap fails after the write", async () => {
+    commit.mockImplementationOnce(() => {
+      throw new Error("rename failed");
+    });
+
+    await expect(run()).rejects.toThrow(
+      "The JSON artefacts are published but the OG images are not: rename failed"
+    );
+    expect(writeArtefacts).toHaveBeenCalledTimes(1);
   });
 });

@@ -149,7 +149,12 @@ export const run = async (): Promise<void> => {
     staged.discard();
     throw error;
   }
-  staged.commit();
+  try {
+    staged.commit();
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new Error(`The JSON artefacts are published but the OG images are not: ${reason}`);
+  }
 };
 
 if (require.main === module) {

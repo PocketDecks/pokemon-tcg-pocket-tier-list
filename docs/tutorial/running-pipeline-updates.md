@@ -33,7 +33,7 @@ The script reads `data/decks.json`, writes the shards, and refuses to overwrite 
 yarn store:verify
 ```
 
-This reads the manifest and every shard it names and reports the problems it finds: a manifest count that disagrees with the file's line count, a missing shard file, a manifest date range that disagrees with the shard's contents, a deck id present in two shards, a deck stored in a shard other than the one its date belongs to, an untracked `.ndjson` file, and a stray `.tmp` or `.bak` file. It prints `N shards, M decks` and exits non-zero when it finds a problem, and also when the store directory is absent or holds no shards, unless you pass `--allow-empty`. Run it after a migration or after any run that was interrupted.
+This reads the manifest and every shard it names and reports the problems it finds: a manifest count that disagrees with the file's line count, a missing shard file, a manifest date range that disagrees with the shard's contents, a deck id present in two shards, a deck stored in a shard other than the one its date belongs to, an untracked `.ndjson` file, and a stray `.tmp`, `.bak` or `.created` file. An empty `.created` marker beside a target records that the target did not exist before the write, so a recovery deletes it rather than restoring it. It prints `N shards, M decks` and exits non-zero when it finds a problem, and also when the store directory is absent or holds no shards, unless you pass `--allow-empty`. Run it after a migration or after any run that was interrupted.
 
 ## Running the fetch script
 

@@ -185,20 +185,26 @@ const buildRealDecks = (): {
   return { decks, skipped };
 };
 
-// Guarded so importing buildGolden from the test cannot overwrite the golden it
-// is about to be compared against.
-if (require.main === module) {
-  const golden = buildGolden();
-  writeFileSync(OUT, `${JSON.stringify(golden, null, 2)}\n`);
-  const { skipped } = buildRealDecks();
-  if (skipped) {
+export const generate = (
+  write: (text: string) => void,
+  realDecks: { decks: unknown[]; skipped: number } = buildRealDecks()
+): void => {
+  if (realDecks.skipped) {
     throw new Error(
-      `${skipped} real deck lists failed to resolve to cards. The golden would ` +
+      `${realDecks.skipped} real deck lists failed to resolve to cards. The golden would ` +
         `silently shrink. Regenerate real-deck-lists.json or fix the card ids.`
     );
   }
+  const golden = buildGolden();
+  write(`${JSON.stringify(golden, null, 2)}\n`);
   console.log(
     `wrote ${Object.keys(golden).length} cases ` +
       `(${new Set(Object.values(golden)).size} distinct names) to ${OUT}`
   );
+};
+
+// Guarded so importing buildGolden from the test cannot overwrite the golden it
+// is about to be compared against.
+if (require.main === module) {
+  generate((text) => writeFileSync(OUT, text));
 }

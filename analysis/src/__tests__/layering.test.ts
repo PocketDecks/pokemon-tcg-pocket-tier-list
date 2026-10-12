@@ -9,6 +9,12 @@ const PERMITTED_CROSSINGS: Record<string, { specifier: string; reason: string }>
       "fixture and the code cannot drift. The generator is a script by " +
       "convention, not by dependency direction.",
   },
+  "src/__tests__/generate-deck-name-golden-guard.test.ts": {
+    specifier: "../../scripts/generate-deck-name-golden",
+    reason:
+      "the guard that stops the golden shrinking must be tested on the " +
+      "generator that writes it.",
+  },
 };
 
 describe("analysis/src/ import layering", () => {

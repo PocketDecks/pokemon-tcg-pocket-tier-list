@@ -46,6 +46,7 @@ describe("downloadDecks", () => {
     dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "download-decks-"));
     vi.clearAllMocks();
     vi.stubEnv("ANALYSIS_DATA_DIR", dataDir);
+    vi.stubEnv("DECKS_DIR", "");
     vi.stubEnv("LIMITLESS_API_KEY", "test-key");
     vi.spyOn(console, "log").mockImplementation(() => undefined);
     getTournamentDecks.mockImplementation(async (t: { id: string }) => [deck(`${t.id}-player`)]);

@@ -13,12 +13,20 @@ import {
   WindowId,
 } from "./utils/build-window-artefacts";
 import { stageOgImages } from "./utils/generate-og-images";
+import { assertPublishable, newestDeckDate, readArchetypeCount } from "./utils/assert-publishable";
+import { DeckListingStore } from "./utils/deck-listing-store";
+import { STANDARD_SET_CODES } from "./utils/set-codes";
+import listings from "./data/limitless-decks.json";
 import { scoringWeights, ScoringWeights } from "./settings";
 import { Deck } from "./utils/types";
 import { writeArtefacts } from "./utils/write-artifacts";
 import { deckNameToIconIds } from "../../src/types/deck-name";
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
+const previousBestDecks = (window: WindowId): string =>
+  `../public/data/best-decks-${window}.json`;
+const listingStore = listings as DeckListingStore;
+const newestSet = STANDARD_SET_CODES[STANDARD_SET_CODES.length - 1];
 const slugOf = (name: string): string => name.toLowerCase().replace(/\s/g, "-");
 
 const buildCardScores = (qualifiedDecks: Deck[], weights: ScoringWeights) => {
@@ -94,6 +102,22 @@ export const run = async (): Promise<void> => {
   );
 
   try {
+    assertPublishable({
+      windows: WINDOW_IDS.map((window) => ({
+        id: window,
+        bestDecks: artefacts[window].bestDecks,
+        previousArchetypeCount: readArchetypeCount(previousBestDecks(window)),
+      })),
+      defaultWindow: DEFAULT_WINDOW,
+      imageSlugs: staged.slugs,
+      deckSlugs: [...ogSlugs].map(slugOf),
+      newestDeckDate: newestDeckDate(allQualified),
+      now: today,
+      currentSet: listingStore.currentSet,
+      newestSet,
+      currentSetListingCount: listingStore.sets[newestSet]?.decks.length ?? 0,
+    });
+
     writeArtefacts({
       ...buildArtefactFiles(artefacts),
       "../public/data/historical-trends.json": JSON.stringify(trends, null, 2),

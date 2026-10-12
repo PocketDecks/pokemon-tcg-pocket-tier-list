@@ -82,3 +82,23 @@ export const MIN_MATCHUP_GAMES: number = 2;
 // or above the published ranking's breadth, with every ranked deck clearing the
 // bar itself.
 export const MIN_FIELD_COVERAGE: number = 0.25;
+
+// Per-window floors on published archetypes. The measured counts on the
+// 2026-09-24 data were 25, 49, 65 and 65; each floor is about half of those.
+export const MIN_PUBLISHED_ARCHETYPES: Record<string, number> = {
+  "10d": 12,
+  "20d": 25,
+  "30d": 32,
+  all: 32,
+};
+
+// A window may shrink by half against the previous publish, no further.
+export const MIN_PREVIOUS_ARCHETYPE_RATIO: number = 0.5;
+
+// Archetypes in the default window that must carry a Power Score. The same
+// data had 42 of 49.
+export const MIN_RANKED_ARCHETYPES: number = 20;
+
+// The newest qualified deck may be at most this many days older than the run.
+// The longest gap between tournament days since April was 5.
+export const MAX_DATA_AGE_DAYS: number = 7;

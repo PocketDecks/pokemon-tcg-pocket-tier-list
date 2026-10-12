@@ -201,6 +201,14 @@ describe("deck store", () => {
     expect(messages).toContain("stray staging file b4a.ndjson.bak");
   });
 
+  it("reports a marker an interrupted write left beside a new target", () => {
+    commit(planDeckWrites(dir, [makeDeck("a", "2026-09-01T10:00:00.000Z")]));
+    fs.writeFileSync(path.join(dir, "b4a.ndjson.created"), "");
+
+    const messages = verifyStore(dir).map((problem) => problem.message);
+    expect(messages).toContain("stray staging file b4a.ndjson.created");
+  });
+
   it("reports a count mismatch, a missing file and a duplicate across shards", () => {
     commit(
       planDeckWrites(dir, [

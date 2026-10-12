@@ -267,4 +267,64 @@ describe("writeArtefacts", () => {
     expect(fs.readFileSync(`${target}.tmp`, "utf8")).toBe("stale");
     expect(fs.readdirSync(directory).sort()).toEqual(["target.json", "target.json.tmp"]);
   });
+
+  it("marks a new target while it stages and clears the mark after a successful write", () => {
+    const directory = makeTempDirectory();
+    const target = path.join(directory, "target.json");
+    const realRenameSync = fs.renameSync;
+    const marksAtSwap: boolean[] = [];
+    vi.spyOn(fs, "renameSync").mockImplementation((source, destination) => {
+      if (source === `${target}.tmp` && destination === target) {
+        marksAtSwap.push(fs.existsSync(`${target}.created`));
+      }
+      return realRenameSync(source, destination);
+    });
+
+    writeArtefacts({ [target]: "new" });
+
+    expect(marksAtSwap).toEqual([true]);
+    expect(fs.readFileSync(target, "utf8")).toBe("new");
+    expect(fs.readdirSync(directory).sort()).toEqual(["target.json"]);
+  });
+
+  it("removes a new target and its marker when a later swap fails", () => {
+    const directory = makeTempDirectory();
+    const created = path.join(directory, "created.json");
+    const existing = path.join(directory, "existing.json");
+    fs.writeFileSync(existing, "old");
+    const realRenameSync = fs.renameSync;
+    const marksAtSwap: boolean[] = [];
+    vi.spyOn(fs, "renameSync").mockImplementation((source, destination) => {
+      if (source === `${created}.tmp` && destination === created) {
+        marksAtSwap.push(fs.existsSync(`${created}.created`));
+      }
+      if (source === `${existing}.tmp` && destination === existing) {
+        throw new Error("injected commit failure");
+      }
+      return realRenameSync(source, destination);
+    });
+
+    expect(() =>
+      writeArtefacts({ [created]: "new", [existing]: "newer" })
+    ).toThrow("injected commit failure");
+
+    expect(marksAtSwap).toEqual([true]);
+    expect(fs.existsSync(created)).toBe(false);
+    expect(fs.existsSync(`${created}.created`)).toBe(false);
+    expect(fs.readFileSync(existing, "utf8")).toBe("old");
+    expect(fs.readdirSync(directory).sort()).toEqual(["existing.json"]);
+  });
+
+  it("refuses a leftover marker without changing the target", () => {
+    const directory = makeTempDirectory();
+    const target = path.join(directory, "target.json");
+    fs.writeFileSync(target, "old");
+    fs.writeFileSync(`${target}.created`, "");
+
+    expect(() => writeArtefacts({ [target]: "new" })).toThrow(/stale staging/i);
+
+    expect(fs.readFileSync(target, "utf8")).toBe("old");
+    expect(fs.existsSync(`${target}.created`)).toBe(true);
+    expect(fs.readdirSync(directory).sort()).toEqual(["target.json", "target.json.created"]);
+  });
 });

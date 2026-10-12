@@ -192,7 +192,11 @@ export const verifyStore = (dir: string, options: { placement?: boolean } = {}):
     for (const name of fs.readdirSync(dir).sort()) {
       if (name.endsWith(".ndjson") && !tracked.has(name)) {
         problems.push({ shard: name.slice(0, -".ndjson".length), message: `untracked shard file ${name}` });
-      } else if (name.endsWith(".tmp") || name.endsWith(".bak")) {
+      } else if (
+        name.endsWith(".tmp") ||
+        name.endsWith(".bak") ||
+        name.endsWith(".created")
+      ) {
         // writeArtefacts stages beside its target, so a leftover means a write stopped partway.
         problems.push({ shard: name, message: `stray staging file ${name}` });
       }

@@ -9,6 +9,7 @@ import {
   verifyStore,
 } from "../utils/deck-store";
 import { Deck } from "../utils/types";
+import { migrateLegacyDecks } from "../utils/migrate-legacy-decks";
 
 const makeDeck = (id: string, date: string): Deck => ({
   id,
@@ -128,6 +129,62 @@ describe("deck store", () => {
       ])
     );
     expect(verifyStore(dir, { placement: true })).toEqual([]);
+  });
+
+  it("reports a manifest date range that disagrees with the shard file", () => {
+    commit(
+      planDeckWrites(dir, [
+        makeDeck("a", "2025-02-01T10:00:00.000Z"),
+        makeDeck("b", "2026-09-01T10:00:00.000Z"),
+      ])
+    );
+    const manifest = readManifest(dir);
+    manifest.shards.b4a.maxDate = "2026-12-31T00:00:00.000Z";
+    fs.writeFileSync(path.join(dir, MANIFEST_FILE), JSON.stringify(manifest));
+
+    expect(verifyStore(dir).map((problem) => problem.message)).toContain(
+      "manifest dates 2026-09-01T10:00:00.000Z to 2026-12-31T00:00:00.000Z but file holds " +
+        "2026-09-01T10:00:00.000Z to 2026-09-01T10:00:00.000Z"
+    );
+  });
+
+  it("verifies a store written by planDeckWrites as clean", () => {
+    commit(
+      planDeckWrites(dir, [
+        makeDeck("a", "2025-02-01T10:00:00.000Z"),
+        makeDeck("b", "2026-09-01T10:00:00.000Z"),
+        makeDeck("c", "2026-09-02T10:00:00.000Z"),
+      ])
+    );
+
+    expect(verifyStore(dir, { placement: true })).toEqual([]);
+  });
+
+  it("verifies a store written by migrateLegacyDecks as clean", () => {
+    const legacy = path.join(dir, "legacy.json");
+    fs.writeFileSync(
+      legacy,
+      JSON.stringify([
+        makeDeck("a", "2024-10-01T00:00:00.000Z"),
+        makeDeck("b", "2025-02-01T00:00:00.000Z"),
+        makeDeck("d", "2026-09-01T00:00:00.000Z"),
+      ])
+    );
+    const target = path.join(dir, "migrated");
+
+    migrateLegacyDecks(legacy, target);
+
+    expect(verifyStore(target, { placement: true })).toEqual([]);
+  });
+
+  it("reports a staging file an interrupted write left behind", () => {
+    commit(planDeckWrites(dir, [makeDeck("a", "2026-09-01T10:00:00.000Z")]));
+    fs.writeFileSync(path.join(dir, "manifest.json.tmp"), "{}");
+    fs.writeFileSync(path.join(dir, "b4a.ndjson.bak"), "");
+
+    const messages = verifyStore(dir).map((problem) => problem.message);
+    expect(messages).toContain("stray staging file manifest.json.tmp");
+    expect(messages).toContain("stray staging file b4a.ndjson.bak");
   });
 
   it("reports a count mismatch, a missing file and a duplicate across shards", () => {

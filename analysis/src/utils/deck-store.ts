@@ -56,17 +56,23 @@ export const readDecks = (dir: string, since?: Date): Deck[] => {
   return decks;
 };
 
-const widen = (entry: ShardEntry | undefined, decks: readonly StoredDeck[], file: string, count: number): ShardEntry => {
+const dateRange = (decks: readonly StoredDeck[]): { minDate: string; maxDate: string } => {
   const times = decks.map((deck) => new Date(deck.date).getTime());
   const dates = decks.map((deck) => deck.date);
-  const lowest = dates[times.indexOf(Math.min(...times))];
-  const highest = dates[times.indexOf(Math.max(...times))];
-  if (!entry) return { file, count, minDate: lowest, maxDate: highest };
+  return {
+    minDate: dates[times.indexOf(Math.min(...times))],
+    maxDate: dates[times.indexOf(Math.max(...times))],
+  };
+};
+
+const widen = (entry: ShardEntry | undefined, decks: readonly StoredDeck[], file: string, count: number): ShardEntry => {
+  const range = dateRange(decks);
+  if (!entry) return { file, count, ...range };
   return {
     file,
     count,
-    minDate: new Date(lowest) < new Date(entry.minDate) ? lowest : entry.minDate,
-    maxDate: new Date(highest) > new Date(entry.maxDate) ? highest : entry.maxDate,
+    minDate: new Date(range.minDate) < new Date(entry.minDate) ? range.minDate : entry.minDate,
+    maxDate: new Date(range.maxDate) > new Date(entry.maxDate) ? range.maxDate : entry.maxDate,
   };
 };
 
@@ -140,6 +146,18 @@ export const verifyStore = (dir: string, options: { placement?: boolean } = {}):
     if (decks.length !== entry.count) {
       problems.push({ shard: id, message: `manifest count ${entry.count} but file holds ${decks.length}` });
     }
+    if (decks.length > 0) {
+      const range = dateRange(decks);
+      // readDecks picks shards by the manifest range, so it has to match the file.
+      if (range.minDate !== entry.minDate || range.maxDate !== entry.maxDate) {
+        problems.push({
+          shard: id,
+          message:
+            `manifest dates ${entry.minDate} to ${entry.maxDate} but file holds ` +
+            `${range.minDate} to ${range.maxDate}`,
+        });
+      }
+    }
     for (const deck of decks) {
       const owner = seen.get(deck.id);
       if (owner) problems.push({ shard: id, message: `deck ${deck.id} also in shard ${owner}` });
@@ -155,6 +173,9 @@ export const verifyStore = (dir: string, options: { placement?: boolean } = {}):
     for (const name of fs.readdirSync(dir).sort()) {
       if (name.endsWith(".ndjson") && !tracked.has(name)) {
         problems.push({ shard: name.slice(0, -".ndjson".length), message: `untracked shard file ${name}` });
+      } else if (name.endsWith(".tmp") || name.endsWith(".bak")) {
+        // writeArtefacts stages beside its target, so a leftover means a write stopped partway.
+        problems.push({ shard: name, message: `stray staging file ${name}` });
       }
     }
   }

@@ -38,6 +38,14 @@ describe("getTournamentDecks", () => {
     vi.unstubAllEnvs();
   });
 
+  it("names the tournament when the standings payload is not an array", async () => {
+    global.fetch = respond({ error: "rate limited" });
+
+    await expect(getTournamentDecks(mockTournament as any)).rejects.toThrow(
+      "Tournament tournament1: standings response was object, expected an array"
+    );
+  });
+
   it("should process decks correctly", async () => {
     global.fetch = respond([
       standing("player1", [card("Pikachu ex", 2), card("Jigglypuff", 1, "2")], [card("Trainer1", 1, "3")], 3, 1),

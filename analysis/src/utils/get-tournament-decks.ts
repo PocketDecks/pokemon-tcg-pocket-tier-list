@@ -1,6 +1,6 @@
 import { Tournament } from "./types";
 import { getPairings } from "./get-pairings";
-import { fetchLimitless } from "./limitless-client";
+import { fetchLimitless, LimitlessError } from "./limitless-client";
 
 const isValidCard = (card: any): boolean =>
   !!card &&
@@ -42,6 +42,14 @@ const getTournamentDecks = async (tournament: Tournament) => {
   const standings = await fetchLimitless<any[]>(
     `/tournaments/${tournament.id}/standings`
   );
+
+  // A non-array payload would throw inside filter with a message naming
+  // neither the tournament nor the payload, so name it here.
+  if (!Array.isArray(standings)) {
+    throw new LimitlessError(
+      `Tournament ${tournament.id}: standings response was ${typeof standings}, expected an array`
+    );
+  }
 
   const submitted = standings.filter(hasSubmittedDecklist);
   const decks = submitted.filter(hasValidCards);

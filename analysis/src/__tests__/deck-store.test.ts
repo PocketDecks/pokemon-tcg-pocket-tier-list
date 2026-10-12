@@ -181,4 +181,16 @@ describe("deck store", () => {
 
     expect(() => readDecks(dir)).toThrow("Deck one appears more than once in the deck store");
   });
+
+  it("reports a shard file the manifest does not track", () => {
+    commit(planDeckWrites(dir, [makeDeck("a", "2026-09-01T10:00:00.000Z")]));
+    fs.writeFileSync(
+      path.join(dir, "a2.ndjson"),
+      `${JSON.stringify(makeDeck("ghost", "2025-02-01T10:00:00.000Z"))}\n`
+    );
+
+    expect(verifyStore(dir)).toEqual([
+      { shard: "a2", message: "untracked shard file a2.ndjson" },
+    ]);
+  });
 });

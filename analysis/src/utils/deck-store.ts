@@ -150,5 +150,13 @@ export const verifyStore = (dir: string, options: { placement?: boolean } = {}):
       }
     }
   }
+  const tracked = new Set(Object.values(manifest.shards).map((entry) => entry.file));
+  if (fs.existsSync(dir)) {
+    for (const name of fs.readdirSync(dir).sort()) {
+      if (name.endsWith(".ndjson") && !tracked.has(name)) {
+        problems.push({ shard: name.slice(0, -".ndjson".length), message: `untracked shard file ${name}` });
+      }
+    }
+  }
   return problems;
 };

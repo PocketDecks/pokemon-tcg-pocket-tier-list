@@ -94,6 +94,20 @@ describe("deck store", () => {
     expect(readDecks(dir).map((deck) => deck.id)).toEqual(["one", "two", "three"]);
   });
 
+  it("plans a shard of 130,002 decks without overflowing the stack", () => {
+    const bulk = Array.from({ length: 130000 }, (_, index) =>
+      makeDeck(`bulk-${index}`, "2026-09-03T10:00:00.000Z")
+    );
+    const earliest = makeDeck("earliest", "2026-08-30T10:00:00.000Z");
+    const latest = makeDeck("latest", "2026-09-05T10:00:00.000Z");
+
+    commit(planDeckWrites(dir, [...bulk, earliest, latest]));
+
+    const entry = readManifest(dir).shards.b4a;
+    expect(entry.minDate).toBe(earliest.date);
+    expect(entry.maxDate).toBe(latest.date);
+  });
+
   it("refuses a deck id that is already in its shard", () => {
     commit(planDeckWrites(dir, [makeDeck("one", "2026-09-02T10:00:00.000Z")]));
     expect(() => planDeckWrites(dir, [makeDeck("one", "2026-09-03T10:00:00.000Z")])).toThrow(

@@ -57,12 +57,31 @@ export const readDecks = (dir: string, since?: Date): Deck[] => {
 };
 
 const dateRange = (decks: readonly StoredDeck[]): { minDate: string; maxDate: string } => {
-  const times = decks.map((deck) => new Date(deck.date).getTime());
-  const dates = decks.map((deck) => deck.date);
-  return {
-    minDate: dates[times.indexOf(Math.min(...times))],
-    maxDate: dates[times.indexOf(Math.max(...times))],
-  };
+  let minTime = Infinity;
+  let maxTime = -Infinity;
+  let minDate: string | undefined;
+  let maxDate: string | undefined;
+  let unparsed = false;
+  for (const deck of decks) {
+    const time = new Date(deck.date).getTime();
+    if (Number.isNaN(time)) {
+      unparsed = true;
+      continue;
+    }
+    if (time < minTime) {
+      minTime = time;
+      minDate = deck.date;
+    }
+    if (time > maxTime) {
+      maxTime = time;
+      maxDate = deck.date;
+    }
+  }
+  // An empty group, or one holding an unparseable date, reports no range.
+  if (unparsed || minDate === undefined || maxDate === undefined) {
+    return { minDate: undefined as unknown as string, maxDate: undefined as unknown as string };
+  }
+  return { minDate, maxDate };
 };
 
 const widen = (entry: ShardEntry | undefined, decks: readonly StoredDeck[], file: string, count: number): ShardEntry => {

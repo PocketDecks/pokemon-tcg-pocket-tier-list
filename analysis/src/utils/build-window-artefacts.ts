@@ -9,9 +9,9 @@ import { buildMetaShare, WindowMetaShare } from "./build-meta-share";
 import { calculateCardScores } from "./calculate-card-scores";
 import { calculateDeckScore } from "./calculate-deck-score";
 import { calculateMatchupResults } from "./calculate-matchup-results";
-import cardToString from "./card-to-string";
 import { convertCardsToIds } from "./convert-cards";
 import getId from "./get-id";
+import { tallyCards } from "./tally-cards";
 import { Deck } from "./types";
 import {
   MIN_ARCHETYPE_QUALIFIED_GAMES,
@@ -103,17 +103,7 @@ const rankDecks = (
     const matching = qualifiedDecks.filter((deck) => deck.name === name);
     const matchingGames = matching.reduce((sum, deck) => sum + deck.totalGames, 0);
 
-    const cards: Record<string, { winCount: number; totalGames: number }> = {};
-    for (const deck of matching) {
-      for (const card of deck.cards) {
-        const key = cardToString(card);
-        const entry = cards[key] ?? { winCount: 0, totalGames: 0 };
-        entry.winCount += deck.winCount;
-        entry.totalGames += deck.totalGames;
-        cards[key] = entry;
-      }
-    }
-    const scoredCards = calculateCardScores(cards, matchingGames);
+    const scoredCards = calculateCardScores(tallyCards(matching), matchingGames);
 
     const lists = [];
     for (const deck of matching) {
@@ -133,11 +123,12 @@ const rankDecks = (
       idExists[id] = true;
     }
 
+    const share = matchingGames / totalQualifiedGames;
     bestDecks.push({
       name,
       lists,
-      popularity: matchingGames / totalQualifiedGames,
-      percentOfGames: matchingGames / totalQualifiedGames,
+      popularity: share,
+      percentOfGames: share,
       score: lists.length ? Math.max(...lists.map((list) => list.score)) : 0,
       expectedWinRate: 0.5,
       fieldCoverage: 0,

@@ -1,8 +1,8 @@
 import "./load-env-side-effect";
-import cardToString from "./utils/card-to-string";
 import getDecks from "./utils/get-decks";
 import { calculateCardScores } from "./utils/calculate-card-scores";
 import { buildTrends } from "./utils/build-trends";
+import { tallyCards } from "./utils/tally-cards";
 import {
   buildArtefactFiles,
   buildWindowArtefacts,
@@ -23,18 +23,7 @@ const buildCardScores = (qualifiedDecks: Deck[]) => {
     (sum, deck) => sum + deck.totalGames,
     0
   );
-  const allCards: Record<string, { winCount: number; totalGames: number }> = {};
-  for (const deck of qualifiedDecks) {
-    for (const card of deck.cards) {
-      const cardName = cardToString(card);
-      const entry = allCards[cardName] ?? { winCount: 0, totalGames: 0 };
-      entry.winCount += deck.winCount;
-      entry.totalGames += deck.totalGames;
-      allCards[cardName] = entry;
-    }
-  }
-
-  return Object.entries(calculateCardScores(allCards, totalQualifiedGames))
+  return Object.entries(calculateCardScores(tallyCards(qualifiedDecks), totalQualifiedGames))
     .map(([name, { score, popularity }]) => ({ name, score, popularity }))
     .sort((a, b) => b.score - a.score);
 };
@@ -61,19 +50,17 @@ const run = async () => {
     const trends = buildTrends(allQualified, artefacts.all.bestDecks);
     const cardScoresList = buildCardScores(allQualified);
 
-    const cardIds = new Set(cards.map((card: any) => card.id));
+    const cardsById = new Map(cards.map((card: any) => [card.id, card] as [string, any]));
     for (const deck of artefacts[DEFAULT_WINDOW].bestDecks) {
       for (const list of deck.lists) {
         for (const card of list.cards) {
           const id = card.split(":")[1];
-          if (!cardIds.has(id)) {
+          if (!cardsById.has(id)) {
             throw new Error(`Card not found in API: ${id}`);
           }
         }
       }
     }
-
-    const cardsById = new Map(cards.map((card: any) => [card.id, card] as [string, any]));
 
     const iconCards = (name: string) =>
       deckNameToIconIds(name)
@@ -106,13 +93,7 @@ const run = async () => {
     writeArtefacts({
       ...buildArtefactFiles(artefacts),
       "../public/data/historical-trends.json": JSON.stringify(trends, null, 2),
-      "./data/card-scores.json": JSON.stringify(cardScoresList, null, 2),
       "../public/data/card-scores.json": JSON.stringify(cardScoresList, null, 2),
-      "./data/best-decks.json": JSON.stringify(
-        artefacts[DEFAULT_WINDOW].bestDecks,
-        null,
-        2
-      ),
       "../src/app/last-updated.ts": `export const LAST_UPDATED = new Date("${new Date().toISOString()}");`,
     });
   } catch (error) {

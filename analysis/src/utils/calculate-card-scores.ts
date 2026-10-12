@@ -6,10 +6,9 @@ import {
 interface CardData {
   winCount: number;
   totalGames: number;
-  score?: number;
 }
 
-interface CardScore extends Omit<CardData, "score"> {
+interface CardScore extends CardData {
   score: number;
   popularity: number;
 }
@@ -26,7 +25,6 @@ const wilsonLowerBound = (p: number, n: number, z = 1.96): number => {
 
 // Scores one card from its win rate and popularity, both shrunk by a Wilson bound so small samples don't saturate.
 const calculateSingleCardScore = (
-  cardName: string,
   { winCount, totalGames }: CardData,
   totalMatchingGames: number
 ): { score: number; popularity: number } => {
@@ -58,7 +56,7 @@ export const calculateCardScores = (
     (result, [cardName, cardData]) => {
       result[cardName] = {
         ...cardData,
-        ...calculateSingleCardScore(cardName, cardData, matchingGames),
+        ...calculateSingleCardScore(cardData, matchingGames),
       };
       return result;
     },

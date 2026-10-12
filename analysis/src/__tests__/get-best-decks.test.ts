@@ -21,18 +21,30 @@ vi.mock("../utils/assert-publishable", async (importOriginal) => {
     readPreviousArchetypeCount: vi.fn(() => null),
   };
 });
+// EXPANSION_RELEASE_DATE comes from the installed card package, so a package
+// bump would move the day count the gate receives. Pin the date here so the
+// expectation is derived from this file.
+vi.mock("../settings", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../settings")>();
+  return { ...actual, EXPANSION_RELEASE_DATE: MOCKED_RELEASE_DATE };
+});
 
 import { run } from "../get-best-decks";
 import { UNMATCHED_DECK } from "../utils/get-deck-name";
-import { assertPublishable, readPreviousArchetypeCount } from "../utils/assert-publishable";
+import { assertPublishable, daysOfDataSince, readPreviousArchetypeCount } from "../utils/assert-publishable";
 import { EXPANSION_RELEASE_DATE } from "../settings";
 
+const { MOCKED_RELEASE_DATE } = vi.hoisted(() => ({
+  MOCKED_RELEASE_DATE: new Date("2026-08-20T00:00:00.000Z"),
+}));
+
 const NOW = new Date("2026-09-24T12:00:00.000Z");
+const DECK_DATE = "2026-09-23T02:00:00.000Z";
 const ARCHETYPES = 40;
 const OPPONENTS = 30;
 const names = Array.from({ length: ARCHETYPES }, (_, index) => `arch-${index}`);
 
-const makeDecks = (date = "2026-09-23T02:00:00.000Z"): Deck[] =>
+const makeDecks = (date = DECK_DATE): Deck[] =>
   names.map((name, index) => {
     const opponents = Array.from(
       { length: OPPONENTS },
@@ -186,6 +198,8 @@ describe("run", () => {
   it("passes the days of data since the release to the gate", async () => {
     await run();
 
-    expect(vi.mocked(assertPublishable).mock.calls[0][0].daysOfData).toBe(28);
+    expect(vi.mocked(assertPublishable).mock.calls[0][0].daysOfData).toBe(
+      daysOfDataSince(DECK_DATE, MOCKED_RELEASE_DATE)
+    );
   });
 });

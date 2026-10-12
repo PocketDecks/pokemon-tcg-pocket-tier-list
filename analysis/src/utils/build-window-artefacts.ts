@@ -1,5 +1,4 @@
 import {
-  MetaShareEntry,
   PipelineMatchupData,
   PipelinePartialDeck,
 } from "../../../src/types/pipeline-data";
@@ -8,7 +7,6 @@ import { buildMatchupPopulations } from "./build-matchup-populations";
 import { buildMetaShare, WindowMetaShare } from "./build-meta-share";
 import { calculateCardScores } from "./calculate-card-scores";
 import { calculateDeckScore } from "./calculate-deck-score";
-import { calculateMatchupResults } from "./calculate-matchup-results";
 import { convertCardsToIds } from "./convert-cards";
 import { isUnmatchedDeck } from "./get-deck-name";
 import getId from "./get-id";

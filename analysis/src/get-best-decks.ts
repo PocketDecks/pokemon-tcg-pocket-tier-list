@@ -8,13 +8,12 @@ import {
   buildWindowArtefacts,
   DEFAULT_WINDOW,
   qualifiedDecksInWindow,
+  unmatchedDecksInWindow,
   WINDOW_IDS,
   WindowArtefacts,
   WindowId,
 } from "./utils/build-window-artefacts";
 import { stageOgImages } from "./utils/generate-og-images";
-import { isUnmatchedDeck } from "./utils/get-deck-name";
-import { unmatchedDecksInWindow } from "./utils/build-window-artefacts";
 import { assertPublishable, daysOfDataSince, newestDeckDate, readPreviousArchetypeCount } from "./utils/assert-publishable";
 import { DeckListingStore } from "./utils/deck-listing-store";
 import { STANDARD_SET_CODES } from "./utils/set-codes";

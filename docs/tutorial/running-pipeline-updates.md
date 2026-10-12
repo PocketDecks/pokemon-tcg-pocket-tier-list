@@ -33,7 +33,7 @@ The script reads `data/decks.json`, writes the shards, and refuses to overwrite 
 yarn store:verify
 ```
 
-This reads the manifest and every shard it names and reports the problems it finds: a manifest count that disagrees with the file's line count, a missing shard file, a deck id present in two shards, and a deck stored in a shard other than the one its date belongs to. It prints `N shards, M decks` and exits non-zero when it finds a problem. Run it after a migration or after any run that was interrupted.
+This reads the manifest and every shard it names and reports the problems it finds: a manifest count that disagrees with the file's line count, a missing shard file, a manifest date range that disagrees with the shard's contents, a deck id present in two shards, a deck stored in a shard other than the one its date belongs to, an untracked `.ndjson` file, and a stray `.tmp` or `.bak` file. It prints `N shards, M decks` and exits non-zero when it finds a problem, and also when the store directory is absent or holds no shards, unless you pass `--allow-empty`. Run it after a migration or after any run that was interrupted.
 
 ## Running the fetch script
 
@@ -44,7 +44,7 @@ cd analysis
 yarn download
 ```
 
-The downloader commits a batch at a time, so a run that fails partway keeps the batches that finished. A rerun resumes from them and does not duplicate a deck.
+The downloader commits a batch at a time, so a run that throws rolls back the batch in flight and keeps the batches that finished. A rerun resumes from them and does not duplicate a deck. A hard kill can stop the write between two renames, leaving the shard and manifest on the new batch while `processed-tournaments.json` holds the old list; the next run then refuses those decks as duplicates, so restore the `.bak` files beside the targets before rerunning.
 
 ## Generating the JSON files
 

@@ -40,7 +40,7 @@ When a row could resolve to more than one printing, the one in the set the slug 
 
 `EXPANSION_RELEASE_DATE` in `settings.ts` is derived, not hand-edited. It reads the newest dated expansion from the `pokemon-tcg-pocket-cards` package, skipping reprint sets and promo sets with no date. Bumping the package version is what moves the window.
 
-Two things ride on that date. It filters out decks played before the set launched, and it re-anchors every window to the newest data, so the tier list reflects the new format only.
+Four things ride on that date. It filters out decks played before the set launched, sets the score weights that ramp over the first four weeks after the release, skips any shard whose newest deck predates it, and ramps the per-window archetype floors. Windows anchor on the newest deck date, so stale raw data still fills them; the release date narrows the field to the new format.
 
 If a new set lands and the date does not move, the package has not published it yet. Check the package rather than editing the constant. Add the new code to `STANDARD_SET_CODES` in `analysis/src/utils/set-codes.ts` so its page is scraped.
 

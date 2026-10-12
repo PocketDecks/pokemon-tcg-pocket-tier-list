@@ -80,6 +80,13 @@ describe("modalCopies", () => {
     expect(modalCopies({ winCount: 0, totalGames: 0, copies: { 2: 10, 1: 10 } })).toBe(1);
   });
 
+  // Integer-like keys enumerate ascending, so the lower count is always seen
+  // first and the branch never runs. A fractional count lands after the
+  // integer, so the tie is decided by the rule under test.
+  it("prefers the lower count when a fractional count ties with a whole one", () => {
+    expect(modalCopies({ winCount: 0, totalGames: 0, copies: { 2: 10, 1.5: 10 } })).toBe(1.5);
+  });
+
   it("returns 0 for a card with no recorded copies", () => {
     expect(modalCopies({ winCount: 0, totalGames: 0, copies: {} })).toBe(0);
   });

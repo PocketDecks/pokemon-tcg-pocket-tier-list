@@ -15,7 +15,6 @@
     "totalGames": 100,
     "date": "2026-09-01",
     "tournamentExPercent": 0.5,
-    "wigglytuffPercent": 0,
     "noTrainerPercent": 0,
     "wins": ["tournament-deck-123"],
     "losses": []

@@ -1,7 +1,5 @@
 import expansions from "pokemon-tcg-pocket-cards/data/v5/expansions.json";
 
-// export const DEBUG: boolean = false;
-
 export const DELUXE_SET_IDS = new Set(["a4b", "b4b"]);
 
 const FALLBACK_RELEASE_DATE = new Date("2026-08-27");
@@ -27,17 +25,13 @@ export const EXPANSION_RELEASE_DATE: Date = latestReleaseDate(
   expansions as { id: string; release_date: string | null }[]
 );
 
-// Exclude ex-only decks from analysis.
-export const NOEX: boolean = false;
 // Number of cards in a legal deck.
 export const CARDS_IN_DECK: number = 20;
 export const NOEX_PERCENT_CUTOFF: number = 0.2;
-// Deck is filtered out above this share of trainer-less games.
+// Tournaments where this share of decks or more run no trainers are filtered out.
 export const NO_TRAINER_PERCENT_CUTOFF: number = 0.1;
 // Tournaments with fewer players than this are ignored.
-export const MIN_GAMES_IN_TOURNAMENT: number = 50;
-// Hard cap on decks analysed per run.
-export const MAX_DECKS_TO_ANALYZE: number = 400_000;
+export const MIN_PLAYERS_IN_TOURNAMENT: number = 50;
 // Per-(player, tournament) win-rate gate: a deck only scores if that player won at least this share of games (0.6 ≈ 5-3 in 8 rounds, 4-2 in 6).
 export const MIN_WINRATE_THRESHOLD: number = 0.6;
 // Minimum qualified games an archetype needs before it ranks, to drop 1-2-deck flukes while keeping fresh archetypes visible.

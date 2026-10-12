@@ -1,6 +1,6 @@
 import fs from "fs";
 import { Tournament } from "./types";
-import { MIN_GAMES_IN_TOURNAMENT } from "../settings";
+import { MIN_PLAYERS_IN_TOURNAMENT } from "../settings";
 
 const GAME = "POCKET";
 const BASE = "https://play.limitlesstcg.com/api";
@@ -17,7 +17,7 @@ const readProcessedTournaments = (): Tournament[] => {
   return JSON.parse(fs.readFileSync(PROCESSED_FILE, "utf-8"));
 };
 
-// Downloads unprocessed tournaments with enough players to count.
+// Lists unprocessed tournaments with enough players to count.
 export const getTournaments = async () => {
   const res = await fetch(
     `${BASE}/tournaments?key=${apiKey()}&limit=10000&game=${GAME}`
@@ -32,7 +32,7 @@ export const getTournaments = async () => {
   return tournaments
     .filter(
       (tournament) =>
-        tournament.players && tournament.players >= MIN_GAMES_IN_TOURNAMENT
+        tournament.players && tournament.players >= MIN_PLAYERS_IN_TOURNAMENT
     )
     .filter((tournament) => !processedTournamentIds.includes(tournament.id));
 };

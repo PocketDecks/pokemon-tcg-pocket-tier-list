@@ -26,4 +26,37 @@ describe("sync-pairings exit code", () => {
 
     expect(code).toBe(0);
   });
+
+  it("fails the run when the scrape fetched no set pages", () => {
+    const code = exitCodeFor({
+      fetchedSets: 0,
+      unknownSetCodes: false,
+      unresolvedSlugs: 0,
+      failures: 0,
+    });
+
+    expect(code).toBe(1);
+  });
+
+  it("fails the run when the card database holds an unknown set code", () => {
+    const code = exitCodeFor({
+      fetchedSets: 3,
+      unknownSetCodes: true,
+      unresolvedSlugs: 0,
+      failures: 0,
+    });
+
+    expect(code).toBe(1);
+  });
+
+  it("fails the run when a slug was left unresolved", () => {
+    const code = exitCodeFor({
+      fetchedSets: 3,
+      unknownSetCodes: false,
+      unresolvedSlugs: 2,
+      failures: 0,
+    });
+
+    expect(code).toBe(1);
+  });
 });

@@ -65,6 +65,30 @@ describe("getTournaments", () => {
     expect(result[0].id).toBe("2");
   });
 
+  it("returns each tournament id once when the listing repeats one", async () => {
+    // The listing is paged, so the same id can arrive twice. A repeat would be
+    // downloaded twice and then trip the duplicate guard in planDeckWrites.
+    global.fetch = respond([
+      { id: "1", players: 150 },
+      { id: "2", players: 150 },
+      { id: "1", players: 150 },
+      { id: "2", players: 150 },
+    ]);
+
+    expect((await getTournaments()).map((tournament) => tournament.id)).toEqual(["1", "2"]);
+  });
+
+  it("keeps the first row when a repeated id carries different counts", async () => {
+    global.fetch = respond([
+      { id: "1", players: 150 },
+      { id: "1", players: 20 },
+    ]);
+
+    const result = await getTournaments();
+    expect(result).toHaveLength(1);
+    expect(result[0].players).toBe(150);
+  });
+
   it("treats a missing processed file as nothing processed", async () => {
     vi.mocked(fs.existsSync).mockReturnValue(false);
     global.fetch = respond([{ id: "1", players: 150 }]);

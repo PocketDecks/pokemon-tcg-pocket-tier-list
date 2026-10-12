@@ -34,6 +34,28 @@ describe("migrateLegacyDecks", () => {
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
+  it("names the row index when a legacy row has no id", () => {
+    fs.writeFileSync(
+      legacy,
+      JSON.stringify([deck("a", "2025-02-01T00:00:00.000Z"), { date: "2025-02-01T00:00:00.000Z" }])
+    );
+
+    expect(() => migrateLegacyDecks(legacy, target)).toThrow(
+      `${legacy}: row 1 has no string id`
+    );
+  });
+
+  it("names the row index when a legacy row has an unparseable date", () => {
+    fs.writeFileSync(
+      legacy,
+      JSON.stringify([deck("a", "2025-02-01T00:00:00.000Z"), deck("b", "not-a-date")])
+    );
+
+    expect(() => migrateLegacyDecks(legacy, target)).toThrow(
+      `${legacy}: row 1 (b) has no valid date`
+    );
+  });
+
   it("splits a legacy file into one shard per expansion without losing a deck", () => {
     const decks = [
       deck("a", "2024-10-01T00:00:00.000Z"),

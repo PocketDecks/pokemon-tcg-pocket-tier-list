@@ -20,10 +20,15 @@ export const getTournaments = async () => {
   const processedTournamentIds = new Set(
     readProcessedTournaments().map((t: Tournament) => t.id)
   );
-  return tournaments
-    .filter(
-      (tournament) =>
-        tournament.players && tournament.players >= MIN_PLAYERS_IN_TOURNAMENT
-    )
-    .filter((tournament) => !processedTournamentIds.has(tournament.id));
+  // The API pages its listing, so an id can arrive twice. The downloader
+  // checkpoints by appending, so a repeat would download a tournament twice
+  // and then trip the duplicate guard in planDeckWrites.
+  const seen = new Set<string>();
+  return tournaments.filter((tournament) => {
+    if (!tournament.players || tournament.players < MIN_PLAYERS_IN_TOURNAMENT) return false;
+    if (processedTournamentIds.has(tournament.id)) return false;
+    if (seen.has(tournament.id)) return false;
+    seen.add(tournament.id);
+    return true;
+  });
 };

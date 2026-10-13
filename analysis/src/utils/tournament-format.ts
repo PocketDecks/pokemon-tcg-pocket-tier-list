@@ -8,8 +8,6 @@ export interface TournamentDetails {
   bannedCards?: unknown;
 }
 
-// Reads a details list, treating an absent or null field as empty and naming
-// the tournament when the field holds something other than an array.
 const asArray = (value: unknown, field: string, id?: string): unknown[] => {
   if (value === undefined || value === null) return [];
   if (!Array.isArray(value)) {
@@ -27,6 +25,14 @@ export const isStandardListing = (tournament: Tournament): boolean => {
   return format === undefined || format === null || format === "STANDARD";
 };
 
+interface BannedCard {
+  name?: unknown;
+  set?: unknown;
+}
+
+const isBannedCard = (value: unknown): value is BannedCard =>
+  typeof value === "object" && value !== null;
+
 // Rules 2 to 4: returns null when the details show standard play, or a short
 // reason when they do not.
 export const nonStandardReason = (details: TournamentDetails): string | null => {
@@ -34,8 +40,10 @@ export const nonStandardReason = (details: TournamentDetails): string | null => 
   if (specialRules.length > 0) return `special rules ${specialRules.join(" ")}`;
 
   const bannedCards = asArray(details.bannedCards, "bannedCards", details.id);
-  const wholeSet = bannedCards.find((card) => (card as { name?: unknown } | null)?.name === "*");
-  if (wholeSet) return `bans set ${(wholeSet as { set?: unknown }).set}`;
+  const wholeSet = bannedCards.find(
+    (card): card is BannedCard => isBannedCard(card) && card.name === "*"
+  );
+  if (wholeSet) return `bans set ${wholeSet.set}`;
   if (bannedCards.length > MAX_BANNED_CARDS) return `bans ${bannedCards.length} cards`;
 
   return null;

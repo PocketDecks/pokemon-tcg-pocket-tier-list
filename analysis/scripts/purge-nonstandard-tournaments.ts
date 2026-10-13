@@ -9,6 +9,7 @@ import {
   Manifest,
   readManifest,
   readShard,
+  toLines,
 } from "../src/utils/deck-store";
 import { EXPANSION_RELEASE_DATE } from "../src/settings";
 import { Deck, Tournament } from "../src/utils/types";
@@ -96,9 +97,6 @@ const dateRange = (decks: readonly Deck[]): { minDate: string; maxDate: string }
   }
   return { minDate, maxDate };
 };
-
-const toLines = (decks: readonly Deck[]): string =>
-  decks.map((deck) => `${JSON.stringify(deck)}\n`).join("");
 
 const stringField = (value: unknown): string | undefined =>
   typeof value === "string" ? value : undefined;

@@ -122,8 +122,14 @@ export const purgeNonStandardTournaments = async ({
   const listingById = new Map(listing.map((row) => [row.id, row]));
 
   const ids = [...grouped.keys()].sort();
+  // A listing that already rejects the format fixes the reason on its own, so
+  // only an id the listing omits or accepts needs a details request.
+  const needsDetails = ids.filter((id) => {
+    const listingRow = listingById.get(id);
+    return !listingRow || isStandardListing(listingRow);
+  });
   const detailsById = new Map<string, DetailsResponse>();
-  await mapWithConcurrency(ids, CONCURRENCY, async (id) => {
+  await mapWithConcurrency(needsDetails, CONCURRENCY, async (id) => {
     const details = await fetchLimitless<DetailsResponse>(`/tournaments/${id}/details`);
     detailsById.set(id, details);
     return details;

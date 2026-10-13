@@ -136,6 +136,20 @@ describe("purge-nonstandard-tournaments", () => {
     expect(readTree(dir)).toEqual(before);
   });
 
+  it("reads the reason for a rejected listing without fetching its details", async () => {
+    standardStore(dir);
+    const fetchMock = stubFetch();
+    global.fetch = fetchMock;
+
+    const removed = await purgeNonStandardTournaments({ dir });
+
+    expect(removed).toEqual([
+      expect.objectContaining({ id: "cus", reason: "format CUSTOM" }),
+    ]);
+    const urls = fetchMock.mock.calls.map((call) => String(call[0]));
+    expect(urls.some((url) => url.includes("/tournaments/cus/details"))).toBe(false);
+  });
+
   it("removes only the non-standard decks on apply and leaves a store that verifies", async () => {
     standardStore(dir);
     global.fetch = stubFetch();

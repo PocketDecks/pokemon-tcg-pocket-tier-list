@@ -50,6 +50,7 @@ describe("getTournamentDecks", () => {
 
   afterEach(() => {
     vi.unstubAllEnvs();
+    vi.restoreAllMocks();
   });
 
   it("names the tournament when the standings payload is not an array", async () => {
@@ -169,7 +170,6 @@ describe("getTournamentDecks", () => {
     expect(fetchMock.mock.calls[0][0]).toContain("/tournaments/tournament1/details");
     expect(getPairings).not.toHaveBeenCalled();
     expect(log).toHaveBeenCalledWith("Tournament tournament1: skipped, special rules MONOTYPE");
-    log.mockRestore();
   });
 
   it("requests details, then standings and pairings for a standard tournament", async () => {

@@ -1,6 +1,11 @@
 import { isStandardListing, nonStandardReason } from "../utils/tournament-format";
+import { Tournament } from "../utils/types";
 
-const listing = (format?: string | null) => ({ id: "t1", date: "2026-10-12", format });
+const listing = (format?: string | null): Tournament => ({
+  id: "t1",
+  date: "2026-10-12",
+  format,
+});
 
 const card = (name: string, set: string | null = "A1", number: string | null = "1") => ({
   name,
@@ -10,15 +15,15 @@ const card = (name: string, set: string | null = "A1", number: string | null = "
 
 describe("isStandardListing", () => {
   it("keeps a listing whose format is null, absent or STANDARD", () => {
-    expect(isStandardListing(listing(null) as any)).toBe(true);
-    expect(isStandardListing(listing(undefined) as any)).toBe(true);
-    expect(isStandardListing(listing("STANDARD") as any)).toBe(true);
+    expect(isStandardListing(listing(null))).toBe(true);
+    expect(isStandardListing(listing(undefined))).toBe(true);
+    expect(isStandardListing(listing("STANDARD"))).toBe(true);
   });
 
   it("drops a listing whose format names another rule set", () => {
-    expect(isStandardListing(listing("CUSTOM") as any)).toBe(false);
-    expect(isStandardListing(listing("NOEX") as any)).toBe(false);
-    expect(isStandardListing(listing("FUTURE") as any)).toBe(false);
+    expect(isStandardListing(listing("CUSTOM"))).toBe(false);
+    expect(isStandardListing(listing("NOEX"))).toBe(false);
+    expect(isStandardListing(listing("FUTURE"))).toBe(false);
   });
 });
 

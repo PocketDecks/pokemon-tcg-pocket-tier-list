@@ -45,8 +45,11 @@ const readTree = (dir: string): Record<string, string> => {
 };
 
 // A request answers by URL; an unrouted URL fails, so no request leaves the test.
-const respondByUrl = (routes: Record<string, unknown>) =>
+// The optional hook runs before the response, so a test can tamper with the
+// store while a request is in flight.
+const respondByUrl = (routes: Record<string, unknown>, onRequest?: (url: string) => void) =>
   vi.fn().mockImplementation((url: string) => {
+    onRequest?.(url);
     const key = Object.keys(routes).find((route) => url.includes(route));
     if (key === undefined) {
       return Promise.resolve({
@@ -182,5 +185,30 @@ describe("purge-nonstandard-tournaments", () => {
       /would be emptied/
     );
     expect(readTree(dir)).toEqual(before);
+  });
+
+  it("refuses to write when the store changes while the purge is reading", async () => {
+    standardStore(dir);
+    const shard = path.join(dir, "b4a.ndjson");
+    const manifestFile = path.join(dir, "manifest.json");
+    const tampered =
+      fs.readFileSync(shard, "utf8") + `${JSON.stringify(makeDeck("std-erin", STANDARD_DATE))}\n`;
+    const manifestBefore = fs.readFileSync(manifestFile, "utf8");
+    global.fetch = respondByUrl(
+      {
+        "/tournaments/std/details": {},
+        "/tournaments/cus/details": {},
+        "/tournaments?limit=": listing,
+      },
+      (url) => {
+        if (url.includes("/tournaments/std/details")) fs.writeFileSync(shard, tampered);
+      }
+    );
+
+    await expect(purgeNonStandardTournaments({ dir, apply: true })).rejects.toThrow(
+      /b4a\.ndjson changed.*nothing written/
+    );
+    expect(fs.readFileSync(shard, "utf8")).toBe(tampered);
+    expect(fs.readFileSync(manifestFile, "utf8")).toBe(manifestBefore);
   });
 });

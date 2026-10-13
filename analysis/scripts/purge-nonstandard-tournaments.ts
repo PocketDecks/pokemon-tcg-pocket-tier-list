@@ -3,6 +3,7 @@
 // tournaments stay in processed-tournaments.json, so the downloader never
 // fetches them again and this is the only way to clear the stored ones.
 import "../src/load-env-side-effect";
+import fs from "fs";
 import path from "path";
 import {
   MANIFEST_FILE,
@@ -53,6 +54,9 @@ interface ScopedShard {
   id: string;
   file: string;
   decks: Deck[];
+  // The raw text the shard held when it was read, kept to detect a write that
+  // lands before the purge rewrites it.
+  text: string;
 }
 
 // A deck id is `${tournament.id}-${deck.player}`, so the tournament id is the
@@ -64,19 +68,27 @@ export const tournamentIdOf = (deckId: string): string => {
 };
 
 // The shards readDecks would read for the current expansion, kept with their
-// decks so an affected shard can be rewritten.
+// decks and their raw text so an affected shard can be rewritten and a
+// concurrent write can be detected.
 const readScopedShards = (dir: string): ScopedShard[] => {
   const manifest = readManifest(dir);
   const since = EXPANSION_RELEASE_DATE.getTime();
   return Object.keys(manifest.shards)
     .sort()
     .filter((id) => new Date(manifest.shards[id].maxDate).getTime() >= since)
-    .map((id) => ({
-      id,
-      file: manifest.shards[id].file,
-      decks: readShard(dir, manifest.shards[id]),
-    }));
+    .map((id) => {
+      const entry = manifest.shards[id];
+      const target = path.join(dir, entry.file);
+      // The text is read before the decks, so a write between the two reads
+      // leaves the snapshot older than the file and stops the purge.
+      const text = fs.readFileSync(target, "utf8");
+      return { id, file: entry.file, decks: readShard(dir, entry), text };
+    });
 };
+
+// The raw text of a store file, or null when the file is absent.
+const readFileText = (target: string): string | null =>
+  fs.existsSync(target) ? fs.readFileSync(target, "utf8") : null;
 
 const dateRange = (decks: readonly Deck[]): { minDate: string; maxDate: string } => {
   let minTime = Infinity;
@@ -105,6 +117,9 @@ export const purgeNonStandardTournaments = async ({
   dir,
   apply = false,
 }: PurgeOptions): Promise<PurgeEntry[]> => {
+  // The manifest text is captured here, before the network calls, so the write
+  // can tell whether the store moved under it.
+  const manifestText = readFileText(path.join(dir, MANIFEST_FILE));
   const shards = readScopedShards(dir);
 
   const grouped = new Map<string, Deck[]>();
@@ -198,6 +213,20 @@ export const purgeNonStandardTournaments = async ({
   }
 
   files[path.join(dir, MANIFEST_FILE)] = `${JSON.stringify(nextManifest, null, 2)}\n`;
+
+  // The store was read before the network calls, so a download that landed in
+  // between would be discarded by the rewrite. Re-read every file the purge
+  // read and refuse when any of them changed.
+  const watched: { file: string; text: string | null }[] = [
+    { file: MANIFEST_FILE, text: manifestText },
+    ...shards.map((shard) => ({ file: shard.file, text: shard.text })),
+  ];
+  for (const { file, text } of watched) {
+    if (readFileText(path.join(dir, file)) !== text) {
+      throw new Error(`Deck store file ${file} changed while the purge was reading; nothing written`);
+    }
+  }
+
   writeArtefacts(files);
 
   return entries;

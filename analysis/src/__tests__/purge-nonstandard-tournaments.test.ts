@@ -153,6 +153,20 @@ describe("purge-nonstandard-tournaments", () => {
     expect(urls.some((url) => url.includes("/tournaments/cus/details"))).toBe(false);
   });
 
+  it("reads the reason from the details when the listing omits the tournament", async () => {
+    commit(planDeckWrites(dir, [makeDeck("solo-alice", CUSTOM_DATE)]));
+    global.fetch = respondByUrl({
+      "/tournaments/solo/details": { specialRules: ["MONOTYPE"] },
+      "/tournaments?limit=": listing,
+    });
+
+    const removed = await purgeNonStandardTournaments({ dir });
+
+    expect(removed).toEqual([
+      expect.objectContaining({ id: "solo", reason: "special rules MONOTYPE" }),
+    ]);
+  });
+
   it("removes only the non-standard decks on apply and leaves a store that verifies", async () => {
     standardStore(dir);
     global.fetch = stubFetch();

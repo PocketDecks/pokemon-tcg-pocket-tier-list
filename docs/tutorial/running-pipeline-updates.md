@@ -43,7 +43,7 @@ Review the list, then apply it:
 yarn store:purge-formats --apply
 ```
 
-The apply rewrites each affected shard and its manifest entry and commits them together, so an interrupted write recovers the way an interrupted download does. It leaves `processed-tournaments.json` untouched, so a removed tournament is not downloaded again, and it refuses before writing anything if a shard would end up empty. Pass `--dir` to point it at another store location.
+The apply rewrites each affected shard and its manifest entry and commits them together, so an interrupted write recovers the way an interrupted download does. It leaves `processed-tournaments.json` untouched, so a removed tournament is not downloaded again, and it refuses before writing anything if a shard would end up empty. The purge takes the same lock as the download, so one of the two stops while the other runs. Pass `--dir` to point it at another store location.
 
 Run `yarn store:verify` afterwards to confirm the store.
 

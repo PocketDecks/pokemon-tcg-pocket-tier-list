@@ -8,6 +8,7 @@ import { MANIFEST_FILE, planDeckWrites } from "./utils/deck-store";
 import { decksDir, processedFile } from "./utils/data-paths";
 import { round } from "./utils/round";
 import { writeArtefacts } from "./utils/write-artifacts";
+import { withStoreLock } from "./utils/store-lock";
 
 export const BATCH_SIZE = 20;
 export const CONCURRENCY = 3;
@@ -49,9 +50,14 @@ export const downloadDecks = async () => {
       ...processed,
       ...batch.map((tournament) => ({ id: tournament.id, date: tournament.date })),
     ];
-    writeArtefacts({
-      ...planDeckWrites(decksDir(), downloaded.flat()),
-      [processedFile()]: JSON.stringify(processed),
+    // The batch read inside planDeckWrites and the write that follows are one
+    // read-modify-write, so the lock holds both; a purge rewriting the same
+    // shards cannot land between them.
+    withStoreLock(decksDir(), () => {
+      writeArtefacts({
+        ...planDeckWrites(decksDir(), downloaded.flat()),
+        [processedFile()]: JSON.stringify(processed),
+      });
     });
 
     console.log(`${round((Math.min(start + BATCH_SIZE, tournaments.length) / tournaments.length) * 100, 2)}%`);

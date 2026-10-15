@@ -27,6 +27,26 @@ yarn store:migrate
 
 The script reads `data/decks.json`, writes the shards, and refuses to overwrite a store that already holds decks. Pass `--from` and `--to` to point it at other paths.
 
+## Purging non-standard tournaments
+
+The store can hold tournaments from runs that predate the format filter, including `CUSTOM` and `NOEX` events. `store:purge-formats` removes them, and it reads the same shards the pipeline scores, so a purge can only touch the current expansion's store.
+
+Start with the dry run. It prints one line per tournament it would remove, with its id, date, name, reason and deck count, plus a total, and writes nothing:
+
+```bash
+yarn store:purge-formats
+```
+
+Review the list, then apply it:
+
+```bash
+yarn store:purge-formats --apply
+```
+
+The apply rewrites each affected shard and its manifest entry and commits them together, so an interrupted write recovers the way an interrupted download does. It leaves `processed-tournaments.json` untouched, so a removed tournament is not downloaded again, and it refuses before writing anything if a shard would end up empty. The purge takes the same lock as the download, so one of the two stops while the other runs. Pass `--dir` to point it at another store location.
+
+Run `yarn store:verify` afterwards to confirm the store.
+
 ## Checking the store
 
 ```bash

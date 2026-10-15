@@ -106,7 +106,7 @@ export const groupByShard = (decks: readonly StoredDeck[]): Map<string, StoredDe
   return groups;
 };
 
-const toLines = (decks: readonly StoredDeck[]): string =>
+export const toLines = (decks: readonly StoredDeck[]): string =>
   decks.map((deck) => `${JSON.stringify(deck)}\n`).join("");
 
 export const planDeckWrites = (dir: string, incoming: readonly StoredDeck[]): Record<string, string> => {

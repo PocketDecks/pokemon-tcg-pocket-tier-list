@@ -44,8 +44,8 @@ describe("getTournaments", () => {
 
   it("keeps a tournament with exactly the minimum players and drops one without a count", async () => {
     global.fetch = respond([
-      { id: "at", players: 50 },
-      { id: "under", players: 49 },
+      { id: "at", players: 32 },
+      { id: "under", players: 31 },
       { id: "unknown" },
     ]);
 
@@ -87,6 +87,20 @@ describe("getTournaments", () => {
     const result = await getTournaments();
     expect(result).toHaveLength(1);
     expect(result[0].players).toBe(150);
+  });
+
+  it("keeps only the standard-format rows in a mixed listing", async () => {
+    global.fetch = respond([
+      { id: "null", players: 150, format: null },
+      { id: "standard", players: 150, format: "STANDARD" },
+      { id: "custom", players: 150, format: "CUSTOM" },
+      { id: "noex", players: 150, format: "NOEX" },
+    ]);
+
+    expect((await getTournaments()).map((tournament) => tournament.id)).toEqual([
+      "null",
+      "standard",
+    ]);
   });
 
   it("treats a missing processed file as nothing processed", async () => {

@@ -32,7 +32,9 @@ export const NOEX_PERCENT_CUTOFF: number = 0.2;
 // Tournaments where this share of decks or more run no trainers are filtered out.
 export const NO_TRAINER_PERCENT_CUTOFF: number = 0.1;
 // Tournaments with fewer players than this are ignored.
-export const MIN_PLAYERS_IN_TOURNAMENT: number = 50;
+export const MIN_PLAYERS_IN_TOURNAMENT: number = 32;
+// A single-card ban (for example Cyrus) barely moves the meta; longer lists target it.
+export const MAX_BANNED_CARDS: number = 2;
 // Per-(player, tournament) win-rate gate: a deck only scores if that player won at least this share of games (0.6 ≈ 5-3 in 8 rounds, 4-2 in 6).
 export const MIN_WINRATE_THRESHOLD: number = 0.6;
 // Minimum qualified games an archetype needs before it ranks, to drop 1-2-deck flukes while keeping fresh archetypes visible.

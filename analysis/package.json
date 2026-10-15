@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "store:migrate": "ts-node scripts/migrate-decks-to-shards.ts",
+    "store:purge-formats": "ts-node scripts/purge-nonstandard-tournaments.ts",
     "store:verify": "ts-node scripts/verify-deck-store.ts"
   },
   "dependencies": {

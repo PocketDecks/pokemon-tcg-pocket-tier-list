@@ -29,6 +29,13 @@ const PERMITTED_CROSSINGS: Record<string, { specifier: string; reason: string }>
       "must call the guard the script runs. The script is a script by " +
       "convention, not by dependency direction.",
   },
+  "src/__tests__/purge-nonstandard-tournaments.test.ts": {
+    specifier: "../../scripts/purge-nonstandard-tournaments",
+    reason:
+      "the purge rewrites shards and the manifest, so the test must call the " +
+      "script itself against a fixture store. The script is a script by " +
+      "convention, not by dependency direction.",
+  },
 };
 
 describe("analysis/src/ import layering", () => {

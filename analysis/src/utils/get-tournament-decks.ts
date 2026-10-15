@@ -1,6 +1,7 @@
 import { Tournament } from "./types";
 import { getPairings } from "./get-pairings";
 import { fetchLimitless, LimitlessError } from "./limitless-client";
+import { nonStandardReason, TournamentDetails } from "./tournament-format";
 
 const isValidCard = (card: any): boolean =>
   !!card &&
@@ -39,6 +40,17 @@ const groupBy = (pairs: { key: string; value: string }[]): Map<string, string[]>
 
 // Downloads one tournament's standings and maps them to scored, result-tagged decks.
 const getTournamentDecks = async (tournament: Tournament) => {
+  // The details decide the format before any standings or pairings request.
+  const details = await fetchLimitless<TournamentDetails>(
+    `/tournaments/${tournament.id}/details`
+  );
+  // The id is merged in so a malformed details error names the tournament.
+  const reason = nonStandardReason({ ...details, id: tournament.id });
+  if (reason) {
+    console.log(`Tournament ${tournament.id}: skipped, ${reason}`);
+    return [];
+  }
+
   const standings = await fetchLimitless<any[]>(
     `/tournaments/${tournament.id}/standings`
   );

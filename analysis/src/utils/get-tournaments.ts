@@ -3,6 +3,7 @@ import { Tournament } from "./types";
 import { MIN_PLAYERS_IN_TOURNAMENT } from "../settings";
 import { processedFile } from "./data-paths";
 import { fetchLimitless } from "./limitless-client";
+import { isStandardListing } from "./tournament-format";
 
 const GAME = "POCKET";
 
@@ -25,6 +26,8 @@ export const getTournaments = async () => {
   // and then trip the duplicate guard in planDeckWrites.
   const seen = new Set<string>();
   return tournaments.filter((tournament) => {
+    // The listing format decides rule 1; a custom or no-ex event is not the meta.
+    if (!isStandardListing(tournament)) return false;
     if (!tournament.players || tournament.players < MIN_PLAYERS_IN_TOURNAMENT) return false;
     if (processedTournamentIds.has(tournament.id)) return false;
     if (seen.has(tournament.id)) return false;

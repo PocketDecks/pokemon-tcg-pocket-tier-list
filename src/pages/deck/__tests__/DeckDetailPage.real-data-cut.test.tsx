@@ -147,3 +147,17 @@ describe.each(
     });
   }, 10000);
 });
+
+describe("the qualified win rate row", () => {
+  it("shows the deck's expected win rate against the qualified field", async () => {
+    const deck = (realDecks as { name: string; expectedWinRate: number }[])[0];
+    renderDeck(deckSlug(deck.name));
+
+    await waitFor(() =>
+      expect(screen.getByText("Expected Win Rate:")).toBeInTheDocument()
+    );
+    expect(
+      screen.getByText(`${(deck.expectedWinRate * 100).toFixed(1)}%`)
+    ).toBeInTheDocument();
+  });
+});

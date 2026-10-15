@@ -269,6 +269,18 @@ const DeckDetailPage = () => {
                   />
                 </KeyStatRow>
                 <KeyStatRow>
+                  <span>{t("deckPage.expectedWinRate")}:</span>
+                  <KeyStatValue>
+                    {deck.powerScore === null
+                      ? t("deckPage.unranked")
+                      : `${(deck.expectedWinRate * 100).toFixed(1)}%`}
+                  </KeyStatValue>
+                  <Tooltip
+                    text={t("deckPage.expectedWinRateTooltip")}
+                    ariaLabel={t("deckPage.showTooltip")}
+                  />
+                </KeyStatRow>
+                <KeyStatRow>
                   <span>{t("deckPage.freqScore")}:</span>
                   <KeyStatValue>{deck.freqScore.toFixed(1)}</KeyStatValue>
                   <Tooltip

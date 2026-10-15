@@ -139,6 +139,19 @@ describe("downloadDecks", () => {
     expect(Object.keys(readManifest(path.join(dataDir, "decks")).shards)).toEqual([]);
   });
 
+  it("refuses a batch when another run holds the store lock", async () => {
+    getTournaments.mockResolvedValue(tournaments(1));
+    const store = path.join(dataDir, "decks");
+    fs.writeFileSync(`${store}.lock`, String(process.pid));
+
+    await expect(downloadDecks()).rejects.toThrow(/is held by process/);
+
+    // The batch downloads before it takes the lock, and then writes nothing.
+    expect(getTournamentDecks).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(path.join(dataDir, "processed-tournaments.json"))).toBe(false);
+    expect(Object.keys(readManifest(store).shards)).toEqual([]);
+  });
+
   describe("readProcessed", () => {
     const storeDir = () => path.join(dataDir, "decks");
 

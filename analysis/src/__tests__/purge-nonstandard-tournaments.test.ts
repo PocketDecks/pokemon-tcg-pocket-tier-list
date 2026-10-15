@@ -112,6 +112,7 @@ describe("purge-nonstandard-tournaments", () => {
     vi.unstubAllEnvs();
     vi.restoreAllMocks();
     fs.rmSync(dir, { recursive: true, force: true });
+    fs.rmSync(`${dir}.lock`, { force: true });
   });
 
   it("lists the non-standard tournament on a dry run and leaves every file byte-identical", async () => {
@@ -224,5 +225,47 @@ describe("purge-nonstandard-tournaments", () => {
     );
     expect(fs.readFileSync(shard, "utf8")).toBe(tampered);
     expect(fs.readFileSync(manifestFile, "utf8")).toBe(manifestBefore);
+  });
+
+  it("refuses before the first request when another run holds the store lock", async () => {
+    standardStore(dir);
+    const before = readTree(dir);
+    fs.writeFileSync(`${dir}.lock`, String(process.pid));
+    const fetchMock = stubFetch();
+    global.fetch = fetchMock;
+
+    await expect(purgeNonStandardTournaments({ dir, apply: true })).rejects.toThrow(
+      /is held by process/
+    );
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(readTree(dir)).toEqual(before);
+  });
+
+  it("refuses the apply path when another run holds the store lock", async () => {
+    standardStore(dir);
+    const before = readTree(dir);
+    const lockFile = `${dir}.lock`;
+    global.fetch = respondByUrl(
+      {
+        "/tournaments/std/details": {},
+        "/tournaments/cus/details": {},
+        "/tournaments?limit=": listing,
+      },
+      (url) => {
+        // A download that reaches its write phase mid-purge holds the lock the
+        // purge needs for its own compare and write.
+        if (url.includes("/tournaments/std/details")) {
+          fs.writeFileSync(lockFile, String(process.pid));
+        }
+      }
+    );
+
+    await expect(purgeNonStandardTournaments({ dir, apply: true })).rejects.toThrow(
+      /is held by process/
+    );
+    expect(readTree(dir)).toEqual(before);
+    // The purge never held the lock, so the holder's lock file survives.
+    expect(fs.readFileSync(lockFile, "utf8")).toBe(String(process.pid));
   });
 });

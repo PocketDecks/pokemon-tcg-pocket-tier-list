@@ -22,6 +22,7 @@ import {
   TournamentDetails,
 } from "../src/utils/tournament-format";
 import { writeArtefacts } from "../src/utils/write-artifacts";
+import { withStoreLock } from "../src/utils/store-lock";
 
 export const CONCURRENCY = 3;
 export const GAME = "POCKET";
@@ -117,10 +118,13 @@ export const purgeNonStandardTournaments = async ({
   dir,
   apply = false,
 }: PurgeOptions): Promise<PurgeEntry[]> => {
-  // The manifest text is captured here, before the network calls, so the write
-  // can tell whether the store moved under it.
-  const manifestText = readFileText(path.join(dir, MANIFEST_FILE));
-  const shards = readScopedShards(dir);
+  // The snapshot is read under the lock, so a download cannot append between
+  // the manifest read and the shard read. The lock comes off before the network
+  // calls, which take minutes and would block every other writer.
+  const { manifestText, shards } = withStoreLock(dir, () => ({
+    manifestText: readFileText(path.join(dir, MANIFEST_FILE)),
+    shards: readScopedShards(dir),
+  }));
 
   const grouped = new Map<string, Deck[]>();
   for (const deck of shards.flatMap((shard) => shard.decks)) {
@@ -197,39 +201,44 @@ export const purgeNonStandardTournaments = async ({
     }
   }
 
-  const manifest = readManifest(dir);
-  const nextManifest: Manifest = { schema: 1, shards: { ...manifest.shards } };
-  const files: Record<string, string> = {};
+  // The snapshot is stale by the time the network phase ends, and the lock is
+  // not held across that phase. The compare catches a write that landed during
+  // it; the lock held over the compare and the write together stops a download
+  // landing between the two.
+  return withStoreLock(dir, () => {
+    const manifest = readManifest(dir);
+    const nextManifest: Manifest = { schema: 1, shards: { ...manifest.shards } };
+    const files: Record<string, string> = {};
 
-  for (const { shard, kept } of affected) {
-    const range = dateRange(kept);
-    nextManifest.shards[shard.id] = {
-      file: shard.file,
-      count: kept.length,
-      minDate: range.minDate,
-      maxDate: range.maxDate,
-    };
-    files[path.join(dir, shard.file)] = toLines(kept);
-  }
-
-  files[path.join(dir, MANIFEST_FILE)] = `${JSON.stringify(nextManifest, null, 2)}\n`;
-
-  // The store was read before the network calls, so a download that landed in
-  // between would be discarded by the rewrite. Re-read every file the purge
-  // read and refuse when any of them changed.
-  const watched: { file: string; text: string | null }[] = [
-    { file: MANIFEST_FILE, text: manifestText },
-    ...shards.map((shard) => ({ file: shard.file, text: shard.text })),
-  ];
-  for (const { file, text } of watched) {
-    if (readFileText(path.join(dir, file)) !== text) {
-      throw new Error(`Deck store file ${file} changed while the purge was reading; nothing written`);
+    for (const { shard, kept } of affected) {
+      const range = dateRange(kept);
+      nextManifest.shards[shard.id] = {
+        file: shard.file,
+        count: kept.length,
+        minDate: range.minDate,
+        maxDate: range.maxDate,
+      };
+      files[path.join(dir, shard.file)] = toLines(kept);
     }
-  }
 
-  writeArtefacts(files);
+    files[path.join(dir, MANIFEST_FILE)] = `${JSON.stringify(nextManifest, null, 2)}\n`;
 
-  return entries;
+    // The snapshot predates the network calls, so re-read every file the purge
+    // read and refuse when any of them changed.
+    const watched: { file: string; text: string | null }[] = [
+      { file: MANIFEST_FILE, text: manifestText },
+      ...shards.map((shard) => ({ file: shard.file, text: shard.text })),
+    ];
+    for (const { file, text } of watched) {
+      if (readFileText(path.join(dir, file)) !== text) {
+        throw new Error(`Deck store file ${file} changed while the purge was reading; nothing written`);
+      }
+    }
+
+    writeArtefacts(files);
+
+    return entries;
+  });
 };
 
 const argument = (flag: string, fallback: string): string => {

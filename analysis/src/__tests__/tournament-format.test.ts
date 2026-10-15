@@ -16,7 +16,7 @@ const card = (name: string, set: string | null = "A1", number: string | null = "
 describe("isStandardListing", () => {
   it("keeps a listing whose format is null, absent or STANDARD", () => {
     expect(isStandardListing(listing(null))).toBe(true);
-    expect(isStandardListing(listing(undefined))).toBe(true);
+    expect(isStandardListing({ id: "t1", date: "2026-10-12" })).toBe(true);
     expect(isStandardListing(listing("STANDARD"))).toBe(true);
   });
 

@@ -32,7 +32,10 @@ const acquire = (lockFile: string): void => {
   }
 
   const held = Number.parseInt(fs.readFileSync(lockFile, "utf8").trim(), 10);
-  if (Number.isInteger(held) && isRunning(held)) {
+  // A writer records a positive pid, and pid 0 signals the whole process
+  // group, so process.kill(0, 0) reports success. Only a positive pid can
+  // name a live writer, so anything else is stale.
+  if (Number.isInteger(held) && held > 0 && isRunning(held)) {
     throw new Error(
       `Store lock ${lockFile} is held by process ${held}; wait for that run ` +
         `to finish, or remove the lock file if the process is gone`

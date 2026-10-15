@@ -54,6 +54,18 @@ describe("withStoreLock", () => {
     expect(fs.existsSync(lockFile)).toBe(false);
   });
 
+  it("reclaims a lock whose content is not a positive pid", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    // A pid of 0 signals the whole process group, so process.kill(0, 0)
+    // reports success and a hand-written 0 would hold the store for ever.
+    fs.writeFileSync(lockFile, "0");
+
+    expect(withStoreLock(store, () => "ran")).toBe("ran");
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("holds pid 0, which is not running"));
+    expect(fs.existsSync(lockFile)).toBe(false);
+  });
+
   it("creates a missing parent directory, runs the callback and leaves no lock file behind", () => {
     const nested = path.join(dir, "nested", "decks");
 

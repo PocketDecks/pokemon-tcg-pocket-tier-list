@@ -1,5 +1,6 @@
 import coreCards from "pokemon-tcg-pocket-cards/data/v5/cards.core.no-image.json";
 import { canonSet, cardKey, STANDARD_SET_CODES } from "../utils/set-codes";
+import printings from "../data/card-printings.json";
 import { resolveSlug, slugTokens } from "../utils/slug-cards";
 
 const keys = (slug: string): string[] =>
@@ -117,5 +118,28 @@ describe("resolveSlug", () => {
     // miraidon-ex-b3a resolves, but the trailing -not-a-real-card-z9 is never
     // tokenised, so the input was not fully consumed.
     expect(resolveSlug("miraidon-ex-b3a-not-a-real-card-z9")).toEqual([]);
+  });
+});
+
+describe("resolveSlug printings", () => {
+  it("picks the printing the store plays when a set holds several of one name", () => {
+    expect(keys("oricorio-a3")).toEqual(["Oricorio A3 66"]);
+    expect(keys("lycanroc-a3")).toEqual(["Lycanroc A3 101"]);
+    expect(keys("wormadam-a2")).toEqual(["Wormadam A2 115"]);
+    expect(keys("rowlet-a3")).toEqual(["Rowlet A3 10"]);
+  });
+
+  it("keeps every mapped printing resolvable in the card data", () => {
+    for (const [set, byName] of Object.entries(printings)) {
+      for (const [name, number] of Object.entries(byName)) {
+        const found = core.find(
+          (card) =>
+            canonSet(card.set_code) === set &&
+            card.name === name &&
+            String(Number(card.id.split("-").pop())) === String(Number(number))
+        );
+        expect(found, `${name} ${set} ${number}`).toBeDefined();
+      }
+    }
   });
 });

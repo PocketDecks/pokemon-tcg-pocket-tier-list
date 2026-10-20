@@ -70,7 +70,7 @@ describe("getDeckName", () => {
   // Task 2: seeded archetypes not present on Limitless.
   it("names the seeded Oricorio A3 66 archetype", () => {
     const deck = mkDeck([2, "Oricorio", "A3", "66"]);
-    expect(getDeckName(deck)).toBe("oricorio-a3-034");
+    expect(getDeckName(deck)).toBe("oricorio-a3-066");
   });
 
   it("names the seeded Puppy-Loving Girl B3b 67 archetype", () => {
@@ -87,7 +87,7 @@ describe("getDeckName", () => {
   // listing names it instead of the seed.
   it("prefers a matching listing over the seed when a partner is present", () => {
     const deck = mkDeck([2, "Oricorio", "A3", "66"], [2, "Greninja", "A1", "89"]);
-    expect(getDeckName(deck)).toBe("greninja-a1-089&oricorio-a3-034");
+    expect(getDeckName(deck)).toBe("greninja-a1-089&oricorio-a3-066");
   });
 
   // A seeded archetype still names the deck against a partner that yields no

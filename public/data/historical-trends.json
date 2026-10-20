@@ -21,7 +21,7 @@
     "date": "2026-08-29",
     "mega-altaria-ex-b1-102&espeon-b3a-020": 3.2231404958677685,
     "mega-lucario-ex-b3-081&lucario-a2-092": 13.636363636363635,
-    "hoopa-ex-b4-103&mega-absol-ex-b1-151": 8.181818181818182,
+    "hoopa-ex-b4-103&mega-absol-ex-b1-151": 8.925619834710744,
     "magnezone-b1a-026&miraidon-ex-b3a-019": 2.396694214876033,
     "dragonair-b4-117&mega-rayquaza-ex-b4-120": 0.4132231404958678,
     "butterfree-b3b-003&mega-sceptile-ex-b3-008": 2.644628099173554
@@ -30,7 +30,7 @@
     "date": "2026-08-30",
     "mega-altaria-ex-b1-102&espeon-b3a-020": 3.2200357781753133,
     "mega-lucario-ex-b3-081&lucario-a2-092": 7.6923076923076925,
-    "hoopa-ex-b4-103&mega-absol-ex-b1-151": 4.83005366726297,
+    "hoopa-ex-b4-103&mega-absol-ex-b1-151": 5.724508050089446,
     "magnezone-b1a-026&miraidon-ex-b3a-019": 0,
     "dragonair-b4-117&mega-rayquaza-ex-b4-120": 2.6833631484794274,
     "butterfree-b3b-003&mega-sceptile-ex-b3-008": 5.008944543828265
@@ -255,7 +255,7 @@
     "date": "2026-09-25",
     "mega-altaria-ex-b1-102&espeon-b3a-020": 6.776859504132231,
     "mega-lucario-ex-b3-081&lucario-a2-092": 6.6115702479338845,
-    "hoopa-ex-b4-103&mega-absol-ex-b1-151": 6.776859504132231,
+    "hoopa-ex-b4-103&mega-absol-ex-b1-151": 7.933884297520661,
     "magnezone-b1a-026&miraidon-ex-b3a-019": 5.289256198347108,
     "dragonair-b4-117&mega-rayquaza-ex-b4-120": 2.809917355371901,
     "butterfree-b3b-003&mega-sceptile-ex-b3-008": 4.793388429752066
@@ -412,5 +412,41 @@
     "magnezone-b1a-026&miraidon-ex-b3a-019": 3.3175355450236967,
     "dragonair-b4-117&mega-rayquaza-ex-b4-120": 8.056872037914692,
     "butterfree-b3b-003&mega-sceptile-ex-b3-008": 0
+  },
+  {
+    "date": "2026-10-16",
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 20.634920634920633,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 1.5873015873015872,
+    "hoopa-ex-b4-103&mega-absol-ex-b1-151": 9.788359788359788,
+    "magnezone-b1a-026&miraidon-ex-b3a-019": 10.052910052910052,
+    "dragonair-b4-117&mega-rayquaza-ex-b4-120": 2.380952380952381,
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 5.82010582010582
+  },
+  {
+    "date": "2026-10-17",
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 24.561403508771928,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 0,
+    "hoopa-ex-b4-103&mega-absol-ex-b1-151": 0,
+    "magnezone-b1a-026&miraidon-ex-b3a-019": 15.789473684210526,
+    "dragonair-b4-117&mega-rayquaza-ex-b4-120": 0,
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 15.789473684210526
+  },
+  {
+    "date": "2026-10-18",
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 22.916666666666664,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 0,
+    "hoopa-ex-b4-103&mega-absol-ex-b1-151": 13.194444444444445,
+    "magnezone-b1a-026&miraidon-ex-b3a-019": 0,
+    "dragonair-b4-117&mega-rayquaza-ex-b4-120": 0,
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 0
+  },
+  {
+    "date": "2026-10-19",
+    "mega-altaria-ex-b1-102&espeon-b3a-020": 11.278195488721805,
+    "mega-lucario-ex-b3-081&lucario-a2-092": 0,
+    "hoopa-ex-b4-103&mega-absol-ex-b1-151": 0,
+    "magnezone-b1a-026&miraidon-ex-b3a-019": 7.518796992481203,
+    "dragonair-b4-117&mega-rayquaza-ex-b4-120": 0,
+    "butterfree-b3b-003&mega-sceptile-ex-b3-008": 9.022556390977442
   }
 ]

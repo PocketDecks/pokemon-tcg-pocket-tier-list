@@ -16,6 +16,8 @@ export default tseslint.config(
       "analysis/**",
       "public/**",
       ".agents/**",
+      ".hermes/**",
+      "private/**",
       "coverage/**",
       "node_modules/**",
     ],

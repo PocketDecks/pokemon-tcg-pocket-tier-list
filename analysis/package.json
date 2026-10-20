@@ -8,6 +8,7 @@
     "sync-pairings": "ts-node scripts/sync-pairings.ts",
     "power:report": "ts-node scripts/power-report.ts",
     "golden:generate": "ts-node scripts/generate-deck-name-golden.ts",
+    "card-printings:generate": "ts-node scripts/generate-card-printings.ts",
     "real-decks:generate": "ts-node scripts/generate-real-deck-lists.ts",
     "start": "ts-node src/get-best-decks.ts",
     "typecheck": "tsc --noEmit",

@@ -2,6 +2,7 @@
 // and the golden generator.
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
+import printings from "../data/card-printings.json";
 import { canonSet, SET_CODE_PATTERN } from "./set-codes";
 
 export interface IndexedCard {
@@ -60,6 +61,20 @@ export const slugTokens = (slug: string): [string, string][] => {
   return out;
 };
 
+// A slug names the card without its number, and a set can hold several cards
+// of one name. The store-derived map says which printing the archetype plays.
+const CANONICAL_PRINTINGS = new Map<string, string>();
+for (const [set, byName] of Object.entries(
+  printings as Record<string, Record<string, string>>
+)) {
+  for (const [name, number] of Object.entries(byName)) {
+    CANONICAL_PRINTINGS.set(
+      `${set.toLowerCase()}|${norm(name)}`,
+      String(Number(number))
+    );
+  }
+}
+
 const canonicalCard = (card: IndexedCard): IndexedCard => {
   if (!REPRINT_SETS.has(card.set)) return card;
   const hits = cardIndex.get(norm(card.name));
@@ -80,12 +95,23 @@ const resolveCard = (rawName: string, rawSet: string): IndexedCard | null => {
     `${rawName}-ex`,
     rawName.replace(/-ex$/, ""),
   ];
-  // Pass one: a wanted-set printing across any spelling wins.
+  // Pass one: a wanted-set printing across any spelling wins, and the store's
+  // printing decides when the set holds more than one card of that name.
   for (const candidate of candidates) {
     const hits = cardIndex.get(norm(candidate));
     if (!hits?.length) continue;
     const exact = hits.find((c) => c.set.toLowerCase() === wanted);
-    if (exact) return canonicalCard(exact);
+    if (exact) {
+      const number = CANONICAL_PRINTINGS.get(
+        `${exact.set.toLowerCase()}|${norm(exact.name)}`
+      );
+      const chosen = number
+        ? hits.find(
+            (c) => c.set.toLowerCase() === wanted && c.number === number
+          )
+        : undefined;
+      return canonicalCard(chosen ?? exact);
+    }
   }
   // Pass two: fall back to the first printing in any set.
   for (const candidate of candidates) {

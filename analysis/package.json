@@ -11,6 +11,7 @@
     "card-printings:generate": "ts-node scripts/generate-card-printings.ts",
     "real-decks:generate": "ts-node scripts/generate-real-deck-lists.ts",
     "start": "ts-node src/get-best-decks.ts",
+    "validate:refresh": "ts-node scripts/validate-refresh.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -11,7 +11,13 @@ import {
 const args = process.argv.slice(2);
 const flag = (name: string): string | null => {
   const index = args.indexOf(name);
-  return index >= 0 && args[index + 1] ? args[index + 1] : null;
+  if (index < 0) return null;
+  const value = args[index + 1];
+  if (!value || value.startsWith("-")) {
+    console.error(`${name} needs a value`);
+    process.exit(1);
+  }
+  return value;
 };
 
 const repoRoot = path.resolve(__dirname, "../..");

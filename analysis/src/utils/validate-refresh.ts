@@ -41,14 +41,7 @@ export const validateRefresh = (
     const decks = readDecks(dataDir, window);
     for (const deck of decks) union.add(deck.name);
 
-    let previous: number | null = null;
-    if (previousDir) {
-      const file = path.join(previousDir, `best-decks-${window}.json`);
-      if (fs.existsSync(file)) {
-        previous = (JSON.parse(fs.readFileSync(file, "utf8")) as { name: string }[])
-          .length;
-      }
-    }
+    const previous = previousDir ? readDecks(previousDir, window).length : null;
 
     const floor = Math.max(
       MIN_PUBLISHED_ARCHETYPES[window],
@@ -65,9 +58,9 @@ export const validateRefresh = (
 
   const defaultFile = path.join(dataDir, "best-decks.json");
   const twentyDay = path.join(dataDir, "best-decks-20d.json");
-  if (
-    fs.existsSync(defaultFile) &&
-    fs.existsSync(twentyDay) &&
+  if (!fs.existsSync(defaultFile)) {
+    failures.push("best-decks.json is missing");
+  } else if (
     fs.readFileSync(defaultFile, "utf8") !== fs.readFileSync(twentyDay, "utf8")
   ) {
     failures.push("best-decks.json differs from best-decks-20d.json");

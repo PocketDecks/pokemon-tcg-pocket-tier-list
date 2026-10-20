@@ -103,7 +103,7 @@ describe("validateRefresh", () => {
     const data = tmp();
     const images = tmp();
     const previous = tmp();
-    writeImages(images, writeWindows(data, { ...healthy, "10d": 12 }));
+    writeImages(images, writeWindows(data, healthy));
     writeWindows(previous, { ...healthy, "10d": 40 });
 
     const report = validateRefresh(data, images, previous);
@@ -132,6 +132,54 @@ describe("validateRefresh", () => {
     const report = validateRefresh(data, images, null);
 
     expect(report.failures).toEqual(["best-decks.json differs from best-decks-20d.json"]);
+  });
+
+  it.each([
+    ["20d", 51, 26, 25],
+    ["30d", 65, 33, 32],
+    ["all", 67, 34, 32],
+  ] as const)(
+    "rounds the half floor up for %s",
+    (window, previousCount, floor, current) => {
+      const data = tmp();
+      const images = tmp();
+      const previous = tmp();
+      writeImages(images, writeWindows(data, healthy));
+      writeWindows(previous, { ...healthy, [window]: previousCount });
+
+      const report = validateRefresh(data, images, previous);
+
+      const row = report.windows.find((entry) => entry.window === window);
+      expect(row?.floor).toBe(floor);
+      expect(row?.archetypes).toBe(current);
+      expect(report.failures).toEqual([
+        `${window}: ${current} archetypes, floor ${floor} (half of ${previousCount})`,
+      ]);
+    }
+  );
+
+  it("fails when the default file is missing", () => {
+    const data = tmp();
+    const images = tmp();
+    writeImages(images, writeWindows(data, healthy));
+    fs.rmSync(path.join(data, "best-decks.json"));
+
+    const report = validateRefresh(data, images, null);
+
+    expect(report.failures).toEqual(["best-decks.json is missing"]);
+  });
+
+  it("throws when the previous snapshot lacks a window file", () => {
+    const data = tmp();
+    const images = tmp();
+    const previous = tmp();
+    writeImages(images, writeWindows(data, healthy));
+    writeWindows(previous, healthy);
+    fs.rmSync(path.join(previous, "best-decks-30d.json"));
+
+    expect(() => validateRefresh(data, images, previous)).toThrow(
+      /best-decks-30d\.json/
+    );
   });
 
   it("throws when a window file is missing", () => {

@@ -28,21 +28,28 @@ const standings = [
   },
 ];
 
+const STATUS_TEXT: Record<number, string> = {
+  200: "OK",
+  401: "Unauthorized",
+  429: "Too Many Requests",
+  503: "Service Unavailable",
+};
+
 const respond = (status: number, body: unknown) => ({
   ok: status >= 200 && status < 300,
   status,
-  statusText: status === 200 ? "OK" : "Service Unavailable",
+  statusText: STATUS_TEXT[status] ?? "Unknown",
   headers: new Headers(),
   json: async () => body,
 });
 
 const route =
-  (ids: string[], failPairingsFor: string | null) =>
+  (ids: string[], failPairingsFor: string | null, failStatus = 503) =>
   async (input: string): Promise<unknown> => {
     const url = String(input);
     if (url.includes("/pairings")) {
       const id = /tournaments\/([^/]+)\/pairings/.exec(url)?.[1] ?? "";
-      return id === failPairingsFor ? respond(503, []) : respond(200, []);
+      return id === failPairingsFor ? respond(failStatus, []) : respond(200, []);
     }
     if (url.includes("/details")) return respond(200, {});
     if (url.includes("/standings")) return respond(200, standings);
@@ -66,6 +73,20 @@ describe("downloadDecks when a pairings request fails", () => {
     return failure;
   };
 
+  const snapshot = (): Record<string, string> => {
+    const dir = path.join(dataDir, "decks");
+    const files = [
+      path.join(dataDir, "processed-tournaments.json"),
+      ...fs.readdirSync(dir).map((file) => path.join(dir, file)),
+    ];
+    return Object.fromEntries(
+      files.map((file) => [
+        path.relative(dataDir, file),
+        fs.readFileSync(file, "utf8"),
+      ])
+    );
+  };
+
   beforeEach(() => {
     dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "download-pairings-"));
     vi.stubEnv("ANALYSIS_DATA_DIR", dataDir);
@@ -81,24 +102,30 @@ describe("downloadDecks when a pairings request fails", () => {
     fs.rmSync(dataDir, { recursive: true, force: true });
   });
 
-  it("fails the run and writes nothing", async () => {
-    global.fetch = route(["t1"], "t1") as unknown as typeof fetch;
-    vi.useFakeTimers();
+  it.each([401, 429, 503])(
+    "fails the run and writes nothing for a %i pairings response",
+    async (status) => {
+      global.fetch = route(["t1"], "t1", status) as unknown as typeof fetch;
+      vi.useFakeTimers();
 
-    const error = await settle(downloadDecks());
+      const error = await settle(downloadDecks());
+      vi.useRealTimers();
 
-    expect(error).toBeInstanceOf(LimitlessError);
-    expect((error as LimitlessError).status).toBe(503);
-    expect(fs.existsSync(path.join(dataDir, "processed-tournaments.json"))).toBe(
-      false
-    );
-    expect(fs.readdirSync(path.join(dataDir, "decks"))).toEqual([]);
-  });
+      expect(error).toBeInstanceOf(LimitlessError);
+      expect((error as LimitlessError).status).toBe(status);
+      expect((error as Error).message).toContain(STATUS_TEXT[status]);
+      expect(fs.existsSync(path.join(dataDir, "processed-tournaments.json"))).toBe(
+        false
+      );
+      expect(fs.readdirSync(path.join(dataDir, "decks"))).toEqual([]);
+    }
+  );
 
   it("leaves the tournament retryable", async () => {
     global.fetch = route(["t1"], null) as unknown as typeof fetch;
     await downloadDecks();
     expect(processedIds()).toEqual(["t1"]);
+    const beforeFailure = snapshot();
 
     global.fetch = route(["t1", "t2"], "t2") as unknown as typeof fetch;
     vi.useFakeTimers();
@@ -106,6 +133,7 @@ describe("downloadDecks when a pairings request fails", () => {
     vi.useRealTimers();
 
     expect(error).toBeInstanceOf(LimitlessError);
+    expect(snapshot()).toEqual(beforeFailure);
     expect(processedIds()).toEqual(["t1"]);
     expect(readDecks(path.join(dataDir, "decks")).map((deck) => deck.id)).toEqual([
       "t1-p1",

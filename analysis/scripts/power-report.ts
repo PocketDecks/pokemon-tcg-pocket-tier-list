@@ -1,38 +1,98 @@
-// Prints the current Power ranking so a human can sanity-check a tuning
-// change. Deliberately not a test: these numbers move with every scrape.
-//
-//   cd analysis && yarn power:report
-import metaShare from "../../public/data/meta-share.json";
-import matchupData from "../../public/data/matchup-data.json";
-import { PipelineMatchupData, PipelineMetaShare } from "../../src/types/pipeline-data";
-import { buildDeckPower, DeckPowerInput } from "../src/utils/build-deck-power";
-import { MIN_FIELD_COVERAGE } from "../src/settings";
+// Prints the ranking the site publishes: cd analysis && yarn power:report
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import {
+  PipelineMetaShare,
+  PipelinePartialDeck,
+} from "../../src/types/pipeline-data";
 
-const share = metaShare as PipelineMetaShare;
-const matchups = matchupData as PipelineMatchupData;
+export const DEFAULT_DATA_DIR = join(__dirname, "..", "..", "public", "data");
 
-const inputs: DeckPowerInput[] = share.decks.map((entry) => ({
-  name: entry.name,
-  matchups: matchups[entry.name] ?? [],
-  windowGames: entry.windowGames,
-}));
+export interface PowerReportSnapshot {
+  file: string;
+  generatedAt: string;
+  windowDays: number | null;
+}
 
-const rows = buildDeckPower(inputs);
-const ranked = rows.filter((r) => r.powerScore !== null);
-ranked.sort((a, b) => (b.powerScore ?? 0) - (a.powerScore ?? 0));
+export interface PowerReport {
+  snapshot: PowerReportSnapshot;
+  ranked: PipelinePartialDeck[];
+  unranked: PipelinePartialDeck[];
+}
 
-console.log(`ranked ${ranked.length}/${rows.length} at MIN_FIELD_COVERAGE=${MIN_FIELD_COVERAGE}\n`);
-console.log("rank  power   freq    meta    cov   deck");
-ranked.forEach((r, i) => {
-  console.log(
-    `${String(i + 1).padStart(4)}  ${(r.powerScore ?? 0).toFixed(1).padStart(5)}   ` +
-      `${r.freqScore.toFixed(1).padStart(5)}   ${(r.metaScore ?? 0).toFixed(1).padStart(5)}   ` +
-      `${r.fieldCoverage.toFixed(2)}  ${r.name}`
-  );
+export interface PowerReportOptions {
+  dataDir?: string;
+}
+
+const readJson = <T>(dataDir: string, name: string): T =>
+  JSON.parse(readFileSync(join(dataDir, name), "utf8")) as T;
+
+const byRank = (a: PipelinePartialDeck, b: PipelinePartialDeck): number => {
+  const power = (b.powerScore ?? 0) - (a.powerScore ?? 0);
+  if (power !== 0) return power;
+  const freq = b.freqScore - a.freqScore;
+  if (freq !== 0) return freq;
+  return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+};
+
+const byFreq = (a: PipelinePartialDeck, b: PipelinePartialDeck): number =>
+  b.freqScore - a.freqScore || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+
+const buildPowerReport = (
+  decks: PipelinePartialDeck[],
+  snapshot: PowerReportSnapshot
+): PowerReport => ({
+  snapshot,
+  ranked: decks.filter((deck) => deck.powerScore !== null).sort(byRank),
+  unranked: decks.filter((deck) => deck.powerScore === null).sort(byFreq),
 });
 
-const unranked = rows.filter((r) => r.powerScore === null);
-console.log(`\nunranked (${unranked.length}):`);
-unranked
-  .sort((a, b) => b.freqScore - a.freqScore)
-  .forEach((r) => console.log(`  cov=${r.fieldCoverage.toFixed(2)}  freq=${r.freqScore.toFixed(1)}  ${r.name}`));
+export const readPowerReport = (
+  options: PowerReportOptions = {}
+): PowerReport => {
+  const dataDir = options.dataDir ?? DEFAULT_DATA_DIR;
+  const decks = readJson<PipelinePartialDeck[]>(dataDir, "best-decks.json");
+  const share = readJson<PipelineMetaShare>(dataDir, "meta-share.json");
+  return buildPowerReport(decks, {
+    file: "best-decks.json",
+    generatedAt: share.generatedAt,
+    windowDays: share.windowDays,
+  });
+};
+
+const score = (value: number | null, digits: number): string =>
+  value === null ? "null" : value.toFixed(digits);
+
+export const formatPowerReport = (report: PowerReport): string => {
+  const { snapshot, ranked, unranked } = report;
+  const window =
+    snapshot.windowDays === null ? "all time" : `${snapshot.windowDays}d`;
+  const lines = [
+    `snapshot: ${snapshot.file} (${window} window), generated ${snapshot.generatedAt}`,
+    `ranked ${ranked.length}/${ranked.length + unranked.length}`,
+    "",
+    "rank  power   freq    meta    cov   deck",
+  ];
+  ranked.forEach((deck, index) => {
+    lines.push(
+      `${String(index + 1).padStart(4)}  ${score(deck.powerScore, 1).padStart(5)}   ` +
+        `${score(deck.freqScore, 1).padStart(5)}   ${score(deck.metaScore, 1).padStart(5)}   ` +
+        `${score(deck.fieldCoverage, 2)}  ${deck.name}`
+    );
+  });
+  lines.push("", `unranked (${unranked.length}):`);
+  unranked.forEach((deck) =>
+    lines.push(
+      `  cov=${score(deck.fieldCoverage, 2)}  freq=${score(deck.freqScore, 1)}  ${deck.name}`
+    )
+  );
+  return lines.join("\n");
+};
+
+export const main = (options: PowerReportOptions = {}): PowerReport => {
+  const report = readPowerReport(options);
+  console.log(formatPowerReport(report));
+  return report;
+};
+
+if (require.main === module) main();

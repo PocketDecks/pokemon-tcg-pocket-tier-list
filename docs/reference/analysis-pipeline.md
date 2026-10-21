@@ -48,7 +48,7 @@ Tiering uses Power Score, not the card composite. `build-deck-power.ts` smooths 
 
 Frequency Score measures play rate against the most-played deck, and Meta Score is the average of the two. Decks whose matchup data covers less than `MIN_FIELD_COVERAGE` of the qualified field are Unranked and shown in their own group rather than given an invented score.
 
-`yarn power:report` prints the live ranking for diagnosis.
+`yarn power:report` prints the ranking the site publishes, read from `public/data/best-decks.json` and `meta-share.json`, and names the snapshot it read. It recomputes nothing, so a change to the scoring inputs appears only after the pipeline regenerates those files.
 
 ## Configuration variables
 

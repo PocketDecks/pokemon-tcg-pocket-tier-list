@@ -48,13 +48,33 @@ export const assertUsablePage = (set: string, page: ParsedSetPage): void => {
   }
 };
 
+const TITLE = /<title>Decks - ([A-Za-z0-9]+) - /;
+
+// A page that parsed can still be the wrong one: a truncated body stops after
+// some rows, and a cached or misrouted response names another set. Both would
+// otherwise replace a set's snapshot with a partial or foreign one.
+export const assertSetPage = (set: string, html: string): void => {
+  if (!html.includes("</table>")) {
+    throw new Error(`Limitless ${set} page was truncated`);
+  }
+  const named = TITLE.exec(html)?.[1];
+  if (!named) {
+    throw new Error(`Limitless ${set} page had no set title`);
+  }
+  if (named.toLowerCase() !== set.toLowerCase()) {
+    throw new Error(`Limitless ${set} page named ${named}`);
+  }
+};
+
 export const fetchSetPage = async (
   set: string,
   fetchImpl: typeof fetch = fetch
 ): Promise<ParsedSetPage> => {
   const res = await fetchImpl(decksUrl(set), { signal: AbortSignal.timeout(20_000) });
   if (!res.ok) throw new Error(`Limitless ${set} returned ${res.status} ${res.statusText}`);
-  const page = parseSetPage(await res.text());
+  const html = await res.text();
+  const page = parseSetPage(html);
   assertUsablePage(set, page);
+  assertSetPage(set, html);
   return page;
 };

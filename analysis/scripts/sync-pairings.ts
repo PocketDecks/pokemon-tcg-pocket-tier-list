@@ -2,7 +2,7 @@
 // page is one snapshot of its own decks array; a refetch replaces that array
 // and never folds across sets or infers a pairing graph.
 import "../src/load-env-side-effect";
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import {
@@ -14,6 +14,7 @@ import {
   snapshot,
   DeckListingStore,
 } from "../src/utils/deck-listing-store";
+import { writeArtefacts } from "../src/utils/write-artifacts";
 import { hasUnknownSetCodes, resolveSlug, unknownSetCodeList } from "../src/utils/slug-cards";
 import { fetchSetPage, ParsedSetPage } from "../src/utils/parse-set-page";
 import { STANDARD_SET_CODES } from "../src/utils/set-codes";
@@ -32,6 +33,12 @@ export interface SyncRunState {
   failures: number;
 }
 
+export interface SyncOptions {
+  storePath?: string;
+  fetchImpl?: typeof fetch;
+  sets?: readonly string[];
+}
+
 // The exit code is the only signal the refresh job reads: it stops on a
 // non-zero exit, so a run that recorded a failure has to fail. A run that
 // fetched nothing fails as well, because the store is unchanged and the job
@@ -45,9 +52,13 @@ export const exitCodeFor = (state: SyncRunState): number =>
     ? 1
     : 0;
 
-const main = async () => {
-  const store: DeckListingStore = existsSync(STORE)
-    ? readStore(readFileSync(STORE, "utf8"))
+export const main = async (options: SyncOptions = {}): Promise<SyncRunState> => {
+  const storePath = options.storePath ?? STORE;
+  const fetchImpl = options.fetchImpl ?? fetch;
+  const sets = options.sets ?? SETS_SCRAPE_ORDER;
+
+  const store: DeckListingStore = existsSync(storePath)
+    ? readStore(readFileSync(storePath, "utf8"))
     : readStore(null);
 
   // Snapshot of the set pages before the scrape, so updatedAt moves only when
@@ -66,10 +77,10 @@ const main = async () => {
 
   const fetchedSets = new Set<string>();
   const seenPages = new Map<string, string>();
-  for (const set of SETS_SCRAPE_ORDER) {
+  for (const set of sets) {
     let page: ParsedSetPage;
     try {
-      page = await fetchSetPage(set);
+      page = await fetchSetPage(set, fetchImpl);
     } catch (err) {
       // One bad page must not discard the run; the previous snapshot for this
       // set stays in memory and is written back unchanged.
@@ -119,8 +130,8 @@ const main = async () => {
   // actually did. A currentSet change on its own is still worth persisting.
   if (changed) store.updatedAt = new Date().toISOString();
   if (changed || setChanged) {
-    mkdirSync(dirname(STORE), { recursive: true });
-    writeFileSync(STORE, `${JSON.stringify(store, null, 2)}\n`);
+    mkdirSync(dirname(storePath), { recursive: true });
+    writeArtefacts({ [storePath]: `${JSON.stringify(store, null, 2)}\n` });
   }
 
   const total = Object.values(store.sets).reduce(
@@ -135,17 +146,21 @@ const main = async () => {
   if (unresolved.length) console.log(`unresolved slugs: ${unresolved.join(", ")}`);
   if (failures.length) console.log(`set pages skipped: ${failures.join(", ")}`);
 
-  process.exitCode = exitCodeFor({
+  return {
     fetchedSets: fetchedSets.size,
     unknownSetCodes: hasUnknownSetCodes(),
     unresolvedSlugs: unresolvedTotal,
     failures: failures.length,
-  });
+  };
 };
 
 if (process.argv[1]?.endsWith("sync-pairings.ts")) {
-  main().catch((err) => {
-    console.error(`sync-pairings failed: ${messageOf(err)}`);
-    process.exit(1);
-  });
+  main()
+    .then((state) => {
+      process.exitCode = exitCodeFor(state);
+    })
+    .catch((err) => {
+      console.error(`sync-pairings failed: ${messageOf(err)}`);
+      process.exit(1);
+    });
 }

@@ -29,6 +29,13 @@ const PERMITTED_CROSSINGS: Record<string, { specifier: string; reason: string }>
       "must call the guard the script runs. The script is a script by " +
       "convention, not by dependency direction.",
   },
+  "src/__tests__/sync-pairings.invalid-page.test.ts": {
+    specifier: "../../scripts/sync-pairings",
+    reason:
+      "the scrape's snapshot-preservation lives in the script's loop, so the " +
+      "regression must run the script itself against a fixture store. The " +
+      "script is a script by convention, not by dependency direction.",
+  },
   "src/__tests__/purge-nonstandard-tournaments.test.ts": {
     specifier: "../../scripts/purge-nonstandard-tournaments",
     reason:

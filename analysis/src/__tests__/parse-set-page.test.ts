@@ -12,6 +12,10 @@ const respond = (body: string, ok = true) =>
     text: async () => body,
   }) as unknown as typeof fetch;
 
+const page = (set: string, rows: string) =>
+  `<html><head><title>Decks - ${set} - Pokémon TCG Pocket | Limitless</title></head>` +
+  `<body><table>${rows}</table></body></html>`;
+
 describe("parseSetPage", () => {
   it("reads slug, trimmed name and a comma-separated count", () => {
     const page = parseSetPage(`<table>${row("charizard-ex-a1-036", " Charizard ex ", "1,234")}</table>`);
@@ -59,7 +63,7 @@ describe("assertUsablePage", () => {
 
 describe("fetchSetPage", () => {
   it("requests the set's deck page", async () => {
-    const fetchImpl = respond(row("mew-ex-a1-129", "Mew ex", "10"));
+    const fetchImpl = respond(page("B4a", row("mew-ex-a1-129", "Mew ex", "10")));
     await fetchSetPage("B4a", fetchImpl);
     expect(fetchImpl).toHaveBeenCalledWith(
       "https://play.limitlesstcg.com/decks?game=pocket&set=B4a",
@@ -68,8 +72,33 @@ describe("fetchSetPage", () => {
   });
 
   it("returns the parsed rows", async () => {
-    const page = await fetchSetPage("B4a", respond(row("mew-ex-a1-129", "Mew ex", "10")));
-    expect(page.decks).toHaveLength(1);
+    const parsed = await fetchSetPage(
+      "B4a",
+      respond(page("B4a", row("mew-ex-a1-129", "Mew ex", "10")))
+    );
+    expect(parsed.decks).toHaveLength(1);
+  });
+
+  it("rejects a truncated body that still parsed some rows", async () => {
+    const body = `<html><head><title>Decks - B4a - Pokémon TCG Pocket | Limitless</title></head>` +
+      `<body><table>${row("mew-ex-a1-129", "Mew ex", "10")}`;
+    await expect(fetchSetPage("B4a", respond(body))).rejects.toThrow(
+      "Limitless B4a page was truncated"
+    );
+  });
+
+  it("rejects a page that names another set", async () => {
+    const body = page("A2", row("mew-ex-a1-129", "Mew ex", "10"));
+    await expect(fetchSetPage("B4a", respond(body))).rejects.toThrow(
+      "Limitless B4a page named A2"
+    );
+  });
+
+  it("rejects a page without a set title", async () => {
+    const body = `<html><body><table>${row("mew-ex-a1-129", "Mew ex", "10")}</table></body></html>`;
+    await expect(fetchSetPage("B4a", respond(body))).rejects.toThrow(
+      "Limitless B4a page had no set title"
+    );
   });
 
   it("rejects an HTTP error", async () => {

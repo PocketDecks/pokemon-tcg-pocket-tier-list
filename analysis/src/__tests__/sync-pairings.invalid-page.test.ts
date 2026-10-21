@@ -117,6 +117,18 @@ describe("sync-pairings set page validation", () => {
     expect(logs.join("\n")).toContain("A1: Limitless A1 page named A2");
   });
 
+  it("leaves no staging files beside the store", async () => {
+    await main({
+      storePath,
+      fetchImpl: fetchFor({ B4a: page("B4a", row("mew-ex-a1-129", "Mew ex", 140)) }),
+      sets: ["B4a"],
+    });
+
+    expect(fs.readdirSync(path.dirname(storePath))).toEqual([
+      "limitless-decks.json",
+    ]);
+  });
+
   it("leaves the store untouched when every page fails", async () => {
     const before = fs.readFileSync(storePath, "utf8");
 

@@ -2,7 +2,7 @@
 // page is one snapshot of its own decks array; a refetch replaces that array
 // and never folds across sets or infers a pairing graph.
 import "../src/load-env-side-effect";
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import {
@@ -14,6 +14,7 @@ import {
   snapshot,
   DeckListingStore,
 } from "../src/utils/deck-listing-store";
+import { writeArtefacts } from "../src/utils/write-artifacts";
 import { hasUnknownSetCodes, resolveSlug, unknownSetCodeList } from "../src/utils/slug-cards";
 import { fetchSetPage, ParsedSetPage } from "../src/utils/parse-set-page";
 import { STANDARD_SET_CODES } from "../src/utils/set-codes";
@@ -130,7 +131,7 @@ export const main = async (options: SyncOptions = {}): Promise<SyncRunState> => 
   if (changed) store.updatedAt = new Date().toISOString();
   if (changed || setChanged) {
     mkdirSync(dirname(storePath), { recursive: true });
-    writeFileSync(storePath, `${JSON.stringify(store, null, 2)}\n`);
+    writeArtefacts({ [storePath]: `${JSON.stringify(store, null, 2)}\n` });
   }
 
   const total = Object.values(store.sets).reduce(

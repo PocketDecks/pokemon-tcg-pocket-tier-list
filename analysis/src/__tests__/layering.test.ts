@@ -43,6 +43,13 @@ const PERMITTED_CROSSINGS: Record<string, { specifier: string; reason: string }>
       "script itself against a fixture store. The script is a script by " +
       "convention, not by dependency direction.",
   },
+  "src/__tests__/power-report.test.ts": {
+    specifier: "../../scripts/power-report",
+    reason:
+      "the report must read the same published files the CLI reads, so the " +
+      "test calls the script against a fixture data directory. The script is " +
+      "a script by convention, not by dependency direction.",
+  },
 };
 
 describe("analysis/src/ import layering", () => {

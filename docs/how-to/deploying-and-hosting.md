@@ -96,7 +96,7 @@ Three workflows in `.github/workflows/` cover deployment and checks:
 Both deploy workflows inject the Firebase web configuration as
 `VITE_FIREBASE_*` environment variables from repository secrets.
 
-All three workflows pin Node to `24.18.1` through `actions/setup-node@v7`,
+All three workflows pin Node to `24.22.1` through `actions/setup-node@v7`,
 and the pin is deliberate. Node `24.19.0` broke the deploy action's
 preview-link posting, and newer runner defaults trip a premature-close bug in
 the `node-fetch@v2` dependency inside `firebase-tools`. Do not bump the pin

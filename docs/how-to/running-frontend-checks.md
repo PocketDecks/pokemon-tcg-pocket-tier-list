@@ -22,7 +22,7 @@ the affected suites.
 ## What CI runs
 
 `.github/workflows/frontend-tests.yml` installs with `--frozen-lockfile`, then
-runs typecheck, lint and tests against Node 24.18.1. It triggers on pull
+runs typecheck, lint and tests against Node 24.22.1. It triggers on pull
 requests to `main` and on pushes to `main`. The analysis pipeline has its own
 workflow in `analysis-tests.yml`, which does not cover `src/`.
 

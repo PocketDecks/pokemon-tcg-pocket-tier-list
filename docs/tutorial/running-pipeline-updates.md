@@ -1,6 +1,6 @@
 # Tutorial: Running a local pipeline update
 
-This tutorial explains how to fetch Limitless tournament data and run the analysis pipeline locally. You need **Node.js 24.18.1**, the version the CI workflows pin, and **Yarn** installed on your system.
+This tutorial explains how to fetch Limitless tournament data and run the analysis pipeline locally. You need **Node.js 24.22.1**, the version the CI workflows pin, and **Yarn** installed on your system.
 
 ## Acquiring an API key
 

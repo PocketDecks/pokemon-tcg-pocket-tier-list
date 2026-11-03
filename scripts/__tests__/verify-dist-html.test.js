@@ -272,6 +272,16 @@ test("flags a deck page without exactly one image preload", () => {
   ]);
 });
 
+test("skips archetype hub pages, which carry no lead-card image preload", () => {
+  const dir = makeDist({
+    "deck/x/index.html": `<head>${IMAGE_PRELOAD}</head>`,
+    "deck/umbreon/index.html": "<head></head>",
+    "ja/deck/umbreon/index.html": "<head></head>",
+    ...CARD_THUMBS,
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(dir, new Set(["umbreon"])), []);
+});
+
 test("flags an image preload that points at a file missing from dist/thumbs", () => {
   const dir = makeDist({
     "deck/x/index.html": `<head>${IMAGE_PRELOAD}</head>`,

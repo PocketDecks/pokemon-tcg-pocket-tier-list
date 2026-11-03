@@ -88,7 +88,7 @@ const formatDate = (date: string) =>
   new Intl.DateTimeFormat("en-GB", { dateStyle: "medium" }).format(new Date(`${date}T00:00:00Z`));
 
 const HubPage = () => {
-  const { hubSlug } = useParams();
+  const { deckId: hubSlug } = useParams();
   const { decks, metaShareBySlug, loading } = useDecks();
   const { t } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");

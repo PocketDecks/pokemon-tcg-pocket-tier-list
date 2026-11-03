@@ -82,7 +82,11 @@ const main = async () => {
   const archive = JSON.parse(fs.readFileSync(ARCHIVE_FILE, "utf8"));
   const liveDecks = JSON.parse(fs.readFileSync(DECKS_FILE, "utf8"));
   const hubs = buildHubJobs(archive, liveDecks);
-  const template = readTemplate(fs.readFileSync(path.join(BUILD_DIR, "index.html"), "utf8"));
+  const shell = fs.readFileSync(path.join(BUILD_DIR, "index.html"), "utf8");
+  if (!/<div\b[^>]*id=["']root["'][^>]*>\s*<\/div>/i.test(shell)) {
+    throw new Error(`${BUILD_DIR}/index.html is already prerendered; run the hub prerender before prerender-routes.js`);
+  }
+  const template = readTemplate(shell);
   const server = await startServer(BUILD_DIR, template.html);
   const browser = await launchBrowser();
   const pageErrors = [];

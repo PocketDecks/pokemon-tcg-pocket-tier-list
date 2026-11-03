@@ -358,8 +358,13 @@ const imageCandidates = (tag) =>
     .map((candidate) => candidate.trim().split(/\s+/)[0])
     .filter(Boolean);
 
-const findDeckImagePreloadIssues = (dir = DIST_DIR) =>
-  deckDetailFiles(dir).flatMap((file) => {
+const findDeckImagePreloadIssues = (
+  dir = DIST_DIR,
+  hubSlugs = new Set(loadArchive().map((entry) => entry.hub))
+) =>
+  deckDetailFiles(dir)
+    .filter((file) => !hubSlugs.has(path.basename(path.dirname(file))))
+    .flatMap((file) => {
     const entry = path.relative(dir, file);
     const tags = collectImagePreloads(fs.readFileSync(file, "utf8"));
     if (tags.length !== 1) {

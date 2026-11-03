@@ -26,6 +26,7 @@
   "scripts": {
     "start": "vite",
     "prebuild": "node --env-file-if-exists=.env scripts/generate-sitemap.js && node --env-file-if-exists=.env scripts/generate-attack-costs.mjs && node --env-file-if-exists=.env scripts/generate-deck-thumbs.mjs",
+    "check:generated": "node --env-file-if-exists=.env scripts/generate-attack-costs.mjs --check",
     "build": "yarn typecheck && yarn lint && vite build",
     "postbuild": "node --env-file-if-exists=.env scripts/prerender-decks.js && node --env-file-if-exists=.env scripts/prerender-routes.js && node --env-file-if-exists=.env scripts/verify-dist-html.js",
     "test": "vitest",

@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import DeckRoute from "../DeckRoute";
 
 const decksState = vi.hoisted(() => ({
-  value: { decks: [] as { name: string }[] | null, loading: false, error: null },
+  value: { decks: [] as { name: string }[] | null, loading: false, error: null as Error | null },
 }));
 
 vi.mock("../../../app/use-decks", () => ({
@@ -71,5 +71,18 @@ describe("DeckRoute", () => {
     decksState.value = { decks: [{ name: "garchomp-a2-123" }], loading: false, error: null };
     renderAt("/deck/does-not-exist");
     expect(screen.getByText("not found page")).toBeTruthy();
+  });
+
+  it("renders the not-found page for an unknown slug when decks fail to load", () => {
+    decksState.value = { decks: null, loading: false, error: new Error("offline") };
+    renderAt("/deck/does-not-exist");
+    expect(screen.getByText("not found page")).toBeTruthy();
+  });
+
+  it("renders the detail page for a known variant when decks fail to load", () => {
+    decksState.value = { decks: null, loading: false, error: new Error("offline") };
+    renderAt("/deck/garchomp-a2-123");
+    expect(screen.getByText("live deck page")).toBeTruthy();
+    expect(screen.getByTestId("path").textContent).toBe("/deck/garchomp-a2-123");
   });
 });

@@ -1,4 +1,5 @@
-// scripts/__tests__/generate-sitemap.test.js
+const fs = require("node:fs");
+const path = require("node:path");
 const test = require("node:test");
 const assert = require("node:assert");
 
@@ -11,6 +12,26 @@ const FIXTURE_DECKS = [
   { name: "suicune-ex-a4a-020&baxcalibur-b2a-036" },
   { name: "Greninja ex & Oricorio" },
 ];
+test("deck slugs remove punctuation while retaining route separators", () => {
+  assert.strictEqual(
+    deckSlug("Professor's Research-PA-007"),
+    "professors-research-pa-007"
+  );
+});
+
+test("current names retain their existing slugs", () => {
+  const decks = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "..", "..", "public", "data", "best-decks.json"), "utf8")
+  );
+  for (const deck of decks) {
+    assert.strictEqual(
+      deckSlug(deck.name),
+      deck.name.toLowerCase().replace(/\s/g, "-"),
+      deck.name
+    );
+  }
+});
+
 const LASTMOD = "2026-08-22";
 
 test("shared helper turns names into route slugs", () => {

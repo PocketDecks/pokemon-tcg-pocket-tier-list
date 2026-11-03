@@ -6,16 +6,14 @@ import { deckArchetypeSlug, deckVariantSlug } from "./deck-archetype.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_FILE = path.join(ROOT, "public", "data", "best-decks.json");
+const HISTORICAL_FILE = path.join(ROOT, "public", "data", "historical-trends.json");
 const OUT_FILE = path.join(ROOT, "public", "data", "deck-archive.json");
 
 const readJson = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
 
 const currentSnapshotDate = () => {
-  const output = execFileSync("git", ["log", "-1", "--format=%cs", "--", "public/data/best-decks.json"], {
-    cwd: ROOT,
-    encoding: "utf8",
-  }).trim();
-  return output || new Date().toISOString().slice(0, 10);
+  const trends = readJson(HISTORICAL_FILE);
+  return trends.map((row) => row.date).sort().at(-1) ?? new Date().toISOString().slice(0, 10);
 };
 
 const snapshotDate = (commit) => {
@@ -45,21 +43,29 @@ const namesAtCommit = (commit) => {
 };
 
 const readJsonFromText = (text) => JSON.parse(text);
+const oldSlug = (name) => name.toLowerCase().replace(/\s/g, "-");
+
+const snapshotNames = (commit) => {
+  const names = namesAtCommit(commit);
+  return names.map((name) => ({ name, variant: deckVariantSlug(name), legacy: oldSlug(name) }));
+};
 
 const seedArchive = () => {
   const archive = new Map();
   for (const commit of snapshotCommits().reverse()) {
     const date = snapshotDate(commit);
-    for (const name of namesAtCommit(commit)) {
-      const variant = deckVariantSlug(name);
+    for (const { name, variant, legacy } of snapshotNames(commit)) {
       const hub = deckArchetypeSlug(name);
       const existing = archive.get(variant);
+      const legacySlugs = new Set(existing?.legacySlugs ?? []);
+      if (legacy !== variant) legacySlugs.add(legacy);
       archive.set(variant, {
         variant,
         hub,
         name,
         firstSeen: existing?.firstSeen ?? date,
-        lastSeen: existing?.lastSeen ?? date,
+        lastSeen: date,
+        ...(legacySlugs.size > 0 ? { legacySlugs: [...legacySlugs].sort() } : {}),
       });
     }
   }
@@ -78,6 +84,7 @@ const mergeCurrent = (archive) => {
       name: deck.name,
       firstSeen: previous?.firstSeen ?? date,
       lastSeen: date,
+      ...(previous?.legacySlugs ? { legacySlugs: previous.legacySlugs } : {}),
     });
   }
   return [...byVariant.values()].sort((a, b) => a.variant.localeCompare(b.variant));

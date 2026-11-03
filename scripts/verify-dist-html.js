@@ -10,6 +10,8 @@ const {
 const { resolveHosting } = require("./firebase-hosting");
 const { inlineScriptHashes, parsePolicy, reportOnlyPolicy } = require("./content-security-policy");
 const { DELUXE_EXPANSION_IDS, newestExpansion } = require("../src/app/expansion-policy.mjs");
+const { deckSlug } = require("./deck-slug.mjs");
+const { previousExpansionDate, shouldIndexHub } = require("./deck-archive-policy.mjs");
 
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
@@ -104,6 +106,62 @@ const findCanonicalIssues = (dir = DIST_DIR) =>
       const expected = expectedCanonical(entry);
       return href === expected ? [] : [`${entry}: canonical ${href} is not ${expected}`];
     });
+
+const metaContent = (html, name) => {
+  const tag = (html.match(/<meta\b[^>]*>/gi) ?? []).find((candidate) =>
+    new RegExp(`\\bname=["']${name}["']`, "i").test(candidate)
+  );
+  return tag === undefined ? [] : [decodeXmlEntities(tag.match(/\bcontent=["']([^"']*)["']/i)?.[1] ?? "")];
+};
+
+const hubHtmlIssues = (entry, html, expectedRobots) => {
+  const issues = [];
+  const canonicals = html.match(CANONICAL_TAG) ?? [];
+  if (canonicals.length !== 1) {
+    issues.push(`${entry}: expected 1 canonical, found ${canonicals.length}`);
+  }
+  const robots = (html.match(/<meta\b[^>]*>/gi) ?? [])
+    .filter((tag) => /\bname=["']robots["']/i.test(tag))
+    .map((tag) => tag.match(/\bcontent=["']([^"']*)["']/i)?.[1] ?? "");
+  if (robots.length !== 1 || robots[0] !== expectedRobots) {
+    issues.push(`${entry}: robots ${robots.join(",") || "none"} is not ${expectedRobots}`);
+  }
+  const title = (html.match(/<title>([^<]*)<\/title>/i)?.[1] ?? "").trim();
+  const description = (metaContent(html, "description")[0] ?? "").trim();
+  const h1 = (html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i)?.[1] ?? "").replace(/<[^>]+>/g, "").trim();
+  if (!title) issues.push(`${entry}: empty title`);
+  if (!description) issues.push(`${entry}: empty description`);
+  if (!h1) issues.push(`${entry}: empty H1`);
+  const jsonLd = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi)].map((m) => m[1]);
+  for (const [label, text] of [["title", title], ["description", description], ["H1", h1], ["breadcrumb", jsonLd.join(" ")]]) {
+    if (/\bundefined\b/.test(text)) issues.push(`${entry}: ${label} contains undefined`);
+  }
+  return issues;
+};
+
+const findHubPageIssues = (
+  dir = DIST_DIR,
+  archive = loadArchive(),
+  decks = loadDecks(),
+  previousDate = previousExpansionDate()
+) => {
+  const live = new Set(decks.map((deck) => deckSlug(deck.name)));
+  const hubs = [...new Set(archive.map((entry) => entry.hub))];
+  return hubs.flatMap((hub) => {
+    const indexed = shouldIndexHub(
+      archive.filter((entry) => entry.hub === hub),
+      live,
+      previousDate
+    );
+    return ["", "ja/"].flatMap((prefix) => {
+      const entry = `${prefix}deck/${hub}/index.html`;
+      const file = path.join(dir, entry);
+      if (!fs.existsSync(file)) return [`${entry}: missing`];
+      const expectedRobots = prefix === "" && indexed ? "index, follow" : "noindex, follow";
+      return hubHtmlIssues(entry, fs.readFileSync(file, "utf8"), expectedRobots);
+    });
+  });
+};
 
 const findShellPageIssues = (dir = DIST_DIR) =>
   [...SHELL_PAGES].flatMap((entry) => {
@@ -237,6 +295,9 @@ const loadDecks = (dataDir = DATA_DIR) => {
     });
   }
 };
+
+const loadArchive = (dataDir = DATA_DIR) =>
+  JSON.parse(fs.readFileSync(path.join(dataDir, "deck-archive.json"), "utf8"));
 
 const loadExpansions = () =>
   require("pokemon-tcg-pocket-cards/data/v5/expansions.json");
@@ -379,6 +440,11 @@ const main = () => {
     );
     process.exit(1);
   }
+  const hubIssues = findHubPageIssues();
+  if (hubIssues.length > 0) {
+    console.error(`Deck hub pages failing the head or copy checks:\n${hubIssues.join("\n")}`);
+    process.exit(1);
+  }
   const shellIssues = findShellPageIssues();
   if (shellIssues.length > 0) {
     console.error(
@@ -461,6 +527,7 @@ if (require.main === module) main();
 
 module.exports = {
   findBakedAppState,
+  findHubPageIssues,
   findCanonicalIssues,
   findCspHashIssues,
   findShellPageIssues,

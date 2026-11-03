@@ -28,9 +28,11 @@ const BUILD_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
   : path.join(ROOT, "dist");
 const DATA_FILE = path.join(ROOT, "public", "data", "best-decks.json");
+const ARCHIVE_FILE = path.join(ROOT, "public", "data", "deck-archive.json");
 const DECK_CONCURRENCY = 8;
 
 const { deckSlug } = require("./deck-slug.mjs");
+const { hubDisplayName } = require("./deck-archetype.mjs");
 const { cardThumbSrcSet, DECK_CARD_SIZES, firstBestListCardId } = require("./deck-thumbs.mjs");
 
 const slugFor = deckSlug;
@@ -89,19 +91,30 @@ const renderDeckHtml = (deck, documentHtml, locale = DEFAULT_LOCALE) => {
           name: translated ? JA_TIER_LIST_LABEL : "Tier List",
           item: localizedUrl(SITE_URL, locale, "/tier-list"),
         },
-        { "@type": "ListItem", position: 3, name },
+        ...(deck.hub
+          ? [{ "@type": "ListItem", position: 3, name: deck.hub.name, item: localizedUrl(SITE_URL, locale, `/deck/${deck.hub.slug}`) }]
+          : []),
+        { "@type": "ListItem", position: deck.hub ? 4 : 3, name },
       ],
     },
   });
   return html;
 };
 
-const deckJob = (deck) => {
+const hubFor = (archive, slug) => {
+  const entry = archive.find((candidate) => candidate.variant === slug);
+  if (!entry) return null;
+  const entries = archive.filter((candidate) => candidate.hub === entry.hub);
+  return { slug: entry.hub, name: hubDisplayName(entries) };
+};
+
+const deckJob = (deck, archive = []) => {
   const slug = slugFor(deck.name);
   const name = friendlyName(deck.name);
   return {
     slug,
     name,
+    hub: hubFor(archive, slug),
     title: `${name} | Pokémon TCG Pocket Deck Stats and Matchups`,
     description: `Pokémon TCG Pocket deck profile for ${name}: card list, matchups, and win rate.`,
     ogImage: `${SITE_URL}/og/deck/${slug}.png`,
@@ -128,8 +141,9 @@ const main = async () => {
     process.exit(1);
   }
   const template = readTemplate(fs.readFileSync(path.join(BUILD_DIR, "index.html"), "utf8"));
+  const archive = JSON.parse(fs.readFileSync(ARCHIVE_FILE, "utf8"));
   const jobs = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"))
-    .map(deckJob)
+    .map((deck) => deckJob(deck, archive))
     .filter((job) => job.cardId !== null);
 
   const server = await startServer(BUILD_DIR, template.html);

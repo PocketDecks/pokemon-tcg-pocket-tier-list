@@ -39,16 +39,6 @@ test("unknown paths and missing assets never fall back to the home page", () => 
   );
 });
 
-test("punctuated deck URLs permanently redirect to the normalised slug", () => {
-  const redirect = {
-    kind: "redirect",
-    status: 301,
-    location: "/deck/professors-research-pa-007/",
-  };
-  assert.deepStrictEqual(resolve("/deck/professor's-research-pa-007"), redirect);
-  assert.deepStrictEqual(resolve("/deck/professor's-research-pa-007/"), redirect);
-});
-
 test("stats permanently redirects to statistics", () => {
   const redirect = { kind: "redirect", status: 301, location: "/statistics/" };
   assert.deepStrictEqual(resolve("/stats"), redirect);

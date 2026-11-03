@@ -12,11 +12,13 @@ const FIXTURE_DECKS = [
   { name: "suicune-ex-a4a-020&baxcalibur-b2a-036" },
   { name: "Greninja ex & Oricorio" },
 ];
-test("deck slugs remove punctuation while retaining route separators", () => {
+test("deck slugs remove punctuation without creating separators", () => {
   assert.strictEqual(
     deckSlug("Professor's Research-PA-007"),
     "professors-research-pa-007"
   );
+  assert.strictEqual(deckSlug("Porygon.Z! PA-007"), "porygonz-pa-007");
+  assert.strictEqual(deckSlug("Ho-Oh/PA-007"), "ho-ohpa-007");
 });
 
 test("current names retain their existing slugs", () => {

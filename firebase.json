@@ -95,16 +95,6 @@
         "type": 301
       },
       {
-        "source": "/deck/professor's-research-pa-007",
-        "destination": "/deck/professors-research-pa-007/",
-        "type": 301
-      },
-      {
-        "source": "/deck/professor's-research-pa-007/",
-        "destination": "/deck/professors-research-pa-007/",
-        "type": 301
-      },
-      {
         "source": "/stats/",
         "destination": "/statistics/",
         "type": 301

@@ -700,10 +700,10 @@ picomatch@^4.0.3, picomatch@^4.0.4, picomatch@^4.0.7:
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-4.0.7.tgz#6313360034ccb36b3dc61ecbdff78121f90fe21f"
   integrity sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==
 
-pokemon-tcg-pocket-cards@^5.4.0:
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/pokemon-tcg-pocket-cards/-/pokemon-tcg-pocket-cards-5.4.0.tgz#8d4ee6a8f7dd8cdfe353fe34318c500bfd17e7c7"
-  integrity sha512-q5hWqrXGHGm4kGRe9lh1T82UgZDvss7+Z3Aoa1nPkYMp0OfHq/h5RtMdAYqtRtb2EUTN3qSD9oo5AwV9djYV6Q==
+pokemon-tcg-pocket-cards@^5.5.2:
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/pokemon-tcg-pocket-cards/-/pokemon-tcg-pocket-cards-5.5.2.tgz#647a7edd9cf2c8594e2b1d38888406a00c30d5a4"
+  integrity sha512-nGlDjmbH1dhNvw4y7EGORE1t5kvsVZ/Uh8aCDeNyCVMYWuSjTBd/Q+xx+LCvWeTfhC7qlNGPwEu//zoCvQPlvg==
 
 postcss@^8.5.6:
   version "8.5.28"

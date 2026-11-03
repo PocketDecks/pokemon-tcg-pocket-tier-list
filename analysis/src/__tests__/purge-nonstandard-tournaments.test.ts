@@ -9,8 +9,9 @@ import { purgeNonStandardTournaments } from "../../scripts/purge-nonstandard-tou
 // The script loads the root .env on import; these tests stub fetch instead.
 vi.mock("../load-env-side-effect", () => ({}));
 
-const STANDARD_DATE = "2026-09-01T10:00:00.000Z";
-const CUSTOM_DATE = "2026-09-02T10:00:00.000Z";
+const STANDARD_DATE = "2026-11-01T10:00:00.000Z";
+const CUSTOM_DATE = "2026-11-02T10:00:00.000Z";
+const SHARD_FILE = "c1.ndjson";
 
 const makeDeck = (id: string, date: string): Deck => ({
   id,
@@ -175,15 +176,15 @@ describe("purge-nonstandard-tournaments", () => {
     await purgeNonStandardTournaments({ dir, apply: true });
 
     const remaining = fs
-      .readFileSync(path.join(dir, "b4a.ndjson"), "utf8")
+      .readFileSync(path.join(dir, SHARD_FILE), "utf8")
       .split("\n")
       .filter((line) => line.length > 0)
       .map((line) => JSON.parse(line).id);
     expect(remaining.sort()).toEqual(["std-alice", "std-bob"]);
 
     const manifest = JSON.parse(fs.readFileSync(path.join(dir, "manifest.json"), "utf8"));
-    expect(manifest.shards.b4a).toEqual({
-      file: "b4a.ndjson",
+    expect(manifest.shards.c1).toEqual({
+      file: "c1.ndjson",
       count: 2,
       minDate: STANDARD_DATE,
       maxDate: STANDARD_DATE,
@@ -204,7 +205,7 @@ describe("purge-nonstandard-tournaments", () => {
 
   it("refuses to write when the store changes while the purge is reading", async () => {
     standardStore(dir);
-    const shard = path.join(dir, "b4a.ndjson");
+    const shard = path.join(dir, SHARD_FILE);
     const manifestFile = path.join(dir, "manifest.json");
     const tampered =
       fs.readFileSync(shard, "utf8") + `${JSON.stringify(makeDeck("std-erin", STANDARD_DATE))}\n`;
@@ -221,7 +222,7 @@ describe("purge-nonstandard-tournaments", () => {
     );
 
     await expect(purgeNonStandardTournaments({ dir, apply: true })).rejects.toThrow(
-      /b4a\.ndjson changed.*nothing written/
+      /c1\.ndjson changed.*nothing written/
     );
     expect(fs.readFileSync(shard, "utf8")).toBe(tampered);
     expect(fs.readFileSync(manifestFile, "utf8")).toBe(manifestBefore);

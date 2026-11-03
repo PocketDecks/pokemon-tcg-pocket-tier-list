@@ -11,6 +11,7 @@ const path = require("path");
 const { deckSlug } = require("./deck-slug.mjs");
 const { escapeXml, SITE_URL } = require("./meta-stamp");
 const { localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
+const { shouldIndexHub } = require("./deck-archive-policy.mjs");
 
 const STATIC_ROUTES = [
   "/",
@@ -27,12 +28,17 @@ const DEFAULT_LOCALE = "en";
 
 const urlFor = (locale, route) => localizedUrl(SITE_URL, locale, route);
 
-const buildSitemap = ({ decks, staticRoutes = STATIC_ROUTES, lastmod }) => {
-  // Trailing slashes match the canonical form stamped by the prerenderers;
-  // the server 301s slashless paths, and sitemap/canonical must agree.
+const buildSitemap = ({ decks, staticRoutes = STATIC_ROUTES, archive = [], lastmod }) => {
+  const live = new Set(decks.map((deck) => deckSlug(deck.name)));
+  const grouped = new Map(archive.map((entry) => [entry.hub, []]));
+  for (const entry of archive) grouped.get(entry.hub).push(entry);
+  const hubRoutes = [...grouped.entries()]
+    .filter(([, entries]) => shouldIndexHub(entries, live, "2026-10-20"))
+    .map(([hub]) => `/deck/${hub}`);
   const baseRoutes = [
     ...staticRoutes,
     ...decks.map((deck) => `/deck/${deckSlug(deck.name)}`),
+    ...hubRoutes,
   ];
 
   const alternateLines = (route) =>
@@ -62,9 +68,11 @@ ${urlEntries}
 const main = () => {
   const bestDecksPath = path.join(__dirname, "..", "public", "data", "best-decks.json");
   const bestDecks = JSON.parse(fs.readFileSync(bestDecksPath, "utf8"));
+  const archivePath = path.join(__dirname, "..", "public", "data", "deck-archive.json");
+  const archive = JSON.parse(fs.readFileSync(archivePath, "utf8"));
   const today = new Date().toISOString().split("T")[0];
 
-  const sitemap = buildSitemap({ decks: bestDecks, lastmod: today });
+  const sitemap = buildSitemap({ decks: bestDecks, archive, lastmod: today });
 
   const outPath = path.join(__dirname, "..", "public", "sitemap.xml");
   fs.writeFileSync(outPath, sitemap);

@@ -6,6 +6,7 @@ import { deckThumbUrl, onDeckThumbError } from "../app/deck-thumb";
 import { FullDeckType } from "../contexts/DecksContext";
 import { MetaShareEntry } from "../types/pipeline-data";
 import { deltaTrend } from "../app/delta-trend";
+import { deckArchetypeSlug } from "../app/deck-archetype";
 import NavIcon from "./NavIcon";
 
 const THUMB_SIZES = { small: 96, large: 183 };
@@ -164,6 +165,7 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
     const delta = metaShare?.delta ?? null;
     const trend = deltaTrend(delta);
     const name = deckDisplayName(deck);
+    const hubHref = `/deck/${deckArchetypeSlug(deck.name)}`;
     const containerRef = useRef<HTMLDivElement>(null);
     const [anchor, setAnchor] = useState<DOMRect | null>(null);
 
@@ -203,7 +205,7 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
             onBlur={hide}
         >
             <StyledDeckCard
-                to={`/deck/${deck.id}`}
+                to={hubHref}
                 aria-label={shareLabel ? `${name}, ${shareLabel}` : name}
             >
                 <DeckImage
@@ -230,7 +232,7 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
                 ) : null}
             </StyledDeckCard>
             {deck.iconSecondary && (
-                <SubCard to={`/deck/${deck.id}`} tabIndex={-1} aria-hidden="true">
+                <SubCard to={hubHref} tabIndex={-1} aria-hidden="true">
                     <DeckImage
                         key={deck.iconSecondary.id}
                         src={deckThumbUrl(deck.iconSecondary.id, THUMB_SIZES.large)}

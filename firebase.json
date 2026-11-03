@@ -108,6 +108,4611 @@
         "source": "/stats/",
         "destination": "/statistics/",
         "type": 301
+      },
+      {
+        "source": "/deck/abomasnow-a2a-021{,/**}",
+        "destination": "/deck/abomasnow/",
+        "type": 301
+      },
+      {
+        "source": "/deck/abomasnow-a2a-021&arceus-ex-a2a-071{,/**}",
+        "destination": "/deck/abomasnow/",
+        "type": 301
+      },
+      {
+        "source": "/deck/aegislash-b1-172{,/**}",
+        "destination": "/deck/aegislash/",
+        "type": 301
+      },
+      {
+        "source": "/deck/aerodactyl-ex-a1a-046&hitmonlee-a1-154{,/**}",
+        "destination": "/deck/aerodactyl-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/aerodactyl-ex-a1a-046&lucario-a2-092{,/**}",
+        "destination": "/deck/aerodactyl-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/aerodactyl-ex-a1a-046&primeape-a1a-042{,/**}",
+        "destination": "/deck/aerodactyl-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/alakazam-a1-117{,/**}",
+        "destination": "/deck/alakazam/",
+        "type": 301
+      },
+      {
+        "source": "/deck/alakazam-a1-117&banette-a3-075{,/**}",
+        "destination": "/deck/alakazam/",
+        "type": 301
+      },
+      {
+        "source": "/deck/alakazam-a1-117&weezing-a1-177{,/**}",
+        "destination": "/deck/alakazam/",
+        "type": 301
+      },
+      {
+        "source": "/deck/alolan-dugtrio-ex-a3a-047{,/**}",
+        "destination": "/deck/alolan-dugtrio-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/alolan-exeggutor-a3-002&leafeon-ex-a2a-010{,/**}",
+        "destination": "/deck/alolan-exeggutor/",
+        "type": 301
+      },
+      {
+        "source": "/deck/alolan-exeggutor-a3-002&pichu-a4-066{,/**}",
+        "destination": "/deck/alolan-exeggutor/",
+        "type": 301
+      },
+      {
+        "source": "/deck/alolan-muk-ex-a3-111{,/**}",
+        "destination": "/deck/alolan-muk-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/alolan-muk-ex-a3-111&grafaiai-a2b-051{,/**}",
+        "destination": "/deck/alolan-muk-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/alolan-muk-ex-a3-111&toxapex-a3-116{,/**}",
+        "destination": "/deck/alolan-muk-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/alolan-ninetales-ex-b2-029{,/**}",
+        "destination": "/deck/alolan-ninetales-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/alolan-ninetales-ex-b2-029&crawdaunt-a4-061{,/**}",
+        "destination": "/deck/alolan-ninetales-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/alolan-ninetales-ex-b2-029&froakie-b1-071{,/**}",
+        "destination": "/deck/alolan-ninetales-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/alolan-ninetales-ex-b2-029&greninja-a1-089{,/**}",
+        "destination": "/deck/alolan-ninetales-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/alolan-ninetales-ex-b2-029&team-rockets-raticate-ex-b4a-059{,/**}",
+        "destination": "/deck/alolan-ninetales-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/altaria-a4a-055{,/**}",
+        "destination": "/deck/altaria/",
+        "type": 301
+      },
+      {
+        "source": "/deck/altaria-a4a-055&lugia-ex-a4-149{,/**}",
+        "destination": "/deck/altaria/",
+        "type": 301
+      },
+      {
+        "source": "/deck/altaria-a4a-055&mantyke-a4a-023{,/**}",
+        "destination": "/deck/altaria/",
+        "type": 301
+      },
+      {
+        "source": "/deck/altaria-a4a-055&pichu-a4-066{,/**}",
+        "destination": "/deck/altaria/",
+        "type": 301
+      },
+      {
+        "source": "/deck/altaria-a4a-055&silvally-a3a-061{,/**}",
+        "destination": "/deck/altaria/",
+        "type": 301
+      },
+      {
+        "source": "/deck/annihilape-b2a-057{,/**}",
+        "destination": "/deck/annihilape/",
+        "type": 301
+      },
+      {
+        "source": "/deck/annihilape-b2a-057&mega-lopunny-ex-b1a-042{,/**}",
+        "destination": "/deck/annihilape/",
+        "type": 301
+      },
+      {
+        "source": "/deck/arcanine-ex-a1-041{,/**}",
+        "destination": "/deck/arcanine-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/arcanine-ex-a1-041&moltres-ex-a1-047{,/**}",
+        "destination": "/deck/arcanine-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/arceus-ex-a2a-071{,/**}",
+        "destination": "/deck/arceus-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/arceus-ex-a2a-071&dialga-ex-a2-119{,/**}",
+        "destination": "/deck/arceus-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/arceus-ex-a2a-071&greninja-a1-089{,/**}",
+        "destination": "/deck/arceus-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/arceus-ex-a2a-071&magnezone-a2-053{,/**}",
+        "destination": "/deck/arceus-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/arceus-ex-a2a-071&oricorio-a3-066{,/**}",
+        "destination": "/deck/arceus-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/arceus-ex-a2a-071&pichu-a4-066{,/**}",
+        "destination": "/deck/arceus-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/arceus-ex-a2a-071&zeraora-a3a-021{,/**}",
+        "destination": "/deck/arceus-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/archeops-b1-134{,/**}",
+        "destination": "/deck/archeops/",
+        "type": 301
+      },
+      {
+        "source": "/deck/archeops-b1-134&rampardos-a2-089{,/**}",
+        "destination": "/deck/archeops/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ariados-b1a-006{,/**}",
+        "destination": "/deck/ariados/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ariados-b1a-006&kartana-a3a-008{,/**}",
+        "destination": "/deck/ariados/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ariados-b1a-006&whimsicott-ex-b1-016{,/**}",
+        "destination": "/deck/ariados/",
+        "type": 301
+      },
+      {
+        "source": "/deck/armarouge-ex-b2a-020{,/**}",
+        "destination": "/deck/armarouge-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/articuno-ex-a1-084{,/**}",
+        "destination": "/deck/articuno-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/articuno-ex-a1-084&greninja-a1-089{,/**}",
+        "destination": "/deck/articuno-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/articuno-ex-a1-084&magnezone-a2-053{,/**}",
+        "destination": "/deck/articuno-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/banette-a3-075{,/**}",
+        "destination": "/deck/banette/",
+        "type": 301
+      },
+      {
+        "source": "/deck/bastiodon-a2-114{,/**}",
+        "destination": "/deck/bastiodon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/bastiodon-a2-114&dialga-ex-a2-119{,/**}",
+        "destination": "/deck/bastiodon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/bastiodon-a2-114&skarmory-a2-111{,/**}",
+        "destination": "/deck/bastiodon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/baxcalibur-b2a-036{,/**}",
+        "destination": "/deck/baxcalibur/",
+        "type": 301
+      },
+      {
+        "source": "/deck/baxcalibur-b2a-036&alolan-ninetales-ex-b2-029{,/**}",
+        "destination": "/deck/baxcalibur/",
+        "type": 301
+      },
+      {
+        "source": "/deck/baxcalibur-b2a-036&suicune-ex-a4a-020{,/**}",
+        "destination": "/deck/baxcalibur/",
+        "type": 301
+      },
+      {
+        "source": "/deck/beautifly-b4-003&dustox-b4-005{,/**}",
+        "destination": "/deck/beautifly/",
+        "type": 301
+      },
+      {
+        "source": "/deck/beedrill-ex-a2b-003{,/**}",
+        "destination": "/deck/beedrill-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/beedrill-ex-a2b-003&beedrill-a1-010{,/**}",
+        "destination": "/deck/beedrill-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/beedrill-ex-a2b-003&exeggutor-ex-a1-023{,/**}",
+        "destination": "/deck/beedrill-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/bellibolt-ex-b2a-042{,/**}",
+        "destination": "/deck/bellibolt-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/bellibolt-ex-b2a-042&magnezone-a2-053{,/**}",
+        "destination": "/deck/bellibolt-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/bellibolt-ex-b2a-042&zeraora-a3a-021{,/**}",
+        "destination": "/deck/bellibolt-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/blacephalon-a3a-009{,/**}",
+        "destination": "/deck/blacephalon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/blacephalon-ex-b2-023{,/**}",
+        "destination": "/deck/blacephalon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/blacephalon-ex-b2-023&celesteela-a3a-062{,/**}",
+        "destination": "/deck/blacephalon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/blaine-a1-221{,/**}",
+        "destination": "/deck/blaine/",
+        "type": 301
+      },
+      {
+        "source": "/deck/blastoise-ex-a1-056{,/**}",
+        "destination": "/deck/blastoise-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/blastoise-ex-a1-056&manaphy-a2-050{,/**}",
+        "destination": "/deck/blastoise-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/blastoise-ex-a1-056&weezing-a1-177{,/**}",
+        "destination": "/deck/blastoise-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/bronzong-a2a-059{,/**}",
+        "destination": "/deck/bronzong/",
+        "type": 301
+      },
+      {
+        "source": "/deck/bronzong-a2a-059&skarmory-a2-111{,/**}",
+        "destination": "/deck/bronzong/",
+        "type": 301
+      },
+      {
+        "source": "/deck/butterfree-b3b-003{,/**}",
+        "destination": "/deck/butterfree/",
+        "type": 301
+      },
+      {
+        "source": "/deck/butterfree-b3b-003&decidueye-ex-a3-012{,/**}",
+        "destination": "/deck/butterfree/",
+        "type": 301
+      },
+      {
+        "source": "/deck/butterfree-b3b-003&mega-sceptile-ex-b3-008{,/**}",
+        "destination": "/deck/butterfree/",
+        "type": 301
+      },
+      {
+        "source": "/deck/buzzwole-ex-a3a-006{,/**}",
+        "destination": "/deck/buzzwole-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/buzzwole-ex-a3a-006&celesteela-a3a-062{,/**}",
+        "destination": "/deck/buzzwole-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/buzzwole-ex-a3a-006&kartana-a3a-008{,/**}",
+        "destination": "/deck/buzzwole-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/buzzwole-ex-a3a-006&pheromosa-a3a-007{,/**}",
+        "destination": "/deck/buzzwole-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/carnivine-a2a-009&arceus-ex-a2a-071{,/**}",
+        "destination": "/deck/carnivine/",
+        "type": 301
+      },
+      {
+        "source": "/deck/celebi-ex-a1a-003&exeggutor-ex-a1-023{,/**}",
+        "destination": "/deck/celebi-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/celebi-ex-a1a-003&serperior-a1a-006{,/**}",
+        "destination": "/deck/celebi-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/celesteela-a3a-062{,/**}",
+        "destination": "/deck/celesteela/",
+        "type": 301
+      },
+      {
+        "source": "/deck/chandelure-b2-069{,/**}",
+        "destination": "/deck/chandelure/",
+        "type": 301
+      },
+      {
+        "source": "/deck/chandelure-b2-069&meloetta-b2-070{,/**}",
+        "destination": "/deck/chandelure/",
+        "type": 301
+      },
+      {
+        "source": "/deck/chandelure-b2-069&oricorio-b4-078{,/**}",
+        "destination": "/deck/chandelure/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charizard-b1a-013{,/**}",
+        "destination": "/deck/charizard/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charizard-ex-a1-036{,/**}",
+        "destination": "/deck/charizard-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charizard-ex-a1-036&magby-a4-032{,/**}",
+        "destination": "/deck/charizard-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charizard-ex-a1-036&mega-charizard-y-ex-b1a-014{,/**}",
+        "destination": "/deck/charizard-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charizard-ex-a1-036&moltres-ex-a1-047{,/**}",
+        "destination": "/deck/charizard-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charizard-ex-a1-036&snorlax-a2a-063{,/**}",
+        "destination": "/deck/charizard-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charizard-ex-a2b-010{,/**}",
+        "destination": "/deck/charizard-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charizard-ex-a2b-010&arcanine-ex-a1-041{,/**}",
+        "destination": "/deck/charizard-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charizard-ex-a2b-010&entei-ex-a4a-010{,/**}",
+        "destination": "/deck/charizard-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charizard-ex-a2b-010&flareon-ex-a3b-009{,/**}",
+        "destination": "/deck/charizard-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charizard-ex-a2b-010&moltres-ex-a1-047{,/**}",
+        "destination": "/deck/charizard-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charizard-ex-a2b-010&oricorio-a3-066{,/**}",
+        "destination": "/deck/charizard-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charizard-ex-a2b-010&silvally-a3a-061{,/**}",
+        "destination": "/deck/charizard-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charizard-ex-a2b-010&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/charizard-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charizard-ex-a2b-010&turtonator-a3-037{,/**}",
+        "destination": "/deck/charizard-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charmeleon-b1a-012{,/**}",
+        "destination": "/deck/charmeleon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charmeleon-b1a-012&entei-ex-a4a-010{,/**}",
+        "destination": "/deck/charmeleon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charmeleon-b1a-012&ho-oh-ex-a4-034{,/**}",
+        "destination": "/deck/charmeleon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charmeleon-b1a-012&moltres-ex-a1-047{,/**}",
+        "destination": "/deck/charmeleon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/charmeleon-b1a-012&oricorio-b2-022{,/**}",
+        "destination": "/deck/charmeleon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/chien-pao-ex-b2a-037{,/**}",
+        "destination": "/deck/chien-pao-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/chingling-b1-109{,/**}",
+        "destination": "/deck/chingling/",
+        "type": 301
+      },
+      {
+        "source": "/deck/cofagrigus-b1-111&chandelure-b2-069{,/**}",
+        "destination": "/deck/cofagrigus/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crabominable-ex-a3-049{,/**}",
+        "destination": "/deck/crabominable-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crabominable-ex-a3-049&greninja-a1-089{,/**}",
+        "destination": "/deck/crabominable-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crabominable-ex-a3-049&palkia-ex-a2-049{,/**}",
+        "destination": "/deck/crabominable-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crobat-a2a-050{,/**}",
+        "destination": "/deck/crobat/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crobat-a2a-050&arceus-ex-a2a-071{,/**}",
+        "destination": "/deck/crobat/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crobat-a2a-050&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/crobat/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crobat-a2a-050&nihilego-a3a-042{,/**}",
+        "destination": "/deck/crobat/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crobat-ex-a4-109{,/**}",
+        "destination": "/deck/crobat-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crobat-ex-a4-109&arceus-ex-a2a-071{,/**}",
+        "destination": "/deck/crobat-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crobat-ex-a4-109&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/crobat-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crobat-ex-a4-109&mega-absol-ex-b1-151{,/**}",
+        "destination": "/deck/crobat-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crobat-ex-a4-109&nihilego-a3a-042{,/**}",
+        "destination": "/deck/crobat-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crobat-ex-a4-109&poison-barb-a3-146{,/**}",
+        "destination": "/deck/crobat-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crobat-ex-a4-109&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/crobat-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crobat-ex-a4-109&umbreon-ex-a4-112{,/**}",
+        "destination": "/deck/crobat-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/crustle-ex-b3-088{,/**}",
+        "destination": "/deck/crustle-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/darkrai-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/darkrai-ex-a2-110&arceus-ex-a2a-071{,/**}",
+        "destination": "/deck/darkrai-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/darkrai-ex-a2-110&druddigon-a1a-056{,/**}",
+        "destination": "/deck/darkrai-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/darkrai-ex-a2-110&giratina-ex-a2b-035{,/**}",
+        "destination": "/deck/darkrai-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/darkrai-ex-a2-110&greninja-a1-089{,/**}",
+        "destination": "/deck/darkrai-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/darkrai-ex-a2-110&hoopa-ex-b4-103{,/**}",
+        "destination": "/deck/darkrai-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/darkrai-ex-a2-110&magnezone-a2-053{,/**}",
+        "destination": "/deck/darkrai-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/darkrai-ex-a2-110&pichu-a4-066{,/**}",
+        "destination": "/deck/darkrai-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/darkrai-ex-a2-110&silvally-a3a-061{,/**}",
+        "destination": "/deck/darkrai-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/darkrai-ex-a2-110&tyrogue-a4-101{,/**}",
+        "destination": "/deck/darkrai-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/darkrai-ex-a2-110&weavile-ex-a2-099{,/**}",
+        "destination": "/deck/darkrai-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/darkrai-ex-a2-110&weezing-a1-177{,/**}",
+        "destination": "/deck/darkrai-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/decidueye-a3a-005{,/**}",
+        "destination": "/deck/decidueye/",
+        "type": 301
+      },
+      {
+        "source": "/deck/decidueye-a3a-005&chingling-b1-109{,/**}",
+        "destination": "/deck/decidueye/",
+        "type": 301
+      },
+      {
+        "source": "/deck/decidueye-ex-a3-012{,/**}",
+        "destination": "/deck/decidueye-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/decidueye-ex-a3-012&chingling-b1-109{,/**}",
+        "destination": "/deck/decidueye-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/decidueye-ex-a3-012&decidueye-a3a-005{,/**}",
+        "destination": "/deck/decidueye-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/decidueye-ex-a3-012&leafeon-ex-a2a-010{,/**}",
+        "destination": "/deck/decidueye-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/decidueye-ex-a3-012&lurantis-a3-015{,/**}",
+        "destination": "/deck/decidueye-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/decidueye-ex-a3-012&pheromosa-a3a-007{,/**}",
+        "destination": "/deck/decidueye-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dedenne-ex-b3b-024{,/**}",
+        "destination": "/deck/dedenne-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dedenne-ex-b3b-024&pichu-a4-066{,/**}",
+        "destination": "/deck/dedenne-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/delcatty-b1-194{,/**}",
+        "destination": "/deck/delcatty/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dialga-ex-a2-119{,/**}",
+        "destination": "/deck/dialga-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dialga-ex-a2-119&lickilicky-ex-a2-125{,/**}",
+        "destination": "/deck/dialga-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dialga-ex-a2-119&magnezone-a2-053{,/**}",
+        "destination": "/deck/dialga-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dialga-ex-a2-119&shaymin-a2-022{,/**}",
+        "destination": "/deck/dialga-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dialga-ex-a2-119&skarmory-a2-111{,/**}",
+        "destination": "/deck/dialga-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ditto-b1a-055{,/**}",
+        "destination": "/deck/ditto/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ditto-b1a-055&liepard-b1a-048{,/**}",
+        "destination": "/deck/ditto/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ditto-b1a-055&magneton-a1-098{,/**}",
+        "destination": "/deck/ditto/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ditto-b1a-055&magnezone-a2-053{,/**}",
+        "destination": "/deck/ditto/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ditto-b1a-055&maushold-b2-143{,/**}",
+        "destination": "/deck/ditto/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ditto-b1a-055&rampardos-a2-089{,/**}",
+        "destination": "/deck/ditto/",
+        "type": 301
+      },
+      {
+        "source": "/deck/donphan-ex-a4-100{,/**}",
+        "destination": "/deck/donphan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/donphan-ex-a4-100&lucario-a2-092{,/**}",
+        "destination": "/deck/donphan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/donphan-ex-a4-100&marshadow-a1a-047{,/**}",
+        "destination": "/deck/donphan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/donphan-ex-a4-100&rampardos-a2-089{,/**}",
+        "destination": "/deck/donphan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragalge-ex-b1-160{,/**}",
+        "destination": "/deck/dragalge-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragalge-ex-b1-160&absol-a4-120{,/**}",
+        "destination": "/deck/dragalge-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragalge-ex-b1-160&nihilego-a3a-042{,/**}",
+        "destination": "/deck/dragalge-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragonair-b4-117{,/**}",
+        "destination": "/deck/dragonair/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragonair-b4-117&goodra-b1-179{,/**}",
+        "destination": "/deck/dragonair/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragonite-a1-185{,/**}",
+        "destination": "/deck/dragonite/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragonite-a1-185&druddigon-a1a-056{,/**}",
+        "destination": "/deck/dragonite/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragonite-a1-185&giratina-ex-a2b-035{,/**}",
+        "destination": "/deck/dragonite/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragonite-a1-185&oricorio-a3-066{,/**}",
+        "destination": "/deck/dragonite/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragonite-ex-a3b-053{,/**}",
+        "destination": "/deck/dragonite-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragonite-ex-a3b-053&dragonite-a1-185{,/**}",
+        "destination": "/deck/dragonite-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragonite-ex-a3b-053&pichu-a4-066{,/**}",
+        "destination": "/deck/dragonite-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragonite-ex-a3b-053&suicune-ex-a4a-020{,/**}",
+        "destination": "/deck/dragonite-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragonite-ex-a3b-053&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/dragonite-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragonite-ex-a3b-053&walking-wake-b3a-053{,/**}",
+        "destination": "/deck/dragonite-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dragonite-ex-a3b-053&zeraora-a3a-021{,/**}",
+        "destination": "/deck/dragonite-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dusk-mane-necrozma-pa-079{,/**}",
+        "destination": "/deck/dusk-mane-necrozma/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dusk-mane-necrozma-pa-079&celesteela-a3a-062{,/**}",
+        "destination": "/deck/dusk-mane-necrozma/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dusk-mane-necrozma-pa-079&stakataka-a3a-053{,/**}",
+        "destination": "/deck/dusk-mane-necrozma/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dusknoir-a2-072{,/**}",
+        "destination": "/deck/dusknoir/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dusknoir-a2-072&mega-absol-ex-b1-151{,/**}",
+        "destination": "/deck/dusknoir/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dusknoir-a2-072&mega-altaria-ex-b1-102{,/**}",
+        "destination": "/deck/dusknoir/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dusknoir-a2-072&mega-mawile-ex-b2-113{,/**}",
+        "destination": "/deck/dusknoir/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dustox-b1-007{,/**}",
+        "destination": "/deck/dustox/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dustox-b4-005&beautifly-b1-005{,/**}",
+        "destination": "/deck/dustox/",
+        "type": 301
+      },
+      {
+        "source": "/deck/dustox-b4-005&beautifly-b4-003{,/**}",
+        "destination": "/deck/dustox/",
+        "type": 301
+      },
+      {
+        "source": "/deck/eevee-ex-a3b-056&vaporeon-ex-b3-037{,/**}",
+        "destination": "/deck/eevee-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/electivire-a2-057{,/**}",
+        "destination": "/deck/electivire/",
+        "type": 301
+      },
+      {
+        "source": "/deck/empoleon-a2-037&magnezone-a2-053{,/**}",
+        "destination": "/deck/empoleon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/entei-ex-a4a-010{,/**}",
+        "destination": "/deck/entei-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/entei-ex-a4a-010&magby-a4-032{,/**}",
+        "destination": "/deck/entei-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/espeon-b3a-020{,/**}",
+        "destination": "/deck/espeon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/espeon-b3a-020&igglybuff-a4a-059{,/**}",
+        "destination": "/deck/espeon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/espeon-b3a-020&mega-altaria-ex-b1-102{,/**}",
+        "destination": "/deck/espeon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/espeon-b3a-020&swablu-b1-196{,/**}",
+        "destination": "/deck/espeon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/espeon-ex-a4-083{,/**}",
+        "destination": "/deck/espeon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/espeon-ex-a4-083&giratina-ex-a2b-035{,/**}",
+        "destination": "/deck/espeon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/espeon-ex-a4-083&indeedee-ex-b1-121{,/**}",
+        "destination": "/deck/espeon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/espeon-ex-a4-083&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/espeon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/exeggutor-a1-022&carnivine-a2a-009{,/**}",
+        "destination": "/deck/exeggutor/",
+        "type": 301
+      },
+      {
+        "source": "/deck/exeggutor-ex-a1-023{,/**}",
+        "destination": "/deck/exeggutor-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/exeggutor-ex-a1-023&alolan-exeggutor-a3-002{,/**}",
+        "destination": "/deck/exeggutor-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/exeggutor-ex-a1-023&leafeon-ex-a2a-010{,/**}",
+        "destination": "/deck/exeggutor-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/exeggutor-ex-a1-023&serperior-a1a-006{,/**}",
+        "destination": "/deck/exeggutor-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/farfetchd-a1-198&hitmonlee-a1-154{,/**}",
+        "destination": "/deck/farfetchd/",
+        "type": 301
+      },
+      {
+        "source": "/deck/flareon-ex-a3b-009{,/**}",
+        "destination": "/deck/flareon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/flareon-ex-a3b-009&eevee-ex-a3b-056{,/**}",
+        "destination": "/deck/flareon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/flareon-ex-a3b-009&flareon-a3b-008{,/**}",
+        "destination": "/deck/flareon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/flareon-ex-a3b-009&flareon-b4-022{,/**}",
+        "destination": "/deck/flareon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/flareon-ex-a3b-009&magby-a4-032{,/**}",
+        "destination": "/deck/flareon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/flareon-ex-a3b-009&pichu-a4-066{,/**}",
+        "destination": "/deck/flareon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/flareon-ex-a3b-009&silvally-a3a-061{,/**}",
+        "destination": "/deck/flareon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/flareon-ex-a3b-009&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/flareon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/flareon-ex-a3b-009&turtonator-a3-037{,/**}",
+        "destination": "/deck/flareon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/flutter-mane-ex-b3a-026{,/**}",
+        "destination": "/deck/flutter-mane-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/flygon-ex-b3-126{,/**}",
+        "destination": "/deck/flygon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/flygon-ex-b3-126&teal-mask-ogerpon-ex-b2-017{,/**}",
+        "destination": "/deck/flygon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/furfrou-b1a-065{,/**}",
+        "destination": "/deck/furfrou/",
+        "type": 301
+      },
+      {
+        "source": "/deck/future-booster-energy-capsule-b3a-070{,/**}",
+        "destination": "/deck/future-booster-energy-capsule/",
+        "type": 301
+      },
+      {
+        "source": "/deck/galarian-cursola-a4a-035{,/**}",
+        "destination": "/deck/galarian-cursola/",
+        "type": 301
+      },
+      {
+        "source": "/deck/galarian-cursola-a4a-035&giratina-ex-a2b-035{,/**}",
+        "destination": "/deck/galarian-cursola/",
+        "type": 301
+      },
+      {
+        "source": "/deck/galarian-obstagoon-b2-100{,/**}",
+        "destination": "/deck/galarian-obstagoon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/galarian-obstagoon-b2-100&chingling-b1-109{,/**}",
+        "destination": "/deck/galarian-obstagoon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/galarian-obstagoon-b2-100&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/galarian-obstagoon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/galarian-obstagoon-b2-100&mega-absol-ex-b1-151{,/**}",
+        "destination": "/deck/galarian-obstagoon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/galarian-perrserker-b2-111{,/**}",
+        "destination": "/deck/galarian-perrserker/",
+        "type": 301
+      },
+      {
+        "source": "/deck/galarian-perrserker-b2-111&mega-mawile-ex-b2-113{,/**}",
+        "destination": "/deck/galarian-perrserker/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gallade-ex-a2-095{,/**}",
+        "destination": "/deck/gallade-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gallade-ex-a2-095&hitmonlee-a1-154{,/**}",
+        "destination": "/deck/gallade-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gallade-ex-a2-095&hitmontop-a4-102{,/**}",
+        "destination": "/deck/gallade-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gallade-ex-a2-095&lucario-a2-092{,/**}",
+        "destination": "/deck/gallade-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gallade-ex-a2-095&rampardos-a2-089{,/**}",
+        "destination": "/deck/gallade-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gallade-ex-a2-095&stoutland-a3a-056{,/**}",
+        "destination": "/deck/gallade-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gallade-ex-a2-095&sudowoodo-a2a-036{,/**}",
+        "destination": "/deck/gallade-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-a2-123{,/**}",
+        "destination": "/deck/garchomp/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-a2-123&goomy-b1-177{,/**}",
+        "destination": "/deck/garchomp/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-a2-123&greninja-a1-089{,/**}",
+        "destination": "/deck/garchomp/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-a2-123&hitmonlee-a1-154{,/**}",
+        "destination": "/deck/garchomp/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-a2-123&kabutops-a1-159{,/**}",
+        "destination": "/deck/garchomp/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-a2-123&mantyke-a4a-023{,/**}",
+        "destination": "/deck/garchomp/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-a2-123&munchlax-b3b-054{,/**}",
+        "destination": "/deck/garchomp/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-a2-123&stoutland-a3a-056{,/**}",
+        "destination": "/deck/garchomp/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-b4a-054{,/**}",
+        "destination": "/deck/garchomp/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-b4a-054&goomy-b1-177{,/**}",
+        "destination": "/deck/garchomp/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-b4a-054&greninja-a1-089{,/**}",
+        "destination": "/deck/garchomp/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-b4a-054&happiny-b4a-063{,/**}",
+        "destination": "/deck/garchomp/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-b4a-054&mantyke-a4a-023{,/**}",
+        "destination": "/deck/garchomp/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-b4a-054&meowth-b2-124{,/**}",
+        "destination": "/deck/garchomp/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-b4a-054&munchlax-b3b-054{,/**}",
+        "destination": "/deck/garchomp/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-ex-a2a-047{,/**}",
+        "destination": "/deck/garchomp-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-ex-a2a-047&aerodactyl-ex-a1a-046{,/**}",
+        "destination": "/deck/garchomp-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-ex-a2a-047&arceus-ex-a2a-071{,/**}",
+        "destination": "/deck/garchomp-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-ex-a2a-047&donphan-ex-a4-100{,/**}",
+        "destination": "/deck/garchomp-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-ex-a2a-047&lucario-a2-092{,/**}",
+        "destination": "/deck/garchomp-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/garchomp-ex-a2a-047&rampardos-a2-089{,/**}",
+        "destination": "/deck/garchomp-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gengar-a1-122{,/**}",
+        "destination": "/deck/gengar/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gengar-a1-122&indeedee-ex-b1-121{,/**}",
+        "destination": "/deck/gengar/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gengar-ex-a1-123{,/**}",
+        "destination": "/deck/gengar-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gengar-ex-a1-123&shiinotic-a3a-027{,/**}",
+        "destination": "/deck/gengar-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gengar-ex-a1-123&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/gengar-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gengar-ex-a1-123&tapu-lele-a3-084{,/**}",
+        "destination": "/deck/gengar-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gholdengo-a2b-057{,/**}",
+        "destination": "/deck/gholdengo/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gholdengo-a2b-057&dialga-ex-a2-119{,/**}",
+        "destination": "/deck/gholdengo/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gholdengo-ex-b2a-078{,/**}",
+        "destination": "/deck/gholdengo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gholdengo-ex-b2a-078&dialga-ex-a2-119{,/**}",
+        "destination": "/deck/gholdengo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gigalith-ex-b2-087{,/**}",
+        "destination": "/deck/gigalith-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/giratina-ex-a2b-035{,/**}",
+        "destination": "/deck/giratina-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/giratina-ex-a2b-035&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/giratina-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/giratina-ex-a2b-035&gastly-a1-120{,/**}",
+        "destination": "/deck/giratina-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/giratina-ex-a2b-035&gengar-ex-a1-123{,/**}",
+        "destination": "/deck/giratina-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/giratina-ex-a2b-035&greninja-a1-089{,/**}",
+        "destination": "/deck/giratina-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/giratina-ex-a2b-035&indeedee-ex-b1-121{,/**}",
+        "destination": "/deck/giratina-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/giratina-ex-a2b-035&magnezone-a2-053{,/**}",
+        "destination": "/deck/giratina-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/giratina-ex-a2b-035&mewtwo-ex-a1-129{,/**}",
+        "destination": "/deck/giratina-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/giratina-ex-a2b-035&tapu-lele-a3-084{,/**}",
+        "destination": "/deck/giratina-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/glaceon-ex-a2a-022{,/**}",
+        "destination": "/deck/glaceon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/glaceon-ex-a2a-022&manaphy-a2-050{,/**}",
+        "destination": "/deck/glaceon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/glimmora-b3a-045&kingambit-b3a-043{,/**}",
+        "destination": "/deck/glimmora/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gliscor-a2-084&lucario-a2-092{,/**}",
+        "destination": "/deck/gliscor/",
+        "type": 301
+      },
+      {
+        "source": "/deck/golduck-a1-058{,/**}",
+        "destination": "/deck/golduck/",
+        "type": 301
+      },
+      {
+        "source": "/deck/golduck-a1-058&palkia-ex-a2-049{,/**}",
+        "destination": "/deck/golduck/",
+        "type": 301
+      },
+      {
+        "source": "/deck/golem-a1a-045{,/**}",
+        "destination": "/deck/golem/",
+        "type": 301
+      },
+      {
+        "source": "/deck/golem-a1a-045&druddigon-a1a-056{,/**}",
+        "destination": "/deck/golem/",
+        "type": 301
+      },
+      {
+        "source": "/deck/golem-a1a-045&indeedee-ex-b1-121{,/**}",
+        "destination": "/deck/golem/",
+        "type": 301
+      },
+      {
+        "source": "/deck/golem-a1a-045&magnezone-a2-053{,/**}",
+        "destination": "/deck/golem/",
+        "type": 301
+      },
+      {
+        "source": "/deck/goodra-b1-179{,/**}",
+        "destination": "/deck/goodra/",
+        "type": 301
+      },
+      {
+        "source": "/deck/goodra-b1-179&indeedee-ex-b1-121{,/**}",
+        "destination": "/deck/goodra/",
+        "type": 301
+      },
+      {
+        "source": "/deck/goodra-b1-179&mantyke-a4a-023{,/**}",
+        "destination": "/deck/goodra/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gouging-fire-b3a-054&dragonair-b4-117{,/**}",
+        "destination": "/deck/gouging-fire/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gourgeist-b2-072{,/**}",
+        "destination": "/deck/gourgeist/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gourgeist-b2-072&houndstone-b2a-053{,/**}",
+        "destination": "/deck/gourgeist/",
+        "type": 301
+      },
+      {
+        "source": "/deck/grafaiai-a2b-051{,/**}",
+        "destination": "/deck/grafaiai/",
+        "type": 301
+      },
+      {
+        "source": "/deck/great-tusk-b3a-034{,/**}",
+        "destination": "/deck/great-tusk/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-a1-089{,/**}",
+        "destination": "/deck/greninja/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-a1-089&chingling-b1-109{,/**}",
+        "destination": "/deck/greninja/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-a1-089&darkrai-b2b-040{,/**}",
+        "destination": "/deck/greninja/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-a1-089&decidueye-ex-a3-012{,/**}",
+        "destination": "/deck/greninja/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-a1-089&druddigon-a1a-056{,/**}",
+        "destination": "/deck/greninja/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-a1-089&mega-absol-ex-b1-151{,/**}",
+        "destination": "/deck/greninja/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-a1-089&mega-altaria-ex-b1-102{,/**}",
+        "destination": "/deck/greninja/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-a1-089&mew-ex-a1a-032{,/**}",
+        "destination": "/deck/greninja/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-a1-089&oricorio-a3-034{,/**}",
+        "destination": "/deck/greninja/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-a1-089&oricorio-a3-066{,/**}",
+        "destination": "/deck/greninja/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-a1-089&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/greninja/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-a1-089&tyrogue-a4-101{,/**}",
+        "destination": "/deck/greninja/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-a1-089&zeraora-a3a-021{,/**}",
+        "destination": "/deck/greninja/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-ex-b1-073{,/**}",
+        "destination": "/deck/greninja-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-ex-b1-073&samurott-b4-044{,/**}",
+        "destination": "/deck/greninja-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/greninja-ex-b1-073&suicune-ex-a4a-020{,/**}",
+        "destination": "/deck/greninja-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/growlithe-b3b-010&lillipup-b3-137{,/**}",
+        "destination": "/deck/growlithe/",
+        "type": 301
+      },
+      {
+        "source": "/deck/guzzlord-ex-a3a-043{,/**}",
+        "destination": "/deck/guzzlord-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/guzzlord-ex-a3a-043&celesteela-a3a-062{,/**}",
+        "destination": "/deck/guzzlord-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/guzzlord-ex-a3a-043&delcatty-b1-194{,/**}",
+        "destination": "/deck/guzzlord-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/guzzlord-ex-a3a-043&naganadel-a3a-045{,/**}",
+        "destination": "/deck/guzzlord-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/guzzlord-ex-a3a-043&nihilego-a3a-042{,/**}",
+        "destination": "/deck/guzzlord-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/guzzlord-ex-a3a-043&poison-barb-a3-146{,/**}",
+        "destination": "/deck/guzzlord-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gyarados-a1-078{,/**}",
+        "destination": "/deck/gyarados/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gyarados-a4-045{,/**}",
+        "destination": "/deck/gyarados/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gyarados-a4-045&corsola-a4-054{,/**}",
+        "destination": "/deck/gyarados/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gyarados-a4-045&mantyke-a4a-023{,/**}",
+        "destination": "/deck/gyarados/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gyarados-a4-045&suicune-ex-a4a-020{,/**}",
+        "destination": "/deck/gyarados/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gyarados-ex-a1a-018{,/**}",
+        "destination": "/deck/gyarados-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gyarados-ex-a1a-018&druddigon-a1a-056{,/**}",
+        "destination": "/deck/gyarados-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gyarados-ex-a1a-018&giratina-ex-a2b-035{,/**}",
+        "destination": "/deck/gyarados-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gyarados-ex-a1a-018&greninja-a1-089{,/**}",
+        "destination": "/deck/gyarados-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gyarados-ex-a1a-018&manaphy-a2-050{,/**}",
+        "destination": "/deck/gyarados-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/gyarados-ex-a1a-018&vaporeon-a1a-019{,/**}",
+        "destination": "/deck/gyarados-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/heatmor-b1-044{,/**}",
+        "destination": "/deck/heatmor/",
+        "type": 301
+      },
+      {
+        "source": "/deck/heatran-a2a-013&arceus-ex-a2a-071{,/**}",
+        "destination": "/deck/heatran/",
+        "type": 301
+      },
+      {
+        "source": "/deck/heatran-a2a-013&magnezone-a2-053{,/**}",
+        "destination": "/deck/heatran/",
+        "type": 301
+      },
+      {
+        "source": "/deck/heliolisk-b1a-029{,/**}",
+        "destination": "/deck/heliolisk/",
+        "type": 301
+      },
+      {
+        "source": "/deck/heliolisk-b1a-029&oricorio-a3-066{,/**}",
+        "destination": "/deck/heliolisk/",
+        "type": 301
+      },
+      {
+        "source": "/deck/heliolisk-b1a-029&zeraora-a3a-021{,/**}",
+        "destination": "/deck/heliolisk/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hisuian-goodra-b3b-050{,/**}",
+        "destination": "/deck/hisuian-goodra/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hisuian-zoroark-ex-b3b-060{,/**}",
+        "destination": "/deck/hisuian-zoroark-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hitmonchan-ex-b1-124{,/**}",
+        "destination": "/deck/hitmonchan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hitmonchan-ex-b1-124&mega-gallade-ex-b4-084{,/**}",
+        "destination": "/deck/hitmonchan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hitmonchan-ex-b1-124&rampardos-a2-089{,/**}",
+        "destination": "/deck/hitmonchan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hitmonlee-a1-154{,/**}",
+        "destination": "/deck/hitmonlee/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hitmonlee-a1-154&greninja-a1-089{,/**}",
+        "destination": "/deck/hitmonlee/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hitmonlee-a1-154&magnezone-a2-053{,/**}",
+        "destination": "/deck/hitmonlee/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ho-oh-ex-a4-034{,/**}",
+        "destination": "/deck/ho-oh-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ho-oh-ex-a4-034&magby-a4-032{,/**}",
+        "destination": "/deck/ho-oh-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ho-oh-ex-a4-034&oricorio-a3-066{,/**}",
+        "destination": "/deck/ho-oh-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ho-oh-ex-a4-034&pichu-a4-066{,/**}",
+        "destination": "/deck/ho-oh-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/honchkrow-a2-097&greninja-a1-089{,/**}",
+        "destination": "/deck/honchkrow/",
+        "type": 301
+      },
+      {
+        "source": "/deck/honchkrow-b1-149{,/**}",
+        "destination": "/deck/honchkrow/",
+        "type": 301
+      },
+      {
+        "source": "/deck/honchkrow-b1-149&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/honchkrow/",
+        "type": 301
+      },
+      {
+        "source": "/deck/honchkrow-b1-149&pichu-a4-066{,/**}",
+        "destination": "/deck/honchkrow/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hoopa-ex-b4-103{,/**}",
+        "destination": "/deck/hoopa-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hoopa-ex-b4-103&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/hoopa-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hoopa-ex-b4-103&greninja-a1-089{,/**}",
+        "destination": "/deck/hoopa-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hoopa-ex-b4-103&team-rockets-weezing-ex-b4a-043{,/**}",
+        "destination": "/deck/hoopa-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/houndstone-b2a-053{,/**}",
+        "destination": "/deck/houndstone/",
+        "type": 301
+      },
+      {
+        "source": "/deck/houndstone-b2a-053&gourgeist-b2-072{,/**}",
+        "destination": "/deck/houndstone/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hydreigon-b1-157{,/**}",
+        "destination": "/deck/hydreigon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hydreigon-b1-157&absol-b4-100{,/**}",
+        "destination": "/deck/hydreigon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hydreigon-b1-157&chingling-b1-109{,/**}",
+        "destination": "/deck/hydreigon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hydreigon-b1-157&furfrou-b1a-065{,/**}",
+        "destination": "/deck/hydreigon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hydreigon-b1-157&greninja-a1-089{,/**}",
+        "destination": "/deck/hydreigon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/hydreigon-b1-157&poison-barb-a3-146{,/**}",
+        "destination": "/deck/hydreigon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ilima-a3-149{,/**}",
+        "destination": "/deck/ilima/",
+        "type": 301
+      },
+      {
+        "source": "/deck/incineroar-ex-a3-033{,/**}",
+        "destination": "/deck/incineroar-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/incineroar-ex-a3-033&charizard-ex-a2b-010{,/**}",
+        "destination": "/deck/incineroar-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/incineroar-ex-a3-033&greninja-a1-089{,/**}",
+        "destination": "/deck/incineroar-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/incineroar-ex-a3-033&oricorio-a3-066{,/**}",
+        "destination": "/deck/incineroar-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/incineroar-ex-a3-033&silvally-a3a-061{,/**}",
+        "destination": "/deck/incineroar-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/incineroar-ex-a3-033&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/incineroar-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/incineroar-ex-a3-033&turtonator-a3-037{,/**}",
+        "destination": "/deck/incineroar-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/indeedee-ex-b1-121{,/**}",
+        "destination": "/deck/indeedee-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/indeedee-ex-b1-121&dedenne-ex-b3b-024{,/**}",
+        "destination": "/deck/indeedee-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/indeedee-ex-b1-121&giratina-ex-a2b-035{,/**}",
+        "destination": "/deck/indeedee-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/indeedee-ex-b1-121&oricorio-a3-034{,/**}",
+        "destination": "/deck/indeedee-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/indeedee-ex-b1-121&oricorio-a3-066{,/**}",
+        "destination": "/deck/indeedee-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/infernape-ex-a2-029{,/**}",
+        "destination": "/deck/infernape-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/infernape-ex-a2-029&heatmor-b1-044{,/**}",
+        "destination": "/deck/infernape-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/infernape-ex-a2-029&heatran-a2a-013{,/**}",
+        "destination": "/deck/infernape-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/infernape-ex-a2-029&magnezone-a2-053{,/**}",
+        "destination": "/deck/infernape-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/infernape-ex-a2-029&moltres-ex-a1-047{,/**}",
+        "destination": "/deck/infernape-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/infernape-ex-a2-029&turtonator-a3-037{,/**}",
+        "destination": "/deck/infernape-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/inteleon-b3-050{,/**}",
+        "destination": "/deck/inteleon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/inteleon-b3-050&vaporeon-ex-b3-037{,/**}",
+        "destination": "/deck/inteleon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/iron-bundle-ex-b3a-013{,/**}",
+        "destination": "/deck/iron-bundle-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/iron-bundle-ex-b3a-013&future-booster-energy-capsule-b3a-070{,/**}",
+        "destination": "/deck/iron-bundle-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/iron-valiant-b3a-027&iron-boulder-b3a-029{,/**}",
+        "destination": "/deck/iron-valiant/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ivysaur-b1a-002{,/**}",
+        "destination": "/deck/ivysaur/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ivysaur-b1a-002&igglybuff-a4a-059{,/**}",
+        "destination": "/deck/ivysaur/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ivysaur-b1a-002&lilligant-b1-018{,/**}",
+        "destination": "/deck/ivysaur/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ivysaur-b1a-002&oricorio-a3-066{,/**}",
+        "destination": "/deck/ivysaur/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jirachi-b1-106{,/**}",
+        "destination": "/deck/jirachi/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jolteon-ex-b1-081{,/**}",
+        "destination": "/deck/jolteon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jolteon-ex-b1-081&indeedee-ex-b1-121{,/**}",
+        "destination": "/deck/jolteon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jolteon-ex-b1-081&jolteon-a3b-025{,/**}",
+        "destination": "/deck/jolteon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jolteon-ex-b1-081&leafeon-ex-a2a-010{,/**}",
+        "destination": "/deck/jolteon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jolteon-ex-b1-081&magnezone-a2-053{,/**}",
+        "destination": "/deck/jolteon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jolteon-ex-b1-081&oricorio-a3-066{,/**}",
+        "destination": "/deck/jolteon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jolteon-ex-b1-081&pikachu-ex-a1-096{,/**}",
+        "destination": "/deck/jolteon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jolteon-ex-b1-081&zeraora-a3a-021{,/**}",
+        "destination": "/deck/jolteon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/juliana-b3a-071{,/**}",
+        "destination": "/deck/juliana/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jumpluff-ex-a4a-003{,/**}",
+        "destination": "/deck/jumpluff-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jumpluff-ex-a4a-003&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/jumpluff-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jumpluff-ex-a4a-003&oricorio-a3-034{,/**}",
+        "destination": "/deck/jumpluff-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jumpluff-ex-a4a-003&oricorio-a3-066{,/**}",
+        "destination": "/deck/jumpluff-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jumpluff-ex-a4a-003&team-rockets-electrode-b4a-020{,/**}",
+        "destination": "/deck/jumpluff-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jumpluff-ex-a4a-003&zangoose-a4a-065{,/**}",
+        "destination": "/deck/jumpluff-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/jumpluff-ex-a4a-003&zeraora-a3a-021{,/**}",
+        "destination": "/deck/jumpluff-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/kabutops-a1-159&primeape-a1-142{,/**}",
+        "destination": "/deck/kabutops/",
+        "type": 301
+      },
+      {
+        "source": "/deck/kangaskhan-a1-203&greninja-a1-089{,/**}",
+        "destination": "/deck/kangaskhan/",
+        "type": 301
+      },
+      {
+        "source": "/deck/kangaskhan-a1-203&magnezone-a2-053{,/**}",
+        "destination": "/deck/kangaskhan/",
+        "type": 301
+      },
+      {
+        "source": "/deck/kartana-a3a-008{,/**}",
+        "destination": "/deck/kartana/",
+        "type": 301
+      },
+      {
+        "source": "/deck/kingambit-b3a-043&glimmora-b3a-045{,/**}",
+        "destination": "/deck/kingambit/",
+        "type": 301
+      },
+      {
+        "source": "/deck/kingdra-ex-a4-043{,/**}",
+        "destination": "/deck/kingdra-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/kingler-a1-069&seaking-a1-073{,/**}",
+        "destination": "/deck/kingler/",
+        "type": 301
+      },
+      {
+        "source": "/deck/koraidon-ex-b3a-036{,/**}",
+        "destination": "/deck/koraidon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/koraidon-ex-b3a-036&great-tusk-b3a-034{,/**}",
+        "destination": "/deck/koraidon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lanturn-ex-a4-065{,/**}",
+        "destination": "/deck/lanturn-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lanturn-ex-a4-065&oricorio-a3-066{,/**}",
+        "destination": "/deck/lanturn-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lanturn-ex-a4-065&zeraora-a3a-021{,/**}",
+        "destination": "/deck/lanturn-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lapras-ex-pa-014&greninja-a1-089{,/**}",
+        "destination": "/deck/lapras-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/latios-a4a-037&latias-a4a-036{,/**}",
+        "destination": "/deck/latios/",
+        "type": 301
+      },
+      {
+        "source": "/deck/leafeon-ex-a2a-010{,/**}",
+        "destination": "/deck/leafeon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/leafeon-ex-a2a-010&celebi-ex-a1a-003{,/**}",
+        "destination": "/deck/leafeon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/leafeon-ex-a2a-010&flareon-ex-a3b-009{,/**}",
+        "destination": "/deck/leafeon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/leafeon-ex-a2a-010&irida-a2a-072{,/**}",
+        "destination": "/deck/leafeon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/leafeon-ex-a2a-010&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/leafeon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/leafeon-ex-a2a-010&teal-mask-ogerpon-ex-b2-017{,/**}",
+        "destination": "/deck/leafeon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/leafeon-ex-a2a-010&yanmega-ex-a2-007{,/**}",
+        "destination": "/deck/leafeon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lickilicky-ex-a2-125&greninja-a1-089{,/**}",
+        "destination": "/deck/lickilicky-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lilligant-b1-018{,/**}",
+        "destination": "/deck/lilligant/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lt-surge-a1-226{,/**}",
+        "destination": "/deck/lt-surge/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lucario-a2-092{,/**}",
+        "destination": "/deck/lucario/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lucario-a2-092&donphan-ex-a4-100{,/**}",
+        "destination": "/deck/lucario/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lucario-a2-092&machamp-ex-a1-146{,/**}",
+        "destination": "/deck/lucario/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lucario-a2-092&marshadow-a1a-047{,/**}",
+        "destination": "/deck/lucario/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lucario-a2-092&primeape-a1-142{,/**}",
+        "destination": "/deck/lucario/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lucario-a2-092&primeape-a1a-042{,/**}",
+        "destination": "/deck/lucario/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lucario-a2-092&sudowoodo-a2a-036{,/**}",
+        "destination": "/deck/lucario/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lucario-ex-a2b-043{,/**}",
+        "destination": "/deck/lucario-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lugia-ex-a4-149{,/**}",
+        "destination": "/deck/lugia-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lugia-ex-a4-149&ho-oh-ex-a4-034{,/**}",
+        "destination": "/deck/lugia-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lumineon-a1a-021{,/**}",
+        "destination": "/deck/lumineon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lunala-ex-a3-087{,/**}",
+        "destination": "/deck/lunala-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lunala-ex-a3-087&giratina-ex-a2b-035{,/**}",
+        "destination": "/deck/lunala-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lurantis-a3-015{,/**}",
+        "destination": "/deck/lurantis/",
+        "type": 301
+      },
+      {
+        "source": "/deck/luxray-a2-060{,/**}",
+        "destination": "/deck/luxray/",
+        "type": 301
+      },
+      {
+        "source": "/deck/luxray-a2-060&electivire-a2-057{,/**}",
+        "destination": "/deck/luxray/",
+        "type": 301
+      },
+      {
+        "source": "/deck/luxray-a2-060&oricorio-a3-066{,/**}",
+        "destination": "/deck/luxray/",
+        "type": 301
+      },
+      {
+        "source": "/deck/luxray-a2-060&sylveon-b3b-030{,/**}",
+        "destination": "/deck/luxray/",
+        "type": 301
+      },
+      {
+        "source": "/deck/luxray-a2-060&togedemaru-a3-067{,/**}",
+        "destination": "/deck/luxray/",
+        "type": 301
+      },
+      {
+        "source": "/deck/luxray-b4-053{,/**}",
+        "destination": "/deck/luxray/",
+        "type": 301
+      },
+      {
+        "source": "/deck/luxray-b4-053&oricorio-a3-034{,/**}",
+        "destination": "/deck/luxray/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lycanroc-ex-a3a-033{,/**}",
+        "destination": "/deck/lycanroc-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/lycanroc-ex-a3a-033&hitmonlee-a1-154{,/**}",
+        "destination": "/deck/lycanroc-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/machamp-ex-a1-146{,/**}",
+        "destination": "/deck/machamp-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magby-a4-032{,/**}",
+        "destination": "/deck/magby/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magcargo-a4-031{,/**}",
+        "destination": "/deck/magcargo/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magcargo-a4-031&magby-a4-032{,/**}",
+        "destination": "/deck/magcargo/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magcargo-a4-031&silvally-a3a-061{,/**}",
+        "destination": "/deck/magcargo/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magearna-a3-123{,/**}",
+        "destination": "/deck/magearna/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magneton-a1-098{,/**}",
+        "destination": "/deck/magneton/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magneton-a1-098&chingling-b1-109{,/**}",
+        "destination": "/deck/magneton/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magneton-a1-098&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/magneton/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magneton-a1-098&ditto-b1a-055{,/**}",
+        "destination": "/deck/magneton/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magneton-a1-098&heliolisk-b1a-029{,/**}",
+        "destination": "/deck/magneton/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magneton-a1-098&jolteon-ex-b1-081{,/**}",
+        "destination": "/deck/magneton/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magneton-a1-098&mega-absol-ex-b1-151{,/**}",
+        "destination": "/deck/magneton/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magneton-a1-098&meowth-b2-124{,/**}",
+        "destination": "/deck/magneton/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magneton-a1-098&oricorio-a3-066{,/**}",
+        "destination": "/deck/magneton/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magneton-a1-098&tyrogue-a4-101{,/**}",
+        "destination": "/deck/magneton/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-a2-053{,/**}",
+        "destination": "/deck/magnezone/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-a2-053&greninja-a1-089{,/**}",
+        "destination": "/deck/magnezone/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-a2-053&miraidon-ex-b3a-019{,/**}",
+        "destination": "/deck/magnezone/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-a2-053&oricorio-a3-066{,/**}",
+        "destination": "/deck/magnezone/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-a2-053&shiinotic-a3a-027{,/**}",
+        "destination": "/deck/magnezone/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-a2-053&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/magnezone/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-a2-053&tapu-koko-ex-a3a-019{,/**}",
+        "destination": "/deck/magnezone/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-b1a-026{,/**}",
+        "destination": "/deck/magnezone/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-b1a-026&heliolisk-b1a-029{,/**}",
+        "destination": "/deck/magnezone/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-b1a-026&heliolisk-b4-061{,/**}",
+        "destination": "/deck/magnezone/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-b1a-026&miraidon-ex-b3a-019{,/**}",
+        "destination": "/deck/magnezone/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-b1a-026&oricorio-a3-034{,/**}",
+        "destination": "/deck/magnezone/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-b1a-026&teal-mask-ogerpon-ex-b2-017{,/**}",
+        "destination": "/deck/magnezone/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-ex-b3-054{,/**}",
+        "destination": "/deck/magnezone-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-ex-b3-054&magnezone-a2-053{,/**}",
+        "destination": "/deck/magnezone-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-ex-b3-054&magnezone-b1a-026{,/**}",
+        "destination": "/deck/magnezone-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/magnezone-ex-b3-054&miraidon-ex-b3a-019{,/**}",
+        "destination": "/deck/magnezone-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/marowak-a1-152{,/**}",
+        "destination": "/deck/marowak/",
+        "type": 301
+      },
+      {
+        "source": "/deck/marowak-ex-a1-153{,/**}",
+        "destination": "/deck/marowak-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/marowak-ex-a1-153&aerodactyl-ex-a1a-046{,/**}",
+        "destination": "/deck/marowak-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/marowak-ex-a1-153&magnezone-a2-053{,/**}",
+        "destination": "/deck/marowak-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/marowak-ex-a1-153&primeape-a1a-042{,/**}",
+        "destination": "/deck/marowak-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-absol-ex-b1-151{,/**}",
+        "destination": "/deck/mega-absol-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-absol-ex-b1-151&absol-a4-120{,/**}",
+        "destination": "/deck/mega-absol-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-absol-ex-b1-151&chingling-b1-109{,/**}",
+        "destination": "/deck/mega-absol-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-absol-ex-b1-151&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/mega-absol-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-absol-ex-b1-151&dusknoir-a2-072{,/**}",
+        "destination": "/deck/mega-absol-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-absol-ex-b1-151&greninja-a1-089{,/**}",
+        "destination": "/deck/mega-absol-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-absol-ex-b1-151&hydreigon-b1-157{,/**}",
+        "destination": "/deck/mega-absol-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-absol-ex-b1-151&nihilego-a3a-042{,/**}",
+        "destination": "/deck/mega-absol-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-absol-ex-b1-151&oricorio-a3-066{,/**}",
+        "destination": "/deck/mega-absol-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-absol-ex-b1-151&pichu-a4-066{,/**}",
+        "destination": "/deck/mega-absol-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-absol-ex-b1-151&team-rockets-magmar-b4a-006{,/**}",
+        "destination": "/deck/mega-absol-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-absol-ex-b1-151&tyrogue-a4-101{,/**}",
+        "destination": "/deck/mega-absol-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&aegislash-b1-172{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&bonsly-b3-078{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&chingling-b1-109{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&darkrai-b2b-040{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&dusknoir-a2-072{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&elekid-a4-070{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&furfrou-b1a-065{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&future-booster-energy-capsule-b3a-070{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&galarian-cursola-a4a-035{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&giratina-ex-a2b-035{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&gourgeist-b2-072{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&happiny-b4a-063{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&honchkrow-b1-149{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&igglybuff-a4a-059{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&indeedee-ex-b1-121{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&iron-valiant-b3a-027{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&jirachi-b1-106{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&magnezone-a2-053{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&oricorio-a3-066{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&oricorio-b4-078{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&shiinotic-a3a-027{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&silvally-a3a-061{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&sylveon-b3b-030{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-altaria-ex-b1-102&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/mega-altaria-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-ampharos-ex-b1-085{,/**}",
+        "destination": "/deck/mega-ampharos-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-ampharos-ex-b1-085&alolan-raichu-b2-050{,/**}",
+        "destination": "/deck/mega-ampharos-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-ampharos-ex-b1-085&oricorio-a3-066{,/**}",
+        "destination": "/deck/mega-ampharos-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-ampharos-ex-b1-085&pichu-a4-066{,/**}",
+        "destination": "/deck/mega-ampharos-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-ampharos-ex-b1-085&team-rockets-electrode-b4a-020{,/**}",
+        "destination": "/deck/mega-ampharos-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-ampharos-ex-b1-085&zeraora-a3a-021{,/**}",
+        "destination": "/deck/mega-ampharos-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-audino-ex-b3-141{,/**}",
+        "destination": "/deck/mega-audino-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-blastoise-ex-b1a-020{,/**}",
+        "destination": "/deck/mega-blastoise-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-blaziken-ex-b1-036{,/**}",
+        "destination": "/deck/mega-blaziken-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-blaziken-ex-b1-036&castform-sunny-form-b3-024{,/**}",
+        "destination": "/deck/mega-blaziken-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-blaziken-ex-b1-036&cleffa-a4-077{,/**}",
+        "destination": "/deck/mega-blaziken-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-blaziken-ex-b1-036&entei-ex-a4a-010{,/**}",
+        "destination": "/deck/mega-blaziken-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-blaziken-ex-b1-036&greninja-a1-089{,/**}",
+        "destination": "/deck/mega-blaziken-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-blaziken-ex-b1-036&heatmor-b1-044{,/**}",
+        "destination": "/deck/mega-blaziken-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-blaziken-ex-b1-036&oricorio-b2-022{,/**}",
+        "destination": "/deck/mega-blaziken-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-blaziken-ex-b1-036&skeledirge-b2a-018{,/**}",
+        "destination": "/deck/mega-blaziken-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-charizard-x-ex-b2b-009{,/**}",
+        "destination": "/deck/mega-charizard-x-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-charizard-x-ex-b2b-009&entei-ex-a4a-010{,/**}",
+        "destination": "/deck/mega-charizard-x-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-charizard-x-ex-b2b-009&mega-charizard-y-ex-b1a-014{,/**}",
+        "destination": "/deck/mega-charizard-x-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-charizard-y-ex-b1a-014{,/**}",
+        "destination": "/deck/mega-charizard-y-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-charizard-y-ex-b1a-014&charizard-b1a-013{,/**}",
+        "destination": "/deck/mega-charizard-y-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-charizard-y-ex-b1a-014&entei-ex-a4a-010{,/**}",
+        "destination": "/deck/mega-charizard-y-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-diancie-ex-b3b-032&carbink-b3b-031{,/**}",
+        "destination": "/deck/mega-diancie-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-diancie-ex-b3b-032&mega-gardevoir-ex-b2-066{,/**}",
+        "destination": "/deck/mega-diancie-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gallade-ex-b4-084{,/**}",
+        "destination": "/deck/mega-gallade-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-garchomp-ex-pb-099&dragonair-b4-117{,/**}",
+        "destination": "/deck/mega-garchomp-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gardevoir-ex-b2-066{,/**}",
+        "destination": "/deck/mega-gardevoir-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gardevoir-ex-b2-066&gardevoir-a1-132{,/**}",
+        "destination": "/deck/mega-gardevoir-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gardevoir-ex-b2-066&gardevoir-b2-065{,/**}",
+        "destination": "/deck/mega-gardevoir-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gardevoir-ex-b2-066&giratina-ex-a2b-035{,/**}",
+        "destination": "/deck/mega-gardevoir-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gardevoir-ex-b2-066&indeedee-ex-b1-121{,/**}",
+        "destination": "/deck/mega-gardevoir-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gardevoir-ex-b2-066&latias-a4a-036{,/**}",
+        "destination": "/deck/mega-gardevoir-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gardevoir-ex-b2-066&mega-diancie-ex-b3b-032{,/**}",
+        "destination": "/deck/mega-gardevoir-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gardevoir-ex-b2-066&meloetta-b2-070{,/**}",
+        "destination": "/deck/mega-gardevoir-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gardevoir-ex-b2-066&mewtwo-ex-a1-129{,/**}",
+        "destination": "/deck/mega-gardevoir-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gardevoir-ex-b2-066&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/mega-gardevoir-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gyarados-ex-b1-052{,/**}",
+        "destination": "/deck/mega-gyarados-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gyarados-ex-b1-052&eiscue-b1-080{,/**}",
+        "destination": "/deck/mega-gyarados-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gyarados-ex-b1-052&jellicent-b1-069{,/**}",
+        "destination": "/deck/mega-gyarados-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gyarados-ex-b1-052&manaphy-a2-050{,/**}",
+        "destination": "/deck/mega-gyarados-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gyarados-ex-b1-052&mantyke-a4a-023{,/**}",
+        "destination": "/deck/mega-gyarados-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gyarados-ex-b1-052&milotic-a4a-022{,/**}",
+        "destination": "/deck/mega-gyarados-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-gyarados-ex-b1-052&suicune-ex-a4a-020{,/**}",
+        "destination": "/deck/mega-gyarados-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-houndoom-ex-pb-080{,/**}",
+        "destination": "/deck/mega-houndoom-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-houndoom-ex-pb-080&castform-sunny-form-b3-024{,/**}",
+        "destination": "/deck/mega-houndoom-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-kangaskhan-ex-b2-127{,/**}",
+        "destination": "/deck/mega-kangaskhan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-kangaskhan-ex-b2-127&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/mega-kangaskhan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-kangaskhan-ex-b2-127&greninja-a1-089{,/**}",
+        "destination": "/deck/mega-kangaskhan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-kangaskhan-ex-b2-127&happiny-b4a-063{,/**}",
+        "destination": "/deck/mega-kangaskhan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-kangaskhan-ex-b2-127&magnezone-a2-053{,/**}",
+        "destination": "/deck/mega-kangaskhan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-kangaskhan-ex-b2-127&mantyke-a4a-023{,/**}",
+        "destination": "/deck/mega-kangaskhan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-kangaskhan-ex-b2-127&oricorio-a3-034{,/**}",
+        "destination": "/deck/mega-kangaskhan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-kangaskhan-ex-b2-127&oricorio-a3-066{,/**}",
+        "destination": "/deck/mega-kangaskhan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-kangaskhan-ex-b2-127&pichu-a4-066{,/**}",
+        "destination": "/deck/mega-kangaskhan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-kangaskhan-ex-b2-127&poison-barb-a3-146{,/**}",
+        "destination": "/deck/mega-kangaskhan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-kangaskhan-ex-b2-127&teal-mask-ogerpon-ex-b2-017{,/**}",
+        "destination": "/deck/mega-kangaskhan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-kangaskhan-ex-b2-127&zeraora-a3a-021{,/**}",
+        "destination": "/deck/mega-kangaskhan-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lopunny-ex-b1a-042{,/**}",
+        "destination": "/deck/mega-lopunny-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lopunny-ex-b1a-042&darkrai-b2b-040{,/**}",
+        "destination": "/deck/mega-lopunny-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lopunny-ex-b1a-042&greninja-a1-089{,/**}",
+        "destination": "/deck/mega-lopunny-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lopunny-ex-b1a-042&lucario-a2-092{,/**}",
+        "destination": "/deck/mega-lopunny-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lopunny-ex-b1a-042&magneton-a1-098{,/**}",
+        "destination": "/deck/mega-lopunny-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lopunny-ex-b1a-042&magnezone-a2-053{,/**}",
+        "destination": "/deck/mega-lopunny-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lucario-ex-b3-081{,/**}",
+        "destination": "/deck/mega-lucario-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lucario-ex-b3-081&bonsly-b3-078{,/**}",
+        "destination": "/deck/mega-lucario-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lucario-ex-b3-081&darkrai-b2b-040{,/**}",
+        "destination": "/deck/mega-lucario-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lucario-ex-b3-081&greninja-a1-089{,/**}",
+        "destination": "/deck/mega-lucario-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lucario-ex-b3-081&hitmonchan-ex-b1-124{,/**}",
+        "destination": "/deck/mega-lucario-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lucario-ex-b3-081&hitmonlee-a1-154{,/**}",
+        "destination": "/deck/mega-lucario-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lucario-ex-b3-081&igglybuff-a4a-059{,/**}",
+        "destination": "/deck/mega-lucario-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lucario-ex-b3-081&lucario-b3-080{,/**}",
+        "destination": "/deck/mega-lucario-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lucario-ex-b3-081&rampardos-a2-089{,/**}",
+        "destination": "/deck/mega-lucario-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-lucario-ex-b3-081&team-rockets-raticate-ex-b4a-059{,/**}",
+        "destination": "/deck/mega-lucario-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-manectric-ex-b2b-027{,/**}",
+        "destination": "/deck/mega-manectric-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-manectric-ex-b2b-027&heliolisk-b1a-029{,/**}",
+        "destination": "/deck/mega-manectric-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-manectric-ex-b2b-027&team-rockets-electrode-b4a-020{,/**}",
+        "destination": "/deck/mega-manectric-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-manectric-ex-b2b-027&zeraora-a3a-021{,/**}",
+        "destination": "/deck/mega-manectric-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-mawile-ex-b2-113{,/**}",
+        "destination": "/deck/mega-mawile-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-medicham-ex-pb-029{,/**}",
+        "destination": "/deck/mega-medicham-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-metagross-ex-b4-109&dialga-ex-a2-119{,/**}",
+        "destination": "/deck/mega-metagross-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-pidgeot-ex-pb-006{,/**}",
+        "destination": "/deck/mega-pidgeot-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-pinsir-ex-b1-002{,/**}",
+        "destination": "/deck/mega-pinsir-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-pinsir-ex-b1-002&leafeon-ex-a2a-010{,/**}",
+        "destination": "/deck/mega-pinsir-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-pinsir-ex-b1-002&pichu-a4-066{,/**}",
+        "destination": "/deck/mega-pinsir-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-rayquaza-ex-b4-120&dragonair-b4-117{,/**}",
+        "destination": "/deck/mega-rayquaza-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-sableye-ex-b3b-041&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/mega-sableye-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-sableye-ex-b3b-041&mega-absol-ex-b1-151{,/**}",
+        "destination": "/deck/mega-sableye-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-sceptile-ex-b3-008{,/**}",
+        "destination": "/deck/mega-sceptile-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-sceptile-ex-b3-008&butterfree-b3b-003{,/**}",
+        "destination": "/deck/mega-sceptile-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-sceptile-ex-b3-008&pheromosa-a3a-007{,/**}",
+        "destination": "/deck/mega-sceptile-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-sceptile-ex-b3-008&poison-barb-a3-146{,/**}",
+        "destination": "/deck/mega-sceptile-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-sceptile-ex-b3-008&sceptile-b3-007{,/**}",
+        "destination": "/deck/mega-sceptile-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-sceptile-ex-b3-008&teal-mask-ogerpon-ex-b2-017{,/**}",
+        "destination": "/deck/mega-sceptile-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-scizor-ex-b2b-047&revavroom-b2b-050{,/**}",
+        "destination": "/deck/mega-scizor-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-sharpedo-ex-b4-035{,/**}",
+        "destination": "/deck/mega-sharpedo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-sharpedo-ex-b4-035&chien-pao-ex-b2a-037{,/**}",
+        "destination": "/deck/mega-sharpedo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-sharpedo-ex-b4-035&gyarados-a4-045{,/**}",
+        "destination": "/deck/mega-sharpedo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-sharpedo-ex-b4-035&milotic-ex-b3b-015{,/**}",
+        "destination": "/deck/mega-sharpedo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-slowbro-ex-b2b-016{,/**}",
+        "destination": "/deck/mega-slowbro-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-slowbro-ex-b2b-016&eiscue-b1-080{,/**}",
+        "destination": "/deck/mega-slowbro-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-steelix-ex-b1a-052{,/**}",
+        "destination": "/deck/mega-steelix-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-steelix-ex-b1a-052&dialga-ex-a2-119{,/**}",
+        "destination": "/deck/mega-steelix-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-steelix-ex-b1a-052&indeedee-ex-b1-121{,/**}",
+        "destination": "/deck/mega-steelix-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-steelix-ex-b1a-052&mantyke-a4a-023{,/**}",
+        "destination": "/deck/mega-steelix-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-steelix-ex-b1a-052&oricorio-a3-066{,/**}",
+        "destination": "/deck/mega-steelix-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-steelix-ex-b1a-052&pichu-a4-066{,/**}",
+        "destination": "/deck/mega-steelix-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-swampert-ex-b2-036{,/**}",
+        "destination": "/deck/mega-swampert-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-swampert-ex-b2-036&furfrou-b1a-065{,/**}",
+        "destination": "/deck/mega-swampert-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-swampert-ex-b2-036&greninja-a1-089{,/**}",
+        "destination": "/deck/mega-swampert-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-venusaur-ex-b1a-004{,/**}",
+        "destination": "/deck/mega-venusaur-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-venusaur-ex-b1a-004&exeggutor-ex-a1-023{,/**}",
+        "destination": "/deck/mega-venusaur-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mega-venusaur-ex-b1a-004&lilligant-b1-018{,/**}",
+        "destination": "/deck/mega-venusaur-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/melmetal-a1-182{,/**}",
+        "destination": "/deck/melmetal/",
+        "type": 301
+      },
+      {
+        "source": "/deck/melmetal-a1-182&dialga-ex-a2-119{,/**}",
+        "destination": "/deck/melmetal/",
+        "type": 301
+      },
+      {
+        "source": "/deck/melmetal-a1-182&skarmory-a2-111{,/**}",
+        "destination": "/deck/melmetal/",
+        "type": 301
+      },
+      {
+        "source": "/deck/melmetal-ex-b1-174{,/**}",
+        "destination": "/deck/melmetal-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/melmetal-ex-b1-174&dialga-ex-a2-119{,/**}",
+        "destination": "/deck/melmetal-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/meowscarada-a2b-007{,/**}",
+        "destination": "/deck/meowscarada/",
+        "type": 301
+      },
+      {
+        "source": "/deck/meowscarada-a2b-007&carnivine-a2a-009{,/**}",
+        "destination": "/deck/meowscarada/",
+        "type": 301
+      },
+      {
+        "source": "/deck/meowscarada-a2b-007&exeggutor-ex-a1-023{,/**}",
+        "destination": "/deck/meowscarada/",
+        "type": 301
+      },
+      {
+        "source": "/deck/meowscarada-a2b-007&leafeon-ex-a2a-010{,/**}",
+        "destination": "/deck/meowscarada/",
+        "type": 301
+      },
+      {
+        "source": "/deck/meowscarada-a2b-007&magnezone-a2-053{,/**}",
+        "destination": "/deck/meowscarada/",
+        "type": 301
+      },
+      {
+        "source": "/deck/meowscarada-a2b-007&pheromosa-a3a-007{,/**}",
+        "destination": "/deck/meowscarada/",
+        "type": 301
+      },
+      {
+        "source": "/deck/meowscarada-ex-b2a-003{,/**}",
+        "destination": "/deck/meowscarada-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/meowscarada-ex-b2a-003&meowscarada-a2b-007{,/**}",
+        "destination": "/deck/meowscarada-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/meowscarada-ex-b2a-003&teal-mask-ogerpon-ex-b2-017{,/**}",
+        "destination": "/deck/meowscarada-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mesprit-a2-076&uxie-a2-075{,/**}",
+        "destination": "/deck/mesprit/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mew-ex-a1a-032&greninja-a1-089{,/**}",
+        "destination": "/deck/mew-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mewtwo-ex-a1-129&gardevoir-a1-132{,/**}",
+        "destination": "/deck/mewtwo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/milotic-a4a-022{,/**}",
+        "destination": "/deck/milotic/",
+        "type": 301
+      },
+      {
+        "source": "/deck/milotic-a4a-022&suicune-ex-a4a-020{,/**}",
+        "destination": "/deck/milotic/",
+        "type": 301
+      },
+      {
+        "source": "/deck/milotic-ex-b3b-015{,/**}",
+        "destination": "/deck/milotic-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/milotic-ex-b3b-015&chien-pao-ex-b2a-037{,/**}",
+        "destination": "/deck/milotic-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/milotic-ex-b3b-015&eevee-ex-a3b-056{,/**}",
+        "destination": "/deck/milotic-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/milotic-ex-b3b-015&igglybuff-a4a-059{,/**}",
+        "destination": "/deck/milotic-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/milotic-ex-b3b-015&mega-sharpedo-ex-b4-035{,/**}",
+        "destination": "/deck/milotic-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/milotic-ex-b3b-015&vaporeon-a1a-019{,/**}",
+        "destination": "/deck/milotic-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/milotic-ex-b3b-015&vaporeon-ex-b3-037{,/**}",
+        "destination": "/deck/milotic-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/miltank-a4a-062{,/**}",
+        "destination": "/deck/miltank/",
+        "type": 301
+      },
+      {
+        "source": "/deck/miltank-a4a-062&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/miltank/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mimikyu-ex-b2-073{,/**}",
+        "destination": "/deck/mimikyu-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mimikyu-ex-b2-073&giratina-ex-a2b-035{,/**}",
+        "destination": "/deck/mimikyu-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mimikyu-ex-b2-073&greninja-a1-089{,/**}",
+        "destination": "/deck/mimikyu-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/miraidon-ex-b3a-019{,/**}",
+        "destination": "/deck/miraidon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mismagius-ex-a2-067{,/**}",
+        "destination": "/deck/mismagius-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mismagius-ex-a2-067&tapu-lele-a3-084{,/**}",
+        "destination": "/deck/mismagius-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/mismagius-ex-a2-067&togekiss-a2-065{,/**}",
+        "destination": "/deck/mismagius-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/naganadel-a3a-045{,/**}",
+        "destination": "/deck/naganadel/",
+        "type": 301
+      },
+      {
+        "source": "/deck/naganadel-a3a-045&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/naganadel/",
+        "type": 301
+      },
+      {
+        "source": "/deck/naganadel-a3a-045&nihilego-a3a-042{,/**}",
+        "destination": "/deck/naganadel/",
+        "type": 301
+      },
+      {
+        "source": "/deck/nidoqueen-a1-168{,/**}",
+        "destination": "/deck/nidoqueen/",
+        "type": 301
+      },
+      {
+        "source": "/deck/nihilego-a3a-042{,/**}",
+        "destination": "/deck/nihilego/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ninetales-a1-038&rapidash-b2b-011{,/**}",
+        "destination": "/deck/ninetales/",
+        "type": 301
+      },
+      {
+        "source": "/deck/oricorio-a3-066{,/**}",
+        "destination": "/deck/oricorio/",
+        "type": 301
+      },
+      {
+        "source": "/deck/oricorio-a3-066&greninja-a1-089{,/**}",
+        "destination": "/deck/oricorio/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pachirisu-a2b-025&oricorio-a3-066{,/**}",
+        "destination": "/deck/pachirisu/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pachirisu-ex-a2-061{,/**}",
+        "destination": "/deck/pachirisu-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/paldean-clodsire-ex-a2b-048{,/**}",
+        "destination": "/deck/paldean-clodsire-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/paldean-clodsire-ex-a2b-048&grafaiai-a2b-051{,/**}",
+        "destination": "/deck/paldean-clodsire-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/paldean-clodsire-ex-a2b-048&weezing-a1-177{,/**}",
+        "destination": "/deck/paldean-clodsire-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/palkia-ex-a2-049{,/**}",
+        "destination": "/deck/palkia-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/palkia-ex-a2-049&baxcalibur-b2a-036{,/**}",
+        "destination": "/deck/palkia-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/palkia-ex-a2-049&greninja-a1-089{,/**}",
+        "destination": "/deck/palkia-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/palkia-ex-a2-049&magnezone-a2-053{,/**}",
+        "destination": "/deck/palkia-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/palkia-ex-a2-049&manaphy-a2-050{,/**}",
+        "destination": "/deck/palkia-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pawmot-a2b-028{,/**}",
+        "destination": "/deck/pawmot/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pawmot-a2b-028&oricorio-a3-066{,/**}",
+        "destination": "/deck/pawmot/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pawmot-a2b-028&silvally-a3a-061{,/**}",
+        "destination": "/deck/pawmot/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pheromosa-a3a-007{,/**}",
+        "destination": "/deck/pheromosa/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pheromosa-a3a-007&kartana-a3a-008{,/**}",
+        "destination": "/deck/pheromosa/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pichu-a4-066{,/**}",
+        "destination": "/deck/pichu/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pichu-a4-066&mega-kangaskhan-ex-b2-127{,/**}",
+        "destination": "/deck/pichu/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pidgeot-ex-a1a-059{,/**}",
+        "destination": "/deck/pidgeot-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pidgeot-ex-a1a-059&dialga-ex-a2-119{,/**}",
+        "destination": "/deck/pidgeot-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pikachu-ex-a1-096{,/**}",
+        "destination": "/deck/pikachu-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pikachu-ex-a1-096&electrode-a1-100{,/**}",
+        "destination": "/deck/pikachu-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pikachu-ex-a1-096&galvantula-a1a-029{,/**}",
+        "destination": "/deck/pikachu-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pikachu-ex-a1-096&pachirisu-ex-a2-061{,/**}",
+        "destination": "/deck/pikachu-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pikachu-ex-a1-096&raichu-a1-095{,/**}",
+        "destination": "/deck/pikachu-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pikachu-ex-a1-096&zapdos-ex-a1-104{,/**}",
+        "destination": "/deck/pikachu-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pikachu-ex-a1-096&zebstrika-a1-106{,/**}",
+        "destination": "/deck/pikachu-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/pikachu-ex-a2b-022{,/**}",
+        "destination": "/deck/pikachu-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/poliwrath-ex-a4a-042{,/**}",
+        "destination": "/deck/poliwrath-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/poliwrath-ex-a4a-042&lucario-a2-092{,/**}",
+        "destination": "/deck/poliwrath-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/poliwrath-ex-a4a-042&mantyke-a4a-023{,/**}",
+        "destination": "/deck/poliwrath-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/porygon-z-a4-137{,/**}",
+        "destination": "/deck/porygon-z/",
+        "type": 301
+      },
+      {
+        "source": "/deck/porygon-z-a4-137&chingling-b1-109{,/**}",
+        "destination": "/deck/porygon-z/",
+        "type": 301
+      },
+      {
+        "source": "/deck/primarina-a3-048{,/**}",
+        "destination": "/deck/primarina/",
+        "type": 301
+      },
+      {
+        "source": "/deck/primarina-ex-a3b-024{,/**}",
+        "destination": "/deck/primarina-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/primarina-ex-a3b-024&greninja-a1-089{,/**}",
+        "destination": "/deck/primarina-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/primarina-ex-a3b-024&pyukumuku-a3-054{,/**}",
+        "destination": "/deck/primarina-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/primeape-a1a-042{,/**}",
+        "destination": "/deck/primeape/",
+        "type": 301
+      },
+      {
+        "source": "/deck/probopass-ex-a2a-057{,/**}",
+        "destination": "/deck/probopass-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/probopass-ex-a2a-057&dialga-ex-a2-119{,/**}",
+        "destination": "/deck/probopass-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/professors-research-pa-007{,/**}",
+        "destination": "/deck/professors-research/",
+        "type": 301
+      },
+      {
+        "source": "/deck/raichu-a1a-026&pikachu-ex-a1-096{,/**}",
+        "destination": "/deck/raichu/",
+        "type": 301
+      },
+      {
+        "source": "/deck/raikou-ex-a4a-025{,/**}",
+        "destination": "/deck/raikou-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/raikou-ex-a4a-025&arceus-ex-a2a-071{,/**}",
+        "destination": "/deck/raikou-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/raikou-ex-a4a-025&electivire-a2-057{,/**}",
+        "destination": "/deck/raikou-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/raikou-ex-a4a-025&luxray-a2-060{,/**}",
+        "destination": "/deck/raikou-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/raikou-ex-a4a-025&magnezone-a2-053{,/**}",
+        "destination": "/deck/raikou-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/raikou-ex-a4a-025&oricorio-a3-066{,/**}",
+        "destination": "/deck/raikou-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/raikou-ex-a4a-025&tapu-koko-ex-a3a-019{,/**}",
+        "destination": "/deck/raikou-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/raikou-ex-a4a-025&zeraora-a3a-021{,/**}",
+        "destination": "/deck/raikou-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&aerodactyl-ex-a1a-046{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&delcatty-b1-194{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&donphan-ex-a4-100{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&hitmonchan-ex-b1-124{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&hitmonlee-a1-154{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&hitmontop-a4-102{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&kabutops-a1-159{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&lucario-a2-092{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&lycanroc-a3-101{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&magnezone-a2-053{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&passimian-a3a-034{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&pidgeot-ex-a1a-059{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&primeape-a1a-042{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&silvally-a3a-061{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&snorlax-a2a-063{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&snorlax-ex-a3b-057{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rampardos-a2-089&tyrantrum-b2-090{,/**}",
+        "destination": "/deck/rampardos/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rapidash-ex-b1-031{,/**}",
+        "destination": "/deck/rapidash-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rayquaza-ex-pa-065&ho-oh-ex-a4-034{,/**}",
+        "destination": "/deck/rayquaza-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rhyperior-a2-082{,/**}",
+        "destination": "/deck/rhyperior/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rillaboom-b1-027{,/**}",
+        "destination": "/deck/rillaboom/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rillaboom-b1-027&serperior-a1a-006{,/**}",
+        "destination": "/deck/rillaboom/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rotom-a2a-035&carnivine-a2a-009{,/**}",
+        "destination": "/deck/rotom/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rotom-ex-b4-055{,/**}",
+        "destination": "/deck/rotom-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rotom-ex-b4-055&oricorio-a3-034{,/**}",
+        "destination": "/deck/rotom-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rotom-ex-b4-055&oricorio-a3-066{,/**}",
+        "destination": "/deck/rotom-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/rotom-ex-b4-055&pachirisu-b4-054{,/**}",
+        "destination": "/deck/rotom-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/salazzle-a3-036{,/**}",
+        "destination": "/deck/salazzle/",
+        "type": 301
+      },
+      {
+        "source": "/deck/salazzle-a3-036&nihilego-a3a-042{,/**}",
+        "destination": "/deck/salazzle/",
+        "type": 301
+      },
+      {
+        "source": "/deck/scizor-a4-123{,/**}",
+        "destination": "/deck/scizor/",
+        "type": 301
+      },
+      {
+        "source": "/deck/scolipede-a1a-055{,/**}",
+        "destination": "/deck/scolipede/",
+        "type": 301
+      },
+      {
+        "source": "/deck/scolipede-a1a-055&weezing-a1-177{,/**}",
+        "destination": "/deck/scolipede/",
+        "type": 301
+      },
+      {
+        "source": "/deck/serperior-a1a-006&exeggutor-a1a-002{,/**}",
+        "destination": "/deck/serperior/",
+        "type": 301
+      },
+      {
+        "source": "/deck/serperior-a1a-006&mega-heracross-ex-pb-056{,/**}",
+        "destination": "/deck/serperior/",
+        "type": 301
+      },
+      {
+        "source": "/deck/shiinotic-a3a-027{,/**}",
+        "destination": "/deck/shiinotic/",
+        "type": 301
+      },
+      {
+        "source": "/deck/shuckle-ex-a4-021{,/**}",
+        "destination": "/deck/shuckle-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/silvally-a3a-061{,/**}",
+        "destination": "/deck/silvally/",
+        "type": 301
+      },
+      {
+        "source": "/deck/silvally-a3a-061&articuno-ex-a1-084{,/**}",
+        "destination": "/deck/silvally/",
+        "type": 301
+      },
+      {
+        "source": "/deck/silvally-a3a-061&blacephalon-a3a-009{,/**}",
+        "destination": "/deck/silvally/",
+        "type": 301
+      },
+      {
+        "source": "/deck/silvally-a3a-061&greninja-a1-089{,/**}",
+        "destination": "/deck/silvally/",
+        "type": 301
+      },
+      {
+        "source": "/deck/silvally-a3a-061&magby-a4-032{,/**}",
+        "destination": "/deck/silvally/",
+        "type": 301
+      },
+      {
+        "source": "/deck/silvally-a3a-061&oricorio-a3-066{,/**}",
+        "destination": "/deck/silvally/",
+        "type": 301
+      },
+      {
+        "source": "/deck/silvally-a3a-061&palkia-ex-a2-049{,/**}",
+        "destination": "/deck/silvally/",
+        "type": 301
+      },
+      {
+        "source": "/deck/silvally-a3a-061&pichu-a4-066{,/**}",
+        "destination": "/deck/silvally/",
+        "type": 301
+      },
+      {
+        "source": "/deck/silvally-a3a-061&tapu-lele-a3-084{,/**}",
+        "destination": "/deck/silvally/",
+        "type": 301
+      },
+      {
+        "source": "/deck/silvally-a3a-061&zeraora-a3a-021{,/**}",
+        "destination": "/deck/silvally/",
+        "type": 301
+      },
+      {
+        "source": "/deck/simisage-b1-014{,/**}",
+        "destination": "/deck/simisage/",
+        "type": 301
+      },
+      {
+        "source": "/deck/skarmory-a2-111&magnezone-a2-053{,/**}",
+        "destination": "/deck/skarmory/",
+        "type": 301
+      },
+      {
+        "source": "/deck/skarmory-ex-a4-124{,/**}",
+        "destination": "/deck/skarmory-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/skarmory-ex-a4-124&skarmory-a2-111{,/**}",
+        "destination": "/deck/skarmory-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/slaking-b2-136{,/**}",
+        "destination": "/deck/slaking/",
+        "type": 301
+      },
+      {
+        "source": "/deck/slurpuff-a3b-032&alcremie-a3b-037{,/**}",
+        "destination": "/deck/slurpuff/",
+        "type": 301
+      },
+      {
+        "source": "/deck/snorlax-a2a-063{,/**}",
+        "destination": "/deck/snorlax/",
+        "type": 301
+      },
+      {
+        "source": "/deck/snorlax-a2a-063&giratina-ex-a2b-035{,/**}",
+        "destination": "/deck/snorlax/",
+        "type": 301
+      },
+      {
+        "source": "/deck/snorlax-a2a-063&greninja-a1-089{,/**}",
+        "destination": "/deck/snorlax/",
+        "type": 301
+      },
+      {
+        "source": "/deck/snorlax-ex-a3b-057{,/**}",
+        "destination": "/deck/snorlax-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/snorlax-ex-a3b-057&ho-oh-ex-a4-034{,/**}",
+        "destination": "/deck/snorlax-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/solgaleo-ex-a3-122{,/**}",
+        "destination": "/deck/solgaleo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/solgaleo-ex-a3-122&aegislash-b1-172{,/**}",
+        "destination": "/deck/solgaleo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/solgaleo-ex-a3-122&escavalier-a3-120{,/**}",
+        "destination": "/deck/solgaleo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/solgaleo-ex-a3-122&galarian-perrserker-b2-111{,/**}",
+        "destination": "/deck/solgaleo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/solgaleo-ex-a3-122&goomy-b1-177{,/**}",
+        "destination": "/deck/solgaleo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/solgaleo-ex-a3-122&scizor-a4-123{,/**}",
+        "destination": "/deck/solgaleo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/solgaleo-ex-a3-122&shiinotic-a3a-027{,/**}",
+        "destination": "/deck/solgaleo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/solgaleo-ex-a3-122&skarmory-a2-111{,/**}",
+        "destination": "/deck/solgaleo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/solgaleo-ex-a3-122&snorlax-a2a-063{,/**}",
+        "destination": "/deck/solgaleo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/solgaleo-ex-a3-122&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/solgaleo-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/stakataka-a3a-053{,/**}",
+        "destination": "/deck/stakataka/",
+        "type": 301
+      },
+      {
+        "source": "/deck/stakataka-a3a-053&celesteela-a3a-062{,/**}",
+        "destination": "/deck/stakataka/",
+        "type": 301
+      },
+      {
+        "source": "/deck/starmie-ex-a1-076{,/**}",
+        "destination": "/deck/starmie-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/starmie-ex-a1-076&articuno-ex-a1-084{,/**}",
+        "destination": "/deck/starmie-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/starmie-ex-a1-076&greninja-a1-089{,/**}",
+        "destination": "/deck/starmie-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/starmie-ex-a1-076&magnezone-a2-053{,/**}",
+        "destination": "/deck/starmie-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/starmie-ex-a1-076&vaporeon-a1a-019{,/**}",
+        "destination": "/deck/starmie-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/steelix-a4-122{,/**}",
+        "destination": "/deck/steelix/",
+        "type": 301
+      },
+      {
+        "source": "/deck/steelix-a4-122&magby-a4-032{,/**}",
+        "destination": "/deck/steelix/",
+        "type": 301
+      },
+      {
+        "source": "/deck/stoutland-a3a-056{,/**}",
+        "destination": "/deck/stoutland/",
+        "type": 301
+      },
+      {
+        "source": "/deck/stoutland-a3a-056&giratina-ex-a2b-035{,/**}",
+        "destination": "/deck/stoutland/",
+        "type": 301
+      },
+      {
+        "source": "/deck/stoutland-a3a-056&rampardos-a2-089{,/**}",
+        "destination": "/deck/stoutland/",
+        "type": 301
+      },
+      {
+        "source": "/deck/stoutland-a3a-056&silvally-a3a-061{,/**}",
+        "destination": "/deck/stoutland/",
+        "type": 301
+      },
+      {
+        "source": "/deck/stoutland-a3a-056&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/stoutland/",
+        "type": 301
+      },
+      {
+        "source": "/deck/stoutland-a3a-056&tapu-lele-a3-084{,/**}",
+        "destination": "/deck/stoutland/",
+        "type": 301
+      },
+      {
+        "source": "/deck/suicune-ex-a4a-020{,/**}",
+        "destination": "/deck/suicune-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/suicune-ex-a4a-020&froakie-b1-071{,/**}",
+        "destination": "/deck/suicune-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/suicune-ex-a4a-020&greninja-a1-089{,/**}",
+        "destination": "/deck/suicune-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/suicune-ex-a4a-020&gyarados-a4-045{,/**}",
+        "destination": "/deck/suicune-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/suicune-ex-a4a-020&magnezone-a2-053{,/**}",
+        "destination": "/deck/suicune-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/suicune-ex-a4a-020&mantyke-a4a-023{,/**}",
+        "destination": "/deck/suicune-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/suicune-ex-a4a-020&milotic-a4a-022{,/**}",
+        "destination": "/deck/suicune-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/suicune-ex-a4a-020&oricorio-a3-066{,/**}",
+        "destination": "/deck/suicune-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/suicune-ex-a4a-020&primarina-a3-048{,/**}",
+        "destination": "/deck/suicune-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/suicune-ex-a4a-020&silvally-a3a-061{,/**}",
+        "destination": "/deck/suicune-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/suicune-ex-a4a-020&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/suicune-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/suicune-ex-a4a-020&wugtrio-ex-a2b-019{,/**}",
+        "destination": "/deck/suicune-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/sylveon-a3b-033&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/sylveon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/tapu-koko-ex-a3a-019{,/**}",
+        "destination": "/deck/tapu-koko-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/tapu-koko-ex-a3a-019&arceus-ex-a2a-071{,/**}",
+        "destination": "/deck/tapu-koko-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/tapu-koko-ex-a3a-019&oricorio-a3-066{,/**}",
+        "destination": "/deck/tapu-koko-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/tapu-koko-ex-a3a-019&pichu-a4-066{,/**}",
+        "destination": "/deck/tapu-koko-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/tapu-koko-ex-a3a-019&zeraora-a3a-021{,/**}",
+        "destination": "/deck/tapu-koko-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/tauros-a1a-060{,/**}",
+        "destination": "/deck/tauros/",
+        "type": 301
+      },
+      {
+        "source": "/deck/tauros-ex-b1-183{,/**}",
+        "destination": "/deck/tauros-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/teal-mask-ogerpon-ex-b2-017{,/**}",
+        "destination": "/deck/teal-mask-ogerpon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/team-rockets-articuno-ex-b4a-014{,/**}",
+        "destination": "/deck/team-rockets-articuno-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/team-rockets-electrode-b4a-020&pawmot-b3a-016{,/**}",
+        "destination": "/deck/team-rockets-electrode/",
+        "type": 301
+      },
+      {
+        "source": "/deck/team-rockets-raticate-ex-b4a-059{,/**}",
+        "destination": "/deck/team-rockets-raticate-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/team-rockets-raticate-ex-b4a-059&alolan-ninetales-ex-b2-029{,/**}",
+        "destination": "/deck/team-rockets-raticate-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/team-rockets-raticate-ex-b4a-059&mega-lucario-ex-b3-081{,/**}",
+        "destination": "/deck/team-rockets-raticate-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/team-rockets-slowking-ex-b4a-026{,/**}",
+        "destination": "/deck/team-rockets-slowking-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/team-rockets-slowking-ex-b4a-026&meloetta-b2-070{,/**}",
+        "destination": "/deck/team-rockets-slowking-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/team-rockets-slowking-ex-b4a-026&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/team-rockets-slowking-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/team-rockets-weezing-ex-b4a-043{,/**}",
+        "destination": "/deck/team-rockets-weezing-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/team-rockets-weezing-ex-b4a-043&hoopa-ex-b4-103{,/**}",
+        "destination": "/deck/team-rockets-weezing-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/team-rockets-weezing-ex-b4a-043&mega-absol-ex-b1-151{,/**}",
+        "destination": "/deck/team-rockets-weezing-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/team-rockets-weezing-ex-b4a-043&mega-sableye-ex-b3b-041{,/**}",
+        "destination": "/deck/team-rockets-weezing-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/team-rockets-weezing-ex-b4a-043&nihilego-a3a-042{,/**}",
+        "destination": "/deck/team-rockets-weezing-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/team-rockets-weezing-ex-b4a-043&zoroark-ex-b3-106{,/**}",
+        "destination": "/deck/team-rockets-weezing-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/tinkaton-ex-a2b-054{,/**}",
+        "destination": "/deck/tinkaton-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/tinkaton-ex-a2b-054&skarmory-a2-111{,/**}",
+        "destination": "/deck/tinkaton-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/togedemaru-a3-067{,/**}",
+        "destination": "/deck/togedemaru/",
+        "type": 301
+      },
+      {
+        "source": "/deck/togekiss-a2-065{,/**}",
+        "destination": "/deck/togekiss/",
+        "type": 301
+      },
+      {
+        "source": "/deck/togekiss-a2-065&cleffa-a4-077{,/**}",
+        "destination": "/deck/togekiss/",
+        "type": 301
+      },
+      {
+        "source": "/deck/togekiss-a2-065&magnezone-a2-053{,/**}",
+        "destination": "/deck/togekiss/",
+        "type": 301
+      },
+      {
+        "source": "/deck/togekiss-a2-065&mewtwo-ex-a1-129{,/**}",
+        "destination": "/deck/togekiss/",
+        "type": 301
+      },
+      {
+        "source": "/deck/togekiss-a2-065&mismagius-ex-a2-067{,/**}",
+        "destination": "/deck/togekiss/",
+        "type": 301
+      },
+      {
+        "source": "/deck/toxtricity-ex-b2-055&zeraora-a3a-021{,/**}",
+        "destination": "/deck/toxtricity-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/tsareena-a3-020{,/**}",
+        "destination": "/deck/tsareena/",
+        "type": 301
+      },
+      {
+        "source": "/deck/tsareena-a3-020&alolan-exeggutor-a3-002{,/**}",
+        "destination": "/deck/tsareena/",
+        "type": 301
+      },
+      {
+        "source": "/deck/typhlosion-a4-029{,/**}",
+        "destination": "/deck/typhlosion/",
+        "type": 301
+      },
+      {
+        "source": "/deck/typhlosion-a4-029&sylveon-ex-a3b-034{,/**}",
+        "destination": "/deck/typhlosion/",
+        "type": 301
+      },
+      {
+        "source": "/deck/typhlosion-a4-029&turtonator-a3-037{,/**}",
+        "destination": "/deck/typhlosion/",
+        "type": 301
+      },
+      {
+        "source": "/deck/tyranitar-a4-119{,/**}",
+        "destination": "/deck/tyranitar/",
+        "type": 301
+      },
+      {
+        "source": "/deck/tyranitar-a4-119&umbreon-ex-a4-112{,/**}",
+        "destination": "/deck/tyranitar/",
+        "type": 301
+      },
+      {
+        "source": "/deck/tyrantrum-b2-090{,/**}",
+        "destination": "/deck/tyrantrum/",
+        "type": 301
+      },
+      {
+        "source": "/deck/tyrogue-a4-101{,/**}",
+        "destination": "/deck/tyrogue/",
+        "type": 301
+      },
+      {
+        "source": "/deck/umbreon-a3b-043&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/umbreon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/umbreon-ex-a4-112{,/**}",
+        "destination": "/deck/umbreon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/umbreon-ex-a4-112&greninja-a1-089{,/**}",
+        "destination": "/deck/umbreon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/umbreon-ex-a4-112&umbreon-a3b-043{,/**}",
+        "destination": "/deck/umbreon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/ursaluna-b3b-058&celebi-b3-004{,/**}",
+        "destination": "/deck/ursaluna/",
+        "type": 301
+      },
+      {
+        "source": "/deck/vaporeon-a1a-019&articuno-ex-a1-084{,/**}",
+        "destination": "/deck/vaporeon/",
+        "type": 301
+      },
+      {
+        "source": "/deck/vaporeon-ex-b3-037{,/**}",
+        "destination": "/deck/vaporeon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/vaporeon-ex-b3-037&vaporeon-a3b-016{,/**}",
+        "destination": "/deck/vaporeon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/venusaur-ex-a1-004{,/**}",
+        "destination": "/deck/venusaur-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/venusaur-ex-a1-004&exeggutor-ex-a1-023{,/**}",
+        "destination": "/deck/venusaur-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/vespiquen-ex-b4-011{,/**}",
+        "destination": "/deck/vespiquen-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/vespiquen-ex-b4-011&teal-mask-ogerpon-ex-b2-017{,/**}",
+        "destination": "/deck/vespiquen-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/victreebel-a1-020&chingling-b1-109{,/**}",
+        "destination": "/deck/victreebel/",
+        "type": 301
+      },
+      {
+        "source": "/deck/vikavolt-a3-065&oricorio-a3-066{,/**}",
+        "destination": "/deck/vikavolt/",
+        "type": 301
+      },
+      {
+        "source": "/deck/wailord-ex-b4-037{,/**}",
+        "destination": "/deck/wailord-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/weavile-ex-a2-099{,/**}",
+        "destination": "/deck/weavile-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/weavile-ex-a2-099&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/weavile-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/weavile-ex-a2-099&weezing-a1-177{,/**}",
+        "destination": "/deck/weavile-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/weezing-a1-177{,/**}",
+        "destination": "/deck/weezing/",
+        "type": 301
+      },
+      {
+        "source": "/deck/weezing-a1-177&arbok-a1-165{,/**}",
+        "destination": "/deck/weezing/",
+        "type": 301
+      },
+      {
+        "source": "/deck/weezing-a1-177&nihilego-a3a-042{,/**}",
+        "destination": "/deck/weezing/",
+        "type": 301
+      },
+      {
+        "source": "/deck/weezing-a1-177&weavile-ex-a2-099{,/**}",
+        "destination": "/deck/weezing/",
+        "type": 301
+      },
+      {
+        "source": "/deck/whimsicott-ex-b1-016{,/**}",
+        "destination": "/deck/whimsicott-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/whimsicott-ex-b1-016&ariados-b1a-006{,/**}",
+        "destination": "/deck/whimsicott-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/wigglytuff-a2b-061{,/**}",
+        "destination": "/deck/wigglytuff/",
+        "type": 301
+      },
+      {
+        "source": "/deck/wigglytuff-a2b-061&greninja-a1-089{,/**}",
+        "destination": "/deck/wigglytuff/",
+        "type": 301
+      },
+      {
+        "source": "/deck/wigglytuff-a2b-061&oricorio-a3-066{,/**}",
+        "destination": "/deck/wigglytuff/",
+        "type": 301
+      },
+      {
+        "source": "/deck/wigglytuff-ex-a1-195{,/**}",
+        "destination": "/deck/wigglytuff-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/wigglytuff-ex-a1-195&greninja-a1-089{,/**}",
+        "destination": "/deck/wigglytuff-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/wishiwashi-ex-a3-051&wishiwashi-a3-050{,/**}",
+        "destination": "/deck/wishiwashi-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/wormadam-a2-115&skarmory-a2-111{,/**}",
+        "destination": "/deck/wormadam/",
+        "type": 301
+      },
+      {
+        "source": "/deck/wugtrio-ex-a2b-019{,/**}",
+        "destination": "/deck/wugtrio-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/wugtrio-ex-a2b-019&greninja-a1-089{,/**}",
+        "destination": "/deck/wugtrio-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/wugtrio-ex-a2b-019&manaphy-a2-050{,/**}",
+        "destination": "/deck/wugtrio-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/wugtrio-ex-a2b-019&mantyke-a4a-023{,/**}",
+        "destination": "/deck/wugtrio-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/wugtrio-ex-a2b-019&starmie-ex-a1-076{,/**}",
+        "destination": "/deck/wugtrio-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/yanmega-ex-a2-007{,/**}",
+        "destination": "/deck/yanmega-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/yanmega-ex-a2-007&dialga-ex-a2-119{,/**}",
+        "destination": "/deck/yanmega-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/yanmega-ex-a2-007&exeggutor-ex-a1-023{,/**}",
+        "destination": "/deck/yanmega-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/yanmega-ex-a2-007&wigglytuff-ex-a1-195{,/**}",
+        "destination": "/deck/yanmega-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/zapdos-ex-a1-104{,/**}",
+        "destination": "/deck/zapdos-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/zapdos-ex-a1-104&magnezone-a2-053{,/**}",
+        "destination": "/deck/zapdos-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/zeraora-a3a-021{,/**}",
+        "destination": "/deck/zeraora/",
+        "type": 301
+      },
+      {
+        "source": "/deck/zeraora-a3a-021&mega-kangaskhan-ex-b2-127{,/**}",
+        "destination": "/deck/zeraora/",
+        "type": 301
+      },
+      {
+        "source": "/deck/zeraora-a3a-021&oricorio-a3-066{,/**}",
+        "destination": "/deck/zeraora/",
+        "type": 301
+      },
+      {
+        "source": "/deck/zoroark-a4a-050{,/**}",
+        "destination": "/deck/zoroark/",
+        "type": 301
+      },
+      {
+        "source": "/deck/zoroark-a4a-050&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/zoroark/",
+        "type": 301
+      },
+      {
+        "source": "/deck/zoroark-a4a-050&silvally-a3a-061{,/**}",
+        "destination": "/deck/zoroark/",
+        "type": 301
+      },
+      {
+        "source": "/deck/zoroark-ex-b3-106{,/**}",
+        "destination": "/deck/zoroark-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/zoroark-ex-b3-106&darkrai-ex-a2-110{,/**}",
+        "destination": "/deck/zoroark-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/zoroark-ex-b3-106&hoopa-ex-b4-103{,/**}",
+        "destination": "/deck/zoroark-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/zoroark-ex-b3-106&mega-absol-ex-b1-151{,/**}",
+        "destination": "/deck/zoroark-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/zoroark-ex-b3-106&team-rockets-weezing-ex-b4a-043{,/**}",
+        "destination": "/deck/zoroark-ex/",
+        "type": 301
       }
     ],
     "rewrites": [

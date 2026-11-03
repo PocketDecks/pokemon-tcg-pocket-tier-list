@@ -49,14 +49,18 @@ const renderDeckHtml = (deck, documentHtml, locale = DEFAULT_LOCALE) => {
 
   let html = documentHtml;
   html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${eTitle}</title>`);
+  const indexable = locale === DEFAULT_LOCALE;
   html = stampHead(html, {
     description: localeDescription,
     canonical,
     lang: locale,
-    alternates: [
-      ...ROUTE_LOCALES.map((other) => ({ hreflang: other, href: deckUrl(other) })),
-      { hreflang: "x-default", href: deckUrl(DEFAULT_LOCALE) },
-    ],
+    robots: indexable ? undefined : "noindex, follow",
+    alternates: indexable
+      ? [
+          { hreflang: DEFAULT_LOCALE, href: deckUrl(DEFAULT_LOCALE) },
+          { hreflang: "x-default", href: deckUrl(DEFAULT_LOCALE) },
+        ]
+      : [],
     metas: [
       `<meta property="og:type" content="website" />`,
       `<meta property="og:title" content="${eTitle}" />`,

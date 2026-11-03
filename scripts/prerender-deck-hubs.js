@@ -45,11 +45,14 @@ const renderHubHtml = (job, html, locale) => {
     ? `${job.name} Pokemon TCG Pocket deck variants, win rates and meta share from current tournament data.`
     : `${job.name} Pokemon TCG Pocket deck history. This archetype is not in the current meta.`;
   const canonical = routeFor(locale, job.hub);
-  const alternates = [
-    ...ROUTE_LOCALES.map((other) => ({ hreflang: other, href: routeFor(other, job.hub) })),
-    { hreflang: "x-default", href: routeFor("en", job.hub) },
-  ];
-  const robots = job.indexed ? "index, follow" : "noindex, follow";
+  const indexable = locale === "en";
+  const alternates = indexable
+    ? [
+        { hreflang: "en", href: routeFor("en", job.hub) },
+        { hreflang: "x-default", href: routeFor("en", job.hub) },
+      ]
+    : [];
+  const robots = indexable && job.indexed ? "index, follow" : "noindex, follow";
   return stampHead(html, {
     title,
     description,

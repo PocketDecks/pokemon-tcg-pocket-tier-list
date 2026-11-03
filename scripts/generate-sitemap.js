@@ -28,6 +28,10 @@ const DEFAULT_LOCALE = "en";
 
 const urlFor = (locale, route) => localizedUrl(SITE_URL, locale, route);
 
+const isDeckPage = (route) => /^\/deck\/.+/.test(route);
+
+const localesFor = (route) => (isDeckPage(route) ? [DEFAULT_LOCALE] : ROUTE_LOCALES);
+
 const buildSitemap = ({ decks, staticRoutes = STATIC_ROUTES, archive = [], lastmod }) => {
   const live = new Set(decks.map((deck) => deckSlug(deck.name)));
   const grouped = new Map(archive.map((entry) => [entry.hub, []]));
@@ -44,7 +48,7 @@ const buildSitemap = ({ decks, staticRoutes = STATIC_ROUTES, archive = [], lastm
 
   const alternateLines = (route) =>
     [
-      ...ROUTE_LOCALES.map(
+      ...localesFor(route).map(
         (locale) =>
           `      <xhtml:link rel="alternate" hreflang="${escapeXml(locale)}" href="${escapeXml(urlFor(locale, route))}" />`
       ),
@@ -52,7 +56,7 @@ const buildSitemap = ({ decks, staticRoutes = STATIC_ROUTES, archive = [], lastm
     ].join("\n");
 
   const urlEntries = baseRoutes
-    .flatMap((route) => ROUTE_LOCALES.map((locale) => ({ route, locale })))
+    .flatMap((route) => localesFor(route).map((locale) => ({ route, locale })))
     .map(
       ({ route, locale }) =>
         `  <url>\n    <loc>${escapeXml(urlFor(locale, route))}</loc>\n    <lastmod>${lastmod}</lastmod>\n${alternateLines(route)}\n  </url>`

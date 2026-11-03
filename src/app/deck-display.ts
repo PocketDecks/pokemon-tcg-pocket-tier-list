@@ -1,4 +1,5 @@
 import type { CardType } from "./cards-api";
+import { friendlyName } from "./deck-friendly-name";
 
 /** Anything carrying a pipeline deck name, with or without resolved icons. */
 export interface NamedDeck {
@@ -19,3 +20,8 @@ export const deckDisplayName = (deck: NamedDeck): string =>
   [deck.iconPrimary?.name, deck.iconSecondary?.name]
     .filter(Boolean)
     .join(" / ") || formatArchetypeId(deck.name);
+
+export const variantDisplayName = (name: string, deck?: NamedDeck | null): string =>
+  deck?.iconPrimary
+    ? deckDisplayName(deck)
+    : friendlyName(name).split(" & ").join(" / ");

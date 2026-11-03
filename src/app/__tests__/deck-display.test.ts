@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { deckDisplayName, formatArchetypeId } from "../deck-display";
+import { deckDisplayName, formatArchetypeId, variantDisplayName } from "../deck-display";
 import type { CardType } from "../cards-api";
 
 const icon = (name: string): CardType => ({
@@ -56,5 +56,27 @@ describe("formatArchetypeId", () => {
     expect(formatArchetypeId("baxcalibur-b2a-036&suicune-ex-a4a-020")).toBe(
       "Baxcalibur B2a 036&Suicune Ex A4a 020"
     );
+  });
+});
+
+describe("variantDisplayName", () => {
+  it("drops the set and number from a legacy upper-case archive name", () => {
+    expect(variantDisplayName("Mega Altaria ex-B1-102")).toBe("Mega Altaria ex");
+  });
+
+  it("joins a legacy two-card name with a slash and puts the ex card first", () => {
+    expect(variantDisplayName("Abomasnow-A2a-021&Arceus ex-A2a-071")).toBe(
+      "Arceus ex / Abomasnow"
+    );
+  });
+
+  it("uses the resolved icon names of a live deck", () => {
+    expect(
+      variantDisplayName("Mega Greninja ex-C1-042&Greninja ex-B1-073", {
+        name: "mega-greninja-ex-c1-042&greninja-ex-b1-073",
+        iconPrimary: icon("Mega Greninja ex"),
+        iconSecondary: icon("Greninja ex"),
+      })
+    ).toBe("Mega Greninja ex / Greninja ex");
   });
 });

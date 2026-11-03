@@ -5,6 +5,7 @@ import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { archiveForHub } from "../../app/deck-archive";
 import { LocaleLink, useLocaleHref } from "../../app/locale-link";
 import { deckSlug } from "../../app/deck-slug";
+import { variantDisplayName } from "../../app/deck-display";
 import { hubDisplayName, hubSeenRange } from "../../app/deck-archetype";
 import { useDecks } from "../../app/use-decks";
 import { newestExpansion } from "../../app/expansion-policy.mjs";
@@ -134,7 +135,7 @@ const HubPage = () => {
             const share = metaShareBySlug?.[entry.variant]?.share;
             return (
               <Variant key={entry.variant} to={`/deck/${entry.variant}`}>
-                <VariantName>{entry.name.replace(/-[a-z0-9]+-\d+/g, "").replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}</VariantName>
+                <VariantName>{variantDisplayName(entry.name, deck)}</VariantName>
                 <VariantMeta>
                   {[
                     deck ? t("deckHub.winRate", { value: (deck.expectedWinRate * 100).toFixed(1) }) : null,

@@ -79,6 +79,39 @@ describe("DeckHubPage", () => {
     decksState.value = { decks: [], metaShareBySlug: {}, loading: false, error: null };
   });
 
+  it("names a live variant with its resolved icon names, as the deck page does", () => {
+    decksState.value = {
+      decks: [
+        {
+          name: "mega-greninja-ex-c1-042&greninja-ex-b1-073",
+          powerScore: 1,
+          expectedWinRate: 0.5,
+          iconPrimary: { name: "Mega Greninja ex" },
+          iconSecondary: { name: "Greninja ex" },
+        },
+      ] as unknown[],
+      metaShareBySlug: {},
+      loading: false,
+      error: null,
+    };
+    renderAt("/deck/mega-greninja-ex");
+    expect(screen.getByText("Mega Greninja ex / Greninja ex")).toBeTruthy();
+    decksState.value = { decks: [], metaShareBySlug: {}, loading: false, error: null };
+  });
+
+  it("drops the card ID fragments from a live variant whose icons are missing", () => {
+    decksState.value = {
+      decks: [{ name: "mega-altaria-ex-b1-102", powerScore: 40, expectedWinRate: 0.5 }] as unknown[],
+      metaShareBySlug: {},
+      loading: false,
+      error: null,
+    };
+    renderAt("/deck/mega-altaria-ex");
+    expect(screen.getByText("Mega Altaria ex")).toBeTruthy();
+    expect(screen.queryByText(/B1 102|B1-102/)).toBeNull();
+    decksState.value = { decks: [], metaShareBySlug: {}, loading: false, error: null };
+  });
+
   it("keeps the locale on variant links", () => {
     decksState.value = {
       decks: [{ name: "mega-altaria-ex-b1-102", powerScore: 40, expectedWinRate: 0.5 }] as unknown[],

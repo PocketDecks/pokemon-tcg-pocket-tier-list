@@ -21,6 +21,21 @@ test("deck slugs remove punctuation without creating separators", () => {
   assert.strictEqual(deckSlug("Ho-Oh/PA-007"), "ho-ohpa-007");
 });
 
+test("deck slugs transliterate accents and distinguish Nidoran forms", () => {
+  const cases = [
+    ["Flabébé-A3-074", "flabebe-a3-074"],
+    ["Poké Ball-PA-005", "poke-ball-pa-005"],
+    ["Type: Null-A3a-060", "type-null-a3a-060"],
+    ["Mr. Mime-A1-149", "mr-mime-a1-149"],
+    ["Nidoran♀-A1-166", "nidoran-f-a1-166"],
+    ["Nidoran♂-A1-169", "nidoran-m-a1-169"],
+  ];
+  for (const [name, expected] of cases) {
+    assert.strictEqual(deckSlug(name), expected);
+  }
+  assert.notStrictEqual(deckSlug("Nidoran♀"), deckSlug("Nidoran♂"));
+});
+
 test("current names retain their existing slugs", () => {
   const decks = JSON.parse(
     fs.readFileSync(path.join(__dirname, "..", "..", "public", "data", "best-decks.json"), "utf8")

@@ -87,7 +87,10 @@ const mergeCurrent = (archive) => {
       ...(previous?.legacySlugs ? { legacySlugs: previous.legacySlugs } : {}),
     });
   }
-  return [...byVariant.values()].sort((a, b) => a.variant.localeCompare(b.variant));
+  const clamped = [...byVariant.values()].map((entry) =>
+    entry.firstSeen > entry.lastSeen ? { ...entry, firstSeen: entry.lastSeen } : entry
+  );
+  return clamped.sort((a, b) => a.variant.localeCompare(b.variant));
 };
 
 const main = () => {

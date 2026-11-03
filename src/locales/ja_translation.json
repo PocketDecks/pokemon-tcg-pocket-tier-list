@@ -374,5 +374,17 @@
     "20d": "20日間",
     "30d": "30日間",
     "all": "全期間"
+  },
+  "deckHub": {
+    "title": "{{name}} デッキ",
+    "liveSummary_one": "現在のメタで{{count}}件のバリエーションが使用中です。最も強いリストを先頭に表示しています",
+    "liveSummary_other": "現在のメタで{{count}}件のバリエーションが使用中です。最も強いリストを先頭に表示しています",
+    "notInMeta": "現在の{{expansion}}のメタには含まれていません。現在のデッキランキングはティアリストで確認できます",
+    "expansionFallback": "拡張パック",
+    "unavailable": "ライブのデッキ統計は現在利用できません。下のアーカイブは最新です",
+    "seenFrom": "{{from}}から{{to}}まで確認",
+    "winRate": "勝率 {{value}}%",
+    "metaShare": "メタシェア {{value}}%",
+    "allVariants": "{{name}}のすべてのバリエーション"
   }
 }

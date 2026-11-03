@@ -374,5 +374,17 @@
     "20d": "20 jours",
     "30d": "30 jours",
     "all": "toute la période"
+  },
+  "deckHub": {
+    "title": "Deck {{name}}",
+    "liveSummary_one": "{{count}} variante active dans le méta actuel, avec la liste la plus forte en premier",
+    "liveSummary_other": "{{count}} variantes actives dans le méta actuel, avec les listes les plus fortes en premier",
+    "notInMeta": "Absent du méta {{expansion}} actuel. Consultez la liste des tiers pour les classements actuels",
+    "expansionFallback": "extension",
+    "unavailable": "Les statistiques des decks en direct sont indisponibles pour le moment. L'archive ci-dessous reste à jour",
+    "seenFrom": "Vu du {{from}} au {{to}}",
+    "winRate": "{{value}}% de victoires",
+    "metaShare": "{{value}}% du méta",
+    "allVariants": "Toutes les variantes de {{name}}"
   }
 }

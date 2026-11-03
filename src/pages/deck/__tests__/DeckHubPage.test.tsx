@@ -1,6 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
+import i18n from "../../../i18n";
 import DeckHubPage from "../DeckHubPage";
 
 const decksState = vi.hoisted(() => ({
@@ -15,14 +16,14 @@ vi.mock("../../../ads/ContentReadyContext", () => ({
   useMarkContentReady: () => undefined,
 }));
 
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
-}));
-
 vi.mock("../../not-found/NotFoundPage", () => ({
   __esModule: true,
   default: () => <p>not found page</p>,
 }));
+
+beforeAll(async () => {
+  await i18n.changeLanguage("en");
+});
 
 const renderAt = (path: string) =>
   render(
@@ -38,6 +39,13 @@ describe("DeckHubPage", () => {
     renderAt("/deck/mega-greninja-ex");
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Mega Greninja ex Deck");
     expect(screen.queryByText("not found page")).toBeNull();
+  });
+
+  it("translates the hub title into the active language", async () => {
+    await i18n.changeLanguage("de");
+    renderAt("/deck/mega-greninja-ex");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Mega Greninja ex-Deck");
+    await i18n.changeLanguage("en");
   });
 
   it("does not claim the hub is out of meta when decks fail to load", () => {

@@ -374,5 +374,17 @@
     "20d": "20 días",
     "30d": "30 días",
     "all": "todo el periodo"
+  },
+  "deckHub": {
+    "title": "Mazo {{name}}",
+    "liveSummary_one": "{{count}} variante activa en el meta actual, con la lista más fuerte primero",
+    "liveSummary_other": "{{count}} variantes activas en el meta actual, con las listas más fuertes primero",
+    "notInMeta": "No está en el meta de {{expansion}} actual. Consulta la lista de niveles para ver los rankings actuales",
+    "expansionFallback": "expansión",
+    "unavailable": "Las estadísticas de mazos en directo no están disponibles ahora. El archivo de abajo sigue actualizado",
+    "seenFrom": "Visto desde {{from}} hasta {{to}}",
+    "winRate": "{{value}}% de victorias",
+    "metaShare": "{{value}}% del meta",
+    "allVariants": "Todas las variantes de {{name}}"
   }
 }

@@ -374,5 +374,17 @@
     "20d": "20天",
     "30d": "30天",
     "all": "全部时间"
+  },
+  "deckHub": {
+    "title": "{{name}} 卡组",
+    "liveSummary_one": "当前环境中有 {{count}} 个在线变体，最强的列表优先显示",
+    "liveSummary_other": "当前环境中有 {{count}} 个在线变体，最强的列表优先显示",
+    "notInMeta": "不在当前{{expansion}}环境中。请浏览强度榜查看当前卡组排名",
+    "expansionFallback": "扩展包",
+    "unavailable": "目前无法获取实时卡组数据。下方的存档仍然是最新的",
+    "seenFrom": "出现于 {{from}} 至 {{to}}",
+    "winRate": "胜率 {{value}}%",
+    "metaShare": "环境占比 {{value}}%",
+    "allVariants": "{{name}} 的全部变体"
   }
 }

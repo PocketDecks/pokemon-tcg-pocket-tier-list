@@ -374,5 +374,17 @@
     "20d": "20天",
     "30d": "30天",
     "all": "全部時間"
+  },
+  "deckHub": {
+    "title": "{{name}} 牌組",
+    "liveSummary_one": "目前環境中有 {{count}} 個即時變體，最強的列表優先顯示",
+    "liveSummary_other": "目前環境中有 {{count}} 個即時變體，最強的列表優先顯示",
+    "notInMeta": "不在目前的{{expansion}}環境中。請瀏覽強度榜查看目前牌組排名",
+    "expansionFallback": "擴充包",
+    "unavailable": "目前無法取得即時牌組數據。下方的存檔仍是最新的",
+    "seenFrom": "出現於 {{from}} 至 {{to}}",
+    "winRate": "勝率 {{value}}%",
+    "metaShare": "環境佔比 {{value}}%",
+    "allVariants": "{{name}} 的所有變體"
   }
 }

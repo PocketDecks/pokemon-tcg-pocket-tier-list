@@ -84,13 +84,13 @@ const Action = styled(Link)`
   font-weight: 600;
 `;
 
-const formatDate = (date: string) =>
-  new Intl.DateTimeFormat("en-GB", { dateStyle: "medium" }).format(new Date(`${date}T00:00:00Z`));
+const formatDate = (date: string, language: string) =>
+  new Intl.DateTimeFormat(language, { dateStyle: "medium" }).format(new Date(`${date}T00:00:00Z`));
 
 const HubPage = () => {
   const { deckId: hubSlug } = useParams();
   const { decks, metaShareBySlug, loading } = useDecks();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");
   const deckFinderHref = useLocaleHref("/deck");
   const variants = hubSlug ? archiveForHub(hubSlug) : [];
@@ -110,22 +110,21 @@ const HubPage = () => {
   return (
     <Page>
       <Header>
-        <Title>{name} Deck</Title>
+        <Title>{t("deckHub.title", { name })}</Title>
         {loading ? null : !decks ? (
-          <Summary>
-            Live deck statistics are unavailable right now. The archive below is still current
-          </Summary>
+          <Summary>{t("deckHub.unavailable")}</Summary>
         ) : liveVariants.length > 0 ? (
-          <Summary>
-            {liveVariants.length} live {liveVariants.length === 1 ? "variant" : "variants"} in the current meta, with the strongest list shown first
-          </Summary>
+          <Summary>{t("deckHub.liveSummary", { count: liveVariants.length })}</Summary>
         ) : (
           <Summary>
-            Not in the current {latest?.name ?? "expansion"} meta. Browse the tier list for current deck rankings
+            {t("deckHub.notInMeta", { expansion: latest?.name ?? t("deckHub.expansionFallback") })}
           </Summary>
         )}
         <History>
-          Seen from {formatDate(seen.firstSeen)} to {formatDate(seen.lastSeen)}
+          {t("deckHub.seenFrom", {
+            from: formatDate(seen.firstSeen, i18n.language),
+            to: formatDate(seen.lastSeen, i18n.language),
+          })}
         </History>
       </Header>
       {liveVariants.length > 0 && (
@@ -137,8 +136,12 @@ const HubPage = () => {
               <Variant key={entry.variant} to={`/deck/${entry.variant}`}>
                 <VariantName>{entry.name.replace(/-[a-z0-9]+-\d+/g, "").replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}</VariantName>
                 <VariantMeta>
-                  {deck ? `${(deck.expectedWinRate * 100).toFixed(1)}% win rate` : ""}
-                  {share === undefined ? "" : ` · ${(share * 100).toFixed(1)}% meta share`}
+                  {[
+                    deck ? t("deckHub.winRate", { value: (deck.expectedWinRate * 100).toFixed(1) }) : null,
+                    share === undefined ? null : t("deckHub.metaShare", { value: (share * 100).toFixed(1) }),
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </VariantMeta>
               </Variant>
             );

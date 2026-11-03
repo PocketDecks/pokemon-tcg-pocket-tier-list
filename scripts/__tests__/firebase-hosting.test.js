@@ -177,17 +177,31 @@ test("prerendered routes resolve to their own files", () => {
 
 test("search console 404 deck URLs in both locales resolve to a redirect or a page", () => {
   for (const url of [...SEARCH_CONSOLE_404S, ...JAPANESE_404S]) {
-    const { status } = resolveDeck(url);
-    assert.ok(status === 301 || status === 200, `${url} returned ${status}`);
+    const result = resolveDeck(url);
+    assert.ok(
+      result.kind === "file" || result.status === 301,
+      `${url} resolved to ${result.kind} ${result.status}`
+    );
   }
 });
 
-test("every old-formula deck slug permanently redirects in both locales", () => {
-  const legacy = archive.flatMap((entry) => entry.legacySlugs ?? []);
+test("every old-formula deck slug permanently redirects to its live variant or hub in both locales", () => {
+  const legacy = archive.flatMap((entry) =>
+    (entry.legacySlugs ?? []).map((slug) => ({ slug, entry }))
+  );
   assert.equal(legacy.length, 25);
-  for (const slug of legacy) {
-    assert.equal(resolveDeck(`/deck/${slug}`).status, 301, slug);
-    assert.equal(resolveDeck(`/ja/deck/${slug}/`).status, 301, slug);
+  for (const { slug, entry } of legacy) {
+    const target = liveSlugs.includes(entry.variant) ? entry.variant : entry.hub;
+    assert.deepStrictEqual(
+      resolveDeck(`/deck/${slug}`),
+      { kind: "redirect", status: 301, location: `/deck/${target}/` },
+      slug
+    );
+    assert.deepStrictEqual(
+      resolveDeck(`/ja/deck/${slug}/`),
+      { kind: "redirect", status: 301, location: `/ja/deck/${target}/` },
+      slug
+    );
   }
 });
 

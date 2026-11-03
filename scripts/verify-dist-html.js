@@ -12,6 +12,7 @@ const { inlineScriptHashes, parsePolicy, reportOnlyPolicy } = require("./content
 const { DELUXE_EXPANSION_IDS, newestExpansion } = require("../src/app/expansion-policy.mjs");
 const { deckSlug } = require("./deck-slug.mjs");
 const { previousExpansionDate, shouldIndexHub } = require("./deck-archive-policy.mjs");
+const { hubDisplayName } = require("./deck-archetype.mjs");
 
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
@@ -114,7 +115,7 @@ const metaContent = (html, name) => {
   return tag === undefined ? [] : [decodeXmlEntities(tag.match(/\bcontent=["']([^"']*)["']/i)?.[1] ?? "")];
 };
 
-const hubHtmlIssues = (entry, html, expectedRobots) => {
+const hubHtmlIssues = (entry, html, expectedRobots, expectedName) => {
   const issues = [];
   const canonicals = html.match(CANONICAL_TAG) ?? [];
   if (canonicals.length !== 1) {
@@ -132,6 +133,7 @@ const hubHtmlIssues = (entry, html, expectedRobots) => {
   if (!title) issues.push(`${entry}: empty title`);
   if (!description) issues.push(`${entry}: empty description`);
   if (!h1) issues.push(`${entry}: empty H1`);
+  else if (!h1.includes(expectedName)) issues.push(`${entry}: H1 "${h1}" does not name ${expectedName}`);
   const jsonLd = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi)].map((m) => m[1]);
   for (const [label, text] of [["title", title], ["description", description], ["H1", h1], ["breadcrumb", jsonLd.join(" ")]]) {
     if (/\bundefined\b/.test(text)) issues.push(`${entry}: ${label} contains undefined`);
@@ -148,17 +150,15 @@ const findHubPageIssues = (
   const live = new Set(decks.map((deck) => deckSlug(deck.name)));
   const hubs = [...new Set(archive.map((entry) => entry.hub))];
   return hubs.flatMap((hub) => {
-    const indexed = shouldIndexHub(
-      archive.filter((entry) => entry.hub === hub),
-      live,
-      previousDate
-    );
+    const entries = archive.filter((entry) => entry.hub === hub);
+    const indexed = shouldIndexHub(entries, live, previousDate);
+    const name = hubDisplayName(entries);
     return ["", "ja/"].flatMap((prefix) => {
       const entry = `${prefix}deck/${hub}/index.html`;
       const file = path.join(dir, entry);
       if (!fs.existsSync(file)) return [`${entry}: missing`];
       const expectedRobots = prefix === "" && indexed ? "index, follow" : "noindex, follow";
-      return hubHtmlIssues(entry, fs.readFileSync(file, "utf8"), expectedRobots);
+      return hubHtmlIssues(entry, fs.readFileSync(file, "utf8"), expectedRobots, name);
     });
   });
 };

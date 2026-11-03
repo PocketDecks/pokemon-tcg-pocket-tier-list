@@ -81,11 +81,19 @@ test("locale page graph in the built output", { skip: !hasDist && "dist/ is not 
         assert.match(html, /<meta name="robots" content="noindex, follow"/, entry);
         assert.deepStrictEqual(alternates(html), [], entry);
       } else {
+        const set = alternates(html);
         assert.deepStrictEqual(
-          alternates(html).map((a) => a.hreflang).sort(),
+          set.map((a) => a.hreflang).sort(),
           ["en", "x-default"],
           entry
         );
+        for (const hreflang of ["en", "x-default"]) {
+          assert.strictEqual(
+            set.find((a) => a.hreflang === hreflang).href,
+            expectedUrl(entry),
+            `${entry}: ${hreflang} alternate`
+          );
+        }
       }
     }
   });

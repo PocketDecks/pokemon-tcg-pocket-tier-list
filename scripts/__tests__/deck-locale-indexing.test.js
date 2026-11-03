@@ -78,3 +78,27 @@ test("the sitemap lists English deck and hub pages with en and x-default hreflan
     assert.deepStrictEqual(hreflangs(block), ["en", "x-default"], loc);
   }
 });
+
+const retiredArchive = [
+  {
+    variant: "retired-x-a1-001",
+    hub: "retired-x",
+    name: "Retired X-A1-001",
+    firstSeen: "2025-01-01",
+    lastSeen: "2025-02-01",
+  },
+];
+
+test("a retired English hub is listed in the sitemap with en and x-default hreflang only", () => {
+  const xml = buildSitemap({
+    decks: [{ name: "venusaur-ex-a1-004" }],
+    archive: [...archive, ...retiredArchive],
+    lastmod: "2026-11-04",
+  });
+  const block = xml
+    .split("<url>")
+    .find((part) => part.includes("<loc>https://pocketdecks.top/deck/retired-x/</loc>"));
+  assert.ok(block, "retired hub is missing from the sitemap");
+  assert.deepStrictEqual(hreflangs(block), ["en", "x-default"]);
+  assert.doesNotMatch(xml, /<loc>https:\/\/pocketdecks\.top\/ja\/deck\/retired-x\//);
+});

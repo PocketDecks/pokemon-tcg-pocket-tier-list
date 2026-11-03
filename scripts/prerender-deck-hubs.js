@@ -2,6 +2,9 @@ const fs = require("fs");
 const path = require("path");
 const { stampHead, escapeXml, SITE_URL } = require("./meta-stamp");
 const { localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
+const { deckSlug } = require("./deck-slug.mjs");
+const { hubDisplayName } = require("./deck-archetype.mjs");
+const { previousExpansionDate, shouldIndexHub } = require("./deck-archive-policy.mjs");
 const {
   captureDocument,
   createPrerenderPage,
@@ -18,15 +21,22 @@ const BUILD_DIR = process.env.BUILD_DIR ? path.resolve(process.env.BUILD_DIR) : 
 const ARCHIVE_FILE = path.join(ROOT, "public", "data", "deck-archive.json");
 const DECKS_FILE = path.join(ROOT, "public", "data", "best-decks.json");
 const HUB_CONCURRENCY = 8;
-const archive = JSON.parse(fs.readFileSync(ARCHIVE_FILE, "utf8"));
-const liveDecks = JSON.parse(fs.readFileSync(DECKS_FILE, "utf8"));
-const deckSlug = (name) => name.toLowerCase().replace(/[^a-z0-9&\s-]/g, "").replace(/\s/g, "-").replace(/-+/g, "-");
-const live = new Set(liveDecks.map((deck) => deckSlug(deck.name)));
-const hubs = [...new Set(archive.map((entry) => entry.hub))].map((hub) => ({
-  hub,
-  entries: archive.filter((entry) => entry.hub === hub),
-  live: archive.filter((entry) => entry.hub === hub && live.has(entry.variant)),
-}));
+
+const buildHubJobs = (archive, liveDecks) => {
+  const live = new Set(liveDecks.map((deck) => deckSlug(deck.name)));
+  const previousDate = previousExpansionDate();
+  return [...new Set(archive.map((entry) => entry.hub))].map((hub) => {
+    const entries = archive.filter((entry) => entry.hub === hub);
+    return {
+      hub,
+      name: hubDisplayName(entries),
+      entries,
+      live: entries.filter((entry) => live.has(entry.variant)),
+      indexed: shouldIndexHub(entries, live, previousDate),
+    };
+  });
+};
+
 const routeFor = (locale, hub) => localizedUrl(SITE_URL, locale, `/deck/${hub}`);
 
 const renderHubHtml = (job, html, locale) => {
@@ -39,9 +49,7 @@ const renderHubHtml = (job, html, locale) => {
     ...ROUTE_LOCALES.map((other) => ({ hreflang: other, href: routeFor(other, job.hub) })),
     { hreflang: "x-default", href: routeFor("en", job.hub) },
   ];
-  const robots = job.live.length > 0 || job.entries.some((entry) => entry.lastSeen >= "2026-10-20")
-    ? "index, follow"
-    : "noindex, follow";
+  const robots = job.indexed ? "index, follow" : "noindex, follow";
   return stampHead(html, {
     title,
     description,
@@ -68,6 +76,9 @@ const renderHubHtml = (job, html, locale) => {
 
 const main = async () => {
   if (!fs.existsSync(path.join(BUILD_DIR, "index.html"))) throw new Error(`No index.html in ${BUILD_DIR}`);
+  const archive = JSON.parse(fs.readFileSync(ARCHIVE_FILE, "utf8"));
+  const liveDecks = JSON.parse(fs.readFileSync(DECKS_FILE, "utf8"));
+  const hubs = buildHubJobs(archive, liveDecks);
   const template = readTemplate(fs.readFileSync(path.join(BUILD_DIR, "index.html"), "utf8"));
   const server = await startServer(BUILD_DIR, template.html);
   const browser = await launchBrowser();
@@ -99,3 +110,5 @@ const main = async () => {
 };
 
 if (require.main === module) main().catch((error) => { console.error(error.message); process.exit(1); });
+
+module.exports = { buildHubJobs, renderHubHtml };

@@ -1,1 +1,6 @@
-export { deckArchetypeSlug, deckVariantSlug } from "../../scripts/deck-archetype.mjs";
+export {
+  deckArchetypeSlug,
+  deckVariantSlug,
+  hubDisplayName,
+  hubSeenRange,
+} from "../../scripts/deck-archetype.mjs";

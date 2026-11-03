@@ -5,6 +5,7 @@ import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { archiveForHub } from "../../app/deck-archive";
 import { useLocaleHref } from "../../app/locale-link";
 import { deckSlug } from "../../app/deck-slug";
+import { hubDisplayName, hubSeenRange } from "../../app/deck-archetype";
 import { useDecks } from "../../app/use-decks";
 import { newestExpansion } from "../../app/expansion-policy.mjs";
 import { EXPANSIONS_URL } from "../../app/constants";
@@ -96,11 +97,12 @@ const HubPage = () => {
   const liveBySlug = new Map((decks ?? []).map((deck) => [deckSlug(deck.name), deck]));
   const liveVariants = variants.filter((entry) => liveBySlug.has(entry.variant));
   const latest = newestExpansion(EXPANSIONS_URL);
-  const name = hubSlug ? hubSlug.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()) : "Deck";
-
   useMarkContentReady(!loading);
 
   if (!hubSlug || variants.length === 0) return <NotFoundPage />;
+
+  const name = hubDisplayName(variants);
+  const seen = hubSeenRange(variants);
 
   return (
     <Page>
@@ -116,7 +118,7 @@ const HubPage = () => {
           </Summary>
         )}
         <History>
-          Seen from {formatDate(variants[0].firstSeen)} to {formatDate(variants[0].lastSeen)}
+          Seen from {formatDate(seen.firstSeen)} to {formatDate(seen.lastSeen)}
         </History>
       </Header>
       {liveVariants.length > 0 && (

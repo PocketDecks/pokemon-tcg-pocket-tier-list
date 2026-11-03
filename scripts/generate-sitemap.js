@@ -11,7 +11,7 @@ const path = require("path");
 const { deckSlug } = require("./deck-slug.mjs");
 const { escapeXml, SITE_URL } = require("./meta-stamp");
 const { localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
-const { shouldIndexHub } = require("./deck-archive-policy.mjs");
+const { shouldIndexHub, previousExpansionDate } = require("./deck-archive-policy.mjs");
 
 const STATIC_ROUTES = [
   "/",
@@ -32,8 +32,9 @@ const buildSitemap = ({ decks, staticRoutes = STATIC_ROUTES, archive = [], lastm
   const live = new Set(decks.map((deck) => deckSlug(deck.name)));
   const grouped = new Map(archive.map((entry) => [entry.hub, []]));
   for (const entry of archive) grouped.get(entry.hub).push(entry);
+  const cutoff = previousExpansionDate();
   const hubRoutes = [...grouped.entries()]
-    .filter(([, entries]) => shouldIndexHub(entries, live, "2026-10-20"))
+    .filter(([, entries]) => shouldIndexHub(entries, live, cutoff))
     .map(([hub]) => `/deck/${hub}`);
   const baseRoutes = [
     ...staticRoutes,

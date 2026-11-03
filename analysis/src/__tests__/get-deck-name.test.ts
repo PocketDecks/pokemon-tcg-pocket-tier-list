@@ -158,7 +158,7 @@ describe("containment: a row listing a card the deck lacks is rejected", () => {
   });
 });
 
-describe("Milotic ex/Eevee ex naming: Eevee ex misread as a plain tech Basic and sameLine outranking set recency", () => {
+describe("Milotic ex/Eevee ex naming: newer pairing wins over card count", () => {
   it("names the C1-era pairing for the first real list", () => {
     const deck = mkDeck(
       [1, "Vaporeon", "A3b", "016"],

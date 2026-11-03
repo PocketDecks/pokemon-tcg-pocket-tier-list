@@ -23,7 +23,7 @@
   "dependencies": {
     "canvas": "^3.2.3",
     "dotenv": "^16.4.5",
-    "pokemon-tcg-pocket-cards": "^5.4.0"
+    "pokemon-tcg-pocket-cards": "^5.5.2"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

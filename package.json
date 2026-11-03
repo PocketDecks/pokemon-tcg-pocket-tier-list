@@ -14,7 +14,7 @@
     "firebase": "^11.9.0",
     "i18next": "^25.0.2",
     "i18next-browser-languagedetector": "^8.0.5",
-    "pokemon-tcg-pocket-cards": "^5.4.0",
+    "pokemon-tcg-pocket-cards": "^5.5.2",
     "qrcode.react": "4.2.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -26,6 +26,7 @@
   "scripts": {
     "start": "vite",
     "prebuild": "node --env-file-if-exists=.env scripts/generate-sitemap.js && node --env-file-if-exists=.env scripts/generate-attack-costs.mjs && node --env-file-if-exists=.env scripts/generate-deck-thumbs.mjs",
+    "check:generated": "node --env-file-if-exists=.env scripts/generate-attack-costs.mjs --check",
     "build": "yarn typecheck && yarn lint && vite build",
     "postbuild": "node --env-file-if-exists=.env scripts/prerender-decks.js && node --env-file-if-exists=.env scripts/prerender-routes.js && node --env-file-if-exists=.env scripts/verify-dist-html.js",
     "test": "vitest",
@@ -56,7 +57,7 @@
     "sharp": "^0.35.5",
     "typescript": "^5.9.0",
     "typescript-eslint": "8.71.1",
-    "vite": "^8.2.2",
+    "vite": "^8.3.5",
     "vitest": "^4.1.12"
   },
   "resolutions": {

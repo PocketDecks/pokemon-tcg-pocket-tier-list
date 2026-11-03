@@ -3282,10 +3282,10 @@ picomatch@^4.0.3, picomatch@^4.0.4, picomatch@^4.0.5:
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-4.0.5.tgz#51ea57a17d86f605f81039595fbc40ed06a55fab"
   integrity sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A==
 
-pokemon-tcg-pocket-cards@^5.4.0:
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/pokemon-tcg-pocket-cards/-/pokemon-tcg-pocket-cards-5.4.0.tgz#8d4ee6a8f7dd8cdfe353fe34318c500bfd17e7c7"
-  integrity sha512-q5hWqrXGHGm4kGRe9lh1T82UgZDvss7+Z3Aoa1nPkYMp0OfHq/h5RtMdAYqtRtb2EUTN3qSD9oo5AwV9djYV6Q==
+pokemon-tcg-pocket-cards@^5.5.2:
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/pokemon-tcg-pocket-cards/-/pokemon-tcg-pocket-cards-5.5.2.tgz#647a7edd9cf2c8594e2b1d38888406a00c30d5a4"
+  integrity sha512-nGlDjmbH1dhNvw4y7EGORE1t5kvsVZ/Uh8aCDeNyCVMYWuSjTBd/Q+xx+LCvWeTfhC7qlNGPwEu//zoCvQPlvg==
 
 possible-typed-array-names@^1.0.0, possible-typed-array-names@^1.1.0:
   version "1.1.0"
@@ -4033,15 +4033,15 @@ victory-vendor@^37.0.2:
     d3-time "^3.0.0"
     d3-timer "^3.0.1"
 
-"vite@^6.0.0 || ^7.0.0 || ^8.0.0", vite@^8.2.2:
-  version "8.2.2"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-8.2.2.tgz#399aefad3656145145be110d137a07ea5bb55014"
-  integrity sha512-cFKLV/PRgAUlIRm5WjMjJ86jrftzpqcgH+Us+DS8mI3CDNiH30Whrz8uHL3+MOLPAgqbMBAqWdAHAphOAM+z/Q==
+"vite@^6.0.0 || ^7.0.0 || ^8.0.0", vite@^8.3.5:
+  version "8.3.5"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-8.3.5.tgz#9614f66026cb92fe486cb9d3c90780b2a69fc85d"
+  integrity sha512-z1YpjieJ9g0ebTmQpLBv/oq9E3F9EIlOe+7LahW8SrE3LTiG3udBRUXQOlYXP9b+IC2q2phHeVxj9xGlw34OEQ==
   dependencies:
     lightningcss "^1.33.0"
-    picomatch "^4.0.5"
-    postcss "^8.5.26"
-    rolldown "~1.2.4"
+    picomatch "^4.0.7"
+    postcss "^8.5.30"
+    rolldown "~1.2.14"
     tinyglobby "^0.2.17"
   optionalDependencies:
     fsevents "~2.3.3"

@@ -4,6 +4,7 @@ const { stampHead, escapeXml, SITE_URL } = require("./meta-stamp");
 const { localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
 const { deckSlug } = require("./deck-slug.mjs");
 const { hubDisplayName } = require("./deck-archetype.mjs");
+const { JA_HOME_LABEL, JA_TIER_LIST_LABEL } = require("./deck-friendly-name.mjs");
 const { previousExpansionDate, shouldIndexHub } = require("./deck-archive-policy.mjs");
 const {
   captureDocument,
@@ -46,6 +47,7 @@ const renderHubHtml = (job, html, locale) => {
     : `${job.name} Pokemon TCG Pocket deck history. This archetype is not in the current meta.`;
   const canonical = routeFor(locale, job.hub);
   const indexable = locale === "en";
+  const translated = !indexable;
   const alternates = indexable
     ? [
         { hreflang: "en", href: routeFor("en", job.hub) },
@@ -64,8 +66,8 @@ const renderHubHtml = (job, html, locale) => {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: localizedUrl(SITE_URL, locale, "/") },
-        { "@type": "ListItem", position: 2, name: "Tier List", item: localizedUrl(SITE_URL, locale, "/tier-list") },
+        { "@type": "ListItem", position: 1, name: translated ? JA_HOME_LABEL : "Home", item: localizedUrl(SITE_URL, locale, "/") },
+        { "@type": "ListItem", position: 2, name: translated ? JA_TIER_LIST_LABEL : "Tier List", item: localizedUrl(SITE_URL, locale, "/tier-list") },
         { "@type": "ListItem", position: 3, name: job.name, item: canonical },
       ],
     },

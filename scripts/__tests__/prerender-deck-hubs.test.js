@@ -47,3 +47,16 @@ test("hubs outside the expansion window stay noindex unless live", () => {
   const altaria = jobs.find((job) => job.hub === "mega-altaria-ex");
   assert.match(renderHubHtml(altaria, template, "en"), /name="robots" content="index, follow"/);
 });
+
+test("Japanese hub breadcrumbs use the Japanese labels", () => {
+  const jobs = buildHubJobs(archive, [{ name: "mega-altaria-ex-b1-102" }]);
+  const altaria = jobs.find((job) => job.hub === "mega-altaria-ex");
+  const japanese = renderHubHtml(altaria, template, "ja");
+  assert.match(japanese, /"name":"ホーム"/);
+  assert.match(japanese, /"name":"ティアリスト"/);
+  assert.doesNotMatch(japanese, /"name":"Home"/);
+  assert.doesNotMatch(japanese, /"name":"Tier List"/);
+  const english = renderHubHtml(altaria, template, "en");
+  assert.match(english, /"name":"Home"/);
+  assert.match(english, /"name":"Tier List"/);
+});

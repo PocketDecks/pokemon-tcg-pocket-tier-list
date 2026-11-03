@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { deckSlug } from "./deck-slug.mjs";
+import { writeFileAtomic } from "./atomic-write.mjs";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -54,7 +55,7 @@ const main = () => {
     }
     return;
   }
-  fs.writeFileSync(CONFIG_FILE, output);
+  writeFileAtomic(CONFIG_FILE, output);
   console.log(`Wrote ${rules.length} archived deck redirects to ${CONFIG_FILE}`);
 };
 

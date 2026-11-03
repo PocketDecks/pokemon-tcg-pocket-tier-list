@@ -3,6 +3,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { deckArchetypeSlug, deckVariantSlug } from "./deck-archetype.mjs";
+import { writeFileAtomic } from "./atomic-write.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_FILE = path.join(ROOT, "public", "data", "best-decks.json");
@@ -106,7 +107,7 @@ const main = () => {
     }
     return;
   }
-  fs.writeFileSync(OUT_FILE, output);
+  writeFileAtomic(OUT_FILE, output);
   console.log(`Wrote ${archive.length} archived deck variants to ${OUT_FILE}`);
 };
 

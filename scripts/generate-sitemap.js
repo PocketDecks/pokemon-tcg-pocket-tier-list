@@ -70,6 +70,8 @@ ${urlEntries}
 `;
 };
 
+const countUrlEntries = (xml) => (xml.match(/<url>/g) ?? []).length;
+
 const main = () => {
   const bestDecksPath = path.join(__dirname, "..", "public", "data", "best-decks.json");
   const bestDecks = JSON.parse(fs.readFileSync(bestDecksPath, "utf8"));
@@ -81,13 +83,11 @@ const main = () => {
 
   const outPath = path.join(__dirname, "..", "public", "sitemap.xml");
   fs.writeFileSync(outPath, sitemap);
-  console.log(
-    `Wrote ${(STATIC_ROUTES.length + bestDecks.length) * ROUTE_LOCALES.length} routes to ${outPath}`
-  );
+  console.log(`Wrote ${countUrlEntries(sitemap)} routes to ${outPath}`);
 };
 
 if (require.main === module) {
   main();
 }
 
-module.exports = { buildSitemap, escapeXml };
+module.exports = { buildSitemap, countUrlEntries, escapeXml };

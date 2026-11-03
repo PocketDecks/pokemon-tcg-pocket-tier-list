@@ -3,7 +3,7 @@ const path = require("node:path");
 const test = require("node:test");
 const assert = require("node:assert");
 
-const { buildSitemap, escapeXml } = require("../generate-sitemap");
+const { buildSitemap, countUrlEntries, escapeXml } = require("../generate-sitemap");
 const { deckSlug } = require("../deck-slug.mjs");
 
 const FIXTURE_DECKS = [
@@ -78,4 +78,10 @@ test("compound deck names retain '&' in the slug before XML escaping", () => {
 test("no raw ampersands remain anywhere in the XML output", () => {
   const xml = buildSitemap({ decks: FIXTURE_DECKS, lastmod: LASTMOD });
   assert.doesNotMatch(xml, /&(?!amp;|lt;|gt;|quot;|apos;|#)/);
+});
+
+test("the route count reported for the sitemap matches the emitted url entries", () => {
+  const xml = buildSitemap({ decks: FIXTURE_DECKS, lastmod: LASTMOD });
+  assert.strictEqual(countUrlEntries(xml), 20);
+  assert.strictEqual(countUrlEntries(xml), xml.split("<loc>").length - 1);
 });

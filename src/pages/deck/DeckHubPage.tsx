@@ -108,7 +108,11 @@ const HubPage = () => {
     <Page>
       <Header>
         <Title>{name} Deck</Title>
-        {liveVariants.length > 0 ? (
+        {loading ? null : !decks ? (
+          <Summary>
+            Live deck statistics are unavailable right now. The archive below is still current
+          </Summary>
+        ) : liveVariants.length > 0 ? (
           <Summary>
             {liveVariants.length} live {liveVariants.length === 1 ? "variant" : "variants"} in the current meta, with the strongest list shown first
           </Summary>

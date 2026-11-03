@@ -28,6 +28,10 @@ test("hub display names come from the latest variant's lead card in every archiv
   assert.equal(hubDisplayName([entry("Abomasnow-A2a-021&Arceus ex-A2a-071", "2025-05-12", "2026-01-31")]), "Abomasnow");
 });
 
+test("hub display name is empty when there are no variants", () => {
+  assert.equal(hubDisplayName([]), "");
+});
+
 test("hub seen range spans every variant", () => {
   assert.deepEqual(
     hubSeenRange([

@@ -15,7 +15,11 @@ const DeckRoute = () => {
   const hubHref = useLocaleHref(`/deck/${entry?.hub ?? ""}`);
 
   if (loading) return <DeckPageSkeleton />;
-  if (!decks) return entry ? <DeckDetailPage /> : <NotFoundPage />;
+  if (!decks) {
+    if (entry) return <DeckDetailPage />;
+    if (archiveForHub(deckId).length > 0) return <DeckHubPage />;
+    return <NotFoundPage />;
+  }
   if (decks.some((deck) => deckSlug(deck.name) === deckId)) return <DeckDetailPage />;
   if (entry && entry.hub !== deckId) return <Navigate replace to={hubHref} />;
   if (archiveForHub(deckId).length > 0) return <DeckHubPage />;

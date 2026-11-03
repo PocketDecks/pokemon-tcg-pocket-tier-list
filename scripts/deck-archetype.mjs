@@ -11,6 +11,7 @@ export const deckArchetypeSlug = (name) => {
 export const deckVariantSlug = (name) => deckSlug(name);
 
 export const hubDisplayName = (entries) => {
+  if (entries.length === 0) return "";
   const latest = entries.reduce((best, entry) => (entry.lastSeen > best.lastSeen ? entry : best));
   return friendlyName(latest.name.split("&", 1)[0]);
 };

@@ -79,6 +79,13 @@ describe("DeckRoute", () => {
     expect(screen.getByText("not found page")).toBeTruthy();
   });
 
+  it("renders the hub page for a known hub when decks fail to load", () => {
+    decksState.value = { decks: null, loading: false, error: new Error("offline") };
+    renderAt("/deck/garchomp");
+    expect(screen.getByText("hub page")).toBeTruthy();
+    expect(screen.getByTestId("path").textContent).toBe("/deck/garchomp");
+  });
+
   it("renders the detail page for a known variant when decks fail to load", () => {
     decksState.value = { decks: null, loading: false, error: new Error("offline") };
     renderAt("/deck/garchomp-a2-123");

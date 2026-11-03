@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { archiveForHub } from "../../app/deck-archive";
-import { useLocaleHref } from "../../app/locale-link";
+import { LocaleLink, useLocaleHref } from "../../app/locale-link";
 import { deckSlug } from "../../app/deck-slug";
 import { hubDisplayName, hubSeenRange } from "../../app/deck-archetype";
 import { useDecks } from "../../app/use-decks";
@@ -47,7 +47,7 @@ const List = styled.div`
   gap: 1.2rem;
 `;
 
-const Variant = styled(Link)`
+const Variant = styled(LocaleLink)`
   display: block;
   padding: 1.8rem 2rem;
   border: 1px solid var(--line);
@@ -95,7 +95,10 @@ const HubPage = () => {
   const deckFinderHref = useLocaleHref("/deck");
   const variants = hubSlug ? archiveForHub(hubSlug) : [];
   const liveBySlug = new Map((decks ?? []).map((deck) => [deckSlug(deck.name), deck]));
-  const liveVariants = variants.filter((entry) => liveBySlug.has(entry.variant));
+  const powerOf = (variant: string) => liveBySlug.get(variant)?.powerScore ?? -1;
+  const liveVariants = variants
+    .filter((entry) => liveBySlug.has(entry.variant))
+    .sort((a, b) => powerOf(b.variant) - powerOf(a.variant));
   const latest = newestExpansion(EXPANSIONS_URL);
   useMarkContentReady(!loading);
 

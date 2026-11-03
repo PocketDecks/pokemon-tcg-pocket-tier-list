@@ -47,6 +47,52 @@ describe("DeckHubPage", () => {
     decksState.value = { decks: [], metaShareBySlug: {}, loading: false, error: null };
   });
 
+  it("lists live variants by power score, highest first, with unscored decks last", () => {
+    decksState.value = {
+      decks: [
+        { name: "mega-altaria-ex-b1-102", powerScore: 40, expectedWinRate: 0.5 },
+        { name: "mega-altaria-ex-b1-102&espeon-b3a-020", powerScore: null, expectedWinRate: 0.6 },
+        { name: "mega-altaria-ex-b1-102&greninja-a1-089", powerScore: 70, expectedWinRate: 0.4 },
+      ] as unknown[],
+      metaShareBySlug: {},
+      loading: false,
+      error: null,
+    };
+    renderAt("/deck/mega-altaria-ex");
+    const hrefs = screen
+      .getAllByRole("link")
+      .map((link) => link.getAttribute("href") ?? "")
+      .filter((href) => href.startsWith("/deck/mega-altaria-ex-b1-102"));
+    expect(hrefs).toEqual([
+      "/deck/mega-altaria-ex-b1-102&greninja-a1-089",
+      "/deck/mega-altaria-ex-b1-102",
+      "/deck/mega-altaria-ex-b1-102&espeon-b3a-020",
+    ]);
+    decksState.value = { decks: [], metaShareBySlug: {}, loading: false, error: null };
+  });
+
+  it("keeps the locale on variant links", () => {
+    decksState.value = {
+      decks: [{ name: "mega-altaria-ex-b1-102", powerScore: 40, expectedWinRate: 0.5 }] as unknown[],
+      metaShareBySlug: {},
+      loading: false,
+      error: null,
+    };
+    render(
+      <MemoryRouter initialEntries={["/ja/deck/mega-altaria-ex"]}>
+        <Routes>
+          <Route path="/ja/deck/:deckId" element={<DeckHubPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    const hrefs = screen
+      .getAllByRole("link")
+      .map((link) => link.getAttribute("href") ?? "")
+      .filter((href) => href.includes("mega-altaria-ex-b1-102"));
+    expect(hrefs).toEqual(["/ja/deck/mega-altaria-ex-b1-102"]);
+    decksState.value = { decks: [], metaShareBySlug: {}, loading: false, error: null };
+  });
+
   it("renders not found for a slug outside the archive", () => {
     renderAt("/deck/does-not-exist");
     expect(screen.getByText("not found page")).toBeTruthy();

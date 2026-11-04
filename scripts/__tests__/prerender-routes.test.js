@@ -220,8 +220,8 @@ test("Japanese tier-list title names the expansion", () => {
 
 test("the shipped tier-list metadata names the newest listed expansion", () => {
   const latest = newestExpansion(expansionList);
-  assert.match(ROUTE_META["/tier-list"].title, new RegExp(latest.name));
-  assert.match(ROUTE_META["/tier-list"].description, new RegExp(latest.name));
+  assert.ok(ROUTE_META["/tier-list"].title.includes(latest.name));
+  assert.ok(ROUTE_META["/tier-list"].description.includes(latest.name));
 });
 
 test("the homepage title covers best decks and the tier list", () => {
@@ -244,4 +244,11 @@ test("the homepage keeps its canonical", () => {
 test("tier-list copy states the four-times-a-week refresh in both locales", () => {
   assert.match(ROUTE_META["/tier-list"].description, /updated four times a week/);
   assert.match(buildJaRouteMeta(STUB)["/tier-list"].description, /週4回/);
+});
+
+test("expansion names with regex punctuation are matched literally", () => {
+  const stub = { id: "x9", name: "Set (A1)", release_date: "2027-01-01" };
+  const meta = buildRouteMeta(stub);
+  assert.ok(meta["/tier-list"].title.includes("Set (A1)"));
+  assert.ok(meta["/tier-list"].description.includes("Set (A1)"));
 });

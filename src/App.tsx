@@ -1,4 +1,5 @@
-import { Suspense, lazy } from "react";
+import { Suspense } from "react";
+import { lazyRoute as lazy } from "./app/lazy-route";
 import { Outlet, Route, Routes, useLocation } from "react-router";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";

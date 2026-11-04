@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import SegmentedControl from "../SegmentedControl";
 
@@ -19,6 +19,12 @@ const stylesheetText = () =>
   Array.from(document.querySelectorAll("style"), (style) => style.textContent ?? "").join("\n");
 
 describe("SegmentedControl", () => {
+  it("gives each option a 44px minimum target at every width", () => {
+    renderControl();
+
+    expect(getComputedStyle(screen.getByRole("button", { name: "Alpha" })).minHeight).toBe("70.4px");
+  });
+
   it("applies the hover colour only on hover-capable devices", () => {
     renderControl();
 

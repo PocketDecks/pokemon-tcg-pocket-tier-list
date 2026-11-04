@@ -64,10 +64,7 @@ const ExpansionListPage = () => {
         <PageTitle ref={heading} tabIndex={-1}>{t("header.bestExpansions")}</PageTitle>
         {error && cards && <QueryRetryLine onRetry={retryAndFocus} />}
         {error && !cards ? (
-          <>
-            {viewToggle}
-            <QueryErrorNotice onRetry={retryAndFocus} />
-          </>
+          <QueryErrorNotice onRetry={retryAndFocus} />
         ) : view === "packs" ? (
           <TierGrid
             items={loaded ? packData : null}

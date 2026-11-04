@@ -49,8 +49,8 @@ describe("ExpansionListPage score recovery", () => {
     expect(screen.getByText("loadError.title")).toBeInTheDocument();
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
     expect(
-      screen.getByRole("group", { name: "expansionList.viewLabel" })
-    ).toBeInTheDocument();
+      screen.queryByRole("group", { name: "expansionList.viewLabel" })
+    ).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "loadError.retry" }));
 

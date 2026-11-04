@@ -37,6 +37,109 @@ describe("ErrorBoundary route recovery", () => {
     }
   });
 
+  it("adopts keys added while healthy and resets only when they later differ", () => {
+    let throws = false;
+    const renderChild = vi.fn();
+    const Recovering = (): React.JSX.Element => {
+      renderChild();
+      if (throws) throw new Error("kaboom");
+      return <p>adopted content</p>;
+    };
+    const { rerender } = render(
+      <ErrorBoundary>
+        <Recovering />
+      </ErrorBoundary>
+    );
+    expect(screen.getByText("adopted content")).toBeInTheDocument();
+
+    rerender(
+      <ErrorBoundary resetKeys={["A"]}>
+        <Recovering />
+      </ErrorBoundary>
+    );
+    expect(screen.getByText("adopted content")).toBeInTheDocument();
+    expect(renderChild).toHaveBeenCalledTimes(2);
+
+    throws = true;
+    rerender(
+      <ErrorBoundary resetKeys={["A"]}>
+        <Recovering />
+      </ErrorBoundary>
+    );
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+
+    throws = false;
+    rerender(
+      <ErrorBoundary resetKeys={["A"]}>
+        <Recovering />
+      </ErrorBoundary>
+    );
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+
+    rerender(
+      <ErrorBoundary resetKeys={["B"]}>
+        <Recovering />
+      </ErrorBoundary>
+    );
+    expect(screen.getByText("adopted content")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("adopts keys added in the same render that first crashes", () => {
+    const { rerender } = render(
+      <ErrorBoundary>
+        <p>keyless content</p>
+      </ErrorBoundary>
+    );
+    expect(screen.getByText("keyless content")).toBeInTheDocument();
+
+    rerender(
+      <ErrorBoundary resetKeys={["A"]}>
+        <Boom />
+      </ErrorBoundary>
+    );
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+
+    rerender(
+      <ErrorBoundary resetKeys={["B"]}>
+        <p>recovered after first keyed crash</p>
+      </ErrorBoundary>
+    );
+    expect(screen.getByText("recovered after first keyed crash")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("adopts re-enabled keys as a new baseline after key removal", () => {
+    const { rerender } = render(
+      <ErrorBoundary resetKeys={["A"]}>
+        <Boom />
+      </ErrorBoundary>
+    );
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+
+    rerender(
+      <ErrorBoundary>
+        <p>ignored while failed</p>
+      </ErrorBoundary>
+    );
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+
+    rerender(
+      <ErrorBoundary resetKeys={["B"]}>
+        <p>still failed after re-enable</p>
+      </ErrorBoundary>
+    );
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+
+    rerender(
+      <ErrorBoundary resetKeys={["C"]}>
+        <p>recovered after re-enabled keys change</p>
+      </ErrorBoundary>
+    );
+    expect(screen.getByText("recovered after re-enabled keys change")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
   let consoleError: MockInstance;
 
   beforeEach(() => {
@@ -61,6 +164,40 @@ describe("ErrorBoundary route recovery", () => {
 
     expect(screen.getByText("healthy page")).toBeInTheDocument();
     expect(screen.queryByText("loadError.errorTitle")).not.toBeInTheDocument();
+  });
+
+  it("recovers through A to B to A and resets on search-only changes", () => {
+    const SearchShell = () => {
+      const { pathname, search } = useLocation();
+      return (
+        <ErrorBoundary resetKeys={[pathname, search]}>
+          {search === "?state=crash" ? <Boom /> : <p>{`healthy ${pathname}${search}`}</p>}
+        </ErrorBoundary>
+      );
+    };
+    render(
+      <MemoryRouter initialEntries={["/a?state=crash"]}>
+        <Link to="/b?state=healthy">go B</Link>
+        <Link to="/a?state=healthy">go A healthy</Link>
+        <Link to="/a?state=crash">go A crash</Link>
+        <SearchShell />
+      </MemoryRouter>
+    );
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("go B"));
+    expect(screen.getByText("healthy /b?state=healthy")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("go A healthy"));
+    expect(screen.getByText("healthy /a?state=healthy")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("go A crash"));
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("go A healthy"));
+    expect(screen.getByText("healthy /a?state=healthy")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("clears the error when resetKeys change", () => {

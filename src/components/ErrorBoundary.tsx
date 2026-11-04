@@ -110,7 +110,9 @@ class ErrorBoundary extends Component<Props, State> {
   static getDerivedStateFromProps(props: Props, state: State): Partial<State> | null {
     const next = props.resetKeys;
     const prev = state.resetKeys;
-    if (next === undefined || prev === undefined) return null;
+    if (next === undefined || prev === undefined) {
+      return next === prev ? null : { resetKeys: next };
+    }
     const changed =
       next.length !== prev.length || next.some((key, index) => key !== prev[index]);
     if (changed) {

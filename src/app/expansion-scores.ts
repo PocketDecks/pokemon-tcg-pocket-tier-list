@@ -29,6 +29,8 @@ interface PackScore {
   count: number;
 }
 
+const compareIds = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+
 export const isSharedPack = (pack: string) => pack.toLowerCase().includes("shared");
 
 const scoreForPack = (
@@ -89,7 +91,7 @@ export const buildExpansionData = (
         },
       ];
     })
-    .sort((a, b) => b.averageScore - a.averageScore);
+    .sort((a, b) => b.averageScore - a.averageScore || compareIds(a.expansionId, b.expansionId));
 
 export const buildExpansionPackData = (
   scores: CardScoreInput[],
@@ -114,4 +116,9 @@ export const buildExpansionPackData = (
         ];
       })
     )
-    .sort((a, b) => b.averageScore - a.averageScore);
+    .sort(
+      (a, b) =>
+        b.averageScore - a.averageScore ||
+        compareIds(a.expansionId, b.expansionId) ||
+        compareIds(a.packId, b.packId)
+    );

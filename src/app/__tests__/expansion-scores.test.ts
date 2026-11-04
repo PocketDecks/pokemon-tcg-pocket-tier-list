@@ -167,3 +167,44 @@ describe("isSharedPack", () => {
     expect(isSharedPack("Charizard")).toBe(false);
   });
 });
+
+describe("score ties", () => {
+  const tied = (id: string, name: string, pack: string) => ({
+    id,
+    name,
+    release_date: null,
+    packs: [{ id: `${id}-${pack.toLowerCase()}`, name: pack, image: `${id}-${pack.toLowerCase()}.webp` }],
+  });
+
+  it("orders equal-score expansions by id whatever the input order", () => {
+    const scores = [
+      { set: "b4a", pack: "Booster", score: 0.5 },
+      { set: "a1", pack: "Pikachu", score: 0.5 },
+    ];
+    const forward = [tied("b4a", "Team Rocket's Ambition", "Booster"), tied("a1", "Genetic Apex", "Pikachu")];
+    expect(buildExpansionData(scores, forward).map((entry) => entry.expansionId)).toEqual(["a1", "b4a"]);
+    expect(buildExpansionData(scores, [...forward].reverse()).map((entry) => entry.expansionId)).toEqual(["a1", "b4a"]);
+  });
+
+  it("orders equal-score packs by expansion id, then pack id, whatever the input order", () => {
+    const scores = [
+      { set: "a1", pack: "Pikachu", score: 0.5 },
+      { set: "a1", pack: "Charizard", score: 0.5 },
+    ];
+    const expansions = [
+      {
+        id: "a1",
+        name: "Genetic Apex",
+        release_date: null,
+        packs: [
+          { id: "a1-pikachu", name: "Pikachu", image: "pikachu.webp" },
+          { id: "a1-charizard", name: "Charizard", image: "charizard.webp" },
+        ],
+      },
+    ];
+    const packIds = (list: typeof expansions) => buildExpansionPackData(scores, list).map((pack) => pack.packId);
+    expect(packIds(expansions)).toEqual(["a1-charizard", "a1-pikachu"]);
+    const reversed = [{ ...expansions[0], packs: [...expansions[0].packs].reverse() }];
+    expect(packIds(reversed)).toEqual(["a1-charizard", "a1-pikachu"]);
+  });
+});

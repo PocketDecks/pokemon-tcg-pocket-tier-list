@@ -252,3 +252,14 @@ test("expansion names with regex punctuation are matched literally", () => {
   assert.ok(meta["/tier-list"].title.includes("Set (A1)"));
   assert.ok(meta["/tier-list"].description.includes("Set (A1)"));
 });
+
+test("tier-list descriptions name only controls the page has", () => {
+  const en = ROUTE_META["/tier-list"].description;
+  assert.match(en, /Filter by energy type and sort by power score/);
+  assert.doesNotMatch(en, /win rate to find|filter by win rate/i);
+  const ja = JA_ROUTE_META["/tier-list"].description;
+  assert.match(ja, /エネルギー/);
+  assert.match(ja, /パワースコア/);
+  assert.match(ja, /人気度/);
+  assert.doesNotMatch(ja, /勝率で絞り込/);
+});

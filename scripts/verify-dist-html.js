@@ -1,11 +1,13 @@
 const fs = require("fs");
 const path = require("path");
 const { deckNameToIconIds } = require("./deck-name.mjs");
+const { deckSlug } = require("./deck-slug.mjs");
 const {
   CARD_THUMB_WIDTHS,
   DECK_THUMB_SIZES,
   DECK_THUMB_VERSION,
   deckListCardIds,
+  firstBestListCardId,
 } = require("./deck-thumbs.mjs");
 const { resolveHosting } = require("./firebase-hosting");
 const { inlineScriptHashes, parsePolicy, reportOnlyPolicy } = require("./content-security-policy");
@@ -361,23 +363,38 @@ const imageCandidates = (tag) =>
     .map((candidate) => candidate.trim().split(/\s+/)[0])
     .filter(Boolean);
 
+const cardlessDeckSlugs = (decks = loadDecks()) =>
+  new Set(decks.filter((deck) => firstBestListCardId(deck) === null).map((deck) => deckSlug(deck.name)));
+
 const findDeckImagePreloadIssues = (
   dir = DIST_DIR,
-  hubSlugs = new Set(loadArchive().map((entry) => entry.hub))
+  hubSlugs = new Set(loadArchive().map((entry) => entry.hub)),
+  cardlessSlugs = new Set()
 ) =>
   deckDetailFiles(dir)
     .filter((file) => !hubSlugs.has(path.basename(path.dirname(file))))
     .flatMap((file) => {
     const entry = path.relative(dir, file);
     const tags = collectImagePreloads(fs.readFileSync(file, "utf8"));
-    if (tags.length !== 1) {
-      return [`${entry}: expected 1 image preload, found ${tags.length}`];
+    const expected = cardlessSlugs.has(path.basename(path.dirname(file))) ? 0 : 1;
+    if (tags.length !== expected) {
+      return [`${entry}: expected ${expected} image preload${expected === 1 ? "" : "s"}, found ${tags.length}`];
     }
+    if (expected === 0) return [];
     return imageCandidates(tags[0]).flatMap((candidate) => {
       const url = candidate.split("?")[0];
       if (!url.startsWith("/thumbs/")) return [`${entry}: ${candidate} is outside /thumbs/`];
       return fs.existsSync(path.join(dir, url)) ? [] : [`${entry}: ${url} is not built`];
     });
+  });
+
+const findMissingLiveDeckPages = (dir = DIST_DIR, decks = loadDecks()) =>
+  decks.flatMap((deck) => {
+    const slug = deckSlug(deck.name);
+    return ["", "ja/"]
+      .map((prefix) => `${prefix}deck/${slug}/index.html`)
+      .filter((entry) => !fs.existsSync(path.join(dir, entry)))
+      .map((entry) => `${entry}: missing`);
   });
 
 const isExternalHost = (src) => {
@@ -413,6 +430,11 @@ const findCspHashIssues = (
 };
 
 const main = () => {
+  const missingLivePages = findMissingLiveDeckPages();
+  if (missingLivePages.length > 0) {
+    console.error(`Live decks without a prerendered page:\n${missingLivePages.join("\n")}`);
+    process.exit(1);
+  }
   const offenders = findLoopbackRefs();
   if (offenders.length > 0) {
     console.error(
@@ -507,7 +529,7 @@ const main = () => {
     );
     process.exit(1);
   }
-  const imagePreloadIssues = findDeckImagePreloadIssues();
+  const imagePreloadIssues = findDeckImagePreloadIssues(undefined, undefined, cardlessDeckSlugs());
   if (imagePreloadIssues.length > 0) {
     console.error(
       `Deck page image preloads without a built file:\n${imagePreloadIssues.join("\n")}`
@@ -553,6 +575,7 @@ module.exports = {
   findExternalScripts,
   findLoopbackRefs,
   findMissingCardThumbs,
+  findMissingLiveDeckPages,
   findMissingDeckThumbs,
   findModulepreloadDrift,
   findUncapturedDeckStyles,

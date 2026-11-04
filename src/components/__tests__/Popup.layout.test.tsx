@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import Popup from "../Popup";
 
-
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string) =>
@@ -15,11 +14,42 @@ vi.mock("react-i18next", () => ({
   }),
 }));
 
-const stylesheetText = () =>
-  Array.from(document.querySelectorAll("style"), (style) => style.textContent ?? "").join("\n");
+type StyleRuleInfo = {
+  mediaText: string | null;
+  selectorText: string;
+  declarations: string;
+};
 
-const classSelector = (element: Element) =>
-  Array.from(element.classList, (name) => `.${name}`);
+const collectStyleRules = (): StyleRuleInfo[] => {
+  const rules: StyleRuleInfo[] = [];
+  const visit = (cssRules: CSSRuleList, mediaText: string | null) => {
+    for (const rule of Array.from(cssRules)) {
+      if ("media" in rule) {
+        visit((rule as CSSMediaRule).cssRules, (rule as CSSMediaRule).media.mediaText);
+      } else if ("selectorText" in rule) {
+        const styleRule = rule as CSSStyleRule;
+        rules.push({
+          mediaText,
+          selectorText: styleRule.selectorText,
+          declarations: styleRule.style.cssText,
+        });
+      }
+    }
+  };
+  for (const sheet of Array.from(document.styleSheets)) {
+    visit(sheet.cssRules, null);
+  }
+  return rules;
+};
+
+const consentPendingRules = () =>
+  collectStyleRules().filter((rule) => rule.selectorText.includes(":root[data-consent-pending]"));
+
+const isPhoneQuery = (mediaText: string | null) =>
+  mediaText !== null && /\(\s*max-width:\s*900px\s*\)/.test(mediaText);
+
+const targets = (rule: StyleRuleInfo, element: Element) =>
+  Array.from(element.classList).some((name) => rule.selectorText.includes(`.${name}`));
 
 describe("Popup layout beside the consent banner", () => {
   it("reserves room for the banner on phones only while consent is pending", () => {
@@ -30,14 +60,24 @@ describe("Popup layout beside the consent banner", () => {
     );
     const dialog = screen.getByRole("dialog");
     const overlay = dialog.parentElement as HTMLElement;
-    const css = stylesheetText().replace(/\s+/g, " ");
-    const scoped = (element: Element, declaration: string) =>
-      classSelector(element).some((selector) =>
-        css.includes(`:root[data-consent-pending] ${selector}{${declaration}`) ||
-        css.includes(`:root[data-consent-pending] ${selector} {${declaration}`)
-      );
-    expect(scoped(overlay, "padding-bottom:50vh")).toBe(true);
-    expect(scoped(dialog, "max-height:calc(50vh - 2.4rem)")).toBe(true);
-    expect(css).not.toMatch(/\{[^{}]*padding:1\.2rem;padding-bottom:50vh/);
+    const rules = consentPendingRules();
+
+    expect(
+      rules.some(
+        (rule) =>
+          isPhoneQuery(rule.mediaText) &&
+          targets(rule, overlay) &&
+          rule.declarations.includes("padding-bottom: 50vh")
+      )
+    ).toBe(true);
+    expect(
+      rules.some(
+        (rule) =>
+          isPhoneQuery(rule.mediaText) &&
+          targets(rule, dialog) &&
+          rule.declarations.includes("max-height: calc(50vh - 2.4rem)")
+      )
+    ).toBe(true);
+    expect(rules.filter((rule) => rule.mediaText === null)).toEqual([]);
   });
 });

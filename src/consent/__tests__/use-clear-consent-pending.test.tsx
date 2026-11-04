@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { render } from "@testing-library/react";
+import { StrictMode } from "react";
 import Popup from "../../components/Popup";
+import { openPopupCount } from "../../components/popup-state";
 import { useClearConsentPending } from "../use-clear-consent-pending";
 import { CONSENT_PENDING_ATTRIBUTE } from "../consent-pending-keys.mjs";
 
@@ -45,5 +47,35 @@ describe("clearing the consent-pending attribute", () => {
     render(scene(true, false));
 
     expect(document.documentElement).not.toHaveAttribute(CONSENT_PENDING_ATTRIBUTE);
+  });
+
+  it("removes the attribute when a popup unmounts while open after consent settled", () => {
+    document.documentElement.setAttribute(CONSENT_PENDING_ATTRIBUTE, "");
+    const view = render(scene(false, true));
+    view.rerender(scene(true, true));
+    expect(document.documentElement).toHaveAttribute(CONSENT_PENDING_ATTRIBUTE);
+    expect(openPopupCount()).toBe(1);
+
+    view.rerender(<ConsentSettles settled />);
+
+    expect(document.documentElement).not.toHaveAttribute(CONSENT_PENDING_ATTRIBUTE);
+    expect(openPopupCount()).toBe(0);
+  });
+
+  it("does the same under StrictMode", () => {
+    document.documentElement.setAttribute(CONSENT_PENDING_ATTRIBUTE, "");
+    const view = render(<StrictMode>{scene(false, true)}</StrictMode>);
+    view.rerender(<StrictMode>{scene(true, true)}</StrictMode>);
+    expect(document.documentElement).toHaveAttribute(CONSENT_PENDING_ATTRIBUTE);
+    expect(openPopupCount()).toBe(1);
+
+    view.rerender(
+      <StrictMode>
+        <ConsentSettles settled />
+      </StrictMode>
+    );
+
+    expect(document.documentElement).not.toHaveAttribute(CONSENT_PENDING_ATTRIBUTE);
+    expect(openPopupCount()).toBe(0);
   });
 });

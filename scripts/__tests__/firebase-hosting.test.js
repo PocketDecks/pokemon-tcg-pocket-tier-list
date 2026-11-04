@@ -156,6 +156,20 @@ test("feedback is served by the app shell with status 200", () => {
   assert.deepStrictEqual(resolve("/feedback/"), rewrite);
 });
 
+test("crawler policy and security policy files resolve to their own static files", () => {
+  for (const file of ["robots.txt", "llms.txt", ".well-known/security.txt"]) {
+    assert.ok(
+      fs.existsSync(path.join(__dirname, "..", "..", "public", file)),
+      `${file} is missing from public/`
+    );
+    assert.deepStrictEqual(resolveHosting(config, new Set([file]), `/${file}`), {
+      kind: "file",
+      file,
+      status: 200,
+    });
+  }
+});
+
 test("prerendered routes resolve to their own files", () => {
   assert.deepStrictEqual(resolve("/"), { kind: "file", file: "index.html", status: 200 });
   assert.deepStrictEqual(resolve("/tier-list/"), {

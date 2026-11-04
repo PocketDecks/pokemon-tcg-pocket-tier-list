@@ -26,7 +26,7 @@
   "scripts": {
     "start": "vite",
     "prebuild": "node --env-file-if-exists=.env scripts/build-deck-archive.mjs && node --env-file-if-exists=.env scripts/generate-deck-redirects.mjs && node --env-file-if-exists=.env scripts/generate-sitemap.js && node --env-file-if-exists=.env scripts/generate-attack-costs.mjs && node --env-file-if-exists=.env scripts/generate-deck-thumbs.mjs",
-    "check:generated": "node --env-file-if-exists=.env scripts/build-deck-archive.mjs --check && node --env-file-if-exists=.env scripts/generate-deck-redirects.mjs --check && node --env-file-if-exists=.env scripts/generate-attack-costs.mjs --check",
+    "check:generated": "node --env-file-if-exists=.env scripts/build-deck-archive.mjs --check && node --env-file-if-exists=.env scripts/generate-deck-redirects.mjs --check && node --env-file-if-exists=.env scripts/generate-attack-costs.mjs --check && node scripts/generate-robots.mjs --check",
     "build": "yarn typecheck && yarn lint && vite build",
     "postbuild": "node --env-file-if-exists=.env scripts/prerender-decks.js && node --env-file-if-exists=.env scripts/prerender-deck-hubs.js && node --env-file-if-exists=.env scripts/prerender-routes.js && node --env-file-if-exists=.env scripts/verify-dist-html.js",
     "test": "vitest",
@@ -63,7 +63,10 @@
   "resolutions": {
     "@grpc/grpc-js": "1.13.6",
     "source-map-js": "1.2.2",
-    "undici": "^8.10.2",
-    "js-yaml": "^4.3.2"
+    "undici": "^8.12.2",
+    "js-yaml": "^4.3.2",
+    "**/eslint/minimatch": "^11.0.1",
+    "**/@eslint/config-array/minimatch": "^11.0.1",
+    "**/@typescript-eslint/typescript-estree/minimatch": "^11.0.1"
   }
 }

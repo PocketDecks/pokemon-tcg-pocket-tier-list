@@ -71,6 +71,24 @@ export const QueryErrorNotice = ({ onRetry }: { onRetry: () => void }) => {
   );
 };
 
+const RetryLine = styled.p`
+  padding: 1.2rem 2rem;
+  font-size: 1.4rem;
+  color: var(--text-muted);
+
+  button {
+    margin-inline-start: 1rem;
+    color: var(--main);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+`;
+
+export const QueryRetryLine = ({ onRetry }: { onRetry: () => void }) => {
+  const { t } = useTranslation();
+  return <RetryLine role="status">{t("loadError.message")}<button type="button" onClick={onRetry}>{t("loadError.retry")}</button></RetryLine>;
+};
+
 interface Props {
   children: ReactNode;
   resetKeys?: readonly unknown[];

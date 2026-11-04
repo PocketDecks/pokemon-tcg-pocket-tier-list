@@ -36,6 +36,18 @@ afterEach(() => {
 });
 
 describe("useCards score failures", () => {
+  it("keeps cached rows after a successful load and a 503 background refetch", async () => {
+    let failing = false;
+    vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(jsonResponse(failing ? [] : committedScores, failing ? 503 : 200))));
+    const { result } = renderCards();
+    await waitFor(() => expect(result.current.cards?.length).toBeGreaterThan(0));
+    const rows = result.current.cards;
+    failing = true;
+    await act(async () => { await queryClient.refetchQueries({ queryKey: ["card-scores"] }); });
+    await waitFor(() => expect(result.current.error?.message).toContain("503"));
+    expect(result.current.cards).toEqual(rows);
+  });
+
   it("reports an error for an HTTP 503 empty array instead of valid empty", async () => {
     const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(jsonResponse([], 503)));
     vi.stubGlobal("fetch", fetchMock);

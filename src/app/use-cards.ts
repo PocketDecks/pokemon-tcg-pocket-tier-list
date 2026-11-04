@@ -89,7 +89,7 @@ const useCards = (amount: number = 30, options: UseCardsOptions = {}): UseCardsR
     void refetchCards();
   };
 
-  if (error || !cardData || !cards) {
+  if (!cardData || !cards) {
     return {
       cards: null,
       error: error as Error | null,
@@ -152,7 +152,7 @@ const useCards = (amount: number = 30, options: UseCardsOptions = {}): UseCardsR
       .slice(0, amount)
       .sort((a, b) => b.score - a.score);
 
-  return { cards: ranked, error: null, retry };
+  return { cards: ranked, error: error as Error | null, retry };
 };
 
 export default useCards;

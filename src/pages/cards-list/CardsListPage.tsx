@@ -10,7 +10,7 @@ import TierGrid from "../../components/TierGrid";
 import PageTitle from "../../components/PageTitle";
 import CardIcon from "../../components/CardIcon";
 import LastUpdated from "../../components/LastUpdated";
-import { QueryErrorNotice } from "../../components/ErrorBoundary";
+import { QueryErrorNotice, QueryRetryLine } from "../../components/ErrorBoundary";
 import { useLocaleHref } from "../../app/locale-link";
 
 const CardsListPage = () => {
@@ -20,7 +20,7 @@ const CardsListPage = () => {
   const { expansion, setExpansion } = useFilters();
   const expansions = useExpansions();
 
-  useMarkContentReady(!error && !!cards?.length, !!error || cards !== null);
+  useMarkContentReady(!!cards?.length, !!error || cards !== null);
 
   const filters = (
     <>
@@ -44,7 +44,8 @@ const CardsListPage = () => {
   return (
     <>
       <PageTitle>{t("header.bestCards")}</PageTitle>
-      {error ? (
+      {error && cards && <QueryRetryLine onRetry={retry} />}
+      {error && !cards ? (
         <>
           {filters}
           <QueryErrorNotice onRetry={retry} />

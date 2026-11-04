@@ -9,7 +9,7 @@ import PageTitle from "../../components/PageTitle";
 import ExpansionIcon from "../../components/ExpansionIcon";
 import ExpansionStack from "../../components/ExpansionStack";
 import SegmentedControl from "../../components/SegmentedControl";
-import { QueryErrorNotice } from "../../components/ErrorBoundary";
+import { QueryErrorNotice, QueryRetryLine } from "../../components/ErrorBoundary";
 import { buildExpansionData, buildExpansionPackData } from "../../app/expansion-scores";
 import { packSlug } from "../../app/expansion-page-data";
 import { useLocaleHref, LocaleLink } from "../../app/locale-link";
@@ -31,7 +31,7 @@ const ExpansionListPage = () => {
 
   const expansionData = buildExpansionData(cards ?? [], expansions ?? []);
   const packData = buildExpansionPackData(cards ?? [], expansions ?? []);
-  useMarkContentReady(!error && loaded && (view === "packs" ? packData : expansionData).length > 0, !!error || loaded);
+  useMarkContentReady(loaded && (view === "packs" ? packData : expansionData).length > 0, !!error || loaded);
   const expansionName = (id: string) => expansions?.find((entry) => entry.id === id)?.name ?? id;
 
   const selectView = (next: ExpansionView) => {
@@ -56,7 +56,8 @@ const ExpansionListPage = () => {
   return (
       <>
         <PageTitle>{t("header.bestExpansions")}</PageTitle>
-        {error ? (
+        {error && cards && <QueryRetryLine onRetry={retry} />}
+        {error && !cards ? (
           <>
             {viewToggle}
             <QueryErrorNotice onRetry={retry} />

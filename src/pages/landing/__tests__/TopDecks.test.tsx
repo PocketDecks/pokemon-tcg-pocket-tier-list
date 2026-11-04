@@ -3,10 +3,6 @@ import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import i18n from "../../../i18n";
 import TopDecks from "../TopDecks";
-import { rankDeckTiers } from "../../../app/use-deck-tiers";
-import { deckDisplayName } from "../../../app/deck-display";
-import { EXPANSIONS_URL } from "../../../app/constants";
-import { newestExpansion } from "../../../app/expansion-policy.mjs";
 
 const decks = vi.hoisted(() => ({ value: [] as unknown[] }));
 
@@ -32,16 +28,26 @@ const deck = (index: number) => ({
   iconSecondary: null,
 });
 
+const EXPECTED = [
+  { tier: "S", name: "Icon 0", href: "/deck/deck-0", win: "50.0% win rate" },
+  { tier: "S", name: "Icon 1", href: "/deck/deck-1", win: "51.0% win rate" },
+  { tier: "A", name: "Icon 2", href: "/deck/deck-2", win: "52.0% win rate" },
+  { tier: "A", name: "Icon 3", href: "/deck/deck-3", win: "53.0% win rate" },
+  { tier: "B", name: "Icon 4", href: "/deck/deck-4", win: "54.0% win rate" },
+  { tier: "B", name: "Icon 5", href: "/deck/deck-5", win: "55.0% win rate" },
+  { tier: "C", name: "Icon 6", href: "/deck/deck-6", win: "56.0% win rate" },
+  { tier: "C", name: "Icon 7", href: "/deck/deck-7", win: "57.0% win rate" },
+  { tier: "D", name: "Icon 8", href: "/deck/deck-8", win: "58.0% win rate" },
+  { tier: "D", name: "Icon 9", href: "/deck/deck-9", win: "59.0% win rate" },
+];
+
 beforeAll(async () => {
   await i18n.changeLanguage("en");
 });
 
 describe("TopDecks", () => {
-  it("lists the ten highest-ranked decks in tier order with tier, name, win rate and link", () => {
-    decks.value = Array.from({ length: 12 }, (_, index) => deck(index));
-    const expected = rankDeckTiers(decks.value as never[]).flatMap((tier) =>
-      [...tier.decks].sort((a, b) => (b.powerScore ?? -1) - (a.powerScore ?? -1)).map((d) => ({ tier: tier.label, deck: d }))
-    ).slice(0, 10);
+  it("orders the top ten by tier then power score, whatever the input order", () => {
+    decks.value = Array.from({ length: 12 }, (_, index) => deck(11 - index));
 
     render(
       <MemoryRouter>
@@ -49,17 +55,14 @@ describe("TopDecks", () => {
       </MemoryRouter>
     );
 
-    const newest = newestExpansion(EXPANSIONS_URL);
-    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe(`Top ${newest?.name} decks`);
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Top Dual Fusion decks");
     const items = screen.getAllByRole("listitem");
     expect(items).toHaveLength(10);
     items.forEach((item, index) => {
       const scope = within(item);
-      expect(scope.getByText(expected[index].tier)).toBeTruthy();
-      expect(scope.getByRole("link", { name: deckDisplayName(expected[index].deck as never) }).getAttribute("href")).toBe(
-        `/deck/${expected[index].deck.id}`
-      );
-      expect(scope.getByText(`${(expected[index].deck.expectedWinRate * 100).toFixed(1)}% win rate`)).toBeTruthy();
+      expect(scope.getByText(EXPECTED[index].tier)).toBeTruthy();
+      expect(scope.getByRole("link", { name: EXPECTED[index].name }).getAttribute("href")).toBe(EXPECTED[index].href);
+      expect(scope.getByText(EXPECTED[index].win)).toBeTruthy();
     });
     expect(screen.getByRole("link", { name: "Full tier list" }).getAttribute("href")).toBe("/tier-list/");
   });

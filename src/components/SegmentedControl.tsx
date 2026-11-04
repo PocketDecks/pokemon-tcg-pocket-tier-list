@@ -25,13 +25,15 @@ const ToggleButton = styled.button<{ $active: boolean; $locked?: boolean }>`
   border: none;
   transition: background-color 160ms ease-out, color 160ms ease-out;
 
-  &:hover {
-    background: ${(props) =>
-      props.$active ? "var(--main)" : props.$locked ? "transparent" : "var(--line)"};
-  }
-
   @media (max-width: 900px) {
     min-height: 4.4rem;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: ${(props) =>
+        props.$active ? "var(--main)" : props.$locked ? "transparent" : "var(--line)"};
+    }
   }
 `;
 

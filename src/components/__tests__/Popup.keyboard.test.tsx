@@ -11,10 +11,31 @@ vi.mock("react-i18next", () => ({
         {
           "a11y.closePopup": "Close panel",
           "panel.title": "Panel title",
+          "inner.title": "Inner panel",
         } as Record<string, string>
       )[key] ?? key,
   }),
 }));
+
+const NestedHarness = () => {
+  const [isOuterOpen, setIsOuterOpen] = useState(false);
+  const [isInnerOpen, setIsInnerOpen] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setIsOuterOpen(true)}>
+        Open outer
+      </button>
+      <Popup isOpen={isOuterOpen} header="panel.title" close={() => setIsOuterOpen(false)}>
+        <button type="button" onClick={() => setIsInnerOpen(true)}>
+          Open inner
+        </button>
+        <Popup isOpen={isInnerOpen} header="inner.title" close={() => setIsInnerOpen(false)}>
+          <button type="button">Inner action</button>
+        </Popup>
+      </Popup>
+    </>
+  );
+};
 
 const Harness = ({ onClose }: { onClose?: () => void }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -274,6 +295,21 @@ describe("Popup keyboard accessibility", () => {
     await user.tab({ shift: true });
 
     expect(document.querySelector("iframe")).toHaveFocus();
+  });
+
+  it("closes only the inner popup on Escape when popups are nested", async () => {
+    const user = userEvent.setup();
+    render(<NestedHarness />);
+
+    await user.click(screen.getByRole("button", { name: "Open outer" }));
+    await user.click(screen.getByRole("button", { name: "Open inner" }));
+    expect(screen.getByRole("dialog", { name: "Inner panel" })).toBeInTheDocument();
+
+    await user.keyboard("{Escape}");
+
+    expect(screen.queryByRole("dialog", { name: "Inner panel" })).not.toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Panel title" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Open inner" })).toHaveFocus();
   });
 
   it("returns focus to a trigger that was pressed but not focused, as Safari does", () => {

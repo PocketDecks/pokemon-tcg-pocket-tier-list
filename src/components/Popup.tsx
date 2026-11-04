@@ -146,15 +146,18 @@ const isRendered = (element: HTMLElement) =>
 const getFocusable = (root: HTMLElement) =>
   Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(isRendered);
 
+const isOtherModal = (candidate: HTMLElement, dialog: HTMLElement) =>
+  candidate !== dialog && !candidate.contains(dialog);
+
 const isInOtherModal = (target: EventTarget | null, dialog: HTMLElement) => {
   if (!(target instanceof Element)) return false;
-  const modal = target.closest('[aria-modal="true"]');
-  return modal !== null && modal !== dialog && !dialog.contains(modal);
+  const modal = target.closest<HTMLElement>('[aria-modal="true"]');
+  return modal !== null && isOtherModal(modal, dialog);
 };
 
 const otherModalFocusables = (dialog: HTMLElement) => {
   const modal = Array.from(document.querySelectorAll<HTMLElement>('[aria-modal="true"]')).find(
-    (candidate) => candidate !== dialog && !dialog.contains(candidate)
+    (candidate) => isOtherModal(candidate, dialog)
   );
   return modal ? getFocusable(modal) : [];
 };

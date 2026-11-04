@@ -168,6 +168,7 @@
     "latestExpansionCardsAny": "Cualquiera"
   },
   "expansionList": {
+    "viewLabel": "Ordenar por",
     "viewExpansions": "Expansiones",
     "viewPacks": "Sobres"
   },

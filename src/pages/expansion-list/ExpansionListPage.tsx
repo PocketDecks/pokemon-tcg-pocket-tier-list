@@ -39,7 +39,7 @@ const ExpansionListPage = () => {
 
   const viewToggle = (
     <SegmentedControl<ExpansionView>
-      label={t("header.bestExpansions")}
+      label={t("expansionList.viewLabel")}
       value={view}
       options={[
         { value: "expansions", label: t("expansionList.viewExpansions") },

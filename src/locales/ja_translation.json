@@ -168,6 +168,7 @@
     "latestExpansionCardsAny": "任意"
   },
   "expansionList": {
+    "viewLabel": "ランキングの単位",
     "viewExpansions": "拡張パック",
     "viewPacks": "ブースターパック"
   },

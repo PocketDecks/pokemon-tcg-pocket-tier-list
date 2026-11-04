@@ -168,6 +168,7 @@
     "latestExpansionCardsAny": "Qualsiasi"
   },
   "expansionList": {
+    "viewLabel": "Ordina per",
     "viewExpansions": "Espansioni",
     "viewPacks": "Buste"
   },

@@ -168,6 +168,7 @@
     "latestExpansionCardsAny": "Beliebig"
   },
   "expansionList": {
+    "viewLabel": "Rangliste nach",
     "viewExpansions": "Erweiterungen",
     "viewPacks": "Booster-Packs"
   },

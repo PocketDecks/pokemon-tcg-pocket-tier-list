@@ -168,6 +168,7 @@
     "latestExpansionCardsAny": "任何"
   },
   "expansionList": {
+    "viewLabel": "排名方式",
     "viewExpansions": "擴充包",
     "viewPacks": "卡包"
   },

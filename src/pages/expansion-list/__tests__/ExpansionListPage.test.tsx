@@ -95,6 +95,13 @@ describe("ExpansionListPage", () => {
     expect(expansionLinks(container)).toHaveLength(0);
   });
 
+  it("names the view toggle with its own label, not the page heading", () => {
+    renderPage();
+
+    expect(screen.getByRole("group", { name: "expansionList.viewLabel" })).toBeInTheDocument();
+    expect(screen.queryByRole("group", { name: "header.bestExpansions" })).toBeNull();
+  });
+
   it("shows every pack in the packs view without expansion links", () => {
     setPacksFixture("c1", "Dual Fusion", ["c1-a.webp", "c1-b.webp"]);
     const { container } = renderPage("/expansion-list/?view=packs");

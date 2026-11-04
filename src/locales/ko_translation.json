@@ -168,6 +168,7 @@
     "latestExpansionCardsAny": "모두"
   },
   "expansionList": {
+    "viewLabel": "순위 기준",
     "viewExpansions": "확장팩",
     "viewPacks": "부스터팩"
   },

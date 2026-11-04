@@ -20,6 +20,7 @@ const {
   findLoopbackRefs,
   findMissingCardThumbs,
   findMissingDeckThumbs,
+  findMissingLiveDeckPages,
   findUncapturedDeckStyles,
   loadDecks,
   findModulepreloadDrift,
@@ -700,3 +701,42 @@ test(
     assert.deepEqual(findTitleCountIssues(), []);
   }
 );
+
+test("passes when every live deck has a page in both locales", () => {
+  const dir = makeDist({
+    "deck/garchomp-zz-999/index.html": "<head></head>",
+    "ja/deck/garchomp-zz-999/index.html": "<head></head>",
+  });
+  assert.deepStrictEqual(findMissingLiveDeckPages(dir, [{ name: "garchomp-zz-999", lists: [] }]), []);
+});
+
+test("flags live decks whose pages are missing in either locale", () => {
+  const dir = makeDist({
+    "deck/garchomp-zz-999/index.html": "<head></head>",
+  });
+  const decks = [{ name: "garchomp-zz-999", lists: [] }, { name: "mega-altaria-ex-b1-102", lists: [] }];
+  assert.deepStrictEqual(findMissingLiveDeckPages(dir, decks), [
+    "ja/deck/garchomp-zz-999/index.html: missing",
+    "deck/mega-altaria-ex-b1-102/index.html: missing",
+    "ja/deck/mega-altaria-ex-b1-102/index.html: missing",
+  ]);
+});
+
+test("a deck page without a card id must carry no image preload", () => {
+  const dir = makeDist({
+    "deck/x/index.html": "<head></head>",
+    "deck/y/index.html": `<head>${IMAGE_PRELOAD}</head>`,
+    ...CARD_THUMBS,
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(dir, new Set(), new Set(["x", "y"])), [
+    `deck${path.sep}y${path.sep}index.html: expected 0 image preloads, found 1`,
+  ]);
+});
+
+test("a deck page without a card id passes with no image preload", () => {
+  const dir = makeDist({
+    "deck/x/index.html": "<head></head>",
+    "ja/deck/x/index.html": "<head></head>",
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(dir, new Set(), new Set(["x"])), []);
+});

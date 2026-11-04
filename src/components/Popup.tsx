@@ -1,7 +1,7 @@
 import React, { useEffect, useId, useRef } from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import { acquirePopup } from "./popup-state";
+import { acquirePopup, claimInert, releaseInert } from "./popup-state";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -186,30 +186,6 @@ const otherModalFocusables = (dialog: HTMLElement) => {
 const hasOpenModal = (element: Element) =>
   element.matches('[aria-modal="true"]') || element.querySelector('[aria-modal="true"]') !== null;
 
-type InertClaim = { count: number; previous: string | null };
-
-const inertClaims = new Map<Element, InertClaim>();
-
-const claimInert = (element: Element) => {
-  const claim = inertClaims.get(element);
-  if (claim) {
-    claim.count += 1;
-    return;
-  }
-  inertClaims.set(element, { count: 1, previous: element.getAttribute("inert") });
-  element.setAttribute("inert", "");
-};
-
-const releaseInert = (element: Element) => {
-  const claim = inertClaims.get(element);
-  if (!claim) return;
-  claim.count -= 1;
-  if (claim.count > 0) return;
-  inertClaims.delete(element);
-  if (claim.previous === null) element.removeAttribute("inert");
-  else element.setAttribute("inert", claim.previous);
-};
-
 const makeOutsideInert = (target: Element) => {
   const claimed: Element[] = [];
   const chain = new Set<Element>([target]);
@@ -228,6 +204,12 @@ const makeOutsideInert = (target: Element) => {
   }
   const observer = new MutationObserver((records) => {
     for (const record of records) {
+      for (const removed of Array.from(record.removedNodes)) {
+        const index = claimed.indexOf(removed as Element);
+        if (index === -1) continue;
+        releaseInert(removed as Element);
+        claimed.splice(index, 1);
+      }
       for (const added of Array.from(record.addedNodes)) {
         if (!(added instanceof Element) || chain.has(added) || added.contains(target)) continue;
         if (hasOpenModal(added)) continue;

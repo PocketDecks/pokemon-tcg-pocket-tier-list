@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import Popup from "../Popup";
+import { heldInertCount } from "../popup-state";
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -387,6 +388,22 @@ describe("Popup keyboard accessibility", () => {
 
     expect(added).not.toHaveAttribute("inert");
     added.remove();
+  });
+
+  it("forgets the inert claim for a node added and then removed while a popup is open", async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    await openPanel(user);
+    const baseline = heldInertCount();
+
+    const transient = document.createElement("button");
+    transient.textContent = "Transient";
+    document.body.appendChild(transient);
+    await waitFor(() => expect(heldInertCount()).toBe(baseline + 1));
+
+    transient.remove();
+    await waitFor(() => expect(heldInertCount()).toBe(baseline));
+    await user.keyboard("{Escape}");
   });
 
   it("does not use a press from long before opening as the trigger", () => {

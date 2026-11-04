@@ -1,3 +1,7 @@
+export declare const coveredCardIdsBySet: (
+  decks: readonly { lists?: readonly { cards?: readonly unknown[] }[] }[] | null
+) => ReadonlyMap<string, ReadonlySet<string>>;
+
 export declare const coveredSetCodes: (
   decks: readonly { lists?: readonly { cards?: readonly unknown[] }[] }[] | null
 ) => ReadonlySet<string>;

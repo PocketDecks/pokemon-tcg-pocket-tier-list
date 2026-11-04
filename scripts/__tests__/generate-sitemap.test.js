@@ -86,16 +86,13 @@ test("the route count reported for the sitemap matches the emitted url entries",
   assert.strictEqual(countUrlEntries(xml), xml.split("<loc>").length - 1);
 });
 
-test("sitemap includes only the two newest covered listed expansions", () => {
+test("sitemap includes only the newest covered listed expansion with enough cards", () => {
   const expansions = [
     { id: "a1", release_date: "2024-01-01" },
     { id: "b4a", release_date: "2026-08-27" },
     { id: "b4b", release_date: "2026-09-30" },
     { id: "c1", release_date: "2026-10-29" },
   ];
-  const decks = [{ lists: [{ cards: ["1:a1-001", "1:b4a-001", "1:c1-001"] }] }];
-  assert.deepStrictEqual(expansionRoutes(expansions, decks), [
-    "/expansion-list/c1",
-    "/expansion-list/b4a",
-  ]);
+  const decks = [{ lists: [{ cards: ["1:a1-001", "1:b4a-001", "1:c1-001", "1:c1-002", "1:c1-003", "1:c1-004", "1:c1-005"] }] }];
+  assert.deepStrictEqual(expansionRoutes(expansions, decks), ["/expansion-list/c1"]);
 });

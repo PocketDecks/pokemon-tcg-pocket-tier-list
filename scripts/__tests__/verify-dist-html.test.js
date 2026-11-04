@@ -522,8 +522,8 @@ test("expansion page verification requires every listed page and its robots poli
   const dir = makeDist({
     "expansion-list/c1/index.html": page("Dual Fusion", "index, follow", "Dual Fusion (C1)", "https://pocketdecks.top/expansion-list/c1/"),
     "ja/expansion-list/c1/index.html": page("デュアルフュージョン", "index, follow", "デュアルフュージョン (C1)", "https://pocketdecks.top/ja/expansion-list/c1/"),
-    "expansion-list/b4a/index.html": page("Team Rocket's Ambition", "index, follow", "Team Rocket's Ambition (B4A)", "https://pocketdecks.top/expansion-list/b4a/"),
-    "ja/expansion-list/b4a/index.html": page("ロケット団の栄光", "index, follow", "ロケット団の栄光 (B4A)", "https://pocketdecks.top/ja/expansion-list/b4a/"),
+    "expansion-list/b4a/index.html": page("Team Rocket's Ambition", "noindex, follow", "Team Rocket's Ambition (B4A)", "https://pocketdecks.top/expansion-list/b4a/"),
+    "ja/expansion-list/b4a/index.html": page("ロケット団の栄光", "noindex, follow", "ロケット団の栄光 (B4A)", "https://pocketdecks.top/ja/expansion-list/b4a/"),
     "expansion-list/a1/index.html": page("Genetic Apex", "noindex, follow", "Genetic Apex (A1)", "https://pocketdecks.top/expansion-list/a1/"),
     "ja/expansion-list/a1/index.html": page("最強の遺伝子", "noindex, follow", "最強の遺伝子 (A1)", "https://pocketdecks.top/ja/expansion-list/a1/"),
   });
@@ -532,7 +532,7 @@ test("expansion page verification requires every listed page and its robots poli
     { id: "b4a", release_date: "2026-08-27" },
     { id: "c1", release_date: "2026-10-29" },
   ];
-  const decks = [{ lists: [{ cards: ["1:a1-001", "1:b4a-001", "1:c1-001"] }] }];
+  const decks = [{ lists: [{ cards: ["1:a1-001", "1:b4a-001", "1:c1-001", "1:c1-002", "1:c1-003", "1:c1-004", "1:c1-005"] }] }];
   assert.deepStrictEqual(findExpansionPageIssues(dir, expansions, decks), []);
 });
 

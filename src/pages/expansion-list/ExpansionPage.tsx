@@ -155,6 +155,7 @@ const ExpansionPage = () => {
     : null;
   useMarkContentReady(!decksLoading && !!expansions && cardsSettled);
 
+  if (expansions === null) return null;
   if (!expansion || !isListedExpansion(expansion)) return <NotFoundPage />;
   const locale = i18n.language === "en" ? "en-GB" : i18n.language;
   const releaseDate = expansion.release_date

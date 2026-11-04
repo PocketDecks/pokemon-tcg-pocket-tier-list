@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import UserAccount from "../UserAccount";
+import { CONTACT_EMAIL } from "../../app/constants";
 import { useAuth } from "../../contexts/AuthContext";
 import useIsPremium from "../../app/use-is-premium";
 
@@ -12,6 +13,7 @@ vi.mock("react-i18next", () => ({
         {
           "userAccount.title": "User Account",
           "userAccount.signOut": "Sign out",
+          "premium.features.contact.title": "Contact us",
           "a11y.closePopup": "Close panel",
         } as Record<string, string>
       )[key] ?? key,
@@ -57,5 +59,23 @@ describe("UserAccount", () => {
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Ada Lovelace" })).toHaveFocus();
+  });
+
+  it("opens the contact panel as a named dialog, closes it on Escape and returns focus to its trigger", async () => {
+    vi.mocked(useIsPremium).mockReturnValue(true);
+    const user = userEvent.setup();
+    render(<UserAccount />);
+
+    const trigger = screen.getByRole("button", { name: "Contact us" });
+    await user.click(trigger);
+
+    const dialog = screen.getByRole("dialog", { name: "Contact us" });
+    expect(dialog).toHaveAttribute("aria-modal", "true");
+    expect(dialog).toHaveTextContent(CONTACT_EMAIL);
+
+    await user.keyboard("{Escape}");
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
   });
 });

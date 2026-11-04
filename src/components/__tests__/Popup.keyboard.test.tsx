@@ -38,6 +38,20 @@ const Harness = ({ onClose }: { onClose?: () => void }) => {
   );
 };
 
+const PopupWithTrigger = ({ name }: { name: string }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setIsOpen(true)}>
+        {`Open ${name}`}
+      </button>
+      <Popup isOpen={isOpen} header="panel.title" close={() => setIsOpen(false)}>
+        <button type="button">{`${name} inside action`}</button>
+      </Popup>
+    </>
+  );
+};
+
 const CookieNotice = () => (
   <div role="dialog" aria-modal="true" aria-label="Cookie notice">
     <button type="button">Reject all</button>
@@ -356,27 +370,32 @@ describe("Popup keyboard accessibility", () => {
     expect(screen.queryByRole("dialog", { name: "Panel title" })).not.toBeInTheDocument();
   });
 
-  it("leaves focus and Tab alone when several closed popups are mounted", () => {
+  it("restores focus to the trigger on each close and leaves nothing inert or trapping with several popups mounted", async () => {
+    const user = userEvent.setup();
     render(
       <>
+        <PopupWithTrigger name="first" />
+        <PopupWithTrigger name="second" />
+        <PopupWithTrigger name="third" />
         <button type="button">Background action</button>
-        <Popup isOpen={false} header="panel.title" close={() => {}}>
-          <button type="button">First inside action</button>
-        </Popup>
-        <Popup isOpen={false} header="panel.title" close={() => {}}>
-          <button type="button">Second inside action</button>
-        </Popup>
-        <Popup isOpen={false} header="panel.title" close={() => {}}>
-          <button type="button">Third inside action</button>
-        </Popup>
       </>
     );
+    const trigger = screen.getByRole("button", { name: "Open first" });
+
+    for (let round = 0; round < 2; round += 1) {
+      await user.click(trigger);
+      expect(screen.getByRole("dialog", { name: "Panel title" })).toContainElement(
+        document.activeElement as HTMLElement
+      );
+      await user.keyboard("{Escape}");
+
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      expect(trigger).toHaveFocus();
+      expect(document.querySelector("[inert]")).toBeNull();
+    }
 
     const background = screen.getByRole("button", { name: "Background action" });
     background.focus();
-
-    expect(background).toHaveFocus();
-    expect(document.querySelector("[inert]")).toBeNull();
     expect(fireEvent.keyDown(background, { key: "Tab" })).toBe(true);
     expect(background).toHaveFocus();
   });

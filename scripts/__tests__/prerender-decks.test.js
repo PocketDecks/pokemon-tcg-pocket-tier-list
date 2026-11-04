@@ -1,7 +1,7 @@
 // scripts/__tests__/prerender-decks.test.js
 const test = require("node:test");
 const assert = require("node:assert");
-const { renderDeckHtml, friendlyName, slugFor } = require("../prerender-decks");
+const { jobsForLiveDecks, renderDeckHtml, friendlyName, slugFor } = require("../prerender-decks");
 
 const template =
   '<!doctype html><html><head><meta charset="utf-8" />' +
@@ -115,4 +115,28 @@ test("keeps the captured deck list and replaces the captured canonical with the 
   assert.deepStrictEqual(canonicals, [
     '<link rel="canonical" href="https://pocketdecks.top/deck/mega-altaria-ex-b1-102&amp;espeon-b3a-020/">',
   ]);
+});
+
+test("every live deck gets a prerender job, including one whose lists yield no card id", () => {
+  const decks = [
+    { name: "mega-altaria-ex-b1-102&espeon-b3a-020", lists: [{ score: 3, cards: ["2:b1-184"] }] },
+    { name: "garchomp-zz-999", lists: [] },
+  ];
+  const jobs = jobsForLiveDecks(decks, []);
+  assert.deepStrictEqual(
+    jobs.map((job) => job.slug),
+    [slugFor(decks[0].name), slugFor(decks[1].name)]
+  );
+  assert.strictEqual(jobs[0].cardId, "b1-184");
+  assert.strictEqual(jobs[1].cardId, null);
+});
+
+test("a deck without a card id renders in both locales with no lead-card image preload", () => {
+  const [job] = jobsForLiveDecks([{ name: "garchomp-zz-999", lists: [] }], []);
+  for (const locale of ["en", "ja"]) {
+    const html = renderDeckHtml(job, template, locale);
+    assert.ok(html.includes(`<title>${friendlyName(job.name)}`));
+    assert.ok(html.includes(`property="og:image" content="https://pocketdecks.top/og/deck/${job.slug}.png"`));
+    assert.deepStrictEqual(html.match(/<link rel="preload" as="image"[^>]*>/g) ?? [], []);
+  }
 });

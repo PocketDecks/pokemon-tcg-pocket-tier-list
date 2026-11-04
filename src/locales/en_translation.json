@@ -424,5 +424,13 @@
     "loadError": "Card data didn't load. Refresh the page to try again.",
     "allPacks": "Show all packs",
     "breadcrumb": "Breadcrumb"
+  },
+  "loadError": {
+    "title": "Failed to load",
+    "message": "Card scores could not be loaded. Try again.",
+    "retry": "Retry",
+    "errorTitle": "Something went wrong",
+    "errorMessage": "This part of the site failed to load. Reloading usually fixes it. Usually.",
+    "reload": "Reload the page"
   }
 }

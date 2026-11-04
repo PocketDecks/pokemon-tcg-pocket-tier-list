@@ -424,5 +424,13 @@
     "loadError": "Kartendaten konnten nicht geladen werden. Lade die Seite neu, um es erneut zu versuchen.",
     "allPacks": "Alle Pakete anzeigen",
     "breadcrumb": "Navigationspfad"
+  },
+  "loadError": {
+    "title": "Laden fehlgeschlagen",
+    "message": "Kartenscores konnten nicht geladen werden. Erneut versuchen.",
+    "retry": "Erneut versuchen",
+    "errorTitle": "Etwas ist schiefgelaufen",
+    "errorMessage": "Dieser Teil der Website konnte nicht geladen werden. Erneut laden hilft meist. Meist.",
+    "reload": "Seite neu laden"
   }
 }

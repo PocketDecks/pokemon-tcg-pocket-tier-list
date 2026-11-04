@@ -3,6 +3,10 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { Link, MemoryRouter, Route, Routes, useLocation } from "react-router";
 import ErrorBoundary from "../ErrorBoundary";
 
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
+}));
+
 const Boom = (): React.JSX.Element => {
   throw new Error("kaboom");
 };
@@ -38,12 +42,12 @@ describe("ErrorBoundary route recovery", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    expect(screen.getByText("loadError.errorTitle")).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("go healthy"));
 
     expect(screen.getByText("healthy page")).toBeInTheDocument();
-    expect(screen.queryByText("Something went wrong")).not.toBeInTheDocument();
+    expect(screen.queryByText("loadError.errorTitle")).not.toBeInTheDocument();
   });
 
   it("clears the error when resetKeys change", () => {
@@ -53,7 +57,7 @@ describe("ErrorBoundary route recovery", () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    expect(screen.getByText("loadError.errorTitle")).toBeInTheDocument();
 
     rerender(
       <ErrorBoundary resetKeys={["healthy"]}>
@@ -62,7 +66,7 @@ describe("ErrorBoundary route recovery", () => {
     );
 
     expect(screen.getByText("recovered")).toBeInTheDocument();
-    expect(screen.queryByText("Something went wrong")).not.toBeInTheDocument();
+    expect(screen.queryByText("loadError.errorTitle")).not.toBeInTheDocument();
   });
 
   it("keeps the error on a same-route re-render with equal keys", () => {
@@ -77,7 +81,7 @@ describe("ErrorBoundary route recovery", () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    expect(screen.getByText("loadError.errorTitle")).toBeInTheDocument();
 
     throws = false;
     rerender(
@@ -86,7 +90,7 @@ describe("ErrorBoundary route recovery", () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    expect(screen.getByText("loadError.errorTitle")).toBeInTheDocument();
   });
 
   it("keeps the error when resetKeys are unchanged", () => {
@@ -102,6 +106,6 @@ describe("ErrorBoundary route recovery", () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    expect(screen.getByText("loadError.errorTitle")).toBeInTheDocument();
   });
 });

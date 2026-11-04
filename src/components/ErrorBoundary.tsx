@@ -1,5 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from "react";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 
 const Notice = styled.div`
   width: 100%;
@@ -45,26 +46,26 @@ export const LoadingNotice = () => {
 };
 
 const ErrorNotice = () => {
+  const { t } = useTranslation();
   return (
     <Notice role="alert">
-      <Title>Something went wrong</Title>
-      <Message>
-        This part of the site failed to load. Reloading usually fixes it. <i>Usually.</i>
-      </Message>
+      <Title>{t("loadError.errorTitle")}</Title>
+      <Message>{t("loadError.errorMessage")}</Message>
       <RetryButton type="button" onClick={() => window.location.reload()}>
-        Reload the page
+        {t("loadError.reload")}
       </RetryButton>
     </Notice>
   );
 };
 
 export const QueryErrorNotice = ({ onRetry }: { onRetry: () => void }) => {
+  const { t } = useTranslation();
   return (
     <Notice role="alert">
-      <Title>Failed to load</Title>
-      <Message>Card scores could not be loaded. Try again.</Message>
+      <Title>{t("loadError.title")}</Title>
+      <Message>{t("loadError.message")}</Message>
       <RetryButton type="button" onClick={onRetry}>
-        Retry
+        {t("loadError.retry")}
       </RetryButton>
     </Notice>
   );

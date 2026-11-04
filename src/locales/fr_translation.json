@@ -424,5 +424,13 @@
     "loadError": "Les données des cartes n'ont pas pu être chargées. Actualisez la page pour réessayer.",
     "allPacks": "Afficher tous les boosters",
     "breadcrumb": "Fil d'Ariane"
+  },
+  "loadError": {
+    "title": "Échec du chargement",
+    "message": "Les scores de cartes n'ont pas pu être chargés. Réessaie.",
+    "retry": "Réessayer",
+    "errorTitle": "Un problème est survenu",
+    "errorMessage": "Cette partie du site n'a pas pu être chargée. Recharger suffit souvent. Souvent.",
+    "reload": "Recharger la page"
   }
 }

@@ -167,6 +167,10 @@
     "latestExpansionCards": "Carte dall'ultima espansione",
     "latestExpansionCardsAny": "Qualsiasi"
   },
+  "expansionList": {
+    "viewExpansions": "Espansioni",
+    "viewPacks": "Buste"
+  },
   "window": {
     "label": "Periodo",
     "10d": "10 giorni",

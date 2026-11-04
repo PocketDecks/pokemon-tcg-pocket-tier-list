@@ -167,6 +167,10 @@
     "latestExpansionCards": "Cartes de la dernière extension",
     "latestExpansionCardsAny": "Tous"
   },
+  "expansionList": {
+    "viewExpansions": "Extensions",
+    "viewPacks": "Boosters"
+  },
   "window": {
     "label": "Période",
     "10d": "10 jours",

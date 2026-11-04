@@ -167,6 +167,10 @@
     "latestExpansionCards": "Cards from latest expansion",
     "latestExpansionCardsAny": "Any"
   },
+  "expansionList": {
+    "viewExpansions": "Expansions",
+    "viewPacks": "Packs"
+  },
   "window": {
     "label": "Time window",
     "10d": "10 Days",

@@ -167,6 +167,10 @@
     "latestExpansionCards": "최신 확장팩 카드",
     "latestExpansionCardsAny": "모두"
   },
+  "expansionList": {
+    "viewExpansions": "확장팩",
+    "viewPacks": "부스터팩"
+  },
   "window": {
     "label": "집계 기간",
     "10d": "10일",

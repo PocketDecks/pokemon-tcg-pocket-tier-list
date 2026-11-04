@@ -1,9 +1,18 @@
 import type { ExpansionType } from "./use-expansions";
+import { isListedExpansion } from "./expansion-policy.mjs";
 
 interface CardScoreInput {
   set: string;
   pack: string;
   score: number;
+}
+
+export interface ExpansionData {
+  expansionId: string;
+  name: string;
+  packImages: string[];
+  totalScore: number;
+  averageScore: number;
 }
 
 export interface ExpansionPackData {
@@ -56,6 +65,29 @@ const scoreForPack = (
 
   return { total: sharedTotal, count: shared.length };
 };
+
+export const buildExpansionData = (
+  scores: CardScoreInput[],
+  expansions: ExpansionType[]
+): ExpansionData[] =>
+  expansions
+    .filter((expansion) => isListedExpansion(expansion))
+    .flatMap((expansion) => {
+      const packImages = expansion.packs.flatMap((pack) => (pack.image ? [pack.image] : []));
+      const cards = scores.filter((card) => card.set === expansion.id);
+      const totalScore = cards.reduce((sum, card) => sum + card.score, 0);
+      if (packImages.length === 0 || cards.length === 0 || totalScore <= 0) return [];
+      return [
+        {
+          expansionId: expansion.id,
+          name: expansion.name,
+          packImages,
+          totalScore,
+          averageScore: totalScore / cards.length,
+        },
+      ];
+    })
+    .sort((a, b) => b.averageScore - a.averageScore);
 
 export const buildExpansionPackData = (
   scores: CardScoreInput[],

@@ -167,6 +167,10 @@
     "latestExpansionCards": "Cartas de la expansión más reciente",
     "latestExpansionCardsAny": "Cualquiera"
   },
+  "expansionList": {
+    "viewExpansions": "Expansiones",
+    "viewPacks": "Sobres"
+  },
   "window": {
     "label": "Periodo",
     "10d": "10 días",

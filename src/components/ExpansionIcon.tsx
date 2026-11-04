@@ -22,12 +22,13 @@ const CardImage = styled.img`
 
 interface Props {
   image: string;
+  alt: string;
 }
 
-const ExpansionIcon = ({ image }: Props) => {
+const ExpansionIcon = ({ image, alt }: Props) => {
   return (
     <Container>
-      <CardImage src={image} />
+      <CardImage src={image} alt={alt} />
     </Container>
   );
 };

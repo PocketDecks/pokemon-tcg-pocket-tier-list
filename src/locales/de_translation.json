@@ -167,6 +167,10 @@
     "latestExpansionCards": "Karten aus neuester Erweiterung",
     "latestExpansionCardsAny": "Beliebig"
   },
+  "expansionList": {
+    "viewExpansions": "Erweiterungen",
+    "viewPacks": "Booster-Packs"
+  },
   "window": {
     "label": "Zeitfenster",
     "10d": "10 Tage",

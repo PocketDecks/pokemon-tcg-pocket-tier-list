@@ -167,6 +167,10 @@
     "latestExpansionCards": "最新擴充包的卡牌",
     "latestExpansionCardsAny": "任何"
   },
+  "expansionList": {
+    "viewExpansions": "擴充包",
+    "viewPacks": "卡包"
+  },
   "window": {
     "label": "時間範圍",
     "10d": "10 天",

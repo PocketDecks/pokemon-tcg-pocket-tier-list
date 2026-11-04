@@ -167,6 +167,10 @@
     "latestExpansionCards": "最新拡張パックのカード",
     "latestExpansionCardsAny": "任意"
   },
+  "expansionList": {
+    "viewExpansions": "拡張パック",
+    "viewPacks": "ブースターパック"
+  },
   "window": {
     "label": "集計期間",
     "10d": "10日間",

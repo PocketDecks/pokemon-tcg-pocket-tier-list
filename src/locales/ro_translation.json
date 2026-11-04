@@ -167,6 +167,10 @@
     "latestExpansionCards": "Cărți din cea mai recentă expansiune",
     "latestExpansionCardsAny": "Oricare"
   },
+  "expansionList": {
+    "viewExpansions": "Expansiuni",
+    "viewPacks": "Pachete"
+  },
   "window": {
     "label": "Perioadă",
     "10d": "10 zile",

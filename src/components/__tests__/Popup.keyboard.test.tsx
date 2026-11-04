@@ -89,25 +89,31 @@ describe("Popup keyboard accessibility", () => {
     expect(screen.getByRole("button", { name: "Close panel" })).toHaveFocus();
   });
 
-  it("keeps Tab focus inside the dialog, wrapping from the last control to the first", async () => {
+  it("moves Tab through the popup's controls in order, wrapping from the last to the first", async () => {
     const user = userEvent.setup();
     render(<Harness />);
 
-    const dialog = await openPanel(user);
+    await openPanel(user);
+    const expected = ["Inside action", "Close panel"];
     for (let press = 0; press < 10; press += 1) {
       await user.tab();
-      expect(dialog).toContainElement(document.activeElement as HTMLElement);
+      expect(document.activeElement).toBe(
+        screen.getByRole("button", { name: expected[press % 2] })
+      );
     }
   });
 
-  it("keeps Shift+Tab focus inside the dialog, wrapping from the first control to the last", async () => {
+  it("moves Shift+Tab through the popup's controls in reverse, wrapping from the first to the last", async () => {
     const user = userEvent.setup();
     render(<Harness />);
 
-    const dialog = await openPanel(user);
+    await openPanel(user);
+    const expected = ["Inside action", "Close panel"];
     for (let press = 0; press < 10; press += 1) {
       await user.tab({ shift: true });
-      expect(dialog).toContainElement(document.activeElement as HTMLElement);
+      expect(document.activeElement).toBe(
+        screen.getByRole("button", { name: expected[press % 2] })
+      );
     }
   });
 

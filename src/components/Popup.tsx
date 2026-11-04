@@ -17,6 +17,7 @@ const ModalOverlay = styled.div`
 
   @media (max-width: 900px) {
     padding: 1.2rem;
+    padding-bottom: 50vh;
   }
 `;
 
@@ -43,6 +44,7 @@ const ModalContent = styled.div<{ $width?: string }>`
     gap: 1.5rem;
     font-size: 1.1rem;
     line-height: 1.5;
+    max-height: calc(50vh - 2.4rem);
   }
 
   /* Custom scrollbar for better mobile experience */

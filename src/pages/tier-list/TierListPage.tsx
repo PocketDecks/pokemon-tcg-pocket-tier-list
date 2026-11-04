@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { useDecks } from "../../app/use-decks";
 import useFilters from "../../app/use-filters";
 import { latestCoveredExpansion } from "../../app/use-expansions";
@@ -215,12 +215,21 @@ const TierListPage = () => {
         <h2>{t("tierList.heading", { ns: "seo" })}</h2>
         <p>
           {t("tierList.intro", { ns: "seo" })}{" "}
-          {newest && <><LocaleLink to={`/expansion-list/${newest.id}`}>{newest.name}</LocaleLink>{" "}</>}
           <a href="https://limitlesstcg.com/" target="_blank" rel="noopener noreferrer">
             {t("tierList.limitless", { ns: "seo" })}
           </a>{" "}
           {t("tierList.introAfter", { ns: "seo" })}
         </p>
+        {newest && (
+          <p>
+            <Trans
+              i18nKey="tierList.expansionLink"
+              ns="seo"
+              values={{ name: newest.name }}
+              components={[<LocaleLink to={`/expansion-list/${newest.id}`} />]}
+            />
+          </p>
+        )}
 
         <h3>{t("tierList.calcHeading", { ns: "seo" })}</h3>
         <p>{t("tierList.calcBody", { ns: "seo" })}</p>

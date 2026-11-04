@@ -9,7 +9,7 @@ import { fetchCards } from "../../app/cards-api";
 import { expansionPageData } from "../../app/expansion-page-data";
 import { cardThumbUrl, onDeckThumbError } from "../../app/deck-thumb";
 import { deckDisplayName } from "../../app/deck-display";
-import { useLocaleHref } from "../../app/locale-link";
+import { LocaleLink } from "../../app/locale-link";
 import { deckArchetypeSlug } from "../../app/deck-archetype";
 import DeckCard from "../../components/DeckCard";
 import NotFoundPage from "../not-found/NotFoundPage";
@@ -118,9 +118,6 @@ const ExpansionPage = () => {
   const { decks, metaShareBySlug, loading: decksLoading } = useDecks();
   const expansions = useExpansions();
   const { t, i18n } = useTranslation();
-  const tierListHref = useLocaleHref("/tier-list");
-  const homeHref = useLocaleHref("/");
-  const expansionsHref = useLocaleHref("/expansion-list");
   const expansion = expansions?.find((entry) => entry.id === expansionId);
   const allCardsQuery = useQuery({ queryKey: ["cards"], queryFn: fetchCards });
   const rawCards = allCardsQuery.data?.cards ?? [];
@@ -139,9 +136,9 @@ const ExpansionPage = () => {
     <Page>
       <Header>
         <Breadcrumbs aria-label="Breadcrumb">
-          <a href={homeHref}>{t("expansionPage.home")}</a>
+          <LocaleLink to="/">{t("expansionPage.home")}</LocaleLink>
           <BreadcrumbSeparator aria-hidden="true">&gt;</BreadcrumbSeparator>
-          <a href={expansionsHref}>{t("expansionPage.expansions")}</a>
+          <LocaleLink to="/expansion-list">{t("expansionPage.expansions")}</LocaleLink>
           <BreadcrumbSeparator aria-hidden="true">&gt;</BreadcrumbSeparator>
           <span>{expansion.id.toUpperCase()}</span>
         </Breadcrumbs>
@@ -188,7 +185,7 @@ const ExpansionPage = () => {
           <Empty>{t("expansionPage.noDecks")}</Empty>
         )}
       </Section>
-      <Meta><a href={tierListHref}>{t("notFound.backToTierList")}</a></Meta>
+      <Meta><LocaleLink to="/tier-list">{t("notFound.backToTierList")}</LocaleLink></Meta>
     </Page>
   );
 };

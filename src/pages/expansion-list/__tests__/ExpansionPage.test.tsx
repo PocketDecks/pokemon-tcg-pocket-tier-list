@@ -9,7 +9,7 @@ const i18nReady = vi.hoisted(async () => {
   });
 });
 
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { describe, expect, it, vi } from "vitest";
@@ -91,6 +91,8 @@ const renderPage = () => {
       <MemoryRouter initialEntries={["/expansion-list/c1"]}>
         <Routes>
           <Route path="/expansion-list/:expansionId" element={<ExpansionPage />} />
+          <Route path="/" element={<p>Landing marker</p>} />
+          <Route path="/tier-list" element={<p>Tier list marker</p>} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>
@@ -106,6 +108,20 @@ describe("ExpansionPage", () => {
     expect(
       screen.getByText("Cards from Dual Fusion that appear in current tournament decks, and the decks that play them.")
     ).toBeInTheDocument();
+  });
+
+  it("navigates the breadcrumb and back link inside the app", async () => {
+    await i18nReady;
+    renderPage();
+    fireEvent.click(screen.getByRole("link", { name: "Home" }));
+    expect(screen.getByText("Landing marker")).toBeInTheDocument();
+  });
+
+  it("navigates the back-to-tier-list link inside the app", async () => {
+    await i18nReady;
+    renderPage();
+    fireEvent.click(screen.getByRole("link", { name: "Back to the tier list" }));
+    expect(screen.getByText("Tier list marker")).toBeInTheDocument();
   });
 
   it("drops the summary and the current or archive label", async () => {

@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useDecks } from "../../app/use-decks";
 import useFilters from "../../app/use-filters";
 import { latestCoveredExpansion } from "../../app/use-expansions";
-import { useLocaleHref } from "../../app/locale-link";
+import { LocaleLink } from "../../app/locale-link";
 import useIsPremium from "../../app/use-is-premium";
 
 import { SortBy } from "../../components/FilterContext";
@@ -95,7 +95,6 @@ const TierListPage = () => {
   } = useFilters();
   const { t } = useTranslation();
   const newest = latestCoveredExpansion(decks);
-  const expansionHref = useLocaleHref(newest ? `/expansion-list/${newest.id}` : "/expansion-list");
   const isPremium = useIsPremium();
 
   const ready = !loading && !!decks && decks.length > 0;
@@ -216,7 +215,7 @@ const TierListPage = () => {
         <h2>{t("tierList.heading", { ns: "seo" })}</h2>
         <p>
           {t("tierList.intro", { ns: "seo" })}{" "}
-          {newest && <><a href={expansionHref}>{newest.name}</a>{" "}</>}
+          {newest && <><LocaleLink to={`/expansion-list/${newest.id}`}>{newest.name}</LocaleLink>{" "}</>}
           <a href="https://limitlesstcg.com/" target="_blank" rel="noopener noreferrer">
             {t("tierList.limitless", { ns: "seo" })}
           </a>{" "}

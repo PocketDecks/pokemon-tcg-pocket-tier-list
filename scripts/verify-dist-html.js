@@ -168,8 +168,10 @@ const findExpansionPageIssues = (dir = DIST_DIR, expansions = loadExpansions(), 
         issues.push(`${entry}: missing`);
         continue;
       }
+      const html = fs.readFileSync(file, "utf8");
       const expectedRobots = policy.isIndexable(expansion.id) ? "index, follow" : "noindex, follow";
-      issues.push(...hubHtmlIssues(entry, fs.readFileSync(file, "utf8"), expectedRobots, expansion.id.toUpperCase()));
+      issues.push(...hubHtmlIssues(entry, html, expectedRobots, expansion.id.toUpperCase()));
+      if (!html.includes(`"@type":"BreadcrumbList"`)) issues.push(`${entry}: missing BreadcrumbList JSON-LD`);
     }
   }
   return issues;

@@ -518,7 +518,7 @@ test("findExpansionListIssues needs the newest set and rejects deluxe packs", ()
 });
 
 test("expansion page verification requires every listed page and its robots policy", () => {
-  const page = (title, robots, h1, canonical) => `<title>${title}</title><meta name="description" content="${title} cards"><meta name="robots" content="${robots}"><h1>${h1}</h1><link rel="canonical" href="${canonical}">`;
+  const page = (title, robots, h1, canonical) => `<title>${title}</title><meta name="description" content="${title} cards"><meta name="robots" content="${robots}"><h1>${h1}</h1><link rel="canonical" href="${canonical}"><script type="application/ld+json">{"@type":"BreadcrumbList"}</script>`;
   const dir = makeDist({
     "expansion-list/c1/index.html": page("Dual Fusion", "index, follow", "Dual Fusion (C1)", "https://pocketdecks.top/expansion-list/c1/"),
     "ja/expansion-list/c1/index.html": page("デュアルフュージョン", "index, follow", "デュアルフュージョン (C1)", "https://pocketdecks.top/ja/expansion-list/c1/"),
@@ -534,6 +534,16 @@ test("expansion page verification requires every listed page and its robots poli
   ];
   const decks = [{ lists: [{ cards: ["1:a1-001", "1:b4a-001", "1:c1-001"] }] }];
   assert.deepStrictEqual(findExpansionPageIssues(dir, expansions, decks), []);
+});
+
+test("expansion page verification flags a page without BreadcrumbList structured data", () => {
+  const page = (title, robots, h1, canonical) => `<title>${title}</title><meta name="description" content="${title} cards"><meta name="robots" content="${robots}"><h1>${h1}</h1><link rel="canonical" href="${canonical}">`;
+  const dir = makeDist({
+    "expansion-list/c1/index.html": page("Dual Fusion", "index, follow", "Dual Fusion (C1)", "https://pocketdecks.top/expansion-list/c1/"),
+  });
+  const expansions = [{ id: "c1", release_date: "2026-10-29" }];
+  const decks = [{ lists: [{ cards: ["1:c1-001"] }] }];
+  assert.ok(findExpansionPageIssues(dir, expansions, decks).some((issue) => issue.includes("expansion-list/c1/index.html") && issue.includes("BreadcrumbList")));
 });
 
 const cspFirebase = (scriptSrc, extra = []) => ({

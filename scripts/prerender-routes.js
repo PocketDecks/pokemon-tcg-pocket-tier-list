@@ -27,6 +27,7 @@ const DIST_DIR = process.env.BUILD_DIR
   : path.join(ROOT, "dist");
 const { localeRoute, localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
 const { SITE_URL } = require("./meta-stamp");
+const { JA_HOME_LABEL } = require("./deck-friendly-name.mjs");
 const { newestCoveredExpansion } = require("../src/app/expansion-feed.mjs");
 const { isListedExpansion } = require("../src/app/expansion-policy.mjs");
 const { expansionIndexPolicy } = require("../src/app/expansion-index-policy.mjs");
@@ -200,7 +201,25 @@ const alternatesFor = (route) => [
   { hreflang: "x-default", href: urlFor(DEFAULT_LOCALE, route) },
 ];
 
+const expansionBreadcrumb = (locale, route, expansion) => {
+  const translated = locale !== DEFAULT_LOCALE;
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: translated ? JA_HOME_LABEL : "Home", item: localizedUrl(SITE_URL, locale, "/") },
+      { "@type": "ListItem", position: 2, name: translated ? "拡張パック" : "Expansions", item: localizedUrl(SITE_URL, locale, "/expansion-list") },
+      { "@type": "ListItem", position: 3, name: expansion.name, item: urlFor(locale, route) },
+    ],
+  };
+};
+
 const localeJsonLd = (locale, route) => {
+  const expansionMatch = route.match(/^\/expansion-list\/([^/]+)$/);
+  if (expansionMatch) {
+    const expansion = EXPANSIONS.find((entry) => entry.id === expansionMatch[1]);
+    return expansionBreadcrumb(locale, route, expansion);
+  }
   const base = ROUTE_META[route].jsonLd;
   if (locale === DEFAULT_LOCALE) return base;
   return route === "/"

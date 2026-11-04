@@ -69,9 +69,9 @@ test("the Japanese home page carries a WebSite block of its own", () => {
   assert.strictEqual(ja.name, en.name);
 });
 
-test("only the home page carries structured data, in either locale", () => {
+test("only the home page and expansion pages carry structured data, in either locale", () => {
   for (const route of ROUTES) {
-    const expected = route === "/";
+    const expected = route === "/" || route.startsWith("/expansion-list/");
     for (const locale of ["en", "ja"]) {
       assert.strictEqual(
         localeMetaFor(locale, route).jsonLd !== undefined,
@@ -314,4 +314,25 @@ test("expansion titles drop Best and fall back when the full title is too long",
   for (const route of ROUTES.filter((value) => value.startsWith("/expansion-list/"))) {
     assert.doesNotMatch(ROUTE_META[route].title, /Best/);
   }
+});
+
+test("expansion pages carry a BreadcrumbList of Home, Expansions and the set", () => {
+  assert.deepStrictEqual(localeMetaFor("en", "/expansion-list/c1").jsonLd, {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://pocketdecks.top/" },
+      { "@type": "ListItem", position: 2, name: "Expansions", item: "https://pocketdecks.top/expansion-list/" },
+      { "@type": "ListItem", position: 3, name: "Dual Fusion", item: "https://pocketdecks.top/expansion-list/c1/" },
+    ],
+  });
+  assert.deepStrictEqual(localeMetaFor("ja", "/expansion-list/c1").jsonLd.itemListElement.map((item) => item.name), [
+    "ホーム",
+    "拡張パック",
+    "Dual Fusion",
+  ]);
+  assert.strictEqual(
+    localeMetaFor("ja", "/expansion-list/c1").jsonLd.itemListElement[2].item,
+    "https://pocketdecks.top/ja/expansion-list/c1/"
+  );
 });

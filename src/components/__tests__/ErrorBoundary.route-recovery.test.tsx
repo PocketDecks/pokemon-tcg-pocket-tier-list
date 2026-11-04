@@ -24,6 +24,19 @@ const Shell = () => {
 };
 
 describe("ErrorBoundary route recovery", () => {
+  it("resets when resetKeys shrink with an unchanged first key", () => {
+    const errorLog = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const { rerender } = render(<ErrorBoundary resetKeys={["same", "removed"]}><Boom /></ErrorBoundary>);
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+      rerender(<ErrorBoundary resetKeys={["same"]}><p>recovered shorter keys</p></ErrorBoundary>);
+      expect(screen.getByText("recovered shorter keys")).toBeInTheDocument();
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    } finally {
+      errorLog.mockRestore();
+    }
+  });
+
   let consoleError: MockInstance;
 
   beforeEach(() => {

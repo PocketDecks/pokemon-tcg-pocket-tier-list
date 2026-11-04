@@ -1,6 +1,6 @@
 # Top Pocket Decks
 
-> Top Pocket Decks ranks Pokemon TCG Pocket decks and cards from Limitless tournament results. It publishes deck profiles, win rates, matchups and meta statistics, refreshed on a regular schedule as new results come in.
+> Top Pocket Decks ranks Pokemon TCG Pocket decks and cards from Limitless tournament results. It publishes deck profiles, win rates, matchups and meta statistics, refreshed four times a week as new results come in.
 
 ## Tier list
 

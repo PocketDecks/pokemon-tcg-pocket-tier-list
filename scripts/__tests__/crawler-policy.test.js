@@ -86,6 +86,7 @@ test("llms.txt opens with an H1 site name and a one-paragraph summary", () => {
   assert.strictEqual(heading, "# Top Pocket Decks");
   assert.strictEqual(blank, "");
   assert.match(summary, /^> .*Limitless/);
+  assert.match(summary, /refreshed four times a week as new results come in\.$/);
   const blocks = read(PUBLIC_DIR, "llms.txt").split(/^## /m)[0].trim().split(/\n\s*\n/);
   assert.strictEqual(blocks.length, 2);
 });

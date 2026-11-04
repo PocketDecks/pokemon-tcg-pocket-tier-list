@@ -15,7 +15,11 @@ const AI_SEARCH_BOTS = [
   "Perplexity-User",
   "Claude-SearchBot",
   "Claude-User",
+  "DuckAssistBot",
+  "MistralAI-Index",
+  "Kimi-SearchBot",
 ];
+const NEVER_LISTED = ["Applebot", "facebookexternalhit", "Bravebot", "OAI-AdsBot"];
 const TRAINING_CRAWLERS = [
   "GPTBot",
   "ClaudeBot",
@@ -23,6 +27,7 @@ const TRAINING_CRAWLERS = [
   "Google-Extended",
   "Bytespider",
   "meta-externalagent",
+  "Applebot-Extended",
 ];
 
 const read = (...segments) => fs.readFileSync(path.join(...segments), "utf8");
@@ -67,6 +72,12 @@ test("robots.txt gives the AI search and user-triggered bots their own allow gro
 test("robots.txt keeps every training crawler disallowed", () => {
   for (const bot of TRAINING_CRAWLERS) {
     assert.deepStrictEqual(groupFor(bot)?.rules, [{ field: "disallow", value: "/" }], bot);
+  }
+});
+
+test("robots.txt leaves the never-listed agents to the wildcard allowance", () => {
+  for (const agent of NEVER_LISTED) {
+    assert.strictEqual(groupFor(agent), undefined, agent);
   }
 });
 

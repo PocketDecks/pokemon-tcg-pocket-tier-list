@@ -12,6 +12,7 @@ export interface CardScoreType extends CardType {
 
 interface UseCardsOptions {
   ignoreExpansionFilter?: boolean;
+  ignoreCollection?: boolean;
 }
 
 const useCards = (amount: number = 30, options: UseCardsOptions = {}): CardScoreType[] | null => {
@@ -35,7 +36,8 @@ const useCards = (amount: number = 30, options: UseCardsOptions = {}): CardScore
 
   if (!cardData || !cards) return null;
 
-  const collectedCounts = collected.reduce<Record<string, number>>((acc, id) => {
+  const ownedIds: string[] = options.ignoreCollection ? [] : collected;
+  const collectedCounts = ownedIds.reduce<Record<string, number>>((acc, id) => {
     acc[id] = (acc[id] || 0) + 1;
     return acc;
   }, {});
@@ -43,7 +45,7 @@ const useCards = (amount: number = 30, options: UseCardsOptions = {}): CardScore
   const sortedCards = cards
       .filter((card: CardScoreType) => {
         const { id, count } = parseScoreRef(card.name);
-        return count - (collectedCounts[id] || 0) > 0;
+        return options.ignoreCollection || count - (collectedCounts[id] || 0) > 0;
       })
       .sort((a: CardScoreType, b: CardScoreType) => b.score - a.score);
 

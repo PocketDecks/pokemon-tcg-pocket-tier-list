@@ -4,6 +4,7 @@ import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 import ExpansionListPage from "../ExpansionListPage";
 import { FilterContext, SortBy } from "../../../components/FilterContext";
+import { MissingContext } from "../../../components/MissingContext";
 
 vi.mock("../../../app/use-expansions", () => ({
   __esModule: true,
@@ -67,6 +68,31 @@ const filterWithExpansion = (expansion: string | null) => ({
   setLatestExpansionCards: () => {},
 });
 
+const missingWith = (missing: string[]) => ({
+  missing,
+  addMissing: () => {},
+  canUndo: false,
+  undoMissing: () => {},
+  lastRemovedId: null,
+});
+
+const renderWithMarks = (path: string, marks: string[]) => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
+  queryClient.setQueryData(["cards"], { cards });
+  queryClient.setQueryData(["card-scores"], scores);
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <FilterContext.Provider value={filterWithExpansion(null) as never}>
+        <MissingContext.Provider value={missingWith(marks) as never}>
+          <MemoryRouter initialEntries={[path]}>
+            <ExpansionListPage />
+          </MemoryRouter>
+        </MissingContext.Provider>
+      </FilterContext.Provider>
+    </QueryClientProvider>
+  );
+};
+
 const renderWithFilter = (path: string, expansion: string | null) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
   queryClient.setQueryData(["cards"], { cards });
@@ -97,4 +123,13 @@ describe("ExpansionListPage with a set chosen on the cards list", () => {
     expect(screen.getByRole("link", { name: "Genetic Apex: Mewtwo" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Team Rocket's Ambition: Booster" })).toBeInTheDocument();
   });
+
+describe("ExpansionListPage with cards marked by a visitor", () => {
+  it("keeps every tile and the same order when a set's only card is marked", () => {
+    const { container } = renderWithMarks("/expansion-list/", ["b4a-001"]);
+
+    const names = Array.from(container.querySelectorAll("a[aria-label]"), (link) => link.getAttribute("aria-label"));
+    expect(names).toEqual(["Team Rocket's Ambition", "Genetic Apex"]);
+  });
+});
 });

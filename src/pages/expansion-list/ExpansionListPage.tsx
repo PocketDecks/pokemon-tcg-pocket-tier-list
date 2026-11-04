@@ -21,7 +21,7 @@ const ExpansionListPage = () => {
   const { t } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");
   const cardsListHref = useLocaleHref("/cards-list");
-  const cards = useCards(1_000_000, { ignoreExpansionFilter: true });
+  const cards = useCards(1_000_000, { ignoreExpansionFilter: true, ignoreCollection: true });
   const expansions = useExpansions();
   const [searchParams, setSearchParams] = useSearchParams();
   const view: ExpansionView = searchParams.get("view") === "packs" ? "packs" : "expansions";

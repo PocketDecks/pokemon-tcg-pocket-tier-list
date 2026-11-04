@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import expansions from "pokemon-tcg-pocket-cards/data/v5/expansions.min.json";
 import decks from "../../../public/data/best-decks.json";
 import { expansionIndexPolicy, MIN_INDEXED_EXPANSION_CARDS } from "../expansion-index-policy.mjs";
+import { newestCoveredExpansion } from "../expansion-feed.mjs";
 
 const setCards = (set: string, count: number, offset = 0) =>
   Array.from({ length: count }, (_, index) => `1:${set}-${String(index + 1 + offset).padStart(3, "0")}`);
@@ -81,5 +82,15 @@ describe("expansion index policy", () => {
     expect(result.isIndexable("b4a")).toBe(false);
     const indexable = expansions.map((expansion) => expansion.id).filter((id) => result.isIndexable(id));
     expect(indexable).toEqual(["b4", "c1"]);
+  });
+});
+
+describe("newest covered expansion keeps any-list coverage", () => {
+  it("names a set found only in a non-best list as the newest covered expansion, but not indexable", () => {
+    const decks = [{ lists: [{ score: 1, cards: setCards("a1", 1) }, { score: 0.2, cards: setCards("c1", 5) }] }];
+    expect(newestCoveredExpansion(LIST, decks)?.id).toBe("c1");
+    const result = expansionIndexPolicy(LIST, decks);
+    expect(result.newest?.id).toBe("a1");
+    expect(result.isIndexable("c1")).toBe(false);
   });
 });

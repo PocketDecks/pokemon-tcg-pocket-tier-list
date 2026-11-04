@@ -1,11 +1,11 @@
-import { coveredCardIdsBySet, newestCoveredExpansion } from "./expansion-feed.mjs";
-import { isListedExpansion } from "./expansion-policy.mjs";
+import { coveredCardIdsBySet } from "./expansion-feed.mjs";
+import { isListedExpansion, newestExpansion } from "./expansion-policy.mjs";
 
 export const MIN_INDEXED_EXPANSION_CARDS = 5;
 
 export const expansionIndexPolicy = (expansions, decks) => {
   const cardsBySet = coveredCardIdsBySet(decks);
-  const newest = newestCoveredExpansion(expansions, decks);
+  const newest = newestExpansion(expansions.filter((expansion) => cardsBySet.has(expansion.id)));
   const ordered = expansions
     .filter((expansion) => isListedExpansion(expansion) && cardsBySet.has(expansion.id) && expansion.release_date)
     .sort((a, b) => b.release_date.localeCompare(a.release_date));

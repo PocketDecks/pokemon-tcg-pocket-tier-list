@@ -1,13 +1,13 @@
 import { newestExpansion } from "./expansion-policy.mjs";
 
+const cardIdOf = (entry) => (typeof entry === "string" ? entry.replace(/^\d+:/, "") : entry?.id);
+
 const setCodeOf = (entry) => {
   const cardId = cardIdOf(entry);
   if (typeof cardId !== "string") return null;
   const dash = cardId.lastIndexOf("-");
   return dash > 0 ? cardId.slice(0, dash) : null;
 };
-
-const cardIdOf = (entry) => (typeof entry === "string" ? entry.replace(/^\d+:/, "") : entry?.id);
 
 export const bestListCards = (deck) => {
   const lists = deck.lists ?? [];
@@ -32,10 +32,12 @@ export const coveredCardIdsBySet = (decks) => {
   return bySet;
 };
 
-export const coveredSetCodes = (decks) => new Set(coveredCardIdsBySet(decks).keys());
-
 export const newestCoveredExpansion = (list, decks) => {
   if (!list || !decks) return null;
-  const covered = coveredSetCodes(decks);
+  const covered = new Set(
+    decks
+      .flatMap((deck) => (deck.lists ?? []).flatMap((entry) => (entry.cards ?? []).map(setCodeOf)))
+      .filter(Boolean)
+  );
   return newestExpansion(list.filter((expansion) => covered.has(expansion.id)));
 };

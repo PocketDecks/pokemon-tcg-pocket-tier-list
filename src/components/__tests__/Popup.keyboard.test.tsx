@@ -37,6 +37,28 @@ const NestedHarness = () => {
   );
 };
 
+const TwoPopupsHarness = () => {
+  const [isOpenA, setIsOpenA] = useState(false);
+  const [isOpenB, setIsOpenB] = useState(false);
+  return (
+    <>
+      <button type="button">Background action</button>
+      <button type="button" onClick={() => setIsOpenA(true)}>
+        Open A
+      </button>
+      <button type="button" onClick={() => setIsOpenB(true)}>
+        Open B
+      </button>
+      <Popup isOpen={isOpenA} header="panel.title" close={() => setIsOpenA(false)}>
+        <button type="button">A inside action</button>
+      </Popup>
+      <Popup isOpen={isOpenB} header="inner.title" close={() => setIsOpenB(false)}>
+        <button type="button">B inside action</button>
+      </Popup>
+    </>
+  );
+};
+
 const Harness = ({ onClose }: { onClose?: () => void }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -310,6 +332,26 @@ describe("Popup keyboard accessibility", () => {
     expect(screen.queryByRole("dialog", { name: "Inner panel" })).not.toBeInTheDocument();
     expect(screen.getByRole("dialog", { name: "Panel title" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Open inner" })).toHaveFocus();
+  });
+
+  it("keeps the background inert until the last of several open popups closes", () => {
+    render(<TwoPopupsHarness />);
+    const background = screen.getByRole("button", { name: "Background action" });
+
+    fireEvent.click(screen.getByRole("button", { name: "Open A" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open B" }));
+    const dialogA = screen.getByRole("dialog", { name: "Panel title" });
+    fireEvent.click(within(dialogA).getByRole("button", { name: "Close panel" }));
+
+    expect(screen.queryByRole("dialog", { name: "Panel title" })).not.toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Inner panel" })).toBeInTheDocument();
+    expect(background.closest("[inert]")).not.toBeNull();
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(background.closest("[inert]")).toBeNull();
+    expect(document.querySelector("[inert]")).toBeNull();
   });
 
   it("returns focus to a trigger that was pressed but not focused, as Safari does", () => {

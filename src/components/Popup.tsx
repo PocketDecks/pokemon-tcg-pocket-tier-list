@@ -165,23 +165,44 @@ const otherModalFocusables = (dialog: HTMLElement) => {
 const hasOpenModal = (element: Element) =>
   element.matches('[aria-modal="true"]') || element.querySelector('[aria-modal="true"]') !== null;
 
+type InertClaim = { count: number; previous: string | null };
+
+const inertClaims = new Map<Element, InertClaim>();
+
+const claimInert = (element: Element) => {
+  const claim = inertClaims.get(element);
+  if (claim) {
+    claim.count += 1;
+    return;
+  }
+  inertClaims.set(element, { count: 1, previous: element.getAttribute("inert") });
+  element.setAttribute("inert", "");
+};
+
+const releaseInert = (element: Element) => {
+  const claim = inertClaims.get(element);
+  if (!claim) return;
+  claim.count -= 1;
+  if (claim.count > 0) return;
+  inertClaims.delete(element);
+  if (claim.previous === null) element.removeAttribute("inert");
+  else element.setAttribute("inert", claim.previous);
+};
+
 const makeOutsideInert = (target: Element) => {
-  const previous: Array<[Element, string | null]> = [];
+  const claimed: Element[] = [];
   let node: Element = target;
   while (node.parentElement) {
     const parent: Element = node.parentElement;
     for (const sibling of Array.from(parent.children)) {
       if (sibling === node || hasOpenModal(sibling)) continue;
-      previous.push([sibling, sibling.getAttribute("inert")]);
-      sibling.setAttribute("inert", "");
+      claimInert(sibling);
+      claimed.push(sibling);
     }
     node = parent;
   }
   return () => {
-    for (const [element, value] of previous.reverse()) {
-      if (value === null) element.removeAttribute("inert");
-      else element.setAttribute("inert", value);
-    }
+    for (const element of claimed) releaseInert(element);
   };
 };
 

@@ -67,7 +67,7 @@ const ExpansionListPage = () => {
                   : `/expansion-list/${data.expansionId}`;
               return (
                 <LocaleLink to={to} aria-label={name}>
-                  <ExpansionIcon image={data.packImage} alt={name} />
+                  <ExpansionIcon image={data.packImage} alt="" />
                 </LocaleLink>
               );
             }}

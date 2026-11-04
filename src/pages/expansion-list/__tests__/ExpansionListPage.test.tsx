@@ -106,8 +106,12 @@ describe("ExpansionListPage", () => {
     setPacksFixture("c1", "Dual Fusion", ["c1-a.webp", "c1-b.webp"]);
     const { container } = renderPage("/expansion-list/?view=packs");
 
-    expect(screen.getByRole("img", { name: "Dual Fusion: Pack 1" })).toHaveAttribute("src", "c1-a.webp");
-    expect(screen.getByRole("img", { name: "Dual Fusion: Pack 2" })).toHaveAttribute("src", "c1-b.webp");
+    const packOne = screen.getByRole("link", { name: "Dual Fusion: Pack 1" });
+    expect(packOne.querySelector("img")).toHaveAttribute("src", "c1-a.webp");
+    expect(packOne.querySelector("img")).toHaveAttribute("alt", "");
+    const packTwo = screen.getByRole("link", { name: "Dual Fusion: Pack 2" });
+    expect(packTwo.querySelector("img")).toHaveAttribute("src", "c1-b.webp");
+    expect(packTwo.querySelector("img")).toHaveAttribute("alt", "");
     expect(screen.getByRole("link", { name: "Dual Fusion: Pack 1" })).toHaveAttribute("href", "/expansion-list/c1?pack=pack-1");
     expect(screen.getByRole("link", { name: "Dual Fusion: Pack 2" })).toHaveAttribute("href", "/expansion-list/c1?pack=pack-2");
     expect(expansionLinks(container)).toHaveLength(2);

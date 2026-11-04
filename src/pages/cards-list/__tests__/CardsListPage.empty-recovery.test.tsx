@@ -22,7 +22,6 @@ mockUseCards.mockImplementation(() => {
     cards: expansion === "a2a" ? [] : cards,
     error: null,
     retry: vi.fn(),
-    isLoading: false,
   };
 });
 

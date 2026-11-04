@@ -16,7 +16,6 @@ vi.mock("../../../app/use-cards", () => ({
     ],
     error: null,
     retry: vi.fn(),
-    isLoading: false,
   }),
 }));
 

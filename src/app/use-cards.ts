@@ -14,7 +14,6 @@ export interface UseCardsResult {
   cards: CardScoreType[] | null;
   error: Error | null;
   retry: () => void;
-  isLoading: boolean;
 }
 
 interface UseCardsOptions {
@@ -37,7 +36,7 @@ const isValidScoreRow = (row: unknown): row is ScoreRow => {
   if (!/^\d+$/.test(parts[0])) return false;
   if (!parts[parts.length - 2]) return false;
   if (!/^\d{1,3}$/.test(parts[parts.length - 1])) return false;
-  return Number.isFinite(candidate.score) && candidate.score >= 0 && Number.isFinite(candidate.popularity);
+  return typeof candidate.score === "number" && candidate.score >= 0 && Number.isFinite(candidate.popularity);
 };
 
 export const parseCardScores = (payload: unknown): ScoreRow[] => {
@@ -69,7 +68,6 @@ const useCards = (amount: number = 30, options: UseCardsOptions = {}): UseCardsR
     data: cardsPayload,
     error: cardsError,
     refetch: refetchCards,
-    isPending: cardsPending,
   } = useQuery({
     queryKey: ["cards"],
     queryFn: fetchCards,
@@ -80,7 +78,6 @@ const useCards = (amount: number = 30, options: UseCardsOptions = {}): UseCardsR
     data: cards,
     error: scoresError,
     refetch: refetchScores,
-    isPending: scoresPending,
   } = useQuery({
     queryKey: ["card-scores"],
     queryFn: fetchCardScores,
@@ -97,7 +94,6 @@ const useCards = (amount: number = 30, options: UseCardsOptions = {}): UseCardsR
       cards: null,
       error: error as Error | null,
       retry,
-      isLoading: !error && (cardsPending || scoresPending),
     };
   }
 
@@ -156,7 +152,7 @@ const useCards = (amount: number = 30, options: UseCardsOptions = {}): UseCardsR
       .slice(0, amount)
       .sort((a, b) => b.score - a.score);
 
-  return { cards: ranked, error: null, retry, isLoading: false };
+  return { cards: ranked, error: null, retry };
 };
 
 export default useCards;

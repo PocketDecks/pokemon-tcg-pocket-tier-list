@@ -12,7 +12,6 @@ vi.mock("../../../app/use-cards", () => ({
     cards: null,
     error: new Error("Card score request failed with status 503"),
     retry,
-    isLoading: false,
   }),
 }));
 

@@ -26,7 +26,7 @@ const setPacksFixture = (id: string, name: string, images: string[]) => {
 
 vi.mock("../../../app/use-cards", () => ({
   __esModule: true,
-  default: () => ({ cards: state.error ? null : state.cards, error: state.error, retry: vi.fn(), isLoading: false }),
+  default: () => ({ cards: state.error ? null : state.cards, error: state.error, retry: vi.fn() }),
 }));
 
 vi.mock("../../../app/use-expansions", () => ({

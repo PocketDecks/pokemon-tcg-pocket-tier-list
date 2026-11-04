@@ -10,7 +10,6 @@ vi.mock("../../../app/use-cards", () => ({
     cards: null,
     error: new Error("Card score payload is not an array"),
     retry,
-    isLoading: false,
   }),
 }));
 

@@ -50,9 +50,9 @@ const renderDeckHtml = (deck, documentHtml, locale = DEFAULT_LOCALE) => {
   const deckUrl = (other) => localizedUrl(SITE_URL, other, `/deck/${slug}`);
 
   let html = documentHtml;
-  html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${eTitle}</title>`);
   const indexable = locale === DEFAULT_LOCALE;
   html = stampHead(html, {
+    title: localeTitle,
     description: localeDescription,
     canonical,
     lang: locale,

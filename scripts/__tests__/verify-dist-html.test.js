@@ -9,6 +9,7 @@ const {
   findCanonicalIssues,
   findCspHashIssues,
   findShellPageIssues,
+  findTitleCountIssues,
   findUnresolvedAppRoutes,
   findDeckImagePreloadIssues,
   findEmptyDeckRoots,
@@ -570,3 +571,24 @@ test("the shipped firebase.json policy passes a page carrying the template theme
   const firebase = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "firebase.json"), "utf8"));
   assert.deepStrictEqual(findCspHashIssues(dir, firebase), []);
 });
+
+test("flags a built page with two titles and passes a page with one", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "title-count-"));
+  fs.mkdirSync(path.join(dir, "deck", "a"), { recursive: true });
+  fs.writeFileSync(
+    path.join(dir, "deck", "a", "index.html"),
+    "<!doctype html><html><head><title>A</title><title>B</title></head><body></body></html>"
+  );
+  fs.writeFileSync(path.join(dir, "index.html"), "<!doctype html><html><head><title>Home</title></head><body></body></html>");
+  const issues = findTitleCountIssues(dir);
+  assert.equal(issues.length, 1);
+  assert.match(issues[0], /deck.a.index\.html: expected 1 title, found 2/);
+});
+
+test(
+  "every built page has exactly one title",
+  { skip: !fs.existsSync(path.join(__dirname, "..", "..", "dist", "index.html")) && "dist/ is not built" },
+  () => {
+    assert.deepEqual(findTitleCountIssues(), []);
+  }
+);

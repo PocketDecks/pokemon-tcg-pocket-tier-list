@@ -174,3 +174,18 @@ test("sitemap URLs carry trailing slashes and match canonical form", () => {
   assert.ok(xml.includes("<loc>https://pocketdecks.top/deck/hoopa-ex-b4-103/</loc>"));
   assert.ok(!xml.includes("<loc>https://pocketdecks.top/tier-list<"));
 });
+
+test("stamping a title leaves exactly one title in the head", () => {
+  const doubled = `<!doctype html><html><head><title>Hoisted</title><title>Template default</title></head><body></body></html>`;
+  const out = stampHead(doubled, { title: "Mega Greninja ex Deck | Pokemon TCG Pocket" });
+  assert.deepStrictEqual(out.match(/<title\b[^>]*>[\s\S]*?<\/title>/gi), [
+    "<title>Mega Greninja ex Deck | Pokemon TCG Pocket</title>",
+  ]);
+});
+
+test("stamping a title leaves svg titles in the body alone", () => {
+  const withSvg = `<!doctype html><html><head><title>Old</title></head><body><svg><title>icon</title></svg></body></html>`;
+  const out = stampHead(withSvg, { title: "Rampardos デッキ" });
+  assert.ok(out.includes("<svg><title>icon</title></svg>"));
+  assert.deepStrictEqual(out.match(/<head\b[^>]*>[\s\S]*?<\/head>/i)[0].match(/<title\b/gi).length, 1);
+});

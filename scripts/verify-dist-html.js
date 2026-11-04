@@ -156,6 +156,16 @@ const findHubPageIssues = (dir = DIST_DIR, archive = loadArchive()) => {
   });
 };
 
+const HEAD_BLOCK = /<head\b[^>]*>[\s\S]*?<\/head>/i;
+const TITLE_TAG = /<title\b[^>]*>[\s\S]*?<\/title>/gi;
+
+const findTitleCountIssues = (dir = DIST_DIR) =>
+  listHtmlFiles(dir).flatMap((entry) => {
+    const html = fs.readFileSync(path.join(dir, entry), "utf8");
+    const count = (html.match(HEAD_BLOCK)?.[0].match(TITLE_TAG) ?? []).length;
+    return count === 1 ? [] : [`${entry}: expected 1 title, found ${count}`];
+  });
+
 const findShellPageIssues = (dir = DIST_DIR) =>
   [...SHELL_PAGES].flatMap((entry) => {
     const file = path.join(dir, entry);
@@ -431,6 +441,11 @@ const main = () => {
     );
     process.exit(1);
   }
+  const titleIssues = findTitleCountIssues();
+  if (titleIssues.length > 0) {
+    console.error(`Built pages without exactly one title:\n${titleIssues.join("\n")}`);
+    process.exit(1);
+  }
   const canonicalIssues = findCanonicalIssues();
   if (canonicalIssues.length > 0) {
     console.error(
@@ -529,6 +544,7 @@ module.exports = {
   findCanonicalIssues,
   findCspHashIssues,
   findShellPageIssues,
+  findTitleCountIssues,
   findUnresolvedAppRoutes,
   findDeckImagePreloadIssues,
   findEmptyDeckRoots,

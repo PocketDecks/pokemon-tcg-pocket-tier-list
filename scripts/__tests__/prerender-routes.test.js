@@ -182,7 +182,7 @@ test("captures data-backed routes after their pathname is ready", async () => {
   delete global.window;
 });
 
-const { buildRouteMeta, buildJaRouteMeta } = require("../prerender-routes");
+const { buildRouteMeta, buildJaRouteMeta, JA_ROUTE_META } = require("../prerender-routes");
 const { stampHead } = require("../meta-stamp");
 const { newestExpansion } = require("../../src/app/expansion-policy.mjs");
 const expansionList = require("pokemon-tcg-pocket-cards/data/v5/expansions.min.json");
@@ -222,4 +222,21 @@ test("the shipped tier-list metadata names the newest listed expansion", () => {
   const latest = newestExpansion(expansionList);
   assert.match(ROUTE_META["/tier-list"].title, new RegExp(latest.name));
   assert.match(ROUTE_META["/tier-list"].description, new RegExp(latest.name));
+});
+
+test("the homepage title covers best decks and the tier list", () => {
+  assert.strictEqual(
+    buildRouteMeta(STUB)["/"].title,
+    "Pokemon TCG Pocket Best Decks & Tier List | Top Pocket Decks"
+  );
+  assert.strictEqual(JA_ROUTE_META["/"].title.includes("最強デッキ"), true);
+});
+
+test("the homepage description names the newest expansion in both locales", () => {
+  assert.match(buildRouteMeta(STUB)["/"].description, /Test Set/);
+  assert.match(buildJaRouteMeta(STUB)["/"].description, /Test Set/);
+});
+
+test("the homepage keeps its canonical", () => {
+  assert.strictEqual(buildRouteMeta(STUB)["/"].canonical, "https://pocketdecks.top/");
 });

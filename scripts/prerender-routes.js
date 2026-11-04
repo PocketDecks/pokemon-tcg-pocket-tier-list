@@ -46,8 +46,8 @@ const DEFAULT_LOCALE = "en";
 // en-UK. Canonicals always carry the trailing slash the server 301s to.
 const buildRouteMeta = (latest) => ({
   "/": {
-    title: "Pokemon TCG Pocket Deck Tier List | Top Pocket Decks",
-    description: "Pokemon TCG Pocket tier list built from real tournament results. See best deck rankings, win rates and matchups for the current expansion.",
+    title: "Pokemon TCG Pocket Best Decks & Tier List | Top Pocket Decks",
+    description: `Pokemon TCG Pocket best decks and tier list for ${latest.name}, ranked from real tournament results. See win rates and matchups for the current expansion.`,
     canonical: "https://pocketdecks.top/",
     jsonLd: {
       "@context": "https://schema.org",
@@ -100,8 +100,8 @@ const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
 
 const buildJaRouteMeta = (latest) => ({
   "/": {
-    title: "ポケポケ 最強デッキ ティアリスト | Top Pocket Decks",
-    description: "大会結果から作ったポケモンカードゲーム ポケットのティアリストです。最新環境のデッキランキング、勝率、相性を確認できます。",
+    title: "ポケポケ 最強デッキ＆ティアリスト | Top Pocket Decks",
+    description: `${latest.name}の最強デッキとティアリストを大会結果から集計しています。デッキランキング、勝率、相性を確認できます。`,
   },
   "/tier-list": {
     title: `ポケポケ ティアリスト ${latest.name} 最強デッキ | Top Pocket Decks`,

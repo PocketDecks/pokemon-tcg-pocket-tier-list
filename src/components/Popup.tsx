@@ -173,6 +173,8 @@ const makeOutsideInert = (target: Element) => {
   };
 };
 
+let lastPressed: HTMLElement | null = null;
+
 const Popup: React.FC<Props> = ({ isOpen, header, close, children, width }) => {
   const { t } = useTranslation();
   const titleId = useId();
@@ -185,13 +187,25 @@ const Popup: React.FC<Props> = ({ isOpen, header, close, children, width }) => {
   });
 
   useEffect(() => {
+    const remember = (event: PointerEvent) => {
+      lastPressed =
+        event.target instanceof Element
+          ? event.target.closest<HTMLElement>(FOCUSABLE_SELECTOR)
+          : null;
+    };
+    document.addEventListener("pointerdown", remember, true);
+    return () => document.removeEventListener("pointerdown", remember, true);
+  }, []);
+
+  useEffect(() => {
     if (!isOpen) return;
     const overlay = overlayRef.current;
     const dialog = dialogRef.current;
     if (!overlay || !dialog) return;
 
     const active = document.activeElement;
-    const trigger = active instanceof HTMLElement && active !== document.body ? active : null;
+    const trigger =
+      active instanceof HTMLElement && active !== document.body ? active : lastPressed;
     const releaseOutside = makeOutsideInert(overlay);
     const focusFirst = () => (getFocusable(dialog)[0] ?? dialog).focus();
 

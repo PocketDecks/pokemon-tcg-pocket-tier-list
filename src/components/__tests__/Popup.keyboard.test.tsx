@@ -211,6 +211,21 @@ describe("Popup keyboard accessibility", () => {
     expect(screen.getByRole("button", { name: "Open panel" })).toHaveFocus();
   });
 
+  it("returns focus to a trigger that was pressed but not focused, as Safari does", () => {
+    render(<Harness />);
+    const trigger = screen.getByRole("button", { name: "Open panel" });
+
+    fireEvent.pointerDown(trigger);
+    fireEvent.click(trigger);
+    expect(screen.getByRole("dialog", { name: "Panel title" })).toBeInTheDocument();
+    expect(document.activeElement).not.toBe(trigger);
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+  });
+
   it("returns focus to the trigger when closed with the localised close button", async () => {
     const user = userEvent.setup();
     render(<Harness />);

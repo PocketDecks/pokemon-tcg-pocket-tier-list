@@ -158,6 +158,28 @@ describe("useCards score failures", () => {
     });
   });
 
+  it.each([
+
+    ["a negative score", [{ name: "1 Copycat B1 225", score: -0.5, popularity: 0.9 }]],
+    ["a trailing count", [{ name: "2x Copycat B1 225", score: 0.8, popularity: 0.9 }]],
+    ["a negative count", [{ name: "-1 Copycat B1 225", score: 0.8, popularity: 0.9 }]],
+    ["a non-numeric card number", [{ name: "2 b4a abc", score: 0.8, popularity: 0.9 }]],
+  ])("rejects %s", async (_label, rows) => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() => Promise.resolve(jsonResponse(rows, 200)))
+    );
+
+    const { result } = renderCards();
+
+    await waitFor(() => {
+      expect(result.current.error?.message).toBe(
+        "Card score payload contains an invalid row"
+      );
+    });
+    expect(result.current.cards).toBeNull();
+  });
+
   it("accepts every committed score row", () => {
     expect(parseCardScores(committedScores)).toHaveLength(committedScores.length);
   });

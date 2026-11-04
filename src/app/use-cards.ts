@@ -33,9 +33,11 @@ const isValidScoreRow = (row: unknown): row is ScoreRow => {
   const candidate = row as Partial<ScoreRow>;
   if (typeof candidate.name !== "string") return false;
   const parts = candidate.name.split(" ");
-  if (parts.length < 3 || !parts[parts.length - 2]) return false;
-  if (!Number.isFinite(parseInt(parts[0], 10))) return false;
-  return Number.isFinite(candidate.score) && Number.isFinite(candidate.popularity);
+  if (parts.length < 3) return false;
+  if (!/^\d+$/.test(parts[0])) return false;
+  if (!parts[parts.length - 2]) return false;
+  if (!/^\d{1,3}$/.test(parts[parts.length - 1])) return false;
+  return Number.isFinite(candidate.score) && candidate.score >= 0 && Number.isFinite(candidate.popularity);
 };
 
 export const parseCardScores = (payload: unknown): ScoreRow[] => {

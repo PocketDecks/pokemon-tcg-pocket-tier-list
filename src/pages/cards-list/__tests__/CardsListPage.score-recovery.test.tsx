@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router";
 import FilterContextProvider from "../../../components/FilterContext";
+import { useMarkContentReady } from "../../../ads/ContentReadyContext";
 import CardsListPage from "../CardsListPage";
 
 const retry = vi.fn();
@@ -61,5 +62,6 @@ describe("CardsListPage score recovery", () => {
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
 
     expect(retry).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(useMarkContentReady).mock.calls.at(-1)?.[0]).toBe(true);
   });
 });

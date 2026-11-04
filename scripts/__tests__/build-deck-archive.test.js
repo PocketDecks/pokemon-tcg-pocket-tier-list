@@ -183,3 +183,22 @@ test("every committed hub file keeps each peak date inside its variant's sightin
   }
   assert.deepEqual(offenders, []);
 });
+
+test("the core list is the highest-scoring list, not the first", () => {
+  const deck = {
+    name: "Alpha-B1-001",
+    lists: [
+      { cards: ["1:a1-001"], score: 0.2 },
+      { cards: ["2:b1-002"], score: 0.9 },
+    ],
+  };
+  assert.deepEqual(listCardIds(deck), ["2:b1-002"]);
+});
+
+test("lists without scores keep the first list with cards", () => {
+  const deck = {
+    name: "Alpha-B1-001",
+    lists: [{ cards: [] }, { cards: ["1:a1-001"] }, { cards: ["2:b1-002"] }],
+  };
+  assert.deepEqual(listCardIds(deck), ["1:a1-001"]);
+});

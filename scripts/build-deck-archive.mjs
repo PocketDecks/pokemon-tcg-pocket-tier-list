@@ -106,10 +106,19 @@ const legacyCardId = (card) => {
   return code ? `${count}:${code}-${number.padStart(3, "0")}` : null;
 };
 
+const bestList = (deck) => {
+  const lists = Array.isArray(deck.lists)
+    ? deck.lists.filter((list) => Array.isArray(list?.cards) && list.cards.length > 0)
+    : [];
+  if (lists.length === 0) return undefined;
+  const scored = lists.filter((list) => typeof list.score === "number");
+  return scored.length === 0 ? lists[0] : scored.reduce((top, list) => (list.score > top.score ? list : top));
+};
+
 export const listCardIds = (deck) => {
-  const first = Array.isArray(deck.lists) ? deck.lists[0] : undefined;
-  if (first && Array.isArray(first.cards)) {
-    return first.cards.every((card) => typeof card === "string" && CARD_ID.test(card)) ? [...first.cards] : [];
+  const best = bestList(deck);
+  if (best !== undefined) {
+    return best.cards.every((card) => typeof card === "string" && CARD_ID.test(card)) ? [...best.cards] : [];
   }
   if (Array.isArray(deck.cards)) {
     const ids = deck.cards.map(legacyCardId);

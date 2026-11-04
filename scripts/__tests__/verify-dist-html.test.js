@@ -631,10 +631,9 @@ const cspFirebase = (scriptSrc, extra = []) => ({
       {
         source: "**",
         headers: [
-          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
           ...(scriptSrc === null
             ? []
-            : [{ key: "Content-Security-Policy-Report-Only", value: `default-src 'self'; script-src 'self' ${scriptSrc}` }]),
+            : [{ key: "Content-Security-Policy", value: `default-src 'self'; script-src 'self' ${scriptSrc}; frame-ancestors 'none'` }]),
           ...extra,
         ],
       },
@@ -660,16 +659,16 @@ test("flags a hash placed in another directive instead of script-src", () => {
   const body = "window.x=1;";
   const dir = makeDist({ "index.html": inlineHtml(body) });
   const firebase = cspFirebase("");
-  firebase.hosting.headers[0].headers[1].value += `; style-src ${sha(body)}`;
+  firebase.hosting.headers[0].headers[0].value += `; style-src ${sha(body)}`;
   assert.deepStrictEqual(findCspHashIssues(dir, firebase), [
     `index.html: ${sha(body)} is not in script-src`,
   ]);
 });
 
-test("flags a missing Report-Only header", () => {
+test("flags a missing enforced header", () => {
   const dir = makeDist({ "index.html": inlineHtml("x") });
   assert.deepStrictEqual(findCspHashIssues(dir, cspFirebase(null)), [
-    "firebase.json: no Content-Security-Policy-Report-Only header on **",
+    "firebase.json: no Content-Security-Policy header on **",
   ]);
 });
 

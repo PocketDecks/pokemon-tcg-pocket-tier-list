@@ -10,7 +10,7 @@ const {
   firstBestListCardId,
 } = require("./deck-thumbs.mjs");
 const { resolveHosting } = require("./firebase-hosting");
-const { inlineScriptHashes, parsePolicy, reportOnlyPolicy } = require("./content-security-policy");
+const { inlineScriptHashes, parsePolicy, enforcedPolicy } = require("./content-security-policy");
 const { DELUXE_EXPANSION_IDS, expansionCode, newestExpansion } = require("../src/app/expansion-policy.mjs");
 const { expansionIndexPolicy } = require("../src/app/expansion-index-policy.mjs");
 const { shouldIndexHub } = require("./deck-archive-policy.mjs");
@@ -471,9 +471,9 @@ const findCspHashIssues = (
   dir = DIST_DIR,
   firebase = JSON.parse(fs.readFileSync(FIREBASE_CONFIG_PATH, "utf8"))
 ) => {
-  const policy = reportOnlyPolicy(firebase);
+  const policy = enforcedPolicy(firebase);
   if (policy === undefined) {
-    return ["firebase.json: no Content-Security-Policy-Report-Only header on **"];
+    return ["firebase.json: no Content-Security-Policy header on **"];
   }
   const allowed = new Set(parsePolicy(policy).get("script-src") ?? []);
   return listHtmlFiles(dir).flatMap((entry) =>

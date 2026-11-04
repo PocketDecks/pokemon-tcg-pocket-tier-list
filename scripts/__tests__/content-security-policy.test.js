@@ -7,19 +7,20 @@ const { pathToFileURL } = require("node:url");
 const {
   inlineScriptHashes,
   parsePolicy,
-  reportOnlyPolicy,
+  enforcedPolicy,
 } = require("../content-security-policy");
 
 const ROOT = path.join(__dirname, "..", "..");
 const firebase = JSON.parse(fs.readFileSync(path.join(ROOT, "firebase.json"), "utf8"));
 const headers = firebase.hosting.headers.find((rule) => rule.source === "**").headers;
-const policy = parsePolicy(reportOnlyPolicy(firebase));
+const policy = parsePolicy(enforcedPolicy(firebase));
 const scriptSources = policy.get("script-src");
 
-test("ships the enforced frame-ancestors header and a Report-Only policy beside it", () => {
+test("ships the enforced Content-Security-Policy header", () => {
   const enforced = headers.find((header) => header.key === "Content-Security-Policy");
-  assert.strictEqual(enforced?.value, "frame-ancestors 'none'");
-  assert.ok(reportOnlyPolicy(firebase), "Content-Security-Policy-Report-Only is missing");
+  assert.ok(enforced, "Content-Security-Policy header is missing");
+  assert.ok(!headers.some((header) => header.key === "Content-Security-Policy-Report-Only"), "Report-Only header must not ship beside the enforced policy");
+  assert.deepStrictEqual(policy.get("frame-ancestors"), ["'none'"]);
 });
 
 test("restricts every resource type with explicit directives", () => {
@@ -86,4 +87,13 @@ test("allows the AdSense traffic quality frames and scripts seen in the preview 
   assert.ok(policy.get("frame-src").includes("https://www.google.com"));
   assert.ok(policy.get("script-src").includes("https://*.adtrafficquality.google"));
   assert.ok(policy.get("connect-src").includes("https://*.adtrafficquality.google"));
+});
+
+test("allows the consent and font hosts seen in the live PageSpeed run", () => {
+  assert.ok(policy.get("connect-src").includes("https://analytics.google.com"));
+  assert.ok(policy.get("script-src").includes("https://fundingchoicesmessages.google.com"));
+  assert.ok(policy.get("connect-src").includes("https://fundingchoicesmessages.google.com"));
+  assert.ok(policy.get("frame-src").includes("https://fundingchoicesmessages.google.com"));
+  assert.ok(policy.get("style-src").includes("https://fonts.googleapis.com"));
+  assert.ok(policy.get("font-src").includes("https://fonts.gstatic.com"));
 });

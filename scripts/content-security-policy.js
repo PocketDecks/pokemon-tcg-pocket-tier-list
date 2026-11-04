@@ -1,6 +1,6 @@
 const { createHash } = require("node:crypto");
 
-const REPORT_ONLY_HEADER = "Content-Security-Policy-Report-Only";
+const CSP_HEADER = "Content-Security-Policy";
 const EXECUTABLE_TYPES = new Set(["", "module", "text/javascript", "application/javascript"]);
 
 const hashSource = (body) =>
@@ -26,9 +26,9 @@ const parsePolicy = (value) =>
       .map(([name, ...sources]) => [name, sources])
   );
 
-const reportOnlyPolicy = (firebase) =>
+const enforcedPolicy = (firebase) =>
   firebase.hosting.headers
     .find((rule) => rule.source === "**")
-    ?.headers.find((header) => header.key === REPORT_ONLY_HEADER)?.value;
+    ?.headers.find((header) => header.key === CSP_HEADER)?.value;
 
-module.exports = { REPORT_ONLY_HEADER, inlineScriptHashes, parsePolicy, reportOnlyPolicy };
+module.exports = { CSP_HEADER, inlineScriptHashes, parsePolicy, enforcedPolicy };

@@ -4,9 +4,19 @@ import { cleanup } from "@testing-library/react";
 
 afterEach(cleanup);
 
+const isRenderedInTree = (element: Element, options?: CheckVisibilityOptions) => {
+  for (let node: Element | null = element; node; node = node.parentElement) {
+    if (node.hasAttribute("hidden")) return false;
+    const style = getComputedStyle(node);
+    if (style.display === "none") return false;
+    if (options?.visibilityProperty && style.visibility === "hidden") return false;
+  }
+  return true;
+};
+
 if (typeof Element.prototype.checkVisibility !== "function") {
-  Element.prototype.checkVisibility = function checkVisibility(this: Element) {
-    return !this.closest("[hidden]") && getComputedStyle(this).display !== "none";
+  Element.prototype.checkVisibility = function checkVisibility(options?: CheckVisibilityOptions) {
+    return isRenderedInTree(this, options);
   };
 }
 

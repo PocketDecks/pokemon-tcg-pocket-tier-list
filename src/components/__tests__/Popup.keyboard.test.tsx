@@ -286,6 +286,23 @@ describe("Popup keyboard accessibility", () => {
     expect(screen.getByRole("button", { name: "Open panel" })).toHaveFocus();
   });
 
+  it("skips a control inside a display:none wrapper when Shift+Tab wraps", async () => {
+    const user = userEvent.setup();
+    render(
+      <Popup isOpen header="panel.title" close={() => {}}>
+        <button type="button">Visible action</button>
+        <div style={{ display: "none" }}>
+          <button type="button">Wrapped action</button>
+        </div>
+      </Popup>
+    );
+
+    expect(screen.getByRole("button", { name: "Close panel" })).toHaveFocus();
+    await user.tab({ shift: true });
+
+    expect(screen.getByRole("button", { name: "Visible action" })).toHaveFocus();
+  });
+
   it("skips a hidden last control when Shift+Tab wraps into the popup", async () => {
     const user = userEvent.setup();
     render(

@@ -33,12 +33,13 @@ const fixtures = vi.hoisted(() => {
   });
   const higher = card("c1-001", "Higher");
   const lower = card("c1-002", "Lower");
+  const gengar = card("c1-010", "Gengar ex");
   const list = (cards: unknown[]) => ({ cards, score: 1, strength: 1, energyIds: [], deckCode: null });
   const deck = {
     id: "mega-lucario-ex",
     name: "mega-lucario-ex-c1-001",
-    lists: [list([higher, lower])],
-    bestList: list([higher, lower]),
+    lists: [list([higher, lower, gengar])],
+    bestList: list([higher, lower, gengar]),
     score: 1,
     popularity: 1,
     strength: 1,
@@ -65,7 +66,7 @@ const fixtures = vi.hoisted(() => {
       },
     },
     expansions: [{ id: "c1", name: "Dual Fusion", release_date: "2026-10-29", packs: [] }],
-    cards: [higher, lower],
+    cards: [higher, lower, gengar],
   };
 });
 
@@ -144,6 +145,17 @@ describe("ExpansionPage", () => {
     expect(screen.getAllByText(/%/)).toHaveLength(1);
     expect(screen.getByText("10.0%")).toBeInTheDocument();
     expect(screen.queryByText(/movement/i)).toBeNull();
+  });
+
+  it("links a card with an archetype hub to that hub", () => {
+    renderPage();
+    expect(screen.getByRole("link", { name: "Gengar ex" })).toHaveAttribute("href", "/deck/gengar-ex");
+  });
+
+  it("leaves a card without an archetype hub as a plain image", () => {
+    renderPage();
+    expect(screen.queryByRole("link", { name: "Lower" })).toBeNull();
+    expect(screen.getByRole("img", { name: "Lower" })).toBeInTheDocument();
   });
 
   it("names each card beneath its image and omits the meta movement line", () => {

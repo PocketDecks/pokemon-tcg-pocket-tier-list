@@ -10,6 +10,7 @@ import { expansionPageData } from "../../app/expansion-page-data";
 import { cardThumbUrl, onDeckThumbError } from "../../app/deck-thumb";
 import { deckDisplayName } from "../../app/deck-display";
 import { LocaleLink } from "../../app/locale-link";
+import { cardHubFor } from "../../app/card-hub";
 import { deckArchetypeSlug } from "../../app/deck-archetype";
 import DeckCard from "../../components/DeckCard";
 import NotFoundPage from "../not-found/NotFoundPage";
@@ -65,6 +66,21 @@ const CardImage = styled.img`
   display: block;
   width: 100%;
   height: auto;
+  border-radius: 0.6rem;
+  transition: box-shadow 150ms ease-out;
+`;
+const CardLink = styled(LocaleLink)`
+  display: grid;
+  gap: 0.8rem;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 0.6rem;
+
+  &:hover ${CardImage},
+  &:focus-visible ${CardImage} {
+    box-shadow: 0 0 0 2px var(--focus), 0 0 1.6rem var(--accent-shadow);
+  }
 `;
 const CardName = styled.span`
   color: var(--text-muted);
@@ -153,8 +169,9 @@ const ExpansionPage = () => {
         <SectionTitle>{t("expansionPage.cardsHeading")}</SectionTitle>
         {data?.cards.length ? (
           <CardGrid>
-            {data.cards.map((card) => (
-              <CardItem key={card.id}>
+            {data.cards.map((card) => {
+              const hub = cardHubFor(card);
+              const image = (
                 <CardImage
                   src={cardThumbUrl(card.id, 240)}
                   width={240}
@@ -163,9 +180,24 @@ const ExpansionPage = () => {
                   loading="lazy"
                   onError={onDeckThumbError(card.image)}
                 />
-                <CardName>{card.name}</CardName>
-              </CardItem>
-            ))}
+              );
+              const name = <CardName>{card.name}</CardName>;
+              return (
+                <CardItem key={card.id}>
+                  {hub ? (
+                    <CardLink to={`/deck/${hub}`} aria-label={card.name}>
+                      {image}
+                      {name}
+                    </CardLink>
+                  ) : (
+                    <>
+                      {image}
+                      {name}
+                    </>
+                  )}
+                </CardItem>
+              );
+            })}
           </CardGrid>
         ) : (
           <Empty>{t("expansionPage.noCards")}</Empty>

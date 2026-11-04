@@ -68,6 +68,7 @@ const fixtures = vi.hoisted(() => {
     expansions: [
       { id: "c1", name: "Dual Fusion", release_date: "2026-10-29", packs: [] },
       { id: "b4a", name: "Team Rocket's Ambition", release_date: "2026-08-27", packs: [] },
+      { id: "b4b", name: "Deluxe Pack: Mega", release_date: "2026-09-30", packs: [] },
     ],
     cards: [higher, lower, gengar],
   };
@@ -180,5 +181,12 @@ describe("ExpansionPage", () => {
   it("lists each live deck as a row with its name beside the card", () => {
     renderPage();
     expect(screen.getByText("Mega Lucario ex").closest("li")).not.toBeNull();
+  });
+});
+
+describe("ExpansionPage unlisted ids", () => {
+  it("renders the not-found page for a deluxe expansion id", () => {
+    renderPage("/expansion-list/b4b");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Page not found");
   });
 });

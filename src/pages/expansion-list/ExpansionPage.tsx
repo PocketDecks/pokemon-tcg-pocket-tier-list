@@ -10,6 +10,7 @@ import { expansionPageData } from "../../app/expansion-page-data";
 import { cardThumbUrl, onDeckThumbError } from "../../app/deck-thumb";
 import { deckDisplayName } from "../../app/deck-display";
 import { LocaleLink } from "../../app/locale-link";
+import { isListedExpansion } from "../../app/expansion-policy.mjs";
 import { cardHubFor } from "../../app/card-hub";
 import { deckArchetypeSlug } from "../../app/deck-archetype";
 import DeckCard from "../../components/DeckCard";
@@ -156,7 +157,7 @@ const ExpansionPage = () => {
     : null;
   useMarkContentReady(!decksLoading && !!expansions && rawCards.length > 0);
 
-  if (!expansion) return <NotFoundPage />;
+  if (!expansion || !isListedExpansion(expansion)) return <NotFoundPage />;
   const locale = i18n.language === "en" ? "en-GB" : i18n.language;
   const releaseDate = expansion.release_date
     ? new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${expansion.release_date}T00:00:00Z`))

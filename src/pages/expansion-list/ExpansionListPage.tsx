@@ -8,6 +8,7 @@ import PageTitle from "../../components/PageTitle";
 import ExpansionIcon from "../../components/ExpansionIcon";
 import { buildExpansionPackData } from "../../app/expansion-scores";
 import { useLocaleHref, LocaleLink } from "../../app/locale-link";
+import { isListedExpansion } from "../../app/expansion-policy.mjs";
 
 const ExpansionListPage = () => {
   const { t } = useTranslation();
@@ -28,11 +29,14 @@ const ExpansionListPage = () => {
           items={cards && expansions ? expansionData : null}
           getScore={(d) => d.averageScore}
           getKey={(d) => d.packId}
-          renderItem={(data) => (
-            <LocaleLink to={expansionPageHref(data.expansionId)}>
-              <ExpansionIcon image={data.packImage} />
-            </LocaleLink>
-          )}
+          renderItem={(data) => {
+            const icon = <ExpansionIcon image={data.packImage} />;
+            return isListedExpansion({ id: data.expansionId }) ? (
+              <LocaleLink to={expansionPageHref(data.expansionId)}>{icon}</LocaleLink>
+            ) : (
+              icon
+            );
+          }}
         />
         <SeoContent>
           <h2>{t("expansionList.heading", { ns: "seo" })}</h2>

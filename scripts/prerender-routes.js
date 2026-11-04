@@ -46,12 +46,23 @@ const DEFAULT_LOCALE = "en";
 
 // Titles/descriptions are build-time constants: unique per route, keyword-led,
 // en-UK. Canonicals always carry the trailing slash the server 301s to.
+const TITLE_LIMIT = 75;
+
+const tierListTitle = (latest) => {
+  if (!latest) return "Pokemon TCG Pocket Tier List: Best Decks | Top Pocket Decks";
+  return [
+    `Pokemon TCG Pocket Tier List: Best ${latest.name} Decks | Top Pocket Decks`,
+    `Pokemon TCG Pocket Tier List: ${latest.name} | Top Pocket Decks`,
+    `${latest.name} Tier List | Top Pocket Decks`,
+  ].find((title) => title.length <= TITLE_LIMIT) ?? `${latest.name} Tier List | Top Pocket Decks`;
+};
+
 const buildRouteMeta = (latest) => ({
   "/": {
     title: "Pokemon TCG Pocket Best Decks & Tier List | Top Pocket Decks",
     description: latest
-      ? `Pokemon TCG Pocket best decks and tier list for ${latest.name}, ranked from real tournament results. See win rates and matchups for the current expansion.`
-      : "Pokemon TCG Pocket best decks and tier list, ranked from real tournament results. See win rates and matchups in the current expansion.",
+      ? `Pokemon TCG Pocket best decks and tier list for ${latest.name}, ranked from tournament results. See win rates and matchups.`
+      : "Pokemon TCG Pocket best decks and tier list, ranked from tournament results. See win rates and matchups.",
     canonical: "https://pocketdecks.top/",
     jsonLd: {
       "@context": "https://schema.org",
@@ -61,12 +72,10 @@ const buildRouteMeta = (latest) => ({
     },
   },
   "/tier-list": {
-    title: latest
-      ? `Pokemon TCG Pocket Tier List: Best ${latest.name} Decks | Top Pocket Decks`
-      : "Pokemon TCG Pocket Tier List: Best Decks | Top Pocket Decks",
+    title: tierListTitle(latest),
     description: latest
-      ? `Pokemon TCG Pocket tier list for ${latest.name}, ranked by power score from tournament data and updated four times a week. See each deck's tier, win rate and matchups.`
-      : "Pokemon TCG Pocket tier list, ranked by power score from tournament data and updated four times a week. See each deck's tier, win rate and matchups.",
+      ? `Pokemon TCG Pocket tier list for ${latest.name}, ranked by power score from tournament data, updated four times a week. Tiers, win rates, matchups.`
+      : "Pokemon TCG Pocket tier list, ranked by power score from tournament data, updated four times a week. Tiers, win rates, matchups.",
     canonical: "https://pocketdecks.top/tier-list/",
   },
   "/cards-list": {

@@ -265,7 +265,7 @@ test("tier-list descriptions describe what every visitor sees, with no filter or
   }
   const en = ROUTE_META["/tier-list"].description;
   assert.match(en, /ranked by power score/);
-  assert.match(en, /See each deck's tier, win rate and matchups/);
+  assert.match(en, /Tiers, win rates, matchups/);
   const ja = JA_ROUTE_META["/tier-list"].description;
   assert.match(ja, /パワースコア/);
   assert.match(ja, /ティア/);
@@ -288,4 +288,16 @@ test("shipped copy names the expansion the decks feed covers", () => {
   assert.ok(covered);
   assert.ok(ROUTE_META["/tier-list"].title.includes(covered.name));
   assert.ok(ROUTE_META["/"].description.includes(covered.name));
+});
+
+test("a 30-character expansion name keeps name-bearing titles and descriptions within limits in both locales", () => {
+  const LONG = "Abcdefghijklmnopqrstuvwxyzabcd";
+  assert.strictEqual(LONG.length, 30);
+  const en = buildRouteMeta({ id: "x9", name: LONG });
+  const ja = buildJaRouteMeta({ id: "x9", name: LONG });
+  for (const meta of [en["/"], en["/tier-list"], ja["/"], ja["/tier-list"]]) {
+    assert.ok(meta.title.length >= 15 && meta.title.length <= 75, `title ${meta.title.length}: ${meta.title}`);
+    assert.ok(meta.description.length >= 70 && meta.description.length <= 165, `description ${meta.description.length}: ${meta.description}`);
+  }
+  assert.ok(en["/tier-list"].title.includes(LONG));
 });

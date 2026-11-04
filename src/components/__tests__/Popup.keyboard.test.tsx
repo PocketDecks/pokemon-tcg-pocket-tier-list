@@ -177,6 +177,18 @@ describe("Popup keyboard accessibility", () => {
     expect(screen.getByRole("button", { name: "Reject all" }).closest("[inert]")).toBeNull();
   });
 
+  it("keeps a background element that was already inert inert after the popup closes", async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    const background = screen.getByRole("button", { name: "Background action" });
+    background.setAttribute("inert", "");
+
+    await openPanel(user);
+    await user.keyboard("{Escape}");
+
+    expect(background).toHaveAttribute("inert");
+  });
+
   it("removes the inert state from background controls once closed", async () => {
     const user = userEvent.setup();
     render(<Harness />);

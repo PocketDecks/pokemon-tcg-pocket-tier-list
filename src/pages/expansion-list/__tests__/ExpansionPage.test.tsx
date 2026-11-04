@@ -69,7 +69,6 @@ vi.mock("../../../ads/ContentReadyContext", () => ({
 const renderPage = () => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
   queryClient.setQueryData(["cards"], { cards: fixtures.cards });
-  queryClient.setQueryData(["card-scores"], [{ name: "1 C1 001", score: 0.9 }]);
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={["/expansion-list/c1"]}>

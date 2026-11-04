@@ -125,26 +125,17 @@ const ExpansionPage = () => {
   const expansionsHref = useLocaleHref("/expansion-list");
   const expansion = expansions?.find((entry) => entry.id === expansionId);
   const allCardsQuery = useQuery({ queryKey: ["cards"], queryFn: fetchCards });
-  const cardScoresQuery = useQuery({
-    queryKey: ["card-scores"],
-    queryFn: async () => {
-      const response = await fetch("/data/card-scores.json");
-      if (!response.ok) throw new Error(`card-scores.json: ${response.status}`);
-      return (await response.json()) as { name: string; score: number }[];
-    },
-  });
   const rawCards = allCardsQuery.data?.cards ?? [];
-  const cardScores = cardScoresQuery.data ?? [];
   const coveredIds = new Set(
     (decks ?? []).flatMap((deck) =>
       deck.lists.flatMap((list) => list.cards.map((card) => card.set))
     )
   );
   const policy = expansionIndexPolicy(EXPANSIONS_URL, coveredIds);
-  const data = expansion && rawCards.length > 0 && cardScores.length > 0 && decks
-    ? expansionPageData(expansion, rawCards, cardScores, decks, deckDisplayName)
+  const data = expansion && rawCards.length > 0 && decks
+    ? expansionPageData(expansion, rawCards, decks, deckDisplayName)
     : null;
-  useMarkContentReady(!decksLoading && !!expansions && rawCards.length > 0 && cardScores.length > 0);
+  useMarkContentReady(!decksLoading && !!expansions && rawCards.length > 0);
 
   if (!expansion) return <NotFoundPage />;
   const locale = i18n.language === "en" ? "en-GB" : i18n.language;

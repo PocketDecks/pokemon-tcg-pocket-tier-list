@@ -35,17 +35,16 @@ const deck = (name: string, cards: ReturnType<typeof card>[]) => ({
 });
 
 describe("expansion page data", () => {
-  it("keeps used cards and decks, orders cards by score and decks by display name", () => {
-    const cards = [card("c1-002", "Lower"), card("c1-001", "Higher")];
-    const decks = [deck("zeta", [cards[0]]), deck("alpha", [cards[1]])];
+  it("keeps used cards and decks, orders cards by set number and decks by display name", () => {
+    const cards = [card("c1-010", "Tenth"), card("c1-002", "Second"), card("c1-001", "First")];
+    const decks = [deck("zeta", [cards[0], cards[1]]), deck("alpha", [cards[2]])];
     const result = expansionPageData(
       { id: "c1", name: "Dual Fusion", release_date: "2026-10-29", packs: [] },
       cards,
-      [{ name: "1 C1 002", score: 0.2 }, { name: "1 C1 001", score: 0.9 }],
       decks,
       (value) => value.name
     );
-    expect(result.cards.map((value) => value.id)).toEqual(["c1-001", "c1-002"]);
+    expect(result.cards.map((value) => value.id)).toEqual(["c1-001", "c1-002", "c1-010"]);
     expect(result.decks.map((value) => value.displayName)).toEqual(["alpha", "zeta"]);
   });
 

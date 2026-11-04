@@ -2,7 +2,6 @@ import type { CardType } from "./cards-api";
 import type { ExpansionType } from "./use-expansions";
 import type { FullDeckType } from "./deck-types";
 import type { PipelineTrendRow } from "../types/pipeline-data";
-import { parseScoreRef } from "./card-ref";
 
 export interface ExpansionLiveCard extends CardType {
   cardNumber: string;
@@ -13,15 +12,9 @@ export interface ExpansionLiveDeck {
   displayName: string;
 }
 
-interface CardScore {
-  name: string;
-  score: number;
-}
-
 export const expansionPageData = (
   expansion: ExpansionType,
   cards: CardType[],
-  scores: CardScore[],
   decks: FullDeckType[],
   displayName: (deck: FullDeckType) => string
 ) => {
@@ -41,19 +34,11 @@ export const expansionPageData = (
         .filter((id) => expansionCards.has(id))
     )
   );
-  const scoreByCardId = new Map<string, number>();
-  for (const score of scores) {
-    const { id } = parseScoreRef(score.name);
-    if (!scoreByCardId.has(id)) scoreByCardId.set(id, score.score);
-  }
   return {
     cards: [...used]
       .map((id) => expansionCards.get(id))
       .filter((card): card is ExpansionLiveCard => card !== undefined)
-      .sort((a, b) => {
-        const scoreDifference = (scoreByCardId.get(b.id) ?? 0) - (scoreByCardId.get(a.id) ?? 0);
-        return scoreDifference || a.cardNumber.localeCompare(b.cardNumber, undefined, { numeric: true });
-      }),
+      .sort((a, b) => a.cardNumber.localeCompare(b.cardNumber, undefined, { numeric: true })),
     decks: liveDecks,
   };
 };

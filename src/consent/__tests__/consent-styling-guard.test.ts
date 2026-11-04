@@ -68,4 +68,12 @@ describe("consent styling guard", () => {
     expect(layers).toBeGreaterThanOrEqual(0);
     expect(c15tStyles).toBeGreaterThan(layers);
   });
+
+  it("bounds the banner card to half the viewport on phones and scrolls it", () => {
+    const overrides = sources.find(({ file }) => file.endsWith("consent-overrides.css"));
+    const phone = overrides?.text.slice(overrides.text.indexOf("@media (max-width: 900px)")) ?? "";
+
+    expect(phone).toMatch(/\[data-testid="consent-banner-card"\]\s*\{[^}]*max-height:\s*50vh/);
+    expect(phone).toMatch(/\[data-testid="consent-banner-card"\]\s*\{[^}]*overflow-y:\s*auto/);
+  });
 });

@@ -23,3 +23,10 @@
   --switch-thumb-size: 1.8rem;
   --switch-thumb-size-disabled: 1.4rem;
 }
+
+@media (max-width: 900px) {
+  [data-testid="consent-banner-card"] {
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+}

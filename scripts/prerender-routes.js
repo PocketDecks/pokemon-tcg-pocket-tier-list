@@ -201,14 +201,19 @@ const alternatesFor = (route) => [
   { hreflang: "x-default", href: urlFor(DEFAULT_LOCALE, route) },
 ];
 
+const EN_EXPANSION_COPY = require("../src/locales/en_translation.json").expansionPage;
+const JA_EXPANSION_COPY = require("../src/locales/ja_translation.json").expansionPage;
+
 const expansionBreadcrumb = (locale, route, expansion) => {
   const translated = locale !== DEFAULT_LOCALE;
+  const copy = translated ? JA_EXPANSION_COPY : EN_EXPANSION_COPY;
+  const homeLabel = translated ? JA_EXPANSION_COPY.home ?? JA_HOME_LABEL : EN_EXPANSION_COPY.home;
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: translated ? JA_HOME_LABEL : "Home", item: localizedUrl(SITE_URL, locale, "/") },
-      { "@type": "ListItem", position: 2, name: translated ? "拡張パック" : "Expansions", item: localizedUrl(SITE_URL, locale, "/expansion-list") },
+      { "@type": "ListItem", position: 1, name: homeLabel, item: localizedUrl(SITE_URL, locale, "/") },
+      { "@type": "ListItem", position: 2, name: copy.expansions, item: localizedUrl(SITE_URL, locale, "/expansion-list") },
       { "@type": "ListItem", position: 3, name: expansion.name, item: urlFor(locale, route) },
     ],
   };

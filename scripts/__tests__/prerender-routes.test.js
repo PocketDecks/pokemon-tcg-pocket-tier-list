@@ -336,3 +336,14 @@ test("expansion pages carry a BreadcrumbList of Home, Expansions and the set", (
     "https://pocketdecks.top/ja/expansion-list/c1/"
   );
 });
+
+test("expansion breadcrumb labels equal the locale file values", () => {
+  const en = require("../../src/locales/en_translation.json").expansionPage;
+  const ja = require("../../src/locales/ja_translation.json").expansionPage;
+  const enItems = localeMetaFor("en", "/expansion-list/c1").jsonLd.itemListElement;
+  assert.strictEqual(enItems[0].name, en.home);
+  assert.strictEqual(enItems[1].name, en.expansions);
+  const jaItems = localeMetaFor("ja", "/expansion-list/c1").jsonLd.itemListElement;
+  assert.strictEqual(jaItems[0].name, ja.home);
+  assert.strictEqual(jaItems[1].name, ja.expansions);
+});

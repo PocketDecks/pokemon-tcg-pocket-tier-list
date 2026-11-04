@@ -91,6 +91,7 @@
     "liveStatus": "The top-ranked list has an expected win rate of {{winRate}}% and a {{metaShare}}% meta share in the current tournament data.",
     "liveStatusNoShare": "The top-ranked list has an expected win rate of {{winRate}}% in the current tournament data.",
     "retiredStatus": "{{name}} was last seen on {{lastSeen}} and is not in the current meta for {{expansion}}.",
-    "coreCards": "The most-included cards on the core list are {{cards}}."
+    "coreCards": "The most-included cards on the core list are {{cards}}.",
+    "retiredStatusGeneric": "{{name}} was last seen on {{lastSeen}} and is not in the current meta."
   }
 }

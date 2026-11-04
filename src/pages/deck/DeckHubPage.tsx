@@ -164,8 +164,10 @@ const Action = styled(Link)`
   font-weight: 600;
 `;
 
+const dateLocale = (language: string) => (language === "en" ? "en-GB" : language);
+
 const formatDate = (date: string, language: string) =>
-  new Intl.DateTimeFormat(language, { dateStyle: "medium" }).format(new Date(`${date}T00:00:00Z`));
+  new Intl.DateTimeFormat(dateLocale(language), { dateStyle: "medium" }).format(new Date(`${date}T00:00:00Z`));
 
 const percent = (value: number) => (value * 100).toFixed(1);
 

@@ -299,9 +299,9 @@ describe("DeckHubPage content", () => {
   it("lists every variant of the hub newest first, with its peak share and date", async () => {
     decksState.value = { decks: [liveGreninja], metaShareBySlug: {}, loading: false, error: null };
     renderAt("/deck/mega-greninja-ex");
-    await screen.findByText("Peak 13.0% on Oct 29, 2026");
+    await screen.findByText("Peak 13.0% on 29 Oct 2026");
     const peaks = screen.getAllByText(/^Peak /).map((node) => node.textContent);
-    expect(peaks).toEqual(["Peak 13.0% on Oct 29, 2026", "Peak 4.0% on Dec 1, 2025"]);
+    expect(peaks).toEqual(["Peak 13.0% on 29 Oct 2026", "Peak 4.0% on 1 Dec 2025"]);
   });
 
   it("writes the summary paragraph from the hub data and the live status", async () => {
@@ -313,7 +313,7 @@ describe("DeckHubPage content", () => {
     };
     renderAt("/deck/mega-greninja-ex");
     expect(await screen.findByText(/Mega Greninja ex is tracked on Top Pocket Decks in 2 variants/)).toBeTruthy();
-    expect(screen.getByText(/Its first sighting was on Oct 31, 2025/)).toBeTruthy();
+    expect(screen.getByText(/Its first sighting was on 31 Oct 2025/)).toBeTruthy();
     expect(screen.getByText(/expected win rate of 52\.0% and a 10\.0% meta share/)).toBeTruthy();
   });
 
@@ -321,7 +321,7 @@ describe("DeckHubPage content", () => {
     renderAt("/deck/mega-greninja-ex");
     const expansion = newestExpansion(EXPANSIONS_URL)?.name;
     expect(expansion).toBeTruthy();
-    expect(await screen.findByText(/was last seen on Nov 2, 2026/)).toBeTruthy();
+    expect(await screen.findByText(/was last seen on 2 Nov 2026/)).toBeTruthy();
     expect(document.body.textContent).toContain(`current meta for ${expansion}.`);
   });
 

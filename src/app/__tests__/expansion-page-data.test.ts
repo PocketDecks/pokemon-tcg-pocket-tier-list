@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { expansionPageData, postReleaseTrendRows, trendMovement } from "../expansion-page-data";
+import { expansionPageData } from "../expansion-page-data";
 
 const card = (id: string, name: string, set = "c1") => ({
   id,
@@ -46,14 +46,5 @@ describe("expansion page data", () => {
     );
     expect(result.cards.map((value) => value.id)).toEqual(["c1-001", "c1-002", "c1-010"]);
     expect(result.decks.map((value) => value.displayName)).toEqual(["alpha", "zeta"]);
-  });
-
-  it("omits movement when the expansion has fewer than two post-release rows", () => {
-    const rows = postReleaseTrendRows(
-      [{ date: "2026-10-28", alpha: 1 }, { date: "2026-10-29", alpha: 2 }],
-      "2026-10-29"
-    );
-    expect(rows).toHaveLength(1);
-    expect(trendMovement(rows, ["alpha"])).toEqual({});
   });
 });

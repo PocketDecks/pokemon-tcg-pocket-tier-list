@@ -42,23 +42,29 @@ const fixtures = vi.hoisted(() => {
   };
   return {
     decks: [deck],
+    metaShareBySlug: {
+      [deck.name]: {
+        name: deck.name,
+        share: 0.1,
+        sharePrev: 0.1,
+        delta: 0,
+        windowGames: 100,
+        firstSeen: "2026-10-29",
+        isNew: false,
+      },
+    },
     expansions: [{ id: "c1", name: "Dual Fusion", release_date: "2026-10-29", packs: [] }],
     cards: [higher, lower],
   };
 });
 
 vi.mock("../../../app/use-decks", () => ({
-  useDecks: () => ({ decks: fixtures.decks, metaShareBySlug: {}, loading: false }),
+  useDecks: () => ({ decks: fixtures.decks, metaShareBySlug: fixtures.metaShareBySlug, loading: false }),
 }));
 
 vi.mock("../../../app/use-expansions", () => ({
   __esModule: true,
   default: () => fixtures.expansions,
-}));
-
-vi.mock("../../../app/use-pipeline-trends", () => ({
-  __esModule: true,
-  default: () => ({ rows: [], isLoading: false }),
 }));
 
 vi.mock("../../../ads/ContentReadyContext", () => ({
@@ -88,6 +94,13 @@ describe("ExpansionPage", () => {
     expect(image).toHaveAttribute("width", "240");
     expect(image).toHaveAttribute("height", "335");
     expect(image).toHaveAttribute("loading", "lazy");
+  });
+
+  it("shows the meta share once, on the deck card", () => {
+    renderPage();
+    expect(screen.getAllByText(/%/)).toHaveLength(1);
+    expect(screen.getByText("10.0%")).toBeInTheDocument();
+    expect(screen.queryByText(/movement/i)).toBeNull();
   });
 
   it("names each card beneath its image and omits the meta movement line", () => {

@@ -1,7 +1,6 @@
 import type { CardType } from "./cards-api";
 import type { ExpansionType } from "./use-expansions";
 import type { FullDeckType } from "./deck-types";
-import type { PipelineTrendRow } from "../types/pipeline-data";
 
 export interface ExpansionLiveCard extends CardType {
   cardNumber: string;
@@ -41,30 +40,4 @@ export const expansionPageData = (
       .sort((a, b) => a.cardNumber.localeCompare(b.cardNumber, undefined, { numeric: true })),
     decks: liveDecks,
   };
-};
-
-export const postReleaseTrendRows = (
-  rows: PipelineTrendRow[],
-  releaseDate: string
-): PipelineTrendRow[] =>
-  rows
-    .filter((row) => row.date >= releaseDate)
-    .sort((a, b) => a.date.localeCompare(b.date));
-
-export const trendMovement = (
-  rows: PipelineTrendRow[],
-  deckNames: string[]
-): Record<string, { start: number; end: number }> => {
-  if (rows.length < 2) return {};
-  const first = rows[0];
-  const last = rows.at(-1)!;
-  return Object.fromEntries(
-    deckNames.flatMap((name) => {
-      const start = first[name];
-      const end = last[name];
-      return typeof start === "number" && typeof end === "number"
-        ? [[name, { start, end }] as const]
-        : [];
-    })
-  );
 };

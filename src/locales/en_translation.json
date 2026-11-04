@@ -411,7 +411,6 @@
     "archive": "Historical expansion",
     "cardsHeading": "Cards used in live decks",
     "decksHeading": "Live decks using this expansion",
-    "metaShare": "Meta share movement",
     "noCards": "No cards from this expansion are in live decks.",
     "noDecks": "No live decks use this expansion.",
     "summary": "This {{name}} ({{id}}) page records the set identity, release date, cards from the set that appear in live deck lists, and the current archetype hubs that use those cards. Card entries follow the card-score ordering used by the site. Deck links open the corresponding archetype page. Meta-share movement appears only when historical data contains at least two observations after the release date.",

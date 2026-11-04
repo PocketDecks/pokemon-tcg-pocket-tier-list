@@ -411,7 +411,6 @@
     "archive": "Expansión histórica",
     "cardsHeading": "Cartas usadas en mazos actuales",
     "decksHeading": "Mazos actuales que usan esta expansión",
-    "metaShare": "Evolución del porcentaje del meta",
     "noCards": "Ninguna carta de esta expansión se usa en mazos actuales.",
     "noDecks": "Ningún mazo actual usa esta expansión.",
     "summary": "Esta página de {{name}} ({{id}}) reúne la identidad del set, su fecha de lanzamiento, las cartas del set usadas en mazos actuales y los hubs de arquetipos correspondientes. Las cartas siguen el orden de puntuación del sitio. Los enlaces de mazos abren la página del arquetipo. La evolución del meta solo aparece con al menos dos observaciones históricas posteriores al lanzamiento.",

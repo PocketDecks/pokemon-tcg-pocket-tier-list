@@ -411,7 +411,6 @@
     "archive": "Espansione storica",
     "cardsHeading": "Carte usate nei mazzi attuali",
     "decksHeading": "Mazzi attuali che usano questa espansione",
-    "metaShare": "Andamento della quota meta",
     "noCards": "Nessuna carta di questa espansione è usata nei mazzi attuali.",
     "noDecks": "Nessun mazzo attuale usa questa espansione.",
     "summary": "Questa pagina di {{name}} ({{id}}) raccoglie l'identità del set, la data di uscita, le carte del set usate nei mazzi attuali e gli hub degli archetipi collegati. Le carte seguono l'ordine dei punteggi del sito. I link dei mazzi aprono la pagina dell'archetipo corrispondente. L'andamento del meta appare solo con almeno due osservazioni storiche dopo l'uscita.",

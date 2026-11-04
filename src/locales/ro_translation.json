@@ -411,7 +411,6 @@
     "archive": "Expansiune istorică",
     "cardsHeading": "Cărți folosite în deckurile actuale",
     "decksHeading": "Deckuri actuale care folosesc această expansiune",
-    "metaShare": "Evoluția cotei din metagame",
     "noCards": "Nicio carte din această expansiune nu este folosită în deckurile actuale.",
     "noDecks": "Niciun deck actual nu folosește această expansiune.",
     "summary": "Această pagină pentru {{name}} ({{id}}) prezintă identitatea setului, data lansării, cărțile din set folosite în deckurile actuale și huburile arhetipurilor asociate. Cărțile urmează ordinea scorurilor de pe site. Linkurile deckurilor deschid pagina arhetipului corespunzător. Evoluția metagame-ului apare doar când există cel puțin două observații istorice după lansare.",

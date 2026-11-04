@@ -38,6 +38,12 @@ const Harness = ({ onClose }: { onClose?: () => void }) => {
   );
 };
 
+const CookieNotice = () => (
+  <div role="dialog" aria-modal="true" aria-label="Cookie notice">
+    <button type="button">Reject all</button>
+  </div>
+);
+
 const UnmountingTrigger = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasTrigger, setHasTrigger] = useState(true);
@@ -219,6 +225,89 @@ describe("Popup keyboard accessibility", () => {
 
     fireEvent.click(dialog.parentElement as HTMLElement);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("lets focus stay in another open modal outside the popup", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <Harness />
+        <CookieNotice />
+      </>
+    );
+
+    await openPanel(user);
+    const rejectAll = screen.getByRole("button", { name: "Reject all" });
+    rejectAll.focus();
+
+    expect(rejectAll).toHaveFocus();
+  });
+
+  it("keeps Tab wrapping inside the popup while another modal is mounted", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <Harness />
+        <CookieNotice />
+      </>
+    );
+
+    const dialog = await openPanel(user);
+    for (let press = 0; press < 10; press += 1) {
+      await user.tab();
+      expect(dialog).toContainElement(document.activeElement as HTMLElement);
+    }
+  });
+
+  it("does not close the popup on Escape while focus is in another open modal", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <Harness />
+        <CookieNotice />
+      </>
+    );
+
+    await openPanel(user);
+    const rejectAll = screen.getByRole("button", { name: "Reject all" });
+    rejectAll.focus();
+    expect(rejectAll).toHaveFocus();
+    fireEvent.keyDown(rejectAll, { key: "Escape" });
+
+    expect(screen.getByRole("dialog", { name: "Panel title" })).toBeInTheDocument();
+  });
+
+  it("does not wrap Tab back into the popup while focus is in another open modal", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <Harness />
+        <CookieNotice />
+      </>
+    );
+
+    await openPanel(user);
+    const rejectAll = screen.getByRole("button", { name: "Reject all" });
+    rejectAll.focus();
+
+    expect(rejectAll).toHaveFocus();
+    expect(fireEvent.keyDown(rejectAll, { key: "Tab" })).toBe(true);
+  });
+
+  it("still closes on Escape when focus is on the page outside every dialog", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <Harness />
+        <CookieNotice />
+      </>
+    );
+
+    await openPanel(user);
+    (document.activeElement as HTMLElement).blur();
+    fireEvent.keyDown(document.body, { key: "Escape" });
+
+    expect(screen.queryByRole("dialog", { name: "Panel title" })).not.toBeInTheDocument();
   });
 
   it("leaves focus and Tab alone when several closed popups are mounted", () => {

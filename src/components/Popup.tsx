@@ -129,6 +129,12 @@ const FOCUSABLE_SELECTOR = [
 const getFocusable = (root: HTMLElement) =>
   Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
 
+const isInOtherModal = (target: EventTarget | null, dialog: HTMLElement) => {
+  if (!(target instanceof Element)) return false;
+  const modal = target.closest('[aria-modal="true"]');
+  return modal !== null && modal !== dialog && !dialog.contains(modal);
+};
+
 const hasOpenModal = (element: Element) =>
   element.matches('[aria-modal="true"]') || element.querySelector('[aria-modal="true"]') !== null;
 
@@ -178,11 +184,13 @@ const Popup: React.FC<Props> = ({ isOpen, header, close, children, width }) => {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        if (isInOtherModal(document.activeElement, dialog)) return;
         event.preventDefault();
         closeRef.current();
         return;
       }
       if (event.key !== "Tab") return;
+      if (isInOtherModal(document.activeElement, dialog)) return;
 
       const focusable = getFocusable(dialog);
       if (focusable.length === 0) {
@@ -206,7 +214,13 @@ const Popup: React.FC<Props> = ({ isOpen, header, close, children, width }) => {
     };
 
     const handleFocusIn = (event: FocusEvent) => {
-      if (event.target instanceof Node && !dialog.contains(event.target)) focusFirst();
+      if (
+        event.target instanceof Node &&
+        !dialog.contains(event.target) &&
+        !isInOtherModal(event.target, dialog)
+      ) {
+        focusFirst();
+      }
     };
 
     document.addEventListener("keydown", handleKeyDown);

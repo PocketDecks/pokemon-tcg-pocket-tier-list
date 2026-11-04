@@ -64,6 +64,9 @@
     "@grpc/grpc-js": "1.13.6",
     "source-map-js": "1.2.2",
     "undici": "^8.12.2",
-    "js-yaml": "^4.3.2"
+    "js-yaml": "^4.3.2",
+    "**/eslint/minimatch": "^11.0.1",
+    "**/@eslint/config-array/minimatch": "^11.0.1",
+    "**/@typescript-eslint/typescript-estree/minimatch": "^11.0.1"
   }
 }

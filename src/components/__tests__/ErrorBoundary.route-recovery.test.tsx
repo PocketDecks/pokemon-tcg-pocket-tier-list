@@ -65,6 +65,30 @@ describe("ErrorBoundary route recovery", () => {
     expect(screen.queryByText("Something went wrong")).not.toBeInTheDocument();
   });
 
+  it("keeps the error on a same-route re-render with equal keys", () => {
+    let throws = true;
+    const Recovering = (): React.JSX.Element => {
+      if (throws) throw new Error("kaboom");
+      return <p>recovered</p>;
+    };
+    const { rerender } = render(
+      <ErrorBoundary resetKeys={["crash"]}>
+        <Recovering />
+      </ErrorBoundary>
+    );
+
+    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+
+    throws = false;
+    rerender(
+      <ErrorBoundary resetKeys={["crash"]}>
+        <Recovering />
+      </ErrorBoundary>
+    );
+
+    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+  });
+
   it("keeps the error when resetKeys are unchanged", () => {
     const { rerender } = render(
       <ErrorBoundary resetKeys={["crash"]}>

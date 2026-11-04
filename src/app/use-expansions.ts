@@ -17,8 +17,11 @@ export interface ExpansionType {
 
 const ALL_EXPANSIONS = EXPANSIONS_URL as unknown as ExpansionType[];
 
+export const latestExpansion = (): ExpansionType | null =>
+  newestExpansion(ALL_EXPANSIONS) ?? null;
+
 export const latestExpansionName = (): string | null =>
-  newestExpansion(ALL_EXPANSIONS)?.name ?? null;
+  latestExpansion()?.name ?? null;
 
 const useExpansions = (): ExpansionType[] | null => {
   const { data: expansions } = useQuery({

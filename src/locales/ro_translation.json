@@ -200,7 +200,8 @@
     "signOut": "Deconectează-te",
     "bestCards": "Cele mai bune cărți",
     "bestExpansions": "Cele mai bune expansiuni",
-    "statistics": "Statistici"
+    "statistics": "Statistici",
+    "tierListHeading": "Lista de niveluri {{name}} ({{id}})"
   },
   "footer": {
     "about": "Despre",

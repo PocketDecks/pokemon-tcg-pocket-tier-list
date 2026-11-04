@@ -14,7 +14,7 @@ test("every route has unique title and description, plus self canonical", () => 
   for (const route of ROUTES) {
     const meta = ROUTE_META[route];
     assert.ok(meta, `no metadata for ${route}`);
-    assert.ok(meta.title.length >= 15 && meta.title.length <= 65, `bad title length for ${route}: ${meta.title.length}`);
+    assert.ok(meta.title.length >= 15 && meta.title.length <= 75, `bad title length for ${route}: ${meta.title.length}`);
     assert.ok(meta.description.length >= 70 && meta.description.length <= 165, `bad description length for ${route}: ${meta.description.length}`);
     assert.strictEqual(meta.canonical, `https://pocketdecks.top${route === "/" ? "/" : route + "/"}`);
     titles.add(meta.title);
@@ -180,4 +180,46 @@ test("captures data-backed routes after their pathname is ready", async () => {
   assert.deepStrictEqual(events, ["wait", "ready", "capture"]);
   delete global.document;
   delete global.window;
+});
+
+const { buildRouteMeta, buildJaRouteMeta } = require("../prerender-routes");
+const { stampHead } = require("../meta-stamp");
+const { newestExpansion } = require("../../src/app/expansion-policy.mjs");
+const expansionList = require("pokemon-tcg-pocket-cards/data/v5/expansions.min.json");
+
+const STUB = { id: "x9", name: "Test Set", release_date: "2027-01-01" };
+
+test("tier-list title names the newest expansion by name", () => {
+  assert.strictEqual(
+    buildRouteMeta(STUB)["/tier-list"].title,
+    "Pokemon TCG Pocket Tier List: Best Test Set Decks | Top Pocket Decks"
+  );
+});
+
+test("tier-list description names the expansion and says the list is ranked from tournament data and updated daily", () => {
+  const { description } = buildRouteMeta(STUB)["/tier-list"];
+  assert.match(description, /Test Set/);
+  assert.match(description, /ranked from tournament data/);
+  assert.match(description, /updated daily/);
+});
+
+test("stamped tier-list head carries one title and the expansion description", () => {
+  const template = `<!doctype html><html><head><title>Template default</title></head><body></body></html>`;
+  const meta = buildRouteMeta(STUB)["/tier-list"];
+  const out = stampHead(template, { title: meta.title, description: meta.description });
+  assert.deepStrictEqual(out.match(/<title\b[^>]*>[\s\S]*?<\/title>/gi), [
+    "<title>Pokemon TCG Pocket Tier List: Best Test Set Decks | Top Pocket Decks</title>",
+  ]);
+  assert.match(out, /<meta name="description" content="[^"]*Test Set/);
+});
+
+test("Japanese tier-list title names the expansion", () => {
+  assert.match(buildJaRouteMeta(STUB)["/tier-list"].title, /Test Set/);
+  assert.match(buildJaRouteMeta(STUB)["/tier-list"].description, /Test Set/);
+});
+
+test("the shipped tier-list metadata names the newest listed expansion", () => {
+  const latest = newestExpansion(expansionList);
+  assert.match(ROUTE_META["/tier-list"].title, new RegExp(latest.name));
+  assert.match(ROUTE_META["/tier-list"].description, new RegExp(latest.name));
 });

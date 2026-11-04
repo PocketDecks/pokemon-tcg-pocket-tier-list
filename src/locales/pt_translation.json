@@ -200,7 +200,8 @@
     "signOut": "Sair",
     "bestCards": "Melhores Cartas",
     "bestExpansions": "Melhores Expansões",
-    "statistics": "Estatísticas"
+    "statistics": "Estatísticas",
+    "tierListHeading": "Lista de tiers de {{name}} ({{id}})"
   },
   "footer": {
     "about": "Sobre",

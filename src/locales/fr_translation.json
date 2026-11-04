@@ -200,7 +200,8 @@
     "signOut": "Se déconnecter",
     "bestCards": "Meilleures cartes",
     "bestExpansions": "Meilleures extensions",
-    "statistics": "Statistiques"
+    "statistics": "Statistiques",
+    "tierListHeading": "Liste de tiers {{name}} ({{id}})"
   },
   "footer": {
     "about": "À propos",

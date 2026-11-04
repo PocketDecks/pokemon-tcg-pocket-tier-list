@@ -200,7 +200,8 @@
     "signOut": "Sign out",
     "bestCards": "Best Cards",
     "bestExpansions": "Best Expansions",
-    "statistics": "Statistics"
+    "statistics": "Statistics",
+    "tierListHeading": "{{name}} ({{id}}) Tier List"
   },
   "footer": {
     "about": "About",

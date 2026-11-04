@@ -200,7 +200,8 @@
     "signOut": "退出登录",
     "bestCards": "最佳卡牌",
     "bestExpansions": "最佳扩展包",
-    "statistics": "统计数据"
+    "statistics": "统计数据",
+    "tierListHeading": "{{name}}（{{id}}）强度排行"
   },
   "footer": {
     "about": "关于",

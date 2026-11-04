@@ -200,7 +200,8 @@
     "signOut": "Abmelden",
     "bestCards": "Beste Karten",
     "bestExpansions": "Beste Erweiterungen",
-    "statistics": "Statistiken"
+    "statistics": "Statistiken",
+    "tierListHeading": "{{name}} ({{id}}) Tierliste"
   },
   "footer": {
     "about": "Über uns",

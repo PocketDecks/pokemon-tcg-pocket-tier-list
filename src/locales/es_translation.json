@@ -200,7 +200,8 @@
     "signOut": "Cerrar sesión",
     "bestCards": "Mejores cartas",
     "bestExpansions": "Mejores expansiones",
-    "statistics": "Estadísticas"
+    "statistics": "Estadísticas",
+    "tierListHeading": "Lista de niveles de {{name}} ({{id}})"
   },
   "footer": {
     "about": "Acerca de",

@@ -200,7 +200,8 @@
     "signOut": "ログアウト",
     "bestCards": "ベストカード",
     "bestExpansions": "おすすめの拡張パック",
-    "statistics": "統計"
+    "statistics": "統計",
+    "tierListHeading": "{{name}}（{{id}}）ティアリスト"
   },
   "footer": {
     "about": "概要",

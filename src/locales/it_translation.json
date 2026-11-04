@@ -200,7 +200,8 @@
     "signOut": "Esci",
     "bestCards": "Migliori Carte",
     "bestExpansions": "Migliori Espansioni",
-    "statistics": "Statistiche"
+    "statistics": "Statistiche",
+    "tierListHeading": "Classifica {{name}} ({{id}})"
   },
   "footer": {
     "about": "Informazioni",

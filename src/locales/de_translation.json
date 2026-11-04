@@ -185,7 +185,8 @@
     "shareColumn": "Anteil",
     "deltaColumn": "Veränderung",
     "noTrends": "Trenddaten sind derzeit nicht verfügbar.",
-    "noMovement": "Keine Deck-Bewegung in diesem Zeitraum."
+    "noMovement": "Keine Deck-Bewegung in diesem Zeitraum.",
+    "introGeneric": "Analysieren Sie die aktuelle Pokémon-TCG-Pocket-Metagame mit Live-Verlaufsdaten und Matchup-Heatmaps der Archetypen. Diese Daten zeigen, wie sich Deck-Beliebtheit und Siegquoten im Laufe der Zeit verändern."
   },
   "bestDeckFinder": {
     "title": "Finde dein bestes Deck",

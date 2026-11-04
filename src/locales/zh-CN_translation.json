@@ -185,7 +185,8 @@
     "shareColumn": "占比",
     "deltaColumn": "变化",
     "noTrends": "暂时无法获取趋势数据。",
-    "noMovement": "此时间段内没有卡组变动。"
+    "noMovement": "此时间段内没有卡组变动。",
+    "introGeneric": "借助实时历史数据和原型对战热力图，分析当前的宝可梦卡牌 Pocket 环境。这些追踪数据展示卡组人气和胜率如何随时间变化。"
   },
   "bestDeckFinder": {
     "title": "寻找您的最佳卡组",

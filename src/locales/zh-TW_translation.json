@@ -185,7 +185,8 @@
     "shareColumn": "占比",
     "deltaColumn": "變化",
     "noTrends": "暫時無法取得趨勢資料。",
-    "noMovement": "此時間範圍內沒有卡組變動。"
+    "noMovement": "此時間範圍內沒有卡組變動。",
+    "introGeneric": "借助即時歷史資料與原型對戰熱力圖，分析目前的寶可夢卡牌 Pocket 環境。這些追蹤資料呈現卡組人氣與勝率如何隨時間變化。"
   },
   "bestDeckFinder": {
     "title": "尋找你的最佳牌組",

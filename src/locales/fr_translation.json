@@ -185,7 +185,8 @@
     "shareColumn": "Part",
     "deltaColumn": "Changement",
     "noTrends": "Les données de tendance ne sont pas disponibles pour le moment.",
-    "noMovement": "Aucun mouvement de decks sur cette période."
+    "noMovement": "Aucun mouvement de decks sur cette période.",
+    "introGeneric": "Analysez le métajeu actuel de Pokémon TCG Pocket grâce à des données historiques en direct et des cartes de chaleur des matchups entre archétypes. Ces données montrent comment la popularité des decks et les taux de victoire évoluent au fil du temps."
   },
   "bestDeckFinder": {
     "title": "Trouvez votre meilleur deck",

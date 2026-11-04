@@ -185,7 +185,8 @@
     "shareColumn": "점유율",
     "deltaColumn": "변화",
     "noTrends": "트렌드 데이터를 현재 사용할 수 없습니다.",
-    "noMovement": "이 기간에 덱 변동이 없습니다."
+    "noMovement": "이 기간에 덱 변동이 없습니다.",
+    "introGeneric": "실시간 과거 데이터와 아키타입 상성 히트맵으로 현재 포켓몬 TCG 포켓 메타를 분석하세요. 이 데이터는 덱 인기와 승률이 시간에 따라 어떻게 변하는지 보여줍니다."
   },
   "bestDeckFinder": {
     "title": "최고의 덱 찾기",

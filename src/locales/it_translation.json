@@ -185,7 +185,8 @@
     "shareColumn": "Quota",
     "deltaColumn": "Cambiamento",
     "noTrends": "I dati sulle tendenze non sono disponibili al momento.",
-    "noMovement": "Nessun movimento di mazzi in questo periodo."
+    "noMovement": "Nessun movimento di mazzi in questo periodo.",
+    "introGeneric": "Analizza il metagioco attuale di Pokémon TCG Pocket con dati storici in tempo reale e mappe di calore degli scontri tra archetipi. Questi dati mostrano come cambiano nel tempo la popolarità dei mazzi e i tassi di vittoria."
   },
   "bestDeckFinder": {
     "title": "Trova il Tuo Miglior Mazzo",

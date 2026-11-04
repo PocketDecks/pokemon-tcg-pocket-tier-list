@@ -185,7 +185,8 @@
     "shareColumn": "Cotă",
     "deltaColumn": "Schimbare",
     "noTrends": "Datele despre tendințe nu sunt disponibile acum.",
-    "noMovement": "Nicio mișcare a pachetelor în această perioadă."
+    "noMovement": "Nicio mișcare a pachetelor în această perioadă.",
+    "introGeneric": "Analizați metajocul actual al Pokémon TCG Pocket folosind date istorice în timp real și hărți termice ale matchup-urilor dintre arhetipuri. Aceste date arată cum se schimbă în timp popularitatea deck-urilor și ratele de victorie."
   },
   "bestDeckFinder": {
     "title": "Găsește-ți cel mai bun deck",

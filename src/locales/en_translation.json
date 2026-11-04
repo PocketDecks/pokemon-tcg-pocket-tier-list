@@ -185,7 +185,8 @@
     "shareColumn": "Share",
     "deltaColumn": "Change",
     "noTrends": "Trend data is unavailable right now.",
-    "noMovement": "No deck movement in this window."
+    "noMovement": "No deck movement in this window.",
+    "introGeneric": "Analyse the current Pokémon TCG Pocket metagame using live historical data and archetype matchup heatmaps. This tracking data maps exactly how deck popularity and win rates shift over time, and it draws on results from recent competitive events."
   },
   "bestDeckFinder": {
     "title": "Find Your Best Deck",

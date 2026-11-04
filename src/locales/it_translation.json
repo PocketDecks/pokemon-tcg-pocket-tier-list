@@ -201,7 +201,8 @@
     "bestCards": "Migliori Carte",
     "bestExpansions": "Migliori Espansioni",
     "statistics": "Statistiche",
-    "tierListHeading": "Classifica {{name}} ({{id}})"
+    "tierListHeading": "Classifica {{name}} ({{id}})",
+    "tierListGeneric": "Classifica Pokémon TCG Pocket"
   },
   "footer": {
     "about": "Informazioni",
@@ -249,7 +250,7 @@
     },
     "topDecks": {
       "title": "I migliori mazzi di {{name}}",
-      "fallbackTitle": "I migliori mazzi",
+      "genericTitle": "I migliori mazzi",
       "winRate": "{{value}}% di vittorie",
       "fullList": "Classifica completa"
     }

@@ -13,7 +13,7 @@ vi.mock("../../../app/use-decks", () => ({
 const deck = (index: number) => ({
   id: `deck-${index}`,
   name: `deck-${index}`,
-  lists: [],
+  lists: [{ cards: ["2:c1-001"], score: 0, strength: 0, energyIds: [], deckCode: null }],
   bestList: { cards: [], score: 0, energyIds: [], deckCode: null },
   score: 0,
   popularity: 0,
@@ -65,6 +65,19 @@ describe("TopDecks", () => {
       expect(scope.getByText(EXPECTED[index].win)).toBeTruthy();
     });
     expect(screen.getByRole("link", { name: "Full tier list" }).getAttribute("href")).toBe("/tier-list/");
+  });
+
+  it("uses the generic heading while the decks cover no expansion", () => {
+    decks.value = Array.from({ length: 10 }, (_, index) => ({
+      ...deck(index),
+      lists: [{ cards: ["2:zz9-001"], score: 0, strength: 0, energyIds: [], deckCode: null }],
+    }));
+    render(
+      <MemoryRouter>
+        <TopDecks />
+      </MemoryRouter>
+    );
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Top decks");
   });
 
   it("renders nothing while there are no ranked decks", () => {

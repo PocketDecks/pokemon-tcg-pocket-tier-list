@@ -4,7 +4,7 @@ import { useDecks } from "../../app/use-decks";
 import { rankDeckTiers } from "../../app/use-deck-tiers";
 import { deckDisplayName } from "../../app/deck-display";
 import { LocaleLink } from "../../app/locale-link";
-import { latestExpansion } from "../../app/use-expansions";
+import { latestCoveredExpansion } from "../../app/use-expansions";
 
 const TOP_COUNT = 10;
 
@@ -86,14 +86,14 @@ const TopDecks = () => {
   );
   const top = ranked.slice(0, TOP_COUNT);
   if (top.length === 0) return null;
-  const newest = latestExpansion();
+  const newest = latestCoveredExpansion(decks);
 
   return (
     <Section>
       <Title>
         {newest
           ? t("landing.topDecks.title", { name: newest.name })
-          : t("landing.topDecks.fallbackTitle")}
+          : t("landing.topDecks.genericTitle")}
       </Title>
       <List>
         {top.map(({ tier, deck }) => (

@@ -201,7 +201,8 @@
     "bestCards": "Mejores cartas",
     "bestExpansions": "Mejores expansiones",
     "statistics": "Estadísticas",
-    "tierListHeading": "Lista de niveles de {{name}} ({{id}})"
+    "tierListHeading": "Lista de niveles de {{name}} ({{id}})",
+    "tierListGeneric": "Lista de niveles de Pokémon TCG Pocket"
   },
   "footer": {
     "about": "Acerca de",
@@ -249,7 +250,7 @@
     },
     "topDecks": {
       "title": "Mejores mazos de {{name}}",
-      "fallbackTitle": "Mejores mazos",
+      "genericTitle": "Mejores mazos",
       "winRate": "{{value}} % de victorias",
       "fullList": "Lista de niveles completa"
     }

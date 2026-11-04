@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { EXPANSIONS_URL } from "./constants";
 import { isListedExpansion, newestExpansion } from "./expansion-policy.mjs";
+import { newestCoveredExpansion } from "./expansion-feed.mjs";
+import type { FullDeckType } from "./deck-types";
 
 export interface PackType {
   id: string;
@@ -19,6 +21,9 @@ const ALL_EXPANSIONS = EXPANSIONS_URL as unknown as ExpansionType[];
 
 export const latestExpansion = (): ExpansionType | null =>
   newestExpansion(ALL_EXPANSIONS) ?? null;
+
+export const latestCoveredExpansion = (decks: FullDeckType[] | null): ExpansionType | null =>
+  newestCoveredExpansion(ALL_EXPANSIONS, decks) ?? null;
 
 export const latestExpansionName = (): string | null =>
   latestExpansion()?.name ?? null;

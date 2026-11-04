@@ -184,7 +184,7 @@ test("captures data-backed routes after their pathname is ready", async () => {
 
 const { buildRouteMeta, buildJaRouteMeta, JA_ROUTE_META } = require("../prerender-routes");
 const { stampHead } = require("../meta-stamp");
-const { newestExpansion } = require("../../src/app/expansion-policy.mjs");
+const { newestCoveredExpansion } = require("../../src/app/expansion-feed.mjs");
 const expansionList = require("pokemon-tcg-pocket-cards/data/v5/expansions.min.json");
 
 const STUB = { id: "x9", name: "Test Set", release_date: "2027-01-01" };
@@ -219,7 +219,7 @@ test("Japanese tier-list title names the expansion", () => {
 });
 
 test("the shipped tier-list metadata names the newest listed expansion", () => {
-  const latest = newestExpansion(expansionList);
+  const latest = newestCoveredExpansion(expansionList, require("../../public/data/best-decks.json"));
   assert.ok(ROUTE_META["/tier-list"].title.includes(latest.name));
   assert.ok(ROUTE_META["/tier-list"].description.includes(latest.name));
 });
@@ -262,4 +262,23 @@ test("tier-list descriptions name only controls the page has", () => {
   assert.match(ja, /パワースコア/);
   assert.match(ja, /人気度/);
   assert.doesNotMatch(ja, /勝率で絞り込/);
+});
+
+test("with no covered expansion the tier-list and homepage copy is generic", () => {
+  const meta = buildRouteMeta(null);
+  assert.strictEqual(meta["/tier-list"].title, "Pokemon TCG Pocket Tier List: Best Decks | Top Pocket Decks");
+  assert.doesNotMatch(meta["/tier-list"].description, /for /);
+  assert.strictEqual(meta["/"].title, "Pokemon TCG Pocket Best Decks & Tier List | Top Pocket Decks");
+  assert.doesNotMatch(meta["/"].description, /for /);
+  const ja = buildJaRouteMeta(null);
+  assert.strictEqual(ja["/tier-list"].title, "ポケポケ ティアリスト 最強デッキ一覧 | Top Pocket Decks");
+  assert.doesNotMatch(ja["/"].description, /のデッキ/);
+});
+
+test("shipped copy names the expansion the decks feed covers", () => {
+  const decks = require("../../public/data/best-decks.json");
+  const covered = newestCoveredExpansion(expansionList, decks);
+  assert.ok(covered);
+  assert.ok(ROUTE_META["/tier-list"].title.includes(covered.name));
+  assert.ok(ROUTE_META["/"].description.includes(covered.name));
 });

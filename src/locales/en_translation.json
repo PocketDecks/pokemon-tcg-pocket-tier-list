@@ -201,7 +201,8 @@
     "bestCards": "Best Cards",
     "bestExpansions": "Best Expansions",
     "statistics": "Statistics",
-    "tierListHeading": "{{name}} ({{id}}) Tier List"
+    "tierListHeading": "{{name}} ({{id}}) Tier List",
+    "tierListGeneric": "Pokemon TCG Pocket Tier List"
   },
   "footer": {
     "about": "About",
@@ -249,7 +250,7 @@
     },
     "topDecks": {
       "title": "Top {{name}} decks",
-      "fallbackTitle": "Top decks",
+      "genericTitle": "Top decks",
       "winRate": "{{value}}% win rate",
       "fullList": "Full tier list"
     }

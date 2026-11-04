@@ -27,8 +27,10 @@ const DIST_DIR = process.env.BUILD_DIR
   : path.join(ROOT, "dist");
 const { localeRoute, localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
 const { SITE_URL } = require("./meta-stamp");
-const { newestExpansion } = require("../src/app/expansion-policy.mjs");
+const { newestCoveredExpansion } = require("../src/app/expansion-feed.mjs");
 const EXPANSIONS = require("pokemon-tcg-pocket-cards/data/v5/expansions.min.json");
+const BEST_DECKS = require("../public/data/best-decks.json");
+const LATEST_EXPANSION = newestCoveredExpansion(EXPANSIONS, BEST_DECKS);
 const ROUTES = [
   "/",
   "/tier-list",
@@ -47,7 +49,9 @@ const DEFAULT_LOCALE = "en";
 const buildRouteMeta = (latest) => ({
   "/": {
     title: "Pokemon TCG Pocket Best Decks & Tier List | Top Pocket Decks",
-    description: `Pokemon TCG Pocket best decks and tier list for ${latest.name}, ranked from real tournament results. See win rates and matchups for the current expansion.`,
+    description: latest
+      ? `Pokemon TCG Pocket best decks and tier list for ${latest.name}, ranked from real tournament results. See win rates and matchups for the current expansion.`
+      : "Pokemon TCG Pocket best decks and tier list, ranked from real tournament results. See win rates and matchups in the current expansion.",
     canonical: "https://pocketdecks.top/",
     jsonLd: {
       "@context": "https://schema.org",
@@ -57,8 +61,12 @@ const buildRouteMeta = (latest) => ({
     },
   },
   "/tier-list": {
-    title: `Pokemon TCG Pocket Tier List: Best ${latest.name} Decks | Top Pocket Decks`,
-    description: `Pokemon TCG Pocket tier list for ${latest.name}, ranked from tournament data and updated four times a week. Filter by energy type and sort by power score.`,
+    title: latest
+      ? `Pokemon TCG Pocket Tier List: Best ${latest.name} Decks | Top Pocket Decks`
+      : "Pokemon TCG Pocket Tier List: Best Decks | Top Pocket Decks",
+    description: latest
+      ? `Pokemon TCG Pocket tier list for ${latest.name}, ranked from tournament data and updated four times a week. Filter by energy type and sort by power score.`
+      : "Pokemon TCG Pocket tier list, ranked from tournament data and updated four times a week. Filter by energy type and sort by power score.",
     canonical: "https://pocketdecks.top/tier-list/",
   },
   "/cards-list": {
@@ -93,7 +101,7 @@ const buildRouteMeta = (latest) => ({
   },
 });
 
-const ROUTE_META = buildRouteMeta(newestExpansion(EXPANSIONS));
+const ROUTE_META = buildRouteMeta(LATEST_EXPANSION);
 
 const ROUTE_READY_ROUTES = new Set(["/", "/cards-list", "/statistics", "/deck"]);
 const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
@@ -101,11 +109,17 @@ const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
 const buildJaRouteMeta = (latest) => ({
   "/": {
     title: "ポケポケ 最強デッキ＆ティアリスト | Top Pocket Decks",
-    description: `${latest.name}の最強デッキとティアリストを大会結果から集計しています。デッキランキング、勝率、相性を確認できます。`,
+    description: latest
+      ? `${latest.name}の最強デッキとティアリストを大会結果から集計しています。デッキランキング、勝率、相性を確認できます。`
+      : "大会結果から集計したポケモンカードゲーム ポケットの最強デッキとティアリストです。デッキランキング、勝率、相性を確認できます。",
   },
   "/tier-list": {
-    title: `ポケポケ ティアリスト ${latest.name} 最強デッキ | Top Pocket Decks`,
-    description: `${latest.name}のデッキを大会データをもとに週4回ランク付けしています。エネルギーで絞り込み、パワースコアや人気度で並べ替えられます。`,
+    title: latest
+      ? `ポケポケ ティアリスト ${latest.name} 最強デッキ | Top Pocket Decks`
+      : "ポケポケ ティアリスト 最強デッキ一覧 | Top Pocket Decks",
+    description: latest
+      ? `${latest.name}のデッキを大会データをもとに週4回ランク付けしています。エネルギーで絞り込み、パワースコアや人気度で並べ替えられます。`
+      : "大会データをもとに全アーキタイプを週4回ランク付けしています。エネルギーで絞り込み、パワースコアや人気度で並べ替えられます。",
   },
   "/cards-list": {
     title: "ポケポケ カード ティアリスト 最強カード | Top Pocket Decks",
@@ -133,7 +147,7 @@ const buildJaRouteMeta = (latest) => ({
   },
 });
 
-const JA_ROUTE_META = buildJaRouteMeta(newestExpansion(EXPANSIONS));
+const JA_ROUTE_META = buildJaRouteMeta(LATEST_EXPANSION);
 
 const urlFor = (locale, route) => localizedUrl(SITE_URL, locale, route);
 

@@ -201,7 +201,8 @@
     "bestCards": "ベストカード",
     "bestExpansions": "おすすめの拡張パック",
     "statistics": "統計",
-    "tierListHeading": "{{name}}（{{id}}）ティアリスト"
+    "tierListHeading": "{{name}}（{{id}}）ティアリスト",
+    "tierListGeneric": "ポケポケ ティアリスト"
   },
   "footer": {
     "about": "概要",
@@ -249,7 +250,7 @@
     },
     "topDecks": {
       "title": "{{name}}の上位デッキ",
-      "fallbackTitle": "上位デッキ",
+      "genericTitle": "上位デッキ",
       "winRate": "勝率 {{value}}%",
       "fullList": "ティアリストを見る"
     }

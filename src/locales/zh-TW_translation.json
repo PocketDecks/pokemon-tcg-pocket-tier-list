@@ -201,7 +201,8 @@
     "bestCards": "最佳卡牌",
     "bestExpansions": "最佳擴充包",
     "statistics": "數據統計",
-    "tierListHeading": "{{name}}（{{id}}）強度排行"
+    "tierListHeading": "{{name}}（{{id}}）強度排行",
+    "tierListGeneric": "Pokémon TCG Pocket 強度排行"
   },
   "footer": {
     "about": "關於",
@@ -249,7 +250,7 @@
     },
     "topDecks": {
       "title": "{{name}}熱門牌組",
-      "fallbackTitle": "熱門牌組",
+      "genericTitle": "熱門牌組",
       "winRate": "勝率 {{value}}%",
       "fullList": "完整強度排行"
     }

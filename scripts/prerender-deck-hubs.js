@@ -4,7 +4,13 @@ const { stampHead, escapeXml, SITE_URL } = require("./meta-stamp");
 const { localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
 const { deckSlug } = require("./deck-slug.mjs");
 const { hubDisplayName } = require("./deck-archetype.mjs");
-const { JA_HOME_LABEL, JA_TIER_LIST_LABEL } = require("./deck-friendly-name.mjs");
+const {
+  JA_HOME_LABEL,
+  JA_HUB_LIVE_DESCRIPTION_SUFFIX,
+  JA_HUB_RETIRED_DESCRIPTION_SUFFIX,
+  JA_HUB_TITLE_SUFFIX,
+  JA_TIER_LIST_LABEL,
+} = require("./deck-friendly-name.mjs");
 const { shouldIndexHub } = require("./deck-archive-policy.mjs");
 const {
   captureDocument,
@@ -40,13 +46,17 @@ const buildHubJobs = (archive, liveDecks) => {
 const routeFor = (locale, hub) => localizedUrl(SITE_URL, locale, `/deck/${hub}`);
 
 const renderHubHtml = (job, html, locale) => {
-  const title = `${job.name} Deck | Pokemon TCG Pocket`;
-  const description = job.live.length > 0
-    ? `${job.name} Pokemon TCG Pocket deck variants, win rates and meta share from current tournament data.`
-    : `${job.name} Pokemon TCG Pocket deck history. This archetype is not in the current meta.`;
-  const canonical = routeFor(locale, job.hub);
   const indexable = locale === "en";
   const translated = !indexable;
+  const title = translated
+    ? `${job.name} ${JA_HUB_TITLE_SUFFIX}`
+    : `${job.name} Deck | Pokemon TCG Pocket`;
+  const description = translated
+    ? `${job.name}${job.live.length > 0 ? JA_HUB_LIVE_DESCRIPTION_SUFFIX : JA_HUB_RETIRED_DESCRIPTION_SUFFIX}`
+    : job.live.length > 0
+      ? `${job.name} Pokemon TCG Pocket deck variants, win rates and meta share from current tournament data.`
+      : `${job.name} Pokemon TCG Pocket deck history. This archetype is not in the current meta.`;
+  const canonical = routeFor(locale, job.hub);
   const alternates = indexable
     ? [
         { hreflang: "en", href: routeFor("en", job.hub) },

@@ -67,3 +67,18 @@ test("Japanese hub breadcrumbs use the Japanese labels", () => {
   assert.match(english, /"name":"Home"/);
   assert.match(english, /"name":"Tier List"/);
 });
+
+test("Japanese hub titles and descriptions are localised for live and retired hubs", () => {
+  const jobs = buildHubJobs(archive, [{ name: "mega-altaria-ex-b1-102" }]);
+  const live = renderHubHtml(jobs.find((job) => job.hub === "mega-altaria-ex"), template, "ja");
+  assert.match(live, /<title>Mega Altaria ex デッキ \| ポケポケ デッキレシピと相性<\/title>/);
+  assert.match(live, /<meta property="og:title" content="Mega Altaria ex デッキ \| ポケポケ デッキレシピと相性" \/>/);
+  assert.match(live, /<meta name="description" content="Mega Altaria exのデッキバリエーション、勝率、メタシェア/);
+  assert.match(live, /<meta property="og:description" content="Mega Altaria exのデッキバリエーション/);
+  assert.doesNotMatch(live, /Pokemon TCG Pocket deck|Deck \| Pokemon/);
+  const retired = renderHubHtml(jobs.find((job) => job.hub === "greninja"), template, "ja");
+  assert.match(retired, /<title>Greninja デッキ \| ポケポケ デッキレシピと相性<\/title>/);
+  assert.match(retired, /<meta name="description" content="Greninjaのデッキ履歴をまとめたページです。/);
+  assert.match(retired, /<meta property="og:description" content="Greninjaのデッキ履歴/);
+  assert.doesNotMatch(retired, /現在|最新環境|current meta/);
+});

@@ -420,6 +420,7 @@
     "decksHeading": "Decks atuais que usam esta expansão",
     "empty": "Nenhuma carta de {{name}} está nos melhores decks no momento.",
     "emptyAside": "Que pena. :(",
+    "emptyPack": "Nenhuma carta do pacote {{pack}} ou compartilhada está em um deck de topo no momento.",
     "loadError": "Os dados das cartas não carregaram. Atualize a página para tentar novamente.",
     "allPacks": "Mostrar todos os pacotes",
     "breadcrumb": "Trilha de navegação"

@@ -420,6 +420,7 @@
     "decksHeading": "Mazos actuales que usan esta expansión",
     "empty": "Ninguna carta de {{name}} aparece ahora mismo en un mazo destacado.",
     "emptyAside": "Es una pena. :(",
+    "emptyPack": "Ninguna carta del sobre {{pack}} ni las cartas compartidas están en un mazo top en este momento.",
     "loadError": "No se cargaron los datos de las cartas. Actualiza la página para intentarlo de nuevo.",
     "allPacks": "Mostrar todos los sobres",
     "breadcrumb": "Ruta de navegación"

@@ -188,7 +188,9 @@ const ExpansionPage = () => {
         <EmptyState>
           <Shrug aria-hidden="true">{"¯\\_(ツ)_/¯"}</Shrug>
           <Meta>
-            {t("expansionPage.empty", { name: expansion.name })}
+            {packName
+              ? t("expansionPage.emptyPack", { pack: packName })
+              : t("expansionPage.empty", { name: expansion.name })}
             <br />
             {t("expansionPage.emptyAside")}
           </Meta>

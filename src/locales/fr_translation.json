@@ -420,6 +420,7 @@
     "decksHeading": "Decks actuels utilisant cette extension",
     "empty": "Aucune carte de {{name}} ne figure dans les meilleurs decks en ce moment.",
     "emptyAside": "C'est dommage. :(",
+    "emptyPack": "Aucune carte du booster {{pack}} ni aucune carte partagée ne figure actuellement dans un deck de tête.",
     "loadError": "Les données des cartes n'ont pas pu être chargées. Actualisez la page pour réessayer.",
     "allPacks": "Afficher tous les boosters",
     "breadcrumb": "Fil d'Ariane"

@@ -420,6 +420,7 @@
     "decksHeading": "Mazzi attuali che usano questa espansione",
     "empty": "Al momento nessuna carta di {{name}} è nei mazzi migliori.",
     "emptyAside": "Peccato. :(",
+    "emptyPack": "Nessuna carta della busta {{pack}} né carte condivise sono attualmente in un mazzo top.",
     "loadError": "I dati delle carte non sono stati caricati. Ricarica la pagina per riprovare.",
     "allPacks": "Mostra tutte le buste",
     "breadcrumb": "Percorso di navigazione"

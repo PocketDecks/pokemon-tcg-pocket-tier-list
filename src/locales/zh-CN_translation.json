@@ -420,6 +420,7 @@
     "decksHeading": "使用此扩展包的当前卡组",
     "empty": "{{name}}的卡牌目前都不在顶级卡组中。",
     "emptyAside": "真遗憾。:(",
+    "emptyPack": "{{pack}}卡包和共享卡牌目前都不在顶级卡组中。",
     "loadError": "卡牌数据加载失败。请刷新页面重试。",
     "allPacks": "显示全部卡包",
     "breadcrumb": "面包屑导航"

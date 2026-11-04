@@ -420,6 +420,7 @@
     "decksHeading": "Aktuelle Decks mit dieser Erweiterung",
     "empty": "Derzeit ist keine Karte aus {{name}} in einem Top-Deck.",
     "emptyAside": "Das ist schade. :(",
+    "emptyPack": "Keine Karten aus dem Paket {{pack}} oder gemeinsame Karten sind gerade in einem Top-Deck.",
     "loadError": "Kartendaten konnten nicht geladen werden. Lade die Seite neu, um es erneut zu versuchen.",
     "allPacks": "Alle Pakete anzeigen",
     "breadcrumb": "Navigationspfad"

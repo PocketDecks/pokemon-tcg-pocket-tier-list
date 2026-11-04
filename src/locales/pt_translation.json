@@ -246,6 +246,12 @@
       "title": "Leia o meta",
       "description": "Veja quais decks sobem ou caem a cada semana, como muda a sua participação nas partidas de torneio e como cada deck de topo se sai no confronto direto.",
       "button": "Abrir estatísticas"
+    },
+    "topDecks": {
+      "title": "Melhores decks de {{name}}",
+      "fallbackTitle": "Melhores decks",
+      "winRate": "{{value}}% de vitórias",
+      "fullList": "Lista de tiers completa"
     }
   },
   "features": {

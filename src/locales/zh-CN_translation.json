@@ -246,6 +246,12 @@
       "title": "解读环境",
       "description": "查看每周哪些卡组在上升或下滑、它们在比赛对局中的占比如何变化，以及各强势卡组之间的对局表现。",
       "button": "打开统计"
+    },
+    "topDecks": {
+      "title": "{{name}}热门卡组",
+      "fallbackTitle": "热门卡组",
+      "winRate": "胜率 {{value}}%",
+      "fullList": "完整强度排行"
     }
   },
   "features": {

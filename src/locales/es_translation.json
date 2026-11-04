@@ -246,6 +246,12 @@
       "title": "Lee el meta",
       "description": "Descubre qué mazos suben o bajan cada semana, cómo cambia su cuota de partidas de torneo y cómo rinde cada mazo top en enfrentamientos directos.",
       "button": "Abrir estadísticas"
+    },
+    "topDecks": {
+      "title": "Mejores mazos de {{name}}",
+      "fallbackTitle": "Mejores mazos",
+      "winRate": "{{value}} % de victorias",
+      "fullList": "Lista de niveles completa"
     }
   },
   "features": {

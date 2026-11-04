@@ -25,7 +25,7 @@ test("every route has unique title and description, plus self canonical", () => 
 });
 
 test("waits for route content on data-backed pages", () => {
-  assert.deepStrictEqual([...ROUTE_READY_ROUTES], ["/cards-list", "/statistics", "/deck"]);
+  assert.deepStrictEqual([...ROUTE_READY_ROUTES], ["/", "/cards-list", "/statistics", "/deck"]);
 });
 
 const { alternatesFor, localeMetaFor } = require("../prerender-routes");

@@ -246,6 +246,12 @@
       "title": "Lire le méta",
       "description": "Voyez quels decks montent ou baissent chaque semaine, comment évolue leur part des parties de tournoi et comment chaque deck de tête s'en sort en face à face.",
       "button": "Ouvrir les statistiques"
+    },
+    "topDecks": {
+      "title": "Meilleurs decks {{name}}",
+      "fallbackTitle": "Meilleurs decks",
+      "winRate": "{{value}} % de victoires",
+      "fullList": "Liste de tiers complète"
     }
   },
   "features": {

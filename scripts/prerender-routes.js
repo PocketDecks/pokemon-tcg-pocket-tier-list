@@ -95,7 +95,7 @@ const buildRouteMeta = (latest) => ({
 
 const ROUTE_META = buildRouteMeta(newestExpansion(EXPANSIONS));
 
-const ROUTE_READY_ROUTES = new Set(["/cards-list", "/statistics", "/deck"]);
+const ROUTE_READY_ROUTES = new Set(["/", "/cards-list", "/statistics", "/deck"]);
 const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
 
 const buildJaRouteMeta = (latest) => ({

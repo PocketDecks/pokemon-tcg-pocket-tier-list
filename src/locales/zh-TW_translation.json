@@ -246,6 +246,12 @@
       "title": "解讀環境",
       "description": "查看每週哪些牌組在上升或下滑、它們在比賽對局中的占比如何變化，以及各強勢牌組之間的對局表現。",
       "button": "開啟統計"
+    },
+    "topDecks": {
+      "title": "{{name}}熱門牌組",
+      "fallbackTitle": "熱門牌組",
+      "winRate": "勝率 {{value}}%",
+      "fullList": "完整強度排行"
     }
   },
   "features": {

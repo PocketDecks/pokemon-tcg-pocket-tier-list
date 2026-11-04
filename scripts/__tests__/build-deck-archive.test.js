@@ -162,3 +162,24 @@ test("hub file checks report missing, stale and orphan files", () => {
     "z.json is an orphan",
   ]);
 });
+
+test("hub files clamp each peak date into the sighting range of its variant", () => {
+  const entries = [{ variant: "alpha-b1-001", hub: "alpha", name: "Alpha-B1-001", firstSeen: "2026-10-30", lastSeen: "2026-11-02" }];
+  const late = new Map([["alpha-b1-001", { cards: [], peakShare: 0.1, peakDate: "2026-11-03" }]]);
+  assert.equal([...hubFilesFromState(entries, late).values()][0].variants[0].peakDate, "2026-11-02");
+  const early = new Map([["alpha-b1-001", { cards: [], peakShare: 0.1, peakDate: "2026-10-01" }]]);
+  assert.equal([...hubFilesFromState(entries, early).values()][0].variants[0].peakDate, "2026-10-30");
+});
+
+test("every committed hub file keeps each peak date inside its variant's sighting range", () => {
+  const dir = path.join(__dirname, "..", "..", "public", "data", "hubs");
+  const offenders = [];
+  for (const name of fs.readdirSync(dir)) {
+    const hub = JSON.parse(fs.readFileSync(path.join(dir, name), "utf8"));
+    for (const variant of hub.variants) {
+      if (variant.peakDate === null) continue;
+      if (variant.peakDate < variant.firstSeen || variant.peakDate > variant.lastSeen) offenders.push(variant.variant);
+    }
+  }
+  assert.deepEqual(offenders, []);
+});

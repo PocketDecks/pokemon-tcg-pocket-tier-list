@@ -168,6 +168,8 @@ export const variantStateFromHubs = (hubs) => {
   return state;
 };
 
+const clampDate = (date, first, last) => (date < first ? first : date > last ? last : date);
+
 export const hubFilesFromState = (archive, state) => {
   const grouped = new Map();
   for (const entry of archive) grouped.set(entry.hub, [...(grouped.get(entry.hub) ?? []), entry]);
@@ -185,7 +187,7 @@ export const hubFilesFromState = (archive, state) => {
             firstSeen: entry.firstSeen,
             lastSeen: entry.lastSeen,
             peakShare: record.peakShare,
-            peakDate: record.peakDate,
+            peakDate: record.peakDate === null ? null : clampDate(record.peakDate, entry.firstSeen, entry.lastSeen),
             cards: record.cards,
           };
         }),

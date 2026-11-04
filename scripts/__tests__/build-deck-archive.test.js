@@ -163,12 +163,18 @@ test("hub file checks report missing, stale and orphan files", () => {
   ]);
 });
 
-test("hub files clamp each peak date into the sighting range of its variant", () => {
-  const entries = [{ variant: "alpha-b1-001", hub: "alpha", name: "Alpha-B1-001", firstSeen: "2026-10-30", lastSeen: "2026-11-02" }];
-  const late = new Map([["alpha-b1-001", { cards: [], peakShare: 0.1, peakDate: "2026-11-03" }]]);
-  assert.equal([...hubFilesFromState(entries, late).values()][0].variants[0].peakDate, "2026-11-02");
-  const early = new Map([["alpha-b1-001", { cards: [], peakShare: 0.1, peakDate: "2026-10-01" }]]);
-  assert.equal([...hubFilesFromState(entries, early).values()][0].variants[0].peakDate, "2026-10-30");
+test("a peak measured outside the sighting range is ignored", () => {
+  const ranges = new Map([["alpha-b1-001", { firstSeen: "2026-10-30", lastSeen: "2026-11-02" }]]);
+  const deck = (percentOfGames) => ({ name: "Alpha-B1-001", lists: [{ cards: ["2:b1-001"] }], percentOfGames });
+  const state = variantStateFromSnapshots(
+    [
+      { date: "2026-11-02", decks: [deck(0.05)] },
+      { date: "2026-10-01", decks: [deck(0.9)] },
+      { date: "2026-10-31", decks: [deck(0.08)] },
+    ],
+    ranges
+  );
+  assert.deepEqual(state.get("alpha-b1-001"), { cards: ["2:b1-001"], peakShare: 0.08, peakDate: "2026-10-31" });
 });
 
 test("every committed hub file keeps each peak date inside its variant's sighting range", () => {

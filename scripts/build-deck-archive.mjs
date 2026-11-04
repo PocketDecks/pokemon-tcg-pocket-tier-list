@@ -134,22 +134,32 @@ export const deckShare = (deck) =>
       ? deck.popularity
       : null;
 
-export const variantStateFromSnapshots = (snapshots) => {
+const inSightingRange = (range, date) =>
+  range === undefined || (date >= range.firstSeen && date <= range.lastSeen);
+
+export const variantStateFromSnapshots = (snapshots, ranges = new Map()) => {
   const state = new Map();
   for (const { date, decks } of snapshots) {
     for (const deck of decks) {
       const variant = deckVariantSlug(deck.name);
       const share = deckShare(deck);
-      const current = state.get(variant);
-      if (current === undefined) {
-        state.set(variant, { cards: listCardIds(deck), peakShare: share, peakDate: share === null ? null : date });
-      } else if (share !== null && (current.peakShare === null || share > current.peakShare)) {
-        current.peakShare = share;
-        current.peakDate = date;
+      let record = state.get(variant);
+      if (record === undefined) {
+        record = { cards: listCardIds(deck), peakShare: null, peakDate: null };
+        state.set(variant, record);
+      }
+      if (share !== null && inSightingRange(ranges.get(variant), date) && (record.peakShare === null || share > record.peakShare)) {
+        record.peakShare = share;
+        record.peakDate = date;
       }
     }
   }
-  return state;
+  return new Map(
+    [...state].map(([variant, record]) => [
+      variant,
+      { cards: record.cards, peakShare: record.peakShare, peakDate: record.peakDate },
+    ])
+  );
 };
 
 export const applyLive = (state, decks, date) => {
@@ -177,8 +187,6 @@ export const variantStateFromHubs = (hubs) => {
   return state;
 };
 
-const clampDate = (date, first, last) => (date < first ? first : date > last ? last : date);
-
 export const hubFilesFromState = (archive, state) => {
   const grouped = new Map();
   for (const entry of archive) grouped.set(entry.hub, [...(grouped.get(entry.hub) ?? []), entry]);
@@ -196,7 +204,7 @@ export const hubFilesFromState = (archive, state) => {
             firstSeen: entry.firstSeen,
             lastSeen: entry.lastSeen,
             peakShare: record.peakShare,
-            peakDate: record.peakDate === null ? null : clampDate(record.peakDate, entry.firstSeen, entry.lastSeen),
+            peakDate: record.peakDate,
             cards: record.cards,
           };
         }),
@@ -231,10 +239,11 @@ const readHubFiles = () =>
         .map((name) => readJson(path.join(HUBS_DIR, name)))
     : [];
 
-function* snapshotsNewestFirst() {
+function* snapshotsNewestFirst(calendarEnd) {
   for (const commit of snapshotCommits()) {
+    const date = snapshotDate(commit);
     yield {
-      date: snapshotDate(commit),
+      date: date > calendarEnd ? calendarEnd : date,
       decks: readJsonFromText(
         execFileSync("git", ["show", `${commit}:public/data/best-decks.json`], {
           cwd: ROOT,
@@ -249,8 +258,12 @@ function* snapshotsNewestFirst() {
 const main = () => {
   const seeding = process.argv.includes("--seed");
   const archive = seeding ? mergeCurrent(seedArchive()) : mergeCurrent(readJson(OUT_FILE));
-  const history = seeding ? variantStateFromSnapshots(snapshotsNewestFirst()) : variantStateFromHubs(readHubFiles());
-  const state = applyLive(history, readJson(DATA_FILE), currentSnapshotDate());
+  const calendarEnd = currentSnapshotDate();
+  const ranges = new Map(archive.map((entry) => [entry.variant, { firstSeen: entry.firstSeen, lastSeen: entry.lastSeen }]));
+  const history = seeding
+    ? variantStateFromSnapshots(snapshotsNewestFirst(calendarEnd), ranges)
+    : variantStateFromHubs(readHubFiles());
+  const state = applyLive(history, readJson(DATA_FILE), calendarEnd);
   const hubs = hubFilesFromState(archive, state);
   const output = `${JSON.stringify(archive, null, 2)}\n`;
   if (process.argv.includes("--check")) {

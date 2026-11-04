@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import Popup from "../Popup";
@@ -352,6 +352,22 @@ describe("Popup keyboard accessibility", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(background.closest("[inert]")).toBeNull();
     expect(document.querySelector("[inert]")).toBeNull();
+  });
+
+  it("makes a button added to the page while a popup is open inert until the popup closes", async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    await openPanel(user);
+
+    const added = document.createElement("button");
+    added.textContent = "Added after opening";
+    document.body.appendChild(added);
+    await waitFor(() => expect(added).toHaveAttribute("inert"));
+
+    await user.keyboard("{Escape}");
+
+    expect(added).not.toHaveAttribute("inert");
+    added.remove();
   });
 
   it("returns focus to a trigger that was pressed but not focused, as Safari does", () => {

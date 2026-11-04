@@ -72,10 +72,10 @@ describe("pickMatchups", () => {
     { name: "not-live", winRate: 0.95, totalGames: 50 },
   ];
 
-  it("takes three best and three worst, counting a game threshold at or above the minimum", () => {
+  it("takes three best and three worst, leaving out games at or below the minimum", () => {
     const { best, worst } = pickMatchups(matchups, "self", live, 20, 3);
-    expect(best.map((m) => m.name)).toEqual(["alpha", "beta", "delta"]);
-    expect(worst.map((m) => m.name)).toEqual(["zeta", "eta", "epsilon"]);
+    expect(best.map((m) => m.name)).toEqual(["alpha", "delta", "epsilon"]);
+    expect(worst.map((m) => m.name)).toEqual(["zeta", "eta"]);
   });
 
   it("never lists one opponent as both a best and a worst matchup", () => {

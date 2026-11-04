@@ -38,7 +38,7 @@ export const pickMatchups = (
   limit: number
 ): { best: MatchupType[]; worst: MatchupType[] } => {
   const eligible = (matchups ?? []).filter(
-    (matchup) => matchup.name !== self && opponents.has(matchup.name) && matchup.totalGames >= minGames
+    (matchup) => matchup.name !== self && opponents.has(matchup.name) && matchup.totalGames > minGames
   );
   const best = [...eligible]
     .sort((a, b) => b.winRate - a.winRate || byText(a.name, b.name))

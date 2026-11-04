@@ -5,6 +5,7 @@ import { bestListCardIds } from "./expansion-feed.mjs";
 import { deckSlug } from "./deck-slug";
 import { deckArchetypeSlug } from "./deck-archetype";
 import { deckDisplayName } from "./deck-display";
+import { isSharedPack } from "./expansion-scores";
 
 export interface ExpansionLiveCard extends CardType {
   cardNumber: string;
@@ -30,7 +31,7 @@ export const packNameForSlug = (expansion: ExpansionType, slug: string | null): 
 };
 
 const inPack = (card: CardType, packName: string) =>
-  card.pack === packName || card.pack.toLowerCase().includes("shared");
+  card.pack === packName || isSharedPack(card.pack);
 
 export const expansionPageData = (
   expansion: ExpansionType,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildExpansionData, buildExpansionPackData } from "../expansion-scores";
+import { buildExpansionData, buildExpansionPackData, isSharedPack } from "../expansion-scores";
 
 describe("buildExpansionPackData", () => {
   it("maps a single-pack set by its expansion name", () => {
@@ -157,5 +157,13 @@ describe("buildExpansionData", () => {
         [expansion("pb", "Promo-B", [{ id: "pb-booster", name: "Booster", image: null }])]
       )
     ).toEqual([]);
+  });
+});
+
+describe("isSharedPack", () => {
+  it("treats any pack name containing shared, in any case, as shared", () => {
+    expect(isSharedPack("Shared(Genetic Apex)")).toBe(true);
+    expect(isSharedPack("SHARED")).toBe(true);
+    expect(isSharedPack("Charizard")).toBe(false);
   });
 });

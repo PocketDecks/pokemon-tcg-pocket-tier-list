@@ -29,6 +29,8 @@ interface PackScore {
   count: number;
 }
 
+export const isSharedPack = (pack: string) => pack.toLowerCase().includes("shared");
+
 const scoreForPack = (
   scores: CardScoreInput[],
   expansion: ExpansionType,
@@ -39,7 +41,7 @@ const scoreForPack = (
   );
   const shared = scores.filter(
     (card) =>
-      card.set === expansion.id && card.pack.toLowerCase().includes("shared")
+      card.set === expansion.id && isSharedPack(card.pack)
   );
   const directTotal = direct.reduce((sum, card) => sum + card.score, 0);
   const sharedTotal = shared.reduce((sum, card) => sum + card.score, 0);

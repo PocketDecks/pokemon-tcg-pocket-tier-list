@@ -28,7 +28,7 @@ interface Props {
 const ExpansionIcon = ({ image, alt }: Props) => {
   return (
     <Container>
-      <CardImage src={image} alt={alt} />
+      <CardImage src={image} alt={alt} loading="lazy" decoding="async" />
     </Container>
   );
 };

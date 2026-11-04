@@ -46,11 +46,11 @@ const ExpansionStack = ({ images }: Props) => {
     <Stack>
       {layers.map(({ image, depth }) => (
         <Behind key={image} $depth={depth} aria-hidden="true">
-          <PackImage src={image} alt="" />
+          <PackImage src={image} alt="" loading="lazy" decoding="async" />
         </Behind>
       ))}
       <Pack>
-        <PackImage src={front} alt="" />
+        <PackImage src={front} alt="" loading="lazy" decoding="async" />
       </Pack>
     </Stack>
   );

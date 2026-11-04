@@ -28,4 +28,17 @@ describe("ExpansionStack", () => {
     const alts = Array.from(container.querySelectorAll("img"), (image) => image.getAttribute("alt"));
     expect(alts).toEqual(["", "", ""]);
   });
+
+  it("loads every layer lazily and decodes it asynchronously", () => {
+    const { container } = render(
+      <ExpansionStack images={["a.webp", "b.webp", "c.webp"]} />
+    );
+
+    const images = Array.from(container.querySelectorAll("img"));
+    expect(images).toHaveLength(3);
+    for (const image of images) {
+      expect(image).toHaveAttribute("loading", "lazy");
+      expect(image).toHaveAttribute("decoding", "async");
+    }
+  });
 });

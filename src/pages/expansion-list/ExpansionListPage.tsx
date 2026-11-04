@@ -26,11 +26,11 @@ const ExpansionListPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const view: ExpansionView = searchParams.get("view") === "packs" ? "packs" : "expansions";
 
-  const ready = !!cards && !!expansions;
-  useMarkContentReady(ready);
+  const loaded = !!cards && !!expansions;
 
   const expansionData = buildExpansionData(cards ?? [], expansions ?? []);
   const packData = buildExpansionPackData(cards ?? [], expansions ?? []);
+  useMarkContentReady(loaded && (view === "packs" ? packData.length > 0 : expansionData.length > 0));
   const expansionName = (id: string) => expansions?.find((entry) => entry.id === id)?.name ?? id;
 
   const selectView = (next: ExpansionView) => {
@@ -57,7 +57,7 @@ const ExpansionListPage = () => {
         <PageTitle>{t("header.bestExpansions")}</PageTitle>
         {view === "packs" ? (
           <TierGrid
-            items={ready ? packData : null}
+            items={loaded ? packData : null}
             getScore={(d) => d.averageScore}
             getKey={(d) => d.packId}
             renderItem={(data) => {
@@ -77,7 +77,7 @@ const ExpansionListPage = () => {
           />
         ) : (
           <TierGrid
-            items={ready ? expansionData : null}
+            items={loaded ? expansionData : null}
             getScore={(d) => d.averageScore}
             getKey={(d) => d.expansionId}
             renderItem={(data) => (

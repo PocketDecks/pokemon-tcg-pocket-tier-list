@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useDecks } from "../../app/use-decks";
 import useFilters from "../../app/use-filters";
+import { latestCoveredExpansion } from "../../app/use-expansions";
 import useIsPremium from "../../app/use-is-premium";
 
 import { SortBy } from "../../components/FilterContext";
@@ -92,6 +93,7 @@ const TierListPage = () => {
     setLatestExpansionCards,
   } = useFilters();
   const { t } = useTranslation();
+  const newest = latestCoveredExpansion(decks);
   const isPremium = useIsPremium();
 
   const ready = !loading && !!decks && decks.length > 0;
@@ -181,7 +183,11 @@ const TierListPage = () => {
 
   return (
     <>
-      <PageTitle>{t("header.tierList")}</PageTitle>
+      <PageTitle>
+        {newest
+          ? t("header.tierListHeading", { name: newest.name, id: newest.id.toUpperCase() })
+          : t("header.tierListGeneric")}
+      </PageTitle>
       <TierGrid
         items={decks ? decks.filter((deck) => deck.powerScore !== null) : null}
         getScore={(d) => d.powerScore ?? -1}

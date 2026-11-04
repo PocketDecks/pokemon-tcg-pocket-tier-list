@@ -5,6 +5,7 @@ import StatsPreview from "./StatsPreview";
 import BestDeckFinder from "./BestDeckFinder";
 import AdInContent from "../../ads/AdInContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
+import { useDecks } from "../../app/use-decks";
 
 const StyledLandingPage = styled.div`
   width: 100%;
@@ -17,7 +18,8 @@ const StyledLandingPage = styled.div`
 `;
 
 const LandingPage = () => {
-  useMarkContentReady(true);
+  const { decks, loading } = useDecks();
+  useMarkContentReady(!loading && decks !== null);
 
   return (
     <StyledLandingPage>

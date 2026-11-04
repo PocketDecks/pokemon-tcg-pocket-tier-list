@@ -185,7 +185,8 @@
     "shareColumn": "占比",
     "deltaColumn": "變化",
     "noTrends": "暫時無法取得趨勢資料。",
-    "noMovement": "此時間範圍內沒有卡組變動。"
+    "noMovement": "此時間範圍內沒有卡組變動。",
+    "introGeneric": "借助即時歷史資料與原型對戰熱力圖，分析目前的寶可夢卡牌 Pocket 環境。這些追蹤資料呈現卡組人氣與勝率如何隨時間變化。"
   },
   "bestDeckFinder": {
     "title": "尋找你的最佳牌組",
@@ -200,7 +201,9 @@
     "signOut": "登出",
     "bestCards": "最佳卡牌",
     "bestExpansions": "最佳擴充包",
-    "statistics": "數據統計"
+    "statistics": "數據統計",
+    "tierListHeading": "{{name}}（{{id}}）強度排行",
+    "tierListGeneric": "Pokémon TCG Pocket 強度排行"
   },
   "footer": {
     "about": "關於",
@@ -254,8 +257,8 @@
       "description": "排行榜仰賴賽事結果。演算法決定強度分級與牌組列表。"
     },
     "weeklyUpdates": {
-      "title": "每週更新",
-      "description": "排行榜每週更新，每週一帶來新的牌組與對戰組合。"
+      "title": "頻繁更新",
+      "description": "排行榜一週更新四次，帶來新的牌組與對戰組合。"
     },
     "filters": {
       "title": "過濾器",

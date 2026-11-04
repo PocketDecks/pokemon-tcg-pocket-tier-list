@@ -16,7 +16,7 @@ import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { useDecks, useMatchups } from "../../app/use-decks";
 import { buildTiers } from "../../app/tier-helper";
 import { deckDisplayName, formatArchetypeId } from "../../app/deck-display";
-import { latestExpansionName } from "../../app/use-expansions";
+import { latestCoveredExpansion } from "../../app/use-expansions";
 import { sortByPowerScore } from "../../app/score-baseline";
 import PageTitle from "../../components/PageTitle";
 import NavIcon from "../../components/NavIcon";
@@ -315,6 +315,7 @@ const StatisticsPage = () => {
     const scale = matrixScale[theme];
     const matrixColourFor = matrixColour(scale);
     const { decks, metaShare, loading, error } = useDecks();
+    const newest = latestCoveredExpansion(decks);
     const { matchupsByName, loading: matchupsLoading, error: matchupsError } = useMatchups();
     const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
     const [pinnedSeries, setPinnedSeries] = useState<string | null>(null);
@@ -582,7 +583,9 @@ const StatisticsPage = () => {
             <SeoContent>
                 <h2>{t("statistics.heading", { ns: "seo" })}</h2>
                 <p>
-                    {t("statistics.intro", { ns: "seo", expansion: latestExpansionName() ?? "" })}
+                    {newest
+                        ? t("statistics.intro", { ns: "seo", expansion: newest.name })
+                        : t("statistics.introGeneric")}
                 </p>
 
                 <h3>{t("statistics.trendsHeading", { ns: "seo" })}</h3>

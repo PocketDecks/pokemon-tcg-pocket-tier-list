@@ -185,7 +185,8 @@
     "shareColumn": "Cotă",
     "deltaColumn": "Schimbare",
     "noTrends": "Datele despre tendințe nu sunt disponibile acum.",
-    "noMovement": "Nicio mișcare a pachetelor în această perioadă."
+    "noMovement": "Nicio mișcare a pachetelor în această perioadă.",
+    "introGeneric": "Analizați metajocul actual al Pokémon TCG Pocket folosind date istorice în timp real și hărți termice ale matchup-urilor dintre arhetipuri. Aceste date arată cum se schimbă în timp popularitatea deck-urilor și ratele de victorie."
   },
   "bestDeckFinder": {
     "title": "Găsește-ți cel mai bun deck",
@@ -200,7 +201,9 @@
     "signOut": "Deconectează-te",
     "bestCards": "Cele mai bune cărți",
     "bestExpansions": "Cele mai bune expansiuni",
-    "statistics": "Statistici"
+    "statistics": "Statistici",
+    "tierListHeading": "Lista de niveluri {{name}} ({{id}})",
+    "tierListGeneric": "Lista de niveluri Pokémon TCG Pocket"
   },
   "footer": {
     "about": "Despre",
@@ -254,8 +257,8 @@
       "description": "Clasamentul se bazează pe rezultatele din turnee. Un algoritm determină nivelul (tier-ul) și lista deck-ului."
     },
     "weeklyUpdates": {
-      "title": "Actualizări săptămânale",
-      "description": "Clasamentul se actualizează săptămânal, aducând deck-uri și matchup-uri noi în fiecare luni."
+      "title": "Actualizări frecvente",
+      "description": "Clasamentul se actualizează de patru ori pe săptămână, aducând deck-uri și matchup-uri noi."
     },
     "filters": {
       "title": "Filtre",

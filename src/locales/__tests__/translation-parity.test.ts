@@ -98,3 +98,31 @@ describe("seo namespace key parity", () => {
     expect(stale).toEqual([]);
   });
 });
+
+describe("weeklyUpdates copy", () => {
+  const MONDAY =
+    /monday|montag|lunes|lundi|lunedì|segunda|luni|月曜|월요일|星期一|週一/i;
+
+  const CADENCE: Record<string, RegExp> = {
+    en: /four times a week/,
+    de: /viermal pro Woche/,
+    es: /cuatro veces por semana/,
+    fr: /quatre fois par semaine/,
+    it: /quattro volte a settimana/,
+    ja: /週4回/,
+    ko: /주 4회/,
+    pt: /quatro vezes por semana/,
+    ro: /de patru ori pe săptămână/,
+    "zh-CN": /一周更新四次/,
+    "zh-TW": /一週更新四次/,
+  };
+
+  it.each(Object.entries(locales))("%s says neither Monday nor weekly", (localeName, localeData) => {
+    const block = (localeData as { features: { weeklyUpdates: { title: string; description: string } } })
+      .features.weeklyUpdates;
+    const text = `${block.title} ${block.description}`;
+    expect(text).not.toMatch(/weekly/i);
+    expect(text).not.toMatch(MONDAY);
+    expect(text).toMatch(CADENCE[localeName]);
+  });
+});

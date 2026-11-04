@@ -185,7 +185,8 @@
     "shareColumn": "Participação",
     "deltaColumn": "Mudança",
     "noTrends": "Os dados de tendências não estão disponíveis neste momento.",
-    "noMovement": "Sem movimento de baralhos neste período."
+    "noMovement": "Sem movimento de baralhos neste período.",
+    "introGeneric": "Analise o metajogo atual de Pokémon TCG Pocket com dados históricos ao vivo e mapas de calor de confrontos entre arquétipos. Estes dados mostram como a popularidade dos decks e as taxas de vitória mudam ao longo do tempo."
   },
   "bestDeckFinder": {
     "title": "Encontre o Seu Melhor Deck",
@@ -200,7 +201,9 @@
     "signOut": "Sair",
     "bestCards": "Melhores Cartas",
     "bestExpansions": "Melhores Expansões",
-    "statistics": "Estatísticas"
+    "statistics": "Estatísticas",
+    "tierListHeading": "Lista de tiers de {{name}} ({{id}})",
+    "tierListGeneric": "Lista de tiers de Pokémon TCG Pocket"
   },
   "footer": {
     "about": "Sobre",
@@ -254,8 +257,8 @@
       "description": "A tier list baseia-se em resultados de torneios. Um algoritmo determina o tier e a lista do deck."
     },
     "weeklyUpdates": {
-      "title": "Atualizações Semanais",
-      "description": "A tier list é atualizada semanalmente, trazendo novos decks e confrontos todas as segundas-feiras."
+      "title": "Atualizações frequentes",
+      "description": "A tier list é atualizada quatro vezes por semana, trazendo novos decks e confrontos."
     },
     "filters": {
       "title": "Filtros",

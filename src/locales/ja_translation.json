@@ -185,7 +185,8 @@
     "shareColumn": "シェア",
     "deltaColumn": "変化",
     "noTrends": "トレンドデータは現在利用できません。",
-    "noMovement": "この期間にデッキの動きはありません。"
+    "noMovement": "この期間にデッキの動きはありません。",
+    "introGeneric": "最新の履歴データとアーキタイプ別の相性ヒートマップを使って、ポケモンカードゲーム ポケットの現在の環境を分析できます。デッキの人気度と勝率が時間とともにどう動くかを正確に追跡できます。"
   },
   "bestDeckFinder": {
     "title": "最適なデッキを見つけよう",
@@ -200,7 +201,9 @@
     "signOut": "ログアウト",
     "bestCards": "ベストカード",
     "bestExpansions": "おすすめの拡張パック",
-    "statistics": "統計"
+    "statistics": "統計",
+    "tierListHeading": "{{name}}（{{id}}）ティアリスト",
+    "tierListGeneric": "ポケポケ ティアリスト"
   },
   "footer": {
     "about": "概要",
@@ -254,8 +257,8 @@
       "description": "ティアリストはトーナメント結果に依存しています。アルゴリズムがティアとデッキリストを決定します。"
     },
     "weeklyUpdates": {
-      "title": "週間更新",
-      "description": "ティアリストは毎週更新され、毎週月曜日に新しいデッキとマッチアップが追加されます。"
+      "title": "頻繁な更新",
+      "description": "ティアリストは週4回更新され、新しいデッキとマッチアップが追加されます。"
     },
     "filters": {
       "title": "フィルター",

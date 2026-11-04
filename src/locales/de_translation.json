@@ -185,7 +185,8 @@
     "shareColumn": "Anteil",
     "deltaColumn": "Veränderung",
     "noTrends": "Trenddaten sind derzeit nicht verfügbar.",
-    "noMovement": "Keine Deck-Bewegung in diesem Zeitraum."
+    "noMovement": "Keine Deck-Bewegung in diesem Zeitraum.",
+    "introGeneric": "Analysieren Sie die aktuelle Pokémon-TCG-Pocket-Metagame mit Live-Verlaufsdaten und Matchup-Heatmaps der Archetypen. Diese Daten zeigen, wie sich Deck-Beliebtheit und Siegquoten im Laufe der Zeit verändern."
   },
   "bestDeckFinder": {
     "title": "Finde dein bestes Deck",
@@ -200,7 +201,9 @@
     "signOut": "Abmelden",
     "bestCards": "Beste Karten",
     "bestExpansions": "Beste Erweiterungen",
-    "statistics": "Statistiken"
+    "statistics": "Statistiken",
+    "tierListHeading": "{{name}} ({{id}}) Tierliste",
+    "tierListGeneric": "Pokemon TCG Pocket Tierliste"
   },
   "footer": {
     "about": "Über uns",
@@ -254,8 +257,8 @@
       "description": "Die Tier-Liste basiert auf Turnierergebnissen. Ein Algorithmus bestimmt das Tier und die Deckliste."
     },
     "weeklyUpdates": {
-      "title": "Wöchentliche Updates",
-      "description": "Die Tier-Liste wird wöchentlich aktualisiert und bringt jeden Montag neue Decks und Matchups."
+      "title": "Häufige Updates",
+      "description": "Die Tier-Liste wird viermal pro Woche aktualisiert und bringt neue Decks und Matchups."
     },
     "filters": {
       "title": "Filter",

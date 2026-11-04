@@ -91,6 +91,7 @@
     "liveStatus": "現在の大会データで、最上位のリストの期待勝率は {{winRate}}%、メタシェアは {{metaShare}}% です。",
     "liveStatusNoShare": "現在の大会データで、最上位のリストの期待勝率は {{winRate}}% です。",
     "retiredStatus": "{{name}} は {{lastSeen}} に最後に確認されており、現在の {{expansion}} のメタには含まれていません。",
-    "coreCards": "コアリストで最も多く採用されているカードは {{cards}} です。"
+    "coreCards": "コアリストで最も多く採用されているカードは {{cards}} です。",
+    "retiredStatusGeneric": "{{name}} は {{lastSeen}} に最後に確認されており、現在のメタには含まれていません。"
   }
 }

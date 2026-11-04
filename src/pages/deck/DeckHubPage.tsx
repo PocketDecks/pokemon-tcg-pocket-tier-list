@@ -13,7 +13,7 @@ import { useDecks, useMatchups } from "../../app/use-decks";
 import { useHubFile } from "../../app/use-hub-file";
 import { fetchCards } from "../../app/cards-api";
 import { MIN_MATCHUP_GAMES } from "../../app/config";
-import { newestExpansion } from "../../app/expansion-policy.mjs";
+import { newestCoveredExpansion } from "../../app/expansion-feed.mjs";
 import { EXPANSIONS_URL } from "../../app/constants";
 import SeoContent from "../../components/SeoContent";
 import DeckHubHeadTags, { type HubHeadStatus } from "./DeckHubHeadTags";
@@ -191,7 +191,7 @@ const HubPage = () => {
   const liveVariants = variants
     .filter((entry) => liveBySlug.has(entry.variant))
     .sort((a, b) => powerOf(b.variant) - powerOf(a.variant));
-  const latest = newestExpansion(EXPANSIONS_URL);
+  const latest = newestCoveredExpansion(EXPANSIONS_URL, decks);
   const contentReady =
     variants.length === 0 || (hub !== undefined && cardsQuery.isSuccess && !matchupsLoading);
   useMarkContentReady(!loading && contentReady);
@@ -236,12 +236,18 @@ const HubPage = () => {
           winRate: percent(strongestDeck.expectedWinRate),
           metaShare: shareText(strongestShare),
         })
-    : t("hub.retiredStatus", {
-        ns: "seo",
-        name,
-        lastSeen: formatDate(recordSeen.lastSeen, i18n.language),
-        expansion: expansionName,
-      });
+    : latest
+      ? t("hub.retiredStatus", {
+          ns: "seo",
+          name,
+          lastSeen: formatDate(recordSeen.lastSeen, i18n.language),
+          expansion: latest.name,
+        })
+      : t("hub.retiredStatusGeneric", {
+          ns: "seo",
+          name,
+          lastSeen: formatDate(recordSeen.lastSeen, i18n.language),
+        });
   const overview =
     peak === null
       ? null

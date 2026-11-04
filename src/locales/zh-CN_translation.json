@@ -185,7 +185,8 @@
     "shareColumn": "占比",
     "deltaColumn": "变化",
     "noTrends": "暂时无法获取趋势数据。",
-    "noMovement": "此时间段内没有卡组变动。"
+    "noMovement": "此时间段内没有卡组变动。",
+    "introGeneric": "借助实时历史数据和原型对战热力图，分析当前的宝可梦卡牌 Pocket 环境。这些追踪数据展示卡组人气和胜率如何随时间变化。"
   },
   "bestDeckFinder": {
     "title": "寻找您的最佳卡组",
@@ -200,7 +201,9 @@
     "signOut": "退出登录",
     "bestCards": "最佳卡牌",
     "bestExpansions": "最佳扩展包",
-    "statistics": "统计数据"
+    "statistics": "统计数据",
+    "tierListHeading": "{{name}}（{{id}}）强度排行",
+    "tierListGeneric": "Pokémon TCG Pocket 强度排行"
   },
   "footer": {
     "about": "关于",
@@ -254,8 +257,8 @@
       "description": "等级列表依赖于比赛结果。算法确定等级和卡组列表。"
     },
     "weeklyUpdates": {
-      "title": "每周更新",
-      "description": "等级列表每周更新一次，在每个星期一带来新的卡组和对战。"
+      "title": "频繁更新",
+      "description": "等级列表一周更新四次，带来新的卡组和对战。"
     },
     "filters": {
       "title": "筛选",

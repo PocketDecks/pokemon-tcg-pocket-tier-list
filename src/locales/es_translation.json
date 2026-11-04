@@ -185,7 +185,8 @@
     "shareColumn": "Cuota",
     "deltaColumn": "Cambio",
     "noTrends": "Los datos de tendencias no están disponibles ahora mismo.",
-    "noMovement": "No hay movimiento de mazos en este periodo."
+    "noMovement": "No hay movimiento de mazos en este periodo.",
+    "introGeneric": "Analiza el metajuego actual de Pokémon TCG Pocket con datos históricos en vivo y mapas de calor de enfrentamientos entre arquetipos. Estos datos muestran cómo cambian con el tiempo la popularidad de los mazos y las tasas de victoria."
   },
   "bestDeckFinder": {
     "title": "Encuentra tu mejor mazo",
@@ -200,7 +201,9 @@
     "signOut": "Cerrar sesión",
     "bestCards": "Mejores cartas",
     "bestExpansions": "Mejores expansiones",
-    "statistics": "Estadísticas"
+    "statistics": "Estadísticas",
+    "tierListHeading": "Lista de niveles de {{name}} ({{id}})",
+    "tierListGeneric": "Lista de niveles de Pokémon TCG Pocket"
   },
   "footer": {
     "about": "Acerca de",
@@ -254,8 +257,8 @@
       "description": "La Tier List se basa en los resultados de los torneos. Un algoritmo determina el tier y la lista del mazo."
     },
     "weeklyUpdates": {
-      "title": "Actualizaciones semanales",
-      "description": "La Tier List se actualiza semanalmente, trayendo nuevos mazos y enfrentamientos cada lunes."
+      "title": "Actualizaciones frecuentes",
+      "description": "La Tier List se actualiza cuatro veces por semana, trayendo nuevos mazos y enfrentamientos."
     },
     "filters": {
       "title": "Filtros",

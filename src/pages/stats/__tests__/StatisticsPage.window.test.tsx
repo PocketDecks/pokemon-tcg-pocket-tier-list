@@ -22,7 +22,7 @@ vi.mock("../../../components/SeoContent", () => ({ __esModule: true, default: ({
 vi.mock("../TrendChart", () => ({ __esModule: true, default: () => null }));
 vi.mock("../../../components/PageTitle", () => ({ __esModule: true, default: ({ children }: { children: React.ReactNode }) => <h1>{children}</h1> }));
 vi.mock("../../../components/DeckArt", () => ({ __esModule: true, default: () => null }));
-vi.mock("../../../app/use-expansions", () => ({ latestExpansionName: () => "" }));
+vi.mock("../../../app/use-expansions", () => ({ latestCoveredExpansion: () => null }));
 
 const decks = [{ id: "test-deck", name: "test-deck", powerScore: 80, lists: [], iconPrimary: null }];
 

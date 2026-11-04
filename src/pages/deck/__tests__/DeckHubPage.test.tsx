@@ -4,8 +4,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes } from "react-router";
 import i18n from "../../../i18n";
 import DeckHubPage from "../DeckHubPage";
-import { EXPANSIONS_URL } from "../../../app/constants";
-import { newestExpansion } from "../../../app/expansion-policy.mjs";
 
 const decksState = vi.hoisted(() => ({
   value: { decks: [] as unknown[] | null, metaShareBySlug: {}, loading: false, error: null as Error | null },
@@ -324,12 +322,22 @@ describe("DeckHubPage content", () => {
     expect(screen.getByText(/expected win rate of 52\.0% and a 10\.0% meta share/)).toBeTruthy();
   });
 
-  it("states the last sighting and the current expansion when the hub has no live variant", async () => {
+  it("states the last sighting and the covered expansion when the hub has no live variant", async () => {
+    decksState.value = {
+      decks: [{ name: "other-a1-001", powerScore: null, expectedWinRate: 0.5, bestList: { cards: [] }, lists: [{ cards: ["2:c1-018"] }] }] as unknown[],
+      metaShareBySlug: {},
+      loading: false,
+      error: null,
+    };
     renderAt("/deck/mega-greninja-ex");
-    const expansion = newestExpansion(EXPANSIONS_URL)?.name;
-    expect(expansion).toBeTruthy();
     expect(await screen.findByText(/was last seen on 2 Nov 2026/)).toBeTruthy();
-    expect(document.body.textContent).toContain(`current meta for ${expansion}.`);
+    expect(document.body.textContent).toContain("current meta for Dual Fusion.");
+  });
+
+  it("states the last sighting without naming an expansion while the decks cover none", async () => {
+    renderAt("/deck/mega-greninja-ex");
+    expect(await screen.findByText(/was last seen on 2 Nov 2026 and is not in the current meta./)).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/Dual Fusion/);
   });
 
   it("marks the content ready only once the hub file and the cards have loaded", async () => {

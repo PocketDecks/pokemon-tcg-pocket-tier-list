@@ -340,6 +340,33 @@ describe("Popup keyboard accessibility", () => {
     expect(screen.getByRole("button", { name: "Visible action" })).toHaveFocus();
   });
 
+  it("skips a visibility:hidden last control when checkVisibility is missing", async () => {
+    const user = userEvent.setup();
+    const checkVisibility = Element.prototype.checkVisibility;
+    Reflect.deleteProperty(Element.prototype, "checkVisibility");
+    const rects = vi
+      .spyOn(Element.prototype, "getClientRects")
+      .mockReturnValue([{}] as unknown as DOMRectList);
+    try {
+      render(
+        <Popup isOpen header="panel.title" close={() => {}}>
+          <button type="button">Visible action</button>
+          <button type="button" style={{ visibility: "hidden" }}>
+            Invisible action
+          </button>
+        </Popup>
+      );
+
+      expect(screen.getByRole("button", { name: "Close panel" })).toHaveFocus();
+      await user.tab({ shift: true });
+
+      expect(screen.getByRole("button", { name: "Visible action" })).toHaveFocus();
+    } finally {
+      rects.mockRestore();
+      Element.prototype.checkVisibility = checkVisibility;
+    }
+  });
+
   it("skips a control inside a display:none wrapper when Shift+Tab wraps", async () => {
     const user = userEvent.setup();
     render(

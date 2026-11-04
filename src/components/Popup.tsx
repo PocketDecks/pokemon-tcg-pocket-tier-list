@@ -142,7 +142,7 @@ const FOCUSABLE_SELECTOR = [
 const isRendered = (element: HTMLElement) =>
   typeof element.checkVisibility === "function"
     ? element.checkVisibility({ visibilityProperty: true, contentVisibilityAuto: true })
-    : element.getClientRects().length > 0;
+    : element.getClientRects().length > 0 && getComputedStyle(element).visibility !== "hidden";
 
 const getFocusable = (root: HTMLElement) =>
   Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(isRendered);

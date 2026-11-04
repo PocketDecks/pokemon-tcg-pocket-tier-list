@@ -1,0 +1,35 @@
+# Top Pocket Decks
+
+> Top Pocket Decks ranks Pokemon TCG Pocket decks and cards from Limitless tournament results. It publishes deck profiles, win rates, matchups and meta statistics, refreshed on a regular schedule as new results come in.
+
+## Tier list
+
+- [Deck tier list](https://pocketdecks.top/tier-list/): every archetype ranked from tournament data, with win rates and matchups.
+
+## Card rankings
+
+- [Card tier list](https://pocketdecks.top/cards-list/): which cards win games, scored from tournament deck lists.
+
+## Statistics
+
+- [Meta statistics and trends](https://pocketdecks.top/statistics/): meta share, weekly deck movement and matchup statistics.
+
+## Expansions
+
+- [Expansion list](https://pocketdecks.top/expansion-list/): every expansion with its card count and meta impact.
+
+## About and methodology
+
+- [About and methodology](https://pocketdecks.top/about/): how decks are ranked from Limitless tournament data, and who maintains the project.
+
+## Sitemap
+
+- [Sitemap](https://pocketdecks.top/sitemap.xml): every page on the site.
+
+## Use and security policy
+
+The site may be fetched to answer user questions, provided the answer credits Top Pocket Decks with attribution.
+
+Automated vulnerability scanning, exploitation, credential testing and any other unauthorised access are prohibited. Unauthorised access is an offence under the UK Computer Misuse Act 1990 and equivalent laws elsewhere.
+
+Good-faith security reports go only through the process in [SECURITY.md](https://github.com/PocketDecks/pokemon-tcg-pocket-tier-list/blob/main/SECURITY.md).

@@ -427,7 +427,7 @@
   },
   "loadError": {
     "title": "Falha ao carregar",
-    "message": "As pontuações das cartas não puderam ser carregadas. Tenta novamente.",
+    "message": "As pontuações das cartas não puderam ser carregadas. Tente novamente.",
     "retry": "Tentar novamente",
     "errorTitle": "Algo correu mal",
     "errorMessage": "Esta parte do site não foi carregada. Recarregar normalmente resolve. Normalmente.",

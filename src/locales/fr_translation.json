@@ -427,7 +427,7 @@
   },
   "loadError": {
     "title": "Échec du chargement",
-    "message": "Les scores de cartes n'ont pas pu être chargés. Réessaie.",
+    "message": "Les scores de cartes n'ont pas pu être chargés. Réessayez.",
     "retry": "Réessayer",
     "errorTitle": "Un problème est survenu",
     "errorMessage": "Cette partie du site n'a pas pu être chargée. Recharger suffit souvent. Souvent.",

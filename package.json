@@ -63,7 +63,7 @@
   "resolutions": {
     "@grpc/grpc-js": "1.13.6",
     "source-map-js": "1.2.2",
-    "undici": "^8.10.2",
+    "undici": "^8.12.2",
     "js-yaml": "^4.3.2"
   }
 }

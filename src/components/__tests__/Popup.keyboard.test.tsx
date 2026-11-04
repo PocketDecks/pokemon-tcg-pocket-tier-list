@@ -95,6 +95,25 @@ const PopupWithTrigger = ({ name }: { name: string }) => {
   );
 };
 
+const RemovableModalHarness = ({ showNotice }: { showNotice: boolean }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setIsOpen(true)}>
+        Open panel
+      </button>
+      <Popup isOpen={isOpen} header="panel.title" close={() => setIsOpen(false)}>
+        <button type="button">Inside action</button>
+      </Popup>
+      {showNotice && (
+        <div role="dialog" aria-modal="true" aria-label="Notice">
+          <button type="button">Dismiss notice</button>
+        </div>
+      )}
+    </>
+  );
+};
+
 const CookieNotice = () => (
   <div role="dialog" aria-modal="true" aria-label="Cookie notice">
     <button type="button">Reject all</button>
@@ -509,6 +528,20 @@ describe("Popup keyboard accessibility", () => {
     fireEvent.keyDown(rejectAll, { key: "Escape" });
 
     expect(screen.getByRole("dialog", { name: "Panel title" })).toBeInTheDocument();
+  });
+
+  it("pulls focus back into the popup when the second modal holding focus is removed", async () => {
+    const user = userEvent.setup();
+    const view = render(<RemovableModalHarness showNotice />);
+    await openPanel(user);
+    const dismiss = screen.getByRole("button", { name: "Dismiss notice" });
+    dismiss.focus();
+    expect(dismiss).toHaveFocus();
+
+    fireEvent.focusOut(dismiss);
+    view.rerender(<RemovableModalHarness showNotice={false} />);
+
+    await waitFor(() => expect(screen.getByRole("button", { name: "Close panel" })).toHaveFocus());
   });
 
   it("returns Tab from the other modal's last control to the popup's first control", async () => {

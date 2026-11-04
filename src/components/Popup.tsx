@@ -333,14 +333,29 @@ const Popup: React.FC<Props> = ({ isOpen, header, close, children, width }) => {
       }
     };
 
+    const pendingFocusChecks: ReturnType<typeof setTimeout>[] = [];
+    const handleFocusOut = (event: FocusEvent) => {
+      if (event.relatedTarget !== null || !(event.target instanceof Node)) return;
+      if (dialog.contains(event.target)) return;
+      pendingFocusChecks.push(
+        setTimeout(() => {
+          const current = document.activeElement;
+          if (current === null || current === document.body) focusFirst();
+        }, 0)
+      );
+    };
+
     document.addEventListener("keydown", handleBridgeBack, true);
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("focusin", handleFocusIn);
+    document.addEventListener("focusout", handleFocusOut);
 
     return () => {
       document.removeEventListener("keydown", handleBridgeBack, true);
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("focusin", handleFocusIn);
+      document.removeEventListener("focusout", handleFocusOut);
+      for (const timer of pendingFocusChecks) clearTimeout(timer);
       releaseOutside();
       releasePopup();
       if (trigger?.isConnected) trigger.focus();

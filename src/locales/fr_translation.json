@@ -402,5 +402,17 @@
     "noSimilarDecks": "Aucun deck actuel ne partage de cartes avec cette liste.",
     "variantHistory": "Historique des variantes",
     "peakShare": "Pic de {{value}} % le {{date}}"
+  },
+  "expansionPage": {
+    "home": "Accueil",
+    "expansions": "Extensions",
+    "heading": "{{name}} ({{id}}) Cartes et decks",
+    "released": "Sorti le {{date}}",
+    "intro": "Cartes de {{name}} présentes dans les decks de tournoi actuels, et les decks qui les jouent.",
+    "cardsHeading": "Cartes utilisées dans les decks actuels",
+    "decksHeading": "Decks actuels utilisant cette extension",
+    "empty": "Aucune carte de {{name}} ne figure dans les meilleurs decks en ce moment.",
+    "loadError": "Les données des cartes n'ont pas pu être chargées. Actualisez la page pour réessayer.",
+    "breadcrumb": "Fil d'Ariane"
   }
 }

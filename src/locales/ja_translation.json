@@ -402,5 +402,17 @@
     "noSimilarDecks": "このリストとカードを共有する現在のデッキはありません。",
     "variantHistory": "バリエーションの履歴",
     "peakShare": "ピーク {{value}}%（{{date}}）"
+  },
+  "expansionPage": {
+    "home": "ホーム",
+    "expansions": "拡張パック",
+    "heading": "{{name}} ({{id}}) カードとデッキ",
+    "released": "{{date}} 発売",
+    "intro": "{{name}}のカードのうち現在の大会デッキで使われているカードと、それを使うデッキを紹介します。",
+    "cardsHeading": "現在のデッキで使われているカード",
+    "decksHeading": "この拡張パックを使う現在のデッキ",
+    "empty": "{{name}}のカードは現在、上位デッキに採用されていません。",
+    "loadError": "カードデータを読み込めませんでした。ページを再読み込みしてください。",
+    "breadcrumb": "パンくずリスト"
   }
 }

@@ -11,7 +11,8 @@
     "buildHeading": "Building your best deck",
     "buildBody": "If you do not own every card, you can open any deck to view its full list alongside card-for-card alternatives. You can also use the Best Deck Finder to mark the cards you are missing and instantly find the strongest deck you can build with your current collection. The tool allows you to filter by energy type and rank decks by popularity or raw strength.",
     "updatesHeading": "Tier list updates",
-    "updatesBody": "The rankings update automatically as fresh tournament results come in. The fastest updates go to Premium members. The date shown in the lower-right corner always reflects the most recent refresh."
+    "updatesBody": "The rankings update automatically as fresh tournament results come in. The fastest updates go to Premium members. The date shown in the lower-right corner always reflects the most recent refresh.",
+    "expansionLink": "Browse the <0>{{name}} cards and decks</0>."
   },
   "cardsList": {
     "heading": "Pokémon TCG Pocket | Card Tier List",

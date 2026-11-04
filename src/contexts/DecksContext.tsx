@@ -43,6 +43,7 @@ type PartialDeckType = PipelinePartialDeck;
 
 interface DecksContextType {
   decks: FullDeckType[] | null;
+  rawDecks: PartialDeckType[] | null;
   scoreBaseline: ScoreBaseline | null;
   metaShare: PipelineMetaShare | null;
   metaShareBySlug: Record<string, MetaShareEntry> | null;
@@ -364,9 +365,12 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
     latestExpansionId,
   ]);
 
+  const rawDecks = useMemo(() => decksData?.decks ?? null, [decksData]);
+
   const value = useMemo(
     () => ({
       decks,
+      rawDecks,
       scoreBaseline,
       metaShare: settledMetaShare,
       metaShareBySlug,
@@ -375,6 +379,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
     }),
     [
       decks,
+      rawDecks,
       scoreBaseline,
       settledMetaShare,
       metaShareBySlug,

@@ -111,6 +111,7 @@ test("llms.txt links the public sections and the sitemap", () => {
     `${SITE}/cards-list/`,
     `${SITE}/statistics/`,
     `${SITE}/expansion-list/`,
+    `${SITE}/expansion-list/c1/`,
     `${SITE}/about/`,
     `${SITE}/sitemap.xml`,
   ]);

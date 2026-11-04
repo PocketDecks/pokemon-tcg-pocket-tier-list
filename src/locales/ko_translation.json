@@ -402,5 +402,17 @@
     "noSimilarDecks": "이 목록과 카드를 공유하는 현재 덱이 없습니다.",
     "variantHistory": "변형 기록",
     "peakShare": "최고 {{value}}% ({{date}})"
+  },
+  "expansionPage": {
+    "home": "홈",
+    "expansions": "확장팩",
+    "heading": "{{name}} ({{id}}) 카드 & 덱",
+    "released": "{{date}} 출시",
+    "intro": "현재 대회 덱에 등장하는 {{name}} 카드와 이 카드를 사용하는 덱입니다.",
+    "cardsHeading": "현재 덱에서 사용되는 카드",
+    "decksHeading": "이 확장팩을 사용하는 현재 덱",
+    "empty": "{{name}} 카드는 현재 상위 덱에 없습니다.",
+    "loadError": "카드 데이터를 불러오지 못했습니다. 페이지를 새로 고침하여 다시 시도하세요.",
+    "breadcrumb": "탐색 경로"
   }
 }

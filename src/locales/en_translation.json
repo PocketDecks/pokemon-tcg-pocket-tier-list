@@ -402,5 +402,17 @@
     "noSimilarDecks": "No current deck shares cards with this list.",
     "variantHistory": "Variant history",
     "peakShare": "Peak {{value}}% on {{date}}"
+  },
+  "expansionPage": {
+    "home": "Home",
+    "expansions": "Expansions",
+    "heading": "{{name}} ({{id}}) Cards & Decks",
+    "released": "Released {{date}}",
+    "intro": "Cards from {{name}} that appear in current tournament decks, and the decks that play them.",
+    "cardsHeading": "Cards used in live decks",
+    "decksHeading": "Live decks using this expansion",
+    "empty": "None of the {{name}} cards are in a top deck right now.",
+    "loadError": "Card data didn't load. Refresh the page to try again.",
+    "breadcrumb": "Breadcrumb"
   }
 }

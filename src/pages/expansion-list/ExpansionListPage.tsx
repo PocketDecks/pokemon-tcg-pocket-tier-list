@@ -7,7 +7,8 @@ import TierGrid from "../../components/TierGrid";
 import PageTitle from "../../components/PageTitle";
 import ExpansionIcon from "../../components/ExpansionIcon";
 import { buildExpansionPackData } from "../../app/expansion-scores";
-import { useLocaleHref } from "../../app/locale-link";
+import { useLocaleHref, LocaleLink } from "../../app/locale-link";
+import { isListedExpansion } from "../../app/expansion-policy.mjs";
 
 const ExpansionListPage = () => {
   const { t } = useTranslation();
@@ -19,6 +20,8 @@ const ExpansionListPage = () => {
   useMarkContentReady(!!cards && !!expansions);
 
   const expansionData = buildExpansionPackData(cards ?? [], expansions ?? []);
+  const expansionPageHref = (id: string) => `/expansion-list/${id}`;
+  const expansionName = (id: string) => expansions?.find((entry) => entry.id === id)?.name ?? id;
 
   return (
       <>
@@ -27,7 +30,16 @@ const ExpansionListPage = () => {
           items={cards && expansions ? expansionData : null}
           getScore={(d) => d.averageScore}
           getKey={(d) => d.packId}
-          renderItem={(data) => <ExpansionIcon image={data.packImage} />}
+          renderItem={(data) => {
+            const icon = <ExpansionIcon image={data.packImage} />;
+            return isListedExpansion({ id: data.expansionId }) ? (
+              <LocaleLink to={expansionPageHref(data.expansionId)} aria-label={expansionName(data.expansionId)}>
+                {icon}
+              </LocaleLink>
+            ) : (
+              icon
+            );
+          }}
         />
         <SeoContent>
           <h2>{t("expansionList.heading", { ns: "seo" })}</h2>

@@ -10,6 +10,7 @@ const {
 const { resolveHosting } = require("./firebase-hosting");
 const { inlineScriptHashes, parsePolicy, reportOnlyPolicy } = require("./content-security-policy");
 const { DELUXE_EXPANSION_IDS, newestExpansion } = require("../src/app/expansion-policy.mjs");
+const { expansionIndexPolicy } = require("../src/app/expansion-index-policy.mjs");
 const { shouldIndexHub } = require("./deck-archive-policy.mjs");
 const { hubDisplayName } = require("./deck-archetype.mjs");
 
@@ -154,6 +155,26 @@ const findHubPageIssues = (dir = DIST_DIR, archive = loadArchive()) => {
       return hubHtmlIssues(entry, fs.readFileSync(file, "utf8"), expectedRobots, name);
     });
   });
+};
+
+const findExpansionPageIssues = (dir = DIST_DIR, expansions = loadExpansions(), decks = loadDecks()) => {
+  const policy = expansionIndexPolicy(expansions, decks);
+  const issues = [];
+  for (const expansion of expansions.filter((entry) => !DELUXE_EXPANSION_IDS.has(entry.id))) {
+    for (const prefix of ["", "ja/"]) {
+      const entry = `${prefix}expansion-list/${expansion.id}/index.html`;
+      const file = path.join(dir, entry);
+      if (!fs.existsSync(file)) {
+        issues.push(`${entry}: missing`);
+        continue;
+      }
+      const html = fs.readFileSync(file, "utf8");
+      const expectedRobots = policy.isIndexable(expansion.id) ? "index, follow" : "noindex, follow";
+      issues.push(...hubHtmlIssues(entry, html, expectedRobots, expansion.id.toUpperCase()));
+      if (!html.includes(`"@type":"BreadcrumbList"`)) issues.push(`${entry}: missing BreadcrumbList JSON-LD`);
+    }
+  }
+  return issues;
 };
 
 const HEAD_BLOCK = /<head\b[^>]*>[\s\S]*?<\/head>/i;
@@ -458,6 +479,11 @@ const main = () => {
     console.error(`Deck hub pages failing the head or copy checks:\n${hubIssues.join("\n")}`);
     process.exit(1);
   }
+  const expansionIssues = findExpansionPageIssues();
+  if (expansionIssues.length > 0) {
+    console.error(`Expansion pages failing the head or coverage checks:\n${expansionIssues.join("\n")}`);
+    process.exit(1);
+  }
   const shellIssues = findShellPageIssues();
   if (shellIssues.length > 0) {
     console.error(
@@ -541,6 +567,7 @@ if (require.main === module) main();
 module.exports = {
   findBakedAppState,
   findHubPageIssues,
+  findExpansionPageIssues,
   findCanonicalIssues,
   findCspHashIssues,
   findShellPageIssues,

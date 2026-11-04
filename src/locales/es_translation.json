@@ -402,5 +402,17 @@
     "noSimilarDecks": "Ningún mazo actual comparte cartas con esta lista.",
     "variantHistory": "Historial de variantes",
     "peakShare": "Máximo de {{value}} % el {{date}}"
+  },
+  "expansionPage": {
+    "home": "Inicio",
+    "expansions": "Expansiones",
+    "heading": "{{name}} ({{id}}) Cartas y mazos",
+    "released": "Lanzamiento: {{date}}",
+    "intro": "Cartas de {{name}} que aparecen en los mazos de torneo actuales, y los mazos que las usan.",
+    "cardsHeading": "Cartas usadas en mazos actuales",
+    "decksHeading": "Mazos actuales que usan esta expansión",
+    "empty": "Ninguna carta de {{name}} aparece ahora mismo en un mazo destacado.",
+    "loadError": "No se cargaron los datos de las cartas. Actualiza la página para intentarlo de nuevo.",
+    "breadcrumb": "Ruta de navegación"
   }
 }

@@ -402,5 +402,17 @@
     "noSimilarDecks": "Niciun deck actual nu are carduri comune cu această listă.",
     "variantHistory": "Istoricul variantelor",
     "peakShare": "Vârf de {{value}}% pe {{date}}"
+  },
+  "expansionPage": {
+    "home": "Acasă",
+    "expansions": "Expansiuni",
+    "heading": "{{name}} ({{id}}) Cărți și deckuri",
+    "released": "Lansat la {{date}}",
+    "intro": "Cărți din {{name}} care apar în deckurile de turneu actuale și deckurile care le folosesc.",
+    "cardsHeading": "Cărți folosite în deckurile actuale",
+    "decksHeading": "Deckuri actuale care folosesc această expansiune",
+    "empty": "Nicio carte din {{name}} nu se află acum într-un deck de top.",
+    "loadError": "Datele cardurilor nu s-au încărcat. Reîncarcă pagina pentru a încerca din nou.",
+    "breadcrumb": "Traseu de navigare"
   }
 }

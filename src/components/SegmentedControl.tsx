@@ -1,5 +1,7 @@
 import styled from "styled-components";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+import VisuallyHidden from "./VisuallyHidden";
 
 const Container = styled.div`
   display: flex;
@@ -50,29 +52,38 @@ interface Props<T extends string> {
   onChange: (value: T) => void;
 }
 
-const SegmentedControl = <T extends string>({ label, options, value, onChange }: Props<T>) => (
-  <Container role="group" aria-label={label}>
-    {options.map((option) => {
-      const active = value === option.value;
-      const locked = option.locked ?? false;
-      return (
-        <ToggleButton
-          key={option.value}
-          type="button"
-          $active={active}
-          $locked={locked}
-          aria-pressed={active}
-          aria-disabled={locked || undefined}
-          onClick={() => {
-            if (locked) return;
-            onChange(option.value);
-          }}
-        >
-          {option.label}
-        </ToggleButton>
-      );
-    })}
-  </Container>
-);
+const SegmentedControl = <T extends string>({ label, options, value, onChange }: Props<T>) => {
+  const { t } = useTranslation();
+  return (
+    <Container role="group" aria-label={label}>
+      {options.map((option) => {
+        const active = value === option.value;
+        const locked = option.locked ?? false;
+        return (
+          <ToggleButton
+            key={option.value}
+            type="button"
+            $active={active}
+            $locked={locked}
+            aria-pressed={active}
+            aria-disabled={locked || undefined}
+            onClick={() => {
+              if (locked) return;
+              onChange(option.value);
+            }}
+          >
+            {option.label}
+            {locked && (
+              <>
+                {" "}
+                <VisuallyHidden>{t("a11y.premiumOnly")}</VisuallyHidden>
+              </>
+            )}
+          </ToggleButton>
+        );
+      })}
+    </Container>
+  );
+};
 
 export default SegmentedControl;

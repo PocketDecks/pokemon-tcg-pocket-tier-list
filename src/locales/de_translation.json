@@ -3,6 +3,7 @@
     "banner": "Ranglisten sind aktuell vom {{date}}."
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "Zum Inhalt springen",
     "openMenu": "Menü öffnen",
     "closeMenu": "Menü schließen",

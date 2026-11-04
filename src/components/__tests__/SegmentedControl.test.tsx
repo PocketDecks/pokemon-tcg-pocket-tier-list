@@ -1,5 +1,9 @@
-import { render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({ t: (key: string) => (key === "a11y.premiumOnly" ? "(Premium)" : key) }),
+}));
+
 import SegmentedControl from "../SegmentedControl";
 
 const renderControl = () =>
@@ -29,5 +33,22 @@ describe("SegmentedControl", () => {
     renderControl();
 
     expect(stylesheetText()).toMatch(/@media \(hover: hover\)\s*\{\s*&?[^{}]*:hover\s*\{/);
+  });
+
+  it("tells screen readers that a locked option needs Premium", () => {
+    render(
+      <SegmentedControl
+        label="Window"
+        options={[
+          { value: "a", label: "Alpha" },
+          { value: "b", label: "Beta", locked: true },
+        ]}
+        value="a"
+        onChange={() => {}}
+      />
+    );
+
+    expect(screen.getByRole("button", { name: "Beta (Premium)" })).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByRole("button", { name: "Alpha" })).not.toHaveAttribute("aria-disabled");
   });
 });

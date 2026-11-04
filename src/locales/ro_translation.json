@@ -3,6 +3,7 @@
     "banner": "Clasamentele sunt actualizate la {{date}}."
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "Salt la conținut",
     "openMenu": "Deschide meniul",
     "closeMenu": "Închide meniul",

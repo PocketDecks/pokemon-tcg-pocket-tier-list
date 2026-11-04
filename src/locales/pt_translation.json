@@ -3,6 +3,7 @@
     "banner": "Os rankings estão atualizados até {{date}}."
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "Pular para o conteúdo",
     "openMenu": "Abrir menu",
     "closeMenu": "Fechar menu",

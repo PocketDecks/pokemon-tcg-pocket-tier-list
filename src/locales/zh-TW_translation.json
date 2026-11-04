@@ -3,6 +3,7 @@
     "banner": "排名截至 {{date}}。"
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "跳到主要內容",
     "openMenu": "開啟選單",
     "closeMenu": "關閉選單",

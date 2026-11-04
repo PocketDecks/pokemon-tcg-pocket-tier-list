@@ -3,6 +3,7 @@
     "banner": "ランキングの基準日：{{date}}"
   },
   "a11y": {
+    "premiumOnly": "(プレミアム)",
     "skipToContent": "本文へスキップ",
     "openMenu": "メニューを開く",
     "closeMenu": "メニューを閉じる",

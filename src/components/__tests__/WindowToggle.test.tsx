@@ -11,7 +11,7 @@ vi.mock("../../app/use-is-premium", () => ({
 }));
 
 vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({ t: (key: string) => (key === "a11y.premiumOnly" ? "(Premium)" : key) }),
 }));
 
 vi.mock("../NavIcon", () => ({
@@ -28,7 +28,8 @@ const renderToggle = () =>
     </MetaWindowProvider>
   );
 
-const option = (name: string) => screen.getByRole("button", { name });
+const option = (name: string) =>
+  screen.getByRole("button", { name: new RegExp(`^${name.replace(/\./g, "\\.")} ?(\\(Premium\\))?$`) });
 
 beforeEach(() => {
   premium.value = false;

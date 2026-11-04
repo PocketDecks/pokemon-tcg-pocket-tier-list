@@ -3,6 +3,7 @@
     "banner": "랭킹 기준일: {{date}}"
   },
   "a11y": {
+    "premiumOnly": "(프리미엄)",
     "skipToContent": "본문으로 건너뛰기",
     "openMenu": "메뉴 열기",
     "closeMenu": "메뉴 닫기",

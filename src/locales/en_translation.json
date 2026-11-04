@@ -3,6 +3,7 @@
     "banner": "Rankings are current as of {{date}}."
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "Skip to content",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
@@ -167,6 +168,11 @@
     "latestExpansionCards": "Cards from latest expansion",
     "latestExpansionCardsAny": "Any"
   },
+  "expansionList": {
+    "viewLabel": "Rank by",
+    "viewExpansions": "Expansions",
+    "viewPacks": "Packs"
+  },
   "window": {
     "label": "Time window",
     "10d": "10 Days",
@@ -185,7 +191,8 @@
     "shareColumn": "Share",
     "deltaColumn": "Change",
     "noTrends": "Trend data is unavailable right now.",
-    "noMovement": "No deck movement in this window."
+    "noMovement": "No deck movement in this window.",
+    "introGeneric": "Analyse the current Pokémon TCG Pocket metagame using live historical data and archetype matchup heatmaps. This tracking data maps exactly how deck popularity and win rates shift over time, and it draws on results from recent competitive events."
   },
   "bestDeckFinder": {
     "title": "Find Your Best Deck",
@@ -200,7 +207,9 @@
     "signOut": "Sign out",
     "bestCards": "Best Cards",
     "bestExpansions": "Best Expansions",
-    "statistics": "Statistics"
+    "statistics": "Statistics",
+    "tierListHeading": "{{name}} ({{id}}) Tier List",
+    "tierListGeneric": "Pokemon TCG Pocket Tier List"
   },
   "footer": {
     "about": "About",
@@ -254,8 +263,8 @@
       "description": "The tier list relies on tournament results. An algorithm determines the tier and decklist."
     },
     "weeklyUpdates": {
-      "title": "Weekly Updates",
-      "description": "The tier list updates weekly, bringing new decks and matchups every Monday."
+      "title": "Frequent Updates",
+      "description": "The tier list updates four times a week, bringing new decks and matchups."
     },
     "filters": {
       "title": "Filters",
@@ -374,5 +383,46 @@
     "20d": "20 days",
     "30d": "30 days",
     "all": "all time"
+  },
+  "deckHub": {
+    "title": "{{name}} Deck",
+    "liveSummary_one": "{{count}} live variant in the current meta, with the strongest list shown first",
+    "liveSummary_other": "{{count}} live variants in the current meta, with the strongest list shown first",
+    "notInMeta": "Not in the current {{expansion}} meta. Browse the tier list for current deck rankings",
+    "expansionFallback": "expansion",
+    "unavailable": "Live deck statistics are unavailable right now. The archive below is still current",
+    "seenFrom": "Seen from {{from}} to {{to}}",
+    "winRate": "{{value}}% win rate",
+    "metaShare": "{{value}}% meta share",
+    "allVariants": "All {{name}} variants",
+    "coreCards": "Core cards",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "No card list has been recorded for this archetype yet.",
+    "matchups": "Matchups",
+    "bestMatchups": "Best matchups",
+    "worstMatchups": "Worst matchups",
+    "noMatchups": "Not enough games against other decks have been recorded yet.",
+    "similarDecks": "Similar current decks",
+    "sharedCards_one": "{{count}} shared card",
+    "sharedCards_other": "{{count}} shared cards",
+    "noSimilarDecks": "No current deck shares cards with this list.",
+    "variantHistory": "Variant history",
+    "peakShare": "Peak {{value}}% on {{date}}"
+  },
+  "expansionPage": {
+    "home": "Home",
+    "expansions": "Expansions",
+    "heading": "{{name}} ({{id}}) Cards & Decks",
+    "packFilter": "Showing the {{pack}} pack and shared cards.",
+    "released": "Released {{date}}",
+    "intro": "Cards from {{name}} that appear in current tournament decks, and the decks that play them.",
+    "cardsHeading": "Cards used in live decks",
+    "decksHeading": "Live decks using this expansion",
+    "empty": "None of the {{name}} cards are in a top deck right now.",
+    "emptyAside": "That's unfortunate. :(",
+    "emptyPack": "None of the {{pack}} pack or shared cards are in a top deck right now.",
+    "loadError": "Card data didn't load. Refresh the page to try again.",
+    "allPacks": "Show all packs",
+    "breadcrumb": "Breadcrumb"
   }
 }

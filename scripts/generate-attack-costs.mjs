@@ -58,8 +58,23 @@ const main = () => {
   const table = buildTable(records);
 
   const outPath = path.join(cwd, "src", "data", "attack-costs.json");
+  const output = JSON.stringify(table, null, 2) + "\n";
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
-  fs.writeFileSync(outPath, JSON.stringify(table, null, 2) + "\n");
+
+  if (process.argv.includes("--check")) {
+    const current = fs.existsSync(outPath) ? fs.readFileSync(outPath, "utf8") : null;
+    if (current !== output) {
+      console.error(
+        `generate-attack-costs: ${outPath} is out of date for ` +
+          "the installed pokemon-tcg-pocket-cards package."
+      );
+      process.exit(1);
+    }
+    console.log(`generate-attack-costs: ${outPath} is current`);
+    return;
+  }
+
+  fs.writeFileSync(outPath, output);
 
   console.log(
     `generate-attack-costs: wrote ${Object.keys(table).length} entries to ${outPath}`

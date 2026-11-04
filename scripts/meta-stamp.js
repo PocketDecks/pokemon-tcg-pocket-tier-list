@@ -25,7 +25,13 @@ const stampHead = (
         : tag.replace(/>$/, ` lang="${escapeXml(lang)}">`)
     );
   }
-  if (title) out = out.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeXml(title)}</title>`);
+  if (title) {
+    out = out.replace(/<head\b[^>]*>[\s\S]*?<\/head>/i, (head) =>
+      head
+        .replace(/<title\b[^>]*>[\s\S]*?<\/title>/gi, "")
+        .replace(/<\/head>/i, `  <title>${escapeXml(title)}</title>\n  </head>`)
+    );
+  }
   if (description) {
     out = out.replace(/<meta[^>]+name="description"[^>]*>/gi, "");
     out = out.replace(/<\/head>/i, `  <meta name="description" content="${escapeXml(description)}">\n  </head>`);

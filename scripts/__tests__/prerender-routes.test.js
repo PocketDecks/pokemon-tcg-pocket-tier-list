@@ -14,7 +14,7 @@ test("every route has unique title and description, plus self canonical", () => 
   for (const route of ROUTES) {
     const meta = ROUTE_META[route];
     assert.ok(meta, `no metadata for ${route}`);
-    assert.ok(meta.title.length >= 15 && meta.title.length <= 65, `bad title length for ${route}: ${meta.title.length}`);
+    assert.ok(meta.title.length >= 15 && meta.title.length <= 75, `bad title length for ${route}: ${meta.title.length}`);
     assert.ok(meta.description.length >= 70 && meta.description.length <= 165, `bad description length for ${route}: ${meta.description.length}`);
     assert.strictEqual(meta.canonical, `https://pocketdecks.top${route === "/" ? "/" : route + "/"}`);
     titles.add(meta.title);
@@ -25,7 +25,7 @@ test("every route has unique title and description, plus self canonical", () => 
 });
 
 test("waits for route content on data-backed pages", () => {
-  assert.deepStrictEqual([...ROUTE_READY_ROUTES], ["/cards-list", "/statistics", "/deck"]);
+  assert.deepStrictEqual([...ROUTE_READY_ROUTES], ["/", "/cards-list", "/statistics", "/deck"]);
 });
 
 const { alternatesFor, localeMetaFor } = require("../prerender-routes");
@@ -69,9 +69,9 @@ test("the Japanese home page carries a WebSite block of its own", () => {
   assert.strictEqual(ja.name, en.name);
 });
 
-test("only the home page carries structured data, in either locale", () => {
+test("only the home page and expansion pages carry structured data, in either locale", () => {
   for (const route of ROUTES) {
-    const expected = route === "/";
+    const expected = route === "/" || route.startsWith("/expansion-list/");
     for (const locale of ["en", "ja"]) {
       assert.strictEqual(
         localeMetaFor(locale, route).jsonLd !== undefined,
@@ -180,4 +180,170 @@ test("captures data-backed routes after their pathname is ready", async () => {
   assert.deepStrictEqual(events, ["wait", "ready", "capture"]);
   delete global.document;
   delete global.window;
+});
+
+const { buildRouteMeta, buildJaRouteMeta, JA_ROUTE_META } = require("../prerender-routes");
+const { stampHead } = require("../meta-stamp");
+const { newestCoveredExpansion } = require("../../src/app/expansion-feed.mjs");
+const expansionList = require("pokemon-tcg-pocket-cards/data/v5/expansions.min.json");
+
+const STUB = { id: "x9", name: "Test Set", release_date: "2027-01-01" };
+
+test("tier-list title names the newest expansion by name", () => {
+  assert.strictEqual(
+    buildRouteMeta(STUB)["/tier-list"].title,
+    "Pokemon TCG Pocket Tier List: Best Test Set Decks | Top Pocket Decks"
+  );
+});
+
+test("tier-list description names the expansion and says the list is ranked by power score from tournament data and updated four times a week", () => {
+  const { description } = buildRouteMeta(STUB)["/tier-list"];
+  assert.match(description, /Test Set/);
+  assert.match(description, /ranked by power score from tournament data/);
+  assert.match(description, /updated four times a week/);
+});
+
+test("stamped tier-list head carries one title and the expansion description", () => {
+  const template = `<!doctype html><html><head><title>Template default</title></head><body></body></html>`;
+  const meta = buildRouteMeta(STUB)["/tier-list"];
+  const out = stampHead(template, { title: meta.title, description: meta.description });
+  assert.deepStrictEqual(out.match(/<title\b[^>]*>[\s\S]*?<\/title>/gi), [
+    "<title>Pokemon TCG Pocket Tier List: Best Test Set Decks | Top Pocket Decks</title>",
+  ]);
+  assert.match(out, /<meta name="description" content="[^"]*Test Set/);
+});
+
+test("Japanese tier-list title names the expansion", () => {
+  assert.match(buildJaRouteMeta(STUB)["/tier-list"].title, /Test Set/);
+  assert.match(buildJaRouteMeta(STUB)["/tier-list"].description, /Test Set/);
+});
+
+test("the shipped tier-list metadata names the newest listed expansion", () => {
+  const latest = newestCoveredExpansion(expansionList, require("../../public/data/best-decks.json"));
+  assert.ok(ROUTE_META["/tier-list"].title.includes(latest.name));
+  assert.ok(ROUTE_META["/tier-list"].description.includes(latest.name));
+});
+
+test("the homepage title covers best decks and the tier list", () => {
+  assert.strictEqual(
+    buildRouteMeta(STUB)["/"].title,
+    "Pokemon TCG Pocket Best Decks & Tier List | Top Pocket Decks"
+  );
+  assert.strictEqual(JA_ROUTE_META["/"].title.includes("最強デッキ"), true);
+});
+
+test("the homepage description names the newest expansion in both locales", () => {
+  assert.match(buildRouteMeta(STUB)["/"].description, /Test Set/);
+  assert.match(buildJaRouteMeta(STUB)["/"].description, /Test Set/);
+});
+
+test("the homepage keeps its canonical", () => {
+  assert.strictEqual(buildRouteMeta(STUB)["/"].canonical, "https://pocketdecks.top/");
+});
+
+test("tier-list copy states the four-times-a-week refresh in both locales", () => {
+  assert.match(ROUTE_META["/tier-list"].description, /updated four times a week/);
+  assert.match(buildJaRouteMeta(STUB)["/tier-list"].description, /週4回/);
+});
+
+test("expansion names with regex punctuation are matched literally", () => {
+  const stub = { id: "x9", name: "Set (A1)", release_date: "2027-01-01" };
+  const meta = buildRouteMeta(stub);
+  assert.ok(meta["/tier-list"].title.includes("Set (A1)"));
+  assert.ok(meta["/tier-list"].description.includes("Set (A1)"));
+});
+
+test("tier-list descriptions describe what every visitor sees, with no filter or sort control", () => {
+  const descriptions = [
+    ROUTE_META["/tier-list"].description,
+    JA_ROUTE_META["/tier-list"].description,
+    buildRouteMeta(null)["/tier-list"].description,
+    buildJaRouteMeta(null)["/tier-list"].description,
+  ];
+  for (const description of descriptions) {
+    assert.doesNotMatch(description, /filter|sort|絞り込|並べ替|フィルター/i);
+  }
+  const en = ROUTE_META["/tier-list"].description;
+  assert.match(en, /ranked by power score/);
+  assert.match(en, /Tiers, win rates, matchups/);
+  const ja = JA_ROUTE_META["/tier-list"].description;
+  assert.match(ja, /パワースコア/);
+  assert.match(ja, /ティア/);
+});
+
+test("with no covered expansion the tier-list and homepage copy is generic", () => {
+  const meta = buildRouteMeta(null);
+  assert.strictEqual(meta["/tier-list"].title, "Pokemon TCG Pocket Tier List: Best Decks | Top Pocket Decks");
+  assert.doesNotMatch(meta["/tier-list"].description, /for /);
+  assert.strictEqual(meta["/"].title, "Pokemon TCG Pocket Best Decks & Tier List | Top Pocket Decks");
+  assert.doesNotMatch(meta["/"].description, /for /);
+  const ja = buildJaRouteMeta(null);
+  assert.strictEqual(ja["/tier-list"].title, "ポケポケ ティアリスト 最強デッキ一覧 | Top Pocket Decks");
+  assert.doesNotMatch(ja["/"].description, /のデッキ/);
+});
+
+test("shipped copy names the expansion the decks feed covers", () => {
+  const decks = require("../../public/data/best-decks.json");
+  const covered = newestCoveredExpansion(expansionList, decks);
+  assert.ok(covered);
+  assert.ok(ROUTE_META["/tier-list"].title.includes(covered.name));
+  assert.ok(ROUTE_META["/"].description.includes(covered.name));
+});
+
+test("a 30-character expansion name keeps name-bearing titles and descriptions within limits in both locales", () => {
+  const LONG = "Abcdefghijklmnopqrstuvwxyzabcd";
+  assert.strictEqual(LONG.length, 30);
+  const en = buildRouteMeta({ id: "x9", name: LONG });
+  const ja = buildJaRouteMeta({ id: "x9", name: LONG });
+  for (const meta of [en["/"], en["/tier-list"], ja["/"], ja["/tier-list"]]) {
+    assert.ok(meta.title.length >= 15 && meta.title.length <= 75, `title ${meta.title.length}: ${meta.title}`);
+    assert.ok(meta.description.length >= 70 && meta.description.length <= 165, `description ${meta.description.length}: ${meta.description}`);
+  }
+  assert.ok(en["/tier-list"].title.includes(LONG));
+});
+
+test("expansion titles drop Best and fall back when the full title is too long", () => {
+  assert.strictEqual(
+    ROUTE_META["/expansion-list/c1"].title,
+    "Pokemon TCG Pocket Dual Fusion (C1): Cards & Decks | Top Pocket Decks"
+  );
+  assert.strictEqual(
+    ROUTE_META["/expansion-list/b4a"].title,
+    "Team Rocket's Ambition (B4a) Cards & Decks | Top Pocket Decks"
+  );
+  for (const route of ROUTES.filter((value) => value.startsWith("/expansion-list/"))) {
+    assert.doesNotMatch(ROUTE_META[route].title, /Best/);
+  }
+});
+
+test("expansion pages carry a BreadcrumbList of Home, Expansions and the set", () => {
+  assert.deepStrictEqual(localeMetaFor("en", "/expansion-list/c1").jsonLd, {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://pocketdecks.top/" },
+      { "@type": "ListItem", position: 2, name: "Expansions", item: "https://pocketdecks.top/expansion-list/" },
+      { "@type": "ListItem", position: 3, name: "Dual Fusion", item: "https://pocketdecks.top/expansion-list/c1/" },
+    ],
+  });
+  assert.deepStrictEqual(localeMetaFor("ja", "/expansion-list/c1").jsonLd.itemListElement.map((item) => item.name), [
+    "ホーム",
+    "拡張パック",
+    "Dual Fusion",
+  ]);
+  assert.strictEqual(
+    localeMetaFor("ja", "/expansion-list/c1").jsonLd.itemListElement[2].item,
+    "https://pocketdecks.top/ja/expansion-list/c1/"
+  );
+});
+
+test("expansion breadcrumb labels equal the locale file values", () => {
+  const en = require("../../src/locales/en_translation.json").expansionPage;
+  const ja = require("../../src/locales/ja_translation.json").expansionPage;
+  const enItems = localeMetaFor("en", "/expansion-list/c1").jsonLd.itemListElement;
+  assert.strictEqual(enItems[0].name, en.home);
+  assert.strictEqual(enItems[1].name, en.expansions);
+  const jaItems = localeMetaFor("ja", "/expansion-list/c1").jsonLd.itemListElement;
+  assert.strictEqual(jaItems[0].name, ja.home);
+  assert.strictEqual(jaItems[1].name, ja.expansions);
 });

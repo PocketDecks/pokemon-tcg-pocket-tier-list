@@ -9,15 +9,18 @@ const {
   findCanonicalIssues,
   findCspHashIssues,
   findShellPageIssues,
+  findTitleCountIssues,
   findUnresolvedAppRoutes,
   findDeckImagePreloadIssues,
   findEmptyDeckRoots,
   findEmptyStyledTags,
   findExpansionListIssues,
+  findExpansionPageIssues,
   findExternalScripts,
   findLoopbackRefs,
   findMissingCardThumbs,
   findMissingDeckThumbs,
+  findMissingLiveDeckPages,
   findUncapturedDeckStyles,
   loadDecks,
   findModulepreloadDrift,
@@ -272,6 +275,16 @@ test("flags a deck page without exactly one image preload", () => {
   ]);
 });
 
+test("skips archetype hub pages, which carry no lead-card image preload", () => {
+  const dir = makeDist({
+    "deck/x/index.html": `<head>${IMAGE_PRELOAD}</head>`,
+    "deck/umbreon/index.html": "<head></head>",
+    "ja/deck/umbreon/index.html": "<head></head>",
+    ...CARD_THUMBS,
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(dir, new Set(["umbreon"])), []);
+});
+
 test("flags an image preload that points at a file missing from dist/thumbs", () => {
   const dir = makeDist({
     "deck/x/index.html": `<head>${IMAGE_PRELOAD}</head>`,
@@ -489,10 +502,25 @@ test("findExpansionListIssues needs the newest set and rejects deluxe packs", ()
     { id: "b4a", name: "Team Rocket's Ambition", release_date: "2026-08-27", packs: [{ id: "b4a-booster", image: "https://example.test/packs/b4a-booster.webp" }] },
     { id: "b4b", name: "Deluxe Pack: Mega", release_date: "2026-09-30", packs: [{ id: "b4b-booster", image: "https://example.test/packs/b4b-booster.webp" }] },
   ];
-  const good = makeDist({ "expansion-list/index.html": '<img src="https://example.test/packs/b4a-booster.webp">' });
-  const missing = makeDist({ "expansion-list/index.html": "<div></div>" });
-  const dataSrc = makeDist({ "expansion-list/index.html": '<img data-src="https://example.test/packs/b4a-booster.webp">' });
-  const deluxe = makeDist({ "expansion-list/index.html": '<img src="https://example.test/packs/b4a-booster.webp"><img src="https://example.test/packs/b4b-booster.webp">' });
+  const enToggle = '<button type="button" aria-pressed="true">Expansions</button><button type="button" aria-pressed="false">Packs</button>';
+  const jaToggle = '<button type="button" aria-pressed="true">拡張パック</button><button type="button" aria-pressed="false">ブースターパック</button>';
+  const jaPage = `${jaToggle}<img src="https://example.test/packs/b4a-booster.webp">`;
+  const good = makeDist({
+    "expansion-list/index.html": `${enToggle}<img src="https://example.test/packs/b4a-booster.webp">`,
+    "ja/expansion-list/index.html": jaPage,
+  });
+  const missing = makeDist({
+    "expansion-list/index.html": `${enToggle}<div></div>`,
+    "ja/expansion-list/index.html": jaPage,
+  });
+  const dataSrc = makeDist({
+    "expansion-list/index.html": `${enToggle}<img data-src="https://example.test/packs/b4a-booster.webp">`,
+    "ja/expansion-list/index.html": jaPage,
+  });
+  const deluxe = makeDist({
+    "expansion-list/index.html": `${enToggle}<img src="https://example.test/packs/b4a-booster.webp"><img src="https://example.test/packs/b4b-booster.webp">`,
+    "ja/expansion-list/index.html": jaPage,
+  });
   assert.deepEqual(findExpansionListIssues(good, list), []);
   assert.deepEqual(findExpansionListIssues(missing, list), [
     "expansion-list/index.html: missing the newest set /packs/b4a-",
@@ -503,6 +531,98 @@ test("findExpansionListIssues needs the newest set and rejects deluxe packs", ()
   assert.deepEqual(findExpansionListIssues(deluxe, list), [
     "expansion-list/index.html: deluxe pack /packs/b4b- is listed",
   ]);
+});
+
+test("findExpansionListIssues requires the Expansions option pressed on both list pages", () => {
+  const list = [
+    { id: "b4a", name: "Team Rocket's Ambition", release_date: "2026-08-27", packs: [{ id: "b4a-booster", image: "https://example.test/packs/b4a-booster.webp" }] },
+  ];
+  const img = '<img src="https://example.test/packs/b4a-booster.webp">';
+  const packsDefault = '<button type="button" aria-pressed="false">Expansions</button><button type="button" aria-pressed="true">Packs</button>';
+  const jaPacksDefault = '<button type="button" aria-pressed="false">拡張パック</button><button type="button" aria-pressed="true">ブースターパック</button>';
+  const enToggle = '<button type="button" aria-pressed="true">Expansions</button><button type="button" aria-pressed="false">Packs</button>';
+  const jaToggle = '<button type="button" aria-pressed="true">拡張パック</button><button type="button" aria-pressed="false">ブースターパック</button>';
+  const enPackDefault = makeDist({
+    "expansion-list/index.html": `${packsDefault}${img}`,
+    "ja/expansion-list/index.html": `${jaToggle}${img}`,
+  });
+  const jaPackDefault = makeDist({
+    "expansion-list/index.html": `${enToggle}${img}`,
+    "ja/expansion-list/index.html": `${jaPacksDefault}${img}`,
+  });
+  assert.deepEqual(findExpansionListIssues(enPackDefault, list), [
+    "expansion-list/index.html: the Expansions option is not pressed by default",
+  ]);
+  assert.deepEqual(findExpansionListIssues(jaPackDefault, list), [
+    "ja/expansion-list/index.html: the Expansions option is not pressed by default",
+  ]);
+});
+
+test("findExpansionListIssues rejects a tile that links to a pack filter on either list page", () => {
+  const list = [
+    { id: "b4a", name: "Team Rocket's Ambition", release_date: "2026-08-27", packs: [{ id: "b4a-booster", image: "https://example.test/packs/b4a-booster.webp" }] },
+  ];
+  const img = '<img src="https://example.test/packs/b4a-booster.webp">';
+  const enToggle = '<button type="button" aria-pressed="true">Expansions</button><button type="button" aria-pressed="false">Packs</button>';
+  const jaToggle = '<button type="button" aria-pressed="true">拡張パック</button><button type="button" aria-pressed="false">ブースターパック</button>';
+  const enLinked = makeDist({
+    "expansion-list/index.html": `${enToggle}<a href="/expansion-list/b4a?pack=booster">x</a>${img}`,
+    "ja/expansion-list/index.html": `${jaToggle}${img}`,
+  });
+  const jaLinked = makeDist({
+    "expansion-list/index.html": `${enToggle}${img}`,
+    "ja/expansion-list/index.html": `${jaToggle}<a href="/ja/expansion-list/b4a?pack=booster">x</a>${img}`,
+  });
+  assert.deepEqual(findExpansionListIssues(enLinked, list), [
+    "expansion-list/index.html: a tile links to a pack filter",
+  ]);
+  assert.deepEqual(findExpansionListIssues(jaLinked, list), [
+    "ja/expansion-list/index.html: a tile links to a pack filter",
+  ]);
+});
+
+test("expansion page verification requires every listed page and its robots policy", () => {
+  const page = (title, robots, h1, canonical) => `<title>${title}</title><meta name="description" content="${title} cards"><meta name="robots" content="${robots}"><h1>${h1}</h1><link rel="canonical" href="${canonical}"><script type="application/ld+json">{"@type":"BreadcrumbList"}</script>`;
+  const pages = {
+    "expansion-list/c1/index.html": page("Dual Fusion", "index, follow", "Dual Fusion (C1)", "https://pocketdecks.top/expansion-list/c1/"),
+    "ja/expansion-list/c1/index.html": page("デュアルフュージョン", "index, follow", "デュアルフュージョン (C1)", "https://pocketdecks.top/ja/expansion-list/c1/"),
+    "expansion-list/b4a/index.html": page("Team Rocket's Ambition", "noindex, follow", "Team Rocket's Ambition (B4a)", "https://pocketdecks.top/expansion-list/b4a/"),
+    "ja/expansion-list/b4a/index.html": page("ロケット団の栄光", "noindex, follow", "ロケット団の栄光 (B4a)", "https://pocketdecks.top/ja/expansion-list/b4a/"),
+    "expansion-list/a1/index.html": page("Genetic Apex", "noindex, follow", "Genetic Apex (A1)", "https://pocketdecks.top/expansion-list/a1/"),
+    "ja/expansion-list/a1/index.html": page("最強の遺伝子", "noindex, follow", "最強の遺伝子 (A1)", "https://pocketdecks.top/ja/expansion-list/a1/"),
+  };
+  const dir = makeDist(pages);
+  const expansions = [
+    { id: "a1", release_date: "2024-01-01" },
+    { id: "b4a", release_date: "2026-08-27" },
+    { id: "c1", release_date: "2026-10-29" },
+  ];
+  const decks = [{ lists: [{ cards: ["1:a1-001", "1:b4a-001", "1:c1-001", "1:c1-002", "1:c1-003", "1:c1-004", "1:c1-005"] }] }];
+  assert.deepStrictEqual(findExpansionPageIssues(dir, expansions, decks), []);
+  const withoutJaC1 = { ...pages };
+  delete withoutJaC1["ja/expansion-list/c1/index.html"];
+  assert.ok(
+    findExpansionPageIssues(makeDist(withoutJaC1), expansions, decks).includes("ja/expansion-list/c1/index.html: missing")
+  );
+  const b4aIndexed = {
+    ...pages,
+    "expansion-list/b4a/index.html": page("Team Rocket's Ambition", "index, follow", "Team Rocket's Ambition (B4a)", "https://pocketdecks.top/expansion-list/b4a/"),
+  };
+  assert.ok(
+    findExpansionPageIssues(makeDist(b4aIndexed), expansions, decks).includes(
+      "expansion-list/b4a/index.html: robots index, follow is not noindex, follow"
+    )
+  );
+});
+
+test("expansion page verification flags a page without BreadcrumbList structured data", () => {
+  const page = (title, robots, h1, canonical) => `<title>${title}</title><meta name="description" content="${title} cards"><meta name="robots" content="${robots}"><h1>${h1}</h1><link rel="canonical" href="${canonical}">`;
+  const dir = makeDist({
+    "expansion-list/c1/index.html": page("Dual Fusion", "index, follow", "Dual Fusion (C1)", "https://pocketdecks.top/expansion-list/c1/"),
+  });
+  const expansions = [{ id: "c1", release_date: "2026-10-29" }];
+  const decks = [{ lists: [{ cards: ["1:c1-001"] }] }];
+  assert.ok(findExpansionPageIssues(dir, expansions, decks).some((issue) => issue.includes("expansion-list/c1/index.html") && issue.includes("BreadcrumbList")));
 });
 
 const cspFirebase = (scriptSrc, extra = []) => ({
@@ -559,4 +679,64 @@ test("the shipped firebase.json policy passes a page carrying the template theme
   const dir = makeDist({ "index.html": `<script data-theme-init="true">${body}</script>` });
   const firebase = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "firebase.json"), "utf8"));
   assert.deepStrictEqual(findCspHashIssues(dir, firebase), []);
+});
+
+test("flags a built page with two titles and passes a page with one", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "title-count-"));
+  fs.mkdirSync(path.join(dir, "deck", "a"), { recursive: true });
+  fs.writeFileSync(
+    path.join(dir, "deck", "a", "index.html"),
+    "<!doctype html><html><head><title>A</title><title>B</title></head><body></body></html>"
+  );
+  fs.writeFileSync(path.join(dir, "index.html"), "<!doctype html><html><head><title>Home</title></head><body></body></html>");
+  const issues = findTitleCountIssues(dir);
+  assert.equal(issues.length, 1);
+  assert.match(issues[0], /deck.a.index\.html: expected 1 title, found 2/);
+});
+
+test(
+  "every built page has exactly one title",
+  { skip: !fs.existsSync(path.join(__dirname, "..", "..", "dist", "index.html")) && "dist/ is not built" },
+  () => {
+    assert.deepEqual(findTitleCountIssues(), []);
+  }
+);
+
+test("passes when every live deck has a page in both locales", () => {
+  const dir = makeDist({
+    "deck/garchomp-zz-999/index.html": "<head></head>",
+    "ja/deck/garchomp-zz-999/index.html": "<head></head>",
+  });
+  assert.deepStrictEqual(findMissingLiveDeckPages(dir, [{ name: "garchomp-zz-999", lists: [] }]), []);
+});
+
+test("flags live decks whose pages are missing in either locale", () => {
+  const dir = makeDist({
+    "deck/garchomp-zz-999/index.html": "<head></head>",
+  });
+  const decks = [{ name: "garchomp-zz-999", lists: [] }, { name: "mega-altaria-ex-b1-102", lists: [] }];
+  assert.deepStrictEqual(findMissingLiveDeckPages(dir, decks), [
+    "ja/deck/garchomp-zz-999/index.html: missing",
+    "deck/mega-altaria-ex-b1-102/index.html: missing",
+    "ja/deck/mega-altaria-ex-b1-102/index.html: missing",
+  ]);
+});
+
+test("a deck page without a card id must carry no image preload", () => {
+  const dir = makeDist({
+    "deck/x/index.html": "<head></head>",
+    "deck/y/index.html": `<head>${IMAGE_PRELOAD}</head>`,
+    ...CARD_THUMBS,
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(dir, new Set(), new Set(["x", "y"])), [
+    `deck${path.sep}y${path.sep}index.html: expected 0 image preloads, found 1`,
+  ]);
+});
+
+test("a deck page without a card id passes with no image preload", () => {
+  const dir = makeDist({
+    "deck/x/index.html": "<head></head>",
+    "ja/deck/x/index.html": "<head></head>",
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(dir, new Set(), new Set(["x"])), []);
 });

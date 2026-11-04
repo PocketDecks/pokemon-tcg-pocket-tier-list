@@ -1,0 +1,168 @@
+{
+  "hub": "mega-gyarados-ex",
+  "name": "Mega Gyarados ex",
+  "variants": [
+    {
+      "variant": "mega-gyarados-ex-b1-052",
+      "name": "mega-gyarados-ex-b1-052",
+      "firstSeen": "2025-10-31",
+      "lastSeen": "2026-06-29",
+      "peakShare": 0.008665290258053201,
+      "peakDate": "2025-11-02",
+      "cards": [
+        "2:b1-050",
+        "2:b1-052",
+        "2:a4a-021",
+        "2:a4a-022",
+        "2:a4a-023",
+        "2:pa-007",
+        "2:b1-226",
+        "2:b1-223",
+        "1:a1-220",
+        "2:pa-005",
+        "1:a2-148"
+      ]
+    },
+    {
+      "variant": "mega-gyarados-ex-b1-052&eiscue-b1-080",
+      "name": "Mega Gyarados ex-B1-052&Eiscue-B1-080",
+      "firstSeen": "2025-11-25",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.000379889698735128,
+      "peakDate": "2025-11-25",
+      "cards": [
+        "2:b1-050",
+        "2:b1-052",
+        "2:b1-080",
+        "1:a2-050",
+        "1:a4a-023",
+        "2:pa-007",
+        "1:a1-220",
+        "1:a1-225",
+        "1:a2-150",
+        "1:a2-155",
+        "1:b1-225",
+        "1:b1-226",
+        "2:pa-005",
+        "1:a4-151",
+        "1:b1-219"
+      ]
+    },
+    {
+      "variant": "mega-gyarados-ex-b1-052&jellicent-b1-069",
+      "name": "mega-gyarados-ex-b1-052&jellicent-b1-069",
+      "firstSeen": "2026-01-31",
+      "lastSeen": "2026-03-18",
+      "peakShare": 0.004892664682970773,
+      "peakDate": "2026-02-07",
+      "cards": [
+        "2:a1a-017",
+        "2:b1-052",
+        "2:b1-068",
+        "2:b1-069",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:a2a-072",
+        "1:a2b-071",
+        "2:pa-005",
+        "2:b2-147",
+        "1:b2-153"
+      ]
+    },
+    {
+      "variant": "mega-gyarados-ex-b1-052&manaphy-a2-050",
+      "name": "Mega Gyarados ex-B1-052&Manaphy-A2-050",
+      "firstSeen": "2025-11-03",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0052028379397956155,
+      "peakDate": "2025-11-04",
+      "cards": [
+        "2:a1a-017",
+        "2:b1-052",
+        "2:a2-050",
+        "1:b1-080",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-155",
+        "1:b1-223",
+        "2:pa-005",
+        "2:b2-145",
+        "2:b2-147",
+        "1:b2-153"
+      ]
+    },
+    {
+      "variant": "mega-gyarados-ex-b1-052&mantyke-a4a-023",
+      "name": "Mega Gyarados ex-B1-052&Mantyke-A4a-023",
+      "firstSeen": "2025-10-31",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.03337021477719815,
+      "peakDate": "2025-11-01",
+      "cards": [
+        "2:a1a-017",
+        "2:b1-052",
+        "2:a4a-023",
+        "1:a2-050",
+        "1:a4a-020",
+        "1:b1-070",
+        "2:pa-007",
+        "1:a1-225",
+        "1:b1-225",
+        "1:a1-220",
+        "1:b1a-069",
+        "1:a2a-072",
+        "1:b1-226",
+        "1:pa-005",
+        "2:b2-147"
+      ]
+    },
+    {
+      "variant": "mega-gyarados-ex-b1-052&milotic-a4a-022",
+      "name": "Mega Gyarados ex-B1-052&Milotic-A4a-022",
+      "firstSeen": "2025-10-31",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.030174998695408125,
+      "peakDate": "2025-10-31",
+      "cards": [
+        "2:a4-044",
+        "2:b1-052",
+        "2:a4a-021",
+        "2:a4a-022",
+        "2:a4a-023",
+        "2:b1-226",
+        "2:pa-007",
+        "1:b1-223",
+        "2:pa-002",
+        "1:pa-005",
+        "1:pa-006",
+        "1:b1-219"
+      ]
+    },
+    {
+      "variant": "mega-gyarados-ex-b1-052&suicune-ex-a4a-020",
+      "name": "Mega Gyarados ex-B1-052&Suicune ex-A4a-020",
+      "firstSeen": "2025-10-31",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.02194537756980994,
+      "peakDate": "2025-10-31",
+      "cards": [
+        "2:a1a-017",
+        "1:a4-045",
+        "1:b1-052",
+        "2:a3-054",
+        "1:a1-087",
+        "1:a1-089",
+        "1:a4a-023",
+        "1:a4a-020",
+        "2:a1-220",
+        "2:pa-007",
+        "1:a4-159",
+        "1:a2-150",
+        "1:a2a-072",
+        "2:pa-005",
+        "1:a3-144"
+      ]
+    }
+  ]
+}

@@ -21,6 +21,7 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "yarn.lock"
       - run: yarn install --frozen-lockfile
+      - run: yarn check:generated
       - run: yarn build
         env:
           VITE_FIREBASE_APIKEY: ${{ secrets.VITE_FIREBASE_APIKEY }}

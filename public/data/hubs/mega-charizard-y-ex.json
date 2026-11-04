@@ -1,0 +1,100 @@
+{
+  "hub": "mega-charizard-y-ex",
+  "name": "Mega Charizard Y ex",
+  "variants": [
+    {
+      "variant": "mega-charizard-y-ex-b1a-014",
+      "name": "mega-charizard-y-ex-b1a-014",
+      "firstSeen": "2025-12-20",
+      "lastSeen": "2026-09-09",
+      "peakShare": 0.06609169963322548,
+      "peakDate": "2026-08-22",
+      "cards": [
+        "2:b2b-007",
+        "2:b2b-008",
+        "1:b1a-014",
+        "2:a4a-010",
+        "2:pa-007",
+        "1:a2b-070",
+        "1:b1-225",
+        "1:b4-153",
+        "1:a1-225",
+        "2:pa-005",
+        "2:b1-217",
+        "1:b2-145",
+        "1:a2-147",
+        "1:b4-155"
+      ]
+    },
+    {
+      "variant": "mega-charizard-y-ex-b1a-014&charizard-b1a-013",
+      "name": "mega-charizard-y-ex-b1a-014&charizard-b1a-013",
+      "firstSeen": "2026-09-09",
+      "lastSeen": "2026-10-27",
+      "peakShare": 0.026839280075781496,
+      "peakDate": "2026-10-15",
+      "cards": [
+        "2:b2b-007",
+        "2:b2b-008",
+        "1:b1a-013",
+        "1:b1a-014",
+        "2:a4a-010",
+        "2:pa-007",
+        "2:a2b-070",
+        "1:b4-153",
+        "1:b1-225",
+        "1:b1-223",
+        "2:pa-005",
+        "2:b1-217",
+        "1:b4-155"
+      ]
+    },
+    {
+      "variant": "mega-charizard-y-ex-b1a-014&charizard-c1-018",
+      "name": "mega-charizard-y-ex-b1a-014&charizard-c1-018",
+      "firstSeen": "2026-11-02",
+      "lastSeen": "2026-11-02",
+      "peakShare": 0.12671456564337036,
+      "peakDate": "2026-11-02",
+      "cards": [
+        "2:b2b-007",
+        "2:b2b-008",
+        "1:b1a-014",
+        "1:c1-018",
+        "2:a4a-010",
+        "2:pa-007",
+        "1:a2b-070",
+        "1:b4-153",
+        "1:c1-127",
+        "1:c1-126",
+        "2:pa-005",
+        "2:b1-217",
+        "1:a2-147",
+        "1:b4-155"
+      ]
+    },
+    {
+      "variant": "mega-charizard-y-ex-b1a-014&entei-ex-a4a-010",
+      "name": "mega-charizard-y-ex-b1a-014&entei-ex-a4a-010",
+      "firstSeen": "2025-12-20",
+      "lastSeen": "2026-10-15",
+      "peakShare": 0.033731441019950646,
+      "peakDate": "2025-12-20",
+      "cards": [
+        "2:b2b-007",
+        "2:b2b-008",
+        "1:b1a-014",
+        "2:a4a-010",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2b-070",
+        "1:b4-153",
+        "2:pa-005",
+        "2:b1-217",
+        "1:b2-145",
+        "1:a2-147",
+        "1:b4-155"
+      ]
+    }
+  ]
+}

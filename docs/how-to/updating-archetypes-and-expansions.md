@@ -14,7 +14,7 @@ To pick up new listings, run the scraper from `analysis/`:
 yarn sync-pairings
 ```
 
-Only sets with a Limitless deck page are scraped, A1 through B4a. `PA` and `PB` are promo packs with no deck page, and `A4b` was folded into `A4a`, so none of the three is fetched. A set page that comes back identical to another set's page is rejected rather than written, since two sets never share a page.
+The sync covers sets with Limitless deck pages from A1 through B4a. Promo packs `PA` and `PB` have no deck page. The scraper maps `A4b` to `A4a`. It rejects a set page that matches another set's page, because two sets never share a page.
 
 A few archetypes never appear on Limitless. Those are seeded in `SEEDED_ARCHETYPES` in the matcher so a rebuild does not lose them. Add to that list if a real deck has no listing anywhere on the site.
 
@@ -42,7 +42,9 @@ When a row could resolve to more than one printing, the one in the set the slug 
 
 Four things ride on that date. It filters out decks played before the set launched, sets the score weights that ramp over the first four weeks after the release, skips any shard whose newest deck predates it, and ramps the per-window archetype floors. Windows anchor on the newest deck date, so stale raw data still fills them; the release date narrows the field to the new format.
 
-If a new set lands and the date does not move, the package has not published it yet. Check the package rather than editing the constant. Add the new code to `STANDARD_SET_CODES` in `analysis/src/utils/set-codes.ts` so its page is scraped.
+The standalone `validate:refresh` command compares each new window with the previous published snapshot and the configured static floors. Right after a new expansion, it can fail while the release-age ramp is still filling the windows; the production `get-best-decks` publish gate applies that ramp when it decides whether the artefacts are publishable.
+
+If a new set lands and the date does not move, the package has not published it yet. Check the package before changing the constant. Add the new code to `STANDARD_SET_CODES` in `analysis/src/utils/set-codes.ts` so its page is scraped.
 
 ## Troubleshooting missing decks
 

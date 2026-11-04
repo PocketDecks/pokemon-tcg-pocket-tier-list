@@ -3,6 +3,7 @@
     "banner": "랭킹 기준일: {{date}}"
   },
   "a11y": {
+    "premiumOnly": "(프리미엄)",
     "skipToContent": "본문으로 건너뛰기",
     "openMenu": "메뉴 열기",
     "closeMenu": "메뉴 닫기",
@@ -167,6 +168,11 @@
     "latestExpansionCards": "최신 확장팩 카드",
     "latestExpansionCardsAny": "모두"
   },
+  "expansionList": {
+    "viewLabel": "순위 기준",
+    "viewExpansions": "확장팩",
+    "viewPacks": "부스터팩"
+  },
   "window": {
     "label": "집계 기간",
     "10d": "10일",
@@ -185,7 +191,8 @@
     "shareColumn": "점유율",
     "deltaColumn": "변화",
     "noTrends": "트렌드 데이터를 현재 사용할 수 없습니다.",
-    "noMovement": "이 기간에 덱 변동이 없습니다."
+    "noMovement": "이 기간에 덱 변동이 없습니다.",
+    "introGeneric": "실시간 과거 데이터와 아키타입 상성 히트맵으로 현재 포켓몬 TCG 포켓 메타를 분석하세요. 이 데이터는 덱 인기와 승률이 시간에 따라 어떻게 변하는지 보여줍니다."
   },
   "bestDeckFinder": {
     "title": "최고의 덱 찾기",
@@ -200,7 +207,9 @@
     "signOut": "로그아웃",
     "bestCards": "최고의 카드",
     "bestExpansions": "최고의 확장팩",
-    "statistics": "통계"
+    "statistics": "통계",
+    "tierListHeading": "{{name}} ({{id}}) 티어 리스트",
+    "tierListGeneric": "포켓몬 TCG 포켓 티어 리스트"
   },
   "footer": {
     "about": "소개",
@@ -254,8 +263,8 @@
       "description": "티어 리스트는 토너먼트 결과를 기반으로 합니다. 알고리즘이 티어와 덱 리스트를 결정합니다."
     },
     "weeklyUpdates": {
-      "title": "주간 업데이트",
-      "description": "티어 리스트는 매주 업데이트되며 매주 월요일마다 새로운 덱과 매치업을 제공합니다."
+      "title": "잦은 업데이트",
+      "description": "티어 리스트는 주 4회 업데이트되며 새로운 덱과 매치업을 제공합니다."
     },
     "filters": {
       "title": "필터",
@@ -374,5 +383,46 @@
     "20d": "20일",
     "30d": "30일",
     "all": "전체 기간"
+  },
+  "deckHub": {
+    "title": "{{name}} 덱",
+    "liveSummary_one": "현재 메타에서 활성 변형 {{count}}개, 가장 강한 리스트를 먼저 표시합니다",
+    "liveSummary_other": "현재 메타에서 활성 변형 {{count}}개, 가장 강한 리스트를 먼저 표시합니다",
+    "notInMeta": "현재 {{expansion}} 메타에 없습니다. 현재 덱 순위는 티어 리스트에서 확인하세요",
+    "expansionFallback": "확장팩",
+    "unavailable": "실시간 덱 통계를 지금은 사용할 수 없습니다. 아래 아카이브는 여전히 최신입니다",
+    "seenFrom": "{{from}}부터 {{to}}까지 확인됨",
+    "winRate": "승률 {{value}}%",
+    "metaShare": "메타 점유율 {{value}}%",
+    "allVariants": "{{name}} 모든 변형 보기",
+    "coreCards": "핵심 카드",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "이 아키타입의 카드 목록은 아직 기록되지 않았습니다.",
+    "matchups": "상성",
+    "bestMatchups": "가장 유리한 상성",
+    "worstMatchups": "가장 불리한 상성",
+    "noMatchups": "다른 덱과의 대전 기록이 아직 충분하지 않습니다.",
+    "similarDecks": "비슷한 현재 덱",
+    "sharedCards_one": "공통 카드 {{count}}장",
+    "sharedCards_other": "공통 카드 {{count}}장",
+    "noSimilarDecks": "이 목록과 카드를 공유하는 현재 덱이 없습니다.",
+    "variantHistory": "변형 기록",
+    "peakShare": "최고 {{value}}% ({{date}})"
+  },
+  "expansionPage": {
+    "home": "홈",
+    "expansions": "확장팩",
+    "heading": "{{name}} ({{id}}) 카드 & 덱",
+    "packFilter": "{{pack}} 팩과 공유 카드를 표시하고 있습니다.",
+    "released": "{{date}} 출시",
+    "intro": "현재 대회 덱에 등장하는 {{name}} 카드와 이 카드를 사용하는 덱입니다.",
+    "cardsHeading": "현재 덱에서 사용되는 카드",
+    "decksHeading": "이 확장팩을 사용하는 현재 덱",
+    "empty": "{{name}} 카드는 현재 상위 덱에 없습니다.",
+    "emptyAside": "아쉽네요. :(",
+    "emptyPack": "{{pack}} 팩과 공유 카드 중 현재 상위 덱에 들어간 카드가 없습니다.",
+    "loadError": "카드 데이터를 불러오지 못했습니다. 페이지를 새로 고침하여 다시 시도하세요.",
+    "allPacks": "모든 팩 보기",
+    "breadcrumb": "탐색 경로"
   }
 }

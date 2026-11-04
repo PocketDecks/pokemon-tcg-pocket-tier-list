@@ -1,0 +1,30 @@
+{
+  "hub": "mega-audino-ex",
+  "name": "Mega Audino ex",
+  "variants": [
+    {
+      "variant": "mega-audino-ex-b3-141",
+      "name": "mega-audino-ex-b3-141",
+      "firstSeen": "2026-05-19",
+      "lastSeen": "2026-06-29",
+      "peakShare": 0.001998685951287325,
+      "peakDate": "2026-06-15",
+      "cards": [
+        "2:b3-072",
+        "2:b3-073",
+        "2:b3-141",
+        "1:a2-022",
+        "1:a4-032",
+        "2:pa-007",
+        "2:a2b-070",
+        "2:a3-149",
+        "1:b1-225",
+        "1:a2-150",
+        "1:pa-005",
+        "1:a2-147",
+        "1:b2-154",
+        "1:b3a-074"
+      ]
+    }
+  ]
+}

@@ -444,3 +444,48 @@ describe("useMatchups", () => {
     );
   });
 });
+
+const MetaShareProbe = () => {
+  const { decks, metaShare, metaShareBySlug } = useDecks();
+  if (!decks || !metaShare) return <p>loading</p>;
+  const settled = metaShare.decks.map((d) => `${d.isNew}:${d.delta}`).join(",");
+  return <p>{`${settled}|${String(metaShareBySlug?.[GOOD_DECK]?.isNew)}|${metaShare.generatedAt}`}</p>;
+};
+
+const renderMetaShareProbe = (metaShareDecks: unknown[]) => {
+  vi.spyOn(global, "fetch").mockImplementation((input) => {
+    const url = String(input);
+    if (url.endsWith("best-decks.json")) return jsonResponse(decks);
+    if (url.endsWith("meta-share.json"))
+      return jsonResponse({ generatedAt: "2026-08-24T00:00:00Z", windowDays: 20, decks: metaShareDecks });
+    return jsonResponse(rawCards);
+  });
+  return render(
+    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <DecksProvider>
+        <MetaShareProbe />
+      </DecksProvider>
+    </QueryClientProvider>
+  );
+};
+
+describe("DecksProvider meta-share normalisation", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("exposes an all-new window with no new flags and no delta, keeping its timestamp", async () => {
+    const { container } = renderMetaShareProbe([
+      { name: GOOD_DECK, share: 0.1, sharePrev: 0, delta: 0.1, windowGames: 100, firstSeen: "2026-10-30", isNew: true },
+    ]);
+    await waitFor(() => expect(container.textContent).toBe("false:0|false|2026-08-24T00:00:00Z"));
+  });
+
+  it("leaves a mixed window's flags and deltas as published", async () => {
+    const { container } = renderMetaShareProbe([
+      { name: GOOD_DECK, share: 0.1, sharePrev: 0, delta: 0.1, windowGames: 100, firstSeen: "2026-10-30", isNew: true },
+      { name: "other", share: 0.2, sharePrev: 0.18, delta: 0.02, windowGames: 100, firstSeen: "2026-01-01", isNew: false },
+    ]);
+    await waitFor(() => expect(container.textContent).toBe("true:0.1,false:0.02|true|2026-08-24T00:00:00Z"));
+  });
+});

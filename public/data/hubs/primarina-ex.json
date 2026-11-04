@@ -1,0 +1,75 @@
+{
+  "hub": "primarina-ex",
+  "name": "Primarina ex",
+  "variants": [
+    {
+      "variant": "primarina-ex-a3b-024",
+      "name": "Primarina ex-A3b-024",
+      "firstSeen": "2025-06-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.018785962183847066,
+      "peakDate": "2025-07-28",
+      "cards": [
+        "2:a3-046",
+        "2:a3b-024",
+        "2:a3-155",
+        "2:a3b-068",
+        "2:pa-007",
+        "1:a2-150",
+        "1:a2b-069",
+        "1:a1-225",
+        "2:pa-005",
+        "2:a3-144",
+        "1:a2-146",
+        "1:pa-006",
+        "1:a2-147"
+      ]
+    },
+    {
+      "variant": "primarina-ex-a3b-024&greninja-a1-089",
+      "name": "Primarina ex-A3b-024&Greninja-A1-089",
+      "firstSeen": "2025-08-02",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0014529063574868436,
+      "peakDate": "2025-08-07",
+      "cards": [
+        "2:a3-046",
+        "1:a3b-023",
+        "2:a3b-024",
+        "2:a1-087",
+        "1:a1-088",
+        "2:a1-089",
+        "2:pa-007",
+        "2:a2-150",
+        "1:a3-155",
+        "1:a2a-072",
+        "2:a3-144",
+        "2:pa-005"
+      ]
+    },
+    {
+      "variant": "primarina-ex-a3b-024&pyukumuku-a3-054",
+      "name": "Primarina ex-A3b-024&Pyukumuku-A3-054",
+      "firstSeen": "2025-06-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.009802498572488426,
+      "peakDate": "2025-06-30",
+      "cards": [
+        "2:a3-045",
+        "1:a3-047",
+        "2:a3b-024",
+        "2:a3-054",
+        "2:pa-007",
+        "1:a3-155",
+        "1:a2a-072",
+        "1:a2-150",
+        "1:a3b-068",
+        "2:a3-144",
+        "2:pa-005",
+        "1:a3b-067",
+        "1:a2-147",
+        "1:a2-148"
+      ]
+    }
+  ]
+}

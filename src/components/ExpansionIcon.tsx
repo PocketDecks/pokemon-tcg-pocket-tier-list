@@ -22,12 +22,20 @@ const CardImage = styled.img`
 
 interface Props {
   image: string;
+  alt: string;
+  eager?: boolean;
 }
 
-const ExpansionIcon = ({ image }: Props) => {
+const ExpansionIcon = ({ image, alt, eager = false }: Props) => {
   return (
     <Container>
-      <CardImage src={image} />
+      <CardImage
+        src={image}
+        alt={alt}
+        loading={eager ? "eager" : "lazy"}
+        fetchPriority={eager ? "high" : undefined}
+        decoding="async"
+      />
     </Container>
   );
 };

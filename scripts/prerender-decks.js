@@ -28,9 +28,11 @@ const BUILD_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
   : path.join(ROOT, "dist");
 const DATA_FILE = path.join(ROOT, "public", "data", "best-decks.json");
+const ARCHIVE_FILE = path.join(ROOT, "public", "data", "deck-archive.json");
 const DECK_CONCURRENCY = 8;
 
 const { deckSlug } = require("./deck-slug.mjs");
+const { hubDisplayName } = require("./deck-archetype.mjs");
 const { cardThumbSrcSet, DECK_CARD_SIZES, firstBestListCardId } = require("./deck-thumbs.mjs");
 
 const slugFor = deckSlug;
@@ -48,15 +50,19 @@ const renderDeckHtml = (deck, documentHtml, locale = DEFAULT_LOCALE) => {
   const deckUrl = (other) => localizedUrl(SITE_URL, other, `/deck/${slug}`);
 
   let html = documentHtml;
-  html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${eTitle}</title>`);
+  const indexable = locale === DEFAULT_LOCALE;
   html = stampHead(html, {
+    title: localeTitle,
     description: localeDescription,
     canonical,
     lang: locale,
-    alternates: [
-      ...ROUTE_LOCALES.map((other) => ({ hreflang: other, href: deckUrl(other) })),
-      { hreflang: "x-default", href: deckUrl(DEFAULT_LOCALE) },
-    ],
+    robots: indexable ? undefined : "noindex, follow",
+    alternates: indexable
+      ? [
+          { hreflang: DEFAULT_LOCALE, href: deckUrl(DEFAULT_LOCALE) },
+          { hreflang: "x-default", href: deckUrl(DEFAULT_LOCALE) },
+        ]
+      : [],
     metas: [
       `<meta property="og:type" content="website" />`,
       `<meta property="og:title" content="${eTitle}" />`,
@@ -67,7 +73,9 @@ const renderDeckHtml = (deck, documentHtml, locale = DEFAULT_LOCALE) => {
       `<meta name="twitter:title" content="${eTitle}" />`,
       `<meta name="twitter:description" content="${eDesc}" />`,
       `<meta name="twitter:image" content="${escapeXml(ogImage)}" />`,
-      `<link rel="preload" as="image" imagesrcset="${escapeXml(cardThumbSrcSet(cardId))}" imagesizes="${escapeXml(DECK_CARD_SIZES)}" fetchpriority="high" />`,
+      ...(cardId === null
+        ? []
+        : [`<link rel="preload" as="image" imagesrcset="${escapeXml(cardThumbSrcSet(cardId))}" imagesizes="${escapeXml(DECK_CARD_SIZES)}" fetchpriority="high" />`]),
     ],
     jsonLd: {
       "@context": "https://schema.org",
@@ -85,25 +93,38 @@ const renderDeckHtml = (deck, documentHtml, locale = DEFAULT_LOCALE) => {
           name: translated ? JA_TIER_LIST_LABEL : "Tier List",
           item: localizedUrl(SITE_URL, locale, "/tier-list"),
         },
-        { "@type": "ListItem", position: 3, name },
+        ...(deck.hub
+          ? [{ "@type": "ListItem", position: 3, name: deck.hub.name, item: localizedUrl(SITE_URL, locale, `/deck/${deck.hub.slug}`) }]
+          : []),
+        { "@type": "ListItem", position: deck.hub ? 4 : 3, name },
       ],
     },
   });
   return html;
 };
 
-const deckJob = (deck) => {
+const hubFor = (archive, slug) => {
+  const entry = archive.find((candidate) => candidate.variant === slug);
+  if (!entry) return null;
+  const entries = archive.filter((candidate) => candidate.hub === entry.hub);
+  return { slug: entry.hub, name: hubDisplayName(entries) };
+};
+
+const deckJob = (deck, archive = []) => {
   const slug = slugFor(deck.name);
   const name = friendlyName(deck.name);
   return {
     slug,
     name,
+    hub: hubFor(archive, slug),
     title: `${name} | Pokémon TCG Pocket Deck Stats and Matchups`,
     description: `Pokémon TCG Pocket deck profile for ${name}: card list, matchups, and win rate.`,
     ogImage: `${SITE_URL}/og/deck/${slug}.png`,
     cardId: firstBestListCardId(deck),
   };
 };
+
+const jobsForLiveDecks = (decks, archive = []) => decks.map((deck) => deckJob(deck, archive));
 
 const renderDeckPage = async (page, job, template, locale = DEFAULT_LOCALE) => {
   await openDocument(page, `${localeRoute(locale, `/deck/${job.slug}`)}/`);
@@ -124,9 +145,8 @@ const main = async () => {
     process.exit(1);
   }
   const template = readTemplate(fs.readFileSync(path.join(BUILD_DIR, "index.html"), "utf8"));
-  const jobs = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"))
-    .map(deckJob)
-    .filter((job) => job.cardId !== null);
+  const archive = JSON.parse(fs.readFileSync(ARCHIVE_FILE, "utf8"));
+  const jobs = jobsForLiveDecks(JSON.parse(fs.readFileSync(DATA_FILE, "utf8")), archive);
 
   const server = await startServer(BUILD_DIR, template.html);
   const browser = await launchBrowser();
@@ -169,6 +189,7 @@ if (require.main === module) {
 
 module.exports = {
   deckJob,
+  jobsForLiveDecks,
   DECK_CONCURRENCY,
   renderDeckHtml,
   friendlyName,

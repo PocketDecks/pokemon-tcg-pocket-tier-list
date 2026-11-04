@@ -1,0 +1,27 @@
+{
+  "hub": "glimmora",
+  "name": "Glimmora",
+  "variants": [
+    {
+      "variant": "glimmora-b3a-045&kingambit-b3a-043",
+      "name": "glimmora-b3a-045&kingambit-b3a-043",
+      "firstSeen": "2026-09-09",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.0023874027262839837,
+      "peakDate": "2026-09-09",
+      "cards": [
+        "2:b3a-044",
+        "2:b3a-045",
+        "2:b3a-041",
+        "2:b3a-043",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "2:pa-005",
+        "2:a3-144",
+        "2:a4-155",
+        "1:b3b-069"
+      ]
+    }
+  ]
+}

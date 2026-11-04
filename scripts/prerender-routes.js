@@ -27,6 +27,16 @@ const DIST_DIR = process.env.BUILD_DIR
   : path.join(ROOT, "dist");
 const { localeRoute, localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
 const { SITE_URL } = require("./meta-stamp");
+const { JA_HOME_LABEL } = require("./deck-friendly-name.mjs");
+const { newestCoveredExpansion } = require("../src/app/expansion-feed.mjs");
+const { expansionCode, isListedExpansion } = require("../src/app/expansion-policy.mjs");
+const { expansionIndexPolicy } = require("../src/app/expansion-index-policy.mjs");
+const EXPANSIONS = require("pokemon-tcg-pocket-cards/data/v5/expansions.min.json");
+const BEST_DECKS = require("../public/data/best-decks.json");
+const LATEST_EXPANSION = newestCoveredExpansion(EXPANSIONS, BEST_DECKS);
+const EXPANSION_ROUTES = EXPANSIONS
+  .filter((expansion) => isListedExpansion(expansion))
+  .map((expansion) => `/expansion-list/${expansion.id}`);
 const ROUTES = [
   "/",
   "/tier-list",
@@ -36,16 +46,30 @@ const ROUTES = [
   "/deck",
   "/about",
   "/privacy",
+  ...EXPANSION_ROUTES,
 ];
 
 const DEFAULT_LOCALE = "en";
 
 // Titles/descriptions are build-time constants: unique per route, keyword-led,
 // en-UK. Canonicals always carry the trailing slash the server 301s to.
-const ROUTE_META = {
+const TITLE_LIMIT = 75;
+
+const tierListTitle = (latest) => {
+  if (!latest) return "Pokemon TCG Pocket Tier List: Best Decks | Top Pocket Decks";
+  return [
+    `Pokemon TCG Pocket Tier List: Best ${latest.name} Decks | Top Pocket Decks`,
+    `Pokemon TCG Pocket Tier List: ${latest.name} | Top Pocket Decks`,
+    `${latest.name} Tier List | Top Pocket Decks`,
+  ].find((title) => title.length <= TITLE_LIMIT) ?? `${latest.name} Tier List | Top Pocket Decks`;
+};
+
+const buildRouteMeta = (latest) => ({
   "/": {
-    title: "Pokemon TCG Pocket Deck Tier List | Top Pocket Decks",
-    description: "Pokemon TCG Pocket tier list built from real tournament results. See best deck rankings, win rates and matchups for the current expansion.",
+    title: "Pokemon TCG Pocket Best Decks & Tier List | Top Pocket Decks",
+    description: latest
+      ? `Pokemon TCG Pocket best decks and tier list for ${latest.name}, ranked from tournament results. See win rates and matchups.`
+      : "Pokemon TCG Pocket best decks and tier list, ranked from tournament results. See win rates and matchups.",
     canonical: "https://pocketdecks.top/",
     jsonLd: {
       "@context": "https://schema.org",
@@ -55,8 +79,10 @@ const ROUTE_META = {
     },
   },
   "/tier-list": {
-    title: "Pokemon TCG Pocket Tier List: Best Decks | Top Pocket Decks",
-    description: "Every Pokemon TCG Pocket archetype ranked from tournament data, updated daily. Filter the tier list by expansion, energy type and win rate.",
+    title: tierListTitle(latest),
+    description: latest
+      ? `Pokemon TCG Pocket tier list for ${latest.name}, ranked by power score from tournament data, updated four times a week. Tiers, win rates, matchups.`
+      : "Pokemon TCG Pocket tier list, ranked by power score from tournament data, updated four times a week. Tiers, win rates, matchups.",
     canonical: "https://pocketdecks.top/tier-list/",
   },
   "/cards-list": {
@@ -89,19 +115,43 @@ const ROUTE_META = {
     description: "How Top Pocket Decks handles analytics, advertising and your account data.",
     canonical: "https://pocketdecks.top/privacy/",
   },
+});
+
+const expansionTitle = (name, id) => {
+  const full = `Pokemon TCG Pocket ${name} (${id}): Cards & Decks | Top Pocket Decks`;
+  return full.length <= TITLE_LIMIT ? full : `${name} (${id}) Cards & Decks | Top Pocket Decks`;
 };
 
-const ROUTE_READY_ROUTES = new Set(["/cards-list", "/statistics", "/deck"]);
+const expansionRouteMeta = Object.fromEntries(
+  EXPANSIONS.filter((expansion) => isListedExpansion(expansion)).map((expansion) => {
+    const id = expansionCode(expansion.id);
+    return [`/expansion-list/${expansion.id}`, {
+      title: expansionTitle(expansion.name, id),
+      description: `Pokemon TCG Pocket ${expansion.name} (${id}) cards used in live decks and the current deck meta.`,
+      canonical: `https://pocketdecks.top/expansion-list/${expansion.id}/`,
+    }];
+  })
+);
+const ROUTE_META = { ...buildRouteMeta(LATEST_EXPANSION), ...expansionRouteMeta };
+
+
+const ROUTE_READY_ROUTES = new Set(["/", "/cards-list", "/statistics", "/deck"]);
 const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
 
-const JA_ROUTE_META = {
+const buildJaRouteMeta = (latest) => ({
   "/": {
-    title: "ポケポケ 最強デッキ ティアリスト | Top Pocket Decks",
-    description: "大会結果から作ったポケモンカードゲーム ポケットのティアリストです。最新環境のデッキランキング、勝率、相性を確認できます。",
+    title: "ポケポケ 最強デッキ＆ティアリスト | Top Pocket Decks",
+    description: latest
+      ? `${latest.name}の最強デッキとティアリストを大会結果から集計しています。デッキランキング、勝率、相性を確認できます。`
+      : "大会結果から集計したポケモンカードゲーム ポケットの最強デッキとティアリストです。デッキランキング、勝率、相性を確認できます。",
   },
   "/tier-list": {
-    title: "ポケポケ ティアリスト 最強デッキ一覧 | Top Pocket Decks",
-    description: "大会データをもとに全アーキタイプを毎日ランク付けしています。拡張パック、エネルギー、勝率で絞り込んで最強デッキを探せます。",
+    title: latest
+      ? `ポケポケ ティアリスト ${latest.name} 最強デッキ | Top Pocket Decks`
+      : "ポケポケ ティアリスト 最強デッキ一覧 | Top Pocket Decks",
+    description: latest
+      ? `${latest.name}のデッキを大会データをもとにパワースコア順にランク付けし、週4回更新しています。各デッキのティア、勝率、相性を確認できます。`
+      : "大会データをもとに全アーキタイプをパワースコア順にランク付けし、週4回更新しています。各デッキのティア、勝率、相性を確認できます。",
   },
   "/cards-list": {
     title: "ポケポケ カード ティアリスト 最強カード | Top Pocket Decks",
@@ -127,16 +177,54 @@ const JA_ROUTE_META = {
     title: "プライバシーポリシー | Top Pocket Decks",
     description: "Top Pocket Decksにおけるアクセス解析、広告、アカウントデータの取り扱いについて説明します。",
   },
-};
+});
+
+const JA_ROUTE_META = buildJaRouteMeta(LATEST_EXPANSION);
+
+const jaExpansionMeta = Object.fromEntries(
+  EXPANSIONS.filter((expansion) => isListedExpansion(expansion)).map((expansion) => [
+    `/expansion-list/${expansion.id}`,
+    {
+      title: `ポケポケ ${expansion.name} (${expansionCode(expansion.id)}) カードとデッキ | Top Pocket Decks`,
+      description: `${expansion.name} (${expansionCode(expansion.id)})のカードと、現在の大会デッキでの採用状況を確認できます。`,
+    },
+  ])
+);
+const JA_ROUTE_META_WITH_EXPANSIONS = { ...JA_ROUTE_META, ...jaExpansionMeta };
 
 const urlFor = (locale, route) => localizedUrl(SITE_URL, locale, route);
+
+const EXPANSION_INDEX = expansionIndexPolicy(EXPANSIONS, BEST_DECKS);
 
 const alternatesFor = (route) => [
   ...ROUTE_LOCALES.map((locale) => ({ hreflang: locale, href: urlFor(locale, route) })),
   { hreflang: "x-default", href: urlFor(DEFAULT_LOCALE, route) },
 ];
 
+const EN_EXPANSION_COPY = require("../src/locales/en_translation.json").expansionPage;
+const JA_EXPANSION_COPY = require("../src/locales/ja_translation.json").expansionPage;
+
+const expansionBreadcrumb = (locale, route, expansion) => {
+  const translated = locale !== DEFAULT_LOCALE;
+  const copy = translated ? JA_EXPANSION_COPY : EN_EXPANSION_COPY;
+  const homeLabel = translated ? JA_EXPANSION_COPY.home ?? JA_HOME_LABEL : EN_EXPANSION_COPY.home;
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: homeLabel, item: localizedUrl(SITE_URL, locale, "/") },
+      { "@type": "ListItem", position: 2, name: copy.expansions, item: localizedUrl(SITE_URL, locale, "/expansion-list") },
+      { "@type": "ListItem", position: 3, name: expansion.name, item: urlFor(locale, route) },
+    ],
+  };
+};
+
 const localeJsonLd = (locale, route) => {
+  const expansionMatch = route.match(/^\/expansion-list\/([^/]+)$/);
+  if (expansionMatch) {
+    const expansion = EXPANSIONS.find((entry) => entry.id === expansionMatch[1]);
+    return expansionBreadcrumb(locale, route, expansion);
+  }
   const base = ROUTE_META[route].jsonLd;
   if (locale === DEFAULT_LOCALE) return base;
   return route === "/"
@@ -146,11 +234,16 @@ const localeJsonLd = (locale, route) => {
 
 const localeMetaFor = (locale, route) => {
   const base = ROUTE_META[route];
-  const translated = locale === DEFAULT_LOCALE ? undefined : JA_ROUTE_META[route];
+  const translated = locale === DEFAULT_LOCALE ? undefined : JA_ROUTE_META_WITH_EXPANSIONS[route];
+  const expansionMatch = route.match(/^\/expansion-list\/([^/]+)$/);
+  const robots = expansionMatch
+    ? `${EXPANSION_INDEX.isIndexable(expansionMatch[1]) ? "index" : "noindex"}, follow`
+    : undefined;
   return {
     title: translated?.title ?? base.title,
     description: translated?.description ?? base.description,
     canonical: urlFor(locale, route),
+    robots,
     lang: locale,
     alternates: alternatesFor(route),
     jsonLd: localeJsonLd(locale, route),
@@ -165,7 +258,7 @@ const NOT_FOUND_META = {
 };
 
 const captureAfterRouteReady = async (page, route, capture) => {
-  if (ROUTE_READY_ROUTES.has(route)) {
+  if (ROUTE_READY_ROUTES.has(route) || route.startsWith("/expansion-list/")) {
     await waitForRouteReady(page);
   }
   return capture();
@@ -237,4 +330,4 @@ const main = async () => {
 
 if (require.main === module) main();
 
-module.exports = { alternatesFor, captureAfterRouteReady, DEFAULT_LOCALE, JA_ROUTE_META, localeMetaFor, NOT_FOUND_META, resetPrerenderAppState, resetPrerenderTheme, ROUTE_READY_ROUTES, ROUTE_META, ROUTES };
+module.exports = { alternatesFor, buildJaRouteMeta, buildRouteMeta, captureAfterRouteReady, DEFAULT_LOCALE, JA_ROUTE_META, localeMetaFor, NOT_FOUND_META, resetPrerenderAppState, resetPrerenderTheme, ROUTE_READY_ROUTES, ROUTE_META, ROUTES };

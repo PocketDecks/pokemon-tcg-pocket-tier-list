@@ -41,12 +41,16 @@ const visibleText = (html) =>
     .replace(/\s+/g, " ")
     .trim();
 
+const robotsOf = (html) => html.match(/<meta name="robots" content="([^"]*)"/)?.[1] ?? null;
+
 const cjkCount = (text) => (text.match(/[\u3040-\u30ff\u4e00-\u9faf]/g) || []).length;
 
 const expectedUrl = (entry) => {
   const dir = path.posix.dirname(entry.split(path.sep).join("/"));
   return dir === "." ? `https://${SITE_HOST}/` : `https://${SITE_HOST}/${dir}/`;
 };
+
+const isDeckDetailEntry = (entry) => /^(ja\/)?deck\/[^/]+\//.test(entry.split(path.sep).join("/"));
 
 test("locale page graph in the built output", { skip: !hasDist && "dist/ is not built" }, async (t) => {
   const entries = listHtml().filter((entry) => !entry.endsWith("404.html") && !entry.endsWith("app-shell.html"));
@@ -72,6 +76,30 @@ test("locale page graph in the built output", { skip: !hasDist && "dist/ is not 
     }
   });
 
+  await t.test("deck detail and hub pages are English-only in the index", () => {
+    for (const entry of entries.filter(isDeckDetailEntry)) {
+      const html = fs.readFileSync(path.join(DIST_DIR, entry), "utf8");
+      if (entry.split(path.sep).join("/").startsWith("ja/")) {
+        assert.match(html, /<meta name="robots" content="noindex, follow"/, entry);
+        assert.deepStrictEqual(alternates(html), [], entry);
+      } else {
+        const set = alternates(html);
+        assert.deepStrictEqual(
+          set.map((a) => a.hreflang).sort(),
+          ["en", "x-default"],
+          entry
+        );
+        for (const hreflang of ["en", "x-default"]) {
+          assert.strictEqual(
+            set.find((a) => a.hreflang === hreflang).href,
+            expectedUrl(entry),
+            `${entry}: ${hreflang} alternate`
+          );
+        }
+      }
+    }
+  });
+
   await t.test("the app shell and the 404 page are stamped as English", () => {
     for (const shell of ["app-shell.html", "404.html"]) {
       const html = fs.readFileSync(path.join(DIST_DIR, shell), "utf8");
@@ -91,7 +119,7 @@ test("locale page graph in the built output", { skip: !hasDist && "dist/ is not 
   await t.test("the hreflang set is complete, resolvable and reciprocal", () => {
     const urlToEntry = new Map(entries.map((entry) => [expectedUrl(entry), entry]));
 
-    for (const entry of entries) {
+    for (const entry of entries.filter((candidate) => !isDeckDetailEntry(candidate))) {
       const html = fs.readFileSync(path.join(DIST_DIR, entry), "utf8");
       const set = alternates(html);
       const langs = set.map((a) => a.hreflang).sort();
@@ -126,7 +154,12 @@ test("locale page graph in the built output", { skip: !hasDist && "dist/ is not 
 
   await t.test("English pages carry substantive visible content", () => {
     for (const entry of enEntries) {
-      const text = visibleText(fs.readFileSync(path.join(DIST_DIR, entry), "utf8"));
+      const html = fs.readFileSync(path.join(DIST_DIR, entry), "utf8");
+      if (!(robotsOf(html) ?? "").startsWith("index")) {
+        assert.match(html, /<meta name="robots" content="noindex/, `${entry}: exempt page is not noindex`);
+        continue;
+      }
+      const text = visibleText(html);
       assert.ok(text.length > 1000, `${entry}: only ${text.length} visible chars`);
     }
   });

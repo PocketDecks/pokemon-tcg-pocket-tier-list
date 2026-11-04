@@ -1,0 +1,76 @@
+{
+  "hub": "crabominable-ex",
+  "name": "Crabominable ex",
+  "variants": [
+    {
+      "variant": "crabominable-ex-a3-049",
+      "name": "Crabominable ex-A3-049",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.004327429830006914,
+      "peakDate": "2025-06-16",
+      "cards": [
+        "2:a3-097",
+        "2:a3-049",
+        "1:a2-049",
+        "2:pa-007",
+        "2:a2a-072",
+        "1:a1-220",
+        "1:a1-223",
+        "1:a1a-068",
+        "1:a2-150",
+        "1:a2b-071",
+        "1:a3-151",
+        "1:a1-225",
+        "2:pa-005",
+        "2:a2-147"
+      ]
+    },
+    {
+      "variant": "crabominable-ex-a3-049&greninja-a1-089",
+      "name": "Crabominable ex-A3-049&Greninja-A1-089",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.006518075738832461,
+      "peakDate": "2025-05-12",
+      "cards": [
+        "2:a3-097",
+        "2:a3-049",
+        "2:a1-087",
+        "1:a1-088",
+        "2:a1-089",
+        "2:pa-007",
+        "1:a2a-072",
+        "1:a2-150",
+        "1:a2b-071",
+        "2:a3-144",
+        "2:pa-005",
+        "2:a2-147"
+      ]
+    },
+    {
+      "variant": "crabominable-ex-a3-049&palkia-ex-a2-049",
+      "name": "Crabominable ex-A3-049&Palkia ex-A2-049",
+      "firstSeen": "2025-06-02",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.002317248441984493,
+      "peakDate": "2025-07-16",
+      "cards": [
+        "2:a3-097",
+        "2:a3-049",
+        "2:a2-049",
+        "2:pa-007",
+        "2:a1-220",
+        "1:a1a-068",
+        "1:a2-150",
+        "1:a1-225",
+        "1:pa-005",
+        "1:pa-006",
+        "1:a3a-064",
+        "1:a2-146",
+        "2:a2-148",
+        "1:a3-146"
+      ]
+    }
+  ]
+}

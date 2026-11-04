@@ -23,6 +23,7 @@ jobs:
       # Node is pinned for the whole job: firebase-tools still hits a
       # node-fetch@v2 premature-close bug on newer runner defaults.
       - run: yarn install --frozen-lockfile
+      - run: yarn check:generated
       - run: yarn build
         env:
           VITE_FIREBASE_APIKEY: ${{ secrets.VITE_FIREBASE_APIKEY }}

@@ -3,6 +3,7 @@
     "banner": "Les classements sont à jour au {{date}}."
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "Aller au contenu",
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu",
@@ -167,6 +168,11 @@
     "latestExpansionCards": "Cartes de la dernière extension",
     "latestExpansionCardsAny": "Tous"
   },
+  "expansionList": {
+    "viewLabel": "Classer par",
+    "viewExpansions": "Extensions",
+    "viewPacks": "Boosters"
+  },
   "window": {
     "label": "Période",
     "10d": "10 jours",
@@ -185,7 +191,8 @@
     "shareColumn": "Part",
     "deltaColumn": "Changement",
     "noTrends": "Les données de tendance ne sont pas disponibles pour le moment.",
-    "noMovement": "Aucun mouvement de decks sur cette période."
+    "noMovement": "Aucun mouvement de decks sur cette période.",
+    "introGeneric": "Analysez le métajeu actuel de Pokémon TCG Pocket grâce à des données historiques en direct et des cartes de chaleur des matchups entre archétypes. Ces données montrent comment la popularité des decks et les taux de victoire évoluent au fil du temps."
   },
   "bestDeckFinder": {
     "title": "Trouvez votre meilleur deck",
@@ -200,7 +207,9 @@
     "signOut": "Se déconnecter",
     "bestCards": "Meilleures cartes",
     "bestExpansions": "Meilleures extensions",
-    "statistics": "Statistiques"
+    "statistics": "Statistiques",
+    "tierListHeading": "Liste de tiers {{name}} ({{id}})",
+    "tierListGeneric": "Liste de tiers Pokémon TCG Pocket"
   },
   "footer": {
     "about": "À propos",
@@ -254,8 +263,8 @@
       "description": "La tier list repose sur les résultats de tournois. Un algorithme détermine le tier et la liste du deck."
     },
     "weeklyUpdates": {
-      "title": "Mises à jour hebdomadaires",
-      "description": "La tier list est mise à jour chaque semaine, apportant de nouveaux decks et matchups tous les lundis."
+      "title": "Mises à jour fréquentes",
+      "description": "La tier list est mise à jour quatre fois par semaine, apportant de nouveaux decks et matchups."
     },
     "filters": {
       "title": "Filtres",
@@ -374,5 +383,46 @@
     "20d": "20 jours",
     "30d": "30 jours",
     "all": "toute la période"
+  },
+  "deckHub": {
+    "title": "Deck {{name}}",
+    "liveSummary_one": "{{count}} variante active dans le méta actuel, avec la liste la plus forte en premier",
+    "liveSummary_other": "{{count}} variantes actives dans le méta actuel, avec les listes les plus fortes en premier",
+    "notInMeta": "Absent du méta {{expansion}} actuel. Consultez la liste des tiers pour les classements actuels",
+    "expansionFallback": "extension",
+    "unavailable": "Les statistiques des decks en direct sont indisponibles pour le moment. L'archive ci-dessous reste à jour",
+    "seenFrom": "Vu du {{from}} au {{to}}",
+    "winRate": "{{value}}% de victoires",
+    "metaShare": "{{value}}% du méta",
+    "allVariants": "Toutes les variantes de {{name}}",
+    "coreCards": "Cartes principales",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "Aucune liste de cartes n'est encore enregistrée pour cet archétype.",
+    "matchups": "Matchups",
+    "bestMatchups": "Meilleurs matchups",
+    "worstMatchups": "Pires matchups",
+    "noMatchups": "Pas encore assez de parties contre d'autres decks enregistrées.",
+    "similarDecks": "Decks actuels similaires",
+    "sharedCards_one": "{{count}} carte commune",
+    "sharedCards_other": "{{count}} cartes communes",
+    "noSimilarDecks": "Aucun deck actuel ne partage de cartes avec cette liste.",
+    "variantHistory": "Historique des variantes",
+    "peakShare": "Pic de {{value}} % le {{date}}"
+  },
+  "expansionPage": {
+    "home": "Accueil",
+    "expansions": "Extensions",
+    "heading": "{{name}} ({{id}}) Cartes et decks",
+    "packFilter": "Affichage du booster {{pack}} et des cartes partagées.",
+    "released": "Sorti le {{date}}",
+    "intro": "Cartes de {{name}} présentes dans les decks de tournoi actuels, et les decks qui les jouent.",
+    "cardsHeading": "Cartes utilisées dans les decks actuels",
+    "decksHeading": "Decks actuels utilisant cette extension",
+    "empty": "Aucune carte de {{name}} ne figure dans les meilleurs decks en ce moment.",
+    "emptyAside": "C'est dommage. :(",
+    "emptyPack": "Aucune carte du booster {{pack}} ni aucune carte partagée ne figure actuellement dans un deck de tête.",
+    "loadError": "Les données des cartes n'ont pas pu être chargées. Actualisez la page pour réessayer.",
+    "allPacks": "Afficher tous les boosters",
+    "breadcrumb": "Fil d'Ariane"
   }
 }

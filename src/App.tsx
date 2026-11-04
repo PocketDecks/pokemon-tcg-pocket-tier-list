@@ -19,9 +19,10 @@ import { splitLocale } from "./app/locale-route";
 const LandingPage = lazy(() => import("./pages/landing/LandingPage"));
 const TierListPage = lazy(() => import("./pages/tier-list/TierListPage"));
 const DeckFinderPage = lazy(() => import("./pages/deck/DeckFinderPage"));
-const DeckDetailPage = lazy(() => import("./pages/deck/DeckDetailPage"));
+const DeckRoute = lazy(() => import("./pages/deck/DeckRoute"));
 const CardsListPage = lazy(() => import("./pages/cards-list/CardsListPage"));
 const ExpansionListPage = lazy(() => import("./pages/expansion-list/ExpansionListPage"));
+const ExpansionPage = lazy(() => import("./pages/expansion-list/ExpansionPage"));
 const StatisticsPage = lazy(() => import("./pages/stats/StatisticsPage"));
 const PrivacyPage = lazy(() => import("./pages/legal/PrivacyPage"));
 const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
@@ -129,14 +130,17 @@ const App = () => {
                       <Route index element={<LandingPage />} />
                       <Route path="tier-list" element={<TierListPage />} />
                       <Route path="cards-list" element={<CardsListPage />} />
-                      <Route path="expansion-list" element={<ExpansionListPage />} />
+                      <Route path="expansion-list">
+                        <Route index element={<ExpansionListPage />} />
+                        <Route path=":expansionId" element={<ExpansionPage />} />
+                      </Route>
                       <Route path="statistics" element={<StatisticsPage />} />
                       <Route path="privacy" element={<PrivacyPage />} />
                       <Route path="about" element={<AboutPage />} />
                       <Route path="feedback" element={<FeedbackPage />} />
                       <Route path="deck">
                         <Route index element={<DeckFinderPage />} />
-                        <Route path=":deckId" element={<DeckDetailPage />} />
+                        <Route path=":deckId" element={<DeckRoute />} />
                       </Route>
                       <Route path="*" element={<NotFoundPage />} />
                     </Route>
@@ -144,14 +148,17 @@ const App = () => {
                       <Route index element={<LandingPage />} />
                       <Route path="tier-list" element={<TierListPage />} />
                       <Route path="cards-list" element={<CardsListPage />} />
-                      <Route path="expansion-list" element={<ExpansionListPage />} />
+                      <Route path="expansion-list">
+                        <Route index element={<ExpansionListPage />} />
+                        <Route path=":expansionId" element={<ExpansionPage />} />
+                      </Route>
                       <Route path="statistics" element={<StatisticsPage />} />
                       <Route path="privacy" element={<PrivacyPage />} />
                       <Route path="about" element={<AboutPage />} />
                       <Route path="feedback" element={<FeedbackPage />} />
                       <Route path="deck">
                         <Route index element={<DeckFinderPage />} />
-                        <Route path=":deckId" element={<DeckDetailPage />} />
+                        <Route path=":deckId" element={<DeckRoute />} />
                       </Route>
                       <Route path="*" element={<NotFoundPage />} />
                     </Route>

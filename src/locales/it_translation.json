@@ -3,6 +3,7 @@
     "banner": "Le classifiche sono aggiornate al {{date}}."
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "Vai al contenuto",
     "openMenu": "Apri menu",
     "closeMenu": "Chiudi menu",
@@ -167,6 +168,11 @@
     "latestExpansionCards": "Carte dall'ultima espansione",
     "latestExpansionCardsAny": "Qualsiasi"
   },
+  "expansionList": {
+    "viewLabel": "Ordina per",
+    "viewExpansions": "Espansioni",
+    "viewPacks": "Buste"
+  },
   "window": {
     "label": "Periodo",
     "10d": "10 giorni",
@@ -185,7 +191,8 @@
     "shareColumn": "Quota",
     "deltaColumn": "Cambiamento",
     "noTrends": "I dati sulle tendenze non sono disponibili al momento.",
-    "noMovement": "Nessun movimento di mazzi in questo periodo."
+    "noMovement": "Nessun movimento di mazzi in questo periodo.",
+    "introGeneric": "Analizza il metagioco attuale di Pokémon TCG Pocket con dati storici in tempo reale e mappe di calore degli scontri tra archetipi. Questi dati mostrano come cambiano nel tempo la popolarità dei mazzi e i tassi di vittoria."
   },
   "bestDeckFinder": {
     "title": "Trova il Tuo Miglior Mazzo",
@@ -200,7 +207,9 @@
     "signOut": "Esci",
     "bestCards": "Migliori Carte",
     "bestExpansions": "Migliori Espansioni",
-    "statistics": "Statistiche"
+    "statistics": "Statistiche",
+    "tierListHeading": "Classifica {{name}} ({{id}})",
+    "tierListGeneric": "Classifica Pokémon TCG Pocket"
   },
   "footer": {
     "about": "Informazioni",
@@ -254,8 +263,8 @@
       "description": "La tier list si basa sui risultati dei tornei. Un algoritmo determina il tier e la lista del mazzo."
     },
     "weeklyUpdates": {
-      "title": "Aggiornamenti Settimanali",
-      "description": "La tier list si aggiorna settimanalmente, portando nuovi mazzi e matchup ogni lunedì."
+      "title": "Aggiornamenti frequenti",
+      "description": "La tier list si aggiorna quattro volte a settimana, portando nuovi mazzi e matchup."
     },
     "filters": {
       "title": "Filtri",
@@ -374,5 +383,46 @@
     "20d": "20 giorni",
     "30d": "30 giorni",
     "all": "tutto il periodo"
+  },
+  "deckHub": {
+    "title": "Mazzo {{name}}",
+    "liveSummary_one": "{{count}} variante attiva nel meta attuale, con la lista più forte per prima",
+    "liveSummary_other": "{{count}} varianti attive nel meta attuale, con le liste più forti per prime",
+    "notInMeta": "Non presente nel meta {{expansion}} attuale. Consulta la lista dei tier per le classifiche attuali",
+    "expansionFallback": "espansione",
+    "unavailable": "Le statistiche dei mazzi in tempo reale non sono disponibili al momento. L'archivio qui sotto è comunque aggiornato",
+    "seenFrom": "Visto dal {{from}} al {{to}}",
+    "winRate": "{{value}}% di vittorie",
+    "metaShare": "{{value}}% del meta",
+    "allVariants": "Tutte le varianti di {{name}}",
+    "coreCards": "Carte principali",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "Non è ancora registrata una lista di carte per questo archetipo.",
+    "matchups": "Matchup",
+    "bestMatchups": "Migliori matchup",
+    "worstMatchups": "Peggiori matchup",
+    "noMatchups": "Non ci sono ancora abbastanza partite registrate contro altri mazzi.",
+    "similarDecks": "Mazzi attuali simili",
+    "sharedCards_one": "{{count}} carta in comune",
+    "sharedCards_other": "{{count}} carte in comune",
+    "noSimilarDecks": "Nessun mazzo attuale condivide carte con questa lista.",
+    "variantHistory": "Storico delle varianti",
+    "peakShare": "Picco del {{value}} % il {{date}}"
+  },
+  "expansionPage": {
+    "home": "Pagina iniziale",
+    "expansions": "Espansioni",
+    "heading": "{{name}} ({{id}}) Carte e mazzi",
+    "packFilter": "Mostrate la busta {{pack}} e le carte condivise.",
+    "released": "Uscito il {{date}}",
+    "intro": "Carte di {{name}} presenti nei mazzi da torneo attuali, e i mazzi che le utilizzano.",
+    "cardsHeading": "Carte usate nei mazzi attuali",
+    "decksHeading": "Mazzi attuali che usano questa espansione",
+    "empty": "Al momento nessuna carta di {{name}} è nei mazzi migliori.",
+    "emptyAside": "Peccato. :(",
+    "emptyPack": "Nessuna carta della busta {{pack}} né carte condivise sono attualmente in un mazzo top.",
+    "loadError": "I dati delle carte non sono stati caricati. Ricarica la pagina per riprovare.",
+    "allPacks": "Mostra tutte le buste",
+    "breadcrumb": "Percorso di navigazione"
   }
 }

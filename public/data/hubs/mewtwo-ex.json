@@ -1,0 +1,29 @@
+{
+  "hub": "mewtwo-ex",
+  "name": "Mewtwo ex",
+  "variants": [
+    {
+      "variant": "mewtwo-ex-a1-129&gardevoir-a1-132",
+      "name": "mewtwo-ex-a1-129&gardevoir-a1-132",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-10-10",
+      "peakShare": 0.015796637398652003,
+      "peakDate": "2025-05-24",
+      "cards": [
+        "2:a1-130",
+        "2:a1-131",
+        "2:a1-132",
+        "2:a1-129",
+        "1:a1a-032",
+        "2:pa-007",
+        "1:a1-225",
+        "1:a1-223",
+        "1:a1a-068",
+        "2:pa-005",
+        "2:a1a-065",
+        "1:pa-006",
+        "1:pa-002"
+      ]
+    }
+  ]
+}

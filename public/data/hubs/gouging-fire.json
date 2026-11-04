@@ -1,0 +1,29 @@
+{
+  "hub": "gouging-fire",
+  "name": "Gouging Fire",
+  "variants": [
+    {
+      "variant": "gouging-fire-b3a-054&dragonair-b4-117",
+      "name": "gouging-fire-b3a-054&dragonair-b4-117",
+      "firstSeen": "2026-08-11",
+      "lastSeen": "2026-08-27",
+      "peakShare": 0.07303259337943889,
+      "peakDate": "2026-08-13",
+      "cards": [
+        "2:b2b-051",
+        "2:b4-117",
+        "2:b3a-054",
+        "1:b4-120",
+        "2:pa-007",
+        "2:b1-225",
+        "1:b3a-072",
+        "1:a2b-070",
+        "1:a2-150",
+        "2:pa-005",
+        "1:b3b-064",
+        "1:b3a-069",
+        "2:b4-155"
+      ]
+    }
+  ]
+}

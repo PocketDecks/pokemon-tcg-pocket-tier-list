@@ -1,0 +1,73 @@
+{
+  "hub": "hitmonchan-ex",
+  "name": "Hitmonchan ex",
+  "variants": [
+    {
+      "variant": "hitmonchan-ex-b1-124",
+      "name": "Hitmonchan ex-B1-124",
+      "firstSeen": "2025-11-08",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0008646451932651091,
+      "peakDate": "2025-11-11",
+      "cards": [
+        "2:b1-124",
+        "2:a1a-046",
+        "2:pa-007",
+        "2:b1-225",
+        "2:a1-223",
+        "2:a2b-072",
+        "1:a2b-070",
+        "1:a1-225",
+        "2:a1a-063",
+        "2:pa-001",
+        "1:pa-005",
+        "1:a3a-064"
+      ]
+    },
+    {
+      "variant": "hitmonchan-ex-b1-124&mega-gallade-ex-b4-084",
+      "name": "hitmonchan-ex-b1-124&mega-gallade-ex-b4-084",
+      "firstSeen": "2026-10-06",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.0006402773408859754,
+      "peakDate": "2026-10-06",
+      "cards": [
+        "2:a2-068",
+        "2:b4-084",
+        "2:b1-124",
+        "2:pa-007",
+        "2:b1-225",
+        "1:b3-149",
+        "1:a2-150",
+        "1:b4-153",
+        "2:pa-005",
+        "2:a3-144",
+        "2:a2-148",
+        "1:b3-154"
+      ]
+    },
+    {
+      "variant": "hitmonchan-ex-b1-124&rampardos-a2-089",
+      "name": "hitmonchan-ex-b1-124&rampardos-a2-089",
+      "firstSeen": "2026-10-06",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.0006959411069151551,
+      "peakDate": "2026-10-06",
+      "cards": [
+        "2:a2-089",
+        "2:b1-124",
+        "2:pa-007",
+        "2:a1-223",
+        "2:b1-225",
+        "1:a2-150",
+        "2:a2-144",
+        "2:a3-144",
+        "1:a3a-064",
+        "1:pa-005",
+        "1:b2-145",
+        "1:a2-147",
+        "1:b3-154"
+      ]
+    }
+  ]
+}

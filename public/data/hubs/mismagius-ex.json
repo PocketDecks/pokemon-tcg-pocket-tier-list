@@ -1,0 +1,73 @@
+{
+  "hub": "mismagius-ex",
+  "name": "Mismagius ex",
+  "variants": [
+    {
+      "variant": "mismagius-ex-a2-067",
+      "name": "Mismagius ex-A2-067",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.001786360075794432,
+      "peakDate": "2025-08-30",
+      "cards": [
+        "2:pa-038",
+        "2:a2-067",
+        "1:a1a-032",
+        "2:pa-007",
+        "1:a2-150",
+        "1:a1-225",
+        "1:a1-223",
+        "1:a1a-066",
+        "1:a2-155",
+        "2:pa-005",
+        "2:pa-001",
+        "1:a2-146",
+        "1:pa-002",
+        "2:a2-147"
+      ]
+    },
+    {
+      "variant": "mismagius-ex-a2-067&tapu-lele-a3-084",
+      "name": "Mismagius ex-A2-067&Tapu Lele-A3-084",
+      "firstSeen": "2025-05-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.000080311929504326,
+      "peakDate": "2025-05-30",
+      "cards": [
+        "2:pa-038",
+        "2:a2-067",
+        "2:a3-084",
+        "2:pa-007",
+        "2:a2b-071",
+        "2:a2b-072",
+        "1:a2-150",
+        "1:a1-225",
+        "2:pa-005",
+        "1:a2-146",
+        "1:pa-002",
+        "2:a2-147"
+      ]
+    },
+    {
+      "variant": "mismagius-ex-a2-067&togekiss-a2-065",
+      "name": "Mismagius ex-A2-067&Togekiss-A2-065",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2025-05-27",
+      "peakShare": 0.000010039604503954966,
+      "peakDate": "2025-05-27",
+      "cards": [
+        "2:a2-063",
+        "2:a2-064",
+        "2:a2-065",
+        "2:a2-066",
+        "2:a2-067",
+        "2:pa-007",
+        "2:a2-152",
+        "1:a2-150",
+        "2:pa-005",
+        "1:pa-002",
+        "2:a2-147"
+      ]
+    }
+  ]
+}

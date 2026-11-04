@@ -3,6 +3,7 @@
     "banner": "Clasamentele sunt actualizate la {{date}}."
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "Salt la conținut",
     "openMenu": "Deschide meniul",
     "closeMenu": "Închide meniul",
@@ -167,6 +168,11 @@
     "latestExpansionCards": "Cărți din cea mai recentă expansiune",
     "latestExpansionCardsAny": "Oricare"
   },
+  "expansionList": {
+    "viewLabel": "Clasament după",
+    "viewExpansions": "Expansiuni",
+    "viewPacks": "Pachete"
+  },
   "window": {
     "label": "Perioadă",
     "10d": "10 zile",
@@ -185,7 +191,8 @@
     "shareColumn": "Cotă",
     "deltaColumn": "Schimbare",
     "noTrends": "Datele despre tendințe nu sunt disponibile acum.",
-    "noMovement": "Nicio mișcare a pachetelor în această perioadă."
+    "noMovement": "Nicio mișcare a pachetelor în această perioadă.",
+    "introGeneric": "Analizați metajocul actual al Pokémon TCG Pocket folosind date istorice în timp real și hărți termice ale matchup-urilor dintre arhetipuri. Aceste date arată cum se schimbă în timp popularitatea deck-urilor și ratele de victorie."
   },
   "bestDeckFinder": {
     "title": "Găsește-ți cel mai bun deck",
@@ -200,7 +207,9 @@
     "signOut": "Deconectează-te",
     "bestCards": "Cele mai bune cărți",
     "bestExpansions": "Cele mai bune expansiuni",
-    "statistics": "Statistici"
+    "statistics": "Statistici",
+    "tierListHeading": "Lista de niveluri {{name}} ({{id}})",
+    "tierListGeneric": "Lista de niveluri Pokémon TCG Pocket"
   },
   "footer": {
     "about": "Despre",
@@ -254,8 +263,8 @@
       "description": "Clasamentul se bazează pe rezultatele din turnee. Un algoritm determină nivelul (tier-ul) și lista deck-ului."
     },
     "weeklyUpdates": {
-      "title": "Actualizări săptămânale",
-      "description": "Clasamentul se actualizează săptămânal, aducând deck-uri și matchup-uri noi în fiecare luni."
+      "title": "Actualizări frecvente",
+      "description": "Clasamentul se actualizează de patru ori pe săptămână, aducând deck-uri și matchup-uri noi."
     },
     "filters": {
       "title": "Filtre",
@@ -374,5 +383,46 @@
     "20d": "20 zile",
     "30d": "30 zile",
     "all": "toată perioada"
+  },
+  "deckHub": {
+    "title": "Deck {{name}}",
+    "liveSummary_one": "{{count}} variantă activă în metagame-ul actual, cu cea mai puternică listă primă",
+    "liveSummary_other": "{{count}} variante active în metagame-ul actual, cu cele mai puternice liste primele",
+    "notInMeta": "Nu este în metagame-ul {{expansion}} actual. Consultă lista de tier-uri pentru clasamentele actuale",
+    "expansionFallback": "expansiune",
+    "unavailable": "Statisticile live ale deck-urilor nu sunt disponibile acum. Arhiva de mai jos este totuși actuală",
+    "seenFrom": "Văzut din {{from}} până în {{to}}",
+    "winRate": "{{value}}% rată de victorii",
+    "metaShare": "{{value}}% din metagame",
+    "allVariants": "Toate variantele {{name}}",
+    "coreCards": "Carduri de bază",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "Nu există încă o listă de carduri înregistrată pentru acest arhetip.",
+    "matchups": "Meciuri directe",
+    "bestMatchups": "Cele mai bune meciuri directe",
+    "worstMatchups": "Cele mai slabe meciuri directe",
+    "noMatchups": "Încă nu există suficiente partide înregistrate împotriva altor decks.",
+    "similarDecks": "Decks actuale similare",
+    "sharedCards_one": "{{count}} card comun",
+    "sharedCards_other": "{{count}} carduri comune",
+    "noSimilarDecks": "Niciun deck actual nu are carduri comune cu această listă.",
+    "variantHistory": "Istoricul variantelor",
+    "peakShare": "Vârf de {{value}}% pe {{date}}"
+  },
+  "expansionPage": {
+    "home": "Acasă",
+    "expansions": "Expansiuni",
+    "heading": "{{name}} ({{id}}) Cărți și deckuri",
+    "packFilter": "Se afișează pachetul {{pack}} și cărțile comune.",
+    "released": "Lansat la {{date}}",
+    "intro": "Cărți din {{name}} care apar în deckurile de turneu actuale și deckurile care le folosesc.",
+    "cardsHeading": "Cărți folosite în deckurile actuale",
+    "decksHeading": "Deckuri actuale care folosesc această expansiune",
+    "empty": "Nicio carte din {{name}} nu se află acum într-un deck de top.",
+    "emptyAside": "Păcat. :(",
+    "emptyPack": "Niciun card din pachetul {{pack}} sau card comun nu se află în prezent într-un deck de top.",
+    "loadError": "Datele cardurilor nu s-au încărcat. Reîncarcă pagina pentru a încerca din nou.",
+    "allPacks": "Afișează toate pachetele",
+    "breadcrumb": "Traseu de navigare"
   }
 }

@@ -11,7 +11,8 @@
     "buildHeading": "Building your best deck",
     "buildBody": "If you do not own every card, you can open any deck to view its full list alongside card-for-card alternatives. You can also use the Best Deck Finder to mark the cards you are missing and instantly find the strongest deck you can build with your current collection. The tool allows you to filter by energy type and rank decks by popularity or raw strength.",
     "updatesHeading": "Tier list updates",
-    "updatesBody": "The rankings update automatically as fresh tournament results come in. The fastest updates go to Premium members. The date shown in the lower-right corner always reflects the most recent refresh."
+    "updatesBody": "The rankings update automatically as fresh tournament results come in. The fastest updates go to Premium members. The date shown in the lower-right corner always reflects the most recent refresh.",
+    "expansionLink": "Browse the <0>{{name}} cards and decks</0>."
   },
   "cardsList": {
     "heading": "Pokémon TCG Pocket | Card Tier List",
@@ -25,11 +26,11 @@
   },
   "expansionList": {
     "heading": "Pokémon TCG Pocket | Best Expansions to Open",
-    "intro": "This page ranks booster packs by the competitive value of the cards inside them. The scoring comes from real tournament data, not set hype: a pack scores well when the cards you can pull from it appear often in the strongest decks. That makes this list a reliable guide for deciding which packs to open next.",
-    "valueHeading": "How pack value is calculated",
-    "valueBody": "Every card carries a score based on how much tournament-winning decks rely on it. Packs are ranked by the average score of their scored cards, so consistently strong cards rank above packs with lower average value. Cards that arrive through a set's shared pool count toward every pack in that set. Once the averages are calculated, packs are sorted into tiers from S to F, with S standing for the most valuable pulls in the game.",
+    "intro": "This page ranks expansions by the competitive value of the cards inside them. Switch to Packs to rank the individual booster packs instead. The scoring comes from real tournament data, not set hype: an expansion or pack scores well when its cards appear often in the strongest decks. That makes this list a reliable guide for deciding what to open next.",
+    "valueHeading": "How expansion and pack scores are calculated",
+    "valueBody": "Every card carries a score based on how much tournament-winning decks rely on it. Expansions are ranked by default by the average score of their scored cards, so a set full of consistently strong cards rises above one with weaker cards. Switch to Packs to rank each pack on its own cards plus the set's shared cards. Once the averages are calculated, entries are sorted into tiers from S to F, with S standing for the most valuable pulls in the game.",
     "worthHeading": "Worth opening this week",
-    "worthIntro": "The packs at the top of the list give you the most value per opening because their cards carry over into the current meta directly. These rankings assume a fresh collection, so they suit a new player who is just starting out and has no cards to reuse. Even the lower tiers hold useful cards, so the gap between tiers is a gap in how quickly a card becomes competitive, not in usefulness. Pair this page with the",
+    "worthIntro": "The expansions at the top of the list give you the most value per opening because their cards carry over into the current meta directly. The Packs view applies the same logic to each pack. These rankings assume a fresh collection, so they suit a new player who is just starting out and has no cards to reuse. Even the lower tiers hold useful cards, so the gap between tiers is a gap in how quickly a card becomes competitive, not in usefulness. Pair this page with the",
     "deckTierList": "deck tier list",
     "worthMid": "and the",
     "cardRankings": "card rankings",
@@ -83,5 +84,15 @@
     "contactHeading": "Contact",
     "contact": "Send questions, feedback, or feature requests to <0/>.",
     "fanNotice": "\"Top Pocket Decks\" is a fan-made project and is not affiliated with, endorsed by, or sponsored by Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc., or DeNA. All trademarks belong to their owners."
+  },
+  "hub": {
+    "heading": "{{name}} Deck Guide",
+    "overview_one": "{{name}} is tracked on Top Pocket Decks in {{count}} variant. Its first sighting was on {{firstSeen}}, and its peak share was {{peakShare}}% on {{peakDate}}.",
+    "overview_other": "{{name}} is tracked on Top Pocket Decks in {{count}} variants. Its first sighting was on {{firstSeen}}, and its peak share was {{peakShare}}% on {{peakDate}}.",
+    "liveStatus": "The top-ranked list has an expected win rate of {{winRate}}% and a {{metaShare}}% meta share in the current tournament data.",
+    "liveStatusNoShare": "The top-ranked list has an expected win rate of {{winRate}}% in the current tournament data.",
+    "retiredStatus": "{{name}} was last seen on {{lastSeen}} and is not in the current meta for {{expansion}}.",
+    "coreCards": "The most-included cards on the core list are {{cards}}.",
+    "retiredStatusGeneric": "{{name}} was last seen on {{lastSeen}} and is not in the current meta."
   }
 }

@@ -3,6 +3,7 @@
     "banner": "Las clasificaciones están actualizadas al {{date}}."
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "Saltar al contenido",
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú",
@@ -167,6 +168,11 @@
     "latestExpansionCards": "Cartas de la expansión más reciente",
     "latestExpansionCardsAny": "Cualquiera"
   },
+  "expansionList": {
+    "viewLabel": "Ordenar por",
+    "viewExpansions": "Expansiones",
+    "viewPacks": "Sobres"
+  },
   "window": {
     "label": "Periodo",
     "10d": "10 días",
@@ -185,7 +191,8 @@
     "shareColumn": "Cuota",
     "deltaColumn": "Cambio",
     "noTrends": "Los datos de tendencias no están disponibles ahora mismo.",
-    "noMovement": "No hay movimiento de mazos en este periodo."
+    "noMovement": "No hay movimiento de mazos en este periodo.",
+    "introGeneric": "Analiza el metajuego actual de Pokémon TCG Pocket con datos históricos en vivo y mapas de calor de enfrentamientos entre arquetipos. Estos datos muestran cómo cambian con el tiempo la popularidad de los mazos y las tasas de victoria."
   },
   "bestDeckFinder": {
     "title": "Encuentra tu mejor mazo",
@@ -200,7 +207,9 @@
     "signOut": "Cerrar sesión",
     "bestCards": "Mejores cartas",
     "bestExpansions": "Mejores expansiones",
-    "statistics": "Estadísticas"
+    "statistics": "Estadísticas",
+    "tierListHeading": "Lista de niveles de {{name}} ({{id}})",
+    "tierListGeneric": "Lista de niveles de Pokémon TCG Pocket"
   },
   "footer": {
     "about": "Acerca de",
@@ -254,8 +263,8 @@
       "description": "La Tier List se basa en los resultados de los torneos. Un algoritmo determina el tier y la lista del mazo."
     },
     "weeklyUpdates": {
-      "title": "Actualizaciones semanales",
-      "description": "La Tier List se actualiza semanalmente, trayendo nuevos mazos y enfrentamientos cada lunes."
+      "title": "Actualizaciones frecuentes",
+      "description": "La Tier List se actualiza cuatro veces por semana, trayendo nuevos mazos y enfrentamientos."
     },
     "filters": {
       "title": "Filtros",
@@ -374,5 +383,46 @@
     "20d": "20 días",
     "30d": "30 días",
     "all": "todo el periodo"
+  },
+  "deckHub": {
+    "title": "Mazo {{name}}",
+    "liveSummary_one": "{{count}} variante activa en el meta actual, con la lista más fuerte primero",
+    "liveSummary_other": "{{count}} variantes activas en el meta actual, con las listas más fuertes primero",
+    "notInMeta": "No está en el meta de {{expansion}} actual. Consulta la lista de niveles para ver los rankings actuales",
+    "expansionFallback": "expansión",
+    "unavailable": "Las estadísticas de mazos en directo no están disponibles ahora. El archivo de abajo sigue actualizado",
+    "seenFrom": "Visto desde {{from}} hasta {{to}}",
+    "winRate": "{{value}}% de victorias",
+    "metaShare": "{{value}}% del meta",
+    "allVariants": "Todas las variantes de {{name}}",
+    "coreCards": "Cartas clave",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "Todavía no hay una lista de cartas registrada para este arquetipo.",
+    "matchups": "Enfrentamientos",
+    "bestMatchups": "Mejores enfrentamientos",
+    "worstMatchups": "Peores enfrentamientos",
+    "noMatchups": "Todavía no hay suficientes partidas contra otros mazos registradas.",
+    "similarDecks": "Mazos actuales similares",
+    "sharedCards_one": "{{count}} carta en común",
+    "sharedCards_other": "{{count}} cartas en común",
+    "noSimilarDecks": "Ningún mazo actual comparte cartas con esta lista.",
+    "variantHistory": "Historial de variantes",
+    "peakShare": "Máximo de {{value}} % el {{date}}"
+  },
+  "expansionPage": {
+    "home": "Inicio",
+    "expansions": "Expansiones",
+    "heading": "{{name}} ({{id}}) Cartas y mazos",
+    "packFilter": "Mostrando el sobre {{pack}} y las cartas compartidas.",
+    "released": "Lanzamiento: {{date}}",
+    "intro": "Cartas de {{name}} que aparecen en los mazos de torneo actuales, y los mazos que las usan.",
+    "cardsHeading": "Cartas usadas en mazos actuales",
+    "decksHeading": "Mazos actuales que usan esta expansión",
+    "empty": "Ninguna carta de {{name}} aparece ahora mismo en un mazo destacado.",
+    "emptyAside": "Es una pena. :(",
+    "emptyPack": "Ninguna carta del sobre {{pack}} ni las cartas compartidas están en un mazo top en este momento.",
+    "loadError": "No se cargaron los datos de las cartas. Actualiza la página para intentarlo de nuevo.",
+    "allPacks": "Mostrar todos los sobres",
+    "breadcrumb": "Ruta de navegación"
   }
 }

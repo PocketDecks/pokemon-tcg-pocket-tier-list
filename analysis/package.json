@@ -23,15 +23,15 @@
   "dependencies": {
     "canvas": "^3.2.3",
     "dotenv": "^16.4.5",
-    "pokemon-tcg-pocket-cards": "^5.4.0"
+    "pokemon-tcg-pocket-cards": "^5.5.2"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
     "@vitest/coverage-v8": "^5.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
-    "vite": "^7.3.5",
-    "vitest": "^5.0.0"
+    "vite": "^7.3.7",
+    "vitest": "^5.0.3"
   },
   "engines": {
     "node": ">=24.22.1"

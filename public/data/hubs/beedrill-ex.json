@@ -1,0 +1,72 @@
+{
+  "hub": "beedrill-ex",
+  "name": "Beedrill ex",
+  "variants": [
+    {
+      "variant": "beedrill-ex-a2b-003",
+      "name": "Beedrill ex-A2b-003",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.004371381204306291,
+      "peakDate": "2025-05-12",
+      "cards": [
+        "2:a2b-001",
+        "2:a2b-002",
+        "2:a2b-003",
+        "1:a1-010",
+        "1:a2b-005",
+        "1:a2b-007",
+        "2:pa-007",
+        "1:a1-219",
+        "1:a2-150",
+        "1:a3-155",
+        "2:pa-005",
+        "2:a3-144",
+        "2:a3-147"
+      ]
+    },
+    {
+      "variant": "beedrill-ex-a2b-003&beedrill-a1-010",
+      "name": "Beedrill ex-A2b-003&Beedrill-A1-010",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0039588102617030075,
+      "peakDate": "2025-05-12",
+      "cards": [
+        "2:a2b-001",
+        "2:a2b-002",
+        "2:a2b-003",
+        "2:a1-010",
+        "2:pa-007",
+        "2:a1-219",
+        "1:a1-225",
+        "1:a2-150",
+        "2:a3-144",
+        "1:pa-005",
+        "1:a2-146",
+        "2:a3-147"
+      ]
+    },
+    {
+      "variant": "beedrill-ex-a2b-003&exeggutor-ex-a1-023",
+      "name": "Beedrill ex-A2b-003&Exeggutor ex-A1-023",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00015340073663370248,
+      "peakDate": "2025-11-27",
+      "cards": [
+        "2:a2b-001",
+        "2:a2b-002",
+        "2:a2b-003",
+        "2:a1-021",
+        "2:a1-023",
+        "2:a2b-072",
+        "2:pa-007",
+        "2:a1-219",
+        "1:a2-150",
+        "2:pa-005",
+        "1:a2-146"
+      ]
+    }
+  ]
+}

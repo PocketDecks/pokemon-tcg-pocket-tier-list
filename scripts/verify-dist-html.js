@@ -1,15 +1,20 @@
 const fs = require("fs");
 const path = require("path");
 const { deckNameToIconIds } = require("./deck-name.mjs");
+const { deckSlug } = require("./deck-slug.mjs");
 const {
   CARD_THUMB_WIDTHS,
   DECK_THUMB_SIZES,
   DECK_THUMB_VERSION,
   deckListCardIds,
+  firstBestListCardId,
 } = require("./deck-thumbs.mjs");
 const { resolveHosting } = require("./firebase-hosting");
 const { inlineScriptHashes, parsePolicy, reportOnlyPolicy } = require("./content-security-policy");
-const { DELUXE_EXPANSION_IDS, newestExpansion } = require("../src/app/expansion-policy.mjs");
+const { DELUXE_EXPANSION_IDS, expansionCode, newestExpansion } = require("../src/app/expansion-policy.mjs");
+const { expansionIndexPolicy } = require("../src/app/expansion-index-policy.mjs");
+const { shouldIndexHub } = require("./deck-archive-policy.mjs");
+const { hubDisplayName } = require("./deck-archetype.mjs");
 
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
@@ -104,6 +109,86 @@ const findCanonicalIssues = (dir = DIST_DIR) =>
       const expected = expectedCanonical(entry);
       return href === expected ? [] : [`${entry}: canonical ${href} is not ${expected}`];
     });
+
+const metaContent = (html, name) => {
+  const tag = (html.match(/<meta\b[^>]*>/gi) ?? []).find((candidate) =>
+    new RegExp(`\\bname=["']${name}["']`, "i").test(candidate)
+  );
+  return tag === undefined ? [] : [decodeXmlEntities(tag.match(/\bcontent=["']([^"']*)["']/i)?.[1] ?? "")];
+};
+
+const hubHtmlIssues = (entry, html, expectedRobots, expectedName) => {
+  const issues = [];
+  const canonicals = html.match(CANONICAL_TAG) ?? [];
+  if (canonicals.length !== 1) {
+    issues.push(`${entry}: expected 1 canonical, found ${canonicals.length}`);
+  }
+  const robots = (html.match(/<meta\b[^>]*>/gi) ?? [])
+    .filter((tag) => /\bname=["']robots["']/i.test(tag))
+    .map((tag) => tag.match(/\bcontent=["']([^"']*)["']/i)?.[1] ?? "");
+  if (robots.length !== 1 || robots[0] !== expectedRobots) {
+    issues.push(`${entry}: robots ${robots.join(",") || "none"} is not ${expectedRobots}`);
+  }
+  const title = (html.match(/<title>([^<]*)<\/title>/i)?.[1] ?? "").trim();
+  const description = (metaContent(html, "description")[0] ?? "").trim();
+  const h1 = (html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i)?.[1] ?? "").replace(/<[^>]+>/g, "").trim();
+  if (!title) issues.push(`${entry}: empty title`);
+  if (!description) issues.push(`${entry}: empty description`);
+  if (!h1) issues.push(`${entry}: empty H1`);
+  else if (!h1.includes(expectedName)) issues.push(`${entry}: H1 "${h1}" does not name ${expectedName}`);
+  const jsonLd = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi)].map((m) => m[1]);
+  for (const [label, text] of [["title", title], ["description", description], ["H1", h1], ["breadcrumb", jsonLd.join(" ")]]) {
+    if (/\bundefined\b/.test(text)) issues.push(`${entry}: ${label} contains undefined`);
+  }
+  return issues;
+};
+
+const findHubPageIssues = (dir = DIST_DIR, archive = loadArchive(), decks = loadDecks()) => {
+  const liveSlugs = new Set(decks.map((deck) => deckSlug(deck.name)));
+  const hubs = [...new Set(archive.map((entry) => entry.hub))].filter((hub) => !liveSlugs.has(hub));
+  return hubs.flatMap((hub) => {
+    const entries = archive.filter((entry) => entry.hub === hub);
+    const indexed = shouldIndexHub(entries);
+    const name = hubDisplayName(entries);
+    return ["", "ja/"].flatMap((prefix) => {
+      const entry = `${prefix}deck/${hub}/index.html`;
+      const file = path.join(dir, entry);
+      if (!fs.existsSync(file)) return [`${entry}: missing`];
+      const expectedRobots = prefix === "" && indexed ? "index, follow" : "noindex, follow";
+      return hubHtmlIssues(entry, fs.readFileSync(file, "utf8"), expectedRobots, name);
+    });
+  });
+};
+
+const findExpansionPageIssues = (dir = DIST_DIR, expansions = loadExpansions(), decks = loadDecks()) => {
+  const policy = expansionIndexPolicy(expansions, decks);
+  const issues = [];
+  for (const expansion of expansions.filter((entry) => !DELUXE_EXPANSION_IDS.has(entry.id))) {
+    for (const prefix of ["", "ja/"]) {
+      const entry = `${prefix}expansion-list/${expansion.id}/index.html`;
+      const file = path.join(dir, entry);
+      if (!fs.existsSync(file)) {
+        issues.push(`${entry}: missing`);
+        continue;
+      }
+      const html = fs.readFileSync(file, "utf8");
+      const expectedRobots = policy.isIndexable(expansion.id) ? "index, follow" : "noindex, follow";
+      issues.push(...hubHtmlIssues(entry, html, expectedRobots, expansionCode(expansion.id)));
+      if (!html.includes(`"@type":"BreadcrumbList"`)) issues.push(`${entry}: missing BreadcrumbList JSON-LD`);
+    }
+  }
+  return issues;
+};
+
+const HEAD_BLOCK = /<head\b[^>]*>[\s\S]*?<\/head>/i;
+const TITLE_TAG = /<title\b[^>]*>[\s\S]*?<\/title>/gi;
+
+const findTitleCountIssues = (dir = DIST_DIR) =>
+  listHtmlFiles(dir).flatMap((entry) => {
+    const html = fs.readFileSync(path.join(dir, entry), "utf8");
+    const count = (html.match(HEAD_BLOCK)?.[0].match(TITLE_TAG) ?? []).length;
+    return count === 1 ? [] : [`${entry}: expected 1 title, found ${count}`];
+  });
 
 const findShellPageIssues = (dir = DIST_DIR) =>
   [...SHELL_PAGES].flatMap((entry) => {
@@ -238,13 +323,40 @@ const loadDecks = (dataDir = DATA_DIR) => {
   }
 };
 
+const loadArchive = (dataDir = DATA_DIR) =>
+  JSON.parse(fs.readFileSync(path.join(dataDir, "deck-archive.json"), "utf8"));
+
 const loadExpansions = () =>
   require("pokemon-tcg-pocket-cards/data/v5/expansions.json");
 
 const EXPANSION_LIST_ENTRY = "expansion-list/index.html";
+const JA_EXPANSION_LIST_ENTRY = "ja/expansion-list/index.html";
+const EXPANSIONS_OPTION_LABEL = {
+  [EXPANSION_LIST_ENTRY]: require("../src/locales/en_translation.json").expansionList.viewExpansions,
+  [JA_EXPANSION_LIST_ENTRY]: require("../src/locales/ja_translation.json").expansionList.viewExpansions,
+};
 
 const imageSrcs = (html) =>
   [...html.matchAll(/<img\b[^>]*\ssrc=["']([^"']*)["']/gi)].map((match) => match[1]);
+
+const toggleButtons = (html) =>
+  [...html.matchAll(/<button\b[^>]*\baria-pressed="(true|false)"[^>]*>([^<]*)<\/button>/gi)].map(
+    (match) => ({ pressed: match[1], label: match[2] })
+  );
+
+const findDefaultViewIssues = (entry, html) => {
+  const issues = [];
+  const expansions = toggleButtons(html).find((button) => button.label === EXPANSIONS_OPTION_LABEL[entry]);
+  if (!expansions) {
+    issues.push(`${entry}: missing the Expansions option`);
+  } else if (expansions.pressed !== "true") {
+    issues.push(`${entry}: the Expansions option is not pressed by default`);
+  }
+  if (/href=["'][^"']*\?pack=/i.test(html)) {
+    issues.push(`${entry}: a tile links to a pack filter`);
+  }
+  return issues;
+};
 
 const findExpansionListIssues = (dir = DIST_DIR, list = loadExpansions()) => {
   const html = fs.readFileSync(path.join(dir, EXPANSION_LIST_ENTRY), "utf8");
@@ -259,6 +371,14 @@ const findExpansionListIssues = (dir = DIST_DIR, list = loadExpansions()) => {
   for (const id of DELUXE_EXPANSION_IDS) {
     if (sources.some((src) => src.includes(`/packs/${id}-`))) {
       issues.push(`${EXPANSION_LIST_ENTRY}: deluxe pack /packs/${id}- is listed`);
+    }
+  }
+  for (const entry of [EXPANSION_LIST_ENTRY, JA_EXPANSION_LIST_ENTRY]) {
+    const file = path.join(dir, entry);
+    if (!fs.existsSync(file)) {
+      issues.push(`${entry}: missing`);
+    } else {
+      issues.push(...findDefaultViewIssues(entry, fs.readFileSync(file, "utf8")));
     }
   }
   return issues;
@@ -297,18 +417,38 @@ const imageCandidates = (tag) =>
     .map((candidate) => candidate.trim().split(/\s+/)[0])
     .filter(Boolean);
 
-const findDeckImagePreloadIssues = (dir = DIST_DIR) =>
-  deckDetailFiles(dir).flatMap((file) => {
+const cardlessDeckSlugs = (decks = loadDecks()) =>
+  new Set(decks.filter((deck) => firstBestListCardId(deck) === null).map((deck) => deckSlug(deck.name)));
+
+const findDeckImagePreloadIssues = (
+  dir = DIST_DIR,
+  hubSlugs = new Set(loadArchive().map((entry) => entry.hub)),
+  cardlessSlugs = new Set()
+) =>
+  deckDetailFiles(dir)
+    .filter((file) => !hubSlugs.has(path.basename(path.dirname(file))))
+    .flatMap((file) => {
     const entry = path.relative(dir, file);
     const tags = collectImagePreloads(fs.readFileSync(file, "utf8"));
-    if (tags.length !== 1) {
-      return [`${entry}: expected 1 image preload, found ${tags.length}`];
+    const expected = cardlessSlugs.has(path.basename(path.dirname(file))) ? 0 : 1;
+    if (tags.length !== expected) {
+      return [`${entry}: expected ${expected} image preload${expected === 1 ? "" : "s"}, found ${tags.length}`];
     }
+    if (expected === 0) return [];
     return imageCandidates(tags[0]).flatMap((candidate) => {
       const url = candidate.split("?")[0];
       if (!url.startsWith("/thumbs/")) return [`${entry}: ${candidate} is outside /thumbs/`];
       return fs.existsSync(path.join(dir, url)) ? [] : [`${entry}: ${url} is not built`];
     });
+  });
+
+const findMissingLiveDeckPages = (dir = DIST_DIR, decks = loadDecks()) =>
+  decks.flatMap((deck) => {
+    const slug = deckSlug(deck.name);
+    return ["", "ja/"]
+      .map((prefix) => `${prefix}deck/${slug}/index.html`)
+      .filter((entry) => !fs.existsSync(path.join(dir, entry)))
+      .map((entry) => `${entry}: missing`);
   });
 
 const isExternalHost = (src) => {
@@ -344,6 +484,11 @@ const findCspHashIssues = (
 };
 
 const main = () => {
+  const missingLivePages = findMissingLiveDeckPages();
+  if (missingLivePages.length > 0) {
+    console.error(`Live decks without a prerendered page:\n${missingLivePages.join("\n")}`);
+    process.exit(1);
+  }
   const offenders = findLoopbackRefs();
   if (offenders.length > 0) {
     console.error(
@@ -372,11 +517,26 @@ const main = () => {
     );
     process.exit(1);
   }
+  const titleIssues = findTitleCountIssues();
+  if (titleIssues.length > 0) {
+    console.error(`Built pages without exactly one title:\n${titleIssues.join("\n")}`);
+    process.exit(1);
+  }
   const canonicalIssues = findCanonicalIssues();
   if (canonicalIssues.length > 0) {
     console.error(
       `Pages without exactly one canonical of their own:\n${canonicalIssues.join("\n")}`
     );
+    process.exit(1);
+  }
+  const hubIssues = findHubPageIssues();
+  if (hubIssues.length > 0) {
+    console.error(`Deck hub pages failing the head or copy checks:\n${hubIssues.join("\n")}`);
+    process.exit(1);
+  }
+  const expansionIssues = findExpansionPageIssues();
+  if (expansionIssues.length > 0) {
+    console.error(`Expansion pages failing the head or coverage checks:\n${expansionIssues.join("\n")}`);
     process.exit(1);
   }
   const shellIssues = findShellPageIssues();
@@ -428,7 +588,7 @@ const main = () => {
     );
     process.exit(1);
   }
-  const imagePreloadIssues = findDeckImagePreloadIssues();
+  const imagePreloadIssues = findDeckImagePreloadIssues(undefined, undefined, cardlessDeckSlugs());
   if (imagePreloadIssues.length > 0) {
     console.error(
       `Deck page image preloads without a built file:\n${imagePreloadIssues.join("\n")}`
@@ -461,9 +621,12 @@ if (require.main === module) main();
 
 module.exports = {
   findBakedAppState,
+  findHubPageIssues,
+  findExpansionPageIssues,
   findCanonicalIssues,
   findCspHashIssues,
   findShellPageIssues,
+  findTitleCountIssues,
   findUnresolvedAppRoutes,
   findDeckImagePreloadIssues,
   findEmptyDeckRoots,
@@ -472,6 +635,7 @@ module.exports = {
   findExternalScripts,
   findLoopbackRefs,
   findMissingCardThumbs,
+  findMissingLiveDeckPages,
   findMissingDeckThumbs,
   findModulepreloadDrift,
   findUncapturedDeckStyles,

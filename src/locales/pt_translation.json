@@ -3,6 +3,7 @@
     "banner": "Os rankings estão atualizados até {{date}}."
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "Pular para o conteúdo",
     "openMenu": "Abrir menu",
     "closeMenu": "Fechar menu",
@@ -167,6 +168,11 @@
     "latestExpansionCards": "Cartas da expansão mais recente",
     "latestExpansionCardsAny": "Qualquer"
   },
+  "expansionList": {
+    "viewLabel": "Classificar por",
+    "viewExpansions": "Expansões",
+    "viewPacks": "Pacotes"
+  },
   "window": {
     "label": "Período",
     "10d": "10 dias",
@@ -185,7 +191,8 @@
     "shareColumn": "Participação",
     "deltaColumn": "Mudança",
     "noTrends": "Os dados de tendências não estão disponíveis neste momento.",
-    "noMovement": "Sem movimento de baralhos neste período."
+    "noMovement": "Sem movimento de baralhos neste período.",
+    "introGeneric": "Analise o metajogo atual de Pokémon TCG Pocket com dados históricos ao vivo e mapas de calor de confrontos entre arquétipos. Estes dados mostram como a popularidade dos decks e as taxas de vitória mudam ao longo do tempo."
   },
   "bestDeckFinder": {
     "title": "Encontre o Seu Melhor Deck",
@@ -200,7 +207,9 @@
     "signOut": "Sair",
     "bestCards": "Melhores Cartas",
     "bestExpansions": "Melhores Expansões",
-    "statistics": "Estatísticas"
+    "statistics": "Estatísticas",
+    "tierListHeading": "Lista de tiers de {{name}} ({{id}})",
+    "tierListGeneric": "Lista de tiers de Pokémon TCG Pocket"
   },
   "footer": {
     "about": "Sobre",
@@ -254,8 +263,8 @@
       "description": "A tier list baseia-se em resultados de torneios. Um algoritmo determina o tier e a lista do deck."
     },
     "weeklyUpdates": {
-      "title": "Atualizações Semanais",
-      "description": "A tier list é atualizada semanalmente, trazendo novos decks e confrontos todas as segundas-feiras."
+      "title": "Atualizações frequentes",
+      "description": "A tier list é atualizada quatro vezes por semana, trazendo novos decks e confrontos."
     },
     "filters": {
       "title": "Filtros",
@@ -374,5 +383,46 @@
     "20d": "20 dias",
     "30d": "30 dias",
     "all": "todo o período"
+  },
+  "deckHub": {
+    "title": "Deck {{name}}",
+    "liveSummary_one": "{{count}} variante ativa no meta atual, com a lista mais forte em primeiro",
+    "liveSummary_other": "{{count}} variantes ativas no meta atual, com as listas mais fortes em primeiro",
+    "notInMeta": "Fora do meta {{expansion}} atual. Veja a lista de tiers para os rankings atuais de decks",
+    "expansionFallback": "expansão",
+    "unavailable": "As estatísticas de decks ao vivo estão indisponíveis agora. O arquivo abaixo continua atualizado",
+    "seenFrom": "Visto de {{from}} a {{to}}",
+    "winRate": "{{value}}% de vitórias",
+    "metaShare": "{{value}}% do meta",
+    "allVariants": "Todas as variantes de {{name}}",
+    "coreCards": "Cartas principais",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "Ainda não há uma lista de cartas registrada para este arquétipo.",
+    "matchups": "Confrontos",
+    "bestMatchups": "Melhores confrontos",
+    "worstMatchups": "Piores confrontos",
+    "noMatchups": "Ainda não há partidas suficientes contra outros decks registradas.",
+    "similarDecks": "Decks atuais semelhantes",
+    "sharedCards_one": "{{count}} carta em comum",
+    "sharedCards_other": "{{count}} cartas em comum",
+    "noSimilarDecks": "Nenhum deck atual compartilha cartas com esta lista.",
+    "variantHistory": "Histórico de variantes",
+    "peakShare": "Pico de {{value}}% em {{date}}"
+  },
+  "expansionPage": {
+    "home": "Início",
+    "expansions": "Expansões",
+    "heading": "{{name}} ({{id}}) Cartas e decks",
+    "packFilter": "Mostrando o pacote {{pack}} e as cartas compartilhadas.",
+    "released": "Lançado em {{date}}",
+    "intro": "Cartas de {{name}} que aparecem nos decks de torneio atuais, e os decks que as utilizam.",
+    "cardsHeading": "Cartas usadas nos decks atuais",
+    "decksHeading": "Decks atuais que usam esta expansão",
+    "empty": "Nenhuma carta de {{name}} está nos melhores decks no momento.",
+    "emptyAside": "Que pena. :(",
+    "emptyPack": "Nenhuma carta do pacote {{pack}} ou compartilhada está em um deck de topo no momento.",
+    "loadError": "Os dados das cartas não carregaram. Atualize a página para tentar novamente.",
+    "allPacks": "Mostrar todos os pacotes",
+    "breadcrumb": "Trilha de navegação"
   }
 }

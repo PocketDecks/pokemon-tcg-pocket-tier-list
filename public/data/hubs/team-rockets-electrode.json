@@ -1,0 +1,29 @@
+{
+  "hub": "team-rockets-electrode",
+  "name": "Team Rocket's Electrode",
+  "variants": [
+    {
+      "variant": "team-rockets-electrode-b4a-020&pawmot-b3a-016",
+      "name": "team-rocket's-electrode-b4a-020&pawmot-b3a-016",
+      "firstSeen": "2026-09-24",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.0009779920714367673,
+      "peakDate": "2026-09-24",
+      "cards": [
+        "2:b4a-019",
+        "2:b4a-020",
+        "2:b3a-014",
+        "2:a2b-028",
+        "1:a3-066",
+        "2:b2a-090",
+        "2:pa-007",
+        "1:a2-150",
+        "1:b1-226",
+        "1:b1-225",
+        "2:a3-144",
+        "1:b3-147",
+        "1:pa-005"
+      ]
+    }
+  ]
+}

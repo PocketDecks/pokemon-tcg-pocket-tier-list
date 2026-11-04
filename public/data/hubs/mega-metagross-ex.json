@@ -1,0 +1,28 @@
+{
+  "hub": "mega-metagross-ex",
+  "name": "Mega Metagross ex",
+  "variants": [
+    {
+      "variant": "mega-metagross-ex-b4-109&dialga-ex-a2-119",
+      "name": "mega-metagross-ex-b4-109&dialga-ex-a2-119",
+      "firstSeen": "2026-08-12",
+      "lastSeen": "2026-08-27",
+      "peakShare": 0.0016192685599257098,
+      "peakDate": "2026-08-12",
+      "cards": [
+        "2:b4-106",
+        "2:b4-109",
+        "2:a2-119",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:a1-225",
+        "1:a1a-068",
+        "1:b1-223",
+        "2:pa-005",
+        "2:a3-144",
+        "2:b2-153"
+      ]
+    }
+  ]
+}

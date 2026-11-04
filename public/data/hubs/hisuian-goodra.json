@@ -1,0 +1,28 @@
+{
+  "hub": "hisuian-goodra",
+  "name": "Hisuian Goodra",
+  "variants": [
+    {
+      "variant": "hisuian-goodra-b3b-050",
+      "name": "hisuian-goodra-b3b-050",
+      "firstSeen": "2026-08-13",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.006958520587685663,
+      "peakDate": "2026-08-13",
+      "cards": [
+        "2:b1-177",
+        "2:b3b-050",
+        "2:pa-007",
+        "2:b1-225",
+        "2:a3-155",
+        "1:b3a-071",
+        "2:a3-144",
+        "2:b2-145",
+        "1:pa-005",
+        "2:b1-219",
+        "1:b4-155",
+        "1:b4-154"
+      ]
+    }
+  ]
+}

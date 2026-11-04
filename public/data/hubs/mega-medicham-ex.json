@@ -1,0 +1,28 @@
+{
+  "hub": "mega-medicham-ex",
+  "name": "Mega Medicham ex",
+  "variants": [
+    {
+      "variant": "mega-medicham-ex-pb-029",
+      "name": "mega-medicham-ex-pb-029",
+      "firstSeen": "2026-02-16",
+      "lastSeen": "2026-03-18",
+      "peakShare": 0.002213676884947738,
+      "peakDate": "2026-02-23",
+      "cards": [
+        "2:b2-083",
+        "2:pb-029",
+        "2:a4-066",
+        "2:a3-066",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a1-225",
+        "1:a2-150",
+        "1:a3-151",
+        "2:pa-005",
+        "2:b2-145",
+        "1:b2-153"
+      ]
+    }
+  ]
+}

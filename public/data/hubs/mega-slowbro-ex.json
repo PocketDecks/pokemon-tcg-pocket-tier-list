@@ -1,0 +1,52 @@
+{
+  "hub": "mega-slowbro-ex",
+  "name": "Mega Slowbro ex",
+  "variants": [
+    {
+      "variant": "mega-slowbro-ex-b2b-016",
+      "name": "mega-slowbro-ex-b2b-016",
+      "firstSeen": "2026-05-19",
+      "lastSeen": "2026-06-29",
+      "peakShare": 0.001306695765037981,
+      "peakDate": "2026-05-22",
+      "cards": [
+        "2:a4a-017",
+        "2:b2b-016",
+        "2:a4a-023",
+        "1:b2-048",
+        "2:a4-156",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:a2b-070",
+        "1:a2-155",
+        "2:pa-005",
+        "2:a4a-067"
+      ]
+    },
+    {
+      "variant": "mega-slowbro-ex-b2b-016&eiscue-b1-080",
+      "name": "mega-slowbro-ex-b2b-016&eiscue-b1-080",
+      "firstSeen": "2026-10-06",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.0005423250226287091,
+      "peakDate": "2026-10-06",
+      "cards": [
+        "2:a4a-017",
+        "2:b2b-016",
+        "2:b1-080",
+        "1:a2b-036",
+        "1:b4a-051",
+        "2:pa-007",
+        "2:a1-220",
+        "1:a2-150",
+        "1:a2b-070",
+        "1:a1-225",
+        "1:b1-219",
+        "1:a3b-067",
+        "2:b4-154",
+        "1:b2a-093"
+      ]
+    }
+  ]
+}

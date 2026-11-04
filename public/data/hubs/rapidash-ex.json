@@ -1,0 +1,28 @@
+{
+  "hub": "rapidash-ex",
+  "name": "Rapidash ex",
+  "variants": [
+    {
+      "variant": "rapidash-ex-b1-031",
+      "name": "Rapidash ex-B1-031",
+      "firstSeen": "2025-11-03",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0027256538632506786,
+      "peakDate": "2025-12-20",
+      "cards": [
+        "2:a1-042",
+        "2:b1-031",
+        "1:a1a-011",
+        "2:a4-032",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a1-225",
+        "1:a2-150",
+        "2:pa-005",
+        "2:b1-217",
+        "1:pa-002",
+        "2:a2-148"
+      ]
+    }
+  ]
+}

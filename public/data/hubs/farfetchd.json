@@ -1,0 +1,26 @@
+{
+  "hub": "farfetchd",
+  "name": "Farfetch'd",
+  "variants": [
+    {
+      "variant": "farfetchd-a1-198&hitmonlee-a1-154",
+      "name": "farfetch'd-a1-198&hitmonlee-a1-154",
+      "firstSeen": "2026-10-06",
+      "lastSeen": "2026-10-10",
+      "peakShare": 0.006239786064477789,
+      "peakDate": "2026-10-10",
+      "cards": [
+        "2:a1a-046",
+        "2:a1a-047",
+        "2:a1-154",
+        "2:a1-198",
+        "2:a1-225",
+        "2:a1-223",
+        "2:pa-007",
+        "2:a1a-063",
+        "2:pa-005",
+        "2:pa-002"
+      ]
+    }
+  ]
+}

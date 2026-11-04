@@ -1,0 +1,53 @@
+{
+  "hub": "miraidon-ex",
+  "name": "Miraidon ex",
+  "variants": [
+    {
+      "variant": "miraidon-ex-b3a-019",
+      "name": "miraidon-ex-b3a-019",
+      "firstSeen": "2026-05-30",
+      "lastSeen": "2026-06-29",
+      "peakShare": 0.07513033605507485,
+      "peakDate": "2026-06-29",
+      "cards": [
+        "2:b1a-024",
+        "2:a1-098",
+        "1:b1a-026",
+        "2:b3a-019",
+        "2:a3a-021",
+        "2:pa-007",
+        "1:b3a-073",
+        "1:b1-225",
+        "1:a2-150",
+        "1:b1-226",
+        "1:b1a-068",
+        "1:a1-225",
+        "2:pa-005",
+        "1:a2-147"
+      ]
+    },
+    {
+      "variant": "miraidon-ex-b3a-019&magnezone-b1a-026",
+      "name": "miraidon-ex-b3a-019&magnezone-b1a-026",
+      "firstSeen": "2026-09-09",
+      "lastSeen": "2026-11-02",
+      "peakShare": 0.031352057478772045,
+      "peakDate": "2026-11-02",
+      "cards": [
+        "2:b1a-024",
+        "2:a1-098",
+        "2:b1a-026",
+        "2:b3a-019",
+        "2:a3a-021",
+        "2:pa-007",
+        "1:b3a-073",
+        "1:b1-225",
+        "1:a2-150",
+        "1:b1-226",
+        "1:b1a-068",
+        "2:pa-005",
+        "1:a2-147"
+      ]
+    }
+  ]
+}

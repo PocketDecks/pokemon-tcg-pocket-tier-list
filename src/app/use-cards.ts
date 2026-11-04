@@ -17,6 +17,11 @@ export interface UseCardsResult {
   isLoading: boolean;
 }
 
+interface UseCardsOptions {
+  ignoreExpansionFilter?: boolean;
+  ignoreCollection?: boolean;
+}
+
 type ScoreRow = {
   name: string;
   score: number;
@@ -53,8 +58,9 @@ export const fetchCardScores = async (): Promise<ScoreRow[]> => {
   return parseCardScores(await response.json());
 };
 
-const useCards = (amount: number = 30): UseCardsResult => {
-  const { expansion } = useFilters();
+const useCards = (amount: number = 30, options: UseCardsOptions = {}): UseCardsResult => {
+  const { expansion: chosenExpansion } = useFilters();
+  const expansion = options.ignoreExpansionFilter ? null : chosenExpansion;
   const { missing: collected } = useMissing();
 
   const {
@@ -93,7 +99,8 @@ const useCards = (amount: number = 30): UseCardsResult => {
     };
   }
 
-  const collectedCounts = collected.reduce<Record<string, number>>((acc, id) => {
+  const ownedIds: string[] = options.ignoreCollection ? [] : collected;
+  const collectedCounts = ownedIds.reduce<Record<string, number>>((acc, id) => {
     acc[id] = (acc[id] || 0) + 1;
     return acc;
   }, {});
@@ -101,7 +108,7 @@ const useCards = (amount: number = 30): UseCardsResult => {
   const sortedCards = cards
       .filter((card: ScoreRow) => {
         const { id, count } = parseScoreRef(card.name);
-        return count - (collectedCounts[id] || 0) > 0;
+        return options.ignoreCollection || count - (collectedCounts[id] || 0) > 0;
       })
       .sort((a, b) => b.score - a.score);
 

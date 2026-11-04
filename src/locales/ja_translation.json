@@ -3,6 +3,7 @@
     "banner": "ランキングの基準日：{{date}}"
   },
   "a11y": {
+    "premiumOnly": "(プレミアム)",
     "skipToContent": "本文へスキップ",
     "openMenu": "メニューを開く",
     "closeMenu": "メニューを閉じる",
@@ -167,6 +168,11 @@
     "latestExpansionCards": "最新拡張パックのカード",
     "latestExpansionCardsAny": "任意"
   },
+  "expansionList": {
+    "viewLabel": "ランキングの単位",
+    "viewExpansions": "拡張パック",
+    "viewPacks": "ブースターパック"
+  },
   "window": {
     "label": "集計期間",
     "10d": "10日間",
@@ -185,7 +191,8 @@
     "shareColumn": "シェア",
     "deltaColumn": "変化",
     "noTrends": "トレンドデータは現在利用できません。",
-    "noMovement": "この期間にデッキの動きはありません。"
+    "noMovement": "この期間にデッキの動きはありません。",
+    "introGeneric": "最新の履歴データとアーキタイプ別の相性ヒートマップを使って、ポケモンカードゲーム ポケットの現在の環境を分析できます。デッキの人気度と勝率が時間とともにどう動くかを正確に追跡できます。"
   },
   "bestDeckFinder": {
     "title": "最適なデッキを見つけよう",
@@ -200,7 +207,9 @@
     "signOut": "ログアウト",
     "bestCards": "ベストカード",
     "bestExpansions": "おすすめの拡張パック",
-    "statistics": "統計"
+    "statistics": "統計",
+    "tierListHeading": "{{name}}（{{id}}）ティアリスト",
+    "tierListGeneric": "ポケポケ ティアリスト"
   },
   "footer": {
     "about": "概要",
@@ -254,8 +263,8 @@
       "description": "ティアリストはトーナメント結果に依存しています。アルゴリズムがティアとデッキリストを決定します。"
     },
     "weeklyUpdates": {
-      "title": "週間更新",
-      "description": "ティアリストは毎週更新され、毎週月曜日に新しいデッキとマッチアップが追加されます。"
+      "title": "頻繁な更新",
+      "description": "ティアリストは週4回更新され、新しいデッキとマッチアップが追加されます。"
     },
     "filters": {
       "title": "フィルター",
@@ -374,5 +383,46 @@
     "20d": "20日間",
     "30d": "30日間",
     "all": "全期間"
+  },
+  "deckHub": {
+    "title": "{{name}} デッキ",
+    "liveSummary_one": "現在のメタで{{count}}件のバリエーションが使用中です。最も強いリストを先頭に表示しています",
+    "liveSummary_other": "現在のメタで{{count}}件のバリエーションが使用中です。最も強いリストを先頭に表示しています",
+    "notInMeta": "現在の{{expansion}}のメタには含まれていません。現在のデッキランキングはティアリストで確認できます",
+    "expansionFallback": "拡張パック",
+    "unavailable": "ライブのデッキ統計は現在利用できません。下のアーカイブは最新です",
+    "seenFrom": "{{from}}から{{to}}まで確認",
+    "winRate": "勝率 {{value}}%",
+    "metaShare": "メタシェア {{value}}%",
+    "allVariants": "{{name}}のすべてのバリエーション",
+    "coreCards": "コアカード",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "このアーキタイプのカードリストはまだ記録されていません。",
+    "matchups": "相性",
+    "bestMatchups": "相性の良い相手",
+    "worstMatchups": "相性の悪い相手",
+    "noMatchups": "ほかのデッキとの対戦データはまだ十分ではありません。",
+    "similarDecks": "似ている現在のデッキ",
+    "sharedCards_one": "共通カード {{count}} 枚",
+    "sharedCards_other": "共通カード {{count}} 枚",
+    "noSimilarDecks": "このリストとカードを共有する現在のデッキはありません。",
+    "variantHistory": "バリエーションの履歴",
+    "peakShare": "ピーク {{value}}%（{{date}}）"
+  },
+  "expansionPage": {
+    "home": "ホーム",
+    "expansions": "拡張パック",
+    "heading": "{{name}} ({{id}}) カードとデッキ",
+    "packFilter": "{{pack}}のブースターパックと共有カードを表示しています。",
+    "released": "{{date}} 発売",
+    "intro": "{{name}}のカードのうち現在の大会デッキで使われているカードと、それを使うデッキを紹介します。",
+    "cardsHeading": "現在のデッキで使われているカード",
+    "decksHeading": "この拡張パックを使う現在のデッキ",
+    "empty": "{{name}}のカードは現在、上位デッキに採用されていません。",
+    "emptyAside": "残念です。:(",
+    "emptyPack": "{{pack}}のブースターパックと共有カードは、現在どの上位デッキにも入っていません。",
+    "loadError": "カードデータを読み込めませんでした。ページを再読み込みしてください。",
+    "allPacks": "すべてのブースターパックを表示",
+    "breadcrumb": "パンくずリスト"
   }
 }

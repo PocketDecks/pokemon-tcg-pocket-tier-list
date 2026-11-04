@@ -1,0 +1,30 @@
+{
+  "hub": "team-rockets-articuno-ex",
+  "name": "Team Rocket's Articuno ex",
+  "variants": [
+    {
+      "variant": "team-rockets-articuno-ex-b4a-014",
+      "name": "team-rocket's-articuno-ex-b4a-014",
+      "firstSeen": "2026-09-24",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.000881961656418072,
+      "peakDate": "2026-09-24",
+      "cards": [
+        "2:b4a-014",
+        "2:pa-007",
+        "2:a2a-072",
+        "2:a1-220",
+        "1:a2-150",
+        "1:a1-225",
+        "1:b1-225",
+        "1:a2-155",
+        "1:a2b-071",
+        "1:pa-005",
+        "1:b3-147",
+        "1:pa-002",
+        "2:a2-147",
+        "2:b4-154"
+      ]
+    }
+  ]
+}

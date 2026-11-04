@@ -3,6 +3,7 @@
     "banner": "排名截至 {{date}}。"
   },
   "a11y": {
+    "premiumOnly": "(高級會員)",
     "skipToContent": "跳到主要內容",
     "openMenu": "開啟選單",
     "closeMenu": "關閉選單",
@@ -167,6 +168,11 @@
     "latestExpansionCards": "最新擴充包的卡牌",
     "latestExpansionCardsAny": "任何"
   },
+  "expansionList": {
+    "viewLabel": "排名方式",
+    "viewExpansions": "擴充包",
+    "viewPacks": "卡包"
+  },
   "window": {
     "label": "時間範圍",
     "10d": "10 天",
@@ -185,7 +191,8 @@
     "shareColumn": "占比",
     "deltaColumn": "變化",
     "noTrends": "暫時無法取得趨勢資料。",
-    "noMovement": "此時間範圍內沒有卡組變動。"
+    "noMovement": "此時間範圍內沒有卡組變動。",
+    "introGeneric": "借助即時歷史資料與原型對戰熱力圖，分析目前的寶可夢卡牌 Pocket 環境。這些追蹤資料呈現卡組人氣與勝率如何隨時間變化。"
   },
   "bestDeckFinder": {
     "title": "尋找你的最佳牌組",
@@ -200,7 +207,9 @@
     "signOut": "登出",
     "bestCards": "最佳卡牌",
     "bestExpansions": "最佳擴充包",
-    "statistics": "數據統計"
+    "statistics": "數據統計",
+    "tierListHeading": "{{name}}（{{id}}）強度排行",
+    "tierListGeneric": "Pokémon TCG Pocket 強度排行"
   },
   "footer": {
     "about": "關於",
@@ -254,8 +263,8 @@
       "description": "排行榜仰賴賽事結果。演算法決定強度分級與牌組列表。"
     },
     "weeklyUpdates": {
-      "title": "每週更新",
-      "description": "排行榜每週更新，每週一帶來新的牌組與對戰組合。"
+      "title": "頻繁更新",
+      "description": "排行榜一週更新四次，帶來新的牌組與對戰組合。"
     },
     "filters": {
       "title": "過濾器",
@@ -374,5 +383,46 @@
     "20d": "20天",
     "30d": "30天",
     "all": "全部時間"
+  },
+  "deckHub": {
+    "title": "{{name}} 牌組",
+    "liveSummary_one": "目前環境中有 {{count}} 個即時變體，最強的列表優先顯示",
+    "liveSummary_other": "目前環境中有 {{count}} 個即時變體，最強的列表優先顯示",
+    "notInMeta": "不在目前的{{expansion}}環境中。請瀏覽強度榜查看目前牌組排名",
+    "expansionFallback": "擴充包",
+    "unavailable": "目前無法取得即時牌組數據。下方的存檔仍是最新的",
+    "seenFrom": "出現於 {{from}} 至 {{to}}",
+    "winRate": "勝率 {{value}}%",
+    "metaShare": "環境佔比 {{value}}%",
+    "allVariants": "{{name}} 的所有變體",
+    "coreCards": "核心卡牌",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "此原型尚未記錄卡表。",
+    "matchups": "對戰關係",
+    "bestMatchups": "最有利的對戰",
+    "worstMatchups": "最不利的對戰",
+    "noMatchups": "與其他牌組的對戰局數尚不足夠。",
+    "similarDecks": "相似的當前牌組",
+    "sharedCards_one": "{{count}} 張相同卡牌",
+    "sharedCards_other": "{{count}} 張相同卡牌",
+    "noSimilarDecks": "沒有當前牌組與此卡表共享卡牌。",
+    "variantHistory": "變體歷史",
+    "peakShare": "峰值 {{value}}%（{{date}}）"
+  },
+  "expansionPage": {
+    "home": "首頁",
+    "expansions": "擴充包",
+    "heading": "{{name}}（{{id}}）卡牌與牌組",
+    "packFilter": "正在顯示{{pack}}卡包與共享卡牌。",
+    "released": "發布於 {{date}}",
+    "intro": "{{name}}中出現在目前錦標賽牌組裡的卡牌，以及使用這些卡牌的牌組。",
+    "cardsHeading": "目前牌組使用的卡牌",
+    "decksHeading": "使用此擴充包的目前牌組",
+    "empty": "{{name}}的卡牌目前都不在頂級牌組中。",
+    "emptyAside": "真可惜。:(",
+    "emptyPack": "{{pack}}卡包與共享卡牌目前都不在頂級卡組中。",
+    "loadError": "卡牌資料載入失敗。請重新整理頁面再試一次。",
+    "allPacks": "顯示全部卡包",
+    "breadcrumb": "麵包屑導覽"
   }
 }

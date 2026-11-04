@@ -3,6 +3,7 @@
     "banner": "Ranglisten sind aktuell vom {{date}}."
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "Zum Inhalt springen",
     "openMenu": "Menü öffnen",
     "closeMenu": "Menü schließen",
@@ -167,6 +168,11 @@
     "latestExpansionCards": "Karten aus neuester Erweiterung",
     "latestExpansionCardsAny": "Beliebig"
   },
+  "expansionList": {
+    "viewLabel": "Rangliste nach",
+    "viewExpansions": "Erweiterungen",
+    "viewPacks": "Booster-Packs"
+  },
   "window": {
     "label": "Zeitfenster",
     "10d": "10 Tage",
@@ -185,7 +191,8 @@
     "shareColumn": "Anteil",
     "deltaColumn": "Veränderung",
     "noTrends": "Trenddaten sind derzeit nicht verfügbar.",
-    "noMovement": "Keine Deck-Bewegung in diesem Zeitraum."
+    "noMovement": "Keine Deck-Bewegung in diesem Zeitraum.",
+    "introGeneric": "Analysieren Sie die aktuelle Pokémon-TCG-Pocket-Metagame mit Live-Verlaufsdaten und Matchup-Heatmaps der Archetypen. Diese Daten zeigen, wie sich Deck-Beliebtheit und Siegquoten im Laufe der Zeit verändern."
   },
   "bestDeckFinder": {
     "title": "Finde dein bestes Deck",
@@ -200,7 +207,9 @@
     "signOut": "Abmelden",
     "bestCards": "Beste Karten",
     "bestExpansions": "Beste Erweiterungen",
-    "statistics": "Statistiken"
+    "statistics": "Statistiken",
+    "tierListHeading": "{{name}} ({{id}}) Tierliste",
+    "tierListGeneric": "Pokemon TCG Pocket Tierliste"
   },
   "footer": {
     "about": "Über uns",
@@ -254,8 +263,8 @@
       "description": "Die Tier-Liste basiert auf Turnierergebnissen. Ein Algorithmus bestimmt das Tier und die Deckliste."
     },
     "weeklyUpdates": {
-      "title": "Wöchentliche Updates",
-      "description": "Die Tier-Liste wird wöchentlich aktualisiert und bringt jeden Montag neue Decks und Matchups."
+      "title": "Häufige Updates",
+      "description": "Die Tier-Liste wird viermal pro Woche aktualisiert und bringt neue Decks und Matchups."
     },
     "filters": {
       "title": "Filter",
@@ -374,5 +383,46 @@
     "20d": "20 Tage",
     "30d": "30 Tage",
     "all": "gesamter Zeitraum"
+  },
+  "deckHub": {
+    "title": "{{name}}-Deck",
+    "liveSummary_one": "{{count}} aktive Variante im aktuellen Meta, die stärkste Liste zuerst",
+    "liveSummary_other": "{{count}} aktive Varianten im aktuellen Meta, die stärksten Listen zuerst",
+    "notInMeta": "Nicht im aktuellen {{expansion}}-Meta. Durchsuche die Tier-Liste nach aktuellen Deck-Rankings",
+    "expansionFallback": "Erweiterung",
+    "unavailable": "Live-Deckstatistiken sind momentan nicht verfügbar. Das Archiv unten ist weiterhin aktuell",
+    "seenFrom": "Gesehen von {{from}} bis {{to}}",
+    "winRate": "{{value}}% Siegrate",
+    "metaShare": "{{value}}% Meta-Anteil",
+    "allVariants": "Alle Varianten von {{name}}",
+    "coreCards": "Kernkarten",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "Für diesen Archetyp ist noch keine Kartenliste erfasst.",
+    "matchups": "Matchups",
+    "bestMatchups": "Beste Matchups",
+    "worstMatchups": "Schwächste Matchups",
+    "noMatchups": "Es sind noch nicht genug Spiele gegen andere Decks erfasst.",
+    "similarDecks": "Ähnliche aktuelle Decks",
+    "sharedCards_one": "{{count}} gemeinsame Karte",
+    "sharedCards_other": "{{count}} gemeinsame Karten",
+    "noSimilarDecks": "Kein aktuelles Deck teilt Karten mit dieser Liste.",
+    "variantHistory": "Verlauf der Varianten",
+    "peakShare": "Höchstwert {{value}} % am {{date}}"
+  },
+  "expansionPage": {
+    "home": "Startseite",
+    "expansions": "Erweiterungen",
+    "heading": "{{name}} ({{id}}) Karten & Decks",
+    "packFilter": "Angezeigt werden das Paket {{pack}} und die gemeinsamen Karten.",
+    "released": "Veröffentlicht am {{date}}",
+    "intro": "Karten aus {{name}}, die in aktuellen Turnierdecks vorkommen, und die Decks, die sie spielen.",
+    "cardsHeading": "Karten in aktuellen Decks",
+    "decksHeading": "Aktuelle Decks mit dieser Erweiterung",
+    "empty": "Derzeit ist keine Karte aus {{name}} in einem Top-Deck.",
+    "emptyAside": "Das ist schade. :(",
+    "emptyPack": "Keine Karten aus dem Paket {{pack}} oder gemeinsame Karten sind gerade in einem Top-Deck.",
+    "loadError": "Kartendaten konnten nicht geladen werden. Lade die Seite neu, um es erneut zu versuchen.",
+    "allPacks": "Alle Pakete anzeigen",
+    "breadcrumb": "Navigationspfad"
   }
 }

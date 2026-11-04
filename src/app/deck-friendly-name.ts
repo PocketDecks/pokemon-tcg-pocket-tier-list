@@ -4,4 +4,5 @@ export {
   JA_DECK_TITLE_SUFFIX,
   JA_HOME_LABEL,
   JA_TIER_LIST_LABEL,
+  hubHead,
 } from "../../scripts/deck-friendly-name.mjs";

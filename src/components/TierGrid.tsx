@@ -138,7 +138,7 @@ interface Props<T> {
   renderItem: (item: T) => ReactNode;
   /** Decides whether an item can be banded into a tier. Items the predicate rejects drop into a neutral unranked row. Defaults to every item being rankable. */
   isRanked?: (item: T) => boolean;
-  /** Rendered above the tiers, inside the page shell. Absent on the expansion list. */
+  /** Rendered above the tiers, inside the page shell. */
   filters?: ReactNode;
   /** Rendered after the last tier row, inside the page shell. */
   footer?: ReactNode;

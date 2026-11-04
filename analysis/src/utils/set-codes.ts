@@ -8,11 +8,11 @@
 export const STANDARD_SET_CODES = [
   "A1", "A1a", "A2", "A2a", "A2b", "A3", "A3a", "A3b",
   "A4", "A4a", "B1", "B1a", "B2", "B2a", "B2b", "B3",
-  "B3a", "B3b", "B4", "B4a",
+  "B3a", "B3b", "B4", "B4a", "C1",
 ] as const;
 
 // Set codes outside the standard format (promo pools and the A4b and B4b reprints).
-export const NON_STANDARD_SET_CODES = ["PA", "PB", "A4b", "B4b"] as const;
+export const NON_STANDARD_SET_CODES = ["PA", "PB", "P-C", "A4b", "B4b"] as const;
 
 // Every set code, standard and non-standard.
 export const SET_CODES: readonly string[] = [
@@ -29,6 +29,8 @@ for (const code of SET_CODES) {
 }
 CANONICAL.set("p-a", "PA");
 CANONICAL.set("p-b", "PB");
+CANONICAL.set("p-c", "P-C");
+CANONICAL.set("pc", "P-C");
 
 // Regex alternation of every set code, longest-first so a1a beats a1; generated rather than hand-ordered.
 export const SET_CODE_PATTERN = [...CANONICAL.keys()]

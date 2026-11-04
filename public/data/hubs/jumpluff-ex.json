@@ -1,0 +1,168 @@
+{
+  "hub": "jumpluff-ex",
+  "name": "Jumpluff ex",
+  "variants": [
+    {
+      "variant": "jumpluff-ex-a4a-003",
+      "name": "Jumpluff ex-A4a-003",
+      "firstSeen": "2025-08-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0065109154716815115,
+      "peakDate": "2025-08-30",
+      "cards": [
+        "2:a4a-001",
+        "1:a4a-002",
+        "2:a4a-003",
+        "1:a3-066",
+        "1:b1-177",
+        "1:b1-109",
+        "2:pa-007",
+        "1:b1-226",
+        "1:a2-150",
+        "1:b1-225",
+        "1:b1-223",
+        "2:pa-005",
+        "2:a3-144",
+        "2:a2-148"
+      ]
+    },
+    {
+      "variant": "jumpluff-ex-a4a-003&darkrai-ex-a2-110",
+      "name": "Jumpluff ex-A4a-003&Darkrai ex-A2-110",
+      "firstSeen": "2025-08-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.007473289592917054,
+      "peakDate": "2025-08-30",
+      "cards": [
+        "2:a4a-001",
+        "1:a4a-002",
+        "2:a4a-003",
+        "2:a2-110",
+        "1:a4a-065",
+        "1:a2a-069",
+        "2:pa-007",
+        "1:a4-158",
+        "1:a2-150",
+        "1:a1a-068",
+        "1:a1-225",
+        "2:a3-144",
+        "2:pa-005",
+        "1:pa-006"
+      ]
+    },
+    {
+      "variant": "jumpluff-ex-a4a-003&oricorio-a3-034",
+      "name": "jumpluff-ex-a4a-003&oricorio-a3-034",
+      "firstSeen": "2026-09-09",
+      "lastSeen": "2026-09-09",
+      "peakShare": 0.0029962471173672874,
+      "peakDate": "2026-09-09",
+      "cards": [
+        "2:a4a-001",
+        "2:a4a-003",
+        "2:b4a-019",
+        "2:b4a-020",
+        "1:a3-066",
+        "2:pa-007",
+        "1:a2-150",
+        "1:b1-225",
+        "2:pa-005",
+        "2:a3-144",
+        "2:a2-148",
+        "1:b2b-069"
+      ]
+    },
+    {
+      "variant": "jumpluff-ex-a4a-003&oricorio-a3-066",
+      "name": "Jumpluff ex-A4a-003&Oricorio-A3-066",
+      "firstSeen": "2025-08-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.006321453777091079,
+      "peakDate": "2025-09-05",
+      "cards": [
+        "2:a4a-001",
+        "1:a4a-002",
+        "2:a4a-003",
+        "2:a3-054",
+        "2:a3-066",
+        "2:pa-007",
+        "1:a1-225",
+        "1:a2b-071",
+        "1:a2-150",
+        "2:a3-144",
+        "2:pa-005",
+        "1:pa-006",
+        "1:a2-148"
+      ]
+    },
+    {
+      "variant": "jumpluff-ex-a4a-003&team-rockets-electrode-b4a-020",
+      "name": "jumpluff-ex-a4a-003&team-rocket's-electrode-b4a-020",
+      "firstSeen": "2026-09-08",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.003754805239554133,
+      "peakDate": "2026-09-08",
+      "cards": [
+        "2:a4a-001",
+        "2:a4a-003",
+        "2:b4a-019",
+        "2:b4a-020",
+        "1:a3-066",
+        "2:pa-007",
+        "1:a2-150",
+        "1:b1-225",
+        "2:pa-005",
+        "2:a3-144",
+        "2:a2-148",
+        "1:b2b-069"
+      ]
+    },
+    {
+      "variant": "jumpluff-ex-a4a-003&zangoose-a4a-065",
+      "name": "Jumpluff ex-A4a-003&Zangoose-A4a-065",
+      "firstSeen": "2025-08-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.004150700251461964,
+      "peakDate": "2025-09-01",
+      "cards": [
+        "2:a4a-001",
+        "1:a4a-002",
+        "2:a4a-003",
+        "2:a4a-065",
+        "1:a2-110",
+        "1:a2a-069",
+        "2:pa-007",
+        "1:a1-225",
+        "1:a2-150",
+        "1:a2-155",
+        "2:pa-005",
+        "2:a3-144",
+        "2:a2-148"
+      ]
+    },
+    {
+      "variant": "jumpluff-ex-a4a-003&zeraora-a3a-021",
+      "name": "Jumpluff ex-A4a-003&Zeraora-A3a-021",
+      "firstSeen": "2025-09-15",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0004149528439806699,
+      "peakDate": "2025-09-15",
+      "cards": [
+        "2:a4a-001",
+        "2:a4a-003",
+        "2:a3a-021",
+        "1:a3-066",
+        "2:pa-007",
+        "1:a1-223",
+        "1:a2-150",
+        "1:a2-155",
+        "1:a2b-070",
+        "1:a3-151",
+        "1:a3-155",
+        "2:pa-005",
+        "2:a3-144",
+        "1:a2-147"
+      ]
+    }
+  ]
+}

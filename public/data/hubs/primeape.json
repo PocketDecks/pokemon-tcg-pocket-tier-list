@@ -1,0 +1,27 @@
+{
+  "hub": "primeape",
+  "name": "Primeape",
+  "variants": [
+    {
+      "variant": "primeape-a1a-042",
+      "name": "Primeape-A1a-042",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00005349275875006105,
+      "peakDate": "2025-11-03",
+      "cards": [
+        "2:a1a-041",
+        "2:a1a-042",
+        "2:a1a-047",
+        "2:a1-154",
+        "1:a1a-032",
+        "2:a1-223",
+        "2:a1-225",
+        "2:pa-007",
+        "2:pa-002",
+        "2:pa-005",
+        "1:pa-001"
+      ]
+    }
+  ]
+}

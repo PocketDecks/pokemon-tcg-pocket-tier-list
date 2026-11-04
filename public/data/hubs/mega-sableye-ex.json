@@ -1,0 +1,56 @@
+{
+  "hub": "mega-sableye-ex",
+  "name": "Mega Sableye ex",
+  "variants": [
+    {
+      "variant": "mega-sableye-ex-b3b-041&darkrai-ex-a2-110",
+      "name": "mega-sableye-ex-b3b-041&darkrai-ex-a2-110",
+      "firstSeen": "2026-10-06",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.0005559306869104558,
+      "peakDate": "2026-10-06",
+      "cards": [
+        "2:a3-066",
+        "1:a2-110",
+        "1:b3b-041",
+        "1:a4-066",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:a2b-070",
+        "2:pa-005",
+        "2:b2-145",
+        "1:pa-002",
+        "1:a3a-064",
+        "1:b2a-086",
+        "1:b3b-064",
+        "1:b4-149"
+      ]
+    },
+    {
+      "variant": "mega-sableye-ex-b3b-041&mega-absol-ex-b1-151",
+      "name": "mega-sableye-ex-b3b-041&mega-absol-ex-b1-151",
+      "firstSeen": "2026-10-06",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.0007551382830630929,
+      "peakDate": "2026-10-06",
+      "cards": [
+        "2:a3-066",
+        "2:a4-066",
+        "1:b1-151",
+        "1:a2-110",
+        "1:b3b-041",
+        "2:b1-225",
+        "2:pa-007",
+        "1:a1-225",
+        "1:a2b-070",
+        "1:a2-150",
+        "2:pa-005",
+        "1:b2-145",
+        "1:pa-002",
+        "1:a2-147",
+        "1:b3b-064"
+      ]
+    }
+  ]
+}

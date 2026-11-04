@@ -1,0 +1,51 @@
+{
+  "hub": "annihilape",
+  "name": "Annihilape",
+  "variants": [
+    {
+      "variant": "annihilape-b2a-057",
+      "name": "annihilape-b2a-057",
+      "firstSeen": "2026-03-05",
+      "lastSeen": "2026-03-18",
+      "peakShare": 0.002137095152989934,
+      "peakDate": "2026-03-05",
+      "cards": [
+        "2:a1a-041",
+        "2:b2a-057",
+        "1:b1a-062",
+        "1:b1a-042",
+        "2:pa-007",
+        "2:a4-156",
+        "1:a2-150",
+        "1:b1-225",
+        "1:b1a-069",
+        "1:b2a-091",
+        "2:pa-005",
+        "2:a3-144",
+        "1:a2-148",
+        "1:a2-147"
+      ]
+    },
+    {
+      "variant": "annihilape-b2a-057&mega-lopunny-ex-b1a-042",
+      "name": "annihilape-b2a-057&mega-lopunny-ex-b1a-042",
+      "firstSeen": "2026-03-05",
+      "lastSeen": "2026-05-26",
+      "peakShare": 0.01954426213144419,
+      "peakDate": "2026-03-07",
+      "cards": [
+        "2:a1a-041",
+        "1:a1a-042",
+        "2:b2a-057",
+        "2:b1a-062",
+        "2:b1a-042",
+        "2:pa-007",
+        "2:a4-156",
+        "2:b1-225",
+        "1:a2-150",
+        "2:pa-005",
+        "2:a3-144"
+      ]
+    }
+  ]
+}

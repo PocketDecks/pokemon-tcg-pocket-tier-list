@@ -299,9 +299,16 @@ describe("DeckHubPage content", () => {
   it("lists every variant of the hub newest first, with its peak share and date", async () => {
     decksState.value = { decks: [liveGreninja], metaShareBySlug: {}, loading: false, error: null };
     renderAt("/deck/mega-greninja-ex");
-    await screen.findByText("Peak 13.0% on 29 Oct 2026");
-    const peaks = screen.getAllByText(/^Peak /).map((node) => node.textContent);
+    await screen.findByText(/Peak 13.0% on 29 Oct 2026/);
+    const peaks = screen.getAllByText(/Peak /).map((node) => node.textContent?.split(" · ")[1]);
     expect(peaks).toEqual(["Peak 13.0% on 29 Oct 2026", "Peak 4.0% on 1 Dec 2025"]);
+  });
+
+  it("separates the seen range from the peak line in each history row", async () => {
+    decksState.value = { decks: [liveGreninja], metaShareBySlug: {}, loading: false, error: null };
+    renderAt("/deck/mega-greninja-ex");
+    const meta = await screen.findByText(/Peak 13.0% on 29 Oct 2026/);
+    expect(meta.textContent).toBe("Seen from 31 Oct 2025 to 2 Nov 2026 · Peak 13.0% on 29 Oct 2026");
   });
 
   it("writes the summary paragraph from the hub data and the live status", async () => {
@@ -348,8 +355,8 @@ describe("DeckHubPage tiny shares", () => {
       },
     });
     renderAt("/deck/mega-greninja-ex");
-    expect(await screen.findByText("Peak <0.1% on 29 Oct 2026")).toBeTruthy();
-    expect(screen.getByText("Peak <0.1% on 1 Dec 2025")).toBeTruthy();
+    expect(await screen.findByText(/Peak <0.1% on 29 Oct 2026/)).toBeTruthy();
+    expect(screen.getByText(/Peak <0.1% on 1 Dec 2025/)).toBeTruthy();
     expect(screen.getByText(/peak share was <0\.1% on 29 Oct 2026/)).toBeTruthy();
   });
 });

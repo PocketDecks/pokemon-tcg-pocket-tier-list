@@ -142,11 +142,6 @@ const Row = styled.li`
   font-size: 1.5rem;
 `;
 
-const Peak = styled.span`
-  color: var(--text-muted);
-  font-size: 1.4rem;
-`;
-
 const Muted = styled.p`
   color: var(--text-muted);
   font-size: 1.4rem;
@@ -377,19 +372,18 @@ const HubPage = () => {
                         value: shareText(record.peakShare),
                         date: formatDate(record.peakDate, i18n.language),
                       });
+                const historyLine = [seenText, peakText].filter(Boolean).join(" · ");
                 return deck ? (
                   <li key={record.variant}>
                     <Variant to={`/deck/${record.variant}`}>
                       <VariantName>{label}</VariantName>
-                      <VariantMeta>{seenText}</VariantMeta>
-                      {peakText && <Peak>{peakText}</Peak>}
+                      <VariantMeta>{historyLine}</VariantMeta>
                     </Variant>
                   </li>
                 ) : (
                   <Row key={record.variant}>
                     <strong>{label}</strong>
-                    <span>{seenText}</span>
-                    {peakText && <Peak>{peakText}</Peak>}
+                    <span>{historyLine}</span>
                   </Row>
                 );
               })}

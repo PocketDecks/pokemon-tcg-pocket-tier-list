@@ -2,6 +2,8 @@ type DeckCoverage = { lists?: readonly { score?: number; cards?: readonly unknow
 
 export declare const bestListCards: (deck: DeckCoverage) => readonly unknown[];
 
+export declare const bestListCardIds: (deck: DeckCoverage) => readonly string[];
+
 export declare const coveredCardIdsBySet: (decks: readonly DeckCoverage[] | null) => ReadonlyMap<string, ReadonlySet<string>>;
 
 export declare const coveredSetCodes: (decks: readonly DeckCoverage[] | null) => ReadonlySet<string>;

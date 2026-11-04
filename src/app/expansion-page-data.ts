@@ -1,38 +1,52 @@
 import type { CardType } from "./cards-api";
 import type { ExpansionType } from "./use-expansions";
 import type { FullDeckType } from "./deck-types";
-import { coveredSetCodes } from "./expansion-feed.mjs";
+import { bestListCardIds } from "./expansion-feed.mjs";
+import { deckSlug } from "./deck-slug";
+import { deckArchetypeSlug } from "./deck-archetype";
+import { deckDisplayName } from "./deck-display";
 
 export interface ExpansionLiveCard extends CardType {
   cardNumber: string;
 }
 
 export interface ExpansionLiveDeck {
-  deck: FullDeckType;
+  name: string;
+  hub: string;
+  deck: FullDeckType | null;
   displayName: string;
+}
+
+interface RawDeck {
+  name: string;
+  lists?: readonly { score?: number; cards?: readonly unknown[] }[];
 }
 
 export const expansionPageData = (
   expansion: ExpansionType,
   cards: CardType[],
-  decks: FullDeckType[],
-  displayName: (deck: FullDeckType) => string
+  rawDecks: readonly RawDeck[],
+  resolvedDecks: readonly FullDeckType[]
 ) => {
   const expansionCards = new Map(
     cards
       .filter((card) => card.set === expansion.id)
       .map((card) => [card.id, { ...card, cardNumber: card.id.slice(card.id.lastIndexOf("-") + 1) }])
   );
-  const liveDecks = decks
-    .filter((deck) => coveredSetCodes([{ lists: [deck.bestList] }]).has(expansion.id))
-    .map((deck) => ({ deck, displayName: displayName(deck) }))
+  const qualifying = rawDecks.filter((deck) => bestListCardIds(deck).some((id) => expansionCards.has(id)));
+  const liveDecks: ExpansionLiveDeck[] = qualifying
+    .map((raw) => {
+      const deck = resolvedDecks.find((candidate) => candidate.id === deckSlug(raw.name)) ?? null;
+      return {
+        name: raw.name,
+        hub: deckArchetypeSlug(raw.name),
+        deck,
+        displayName: deckDisplayName(deck ?? { name: raw.name }),
+      };
+    })
     .sort((a, b) => a.displayName.localeCompare(b.displayName));
   const used = new Set(
-    liveDecks.flatMap(({ deck }) =>
-      deck.bestList.cards
-        .map((card) => card.id)
-        .filter((id) => expansionCards.has(id))
-    )
+    qualifying.flatMap((deck) => bestListCardIds(deck)).filter((id) => expansionCards.has(id))
   );
   return {
     cards: [...used]

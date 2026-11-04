@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { expansionPageData } from "../expansion-page-data";
+import { coveredCardIdsBySet } from "../expansion-feed.mjs";
+import type { FullDeckType } from "../deck-types";
 
 const card = (id: string, name: string, set = "c1") => ({
   id,
@@ -16,51 +18,51 @@ const card = (id: string, name: string, set = "c1") => ({
   deckBuilderNr: 1,
 });
 
-const list = (cards: ReturnType<typeof card>[], score = 1) => ({
-  cards,
-  score,
-  strength: 1,
-  energyIds: [],
-  deckCode: null,
-});
+const rawDeck = (name: string, lists: { score: number; cards: string[] }[]) => ({ name, lists });
 
-const deck = (name: string, bestCards: ReturnType<typeof card>[], otherLists: ReturnType<typeof list>[] = []) => {
-  const best = list(bestCards);
-  return {
+const resolvedDeck = (name: string, iconName: string) =>
+  ({
     id: name,
     name,
-    lists: [best, ...otherLists],
-    bestList: best,
-    score: 1,
-    popularity: 1,
-    strength: 1,
-    expectedWinRate: 0.5,
-    fieldCoverage: 1,
-    powerScore: 50,
-    freqScore: 50,
-    metaScore: 50,
-    percentOfGames: 1,
-    iconPrimary: bestCards[0],
+    iconPrimary: card(`${name}-icon`, iconName),
     iconSecondary: null,
-  };
-};
+  }) as unknown as FullDeckType;
 
 const C1 = { id: "c1", name: "Dual Fusion", release_date: "2026-10-29", packs: [] };
 
 describe("expansion page data", () => {
-  it("keeps used cards and decks, orders cards by set number and decks by display name", () => {
+  it("keeps used cards in set-number order and decks sorted by display name", () => {
     const cards = [card("c1-010", "Tenth"), card("c1-002", "Second"), card("c1-001", "First")];
-    const decks = [deck("zeta", [cards[0], cards[1]]), deck("alpha", [cards[2]])];
-    const result = expansionPageData(C1, cards, decks, (value) => value.name);
+    const raw = [
+      rawDeck("zeta-c1-010", [{ score: 1, cards: ["2:c1-010", "2:c1-002"] }]),
+      rawDeck("alpha-c1-001", [{ score: 1, cards: ["2:c1-001"] }]),
+    ];
+    const resolved = [resolvedDeck("zeta-c1-010", "Zeta"), resolvedDeck("alpha-c1-001", "Alpha")];
+    const result = expansionPageData(C1, cards, raw, resolved);
     expect(result.cards.map((value) => value.id)).toEqual(["c1-001", "c1-002", "c1-010"]);
-    expect(result.decks.map((value) => value.displayName)).toEqual(["alpha", "zeta"]);
+    expect(result.decks.map((value) => value.displayName)).toEqual(["Alpha", "Zeta"]);
   });
 
-  it("counts a deck and its set cards only from its best list", () => {
-    const other = card("b4a-001", "Other", "b4a");
-    const target = card("c1-003", "Target");
-    const decks = [deck("alpha", [other], [list([target], 0.5)])];
-    const result = expansionPageData(C1, [other, target], decks, (value) => value.name);
+  it("counts a raw best-list card even when the client dropped that deck", () => {
+    const cards = [card("c1-001", "First"), card("c1-002", "Second")];
+    const raw = [rawDeck("gone-c1-001", [{ score: 1, cards: ["2:c1-001", "2:c1-002"] }])];
+    const result = expansionPageData(C1, cards, raw, []);
+    expect(result.decks.map((value) => value.name)).toEqual(["gone-c1-001"]);
+    expect(result.decks[0].deck).toBeNull();
+    expect(result.decks[0].hub).toBe("gone");
+    expect(result.cards.map((value) => value.id)).toEqual(["c1-001", "c1-002"]);
+    expect(result.cards.length).toBe(coveredCardIdsBySet(raw).get("c1")?.size);
+  });
+
+  it("ignores a set card that sits only in a non-best raw list", () => {
+    const cards = [card("c1-001", "First"), card("b4a-001", "Other", "b4a")];
+    const raw = [
+      rawDeck("alpha-b4a-001", [
+        { score: 1, cards: ["1:b4a-001"] },
+        { score: 0.2, cards: ["1:c1-001"] },
+      ]),
+    ];
+    const result = expansionPageData(C1, cards, raw, []);
     expect(result.decks).toEqual([]);
     expect(result.cards).toEqual([]);
   });

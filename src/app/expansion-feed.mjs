@@ -16,6 +16,8 @@ export const bestListCards = (deck) => {
   return best.cards ?? [];
 };
 
+export const bestListCardIds = (deck) => bestListCards(deck).map(cardIdOf).filter((id) => typeof id === "string");
+
 export const coveredCardIdsBySet = (decks) => {
   const bySet = new Map();
   if (!decks) return bySet;

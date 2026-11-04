@@ -8,11 +8,9 @@ import useExpansions from "../../app/use-expansions";
 import { fetchCards } from "../../app/cards-api";
 import { expansionPageData } from "../../app/expansion-page-data";
 import { cardThumbUrl, onDeckThumbError } from "../../app/deck-thumb";
-import { deckDisplayName } from "../../app/deck-display";
 import { LocaleLink } from "../../app/locale-link";
 import { isListedExpansion } from "../../app/expansion-policy.mjs";
 import { cardHubFor } from "../../app/card-hub";
-import { deckArchetypeSlug } from "../../app/deck-archetype";
 import DeckCard from "../../components/DeckCard";
 import NotFoundPage from "../not-found/NotFoundPage";
 
@@ -146,14 +144,14 @@ const BreadcrumbSeparator = styled.span`
 
 const ExpansionPage = () => {
   const { expansionId } = useParams();
-  const { decks, metaShareBySlug, loading: decksLoading } = useDecks();
+  const { decks, rawDecks, metaShareBySlug, loading: decksLoading } = useDecks();
   const expansions = useExpansions();
   const { t, i18n } = useTranslation();
   const expansion = expansions?.find((entry) => entry.id === expansionId);
   const allCardsQuery = useQuery({ queryKey: ["cards"], queryFn: fetchCards });
   const rawCards = allCardsQuery.data?.cards ?? [];
-  const data = expansion && rawCards.length > 0 && decks
-    ? expansionPageData(expansion, rawCards, decks, deckDisplayName)
+  const data = expansion && rawCards.length > 0 && rawDecks
+    ? expansionPageData(expansion, rawCards, rawDecks, decks ?? [])
     : null;
   useMarkContentReady(!decksLoading && !!expansions && rawCards.length > 0);
 
@@ -225,12 +223,14 @@ const ExpansionPage = () => {
             {data &&
               (data.decks.length ? (
                 <DeckList>
-                  {data.decks.map(({ deck, displayName: name }) => (
-                    <DeckRow key={deck.name}>
-                      <DeckSlot>
-                        <DeckCard deck={deck} linkTo={`/deck/${deckArchetypeSlug(deck.name)}`} metaShare={metaShareBySlug?.[deck.name] ?? null} />
-                      </DeckSlot>
-                      <DeckName>{name}</DeckName>
+                  {data.decks.map(({ name, hub, deck, displayName: label }) => (
+                    <DeckRow key={name}>
+                      {deck && (
+                        <DeckSlot>
+                          <DeckCard deck={deck} linkTo={`/deck/${hub}`} metaShare={metaShareBySlug?.[deck.name] ?? null} />
+                        </DeckSlot>
+                      )}
+                      <DeckName>{deck ? label : <LocaleLink to={`/deck/${hub}`}>{label}</LocaleLink>}</DeckName>
                     </DeckRow>
                   ))}
                 </DeckList>

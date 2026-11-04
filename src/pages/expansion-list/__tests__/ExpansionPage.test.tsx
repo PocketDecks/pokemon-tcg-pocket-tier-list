@@ -36,7 +36,7 @@ const fixtures = vi.hoisted(() => {
   const gengar = card("c1-010", "Gengar ex");
   const list = (cards: unknown[]) => ({ cards, score: 1, strength: 1, energyIds: [], deckCode: null });
   const deck = {
-    id: "mega-lucario-ex",
+    id: "mega-lucario-ex-c1-001",
     name: "mega-lucario-ex-c1-001",
     lists: [list([higher, lower, gengar])],
     bestList: list([higher, lower, gengar]),
@@ -54,6 +54,10 @@ const fixtures = vi.hoisted(() => {
   };
   return {
     decks: [deck],
+    rawDecks: [
+      { name: "mega-lucario-ex-c1-001", lists: [{ score: 1, cards: ["2:c1-001", "2:c1-002", "2:c1-010"] }] },
+      { name: "alpha-deck-c1-002", lists: [{ score: 1, cards: ["2:c1-002"] }] },
+    ],
     metaShareBySlug: {
       [deck.name]: {
         name: deck.name,
@@ -75,7 +79,12 @@ const fixtures = vi.hoisted(() => {
 });
 
 vi.mock("../../../app/use-decks", () => ({
-  useDecks: () => ({ decks: fixtures.decks, metaShareBySlug: fixtures.metaShareBySlug, loading: false }),
+  useDecks: () => ({
+    decks: fixtures.decks,
+    rawDecks: fixtures.rawDecks,
+    metaShareBySlug: fixtures.metaShareBySlug,
+    loading: false,
+  }),
 }));
 
 vi.mock("../../../app/use-expansions", () => ({
@@ -159,6 +168,11 @@ describe("ExpansionPage", () => {
     expect(screen.queryByRole("heading", { name: "Live decks using this expansion" })).toBeNull();
     expect(screen.queryByText(/that appear in current tournament decks/)).toBeNull();
     expect(screen.getByRole("link", { name: "Back to the tier list" })).toBeInTheDocument();
+  });
+
+  it("lists a raw deck the client dropped as a plain link to its hub", () => {
+    renderPage();
+    expect(screen.getByRole("link", { name: "Alpha Deck C1 002" })).toHaveAttribute("href", "/deck/alpha-deck");
   });
 
   it("links a card with an archetype hub to that hub", () => {

@@ -41,4 +41,15 @@ describe("ExpansionStack", () => {
       expect(image).toHaveAttribute("decoding", "async");
     }
   });
+
+  it("loads only the front image eagerly when asked to", () => {
+    const { container } = render(<ExpansionStack images={["a.webp", "b.webp", "c.webp"]} eager />);
+
+    const images = Array.from(container.querySelectorAll("img"));
+    expect(images[2]).toHaveAttribute("loading", "eager");
+    expect(images[2]).toHaveAttribute("fetchpriority", "high");
+    expect(images[0]).toHaveAttribute("loading", "lazy");
+    expect(images[1]).toHaveAttribute("loading", "lazy");
+    expect(images[0]).not.toHaveAttribute("fetchpriority");
+  });
 });

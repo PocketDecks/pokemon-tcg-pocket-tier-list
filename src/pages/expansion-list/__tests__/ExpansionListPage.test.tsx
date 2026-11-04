@@ -38,6 +38,16 @@ vi.mock("../../../ads/ContentReadyContext", () => ({
   useMarkContentReady: vi.fn(),
 }));
 
+const setRankedFixture = () => {
+  const ids = ["a1", "a1a", "a2", "a2a", "a2b", "a3", "a3a"];
+  state.expansions = ids.map((id) => ({
+    id,
+    name: `Set ${id}`,
+    packs: [{ id: `${id}-booster`, name: "Booster", image: `${id}.webp` }],
+  }));
+  state.cards = ids.map((id, index) => ({ id: `${id}-001`, name: "Volbeat", set: id, pack: "Booster", score: 0.9 - index * 0.1 }));
+};
+
 const LocationSearch = () => <span data-testid="search">{useLocation().search}</span>;
 
 const renderPage = (path = "/expansion-list/") =>
@@ -93,6 +103,18 @@ describe("ExpansionListPage", () => {
 
     expect(container.querySelector('img[src="b4b.webp"]')).toBeNull();
     expect(expansionLinks(container)).toHaveLength(0);
+  });
+
+  it("loads the first six tiles eagerly and the seventh lazily", () => {
+    setRankedFixture();
+    const { container } = renderPage();
+
+    const images = Array.from(container.querySelectorAll("a[aria-label] img"));
+    expect(images).toHaveLength(7);
+    expect(images[0]).toHaveAttribute("loading", "eager");
+    expect(images[0]).toHaveAttribute("fetchpriority", "high");
+    expect(images[6]).toHaveAttribute("loading", "lazy");
+    expect(images[6]).not.toHaveAttribute("fetchpriority");
   });
 
   it("names the view toggle with its own label, not the page heading", () => {

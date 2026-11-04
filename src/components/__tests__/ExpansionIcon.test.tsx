@@ -10,4 +10,12 @@ describe("ExpansionIcon", () => {
     expect(image).toHaveAttribute("loading", "lazy");
     expect(image).toHaveAttribute("decoding", "async");
   });
+
+  it("loads its image eagerly with high priority when asked to", () => {
+    const { container } = render(<ExpansionIcon image="a.webp" alt="" eager />);
+
+    const image = container.querySelector("img");
+    expect(image).toHaveAttribute("loading", "eager");
+    expect(image).toHaveAttribute("fetchpriority", "high");
+  });
 });

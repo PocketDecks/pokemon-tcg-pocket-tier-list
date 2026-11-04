@@ -15,6 +15,8 @@ import { useLocaleHref, LocaleLink } from "../../app/locale-link";
 
 type ExpansionView = "expansions" | "packs";
 
+const EAGER_TILE_COUNT = 6;
+
 const ExpansionListPage = () => {
   const { t } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");
@@ -67,7 +69,7 @@ const ExpansionListPage = () => {
                   : `/expansion-list/${data.expansionId}`;
               return (
                 <LocaleLink to={to} aria-label={name}>
-                  <ExpansionIcon image={data.packImage} alt="" />
+                  <ExpansionIcon image={data.packImage} alt="" eager={packData.indexOf(data) < EAGER_TILE_COUNT} />
                 </LocaleLink>
               );
             }}
@@ -81,9 +83,9 @@ const ExpansionListPage = () => {
             renderItem={(data) => (
               <LocaleLink to={`/expansion-list/${data.expansionId}`} aria-label={data.name}>
                 {data.packImages.length > 1 ? (
-                  <ExpansionStack images={data.packImages} />
+                  <ExpansionStack images={data.packImages} eager={expansionData.indexOf(data) < EAGER_TILE_COUNT} />
                 ) : (
-                  <ExpansionIcon image={data.packImages[0]} alt="" />
+                  <ExpansionIcon image={data.packImages[0]} alt="" eager={expansionData.indexOf(data) < EAGER_TILE_COUNT} />
                 )}
               </LocaleLink>
             )}

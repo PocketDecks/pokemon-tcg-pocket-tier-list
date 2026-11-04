@@ -37,9 +37,10 @@ const PackImage = styled.img`
 
 interface Props {
   images: string[];
+  eager?: boolean;
 }
 
-const ExpansionStack = ({ images }: Props) => {
+const ExpansionStack = ({ images, eager = false }: Props) => {
   const [front, ...behind] = images.slice(0, MAX_BEHIND + 1);
   const layers = behind.map((image, index) => ({ image, depth: index + 1 })).reverse();
   return (
@@ -50,7 +51,13 @@ const ExpansionStack = ({ images }: Props) => {
         </Behind>
       ))}
       <Pack>
-        <PackImage src={front} alt="" loading="lazy" decoding="async" />
+        <PackImage
+          src={front}
+          alt=""
+          loading={eager ? "eager" : "lazy"}
+          fetchPriority={eager ? "high" : undefined}
+          decoding="async"
+        />
       </Pack>
     </Stack>
   );

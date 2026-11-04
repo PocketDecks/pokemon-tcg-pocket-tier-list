@@ -6,11 +6,9 @@ import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { useDecks } from "../../app/use-decks";
 import useExpansions from "../../app/use-expansions";
 import { fetchCards } from "../../app/cards-api";
-import { EXPANSIONS_URL } from "../../app/constants";
 import { expansionPageData } from "../../app/expansion-page-data";
 import { cardThumbUrl, onDeckThumbError } from "../../app/deck-thumb";
 import { deckDisplayName } from "../../app/deck-display";
-import { expansionIndexPolicy } from "../../app/expansion-index-policy.mjs";
 import { useLocaleHref } from "../../app/locale-link";
 import { deckArchetypeSlug } from "../../app/deck-archetype";
 import DeckCard from "../../components/DeckCard";
@@ -126,7 +124,6 @@ const ExpansionPage = () => {
   const expansion = expansions?.find((entry) => entry.id === expansionId);
   const allCardsQuery = useQuery({ queryKey: ["cards"], queryFn: fetchCards });
   const rawCards = allCardsQuery.data?.cards ?? [];
-  const policy = expansionIndexPolicy(EXPANSIONS_URL, decks);
   const data = expansion && rawCards.length > 0 && decks
     ? expansionPageData(expansion, rawCards, decks, deckDisplayName)
     : null;
@@ -136,8 +133,7 @@ const ExpansionPage = () => {
   const locale = i18n.language === "en" ? "en-GB" : i18n.language;
   const releaseDate = expansion.release_date
     ? new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${expansion.release_date}T00:00:00Z`))
-    : t("expansionPage.unknownDate");
-  const title = `Pokemon TCG Pocket ${expansion.name} (${expansion.id.toUpperCase()}): Best Cards & Decks`;
+    : null;
 
   return (
     <Page>
@@ -149,10 +145,9 @@ const ExpansionPage = () => {
           <BreadcrumbSeparator aria-hidden="true">&gt;</BreadcrumbSeparator>
           <span>{expansion.id.toUpperCase()}</span>
         </Breadcrumbs>
-        <Title>{title}</Title>
-        <Meta>{expansion.name} ({expansion.id.toUpperCase()}) · {releaseDate}</Meta>
-        <Meta>{policy.isIndexable(expansion.id) ? t("expansionPage.current") : t("expansionPage.archive")}</Meta>
-        <Meta>{t("expansionPage.summary", { name: expansion.name, id: expansion.id.toUpperCase() })}</Meta>
+        <Title>{t("expansionPage.heading", { name: expansion.name, id: expansion.id.toUpperCase() })}</Title>
+        {releaseDate && <Meta>{t("expansionPage.released", { date: releaseDate })}</Meta>}
+        <Meta>{t("expansionPage.intro", { name: expansion.name })}</Meta>
       </Header>
       <Section>
         <SectionTitle>{t("expansionPage.cardsHeading")}</SectionTitle>
@@ -173,10 +168,7 @@ const ExpansionPage = () => {
             ))}
           </CardGrid>
         ) : (
-          <>
-            <Empty>{t("expansionPage.noCards")}</Empty>
-            <Meta>{t("expansionPage.cardsEmptyDetail", { name: expansion.name })}</Meta>
-          </>
+          <Empty>{t("expansionPage.noCards")}</Empty>
         )}
       </Section>
       <Section>
@@ -193,10 +185,7 @@ const ExpansionPage = () => {
             ))}
           </DeckList>
         ) : (
-          <>
-            <Empty>{t("expansionPage.noDecks")}</Empty>
-            <Meta>{t("expansionPage.decksEmptyDetail", { name: expansion.name })}</Meta>
-          </>
+          <Empty>{t("expansionPage.noDecks")}</Empty>
         )}
       </Section>
       <Meta><a href={tierListHref}>{t("notFound.backToTierList")}</a></Meta>

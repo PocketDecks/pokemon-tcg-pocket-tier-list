@@ -1,3 +1,14 @@
+const i18nReady = vi.hoisted(async () => {
+  const i18next = (await import("i18next")).default;
+  const { initReactI18next } = await import("react-i18next");
+  const en = (await import("../../../locales/en_translation.json")).default;
+  await i18next.use(initReactI18next).init({
+    lng: "en",
+    resources: { en: { translation: en } },
+    interpolation: { escapeValue: false },
+  });
+});
+
 import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes } from "react-router";
@@ -87,6 +98,22 @@ const renderPage = () => {
 };
 
 describe("ExpansionPage", () => {
+  it("headlines the set with its ID, release date and intro", async () => {
+    await i18nReady;
+    renderPage();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Dual Fusion (C1) Cards & Decks");
+    expect(screen.getByText("Released 29 October 2026")).toBeInTheDocument();
+    expect(
+      screen.getByText("Cards from Dual Fusion that appear in current tournament decks, and the decks that play them.")
+    ).toBeInTheDocument();
+  });
+
+  it("drops the summary and the current or archive label", async () => {
+    await i18nReady;
+    renderPage();
+    expect(screen.queryByText(/Current covered expansion|Historical expansion|This Dual Fusion/)).toBeNull();
+  });
+
   it("shows card thumbnails at a fixed size with lazy loading", () => {
     renderPage();
     const image = screen.getByRole("img", { name: "Higher" });

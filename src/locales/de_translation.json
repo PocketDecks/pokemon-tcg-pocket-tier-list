@@ -406,15 +406,12 @@
   "expansionPage": {
     "home": "Startseite",
     "expansions": "Erweiterungen",
-    "unknownDate": "Veröffentlichungsdatum nicht verfügbar",
-    "current": "Aktuelle erfasste Erweiterung",
-    "archive": "Historische Erweiterung",
+    "heading": "{{name}} ({{id}}) Karten & Decks",
+    "released": "Veröffentlicht am {{date}}",
+    "intro": "Karten aus {{name}}, die in aktuellen Turnierdecks vorkommen, und die Decks, die sie spielen.",
     "cardsHeading": "Karten in aktuellen Decks",
     "decksHeading": "Aktuelle Decks mit dieser Erweiterung",
     "noCards": "Keine Karten dieser Erweiterung werden in aktuellen Decks verwendet.",
-    "noDecks": "Keine aktuellen Decks verwenden diese Erweiterung.",
-    "summary": "Diese Seite zu {{name}} ({{id}}) enthält die Set-Identität, das Veröffentlichungsdatum, Karten aus dem Set in aktuellen Decklisten und die zugehörigen Archetypen-Hubs. Die Karten folgen der Kartenbewertung der Website. Deck-Links öffnen die passenden Archetypen-Seiten. Meta-Anteile erscheinen nur bei mindestens zwei historischen Beobachtungen nach der Veröffentlichung.",
-    "cardsEmptyDetail": "Der aktuelle Live-Deck-Feed enthält keine Karte aus {{name}}. Die Erweiterung bleibt als historische Seite mit Veröffentlichungsdaten und crawlbarer Route erhalten.",
-    "decksEmptyDetail": "Der aktuelle Live-Deck-Feed ist noch mit keinem Archetypen-Hub für {{name}} verbunden. Spätere Pipeline-Läufe können Karten und Deck-Links ergänzen."
+    "noDecks": "Keine aktuellen Decks verwenden diese Erweiterung."
   }
 }

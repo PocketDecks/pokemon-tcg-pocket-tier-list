@@ -116,11 +116,16 @@ const buildRouteMeta = (latest) => ({
   },
 });
 
+const expansionTitle = (name, id) => {
+  const full = `Pokemon TCG Pocket ${name} (${id}): Cards & Decks | Top Pocket Decks`;
+  return full.length <= TITLE_LIMIT ? full : `${name} (${id}) Cards & Decks | Top Pocket Decks`;
+};
+
 const expansionRouteMeta = Object.fromEntries(
   EXPANSIONS.filter((expansion) => isListedExpansion(expansion)).map((expansion) => {
     const id = expansion.id.toUpperCase();
     return [`/expansion-list/${expansion.id}`, {
-      title: `Pokemon TCG Pocket ${expansion.name} (${id}): Best Cards & Decks`,
+      title: expansionTitle(expansion.name, id),
       description: `Pokemon TCG Pocket ${expansion.name} (${id}) cards used in live decks and the current deck meta.`,
       canonical: `https://pocketdecks.top/expansion-list/${expansion.id}/`,
     }];

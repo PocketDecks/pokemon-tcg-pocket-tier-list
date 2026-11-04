@@ -301,3 +301,17 @@ test("a 30-character expansion name keeps name-bearing titles and descriptions w
   }
   assert.ok(en["/tier-list"].title.includes(LONG));
 });
+
+test("expansion titles drop Best and fall back when the full title is too long", () => {
+  assert.strictEqual(
+    ROUTE_META["/expansion-list/c1"].title,
+    "Pokemon TCG Pocket Dual Fusion (C1): Cards & Decks | Top Pocket Decks"
+  );
+  assert.strictEqual(
+    ROUTE_META["/expansion-list/b4a"].title,
+    "Team Rocket's Ambition (B4A) Cards & Decks | Top Pocket Decks"
+  );
+  for (const route of ROUTES.filter((value) => value.startsWith("/expansion-list/"))) {
+    assert.doesNotMatch(ROUTE_META[route].title, /Best/);
+  }
+});

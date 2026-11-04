@@ -406,15 +406,12 @@
   "expansionPage": {
     "home": "Accueil",
     "expansions": "Extensions",
-    "unknownDate": "Date de sortie indisponible",
-    "current": "Extension actuellement couverte",
-    "archive": "Extension historique",
+    "heading": "{{name}} ({{id}}) Cartes et decks",
+    "released": "Sorti le {{date}}",
+    "intro": "Cartes de {{name}} présentes dans les decks de tournoi actuels, et les decks qui les jouent.",
     "cardsHeading": "Cartes utilisées dans les decks actuels",
     "decksHeading": "Decks actuels utilisant cette extension",
     "noCards": "Aucune carte de cette extension n'est utilisée dans les decks actuels.",
-    "noDecks": "Aucun deck actuel n'utilise cette extension.",
-    "summary": "Cette page {{name}} ({{id}}) présente l'identité de l'extension, sa date de sortie, les cartes de l'extension utilisées dans les decks actuels et les hubs d'archétypes associés. Les cartes suivent le classement de scores du site. Les liens de decks ouvrent la page de l'archétype correspondant. L'évolution du méta apparaît seulement avec au moins deux observations historiques après la sortie.",
-    "cardsEmptyDetail": "Le flux actuel des decks en direct ne contient aucune carte de {{name}}. L'extension reste disponible comme page historique, avec ses informations de sortie et une route indexable par les robots.",
-    "decksEmptyDetail": "Le flux actuel des decks en direct n'associe encore aucun hub d'archétype à {{name}}. Les prochains traitements pourront ajouter des cartes et des liens."
+    "noDecks": "Aucun deck actuel n'utilise cette extension."
   }
 }

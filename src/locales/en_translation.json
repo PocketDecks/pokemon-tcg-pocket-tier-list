@@ -406,15 +406,12 @@
   "expansionPage": {
     "home": "Home",
     "expansions": "Expansions",
-    "unknownDate": "Release date unavailable",
-    "current": "Current covered expansion",
-    "archive": "Historical expansion",
+    "heading": "{{name}} ({{id}}) Cards & Decks",
+    "released": "Released {{date}}",
+    "intro": "Cards from {{name}} that appear in current tournament decks, and the decks that play them.",
     "cardsHeading": "Cards used in live decks",
     "decksHeading": "Live decks using this expansion",
     "noCards": "No cards from this expansion are in live decks.",
-    "noDecks": "No live decks use this expansion.",
-    "summary": "This {{name}} ({{id}}) page records the set identity, release date, cards from the set that appear in live deck lists, and the current archetype hubs that use those cards. Card entries follow the card-score ordering used by the site. Deck links open the corresponding archetype page. Meta-share movement appears only when historical data contains at least two observations after the release date.",
-    "cardsEmptyDetail": "The current live deck feed does not include a card from {{name}}. The set remains available as a historical expansion page, with its release information and crawlable route preserved for future data refreshes.",
-    "decksEmptyDetail": "No current archetype hub is connected to {{name}} in the live deck feed. This page keeps the expansion record available while later pipeline runs can add cards and deck links when the live data changes."
+    "noDecks": "No live decks use this expansion."
   }
 }

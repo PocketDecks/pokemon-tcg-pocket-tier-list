@@ -11,7 +11,7 @@ import ro from "../ro_translation.json";
 import zhCN from "../zh-CN_translation.json";
 import zhTW from "../zh-TW_translation.json";
 
-const locales: Record<string, { expansionPage?: Record<string, string> }> = {
+const locales: Record<string, { expansionPage: Record<string, string> }> = {
   en,
   de,
   es,
@@ -25,8 +25,36 @@ const locales: Record<string, { expansionPage?: Record<string, string> }> = {
   "zh-TW": zhTW,
 };
 
+const PAGE_KEYS = ["cardsHeading", "decksHeading", "expansions", "heading", "home", "intro", "noCards", "noDecks", "released"];
+
 describe("expansion page copy", () => {
-  it.each(Object.entries(locales))("%s has no movement key", (_name, locale) => {
-    expect(locale.expansionPage).not.toHaveProperty("metaShare");
+  it.each(Object.entries(locales))("%s has exactly the expansion page keys in use", (_name, locale) => {
+    expect(Object.keys(locale.expansionPage).sort()).toEqual(PAGE_KEYS);
+  });
+
+  it.each(Object.entries(locales))("%s heading names the set and its ID", (_name, locale) => {
+    expect(locale.expansionPage.heading).toContain("{{name}}");
+    expect(locale.expansionPage.heading).toContain("{{id}}");
+  });
+
+  it.each(Object.entries(locales))("%s release line takes the date", (_name, locale) => {
+    expect(locale.expansionPage.released).toContain("{{date}}");
+  });
+
+  it.each(Object.entries(locales))("%s intro takes the set name", (_name, locale) => {
+    expect(locale.expansionPage.intro).toContain("{{name}}");
+  });
+
+  it("uses the English heading and intro wording", () => {
+    expect(en.expansionPage.heading).toBe("{{name}} ({{id}}) Cards & Decks");
+    expect(en.expansionPage.released).toBe("Released {{date}}");
+    expect(en.expansionPage.intro).toBe(
+      "Cards from {{name}} that appear in current tournament decks, and the decks that play them."
+    );
+  });
+
+  it("writes the Japanese heading in Japanese", () => {
+    expect(ja.expansionPage.heading).toMatch(/[\u3040-\u30ff\u4e00-\u9faf]/);
+    expect(ja.expansionPage.heading).not.toMatch(/Cards & Decks/);
   });
 });

@@ -406,15 +406,12 @@
   "expansionPage": {
     "home": "Home",
     "expansions": "Espansioni",
-    "unknownDate": "Data di uscita non disponibile",
-    "current": "Espansione attualmente coperta",
-    "archive": "Espansione storica",
+    "heading": "{{name}} ({{id}}) Carte e mazzi",
+    "released": "Uscito il {{date}}",
+    "intro": "Carte di {{name}} presenti nei mazzi da torneo attuali, e i mazzi che le utilizzano.",
     "cardsHeading": "Carte usate nei mazzi attuali",
     "decksHeading": "Mazzi attuali che usano questa espansione",
     "noCards": "Nessuna carta di questa espansione è usata nei mazzi attuali.",
-    "noDecks": "Nessun mazzo attuale usa questa espansione.",
-    "summary": "Questa pagina di {{name}} ({{id}}) raccoglie l'identità del set, la data di uscita, le carte del set usate nei mazzi attuali e gli hub degli archetipi collegati. Le carte seguono l'ordine dei punteggi del sito. I link dei mazzi aprono la pagina dell'archetipo corrispondente. L'andamento del meta appare solo con almeno due osservazioni storiche dopo l'uscita.",
-    "cardsEmptyDetail": "Il feed attuale dei mazzi live non contiene carte di {{name}}. L'espansione resta disponibile come pagina storica con le informazioni di uscita e una route scansionabile.",
-    "decksEmptyDetail": "Il feed attuale dei mazzi live non collega ancora alcun hub di archetipo a {{name}}. Le esecuzioni successive della pipeline possono aggiungere carte e link."
+    "noDecks": "Nessun mazzo attuale usa questa espansione."
   }
 }

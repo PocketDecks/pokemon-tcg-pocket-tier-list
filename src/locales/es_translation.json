@@ -406,15 +406,12 @@
   "expansionPage": {
     "home": "Inicio",
     "expansions": "Expansiones",
-    "unknownDate": "Fecha de lanzamiento no disponible",
-    "current": "Expansión cubierta actual",
-    "archive": "Expansión histórica",
+    "heading": "{{name}} ({{id}}) Cartas y mazos",
+    "released": "Lanzamiento: {{date}}",
+    "intro": "Cartas de {{name}} que aparecen en los mazos de torneo actuales, y los mazos que las usan.",
     "cardsHeading": "Cartas usadas en mazos actuales",
     "decksHeading": "Mazos actuales que usan esta expansión",
     "noCards": "Ninguna carta de esta expansión se usa en mazos actuales.",
-    "noDecks": "Ningún mazo actual usa esta expansión.",
-    "summary": "Esta página de {{name}} ({{id}}) reúne la identidad del set, su fecha de lanzamiento, las cartas del set usadas en mazos actuales y los hubs de arquetipos correspondientes. Las cartas siguen el orden de puntuación del sitio. Los enlaces de mazos abren la página del arquetipo. La evolución del meta solo aparece con al menos dos observaciones históricas posteriores al lanzamiento.",
-    "cardsEmptyDetail": "El feed actual de mazos en vivo no incluye cartas de {{name}}. La expansión conserva su página histórica, su información de lanzamiento y una ruta rastreable.",
-    "decksEmptyDetail": "El feed actual de mazos en vivo todavía no conecta ningún hub de arquetipo con {{name}}. Las ejecuciones posteriores del pipeline pueden añadir cartas y enlaces."
+    "noDecks": "Ningún mazo actual usa esta expansión."
   }
 }

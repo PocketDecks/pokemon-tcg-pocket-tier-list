@@ -29,6 +29,7 @@ const { localeRoute, localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs
 const { SITE_URL } = require("./meta-stamp");
 const { newestCoveredExpansion } = require("../src/app/expansion-feed.mjs");
 const { isListedExpansion } = require("../src/app/expansion-policy.mjs");
+const { expansionIndexPolicy } = require("../src/app/expansion-index-policy.mjs");
 const EXPANSIONS = require("pokemon-tcg-pocket-cards/data/v5/expansions.min.json");
 const BEST_DECKS = require("../public/data/best-decks.json");
 const LATEST_EXPANSION = newestCoveredExpansion(EXPANSIONS, BEST_DECKS);
@@ -187,17 +188,7 @@ const JA_ROUTE_META_WITH_EXPANSIONS = { ...JA_ROUTE_META, ...jaExpansionMeta };
 
 const urlFor = (locale, route) => localizedUrl(SITE_URL, locale, route);
 
-const coveredExpansionIds = new Set(
-  BEST_DECKS
-    .flatMap((deck) => deck.lists ?? [])
-    .flatMap((list) => list.cards ?? [])
-    .map((card) => String(card).replace(/^\d+:/, "").split("-")[0])
-);
-const coveredExpansions = EXPANSIONS
-  .filter((expansion) => isListedExpansion(expansion) && coveredExpansionIds.has(expansion.id))
-  .filter((expansion) => expansion.release_date)
-  .sort((a, b) => b.release_date.localeCompare(a.release_date));
-const indexableExpansionIds = new Set(coveredExpansions.slice(0, 2).map((expansion) => expansion.id));
+const EXPANSION_INDEX = expansionIndexPolicy(EXPANSIONS, BEST_DECKS);
 
 const alternatesFor = (route) => [
   ...ROUTE_LOCALES.map((locale) => ({ hreflang: locale, href: urlFor(locale, route) })),
@@ -217,7 +208,7 @@ const localeMetaFor = (locale, route) => {
   const translated = locale === DEFAULT_LOCALE ? undefined : JA_ROUTE_META_WITH_EXPANSIONS[route];
   const expansionMatch = route.match(/^\/expansion-list\/([^/]+)$/);
   const robots = expansionMatch
-    ? `${indexableExpansionIds.has(expansionMatch[1]) ? "index" : "noindex"}, follow`
+    ? `${EXPANSION_INDEX.isIndexable(expansionMatch[1]) ? "index" : "noindex"}, follow`
     : undefined;
   return {
     title: translated?.title ?? base.title,

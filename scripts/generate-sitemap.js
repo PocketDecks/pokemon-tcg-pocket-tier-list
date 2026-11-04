@@ -12,7 +12,7 @@ const { deckSlug } = require("./deck-slug.mjs");
 const { escapeXml, SITE_URL } = require("./meta-stamp");
 const { localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
 const { shouldIndexHub } = require("./deck-archive-policy.mjs");
-const { isListedExpansion } = require("../src/app/expansion-policy.mjs");
+const { expansionIndexPolicy } = require("../src/app/expansion-index-policy.mjs");
 
 const STATIC_ROUTES = [
   "/",
@@ -34,18 +34,9 @@ const isDeckPage = (route) => /^\/deck\/.+/.test(route);
 const localesFor = (route) => (isDeckPage(route) ? [DEFAULT_LOCALE] : ROUTE_LOCALES);
 
 const expansionRoutes = (expansions, decks) => {
-  const covered = new Set(
-    decks
-      .flatMap((deck) => deck.lists ?? [])
-      .flatMap((list) => list.cards ?? [])
-      .map((card) => String(card).replace(/^\d+:/, "").split("-")[0])
-  );
-  const eligible = expansions
-    .filter((expansion) => isListedExpansion(expansion) && covered.has(expansion.id) && expansion.release_date)
-    .sort((a, b) => b.release_date.localeCompare(a.release_date));
-  const indexable = new Set(eligible.slice(0, 2).map((expansion) => expansion.id));
+  const policy = expansionIndexPolicy(expansions, decks);
   return expansions
-    .filter((expansion) => isListedExpansion(expansion) && indexable.has(expansion.id))
+    .filter((expansion) => policy.isIndexable(expansion.id))
     .sort((a, b) => b.release_date.localeCompare(a.release_date))
     .map((expansion) => `/expansion-list/${expansion.id}`);
 };

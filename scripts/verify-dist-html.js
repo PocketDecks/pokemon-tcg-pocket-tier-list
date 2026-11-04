@@ -10,6 +10,7 @@ const {
 const { resolveHosting } = require("./firebase-hosting");
 const { inlineScriptHashes, parsePolicy, reportOnlyPolicy } = require("./content-security-policy");
 const { DELUXE_EXPANSION_IDS, newestExpansion } = require("../src/app/expansion-policy.mjs");
+const { expansionIndexPolicy } = require("../src/app/expansion-index-policy.mjs");
 const { shouldIndexHub } = require("./deck-archive-policy.mjs");
 const { hubDisplayName } = require("./deck-archetype.mjs");
 
@@ -157,16 +158,7 @@ const findHubPageIssues = (dir = DIST_DIR, archive = loadArchive()) => {
 };
 
 const findExpansionPageIssues = (dir = DIST_DIR, expansions = loadExpansions(), decks = loadDecks()) => {
-  const covered = new Set(
-    decks
-      .flatMap((deck) => deck.lists ?? [])
-      .flatMap((list) => list.cards ?? [])
-      .map((card) => String(card).replace(/^\d+:/, "").split("-")[0])
-  );
-  const eligible = expansions
-    .filter((expansion) => !DELUXE_EXPANSION_IDS.has(expansion.id) && covered.has(expansion.id) && expansion.release_date)
-    .sort((a, b) => b.release_date.localeCompare(a.release_date));
-  const indexable = new Set(eligible.slice(0, 2).map((expansion) => expansion.id));
+  const policy = expansionIndexPolicy(expansions, decks);
   const issues = [];
   for (const expansion of expansions.filter((entry) => !DELUXE_EXPANSION_IDS.has(entry.id))) {
     for (const prefix of ["", "ja/"]) {
@@ -176,7 +168,7 @@ const findExpansionPageIssues = (dir = DIST_DIR, expansions = loadExpansions(), 
         issues.push(`${entry}: missing`);
         continue;
       }
-      const expectedRobots = indexable.has(expansion.id) ? "index, follow" : "noindex, follow";
+      const expectedRobots = policy.isIndexable(expansion.id) ? "index, follow" : "noindex, follow";
       issues.push(...hubHtmlIssues(entry, fs.readFileSync(file, "utf8"), expectedRobots, expansion.id.toUpperCase()));
     }
   }

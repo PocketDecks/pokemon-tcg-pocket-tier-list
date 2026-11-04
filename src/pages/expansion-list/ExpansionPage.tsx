@@ -10,7 +10,7 @@ import { EXPANSIONS_URL } from "../../app/constants";
 import { expansionPageData } from "../../app/expansion-page-data";
 import { cardThumbUrl, onDeckThumbError } from "../../app/deck-thumb";
 import { deckDisplayName } from "../../app/deck-display";
-import { expansionIndexPolicy } from "../../app/expansion-index-policy";
+import { expansionIndexPolicy } from "../../app/expansion-index-policy.mjs";
 import { useLocaleHref } from "../../app/locale-link";
 import { deckArchetypeSlug } from "../../app/deck-archetype";
 import DeckCard from "../../components/DeckCard";
@@ -126,12 +126,7 @@ const ExpansionPage = () => {
   const expansion = expansions?.find((entry) => entry.id === expansionId);
   const allCardsQuery = useQuery({ queryKey: ["cards"], queryFn: fetchCards });
   const rawCards = allCardsQuery.data?.cards ?? [];
-  const coveredIds = new Set(
-    (decks ?? []).flatMap((deck) =>
-      deck.lists.flatMap((list) => list.cards.map((card) => card.set))
-    )
-  );
-  const policy = expansionIndexPolicy(EXPANSIONS_URL, coveredIds);
+  const policy = expansionIndexPolicy(EXPANSIONS_URL, decks);
   const data = expansion && rawCards.length > 0 && decks
     ? expansionPageData(expansion, rawCards, decks, deckDisplayName)
     : null;

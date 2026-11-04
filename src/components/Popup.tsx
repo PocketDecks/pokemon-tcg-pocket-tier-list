@@ -130,12 +130,21 @@ const FOCUSABLE_SELECTOR = [
   "input:not([disabled]):not([type='hidden'])",
   "select:not([disabled])",
   "textarea:not([disabled])",
+  "iframe",
+  "details > summary",
+  "audio[controls]",
+  "video[controls]",
+  "[contenteditable]:not([contenteditable='false'])",
   "[tabindex]:not([tabindex='-1'])",
-  "[contenteditable='true']",
 ].join(",");
 
+const isRendered = (element: HTMLElement) =>
+  typeof element.checkVisibility === "function"
+    ? element.checkVisibility()
+    : element.getClientRects().length > 0;
+
 const getFocusable = (root: HTMLElement) =>
-  Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+  Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(isRendered);
 
 const isInOtherModal = (target: EventTarget | null, dialog: HTMLElement) => {
   if (!(target instanceof Element)) return false;

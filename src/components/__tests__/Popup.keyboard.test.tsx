@@ -211,6 +211,59 @@ describe("Popup keyboard accessibility", () => {
     expect(screen.getByRole("button", { name: "Open panel" })).toHaveFocus();
   });
 
+  it("skips a hidden last control when Shift+Tab wraps into the popup", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <button type="button">Open hidden</button>
+        <Popup isOpen header="panel.title" close={() => {}}>
+          <button type="button">Visible action</button>
+          <button type="button" hidden>
+            Hidden action
+          </button>
+        </Popup>
+      </>
+    );
+
+    expect(screen.getByRole("button", { name: "Close panel" })).toHaveFocus();
+    await user.tab({ shift: true });
+
+    expect(screen.getByRole("button", { name: "Visible action" })).toHaveFocus();
+  });
+
+  it("wraps Shift+Tab into a summary that is the popup's last control", async () => {
+    const user = userEvent.setup();
+    render(
+      <Popup isOpen header="panel.title" close={() => {}}>
+        <iframe title="Embedded page" />
+        <details>
+          <summary>Details</summary>
+          <p>Expanded text</p>
+        </details>
+      </Popup>
+    );
+
+    expect(screen.getByRole("button", { name: "Close panel" })).toHaveFocus();
+    await user.tab({ shift: true });
+
+    expect(screen.getByText("Details")).toHaveFocus();
+  });
+
+  it("wraps Shift+Tab into an iframe that is the popup's last control", async () => {
+    const user = userEvent.setup();
+    render(
+      <Popup isOpen header="panel.title" close={() => {}}>
+        <summary>Details</summary>
+        <iframe title="Embedded page" />
+      </Popup>
+    );
+
+    expect(screen.getByRole("button", { name: "Close panel" })).toHaveFocus();
+    await user.tab({ shift: true });
+
+    expect(document.querySelector("iframe")).toHaveFocus();
+  });
+
   it("returns focus to a trigger that was pressed but not focused, as Safari does", () => {
     render(<Harness />);
     const trigger = screen.getByRole("button", { name: "Open panel" });

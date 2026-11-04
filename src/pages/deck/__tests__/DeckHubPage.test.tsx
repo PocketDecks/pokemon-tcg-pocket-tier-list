@@ -378,3 +378,32 @@ describe("DeckHubPage landmarks", () => {
     expect(container.querySelectorAll("main")).toHaveLength(1);
   });
 });
+
+describe("DeckHubPage dates in UTC", () => {
+  it("shows a UTC calendar day whatever the local time zone", async () => {
+    const previous = process.env.TZ;
+    process.env.TZ = "America/Los_Angeles";
+    try {
+      stubHubFiles({
+        "mega-greninja-ex": {
+          ...GRENINJA_HUB,
+          variants: [
+            {
+              ...GRENINJA_HUB.variants[0],
+              firstSeen: "2026-03-05",
+              lastSeen: "2026-03-05",
+              peakShare: 0.05,
+              peakDate: "2026-03-05",
+            },
+            GRENINJA_HUB.variants[1],
+          ],
+        },
+      });
+      renderAt("/deck/mega-greninja-ex");
+      expect(await screen.findByText(/Seen from 5 Mar 2026 to 5 Mar 2026 · Peak 5\.0% on 5 Mar 2026/)).toBeTruthy();
+    } finally {
+      if (previous === undefined) delete process.env.TZ;
+      else process.env.TZ = previous;
+    }
+  });
+});

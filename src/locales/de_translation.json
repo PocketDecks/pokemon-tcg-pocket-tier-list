@@ -411,7 +411,7 @@
     "intro": "Karten aus {{name}}, die in aktuellen Turnierdecks vorkommen, und die Decks, die sie spielen.",
     "cardsHeading": "Karten in aktuellen Decks",
     "decksHeading": "Aktuelle Decks mit dieser Erweiterung",
-    "noCards": "Keine Karten dieser Erweiterung werden in aktuellen Decks verwendet.",
-    "noDecks": "Keine aktuellen Decks verwenden diese Erweiterung."
+    "noDecks": "Keine aktuellen Decks verwenden diese Erweiterung.",
+    "empty": "Derzeit ist keine Karte aus {{name}} in einem Top-Deck."
   }
 }

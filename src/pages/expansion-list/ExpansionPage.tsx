@@ -124,6 +124,17 @@ const DeckName = styled.span`
 const Empty = styled.p`
   color: var(--text-muted);
 `;
+const EmptyState = styled.div`
+  display: grid;
+  justify-items: start;
+  gap: 1.2rem;
+  margin-top: 3.6rem;
+`;
+const Shrug = styled.span`
+  color: var(--text-muted);
+  font-size: 4rem;
+  line-height: 1;
+`;
 const Breadcrumbs = styled.nav`
   font-size: 1.4rem;
   color: var(--text-muted);
@@ -165,61 +176,69 @@ const ExpansionPage = () => {
         {releaseDate && <Meta>{t("expansionPage.released", { date: releaseDate })}</Meta>}
         <Meta>{t("expansionPage.intro", { name: expansion.name })}</Meta>
       </Header>
-      <Section>
-        <SectionTitle>{t("expansionPage.cardsHeading")}</SectionTitle>
-        {data?.cards.length ? (
-          <CardGrid>
-            {data.cards.map((card) => {
-              const hub = cardHubFor(card);
-              const image = (
-                <CardImage
-                  src={cardThumbUrl(card.id, 240)}
-                  width={240}
-                  height={335}
-                  alt={card.name}
-                  loading="lazy"
-                  onError={onDeckThumbError(card.image)}
-                />
-              );
-              const name = <CardName>{card.name}</CardName>;
-              return (
-                <CardItem key={card.id}>
-                  {hub ? (
-                    <CardLink to={`/deck/${hub}`} aria-label={card.name}>
-                      {image}
-                      {name}
-                    </CardLink>
-                  ) : (
-                    <>
-                      {image}
-                      {name}
-                    </>
-                  )}
-                </CardItem>
-              );
-            })}
-          </CardGrid>
-        ) : (
-          <Empty>{t("expansionPage.noCards")}</Empty>
-        )}
-      </Section>
-      <Section>
-        <SectionTitle>{t("expansionPage.decksHeading")}</SectionTitle>
-        {data?.decks.length ? (
-          <DeckList>
-            {data.decks.map(({ deck, displayName: name }) => (
-              <DeckRow key={deck.name}>
-                <DeckSlot>
-                  <DeckCard deck={deck} linkTo={`/deck/${deckArchetypeSlug(deck.name)}`} metaShare={metaShareBySlug?.[deck.name] ?? null} />
-                </DeckSlot>
-                <DeckName>{name}</DeckName>
-              </DeckRow>
-            ))}
-          </DeckList>
-        ) : (
-          <Empty>{t("expansionPage.noDecks")}</Empty>
-        )}
-      </Section>
+      {data && data.cards.length === 0 ? (
+        <EmptyState>
+          <Shrug aria-hidden="true">{"¯\\_(ツ)_/¯"}</Shrug>
+          <Meta>{t("expansionPage.empty", { name: expansion.name })}</Meta>
+        </EmptyState>
+      ) : (
+        <>
+          <Section>
+            <SectionTitle>{t("expansionPage.cardsHeading")}</SectionTitle>
+            {data && (
+              <CardGrid>
+                {data.cards.map((card) => {
+                  const hub = cardHubFor(card);
+                  const image = (
+                    <CardImage
+                      src={cardThumbUrl(card.id, 240)}
+                      width={240}
+                      height={335}
+                      alt={card.name}
+                      loading="lazy"
+                      onError={onDeckThumbError(card.image)}
+                    />
+                  );
+                  const name = <CardName>{card.name}</CardName>;
+                  return (
+                    <CardItem key={card.id}>
+                      {hub ? (
+                        <CardLink to={`/deck/${hub}`} aria-label={card.name}>
+                          {image}
+                          {name}
+                        </CardLink>
+                      ) : (
+                        <>
+                          {image}
+                          {name}
+                        </>
+                      )}
+                    </CardItem>
+                  );
+                })}
+              </CardGrid>
+            )}
+          </Section>
+          <Section>
+            <SectionTitle>{t("expansionPage.decksHeading")}</SectionTitle>
+            {data &&
+              (data.decks.length ? (
+                <DeckList>
+                  {data.decks.map(({ deck, displayName: name }) => (
+                    <DeckRow key={deck.name}>
+                      <DeckSlot>
+                        <DeckCard deck={deck} linkTo={`/deck/${deckArchetypeSlug(deck.name)}`} metaShare={metaShareBySlug?.[deck.name] ?? null} />
+                      </DeckSlot>
+                      <DeckName>{name}</DeckName>
+                    </DeckRow>
+                  ))}
+                </DeckList>
+              ) : (
+                <Empty>{t("expansionPage.noDecks")}</Empty>
+              ))}
+          </Section>
+        </>
+      )}
       <BackLink><LocaleLink to="/tier-list">{t("notFound.backToTierList")}</LocaleLink></BackLink>
     </Page>
   );

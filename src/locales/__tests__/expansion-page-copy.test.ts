@@ -25,7 +25,7 @@ const locales: Record<string, { expansionPage: Record<string, string> }> = {
   "zh-TW": zhTW,
 };
 
-const PAGE_KEYS = ["cardsHeading", "decksHeading", "expansions", "heading", "home", "intro", "noCards", "noDecks", "released"];
+const PAGE_KEYS = ["cardsHeading", "decksHeading", "empty", "expansions", "heading", "home", "intro", "noDecks", "released"];
 
 describe("expansion page copy", () => {
   it.each(Object.entries(locales))("%s has exactly the expansion page keys in use", (_name, locale) => {
@@ -51,6 +51,14 @@ describe("expansion page copy", () => {
     expect(en.expansionPage.intro).toBe(
       "Cards from {{name}} that appear in current tournament decks, and the decks that play them."
     );
+  });
+
+  it("states the empty sentence plainly, without exclamation marks or dashes", () => {
+    expect(en.expansionPage.empty).toBe("None of the {{name}} cards are in a top deck right now.");
+    for (const locale of Object.values(locales)) {
+      expect(locale.expansionPage.empty).toContain("{{name}}");
+      expect(locale.expansionPage.empty).not.toMatch(/[!—–]/);
+    }
   });
 
   it("writes the Japanese heading in Japanese", () => {

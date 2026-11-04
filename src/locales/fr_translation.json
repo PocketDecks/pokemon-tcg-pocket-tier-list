@@ -411,7 +411,7 @@
     "intro": "Cartes de {{name}} présentes dans les decks de tournoi actuels, et les decks qui les jouent.",
     "cardsHeading": "Cartes utilisées dans les decks actuels",
     "decksHeading": "Decks actuels utilisant cette extension",
-    "noCards": "Aucune carte de cette extension n'est utilisée dans les decks actuels.",
-    "noDecks": "Aucun deck actuel n'utilise cette extension."
+    "noDecks": "Aucun deck actuel n'utilise cette extension.",
+    "empty": "Aucune carte de {{name}} ne figure actuellement dans un deck de tête."
   }
 }

@@ -411,7 +411,7 @@
     "intro": "Carte di {{name}} presenti nei mazzi da torneo attuali, e i mazzi che le utilizzano.",
     "cardsHeading": "Carte usate nei mazzi attuali",
     "decksHeading": "Mazzi attuali che usano questa espansione",
-    "noCards": "Nessuna carta di questa espansione è usata nei mazzi attuali.",
-    "noDecks": "Nessun mazzo attuale usa questa espansione."
+    "noDecks": "Nessun mazzo attuale usa questa espansione.",
+    "empty": "Nessuna carta di {{name}} è attualmente in un mazzo di vertice."
   }
 }

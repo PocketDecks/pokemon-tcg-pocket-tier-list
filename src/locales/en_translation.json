@@ -411,7 +411,7 @@
     "intro": "Cards from {{name}} that appear in current tournament decks, and the decks that play them.",
     "cardsHeading": "Cards used in live decks",
     "decksHeading": "Live decks using this expansion",
-    "noCards": "No cards from this expansion are in live decks.",
-    "noDecks": "No live decks use this expansion."
+    "noDecks": "No live decks use this expansion.",
+    "empty": "None of the {{name}} cards are in a top deck right now."
   }
 }

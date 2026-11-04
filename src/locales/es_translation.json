@@ -411,7 +411,7 @@
     "intro": "Cartas de {{name}} que aparecen en los mazos de torneo actuales, y los mazos que las usan.",
     "cardsHeading": "Cartas usadas en mazos actuales",
     "decksHeading": "Mazos actuales que usan esta expansión",
-    "noCards": "Ninguna carta de esta expansión se usa en mazos actuales.",
-    "noDecks": "Ningún mazo actual usa esta expansión."
+    "noDecks": "Ningún mazo actual usa esta expansión.",
+    "empty": "Ninguna carta de {{name}} aparece ahora mismo en un mazo destacado."
   }
 }

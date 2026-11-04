@@ -42,3 +42,10 @@ test("card links on the C1 page resolve to rendered archetype hubs", { skip: !ha
     assert.ok(fs.existsSync(path.join(DIST_DIR, "deck", hub, "index.html")), `${hub}: no rendered hub page`);
   }
 });
+
+test("an empty set page shows the shrug, stays noindex and renders no card thumbnails", { skip: !hasDist && "dist/ is not built" }, () => {
+  const html = fs.readFileSync(path.join(DIST_DIR, "expansion-list", "b4a", "index.html"), "utf8");
+  assert.ok(html.includes("¯\\_(ツ)_/¯"), "b4a: shrug missing");
+  assert.match(html, /<meta name="robots" content="noindex, follow"/);
+  assert.strictEqual((html.match(/\/thumbs\/v3\/cards\//g) ?? []).length, 0, "b4a: card thumbnails rendered");
+});

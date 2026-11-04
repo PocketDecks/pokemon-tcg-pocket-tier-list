@@ -411,7 +411,7 @@
     "intro": "Cărți din {{name}} care apar în deckurile de turneu actuale și deckurile care le folosesc.",
     "cardsHeading": "Cărți folosite în deckurile actuale",
     "decksHeading": "Deckuri actuale care folosesc această expansiune",
-    "noCards": "Nicio carte din această expansiune nu este folosită în deckurile actuale.",
-    "noDecks": "Niciun deck actual nu folosește această expansiune."
+    "noDecks": "Niciun deck actual nu folosește această expansiune.",
+    "empty": "Nicio carte din {{name}} nu se află acum într-un deck de top."
   }
 }

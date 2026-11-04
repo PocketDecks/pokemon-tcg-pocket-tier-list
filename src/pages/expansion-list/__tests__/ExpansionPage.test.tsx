@@ -65,7 +65,10 @@ const fixtures = vi.hoisted(() => {
         isNew: false,
       },
     },
-    expansions: [{ id: "c1", name: "Dual Fusion", release_date: "2026-10-29", packs: [] }],
+    expansions: [
+      { id: "c1", name: "Dual Fusion", release_date: "2026-10-29", packs: [] },
+      { id: "b4a", name: "Team Rocket's Ambition", release_date: "2026-08-27", packs: [] },
+    ],
     cards: [higher, lower, gengar],
   };
 });
@@ -84,12 +87,12 @@ vi.mock("../../../ads/ContentReadyContext", () => ({
   useMarkContentReady: vi.fn(),
 }));
 
-const renderPage = () => {
+const renderPage = (path = "/expansion-list/c1") => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
   queryClient.setQueryData(["cards"], { cards: fixtures.cards });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={["/expansion-list/c1"]}>
+      <MemoryRouter initialEntries={[path]}>
         <Routes>
           <Route path="/expansion-list/:expansionId" element={<ExpansionPage />} />
           <Route path="/" element={<p>Landing marker</p>} />
@@ -145,6 +148,15 @@ describe("ExpansionPage", () => {
     expect(screen.getAllByText(/%/)).toHaveLength(1);
     expect(screen.getByText("10.0%")).toBeInTheDocument();
     expect(screen.queryByText(/movement/i)).toBeNull();
+  });
+
+  it("shows one shrug and sentence instead of both sections when no set card is in a top deck", () => {
+    renderPage("/expansion-list/b4a");
+    expect(screen.getByText("¯\\_(ツ)_/¯")).toBeInTheDocument();
+    expect(screen.getByText("None of the Team Rocket's Ambition cards are in a top deck right now.")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Cards used in live decks" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Live decks using this expansion" })).toBeNull();
+    expect(screen.getByRole("link", { name: "Back to the tier list" })).toBeInTheDocument();
   });
 
   it("links a card with an archetype hub to that hub", () => {

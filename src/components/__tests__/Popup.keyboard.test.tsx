@@ -389,6 +389,27 @@ describe("Popup keyboard accessibility", () => {
     added.remove();
   });
 
+  it("does not use a press from long before opening as the trigger", () => {
+    const now = vi.spyOn(Date, "now");
+    try {
+      now.mockReturnValue(1000);
+      render(<Harness />);
+      const trigger = screen.getByRole("button", { name: "Open panel" });
+      fireEvent.pointerDown(trigger);
+
+      now.mockReturnValue(60000);
+      fireEvent.click(trigger);
+      expect(screen.getByRole("dialog", { name: "Panel title" })).toBeInTheDocument();
+
+      fireEvent.keyDown(document, { key: "Escape" });
+
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      expect(trigger).not.toHaveFocus();
+    } finally {
+      now.mockRestore();
+    }
+  });
+
   it("returns focus to a trigger that was pressed but not focused, as Safari does", () => {
     render(<Harness />);
     const trigger = screen.getByRole("button", { name: "Open panel" });

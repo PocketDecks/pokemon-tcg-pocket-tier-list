@@ -243,7 +243,8 @@ const makeOutsideInert = (target: Element) => {
   };
 };
 
-let lastPressed: HTMLElement | null = null;
+const PRESS_WINDOW_MS = 1000;
+let lastPressed: { element: HTMLElement; at: number } | null = null;
 
 const Popup: React.FC<Props> = ({ isOpen, header, close, children, width }) => {
   const { t } = useTranslation();
@@ -258,10 +259,11 @@ const Popup: React.FC<Props> = ({ isOpen, header, close, children, width }) => {
 
   useEffect(() => {
     const remember = (event: PointerEvent) => {
-      lastPressed =
+      const element =
         event.target instanceof Element
           ? event.target.closest<HTMLElement>(FOCUSABLE_SELECTOR)
           : null;
+      lastPressed = element ? { element, at: Date.now() } : null;
     };
     document.addEventListener("pointerdown", remember, true);
     return () => document.removeEventListener("pointerdown", remember, true);
@@ -274,8 +276,10 @@ const Popup: React.FC<Props> = ({ isOpen, header, close, children, width }) => {
     if (!overlay || !dialog) return;
 
     const active = document.activeElement;
-    const trigger =
-      active instanceof HTMLElement && active !== document.body ? active : lastPressed;
+    const pressed =
+      lastPressed && Date.now() - lastPressed.at <= PRESS_WINDOW_MS ? lastPressed.element : null;
+    lastPressed = null;
+    const trigger = active instanceof HTMLElement && active !== document.body ? active : pressed;
     const releaseOutside = makeOutsideInert(overlay);
     const releasePopup = acquirePopup();
     const focusFirst = () => (getFocusable(dialog)[0] ?? dialog).focus();

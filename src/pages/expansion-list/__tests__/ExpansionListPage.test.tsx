@@ -5,15 +5,20 @@ import ExpansionListPage from "../ExpansionListPage";
 
 vi.mock("../../../app/use-cards", () => ({
   __esModule: true,
-  default: () => [
-    {
-      id: "b4a-001",
-      name: "Volbeat",
-      set: "b4a",
-      pack: "Team Rocket's Ambition",
-      score: 0.8,
-    },
-  ],
+  default: () => ({
+    cards: [
+      {
+        id: "b4a-001",
+        name: "Volbeat",
+        set: "b4a",
+        pack: "Team Rocket's Ambition",
+        score: 0.8,
+      },
+    ],
+    error: null,
+    retry: vi.fn(),
+    isLoading: false,
+  }),
 }));
 
 vi.mock("../../../app/use-expansions", () => ({

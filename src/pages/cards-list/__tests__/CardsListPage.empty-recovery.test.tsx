@@ -18,7 +18,12 @@ vi.mock("../../../app/use-cards", () => ({
 
 mockUseCards.mockImplementation(() => {
   const { expansion } = useFilters();
-  return expansion === "a2a" ? [] : cards;
+  return {
+    cards: expansion === "a2a" ? [] : cards,
+    error: null,
+    retry: vi.fn(),
+    isLoading: false,
+  };
 });
 
 vi.mock("../../../app/use-expansions", () => ({

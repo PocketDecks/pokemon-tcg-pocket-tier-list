@@ -10,25 +10,88 @@ export interface CardScoreType extends CardType {
   popularity: number;
 }
 
-const useCards = (amount: number = 30): CardScoreType[] | null => {
+export interface UseCardsResult {
+  cards: CardScoreType[] | null;
+  error: Error | null;
+  retry: () => void;
+  isLoading: boolean;
+}
+
+type ScoreRow = {
+  name: string;
+  score: number;
+  popularity: number;
+};
+
+const isValidScoreRow = (row: unknown): row is ScoreRow => {
+  if (typeof row !== "object" || row === null) return false;
+  const candidate = row as Partial<ScoreRow>;
+  if (typeof candidate.name !== "string") return false;
+  const parts = candidate.name.split(" ");
+  if (parts.length < 3 || !parts[parts.length - 2]) return false;
+  if (!Number.isFinite(parseInt(parts[0], 10))) return false;
+  return Number.isFinite(candidate.score) && Number.isFinite(candidate.popularity);
+};
+
+export const parseCardScores = (payload: unknown): ScoreRow[] => {
+  if (!Array.isArray(payload)) {
+    throw new Error("Card score payload is not an array");
+  }
+  for (const row of payload) {
+    if (!isValidScoreRow(row)) {
+      throw new Error("Card score payload contains an invalid row");
+    }
+  }
+  return payload;
+};
+
+export const fetchCardScores = async (): Promise<ScoreRow[]> => {
+  const response = await fetch("/data/card-scores.json");
+  if (!response.ok) {
+    throw new Error(`Card score request failed with status ${response.status}`);
+  }
+  return parseCardScores(await response.json());
+};
+
+const useCards = (amount: number = 30): UseCardsResult => {
   const { expansion } = useFilters();
   const { missing: collected } = useMissing();
 
-  const { data: cardsPayload } = useQuery({
+  const {
+    data: cardsPayload,
+    error: cardsError,
+    refetch: refetchCards,
+    isPending: cardsPending,
+  } = useQuery({
     queryKey: ["cards"],
     queryFn: fetchCards,
   });
   const cardData = cardsPayload?.cards;
 
-  const { data: cards } = useQuery({
+  const {
+    data: cards,
+    error: scoresError,
+    refetch: refetchScores,
+    isPending: scoresPending,
+  } = useQuery({
     queryKey: ["card-scores"],
-    queryFn: async () => {
-      const response = await fetch("/data/card-scores.json");
-      return (await response.json()) as CardScoreType[];
-    },
+    queryFn: fetchCardScores,
   });
 
-  if (!cardData || !cards) return null;
+  const error = scoresError ?? cardsError;
+  const retry = () => {
+    void refetchScores();
+    void refetchCards();
+  };
+
+  if (error || !cardData || !cards) {
+    return {
+      cards: null,
+      error: error as Error | null,
+      retry,
+      isLoading: !error && (cardsPending || scoresPending),
+    };
+  }
 
   const collectedCounts = collected.reduce<Record<string, number>>((acc, id) => {
     acc[id] = (acc[id] || 0) + 1;
@@ -36,11 +99,11 @@ const useCards = (amount: number = 30): CardScoreType[] | null => {
   }, {});
 
   const sortedCards = cards
-      .filter((card: CardScoreType) => {
+      .filter((card: ScoreRow) => {
         const { id, count } = parseScoreRef(card.name);
         return count - (collectedCounts[id] || 0) > 0;
       })
-      .sort((a: CardScoreType, b: CardScoreType) => b.score - a.score);
+      .sort((a, b) => b.score - a.score);
 
   const seenIds = new Set<string>();
   const unresolvedIds = new Set<string>();
@@ -79,10 +142,12 @@ const useCards = (amount: number = 30): CardScoreType[] | null => {
     );
   }
 
-  return outputCards
-      .sort((a: CardScoreType, b: CardScoreType) => b.popularity - a.popularity)
+  const ranked = outputCards
+      .sort((a, b) => b.popularity - a.popularity)
       .slice(0, amount)
-      .sort((a: CardScoreType, b: CardScoreType) => b.score - a.score);
+      .sort((a, b) => b.score - a.score);
+
+  return { cards: ranked, error: null, retry, isLoading: false };
 };
 
 export default useCards;

@@ -10,16 +10,17 @@ import TierGrid from "../../components/TierGrid";
 import PageTitle from "../../components/PageTitle";
 import CardIcon from "../../components/CardIcon";
 import LastUpdated from "../../components/LastUpdated";
+import { QueryErrorNotice } from "../../components/ErrorBoundary";
 import { useLocaleHref } from "../../app/locale-link";
 
 const CardsListPage = () => {
   const { t } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");
-  const cards = useCards(30);
+  const { cards, error, retry } = useCards(30);
   const { expansion, setExpansion } = useFilters();
   const expansions = useExpansions();
 
-  const ready = !!cards && cards.length > 0;
+  const ready = !error && !!cards && cards.length > 0;
   useMarkContentReady(ready);
 
   const filters = (
@@ -44,6 +45,12 @@ const CardsListPage = () => {
   return (
     <>
       <PageTitle>{t("header.bestCards")}</PageTitle>
+      {error ? (
+        <>
+          {filters}
+          <QueryErrorNotice onRetry={retry} />
+        </>
+      ) : (
       <TierGrid
         items={cards}
         getScore={(c) => c.score}
@@ -53,6 +60,7 @@ const CardsListPage = () => {
         footer={<LastUpdated />}
         emptyLabel="No cards found"
       />
+      )}
       <SeoContent>
         <h2>{t("cardsList.heading", { ns: "seo" })}</h2>
         <p>{t("cardsList.intro", { ns: "seo" })}</p>

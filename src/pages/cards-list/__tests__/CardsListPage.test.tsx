@@ -5,14 +5,19 @@ import CardsListPage from "../CardsListPage";
 
 vi.mock("../../../app/use-cards", () => ({
   __esModule: true,
-  default: () => [
-    {
-      id: "a1-001",
-      name: "Bulbasaur",
-      score: 10,
-      image: null,
-    },
-  ],
+  default: () => ({
+    cards: [
+      {
+        id: "a1-001",
+        name: "Bulbasaur",
+        score: 10,
+        image: null,
+      },
+    ],
+    error: null,
+    retry: vi.fn(),
+    isLoading: false,
+  }),
 }));
 
 vi.mock("../../../app/use-filters", () => ({

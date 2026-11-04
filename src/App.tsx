@@ -101,7 +101,7 @@ export const Layout = () => {
         )}
         <Header />
         <LayoutMain id="main-content" tabIndex={-1}>
-          <ErrorBoundary>
+          <ErrorBoundary resetKeys={[pathname]}>
             <Suspense fallback={<LoadingNotice />}>
               <Outlet />
             </Suspense>

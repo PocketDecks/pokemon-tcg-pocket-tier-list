@@ -58,20 +58,41 @@ const ErrorNotice = () => {
   );
 };
 
+export const QueryErrorNotice = ({ onRetry }: { onRetry: () => void }) => {
+  return (
+    <Notice role="alert">
+      <Title>Failed to load</Title>
+      <Message>Card scores could not be loaded. Try again.</Message>
+      <RetryButton type="button" onClick={onRetry}>
+        Retry
+      </RetryButton>
+    </Notice>
+  );
+};
+
 interface Props {
   children: ReactNode;
+  resetKeys?: readonly unknown[];
 }
 
 interface State {
   hasError: boolean;
+  resetKeys?: readonly unknown[];
 }
 
 /** Degrades a render-time throw to a notice instead of a blank page. */
 class ErrorBoundary extends Component<Props, State> {
-  override state: State = { hasError: false };
+  override state: State = { hasError: false, resetKeys: this.props.resetKeys };
 
   static getDerivedStateFromError(): State {
     return { hasError: true };
+  }
+
+  static getDerivedStateFromProps(props: Props, state: State): Partial<State> | null {
+    if (props.resetKeys !== undefined && state.resetKeys !== props.resetKeys) {
+      return { hasError: false, resetKeys: props.resetKeys };
+    }
+    return null;
   }
 
   override componentDidCatch(error: Error, errorInfo: ErrorInfo) {

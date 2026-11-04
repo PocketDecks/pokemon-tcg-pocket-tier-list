@@ -22,6 +22,9 @@ describe("expansion list copy describes both rankings", () => {
     expect(copy.valueHeading).toMatch(/拡張パック/);
     expect(copy.valueBody).toMatch(/拡張パック/);
     expect(copy.valueBody).toMatch(/ブースターパック/);
+    expect(copy.valueBody).toMatch(/初期設定では、各拡張パック/);
+    expect(copy.valueBody).toMatch(/「ブースターパック」に切り替えると/);
+    expect(copy.valueBody).toMatch(/セット共通のカード/);
     expect(copy.worthIntro).toMatch(/拡張パック/);
   });
 });

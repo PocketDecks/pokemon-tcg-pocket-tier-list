@@ -57,7 +57,10 @@ const ExpansionListPage = () => {
       <>
         <PageTitle>{t("header.bestExpansions")}</PageTitle>
         {error ? (
-          <QueryErrorNotice onRetry={retry} />
+          <>
+            {viewToggle}
+            <QueryErrorNotice onRetry={retry} />
+          </>
         ) : view === "packs" ? (
           <TierGrid
             items={loaded ? packData : null}

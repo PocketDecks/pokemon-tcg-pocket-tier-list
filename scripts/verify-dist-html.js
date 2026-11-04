@@ -9,7 +9,7 @@ const {
 } = require("./deck-thumbs.mjs");
 const { resolveHosting } = require("./firebase-hosting");
 const { inlineScriptHashes, parsePolicy, reportOnlyPolicy } = require("./content-security-policy");
-const { DELUXE_EXPANSION_IDS, newestExpansion } = require("../src/app/expansion-policy.mjs");
+const { DELUXE_EXPANSION_IDS, expansionCode, newestExpansion } = require("../src/app/expansion-policy.mjs");
 const { expansionIndexPolicy } = require("../src/app/expansion-index-policy.mjs");
 const { shouldIndexHub } = require("./deck-archive-policy.mjs");
 const { hubDisplayName } = require("./deck-archetype.mjs");
@@ -170,7 +170,7 @@ const findExpansionPageIssues = (dir = DIST_DIR, expansions = loadExpansions(), 
       }
       const html = fs.readFileSync(file, "utf8");
       const expectedRobots = policy.isIndexable(expansion.id) ? "index, follow" : "noindex, follow";
-      issues.push(...hubHtmlIssues(entry, html, expectedRobots, expansion.id.toUpperCase()));
+      issues.push(...hubHtmlIssues(entry, html, expectedRobots, expansionCode(expansion.id)));
       if (!html.includes(`"@type":"BreadcrumbList"`)) issues.push(`${entry}: missing BreadcrumbList JSON-LD`);
     }
   }

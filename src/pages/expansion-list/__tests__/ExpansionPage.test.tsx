@@ -169,6 +169,11 @@ describe("ExpansionPage", () => {
     expect(screen.queryByText(/movement/i)).toBeNull();
   });
 
+  it("shows a numbered set code with only its first letter capitalised in the H1", () => {
+    renderPage("/expansion-list/b4a");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Team Rocket's Ambition (B4a) Cards & Decks");
+  });
+
   it("shows one shrug and sentence instead of both sections when no set card is in a top deck", () => {
     renderPage("/expansion-list/b4a");
     expect(screen.getByText("¯\\_(ツ)_/¯")).toBeInTheDocument();

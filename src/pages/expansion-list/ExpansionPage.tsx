@@ -9,7 +9,7 @@ import { fetchCards } from "../../app/cards-api";
 import { expansionPageData } from "../../app/expansion-page-data";
 import { cardThumbUrl, onDeckThumbError } from "../../app/deck-thumb";
 import { LocaleLink } from "../../app/locale-link";
-import { isListedExpansion } from "../../app/expansion-policy.mjs";
+import { expansionCode, isListedExpansion } from "../../app/expansion-policy.mjs";
 import { cardHubFor } from "../../app/card-hub";
 import DeckCard from "../../components/DeckCard";
 import NotFoundPage from "../not-found/NotFoundPage";
@@ -167,9 +167,9 @@ const ExpansionPage = () => {
           <BreadcrumbSeparator aria-hidden="true">&gt;</BreadcrumbSeparator>
           <LocaleLink to="/expansion-list">{t("expansionPage.expansions")}</LocaleLink>
           <BreadcrumbSeparator aria-hidden="true">&gt;</BreadcrumbSeparator>
-          <span>{expansion.id.toUpperCase()}</span>
+          <span>{expansionCode(expansion.id)}</span>
         </Breadcrumbs>
-        <Title>{t("expansionPage.heading", { name: expansion.name, id: expansion.id.toUpperCase() })}</Title>
+        <Title>{t("expansionPage.heading", { name: expansion.name, id: expansionCode(expansion.id) })}</Title>
         {releaseDate && <Meta>{t("expansionPage.released", { date: releaseDate })}</Meta>}
         {!(data && data.cards.length === 0) && <Meta>{t("expansionPage.intro", { name: expansion.name })}</Meta>}
       </Header>

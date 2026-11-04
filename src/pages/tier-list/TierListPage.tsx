@@ -2,6 +2,7 @@ import { Trans, useTranslation } from "react-i18next";
 import { useDecks } from "../../app/use-decks";
 import useFilters from "../../app/use-filters";
 import { latestBestListExpansion, latestCoveredExpansion } from "../../app/use-expansions";
+import { expansionCode } from "../../app/expansion-policy.mjs";
 import { LocaleLink } from "../../app/locale-link";
 import useIsPremium from "../../app/use-is-premium";
 
@@ -187,7 +188,7 @@ const TierListPage = () => {
     <>
       <PageTitle>
         {newest
-          ? t("header.tierListHeading", { name: newest.name, id: newest.id.toUpperCase() })
+          ? t("header.tierListHeading", { name: newest.name, id: expansionCode(newest.id) })
           : t("header.tierListGeneric")}
       </PageTitle>
       <TierGrid

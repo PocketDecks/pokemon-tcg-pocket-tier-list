@@ -3,6 +3,7 @@
     "banner": "랭킹 기준일: {{date}}"
   },
   "a11y": {
+    "premiumOnly": "(프리미엄)",
     "skipToContent": "본문으로 건너뛰기",
     "openMenu": "메뉴 열기",
     "closeMenu": "메뉴 닫기",
@@ -166,6 +167,11 @@
     "winRate": "승률",
     "latestExpansionCards": "최신 확장팩 카드",
     "latestExpansionCardsAny": "모두"
+  },
+  "expansionList": {
+    "viewLabel": "순위 기준",
+    "viewExpansions": "확장팩",
+    "viewPacks": "부스터팩"
   },
   "window": {
     "label": "집계 기간",
@@ -407,12 +413,16 @@
     "home": "홈",
     "expansions": "확장팩",
     "heading": "{{name}} ({{id}}) 카드 & 덱",
+    "packFilter": "{{pack}} 팩과 공유 카드를 표시하고 있습니다.",
     "released": "{{date}} 출시",
     "intro": "현재 대회 덱에 등장하는 {{name}} 카드와 이 카드를 사용하는 덱입니다.",
     "cardsHeading": "현재 덱에서 사용되는 카드",
     "decksHeading": "이 확장팩을 사용하는 현재 덱",
     "empty": "{{name}} 카드는 현재 상위 덱에 없습니다.",
+    "emptyAside": "아쉽네요. :(",
+    "emptyPack": "{{pack}} 팩과 공유 카드 중 현재 상위 덱에 들어간 카드가 없습니다.",
     "loadError": "카드 데이터를 불러오지 못했습니다. 페이지를 새로 고침하여 다시 시도하세요.",
+    "allPacks": "모든 팩 보기",
     "breadcrumb": "탐색 경로"
   }
 }

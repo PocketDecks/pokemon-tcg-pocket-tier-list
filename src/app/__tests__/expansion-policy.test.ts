@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import expansions from "pokemon-tcg-pocket-cards/data/v5/expansions.json";
 import {
   DELUXE_EXPANSION_IDS,
+  expansionCode,
   isListedExpansion,
   newestExpansion,
 } from "../expansion-policy.mjs";
@@ -61,5 +62,18 @@ describe("expansion policy", () => {
     expect(newest).not.toBeNull();
     expect(DELUXE_EXPANSION_IDS.has(newest!.id)).toBe(false);
     expect(newest!.release_date).not.toBeNull();
+  });
+});
+
+describe("expansionCode", () => {
+  it.each([
+    ["a1", "A1"],
+    ["a1a", "A1a"],
+    ["b4b", "B4b"],
+    ["c1", "C1"],
+    ["pa", "PA"],
+    ["pc", "PC"],
+  ])("shows set id %s as %s", (id, code) => {
+    expect(expansionCode(id)).toBe(code);
   });
 });

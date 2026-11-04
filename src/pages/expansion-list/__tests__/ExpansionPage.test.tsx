@@ -36,6 +36,10 @@ const fixtures = vi.hoisted(() => {
   const higher = card("c1-001", "Higher");
   const lower = card("c1-002", "Lower");
   const gengar = card("c1-010", "Gengar ex");
+  const inA1 = (id: string, name: string, pack: string) => ({ ...card(id, name), set: "a1", pack });
+  const greninja = inA1("a1-089", "Greninja", "Charizard");
+  const mewtwoCard = inA1("a1-050", "Mewtwo Card", "Mewtwo");
+  const sharedCard = inA1("a1-200", "Shared Card", "Shared(Genetic Apex)");
   const list = (cards: unknown[]) => ({ cards, score: 1, strength: 1, energyIds: [], deckCode: null });
   const deck = {
     id: "mega-lucario-ex-c1-001",
@@ -59,6 +63,9 @@ const fixtures = vi.hoisted(() => {
     rawDecks: [
       { name: "mega-lucario-ex-c1-001", lists: [{ score: 1, cards: ["2:c1-001", "2:c1-002", "2:c1-010"] }] },
       { name: "alpha-deck-c1-002", lists: [{ score: 1, cards: ["2:c1-002"] }] },
+      { name: "greninja-a1-089", lists: [{ score: 1, cards: ["2:a1-089"] }] },
+      { name: "mewtwo-a1-050", lists: [{ score: 1, cards: ["2:a1-050"] }] },
+      { name: "shared-a1-200", lists: [{ score: 1, cards: ["2:a1-200"] }] },
     ],
     metaShareBySlug: {
       [deck.name]: {
@@ -73,10 +80,19 @@ const fixtures = vi.hoisted(() => {
     },
     expansions: [
       { id: "c1", name: "Dual Fusion", release_date: "2026-10-29", packs: [] },
+      {
+        id: "a1",
+        name: "Genetic Apex",
+        release_date: null,
+        packs: [
+          { id: "a1-charizard", name: "Charizard", image: null },
+          { id: "a1-mewtwo", name: "Mewtwo", image: null },
+        ],
+      },
       { id: "b4a", name: "Team Rocket's Ambition", release_date: "2026-08-27", packs: [] },
       { id: "b4b", name: "Deluxe Pack: Mega", release_date: "2026-09-30", packs: [] },
     ],
-    cards: [higher, lower, gengar],
+    cards: [higher, lower, gengar, greninja, mewtwoCard, sharedCard],
     decksError: null as Error | null,
   };
 });
@@ -169,10 +185,17 @@ describe("ExpansionPage", () => {
     expect(screen.queryByText(/movement/i)).toBeNull();
   });
 
+  it("shows a numbered set code with only its first letter capitalised in the H1", () => {
+    renderPage("/expansion-list/b4a");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Team Rocket's Ambition (B4a) Cards & Decks");
+  });
+
   it("shows one shrug and sentence instead of both sections when no set card is in a top deck", () => {
     renderPage("/expansion-list/b4a");
     expect(screen.getByText("¯\\_(ツ)_/¯")).toBeInTheDocument();
-    expect(screen.getByText("None of the Team Rocket's Ambition cards are in a top deck right now.")).toBeInTheDocument();
+    const message = screen.getByText(/None of the Team Rocket's Ambition cards are in a top deck right now\./);
+    expect(message).toHaveTextContent("None of the Team Rocket's Ambition cards are in a top deck right now.That's unfortunate. :(");
+    expect(message.querySelector("br")).not.toBeNull();
     expect(screen.queryByRole("heading", { name: "Cards used in live decks" })).toBeNull();
     expect(screen.queryByRole("heading", { name: "Live decks using this expansion" })).toBeNull();
     expect(screen.queryByText(/that appear in current tournament decks/)).toBeNull();
@@ -247,7 +270,7 @@ describe("ExpansionPage settled data", () => {
   it("renders the shrug empty state for a successful empty card dataset", () => {
     renderPage("/expansion-list/c1", []);
     expect(screen.getByText("¯\\_(ツ)_/¯")).toBeInTheDocument();
-    expect(screen.getByText("None of the Dual Fusion cards are in a top deck right now.")).toBeInTheDocument();
+    expect(screen.getByText(/None of the Dual Fusion cards are in a top deck right now\./)).toBeInTheDocument();
   });
 
   it("renders the load error and marks the page ready when the deck query fails", async () => {
@@ -256,5 +279,32 @@ describe("ExpansionPage settled data", () => {
     renderPage();
     expect(screen.getByText("Card data didn't load. Refresh the page to try again.")).toBeInTheDocument();
     expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(true);
+  });
+});
+
+describe("ExpansionPage pack filter", () => {
+  it("shows only the chosen pack and shared cards, with a line to reset the filter", async () => {
+    await i18nReady;
+    renderPage("/expansion-list/a1?pack=mewtwo");
+    expect(screen.getByText("Showing the Mewtwo pack and shared cards.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Show all packs" })).toHaveAttribute("href", "/expansion-list/a1");
+    expect(screen.getByText("Mewtwo Card")).toBeInTheDocument();
+    expect(screen.getByText("Shared Card")).toBeInTheDocument();
+    expect(screen.queryByText("Greninja")).toBeNull();
+  });
+
+  it("takes the reader back to the whole set from the filter line", async () => {
+    await i18nReady;
+    renderPage("/expansion-list/a1?pack=mewtwo");
+    fireEvent.click(screen.getByRole("link", { name: "Show all packs" }));
+    expect(screen.queryByText("Showing the Mewtwo pack and shared cards.")).toBeNull();
+    expect(screen.getByText("Greninja")).toBeInTheDocument();
+  });
+
+  it("ignores a pack name that the set does not have", async () => {
+    await i18nReady;
+    renderPage("/expansion-list/a1?pack=pikachu");
+    expect(screen.queryByText(/Showing the/)).toBeNull();
+    expect(screen.getByText("Greninja")).toBeInTheDocument();
   });
 });

@@ -3,6 +3,7 @@
     "banner": "Ranglisten sind aktuell vom {{date}}."
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "Zum Inhalt springen",
     "openMenu": "Menü öffnen",
     "closeMenu": "Menü schließen",
@@ -166,6 +167,11 @@
     "winRate": "Gewinnrate",
     "latestExpansionCards": "Karten aus neuester Erweiterung",
     "latestExpansionCardsAny": "Beliebig"
+  },
+  "expansionList": {
+    "viewLabel": "Rangliste nach",
+    "viewExpansions": "Erweiterungen",
+    "viewPacks": "Booster-Packs"
   },
   "window": {
     "label": "Zeitfenster",
@@ -407,12 +413,16 @@
     "home": "Startseite",
     "expansions": "Erweiterungen",
     "heading": "{{name}} ({{id}}) Karten & Decks",
+    "packFilter": "Angezeigt werden das Paket {{pack}} und die gemeinsamen Karten.",
     "released": "Veröffentlicht am {{date}}",
     "intro": "Karten aus {{name}}, die in aktuellen Turnierdecks vorkommen, und die Decks, die sie spielen.",
     "cardsHeading": "Karten in aktuellen Decks",
     "decksHeading": "Aktuelle Decks mit dieser Erweiterung",
     "empty": "Derzeit ist keine Karte aus {{name}} in einem Top-Deck.",
+    "emptyAside": "Das ist schade. :(",
+    "emptyPack": "Keine Karten aus dem Paket {{pack}} oder gemeinsame Karten sind gerade in einem Top-Deck.",
     "loadError": "Kartendaten konnten nicht geladen werden. Lade die Seite neu, um es erneut zu versuchen.",
+    "allPacks": "Alle Pakete anzeigen",
     "breadcrumb": "Navigationspfad"
   }
 }

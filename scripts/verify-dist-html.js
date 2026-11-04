@@ -9,7 +9,7 @@ const {
 } = require("./deck-thumbs.mjs");
 const { resolveHosting } = require("./firebase-hosting");
 const { inlineScriptHashes, parsePolicy, reportOnlyPolicy } = require("./content-security-policy");
-const { DELUXE_EXPANSION_IDS, newestExpansion } = require("../src/app/expansion-policy.mjs");
+const { DELUXE_EXPANSION_IDS, expansionCode, newestExpansion } = require("../src/app/expansion-policy.mjs");
 const { expansionIndexPolicy } = require("../src/app/expansion-index-policy.mjs");
 const { shouldIndexHub } = require("./deck-archive-policy.mjs");
 const { hubDisplayName } = require("./deck-archetype.mjs");
@@ -170,7 +170,7 @@ const findExpansionPageIssues = (dir = DIST_DIR, expansions = loadExpansions(), 
       }
       const html = fs.readFileSync(file, "utf8");
       const expectedRobots = policy.isIndexable(expansion.id) ? "index, follow" : "noindex, follow";
-      issues.push(...hubHtmlIssues(entry, html, expectedRobots, expansion.id.toUpperCase()));
+      issues.push(...hubHtmlIssues(entry, html, expectedRobots, expansionCode(expansion.id)));
       if (!html.includes(`"@type":"BreadcrumbList"`)) issues.push(`${entry}: missing BreadcrumbList JSON-LD`);
     }
   }
@@ -327,9 +327,33 @@ const loadExpansions = () =>
   require("pokemon-tcg-pocket-cards/data/v5/expansions.json");
 
 const EXPANSION_LIST_ENTRY = "expansion-list/index.html";
+const JA_EXPANSION_LIST_ENTRY = "ja/expansion-list/index.html";
+const EXPANSIONS_OPTION_LABEL = {
+  [EXPANSION_LIST_ENTRY]: require("../src/locales/en_translation.json").expansionList.viewExpansions,
+  [JA_EXPANSION_LIST_ENTRY]: require("../src/locales/ja_translation.json").expansionList.viewExpansions,
+};
 
 const imageSrcs = (html) =>
   [...html.matchAll(/<img\b[^>]*\ssrc=["']([^"']*)["']/gi)].map((match) => match[1]);
+
+const toggleButtons = (html) =>
+  [...html.matchAll(/<button\b[^>]*\baria-pressed="(true|false)"[^>]*>([^<]*)<\/button>/gi)].map(
+    (match) => ({ pressed: match[1], label: match[2] })
+  );
+
+const findDefaultViewIssues = (entry, html) => {
+  const issues = [];
+  const expansions = toggleButtons(html).find((button) => button.label === EXPANSIONS_OPTION_LABEL[entry]);
+  if (!expansions) {
+    issues.push(`${entry}: missing the Expansions option`);
+  } else if (expansions.pressed !== "true") {
+    issues.push(`${entry}: the Expansions option is not pressed by default`);
+  }
+  if (/href=["'][^"']*\?pack=/i.test(html)) {
+    issues.push(`${entry}: a tile links to a pack filter`);
+  }
+  return issues;
+};
 
 const findExpansionListIssues = (dir = DIST_DIR, list = loadExpansions()) => {
   const html = fs.readFileSync(path.join(dir, EXPANSION_LIST_ENTRY), "utf8");
@@ -344,6 +368,14 @@ const findExpansionListIssues = (dir = DIST_DIR, list = loadExpansions()) => {
   for (const id of DELUXE_EXPANSION_IDS) {
     if (sources.some((src) => src.includes(`/packs/${id}-`))) {
       issues.push(`${EXPANSION_LIST_ENTRY}: deluxe pack /packs/${id}- is listed`);
+    }
+  }
+  for (const entry of [EXPANSION_LIST_ENTRY, JA_EXPANSION_LIST_ENTRY]) {
+    const file = path.join(dir, entry);
+    if (!fs.existsSync(file)) {
+      issues.push(`${entry}: missing`);
+    } else {
+      issues.push(...findDefaultViewIssues(entry, fs.readFileSync(file, "utf8")));
     }
   }
   return issues;

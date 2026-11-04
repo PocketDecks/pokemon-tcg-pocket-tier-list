@@ -3,6 +3,7 @@
     "banner": "Les classements sont à jour au {{date}}."
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "Aller au contenu",
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu",
@@ -166,6 +167,11 @@
     "winRate": "Taux de victoire",
     "latestExpansionCards": "Cartes de la dernière extension",
     "latestExpansionCardsAny": "Tous"
+  },
+  "expansionList": {
+    "viewLabel": "Classer par",
+    "viewExpansions": "Extensions",
+    "viewPacks": "Boosters"
   },
   "window": {
     "label": "Période",
@@ -407,12 +413,16 @@
     "home": "Accueil",
     "expansions": "Extensions",
     "heading": "{{name}} ({{id}}) Cartes et decks",
+    "packFilter": "Affichage du booster {{pack}} et des cartes partagées.",
     "released": "Sorti le {{date}}",
     "intro": "Cartes de {{name}} présentes dans les decks de tournoi actuels, et les decks qui les jouent.",
     "cardsHeading": "Cartes utilisées dans les decks actuels",
     "decksHeading": "Decks actuels utilisant cette extension",
     "empty": "Aucune carte de {{name}} ne figure dans les meilleurs decks en ce moment.",
+    "emptyAside": "C'est dommage. :(",
+    "emptyPack": "Aucune carte du booster {{pack}} ni aucune carte partagée ne figure actuellement dans un deck de tête.",
     "loadError": "Les données des cartes n'ont pas pu être chargées. Actualisez la page pour réessayer.",
+    "allPacks": "Afficher tous les boosters",
     "breadcrumb": "Fil d'Ariane"
   }
 }

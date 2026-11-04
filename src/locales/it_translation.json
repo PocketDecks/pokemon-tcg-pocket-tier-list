@@ -3,6 +3,7 @@
     "banner": "Le classifiche sono aggiornate al {{date}}."
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "Vai al contenuto",
     "openMenu": "Apri menu",
     "closeMenu": "Chiudi menu",
@@ -166,6 +167,11 @@
     "winRate": "Tasso di Vittoria",
     "latestExpansionCards": "Carte dall'ultima espansione",
     "latestExpansionCardsAny": "Qualsiasi"
+  },
+  "expansionList": {
+    "viewLabel": "Ordina per",
+    "viewExpansions": "Espansioni",
+    "viewPacks": "Buste"
   },
   "window": {
     "label": "Periodo",
@@ -407,12 +413,16 @@
     "home": "Pagina iniziale",
     "expansions": "Espansioni",
     "heading": "{{name}} ({{id}}) Carte e mazzi",
+    "packFilter": "Mostrate la busta {{pack}} e le carte condivise.",
     "released": "Uscito il {{date}}",
     "intro": "Carte di {{name}} presenti nei mazzi da torneo attuali, e i mazzi che le utilizzano.",
     "cardsHeading": "Carte usate nei mazzi attuali",
     "decksHeading": "Mazzi attuali che usano questa espansione",
     "empty": "Al momento nessuna carta di {{name}} è nei mazzi migliori.",
+    "emptyAside": "Peccato. :(",
+    "emptyPack": "Nessuna carta della busta {{pack}} né carte condivise sono attualmente in un mazzo top.",
     "loadError": "I dati delle carte non sono stati caricati. Ricarica la pagina per riprovare.",
+    "allPacks": "Mostra tutte le buste",
     "breadcrumb": "Percorso di navigazione"
   }
 }

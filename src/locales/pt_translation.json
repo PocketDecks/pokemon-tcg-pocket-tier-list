@@ -3,6 +3,7 @@
     "banner": "Os rankings estão atualizados até {{date}}."
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "Pular para o conteúdo",
     "openMenu": "Abrir menu",
     "closeMenu": "Fechar menu",
@@ -166,6 +167,11 @@
     "winRate": "Taxa de Vitória",
     "latestExpansionCards": "Cartas da expansão mais recente",
     "latestExpansionCardsAny": "Qualquer"
+  },
+  "expansionList": {
+    "viewLabel": "Classificar por",
+    "viewExpansions": "Expansões",
+    "viewPacks": "Pacotes"
   },
   "window": {
     "label": "Período",
@@ -407,12 +413,16 @@
     "home": "Início",
     "expansions": "Expansões",
     "heading": "{{name}} ({{id}}) Cartas e decks",
+    "packFilter": "Mostrando o pacote {{pack}} e as cartas compartilhadas.",
     "released": "Lançado em {{date}}",
     "intro": "Cartas de {{name}} que aparecem nos decks de torneio atuais, e os decks que as utilizam.",
     "cardsHeading": "Cartas usadas nos decks atuais",
     "decksHeading": "Decks atuais que usam esta expansão",
     "empty": "Nenhuma carta de {{name}} está nos melhores decks no momento.",
+    "emptyAside": "Que pena. :(",
+    "emptyPack": "Nenhuma carta do pacote {{pack}} ou compartilhada está em um deck de topo no momento.",
     "loadError": "Os dados das cartas não carregaram. Atualize a página para tentar novamente.",
+    "allPacks": "Mostrar todos os pacotes",
     "breadcrumb": "Trilha de navegação"
   }
 }

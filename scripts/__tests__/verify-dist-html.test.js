@@ -501,10 +501,25 @@ test("findExpansionListIssues needs the newest set and rejects deluxe packs", ()
     { id: "b4a", name: "Team Rocket's Ambition", release_date: "2026-08-27", packs: [{ id: "b4a-booster", image: "https://example.test/packs/b4a-booster.webp" }] },
     { id: "b4b", name: "Deluxe Pack: Mega", release_date: "2026-09-30", packs: [{ id: "b4b-booster", image: "https://example.test/packs/b4b-booster.webp" }] },
   ];
-  const good = makeDist({ "expansion-list/index.html": '<img src="https://example.test/packs/b4a-booster.webp">' });
-  const missing = makeDist({ "expansion-list/index.html": "<div></div>" });
-  const dataSrc = makeDist({ "expansion-list/index.html": '<img data-src="https://example.test/packs/b4a-booster.webp">' });
-  const deluxe = makeDist({ "expansion-list/index.html": '<img src="https://example.test/packs/b4a-booster.webp"><img src="https://example.test/packs/b4b-booster.webp">' });
+  const enToggle = '<button type="button" aria-pressed="true">Expansions</button><button type="button" aria-pressed="false">Packs</button>';
+  const jaToggle = '<button type="button" aria-pressed="true">拡張パック</button><button type="button" aria-pressed="false">ブースターパック</button>';
+  const jaPage = `${jaToggle}<img src="https://example.test/packs/b4a-booster.webp">`;
+  const good = makeDist({
+    "expansion-list/index.html": `${enToggle}<img src="https://example.test/packs/b4a-booster.webp">`,
+    "ja/expansion-list/index.html": jaPage,
+  });
+  const missing = makeDist({
+    "expansion-list/index.html": `${enToggle}<div></div>`,
+    "ja/expansion-list/index.html": jaPage,
+  });
+  const dataSrc = makeDist({
+    "expansion-list/index.html": `${enToggle}<img data-src="https://example.test/packs/b4a-booster.webp">`,
+    "ja/expansion-list/index.html": jaPage,
+  });
+  const deluxe = makeDist({
+    "expansion-list/index.html": `${enToggle}<img src="https://example.test/packs/b4a-booster.webp"><img src="https://example.test/packs/b4b-booster.webp">`,
+    "ja/expansion-list/index.html": jaPage,
+  });
   assert.deepEqual(findExpansionListIssues(good, list), []);
   assert.deepEqual(findExpansionListIssues(missing, list), [
     "expansion-list/index.html: missing the newest set /packs/b4a-",
@@ -517,13 +532,61 @@ test("findExpansionListIssues needs the newest set and rejects deluxe packs", ()
   ]);
 });
 
+test("findExpansionListIssues requires the Expansions option pressed on both list pages", () => {
+  const list = [
+    { id: "b4a", name: "Team Rocket's Ambition", release_date: "2026-08-27", packs: [{ id: "b4a-booster", image: "https://example.test/packs/b4a-booster.webp" }] },
+  ];
+  const img = '<img src="https://example.test/packs/b4a-booster.webp">';
+  const packsDefault = '<button type="button" aria-pressed="false">Expansions</button><button type="button" aria-pressed="true">Packs</button>';
+  const jaPacksDefault = '<button type="button" aria-pressed="false">拡張パック</button><button type="button" aria-pressed="true">ブースターパック</button>';
+  const enToggle = '<button type="button" aria-pressed="true">Expansions</button><button type="button" aria-pressed="false">Packs</button>';
+  const jaToggle = '<button type="button" aria-pressed="true">拡張パック</button><button type="button" aria-pressed="false">ブースターパック</button>';
+  const enPackDefault = makeDist({
+    "expansion-list/index.html": `${packsDefault}${img}`,
+    "ja/expansion-list/index.html": `${jaToggle}${img}`,
+  });
+  const jaPackDefault = makeDist({
+    "expansion-list/index.html": `${enToggle}${img}`,
+    "ja/expansion-list/index.html": `${jaPacksDefault}${img}`,
+  });
+  assert.deepEqual(findExpansionListIssues(enPackDefault, list), [
+    "expansion-list/index.html: the Expansions option is not pressed by default",
+  ]);
+  assert.deepEqual(findExpansionListIssues(jaPackDefault, list), [
+    "ja/expansion-list/index.html: the Expansions option is not pressed by default",
+  ]);
+});
+
+test("findExpansionListIssues rejects a tile that links to a pack filter on either list page", () => {
+  const list = [
+    { id: "b4a", name: "Team Rocket's Ambition", release_date: "2026-08-27", packs: [{ id: "b4a-booster", image: "https://example.test/packs/b4a-booster.webp" }] },
+  ];
+  const img = '<img src="https://example.test/packs/b4a-booster.webp">';
+  const enToggle = '<button type="button" aria-pressed="true">Expansions</button><button type="button" aria-pressed="false">Packs</button>';
+  const jaToggle = '<button type="button" aria-pressed="true">拡張パック</button><button type="button" aria-pressed="false">ブースターパック</button>';
+  const enLinked = makeDist({
+    "expansion-list/index.html": `${enToggle}<a href="/expansion-list/b4a?pack=booster">x</a>${img}`,
+    "ja/expansion-list/index.html": `${jaToggle}${img}`,
+  });
+  const jaLinked = makeDist({
+    "expansion-list/index.html": `${enToggle}${img}`,
+    "ja/expansion-list/index.html": `${jaToggle}<a href="/ja/expansion-list/b4a?pack=booster">x</a>${img}`,
+  });
+  assert.deepEqual(findExpansionListIssues(enLinked, list), [
+    "expansion-list/index.html: a tile links to a pack filter",
+  ]);
+  assert.deepEqual(findExpansionListIssues(jaLinked, list), [
+    "ja/expansion-list/index.html: a tile links to a pack filter",
+  ]);
+});
+
 test("expansion page verification requires every listed page and its robots policy", () => {
   const page = (title, robots, h1, canonical) => `<title>${title}</title><meta name="description" content="${title} cards"><meta name="robots" content="${robots}"><h1>${h1}</h1><link rel="canonical" href="${canonical}"><script type="application/ld+json">{"@type":"BreadcrumbList"}</script>`;
   const pages = {
     "expansion-list/c1/index.html": page("Dual Fusion", "index, follow", "Dual Fusion (C1)", "https://pocketdecks.top/expansion-list/c1/"),
     "ja/expansion-list/c1/index.html": page("デュアルフュージョン", "index, follow", "デュアルフュージョン (C1)", "https://pocketdecks.top/ja/expansion-list/c1/"),
-    "expansion-list/b4a/index.html": page("Team Rocket's Ambition", "noindex, follow", "Team Rocket's Ambition (B4A)", "https://pocketdecks.top/expansion-list/b4a/"),
-    "ja/expansion-list/b4a/index.html": page("ロケット団の栄光", "noindex, follow", "ロケット団の栄光 (B4A)", "https://pocketdecks.top/ja/expansion-list/b4a/"),
+    "expansion-list/b4a/index.html": page("Team Rocket's Ambition", "noindex, follow", "Team Rocket's Ambition (B4a)", "https://pocketdecks.top/expansion-list/b4a/"),
+    "ja/expansion-list/b4a/index.html": page("ロケット団の栄光", "noindex, follow", "ロケット団の栄光 (B4a)", "https://pocketdecks.top/ja/expansion-list/b4a/"),
     "expansion-list/a1/index.html": page("Genetic Apex", "noindex, follow", "Genetic Apex (A1)", "https://pocketdecks.top/expansion-list/a1/"),
     "ja/expansion-list/a1/index.html": page("最強の遺伝子", "noindex, follow", "最強の遺伝子 (A1)", "https://pocketdecks.top/ja/expansion-list/a1/"),
   };
@@ -542,7 +605,7 @@ test("expansion page verification requires every listed page and its robots poli
   );
   const b4aIndexed = {
     ...pages,
-    "expansion-list/b4a/index.html": page("Team Rocket's Ambition", "index, follow", "Team Rocket's Ambition (B4A)", "https://pocketdecks.top/expansion-list/b4a/"),
+    "expansion-list/b4a/index.html": page("Team Rocket's Ambition", "index, follow", "Team Rocket's Ambition (B4a)", "https://pocketdecks.top/expansion-list/b4a/"),
   };
   assert.ok(
     findExpansionPageIssues(makeDist(b4aIndexed), expansions, decks).includes(

@@ -3,6 +3,7 @@
     "banner": "排名截至 {{date}}。"
   },
   "a11y": {
+    "premiumOnly": "(高级会员)",
     "skipToContent": "跳到主要内容",
     "openMenu": "打开菜单",
     "closeMenu": "关闭菜单",
@@ -166,6 +167,11 @@
     "winRate": "胜率",
     "latestExpansionCards": "最新扩展包卡牌",
     "latestExpansionCardsAny": "任意"
+  },
+  "expansionList": {
+    "viewLabel": "排名方式",
+    "viewExpansions": "扩展包",
+    "viewPacks": "卡包"
   },
   "window": {
     "label": "时间范围",
@@ -407,12 +413,16 @@
     "home": "首页",
     "expansions": "扩展包",
     "heading": "{{name}}（{{id}}）卡牌与卡组",
+    "packFilter": "正在显示{{pack}}卡包和共享卡牌。",
     "released": "发布于 {{date}}",
     "intro": "{{name}}中出现在当前锦标赛卡组里的卡牌，以及使用这些卡牌的卡组。",
     "cardsHeading": "当前卡组使用的卡牌",
     "decksHeading": "使用此扩展包的当前卡组",
     "empty": "{{name}}的卡牌目前都不在顶级卡组中。",
+    "emptyAside": "真遗憾。:(",
+    "emptyPack": "{{pack}}卡包和共享卡牌目前都不在顶级卡组中。",
     "loadError": "卡牌数据加载失败。请刷新页面重试。",
+    "allPacks": "显示全部卡包",
     "breadcrumb": "面包屑导航"
   }
 }

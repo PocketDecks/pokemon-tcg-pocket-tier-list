@@ -3,6 +3,7 @@
     "banner": "Rankings are current as of {{date}}."
   },
   "a11y": {
+    "premiumOnly": "(Premium)",
     "skipToContent": "Skip to content",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
@@ -166,6 +167,11 @@
     "winRate": "Win Rate",
     "latestExpansionCards": "Cards from latest expansion",
     "latestExpansionCardsAny": "Any"
+  },
+  "expansionList": {
+    "viewLabel": "Rank by",
+    "viewExpansions": "Expansions",
+    "viewPacks": "Packs"
   },
   "window": {
     "label": "Time window",
@@ -407,12 +413,16 @@
     "home": "Home",
     "expansions": "Expansions",
     "heading": "{{name}} ({{id}}) Cards & Decks",
+    "packFilter": "Showing the {{pack}} pack and shared cards.",
     "released": "Released {{date}}",
     "intro": "Cards from {{name}} that appear in current tournament decks, and the decks that play them.",
     "cardsHeading": "Cards used in live decks",
     "decksHeading": "Live decks using this expansion",
     "empty": "None of the {{name}} cards are in a top deck right now.",
+    "emptyAside": "That's unfortunate. :(",
+    "emptyPack": "None of the {{pack}} pack or shared cards are in a top deck right now.",
     "loadError": "Card data didn't load. Refresh the page to try again.",
+    "allPacks": "Show all packs",
     "breadcrumb": "Breadcrumb"
   }
 }

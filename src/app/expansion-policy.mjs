@@ -14,3 +14,6 @@ export const newestExpansion = (list) =>
           : newest,
       null
     );
+
+export const expansionCode = (id) =>
+  /^p[a-z]$/.test(id) ? id.toUpperCase() : id.charAt(0).toUpperCase() + id.slice(1);

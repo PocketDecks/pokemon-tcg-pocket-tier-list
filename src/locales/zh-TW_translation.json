@@ -3,6 +3,7 @@
     "banner": "排名截至 {{date}}。"
   },
   "a11y": {
+    "premiumOnly": "(高級會員)",
     "skipToContent": "跳到主要內容",
     "openMenu": "開啟選單",
     "closeMenu": "關閉選單",
@@ -166,6 +167,11 @@
     "winRate": "勝率",
     "latestExpansionCards": "最新擴充包的卡牌",
     "latestExpansionCardsAny": "任何"
+  },
+  "expansionList": {
+    "viewLabel": "排名方式",
+    "viewExpansions": "擴充包",
+    "viewPacks": "卡包"
   },
   "window": {
     "label": "時間範圍",
@@ -407,12 +413,16 @@
     "home": "首頁",
     "expansions": "擴充包",
     "heading": "{{name}}（{{id}}）卡牌與牌組",
+    "packFilter": "正在顯示{{pack}}卡包與共享卡牌。",
     "released": "發布於 {{date}}",
     "intro": "{{name}}中出現在目前錦標賽牌組裡的卡牌，以及使用這些卡牌的牌組。",
     "cardsHeading": "目前牌組使用的卡牌",
     "decksHeading": "使用此擴充包的目前牌組",
     "empty": "{{name}}的卡牌目前都不在頂級牌組中。",
+    "emptyAside": "真可惜。:(",
+    "emptyPack": "{{pack}}卡包與共享卡牌目前都不在頂級卡組中。",
     "loadError": "卡牌資料載入失敗。請重新整理頁面再試一次。",
+    "allPacks": "顯示全部卡包",
     "breadcrumb": "麵包屑導覽"
   }
 }

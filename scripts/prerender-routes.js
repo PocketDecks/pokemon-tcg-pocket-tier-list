@@ -29,7 +29,7 @@ const { localeRoute, localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs
 const { SITE_URL } = require("./meta-stamp");
 const { JA_HOME_LABEL } = require("./deck-friendly-name.mjs");
 const { newestCoveredExpansion } = require("../src/app/expansion-feed.mjs");
-const { isListedExpansion } = require("../src/app/expansion-policy.mjs");
+const { expansionCode, isListedExpansion } = require("../src/app/expansion-policy.mjs");
 const { expansionIndexPolicy } = require("../src/app/expansion-index-policy.mjs");
 const EXPANSIONS = require("pokemon-tcg-pocket-cards/data/v5/expansions.min.json");
 const BEST_DECKS = require("../public/data/best-decks.json");
@@ -124,7 +124,7 @@ const expansionTitle = (name, id) => {
 
 const expansionRouteMeta = Object.fromEntries(
   EXPANSIONS.filter((expansion) => isListedExpansion(expansion)).map((expansion) => {
-    const id = expansion.id.toUpperCase();
+    const id = expansionCode(expansion.id);
     return [`/expansion-list/${expansion.id}`, {
       title: expansionTitle(expansion.name, id),
       description: `Pokemon TCG Pocket ${expansion.name} (${id}) cards used in live decks and the current deck meta.`,
@@ -185,8 +185,8 @@ const jaExpansionMeta = Object.fromEntries(
   EXPANSIONS.filter((expansion) => isListedExpansion(expansion)).map((expansion) => [
     `/expansion-list/${expansion.id}`,
     {
-      title: `ポケポケ ${expansion.name} (${expansion.id.toUpperCase()}) カードとデッキ | Top Pocket Decks`,
-      description: `${expansion.name} (${expansion.id.toUpperCase()})のカードと、現在の大会デッキでの採用状況を確認できます。`,
+      title: `ポケポケ ${expansion.name} (${expansionCode(expansion.id)}) カードとデッキ | Top Pocket Decks`,
+      description: `${expansion.name} (${expansionCode(expansion.id)})のカードと、現在の大会デッキでの採用状況を確認できます。`,
     },
   ])
 );

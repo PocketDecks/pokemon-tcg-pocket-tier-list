@@ -10,8 +10,14 @@ export interface CardScoreType extends CardType {
   popularity: number;
 }
 
-const useCards = (amount: number = 30): CardScoreType[] | null => {
-  const { expansion } = useFilters();
+interface UseCardsOptions {
+  ignoreExpansionFilter?: boolean;
+  ignoreCollection?: boolean;
+}
+
+const useCards = (amount: number = 30, options: UseCardsOptions = {}): CardScoreType[] | null => {
+  const { expansion: chosenExpansion } = useFilters();
+  const expansion = options.ignoreExpansionFilter ? null : chosenExpansion;
   const { missing: collected } = useMissing();
 
   const { data: cardsPayload } = useQuery({
@@ -30,7 +36,8 @@ const useCards = (amount: number = 30): CardScoreType[] | null => {
 
   if (!cardData || !cards) return null;
 
-  const collectedCounts = collected.reduce<Record<string, number>>((acc, id) => {
+  const ownedIds: string[] = options.ignoreCollection ? [] : collected;
+  const collectedCounts = ownedIds.reduce<Record<string, number>>((acc, id) => {
     acc[id] = (acc[id] || 0) + 1;
     return acc;
   }, {});
@@ -38,7 +45,7 @@ const useCards = (amount: number = 30): CardScoreType[] | null => {
   const sortedCards = cards
       .filter((card: CardScoreType) => {
         const { id, count } = parseScoreRef(card.name);
-        return count - (collectedCounts[id] || 0) > 0;
+        return options.ignoreCollection || count - (collectedCounts[id] || 0) > 0;
       })
       .sort((a: CardScoreType, b: CardScoreType) => b.score - a.score);
 

@@ -66,6 +66,16 @@ describe("TierListPage heading", () => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Dual Fusion (C1) Tier List");
   });
 
+  it("shows a numbered set code with only its first letter capitalised", () => {
+    decks.value = [feedDeck(["2:b4a-001"])];
+    render(
+      <MemoryRouter>
+        <TierListPage />
+      </MemoryRouter>
+    );
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Team Rocket's Ambition (B4a) Tier List");
+  });
+
   it("uses the generic H1 while no expansion is covered", () => {
     render(
       <MemoryRouter>

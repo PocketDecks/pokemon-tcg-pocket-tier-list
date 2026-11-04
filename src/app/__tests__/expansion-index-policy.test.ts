@@ -74,7 +74,7 @@ describe("expansion index policy", () => {
     expect(result.isIndexable("c1")).toBe(false);
   });
 
-  it("indexes C1 and B4 in the shipped data, and not B4A", () => {
+  it("indexes C1 and B4 in the shipped data, and not B4a", () => {
     const result = expansionIndexPolicy(expansions, decks);
     expect(result.newest?.id).toBe("c1");
     expect(result.previous?.id).toBe("b4");

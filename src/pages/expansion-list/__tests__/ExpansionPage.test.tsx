@@ -172,8 +172,9 @@ describe("ExpansionPage", () => {
   it("shows one shrug and sentence instead of both sections when no set card is in a top deck", () => {
     renderPage("/expansion-list/b4a");
     expect(screen.getByText("¯\\_(ツ)_/¯")).toBeInTheDocument();
-    expect(screen.getByText("None of the Team Rocket's Ambition cards are in a top deck right now.")).toBeInTheDocument();
-    expect(screen.getByText("That's unfortunate. :(")).toBeInTheDocument();
+    const message = screen.getByText(/None of the Team Rocket's Ambition cards are in a top deck right now\./);
+    expect(message).toHaveTextContent("None of the Team Rocket's Ambition cards are in a top deck right now.That's unfortunate. :(");
+    expect(message.querySelector("br")).not.toBeNull();
     expect(screen.queryByRole("heading", { name: "Cards used in live decks" })).toBeNull();
     expect(screen.queryByRole("heading", { name: "Live decks using this expansion" })).toBeNull();
     expect(screen.queryByText(/that appear in current tournament decks/)).toBeNull();
@@ -248,7 +249,7 @@ describe("ExpansionPage settled data", () => {
   it("renders the shrug empty state for a successful empty card dataset", () => {
     renderPage("/expansion-list/c1", []);
     expect(screen.getByText("¯\\_(ツ)_/¯")).toBeInTheDocument();
-    expect(screen.getByText("None of the Dual Fusion cards are in a top deck right now.")).toBeInTheDocument();
+    expect(screen.getByText(/None of the Dual Fusion cards are in a top deck right now\./)).toBeInTheDocument();
   });
 
   it("renders the load error and marks the page ready when the deck query fails", async () => {

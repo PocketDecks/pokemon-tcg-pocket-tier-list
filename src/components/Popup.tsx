@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useId, useRef } from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 
@@ -116,18 +116,127 @@ interface Props {
   width?: string;
 }
 
+const FOCUSABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled]):not([type='hidden'])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])",
+  "[contenteditable='true']",
+].join(",");
+
+const getFocusable = (root: HTMLElement) =>
+  Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+
+const hasOpenModal = (element: Element) =>
+  element.matches('[aria-modal="true"]') || element.querySelector('[aria-modal="true"]') !== null;
+
+const makeOutsideInert = (target: Element) => {
+  const previous: Array<[Element, string | null]> = [];
+  let node: Element = target;
+  while (node.parentElement) {
+    const parent: Element = node.parentElement;
+    for (const sibling of Array.from(parent.children)) {
+      if (sibling === node || hasOpenModal(sibling)) continue;
+      previous.push([sibling, sibling.getAttribute("inert")]);
+      sibling.setAttribute("inert", "");
+    }
+    node = parent;
+  }
+  return () => {
+    for (const [element, value] of previous.reverse()) {
+      if (value === null) element.removeAttribute("inert");
+      else element.setAttribute("inert", value);
+    }
+  };
+};
+
 const Popup: React.FC<Props> = ({ isOpen, header, close, children, width }) => {
   const { t } = useTranslation();
+  const titleId = useId();
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(close);
+
+  useEffect(() => {
+    closeRef.current = close;
+  });
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const overlay = overlayRef.current;
+    const dialog = dialogRef.current;
+    if (!overlay || !dialog) return;
+
+    const active = document.activeElement;
+    const trigger = active instanceof HTMLElement && active !== document.body ? active : null;
+    const releaseOutside = makeOutsideInert(overlay);
+    const focusFirst = () => (getFocusable(dialog)[0] ?? dialog).focus();
+
+    focusFirst();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeRef.current();
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const focusable = getFocusable(dialog);
+      if (focusable.length === 0) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const current = document.activeElement;
+      const inside = current instanceof Node && dialog.contains(current);
+
+      if (event.shiftKey && (!inside || current === first || current === dialog)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (!inside || current === last)) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    const handleFocusIn = (event: FocusEvent) => {
+      if (event.target instanceof Node && !dialog.contains(event.target)) focusFirst();
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("focusin", handleFocusIn);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("focusin", handleFocusIn);
+      releaseOutside();
+      if (trigger?.isConnected) trigger.focus();
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   return (
-    <ModalOverlay onClick={close}>
-      <ModalContent onClick={(e: React.MouseEvent) => e.stopPropagation()} $width={width}>
-        <CloseButton onClick={close} aria-label="Close">
+    <ModalOverlay ref={overlayRef} onClick={close}>
+      <ModalContent
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+        $width={width}
+      >
+        <CloseButton onClick={close} aria-label={t("a11y.closePopup")}>
           ×
         </CloseButton>
-        <Title>{t(header)}</Title>
+        <Title id={titleId}>{t(header)}</Title>
         {children}
       </ModalContent>
     </ModalOverlay>

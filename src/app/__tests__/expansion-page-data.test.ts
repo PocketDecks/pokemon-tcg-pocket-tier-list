@@ -1,0 +1,60 @@
+import { describe, expect, it } from "vitest";
+import { expansionPageData, postReleaseTrendRows, trendMovement } from "../expansion-page-data";
+
+const card = (id: string, name: string, set = "c1") => ({
+  id,
+  name,
+  rarity: "Common",
+  pack: "Test",
+  type: "Pokemon",
+  supertype: "Pokemon",
+  health: 100,
+  stage: "Basic",
+  image: `/cards/${id}.png`,
+  ex: false,
+  set,
+  deckBuilderNr: 1,
+});
+
+const deck = (name: string, cards: ReturnType<typeof card>[]) => ({
+  id: name,
+  name,
+  lists: [],
+  bestList: { cards, score: 1, strength: 1, energyIds: [], deckCode: null },
+  score: 1,
+  popularity: 1,
+  strength: 1,
+  expectedWinRate: 0.5,
+  fieldCoverage: 1,
+  powerScore: 50,
+  freqScore: 50,
+  metaScore: 50,
+  percentOfGames: 1,
+  iconPrimary: cards[0],
+  iconSecondary: null,
+});
+
+describe("expansion page data", () => {
+  it("keeps used cards and decks, orders cards by score and decks by display name", () => {
+    const cards = [card("c1-002", "Lower"), card("c1-001", "Higher")];
+    const decks = [deck("zeta", [cards[0]]), deck("alpha", [cards[1]])];
+    const result = expansionPageData(
+      { id: "c1", name: "Dual Fusion", release_date: "2026-10-29", packs: [] },
+      cards,
+      [{ name: "1 C1 002", score: 0.2 }, { name: "1 C1 001", score: 0.9 }],
+      decks,
+      (value) => value.name
+    );
+    expect(result.cards.map((value) => value.id)).toEqual(["c1-001", "c1-002"]);
+    expect(result.decks.map((value) => value.displayName)).toEqual(["alpha", "zeta"]);
+  });
+
+  it("omits movement when the expansion has fewer than two post-release rows", () => {
+    const rows = postReleaseTrendRows(
+      [{ date: "2026-10-28", alpha: 1 }, { date: "2026-10-29", alpha: 2 }],
+      "2026-10-29"
+    );
+    expect(rows).toHaveLength(1);
+    expect(trendMovement(rows, ["alpha"])).toEqual({});
+  });
+});

@@ -12,6 +12,7 @@ const { deckSlug } = require("./deck-slug.mjs");
 const { escapeXml, SITE_URL } = require("./meta-stamp");
 const { localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
 const { shouldIndexHub } = require("./deck-archive-policy.mjs");
+const { isListedExpansion } = require("../src/app/expansion-policy.mjs");
 
 const STATIC_ROUTES = [
   "/",
@@ -32,7 +33,24 @@ const isDeckPage = (route) => /^\/deck\/.+/.test(route);
 
 const localesFor = (route) => (isDeckPage(route) ? [DEFAULT_LOCALE] : ROUTE_LOCALES);
 
-const buildSitemap = ({ decks, staticRoutes = STATIC_ROUTES, archive = [], lastmod }) => {
+const expansionRoutes = (expansions, decks) => {
+  const covered = new Set(
+    decks
+      .flatMap((deck) => deck.lists ?? [])
+      .flatMap((list) => list.cards ?? [])
+      .map((card) => String(card).replace(/^\d+:/, "").split("-")[0])
+  );
+  const eligible = expansions
+    .filter((expansion) => isListedExpansion(expansion) && covered.has(expansion.id) && expansion.release_date)
+    .sort((a, b) => b.release_date.localeCompare(a.release_date));
+  const indexable = new Set(eligible.slice(0, 2).map((expansion) => expansion.id));
+  return expansions
+    .filter((expansion) => isListedExpansion(expansion) && indexable.has(expansion.id))
+    .sort((a, b) => b.release_date.localeCompare(a.release_date))
+    .map((expansion) => `/expansion-list/${expansion.id}`);
+};
+
+const buildSitemap = ({ decks, staticRoutes = STATIC_ROUTES, archive = [], expansions = [], lastmod }) => {
   const grouped = new Map(archive.map((entry) => [entry.hub, []]));
   for (const entry of archive) grouped.get(entry.hub).push(entry);
   const hubRoutes = [...grouped.entries()]
@@ -40,6 +58,7 @@ const buildSitemap = ({ decks, staticRoutes = STATIC_ROUTES, archive = [], lastm
     .map(([hub]) => `/deck/${hub}`);
   const baseRoutes = [
     ...staticRoutes,
+    ...expansionRoutes(expansions, decks),
     ...decks.map((deck) => `/deck/${deckSlug(deck.name)}`),
     ...hubRoutes,
   ];
@@ -75,9 +94,10 @@ const main = () => {
   const bestDecks = JSON.parse(fs.readFileSync(bestDecksPath, "utf8"));
   const archivePath = path.join(__dirname, "..", "public", "data", "deck-archive.json");
   const archive = JSON.parse(fs.readFileSync(archivePath, "utf8"));
+  const expansions = require("pokemon-tcg-pocket-cards/data/v5/expansions.min.json");
   const today = new Date().toISOString().split("T")[0];
 
-  const sitemap = buildSitemap({ decks: bestDecks, archive, lastmod: today });
+  const sitemap = buildSitemap({ decks: bestDecks, archive, expansions, lastmod: today });
 
   const outPath = path.join(__dirname, "..", "public", "sitemap.xml");
   fs.writeFileSync(outPath, sitemap);
@@ -88,4 +108,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { buildSitemap, countUrlEntries, escapeXml };
+module.exports = { buildSitemap, countUrlEntries, escapeXml, expansionRoutes };

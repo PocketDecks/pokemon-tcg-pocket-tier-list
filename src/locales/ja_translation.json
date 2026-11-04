@@ -402,5 +402,17 @@
     "noSimilarDecks": "このリストとカードを共有する現在のデッキはありません。",
     "variantHistory": "バリエーションの履歴",
     "peakShare": "ピーク {{value}}%（{{date}}）"
+  },
+  "expansionPage": {
+    "home": "ホーム",
+    "expansions": "拡張パック",
+    "unknownDate": "発売日は未登録です",
+    "current": "現在の対象拡張パック",
+    "archive": "過去の拡張パック",
+    "cardsHeading": "現在のデッキで使われているカード",
+    "decksHeading": "この拡張パックを使う現在のデッキ",
+    "metaShare": "メタシェアの推移",
+    "noCards": "この拡張パックのカードは現在のデッキで使われていません。",
+    "noDecks": "この拡張パックを使う現在のデッキはありません。"
   }
 }

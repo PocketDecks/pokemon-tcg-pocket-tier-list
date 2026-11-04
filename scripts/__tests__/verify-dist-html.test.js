@@ -15,6 +15,7 @@ const {
   findEmptyDeckRoots,
   findEmptyStyledTags,
   findExpansionListIssues,
+  findExpansionPageIssues,
   findExternalScripts,
   findLoopbackRefs,
   findMissingCardThumbs,
@@ -514,6 +515,25 @@ test("findExpansionListIssues needs the newest set and rejects deluxe packs", ()
   assert.deepEqual(findExpansionListIssues(deluxe, list), [
     "expansion-list/index.html: deluxe pack /packs/b4b- is listed",
   ]);
+});
+
+test("expansion page verification requires every listed page and its robots policy", () => {
+  const page = (title, robots, h1, canonical) => `<title>${title}</title><meta name="description" content="${title} cards"><meta name="robots" content="${robots}"><h1>${h1}</h1><link rel="canonical" href="${canonical}">`;
+  const dir = makeDist({
+    "expansion-list/c1/index.html": page("Dual Fusion", "index, follow", "Dual Fusion (C1)", "https://pocketdecks.top/expansion-list/c1/"),
+    "ja/expansion-list/c1/index.html": page("デュアルフュージョン", "index, follow", "デュアルフュージョン (C1)", "https://pocketdecks.top/ja/expansion-list/c1/"),
+    "expansion-list/b4a/index.html": page("Team Rocket's Ambition", "index, follow", "Team Rocket's Ambition (B4A)", "https://pocketdecks.top/expansion-list/b4a/"),
+    "ja/expansion-list/b4a/index.html": page("ロケット団の栄光", "index, follow", "ロケット団の栄光 (B4A)", "https://pocketdecks.top/ja/expansion-list/b4a/"),
+    "expansion-list/a1/index.html": page("Genetic Apex", "noindex, follow", "Genetic Apex (A1)", "https://pocketdecks.top/expansion-list/a1/"),
+    "ja/expansion-list/a1/index.html": page("最強の遺伝子", "noindex, follow", "最強の遺伝子 (A1)", "https://pocketdecks.top/ja/expansion-list/a1/"),
+  });
+  const expansions = [
+    { id: "a1", release_date: "2024-01-01" },
+    { id: "b4a", release_date: "2026-08-27" },
+    { id: "c1", release_date: "2026-10-29" },
+  ];
+  const decks = [{ lists: [{ cards: ["1:a1-001", "1:b4a-001", "1:c1-001"] }] }];
+  assert.deepStrictEqual(findExpansionPageIssues(dir, expansions, decks), []);
 });
 
 const cspFirebase = (scriptSrc, extra = []) => ({

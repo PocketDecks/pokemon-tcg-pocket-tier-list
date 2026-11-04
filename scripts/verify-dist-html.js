@@ -156,6 +156,33 @@ const findHubPageIssues = (dir = DIST_DIR, archive = loadArchive()) => {
   });
 };
 
+const findExpansionPageIssues = (dir = DIST_DIR, expansions = loadExpansions(), decks = loadDecks()) => {
+  const covered = new Set(
+    decks
+      .flatMap((deck) => deck.lists ?? [])
+      .flatMap((list) => list.cards ?? [])
+      .map((card) => String(card).replace(/^\d+:/, "").split("-")[0])
+  );
+  const eligible = expansions
+    .filter((expansion) => !DELUXE_EXPANSION_IDS.has(expansion.id) && covered.has(expansion.id) && expansion.release_date)
+    .sort((a, b) => b.release_date.localeCompare(a.release_date));
+  const indexable = new Set(eligible.slice(0, 2).map((expansion) => expansion.id));
+  const issues = [];
+  for (const expansion of expansions.filter((entry) => !DELUXE_EXPANSION_IDS.has(entry.id))) {
+    for (const prefix of ["", "ja/"]) {
+      const entry = `${prefix}expansion-list/${expansion.id}/index.html`;
+      const file = path.join(dir, entry);
+      if (!fs.existsSync(file)) {
+        issues.push(`${entry}: missing`);
+        continue;
+      }
+      const expectedRobots = indexable.has(expansion.id) ? "index, follow" : "noindex, follow";
+      issues.push(...hubHtmlIssues(entry, fs.readFileSync(file, "utf8"), expectedRobots, expansion.id.toUpperCase()));
+    }
+  }
+  return issues;
+};
+
 const HEAD_BLOCK = /<head\b[^>]*>[\s\S]*?<\/head>/i;
 const TITLE_TAG = /<title\b[^>]*>[\s\S]*?<\/title>/gi;
 
@@ -458,6 +485,11 @@ const main = () => {
     console.error(`Deck hub pages failing the head or copy checks:\n${hubIssues.join("\n")}`);
     process.exit(1);
   }
+  const expansionIssues = findExpansionPageIssues();
+  if (expansionIssues.length > 0) {
+    console.error(`Expansion pages failing the head or coverage checks:\n${expansionIssues.join("\n")}`);
+    process.exit(1);
+  }
   const shellIssues = findShellPageIssues();
   if (shellIssues.length > 0) {
     console.error(
@@ -541,6 +573,7 @@ if (require.main === module) main();
 module.exports = {
   findBakedAppState,
   findHubPageIssues,
+  findExpansionPageIssues,
   findCanonicalIssues,
   findCspHashIssues,
   findShellPageIssues,

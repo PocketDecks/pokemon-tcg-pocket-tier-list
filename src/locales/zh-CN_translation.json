@@ -402,5 +402,17 @@
     "noSimilarDecks": "没有当前卡组与此卡表共享卡牌。",
     "variantHistory": "变体历史",
     "peakShare": "峰值 {{value}}%（{{date}}）"
+  },
+  "expansionPage": {
+    "home": "首页",
+    "expansions": "扩展包",
+    "unknownDate": "暂无发布日期",
+    "current": "当前覆盖的扩展包",
+    "archive": "历史扩展包",
+    "cardsHeading": "当前卡组使用的卡牌",
+    "decksHeading": "使用此扩展包的当前卡组",
+    "metaShare": "环境占比变化",
+    "noCards": "当前卡组未使用此扩展包的卡牌。",
+    "noDecks": "没有当前卡组使用此扩展包。"
   }
 }

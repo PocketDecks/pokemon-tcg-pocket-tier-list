@@ -402,5 +402,17 @@
     "noSimilarDecks": "Niciun deck actual nu are carduri comune cu această listă.",
     "variantHistory": "Istoricul variantelor",
     "peakShare": "Vârf de {{value}}% pe {{date}}"
+  },
+  "expansionPage": {
+    "home": "Acasă",
+    "expansions": "Expansiuni",
+    "unknownDate": "Data lansării nu este disponibilă",
+    "current": "Expansiune acoperită în prezent",
+    "archive": "Expansiune istorică",
+    "cardsHeading": "Cărți folosite în deckurile actuale",
+    "decksHeading": "Deckuri actuale care folosesc această expansiune",
+    "metaShare": "Evoluția cotei din metagame",
+    "noCards": "Nicio carte din această expansiune nu este folosită în deckurile actuale.",
+    "noDecks": "Niciun deck actual nu folosește această expansiune."
   }
 }

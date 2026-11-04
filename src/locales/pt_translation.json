@@ -402,5 +402,17 @@
     "noSimilarDecks": "Nenhum deck atual compartilha cartas com esta lista.",
     "variantHistory": "Histórico de variantes",
     "peakShare": "Pico de {{value}}% em {{date}}"
+  },
+  "expansionPage": {
+    "home": "Início",
+    "expansions": "Expansões",
+    "unknownDate": "Data de lançamento indisponível",
+    "current": "Expansão atualmente coberta",
+    "archive": "Expansão histórica",
+    "cardsHeading": "Cartas usadas nos decks atuais",
+    "decksHeading": "Decks atuais que usam esta expansão",
+    "metaShare": "Evolução da participação no meta",
+    "noCards": "Nenhuma carta desta expansão é usada nos decks atuais.",
+    "noDecks": "Nenhum deck atual usa esta expansão."
   }
 }

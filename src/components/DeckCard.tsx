@@ -154,12 +154,13 @@ interface Props {
   deck: FullDeckType;
   metaShare?: MetaShareEntry | null;
   metaShareLabel?: string;
+  linkTo?: string;
 }
 
 const formatShare = (share: number): string => `${(share * 100).toFixed(1)}%`;
 
 
-const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
+const DeckCard = ({ deck, metaShare, metaShareLabel, linkTo }: Props) => {
     const share = metaShare?.share ?? null;
     const delta = metaShare?.delta ?? null;
     const trend = deltaTrend(delta);
@@ -203,7 +204,7 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
             onBlur={hide}
         >
             <StyledDeckCard
-                to={`/deck/${deck.id}`}
+                to={linkTo ?? `/deck/${deck.id}`}
                 aria-label={shareLabel ? `${name}, ${shareLabel}` : name}
             >
                 <DeckImage
@@ -230,7 +231,7 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
                 ) : null}
             </StyledDeckCard>
             {deck.iconSecondary && (
-                <SubCard to={`/deck/${deck.id}`} tabIndex={-1} aria-hidden="true">
+                <SubCard to={linkTo ?? `/deck/${deck.id}`} tabIndex={-1} aria-hidden="true">
                     <DeckImage
                         key={deck.iconSecondary.id}
                         src={deckThumbUrl(deck.iconSecondary.id, THUMB_SIZES.large)}

@@ -402,5 +402,17 @@
     "noSimilarDecks": "Aucun deck actuel ne partage de cartes avec cette liste.",
     "variantHistory": "Historique des variantes",
     "peakShare": "Pic de {{value}} % le {{date}}"
+  },
+  "expansionPage": {
+    "home": "Accueil",
+    "expansions": "Extensions",
+    "unknownDate": "Date de sortie indisponible",
+    "current": "Extension actuellement couverte",
+    "archive": "Extension historique",
+    "cardsHeading": "Cartes utilisées dans les decks actuels",
+    "decksHeading": "Decks actuels utilisant cette extension",
+    "metaShare": "Évolution de la part du méta",
+    "noCards": "Aucune carte de cette extension n'est utilisée dans les decks actuels.",
+    "noDecks": "Aucun deck actuel n'utilise cette extension."
   }
 }

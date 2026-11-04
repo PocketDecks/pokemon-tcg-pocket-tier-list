@@ -3,7 +3,7 @@ const path = require("node:path");
 const test = require("node:test");
 const assert = require("node:assert");
 
-const { buildSitemap, countUrlEntries, escapeXml } = require("../generate-sitemap");
+const { buildSitemap, countUrlEntries, escapeXml, expansionRoutes } = require("../generate-sitemap");
 const { deckSlug } = require("../deck-slug.mjs");
 
 const FIXTURE_DECKS = [
@@ -84,4 +84,18 @@ test("the route count reported for the sitemap matches the emitted url entries",
   const xml = buildSitemap({ decks: FIXTURE_DECKS, lastmod: LASTMOD });
   assert.strictEqual(countUrlEntries(xml), 20);
   assert.strictEqual(countUrlEntries(xml), xml.split("<loc>").length - 1);
+});
+
+test("sitemap includes only the two newest covered listed expansions", () => {
+  const expansions = [
+    { id: "a1", release_date: "2024-01-01" },
+    { id: "b4a", release_date: "2026-08-27" },
+    { id: "b4b", release_date: "2026-09-30" },
+    { id: "c1", release_date: "2026-10-29" },
+  ];
+  const decks = [{ lists: [{ cards: ["1:a1-001", "1:b4a-001", "1:c1-001"] }] }];
+  assert.deepStrictEqual(expansionRoutes(expansions, decks), [
+    "/expansion-list/c1",
+    "/expansion-list/b4a",
+  ]);
 });

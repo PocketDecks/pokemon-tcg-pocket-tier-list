@@ -28,9 +28,13 @@ const DIST_DIR = process.env.BUILD_DIR
 const { localeRoute, localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
 const { SITE_URL } = require("./meta-stamp");
 const { newestCoveredExpansion } = require("../src/app/expansion-feed.mjs");
+const { isListedExpansion } = require("../src/app/expansion-policy.mjs");
 const EXPANSIONS = require("pokemon-tcg-pocket-cards/data/v5/expansions.min.json");
 const BEST_DECKS = require("../public/data/best-decks.json");
 const LATEST_EXPANSION = newestCoveredExpansion(EXPANSIONS, BEST_DECKS);
+const EXPANSION_ROUTES = EXPANSIONS
+  .filter((expansion) => isListedExpansion(expansion))
+  .map((expansion) => `/expansion-list/${expansion.id}`);
 const ROUTES = [
   "/",
   "/tier-list",
@@ -40,6 +44,7 @@ const ROUTES = [
   "/deck",
   "/about",
   "/privacy",
+  ...EXPANSION_ROUTES,
 ];
 
 const DEFAULT_LOCALE = "en";
@@ -110,7 +115,18 @@ const buildRouteMeta = (latest) => ({
   },
 });
 
-const ROUTE_META = buildRouteMeta(LATEST_EXPANSION);
+const expansionRouteMeta = Object.fromEntries(
+  EXPANSIONS.filter((expansion) => isListedExpansion(expansion)).map((expansion) => {
+    const id = expansion.id.toUpperCase();
+    return [`/expansion-list/${expansion.id}`, {
+      title: `Pokemon TCG Pocket ${expansion.name} (${id}): Best Cards & Decks`,
+      description: `Pokemon TCG Pocket ${expansion.name} (${id}) cards used in live decks and the current deck meta.`,
+      canonical: `https://pocketdecks.top/expansion-list/${expansion.id}/`,
+    }];
+  })
+);
+const ROUTE_META = { ...buildRouteMeta(LATEST_EXPANSION), ...expansionRouteMeta };
+
 
 const ROUTE_READY_ROUTES = new Set(["/", "/cards-list", "/statistics", "/deck"]);
 const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
@@ -158,7 +174,30 @@ const buildJaRouteMeta = (latest) => ({
 
 const JA_ROUTE_META = buildJaRouteMeta(LATEST_EXPANSION);
 
+const jaExpansionMeta = Object.fromEntries(
+  EXPANSIONS.filter((expansion) => isListedExpansion(expansion)).map((expansion) => [
+    `/expansion-list/${expansion.id}`,
+    {
+      title: `ポケポケ ${expansion.name} (${expansion.id.toUpperCase()}) カードとデッキ | Top Pocket Decks`,
+      description: `${expansion.name} (${expansion.id.toUpperCase()})のカードと、現在の大会デッキでの採用状況を確認できます。`,
+    },
+  ])
+);
+const JA_ROUTE_META_WITH_EXPANSIONS = { ...JA_ROUTE_META, ...jaExpansionMeta };
+
 const urlFor = (locale, route) => localizedUrl(SITE_URL, locale, route);
+
+const coveredExpansionIds = new Set(
+  BEST_DECKS
+    .flatMap((deck) => deck.lists ?? [])
+    .flatMap((list) => list.cards ?? [])
+    .map((card) => String(card).replace(/^\d+:/, "").split("-")[0])
+);
+const coveredExpansions = EXPANSIONS
+  .filter((expansion) => isListedExpansion(expansion) && coveredExpansionIds.has(expansion.id))
+  .filter((expansion) => expansion.release_date)
+  .sort((a, b) => b.release_date.localeCompare(a.release_date));
+const indexableExpansionIds = new Set(coveredExpansions.slice(0, 2).map((expansion) => expansion.id));
 
 const alternatesFor = (route) => [
   ...ROUTE_LOCALES.map((locale) => ({ hreflang: locale, href: urlFor(locale, route) })),
@@ -175,11 +214,16 @@ const localeJsonLd = (locale, route) => {
 
 const localeMetaFor = (locale, route) => {
   const base = ROUTE_META[route];
-  const translated = locale === DEFAULT_LOCALE ? undefined : JA_ROUTE_META[route];
+  const translated = locale === DEFAULT_LOCALE ? undefined : JA_ROUTE_META_WITH_EXPANSIONS[route];
+  const expansionMatch = route.match(/^\/expansion-list\/([^/]+)$/);
+  const robots = expansionMatch
+    ? `${indexableExpansionIds.has(expansionMatch[1]) ? "index" : "noindex"}, follow`
+    : undefined;
   return {
     title: translated?.title ?? base.title,
     description: translated?.description ?? base.description,
     canonical: urlFor(locale, route),
+    robots,
     lang: locale,
     alternates: alternatesFor(route),
     jsonLd: localeJsonLd(locale, route),
@@ -194,7 +238,7 @@ const NOT_FOUND_META = {
 };
 
 const captureAfterRouteReady = async (page, route, capture) => {
-  if (ROUTE_READY_ROUTES.has(route)) {
+  if (ROUTE_READY_ROUTES.has(route) || route.startsWith("/expansion-list/")) {
     await waitForRouteReady(page);
   }
   return capture();

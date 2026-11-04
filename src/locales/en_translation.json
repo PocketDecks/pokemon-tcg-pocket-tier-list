@@ -402,5 +402,17 @@
     "noSimilarDecks": "No current deck shares cards with this list.",
     "variantHistory": "Variant history",
     "peakShare": "Peak {{value}}% on {{date}}"
+  },
+  "expansionPage": {
+    "home": "Home",
+    "expansions": "Expansions",
+    "unknownDate": "Release date unavailable",
+    "current": "Current covered expansion",
+    "archive": "Historical expansion",
+    "cardsHeading": "Cards used in live decks",
+    "decksHeading": "Live decks using this expansion",
+    "metaShare": "Meta share movement",
+    "noCards": "No cards from this expansion are in live decks.",
+    "noDecks": "No live decks use this expansion."
   }
 }

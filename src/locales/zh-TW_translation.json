@@ -402,5 +402,17 @@
     "noSimilarDecks": "沒有當前牌組與此卡表共享卡牌。",
     "variantHistory": "變體歷史",
     "peakShare": "峰值 {{value}}%（{{date}}）"
+  },
+  "expansionPage": {
+    "home": "首頁",
+    "expansions": "擴充包",
+    "unknownDate": "沒有可用的發售日期",
+    "current": "目前涵蓋的擴充包",
+    "archive": "歷史擴充包",
+    "cardsHeading": "目前牌組使用的卡牌",
+    "decksHeading": "使用此擴充包的目前牌組",
+    "metaShare": "環境佔比變化",
+    "noCards": "目前牌組未使用此擴充包的卡牌。",
+    "noDecks": "沒有目前牌組使用此擴充包。"
   }
 }

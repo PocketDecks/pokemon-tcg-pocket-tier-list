@@ -44,6 +44,13 @@ const Providers = ({ children }: { children: React.ReactNode }) => (
   </ConsentManagerProvider>
 );
 
+const Scene = ({ withBanner }: { withBanner: boolean }) => (
+  <Providers>
+    <PopupBesideBanner />
+    {withBanner ? <ConsentBanner hideBranding legalLinks={["privacyPolicy"]} /> : null}
+  </Providers>
+);
+
 const bannerControls = (card: HTMLElement) =>
   Array.from(card.querySelectorAll<HTMLElement>("a[href], button"));
 
@@ -118,5 +125,28 @@ describe("consent banner beside an open popup", () => {
 
     await user.tab({ shift: true });
     expect(bannerLast).toHaveFocus();
+  });
+
+  it("keeps a banner that mounts after the popup opened operable and reachable by Tab", async () => {
+    const user = userEvent.setup();
+    const view = render(<Scene withBanner={false} />);
+
+    await user.click(screen.getByRole("button", { name: "Open panel" }));
+    const popupInside = screen.getByRole("button", { name: "Inside action" });
+    view.rerender(<Scene withBanner />);
+
+    const card = await screen.findByRole("dialog", { name: "We value your privacy" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(card.closest("[inert]")).toBeNull();
+    for (const control of bannerControls(card)) {
+      expect(control.closest("[inert]")).toBeNull();
+    }
+
+    popupInside.focus();
+    expect(popupInside).toHaveFocus();
+    await user.tab();
+    expect(bannerControls(card)[0]).toHaveFocus();
+    await user.tab({ shift: true });
+    expect(popupInside).toHaveFocus();
   });
 });

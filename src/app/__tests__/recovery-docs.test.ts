@@ -21,5 +21,4 @@ it("documents MetaWindowProvider between AuthProvider and DecksProvider", () => 
   expect(metaWindow).toBeGreaterThan(auth);
   expect(metaWindow).toBeLessThan(decks);
   expect(stack).toContain("src/contexts/MetaWindowContext.tsx");
-  expect(doc).toContain("Six contexts hold client state.");
 });

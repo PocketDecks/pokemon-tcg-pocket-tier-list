@@ -118,10 +118,10 @@ builds each deck's best list.
 
 ## Contexts
 
-Six contexts hold client state. `AuthContext`, `DecksContext`,
-`MetaWindowContext` and `UIContext` live in `src/contexts/`. The other two keep
-their provider components in `src/components/` (`FilterContext.tsx`,
-`MissingContext.tsx`) with thin accessor hooks, `useFilters` and `useMissing`, in
+The route state described here uses several contexts. `AuthContext`,
+`DecksContext`, `MetaWindowContext` and `UIContext` live in `src/contexts/`.
+`FilterContext` and `MissingContext` keep their provider components in
+`src/components/` with thin accessor hooks, `useFilters` and `useMissing`, in
 `src/app/`.
 
 ### DecksContext
@@ -162,7 +162,7 @@ field, which matches a deck id, so movement tables can link on it.
 
 ### MetaWindowContext
 
-Keeps the selected statistics window in `src/contexts/MetaWindowContext.tsx`.
+Keeps the selected meta window in `src/contexts/MetaWindowContext.tsx`.
 A premium-only window reverts to the default if premium status ends.
 
 ### FilterContext

@@ -23,8 +23,11 @@ const ToggleButton = styled.button<{ $active: boolean; $locked?: boolean }>`
   opacity: ${(props) => (props.$locked ? 0.5 : 1)};
   cursor: ${(props) => (props.$locked ? "not-allowed" : "pointer")};
   border: none;
-  min-height: 4.4rem;
   transition: background-color 160ms ease-out, color 160ms ease-out;
+
+  @media (pointer: coarse) {
+    min-height: 4.4rem;
+  }
 
   @media (hover: hover) {
     &:hover {

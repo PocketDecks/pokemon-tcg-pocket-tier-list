@@ -316,13 +316,17 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
     [decksData]
   );
 
-  const metaShareBySlug = useMemo(() => {
-    const share: PipelineMetaShare | null | undefined = metaShare;
-    if (!share) return null;
-    return Object.fromEntries(
-      settleAllNewShares(share.decks).map((d) => [d.name, d])
-    ) as Record<string, MetaShareEntry>;
+  const settledMetaShare = useMemo<PipelineMetaShare | null>(() => {
+    if (!metaShare) return null;
+    return { ...metaShare, decks: settleAllNewShares(metaShare.decks) };
   }, [metaShare]);
+
+  const metaShareBySlug = useMemo(() => {
+    if (!settledMetaShare) return null;
+    return Object.fromEntries(
+      settledMetaShare.decks.map((d) => [d.name, d])
+    ) as Record<string, MetaShareEntry>;
+  }, [settledMetaShare]);
 
   const latestExpansionId = useMemo(() => {
     return newestExpansion(expansions ?? [])?.id ?? null;
@@ -364,7 +368,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
     () => ({
       decks,
       scoreBaseline,
-      metaShare: metaShare ?? null,
+      metaShare: settledMetaShare,
       metaShareBySlug,
       loading: cardsLoading || decksLoading,
       error: decksError ?? null,
@@ -372,7 +376,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
     [
       decks,
       scoreBaseline,
-      metaShare,
+      settledMetaShare,
       metaShareBySlug,
       cardsLoading,
       decksLoading,

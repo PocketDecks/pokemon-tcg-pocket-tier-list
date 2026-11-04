@@ -170,7 +170,7 @@ const TierGrid = <T,>({
     <Page>
       {filters && <FilterContainer>{filters}</FilterContainer>}
       {isEmpty ? (
-        <Loading>{items === null ? loadingLabel : emptyLabel}</Loading>
+        <Loading role="status" aria-busy={items === null}>{items === null ? loadingLabel : emptyLabel}</Loading>
       ) : (
         <>
           {tiers.map((tier) => (

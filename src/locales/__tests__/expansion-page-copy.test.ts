@@ -25,7 +25,7 @@ const locales: Record<string, { expansionPage: Record<string, string> }> = {
   "zh-TW": zhTW,
 };
 
-const PAGE_KEYS = ["cardsHeading", "decksHeading", "empty", "expansions", "heading", "home", "intro", "loadError", "noDecks", "released"];
+const PAGE_KEYS = ["breadcrumb", "cardsHeading", "decksHeading", "empty", "expansions", "heading", "home", "intro", "loadError", "noDecks", "released"];
 
 describe("expansion page copy", () => {
   it.each(Object.entries(locales))("%s has exactly the expansion page keys in use", (_name, locale) => {
@@ -59,6 +59,11 @@ describe("expansion page copy", () => {
       expect(locale.expansionPage.empty).toContain("{{name}}");
       expect(locale.expansionPage.empty).not.toMatch(/[!—–]/);
     }
+  });
+
+  it("uses the Italian home label and a localised breadcrumb name", () => {
+    expect(itTranslation.expansionPage.home).toBe("Pagina iniziale");
+    expect(en.expansionPage.breadcrumb).toBe("Breadcrumb");
   });
 
   it("writes the Japanese heading in Japanese", () => {

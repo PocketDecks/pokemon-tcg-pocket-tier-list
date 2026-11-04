@@ -21,6 +21,7 @@ const ExpansionListPage = () => {
 
   const expansionData = buildExpansionPackData(cards ?? [], expansions ?? []);
   const expansionPageHref = (id: string) => `/expansion-list/${id}`;
+  const expansionName = (id: string) => expansions?.find((entry) => entry.id === id)?.name ?? id;
 
   return (
       <>
@@ -32,7 +33,9 @@ const ExpansionListPage = () => {
           renderItem={(data) => {
             const icon = <ExpansionIcon image={data.packImage} />;
             return isListedExpansion({ id: data.expansionId }) ? (
-              <LocaleLink to={expansionPageHref(data.expansionId)}>{icon}</LocaleLink>
+              <LocaleLink to={expansionPageHref(data.expansionId)} aria-label={expansionName(data.expansionId)}>
+                {icon}
+              </LocaleLink>
             ) : (
               icon
             );

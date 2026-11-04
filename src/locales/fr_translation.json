@@ -413,6 +413,7 @@
     "decksHeading": "Decks actuels utilisant cette extension",
     "noDecks": "Aucun deck actuel n'utilise cette extension.",
     "empty": "Aucune carte de {{name}} ne figure dans les meilleurs decks en ce moment.",
-    "loadError": "Les données des cartes n'ont pas pu être chargées. Actualisez la page pour réessayer."
+    "loadError": "Les données des cartes n'ont pas pu être chargées. Actualisez la page pour réessayer.",
+    "breadcrumb": "Fil d'Ariane"
   }
 }

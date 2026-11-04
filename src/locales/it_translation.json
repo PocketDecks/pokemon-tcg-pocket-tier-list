@@ -404,7 +404,7 @@
     "peakShare": "Picco del {{value}} % il {{date}}"
   },
   "expansionPage": {
-    "home": "Home",
+    "home": "Pagina iniziale",
     "expansions": "Espansioni",
     "heading": "{{name}} ({{id}}) Carte e mazzi",
     "released": "Uscito il {{date}}",
@@ -413,6 +413,7 @@
     "decksHeading": "Mazzi attuali che usano questa espansione",
     "noDecks": "Nessun mazzo attuale usa questa espansione.",
     "empty": "Al momento nessuna carta di {{name}} è nei mazzi migliori.",
-    "loadError": "I dati delle carte non sono stati caricati. Ricarica la pagina per riprovare."
+    "loadError": "I dati delle carte non sono stati caricati. Ricarica la pagina per riprovare.",
+    "breadcrumb": "Percorso di navigazione"
   }
 }

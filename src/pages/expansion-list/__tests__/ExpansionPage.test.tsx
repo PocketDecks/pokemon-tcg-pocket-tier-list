@@ -193,6 +193,11 @@ describe("ExpansionPage", () => {
     expect(screen.getByRole("img", { name: "Lower" })).toBeInTheDocument();
   });
 
+  it("renders no main landmark of its own inside the app shell", () => {
+    const { container } = renderPage();
+    expect(container.querySelector("main")).toBeNull();
+  });
+
   it("names each card beneath its image and omits the meta movement line", () => {
     renderPage();
     expect(screen.getByText("Lower").closest("li")).not.toBeNull();

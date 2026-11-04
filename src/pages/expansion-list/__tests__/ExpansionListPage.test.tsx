@@ -58,6 +58,7 @@ describe("ExpansionListPage", () => {
       </MemoryRouter>
     );
     expect(container.querySelector('a[href="/expansion-list/c1"]')).not.toBeNull();
+    expect(screen.getByRole("link", { name: "Dual Fusion" })).toHaveAttribute("href", "/expansion-list/c1");
   });
 
   it("renders a deluxe expansion icon without a link", () => {

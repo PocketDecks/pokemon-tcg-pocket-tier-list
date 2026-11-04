@@ -413,6 +413,7 @@
     "decksHeading": "Aktuelle Decks mit dieser Erweiterung",
     "noDecks": "Keine aktuellen Decks verwenden diese Erweiterung.",
     "empty": "Derzeit ist keine Karte aus {{name}} in einem Top-Deck.",
-    "loadError": "Kartendaten konnten nicht geladen werden. Lade die Seite neu, um es erneut zu versuchen."
+    "loadError": "Kartendaten konnten nicht geladen werden. Lade die Seite neu, um es erneut zu versuchen.",
+    "breadcrumb": "Navigationspfad"
   }
 }

@@ -14,7 +14,7 @@ import { cardHubFor } from "../../app/card-hub";
 import DeckCard from "../../components/DeckCard";
 import NotFoundPage from "../not-found/NotFoundPage";
 
-const Page = styled.main`
+const Page = styled.div`
   width: 100%;
   max-width: 110rem;
   margin: 0 auto;
@@ -165,7 +165,7 @@ const ExpansionPage = () => {
   return (
     <Page>
       <Header>
-        <Breadcrumbs aria-label="Breadcrumb">
+        <Breadcrumbs aria-label={t("expansionPage.breadcrumb")}>
           <LocaleLink to="/">{t("expansionPage.home")}</LocaleLink>
           <BreadcrumbSeparator aria-hidden="true">&gt;</BreadcrumbSeparator>
           <LocaleLink to="/expansion-list">{t("expansionPage.expansions")}</LocaleLink>

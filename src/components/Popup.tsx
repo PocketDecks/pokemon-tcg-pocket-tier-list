@@ -156,6 +156,26 @@ const isInOtherModal = (target: EventTarget | null, dialog: HTMLElement) => {
   return modal !== null && isOtherModal(modal, dialog);
 };
 
+const returnFromOtherModal = (event: KeyboardEvent, dialog: HTMLElement) => {
+  const current = document.activeElement;
+  if (!(current instanceof Element)) return false;
+  const modal = current.closest<HTMLElement>('[aria-modal="true"]');
+  if (!modal) return false;
+  const modalFocusables = getFocusable(modal);
+  const ownFocusables = getFocusable(dialog);
+  if (!event.shiftKey && current === modalFocusables[modalFocusables.length - 1]) {
+    event.preventDefault();
+    (ownFocusables[0] ?? dialog).focus();
+    return true;
+  }
+  if (event.shiftKey && current === modalFocusables[0]) {
+    event.preventDefault();
+    (ownFocusables[ownFocusables.length - 1] ?? dialog).focus();
+    return true;
+  }
+  return false;
+};
+
 const otherModalFocusables = (dialog: HTMLElement) => {
   const modal = Array.from(document.querySelectorAll<HTMLElement>('[aria-modal="true"]')).find(
     (candidate) => isOtherModal(candidate, dialog)
@@ -305,10 +325,20 @@ const Popup: React.FC<Props> = ({ isOpen, header, close, children, width }) => {
       }
     };
 
+    const handleBridgeBack = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      if (!isInOtherModal(document.activeElement, dialog)) return;
+      if (returnFromOtherModal(event, dialog)) {
+        event.stopPropagation();
+      }
+    };
+
+    document.addEventListener("keydown", handleBridgeBack, true);
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("focusin", handleFocusIn);
 
     return () => {
+      document.removeEventListener("keydown", handleBridgeBack, true);
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("focusin", handleFocusIn);
       releaseOutside();

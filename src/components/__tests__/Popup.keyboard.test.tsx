@@ -511,7 +511,7 @@ describe("Popup keyboard accessibility", () => {
     expect(screen.getByRole("dialog", { name: "Panel title" })).toBeInTheDocument();
   });
 
-  it("does not wrap Tab back into the popup while focus is in another open modal", async () => {
+  it("returns Tab from the other modal's last control to the popup's first control", async () => {
     const user = userEvent.setup();
     render(
       <>
@@ -525,7 +525,8 @@ describe("Popup keyboard accessibility", () => {
     rejectAll.focus();
 
     expect(rejectAll).toHaveFocus();
-    expect(fireEvent.keyDown(rejectAll, { key: "Tab" })).toBe(true);
+    expect(fireEvent.keyDown(rejectAll, { key: "Tab" })).toBe(false);
+    expect(screen.getByRole("button", { name: "Close panel" })).toHaveFocus();
   });
 
   it("still closes on Escape when focus is on the page outside every dialog", async () => {

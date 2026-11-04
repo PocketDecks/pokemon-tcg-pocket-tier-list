@@ -73,7 +73,7 @@ describe("consent styling guard", () => {
     const overrides = sources.find(({ file }) => file.endsWith("consent-overrides.css"));
     const phone = overrides?.text.slice(overrides.text.indexOf("@media (max-width: 900px)")) ?? "";
 
-    expect(phone).toMatch(/\[data-testid="consent-banner-card"\]\s*\{[^}]*max-height:\s*50vh/);
+    expect(phone).toMatch(/\[data-testid="consent-banner-card"\]\s*\{[^}]*max-height:\s*calc\(50vh - var\(--ad-anchor-h, 0px\) - 1\.6rem\)/);
     expect(phone).toMatch(/\[data-testid="consent-banner-card"\]\s*\{[^}]*overflow-y:\s*auto/);
   });
 });

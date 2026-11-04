@@ -1,0 +1,27 @@
+{
+  "hub": "armarouge-ex",
+  "name": "Armarouge ex",
+  "variants": [
+    {
+      "variant": "armarouge-ex-b2a-020",
+      "name": "armarouge-ex-b2a-020",
+      "firstSeen": "2026-03-02",
+      "lastSeen": "2026-06-29",
+      "peakShare": 0.002040949236866175,
+      "peakDate": "2026-03-05",
+      "cards": [
+        "2:pb-064",
+        "2:b2a-020",
+        "2:a4a-023",
+        "2:b3a-053",
+        "2:pa-007",
+        "2:b3a-072",
+        "2:b1-225",
+        "1:a2-150",
+        "2:pa-005",
+        "2:b1-217",
+        "1:b3a-069"
+      ]
+    }
+  ]
+}

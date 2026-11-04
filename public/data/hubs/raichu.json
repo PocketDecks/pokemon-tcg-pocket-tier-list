@@ -1,0 +1,28 @@
+{
+  "hub": "raichu",
+  "name": "Raichu",
+  "variants": [
+    {
+      "variant": "raichu-a1a-026&pikachu-ex-a1-096",
+      "name": "raichu-a1a-026&pikachu-ex-a1-096",
+      "firstSeen": "2026-10-06",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.000751825413572245,
+      "peakDate": "2026-10-06",
+      "cards": [
+        "2:a1a-025",
+        "2:a1-095",
+        "2:a1-096",
+        "1:a1a-027",
+        "1:a1a-030",
+        "1:a1-104",
+        "2:a1-225",
+        "2:a1-226",
+        "2:pa-007",
+        "1:a1-223",
+        "2:pa-005",
+        "2:pa-002"
+      ]
+    }
+  ]
+}

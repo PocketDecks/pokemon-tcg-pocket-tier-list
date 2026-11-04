@@ -1,0 +1,27 @@
+{
+  "hub": "tyrantrum",
+  "name": "Tyrantrum",
+  "variants": [
+    {
+      "variant": "tyrantrum-b2-090",
+      "name": "tyrantrum-b2-090",
+      "firstSeen": "2026-01-30",
+      "lastSeen": "2026-05-26",
+      "peakShare": 0.004016551363497972,
+      "peakDate": "2026-01-30",
+      "cards": [
+        "2:b2-089",
+        "2:b2-090",
+        "2:b2-103",
+        "2:pa-007",
+        "2:b1-225",
+        "2:b2a-091",
+        "2:a2-150",
+        "1:a2b-070",
+        "2:b2-144",
+        "1:b2-147",
+        "2:b2a-093"
+      ]
+    }
+  ]
+}

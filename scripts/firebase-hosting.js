@@ -1,11 +1,19 @@
 const escapeRegExp = (value) => value.replace(/[.+?^${}()|[\]\\]/g, "\\$&");
 
+const expandBraces = (source) => {
+  const match = source.match(/^(.*)\{([^{}]+)\}(.*)$/);
+  if (!match) return [source];
+  return match[2].split(",").flatMap((part) => expandBraces(`${match[1]}${part}${match[3]}`));
+};
+
 const sourceMatcher = (source) => {
-  const wildcardTail = source.endsWith("/**");
-  const base = wildcardTail ? source.slice(0, -3) : source;
-  const body = base.split("*").map(escapeRegExp).join("[^/]*");
-  const pattern = new RegExp(`^${body}${wildcardTail ? "(?:/.*)?" : ""}$`);
-  return (requestPath) => pattern.test(requestPath);
+  const patterns = expandBraces(source).map((expanded) => {
+    const wildcardTail = expanded.endsWith("/**");
+    const base = wildcardTail ? expanded.slice(0, -3) : expanded;
+    const body = base.split("*").map(escapeRegExp).join("[^/]*");
+    return new RegExp(`^${body}${wildcardTail ? "(?:/.*)?" : ""}$`);
+  });
+  return (requestPath) => patterns.some((pattern) => pattern.test(requestPath));
 };
 
 const matchRule = (rules = [], requestPath) =>

@@ -374,5 +374,30 @@
     "20d": "20天",
     "30d": "30天",
     "all": "全部时间"
+  },
+  "deckHub": {
+    "title": "{{name}} 卡组",
+    "liveSummary_one": "当前环境中有 {{count}} 个在线变体，最强的列表优先显示",
+    "liveSummary_other": "当前环境中有 {{count}} 个在线变体，最强的列表优先显示",
+    "notInMeta": "不在当前{{expansion}}环境中。请浏览强度榜查看当前卡组排名",
+    "expansionFallback": "扩展包",
+    "unavailable": "目前无法获取实时卡组数据。下方的存档仍然是最新的",
+    "seenFrom": "出现于 {{from}} 至 {{to}}",
+    "winRate": "胜率 {{value}}%",
+    "metaShare": "环境占比 {{value}}%",
+    "allVariants": "{{name}} 的全部变体",
+    "coreCards": "核心卡牌",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "该卡组原型尚未记录卡表。",
+    "matchups": "对战关系",
+    "bestMatchups": "最有利的对战",
+    "worstMatchups": "最不利的对战",
+    "noMatchups": "与其他卡组的对战局数尚不足够。",
+    "similarDecks": "相似的当前卡组",
+    "sharedCards_one": "{{count}} 张相同卡牌",
+    "sharedCards_other": "{{count}} 张相同卡牌",
+    "noSimilarDecks": "没有当前卡组与此卡表共享卡牌。",
+    "variantHistory": "变体历史",
+    "peakShare": "峰值 {{value}}%（{{date}}）"
   }
 }

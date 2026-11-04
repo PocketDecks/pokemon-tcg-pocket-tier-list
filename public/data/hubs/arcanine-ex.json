@@ -1,0 +1,49 @@
+{
+  "hub": "arcanine-ex",
+  "name": "Arcanine ex",
+  "variants": [
+    {
+      "variant": "arcanine-ex-a1-041",
+      "name": "Arcanine ex-A1-041",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.001598751509331426,
+      "peakDate": "2025-06-02",
+      "cards": [
+        "2:a1-039",
+        "2:a1-041",
+        "1:a1-049",
+        "1:a1a-015",
+        "2:a1a-016",
+        "1:a1-048",
+        "2:pa-007",
+        "2:a1-223",
+        "1:a1-225",
+        "2:pa-001",
+        "2:pa-002",
+        "2:pa-005"
+      ]
+    },
+    {
+      "variant": "arcanine-ex-a1-041&moltres-ex-a1-047",
+      "name": "arcanine-ex-a1-041&moltres-ex-a1-047",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.0015788333685017144,
+      "peakDate": "2026-10-06",
+      "cards": [
+        "2:a1-039",
+        "2:a1-041",
+        "2:a1-047",
+        "1:a1a-032",
+        "2:a1-225",
+        "2:pa-007",
+        "2:a1-223",
+        "1:a1a-068",
+        "2:pa-002",
+        "2:pa-005",
+        "2:pa-001"
+      ]
+    }
+  ]
+}

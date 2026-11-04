@@ -1,0 +1,49 @@
+{
+  "hub": "serperior",
+  "name": "Serperior",
+  "variants": [
+    {
+      "variant": "serperior-a1a-006&exeggutor-a1a-002",
+      "name": "serperior-a1a-006&exeggutor-a1a-002",
+      "firstSeen": "2026-10-06",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.001353285744430041,
+      "peakDate": "2026-10-06",
+      "cards": [
+        "2:a1-021",
+        "2:a1-023",
+        "1:a1-022",
+        "2:a1a-004",
+        "2:a1a-005",
+        "2:a1a-006",
+        "2:a1a-003",
+        "2:pa-007",
+        "2:a1-219",
+        "2:pa-005",
+        "1:pa-002"
+      ]
+    },
+    {
+      "variant": "serperior-a1a-006&mega-heracross-ex-pb-056",
+      "name": "serperior-a1a-006&mega-heracross-ex-pb-056",
+      "firstSeen": "2026-09-24",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.001863147725712224,
+      "peakDate": "2026-10-06",
+      "cards": [
+        "2:b4a-003",
+        "2:a1a-006",
+        "2:b3-003",
+        "1:pb-056",
+        "2:a2a-074",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:b1-223",
+        "2:a3-144",
+        "1:a3-147",
+        "2:b3-153"
+      ]
+    }
+  ]
+}

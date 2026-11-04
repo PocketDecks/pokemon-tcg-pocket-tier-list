@@ -374,5 +374,30 @@
     "20d": "20일",
     "30d": "30일",
     "all": "전체 기간"
+  },
+  "deckHub": {
+    "title": "{{name}} 덱",
+    "liveSummary_one": "현재 메타에서 활성 변형 {{count}}개, 가장 강한 리스트를 먼저 표시합니다",
+    "liveSummary_other": "현재 메타에서 활성 변형 {{count}}개, 가장 강한 리스트를 먼저 표시합니다",
+    "notInMeta": "현재 {{expansion}} 메타에 없습니다. 현재 덱 순위는 티어 리스트에서 확인하세요",
+    "expansionFallback": "확장팩",
+    "unavailable": "실시간 덱 통계를 지금은 사용할 수 없습니다. 아래 아카이브는 여전히 최신입니다",
+    "seenFrom": "{{from}}부터 {{to}}까지 확인됨",
+    "winRate": "승률 {{value}}%",
+    "metaShare": "메타 점유율 {{value}}%",
+    "allVariants": "{{name}} 모든 변형 보기",
+    "coreCards": "핵심 카드",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "이 아키타입의 카드 목록은 아직 기록되지 않았습니다.",
+    "matchups": "상성",
+    "bestMatchups": "가장 유리한 상성",
+    "worstMatchups": "가장 불리한 상성",
+    "noMatchups": "다른 덱과의 대전 기록이 아직 충분하지 않습니다.",
+    "similarDecks": "비슷한 현재 덱",
+    "sharedCards_one": "공통 카드 {{count}}장",
+    "sharedCards_other": "공통 카드 {{count}}장",
+    "noSimilarDecks": "이 목록과 카드를 공유하는 현재 덱이 없습니다.",
+    "variantHistory": "변형 기록",
+    "peakShare": "최고 {{value}}% ({{date}})"
   }
 }

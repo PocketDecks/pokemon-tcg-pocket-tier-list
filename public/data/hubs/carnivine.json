@@ -1,0 +1,27 @@
+{
+  "hub": "carnivine",
+  "name": "Carnivine",
+  "variants": [
+    {
+      "variant": "carnivine-a2a-009&arceus-ex-a2a-071",
+      "name": "Carnivine-A2a-009&Arceus ex-A2a-071",
+      "firstSeen": "2025-05-27",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.002570518434019785,
+      "peakDate": "2026-01-27",
+      "cards": [
+        "2:a1-021",
+        "2:a1-023",
+        "2:a2a-071",
+        "2:a2a-009",
+        "2:a1-219",
+        "2:pa-007",
+        "2:a1a-068",
+        "1:a2-150",
+        "1:a1-225",
+        "2:pa-005",
+        "2:a2-147"
+      ]
+    }
+  ]
+}

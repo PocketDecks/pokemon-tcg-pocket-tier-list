@@ -1,0 +1,74 @@
+{
+  "hub": "baxcalibur",
+  "name": "Baxcalibur",
+  "variants": [
+    {
+      "variant": "baxcalibur-b2a-036",
+      "name": "baxcalibur-b2a-036",
+      "firstSeen": "2026-03-02",
+      "lastSeen": "2026-09-09",
+      "peakShare": 0.18156912196766598,
+      "peakDate": "2026-03-05",
+      "cards": [
+        "2:b2a-034",
+        "2:b2a-036",
+        "2:a4a-020",
+        "1:b2a-037",
+        "2:pa-007",
+        "1:a2b-070",
+        "1:b1-225",
+        "2:a3-144",
+        "2:pa-005",
+        "1:b3-147",
+        "2:a2-147",
+        "1:a4a-067",
+        "1:b4-154"
+      ]
+    },
+    {
+      "variant": "baxcalibur-b2a-036&alolan-ninetales-ex-b2-029",
+      "name": "baxcalibur-b2a-036&alolan-ninetales-ex-b2-029",
+      "firstSeen": "2026-03-10",
+      "lastSeen": "2026-06-29",
+      "peakShare": 0.014866817134455323,
+      "peakDate": "2026-03-14",
+      "cards": [
+        "2:b2a-034",
+        "2:b2a-036",
+        "2:a3-040",
+        "2:b2-029",
+        "1:b2a-037",
+        "2:b1-225",
+        "2:pa-007",
+        "1:a2b-070",
+        "2:a3-144",
+        "2:pa-005",
+        "1:b3-147",
+        "1:a4a-067"
+      ]
+    },
+    {
+      "variant": "baxcalibur-b2a-036&suicune-ex-a4a-020",
+      "name": "baxcalibur-b2a-036&suicune-ex-a4a-020",
+      "firstSeen": "2026-03-30",
+      "lastSeen": "2026-08-27",
+      "peakShare": 0.21760535689516128,
+      "peakDate": "2026-04-04",
+      "cards": [
+        "2:b2a-034",
+        "2:b2a-036",
+        "2:a4a-020",
+        "1:b2a-037",
+        "2:pa-007",
+        "1:b1-225",
+        "1:a2b-070",
+        "2:pa-005",
+        "2:a3-144",
+        "1:b3-147",
+        "2:a2-147",
+        "1:a4a-067",
+        "1:b4-154"
+      ]
+    }
+  ]
+}

@@ -19,7 +19,7 @@ import { splitLocale } from "./app/locale-route";
 const LandingPage = lazy(() => import("./pages/landing/LandingPage"));
 const TierListPage = lazy(() => import("./pages/tier-list/TierListPage"));
 const DeckFinderPage = lazy(() => import("./pages/deck/DeckFinderPage"));
-const DeckDetailPage = lazy(() => import("./pages/deck/DeckDetailPage"));
+const DeckRoute = lazy(() => import("./pages/deck/DeckRoute"));
 const CardsListPage = lazy(() => import("./pages/cards-list/CardsListPage"));
 const ExpansionListPage = lazy(() => import("./pages/expansion-list/ExpansionListPage"));
 const StatisticsPage = lazy(() => import("./pages/stats/StatisticsPage"));
@@ -136,7 +136,7 @@ const App = () => {
                       <Route path="feedback" element={<FeedbackPage />} />
                       <Route path="deck">
                         <Route index element={<DeckFinderPage />} />
-                        <Route path=":deckId" element={<DeckDetailPage />} />
+                        <Route path=":deckId" element={<DeckRoute />} />
                       </Route>
                       <Route path="*" element={<NotFoundPage />} />
                     </Route>
@@ -151,7 +151,7 @@ const App = () => {
                       <Route path="feedback" element={<FeedbackPage />} />
                       <Route path="deck">
                         <Route index element={<DeckFinderPage />} />
-                        <Route path=":deckId" element={<DeckDetailPage />} />
+                        <Route path=":deckId" element={<DeckRoute />} />
                       </Route>
                       <Route path="*" element={<NotFoundPage />} />
                     </Route>

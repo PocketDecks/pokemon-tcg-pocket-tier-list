@@ -1,0 +1,28 @@
+{
+  "hub": "ninetales",
+  "name": "Ninetales",
+  "variants": [
+    {
+      "variant": "ninetales-a1-038&rapidash-b2b-011",
+      "name": "ninetales-a1-038&rapidash-b2b-011",
+      "firstSeen": "2026-10-06",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.00150365082714449,
+      "peakDate": "2026-10-06",
+      "cards": [
+        "2:a1-037",
+        "2:a1-038",
+        "2:a1a-010",
+        "2:a1a-011",
+        "2:a1-221",
+        "2:pa-007",
+        "1:a1-225",
+        "1:a1a-067",
+        "2:pa-001",
+        "2:pa-005",
+        "1:pa-002",
+        "1:pa-006"
+      ]
+    }
+  ]
+}

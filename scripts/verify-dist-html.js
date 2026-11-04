@@ -10,6 +10,8 @@ const {
 const { resolveHosting } = require("./firebase-hosting");
 const { inlineScriptHashes, parsePolicy, reportOnlyPolicy } = require("./content-security-policy");
 const { DELUXE_EXPANSION_IDS, newestExpansion } = require("../src/app/expansion-policy.mjs");
+const { shouldIndexHub } = require("./deck-archive-policy.mjs");
+const { hubDisplayName } = require("./deck-archetype.mjs");
 
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
@@ -104,6 +106,65 @@ const findCanonicalIssues = (dir = DIST_DIR) =>
       const expected = expectedCanonical(entry);
       return href === expected ? [] : [`${entry}: canonical ${href} is not ${expected}`];
     });
+
+const metaContent = (html, name) => {
+  const tag = (html.match(/<meta\b[^>]*>/gi) ?? []).find((candidate) =>
+    new RegExp(`\\bname=["']${name}["']`, "i").test(candidate)
+  );
+  return tag === undefined ? [] : [decodeXmlEntities(tag.match(/\bcontent=["']([^"']*)["']/i)?.[1] ?? "")];
+};
+
+const hubHtmlIssues = (entry, html, expectedRobots, expectedName) => {
+  const issues = [];
+  const canonicals = html.match(CANONICAL_TAG) ?? [];
+  if (canonicals.length !== 1) {
+    issues.push(`${entry}: expected 1 canonical, found ${canonicals.length}`);
+  }
+  const robots = (html.match(/<meta\b[^>]*>/gi) ?? [])
+    .filter((tag) => /\bname=["']robots["']/i.test(tag))
+    .map((tag) => tag.match(/\bcontent=["']([^"']*)["']/i)?.[1] ?? "");
+  if (robots.length !== 1 || robots[0] !== expectedRobots) {
+    issues.push(`${entry}: robots ${robots.join(",") || "none"} is not ${expectedRobots}`);
+  }
+  const title = (html.match(/<title>([^<]*)<\/title>/i)?.[1] ?? "").trim();
+  const description = (metaContent(html, "description")[0] ?? "").trim();
+  const h1 = (html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i)?.[1] ?? "").replace(/<[^>]+>/g, "").trim();
+  if (!title) issues.push(`${entry}: empty title`);
+  if (!description) issues.push(`${entry}: empty description`);
+  if (!h1) issues.push(`${entry}: empty H1`);
+  else if (!h1.includes(expectedName)) issues.push(`${entry}: H1 "${h1}" does not name ${expectedName}`);
+  const jsonLd = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi)].map((m) => m[1]);
+  for (const [label, text] of [["title", title], ["description", description], ["H1", h1], ["breadcrumb", jsonLd.join(" ")]]) {
+    if (/\bundefined\b/.test(text)) issues.push(`${entry}: ${label} contains undefined`);
+  }
+  return issues;
+};
+
+const findHubPageIssues = (dir = DIST_DIR, archive = loadArchive()) => {
+  const hubs = [...new Set(archive.map((entry) => entry.hub))];
+  return hubs.flatMap((hub) => {
+    const entries = archive.filter((entry) => entry.hub === hub);
+    const indexed = shouldIndexHub(entries);
+    const name = hubDisplayName(entries);
+    return ["", "ja/"].flatMap((prefix) => {
+      const entry = `${prefix}deck/${hub}/index.html`;
+      const file = path.join(dir, entry);
+      if (!fs.existsSync(file)) return [`${entry}: missing`];
+      const expectedRobots = prefix === "" && indexed ? "index, follow" : "noindex, follow";
+      return hubHtmlIssues(entry, fs.readFileSync(file, "utf8"), expectedRobots, name);
+    });
+  });
+};
+
+const HEAD_BLOCK = /<head\b[^>]*>[\s\S]*?<\/head>/i;
+const TITLE_TAG = /<title\b[^>]*>[\s\S]*?<\/title>/gi;
+
+const findTitleCountIssues = (dir = DIST_DIR) =>
+  listHtmlFiles(dir).flatMap((entry) => {
+    const html = fs.readFileSync(path.join(dir, entry), "utf8");
+    const count = (html.match(HEAD_BLOCK)?.[0].match(TITLE_TAG) ?? []).length;
+    return count === 1 ? [] : [`${entry}: expected 1 title, found ${count}`];
+  });
 
 const findShellPageIssues = (dir = DIST_DIR) =>
   [...SHELL_PAGES].flatMap((entry) => {
@@ -238,6 +299,9 @@ const loadDecks = (dataDir = DATA_DIR) => {
   }
 };
 
+const loadArchive = (dataDir = DATA_DIR) =>
+  JSON.parse(fs.readFileSync(path.join(dataDir, "deck-archive.json"), "utf8"));
+
 const loadExpansions = () =>
   require("pokemon-tcg-pocket-cards/data/v5/expansions.json");
 
@@ -297,8 +361,13 @@ const imageCandidates = (tag) =>
     .map((candidate) => candidate.trim().split(/\s+/)[0])
     .filter(Boolean);
 
-const findDeckImagePreloadIssues = (dir = DIST_DIR) =>
-  deckDetailFiles(dir).flatMap((file) => {
+const findDeckImagePreloadIssues = (
+  dir = DIST_DIR,
+  hubSlugs = new Set(loadArchive().map((entry) => entry.hub))
+) =>
+  deckDetailFiles(dir)
+    .filter((file) => !hubSlugs.has(path.basename(path.dirname(file))))
+    .flatMap((file) => {
     const entry = path.relative(dir, file);
     const tags = collectImagePreloads(fs.readFileSync(file, "utf8"));
     if (tags.length !== 1) {
@@ -372,11 +441,21 @@ const main = () => {
     );
     process.exit(1);
   }
+  const titleIssues = findTitleCountIssues();
+  if (titleIssues.length > 0) {
+    console.error(`Built pages without exactly one title:\n${titleIssues.join("\n")}`);
+    process.exit(1);
+  }
   const canonicalIssues = findCanonicalIssues();
   if (canonicalIssues.length > 0) {
     console.error(
       `Pages without exactly one canonical of their own:\n${canonicalIssues.join("\n")}`
     );
+    process.exit(1);
+  }
+  const hubIssues = findHubPageIssues();
+  if (hubIssues.length > 0) {
+    console.error(`Deck hub pages failing the head or copy checks:\n${hubIssues.join("\n")}`);
     process.exit(1);
   }
   const shellIssues = findShellPageIssues();
@@ -461,9 +540,11 @@ if (require.main === module) main();
 
 module.exports = {
   findBakedAppState,
+  findHubPageIssues,
   findCanonicalIssues,
   findCspHashIssues,
   findShellPageIssues,
+  findTitleCountIssues,
   findUnresolvedAppRoutes,
   findDeckImagePreloadIssues,
   findEmptyDeckRoots,

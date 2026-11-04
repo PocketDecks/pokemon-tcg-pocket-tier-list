@@ -1,0 +1,28 @@
+{
+  "hub": "wishiwashi-ex",
+  "name": "Wishiwashi ex",
+  "variants": [
+    {
+      "variant": "wishiwashi-ex-a3-051&wishiwashi-a3-050",
+      "name": "Wishiwashi ex-A3-051&Wishiwashi-A3-050",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0020887881438654966,
+      "peakDate": "2025-06-21",
+      "cards": [
+        "2:a3-051",
+        "2:a3-050",
+        "2:a1-220",
+        "2:pa-007",
+        "2:a2a-072",
+        "1:a2b-071",
+        "1:a1-225",
+        "1:a3-151",
+        "1:a1a-068",
+        "2:a3-143",
+        "2:pa-005",
+        "2:a2-147"
+      ]
+    }
+  ]
+}

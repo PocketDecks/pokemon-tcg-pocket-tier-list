@@ -1,0 +1,143 @@
+{
+  "hub": "mega-lopunny-ex",
+  "name": "Mega Lopunny ex",
+  "variants": [
+    {
+      "variant": "mega-lopunny-ex-b1a-042",
+      "name": "mega-lopunny-ex-b1a-042",
+      "firstSeen": "2025-12-20",
+      "lastSeen": "2026-06-29",
+      "peakShare": 0.03571030232381836,
+      "peakDate": "2025-12-20",
+      "cards": [
+        "2:b1a-062",
+        "2:b1a-042",
+        "1:pb-051",
+        "1:a1-154",
+        "2:b1-225",
+        "2:pa-007",
+        "2:b2a-092",
+        "2:a4-156",
+        "1:a2-150",
+        "2:pa-005",
+        "1:a3-142",
+        "1:a2-147",
+        "1:b3-154"
+      ]
+    },
+    {
+      "variant": "mega-lopunny-ex-b1a-042&darkrai-b2b-040",
+      "name": "mega-lopunny-ex-b1a-042&darkrai-b2b-040",
+      "firstSeen": "2026-05-05",
+      "lastSeen": "2026-06-29",
+      "peakShare": 0.0069580220387011945,
+      "peakDate": "2026-05-05",
+      "cards": [
+        "2:a2b-066",
+        "2:b1a-042",
+        "2:a4a-059",
+        "2:b2b-040",
+        "2:pa-007",
+        "2:b2a-092",
+        "2:a4-156",
+        "1:b1-225",
+        "1:b1-226",
+        "2:pa-005",
+        "2:pa-002"
+      ]
+    },
+    {
+      "variant": "mega-lopunny-ex-b1a-042&greninja-a1-089",
+      "name": "mega-lopunny-ex-b1a-042&greninja-a1-089",
+      "firstSeen": "2026-02-01",
+      "lastSeen": "2026-03-18",
+      "peakShare": 0.0023472395654336965,
+      "peakDate": "2026-02-01",
+      "cards": [
+        "2:a1-087",
+        "1:a1-088",
+        "2:a1-089",
+        "2:a2b-066",
+        "2:b1a-042",
+        "2:b1-109",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:b1-226",
+        "1:pa-005",
+        "1:a3-144",
+        "1:b2-153"
+      ]
+    },
+    {
+      "variant": "mega-lopunny-ex-b1a-042&lucario-a2-092",
+      "name": "mega-lopunny-ex-b1a-042&lucario-a2-092",
+      "firstSeen": "2025-12-20",
+      "lastSeen": "2026-03-18",
+      "peakShare": 0.08288296322984903,
+      "peakDate": "2025-12-22",
+      "cards": [
+        "2:b1a-062",
+        "2:b1a-042",
+        "2:a2-091",
+        "2:a2-092",
+        "1:a4-102",
+        "2:pa-007",
+        "1:b1-225",
+        "1:a2-150",
+        "1:b1-223",
+        "1:a4-156",
+        "1:a3-151",
+        "2:pa-005",
+        "1:pa-006",
+        "1:pa-002"
+      ]
+    },
+    {
+      "variant": "mega-lopunny-ex-b1a-042&magneton-a1-098",
+      "name": "mega-lopunny-ex-b1a-042&magneton-a1-098",
+      "firstSeen": "2025-12-22",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.012211101408049128,
+      "peakDate": "2025-12-22",
+      "cards": [
+        "2:a2b-066",
+        "2:b1a-042",
+        "2:b1a-024",
+        "2:a1-098",
+        "2:b1a-026",
+        "1:b1-109",
+        "2:b1-226",
+        "2:pa-007",
+        "1:b1-225",
+        "1:b1a-068",
+        "1:a2-150",
+        "1:pa-006",
+        "1:pa-005"
+      ]
+    },
+    {
+      "variant": "mega-lopunny-ex-b1a-042&magnezone-a2-053",
+      "name": "mega-lopunny-ex-b1a-042&magnezone-a2-053",
+      "firstSeen": "2026-02-01",
+      "lastSeen": "2026-03-18",
+      "peakShare": 0.00004079243239073785,
+      "peakDate": "2026-02-01",
+      "cards": [
+        "2:a2b-066",
+        "2:b1a-042",
+        "2:b1a-024",
+        "2:a1-098",
+        "2:b1a-026",
+        "1:b1-109",
+        "2:b1-226",
+        "2:pa-007",
+        "1:b1-225",
+        "1:b1a-068",
+        "1:a2-150",
+        "1:pa-006",
+        "1:pa-005"
+      ]
+    }
+  ]
+}

@@ -374,5 +374,30 @@
     "20d": "20 jours",
     "30d": "30 jours",
     "all": "toute la période"
+  },
+  "deckHub": {
+    "title": "Deck {{name}}",
+    "liveSummary_one": "{{count}} variante active dans le méta actuel, avec la liste la plus forte en premier",
+    "liveSummary_other": "{{count}} variantes actives dans le méta actuel, avec les listes les plus fortes en premier",
+    "notInMeta": "Absent du méta {{expansion}} actuel. Consultez la liste des tiers pour les classements actuels",
+    "expansionFallback": "extension",
+    "unavailable": "Les statistiques des decks en direct sont indisponibles pour le moment. L'archive ci-dessous reste à jour",
+    "seenFrom": "Vu du {{from}} au {{to}}",
+    "winRate": "{{value}}% de victoires",
+    "metaShare": "{{value}}% du méta",
+    "allVariants": "Toutes les variantes de {{name}}",
+    "coreCards": "Cartes principales",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "Aucune liste de cartes n'est encore enregistrée pour cet archétype.",
+    "matchups": "Matchups",
+    "bestMatchups": "Meilleurs matchups",
+    "worstMatchups": "Pires matchups",
+    "noMatchups": "Pas encore assez de parties contre d'autres decks enregistrées.",
+    "similarDecks": "Decks actuels similaires",
+    "sharedCards_one": "{{count}} carte commune",
+    "sharedCards_other": "{{count}} cartes communes",
+    "noSimilarDecks": "Aucun deck actuel ne partage de cartes avec cette liste.",
+    "variantHistory": "Historique des variantes",
+    "peakShare": "Pic de {{value}} % le {{date}}"
   }
 }

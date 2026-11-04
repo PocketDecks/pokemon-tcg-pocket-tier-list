@@ -1,0 +1,75 @@
+{
+  "hub": "meowscarada-ex",
+  "name": "Meowscarada ex",
+  "variants": [
+    {
+      "variant": "meowscarada-ex-b2a-003",
+      "name": "meowscarada-ex-b2a-003",
+      "firstSeen": "2026-03-02",
+      "lastSeen": "2026-08-27",
+      "peakShare": 0.047924836762621166,
+      "peakDate": "2026-07-02",
+      "cards": [
+        "2:a2b-005",
+        "1:b2a-002",
+        "2:b2a-003",
+        "1:a2b-007",
+        "1:b2-017",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:a1-219",
+        "2:a3-144",
+        "1:b3-147",
+        "2:a3-147",
+        "2:b3-153"
+      ]
+    },
+    {
+      "variant": "meowscarada-ex-b2a-003&meowscarada-a2b-007",
+      "name": "meowscarada-ex-b2a-003&meowscarada-a2b-007",
+      "firstSeen": "2026-09-08",
+      "lastSeen": "2026-10-15",
+      "peakShare": 0.008392528545396547,
+      "peakDate": "2026-09-08",
+      "cards": [
+        "2:a2b-005",
+        "1:b2a-002",
+        "2:b2a-003",
+        "1:a2b-007",
+        "1:b2-017",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:a1-219",
+        "2:a3-144",
+        "1:b3-147",
+        "2:a3-147",
+        "2:b3-153"
+      ]
+    },
+    {
+      "variant": "meowscarada-ex-b2a-003&teal-mask-ogerpon-ex-b2-017",
+      "name": "meowscarada-ex-b2a-003&teal-mask-ogerpon-ex-b2-017",
+      "firstSeen": "2026-09-09",
+      "lastSeen": "2026-09-09",
+      "peakShare": 0.008052834956266384,
+      "peakDate": "2026-09-09",
+      "cards": [
+        "2:a2b-005",
+        "1:b2a-002",
+        "2:b2a-003",
+        "1:a2b-007",
+        "1:b2-017",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:a1-219",
+        "2:a3-144",
+        "1:b2-145",
+        "2:a3-147",
+        "2:b3-153"
+      ]
+    }
+  ]
+}

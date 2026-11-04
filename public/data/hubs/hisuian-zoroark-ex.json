@@ -1,0 +1,29 @@
+{
+  "hub": "hisuian-zoroark-ex",
+  "name": "Hisuian Zoroark ex",
+  "variants": [
+    {
+      "variant": "hisuian-zoroark-ex-b3b-060",
+      "name": "hisuian-zoroark-ex-b3b-060",
+      "firstSeen": "2026-07-03",
+      "lastSeen": "2026-07-06",
+      "peakShare": 0.012103696205694934,
+      "peakDate": "2026-07-03",
+      "cards": [
+        "2:b3a-044",
+        "2:b3a-045",
+        "2:b3b-059",
+        "2:b3b-060",
+        "1:a3a-042",
+        "1:b1-120",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a1-225",
+        "2:pa-005",
+        "1:a3-146",
+        "1:b3b-065",
+        "1:b2-153"
+      ]
+    }
+  ]
+}

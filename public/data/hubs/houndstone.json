@@ -1,0 +1,51 @@
+{
+  "hub": "houndstone",
+  "name": "Houndstone",
+  "variants": [
+    {
+      "variant": "houndstone-b2a-053",
+      "name": "houndstone-b2a-053",
+      "firstSeen": "2026-03-05",
+      "lastSeen": "2026-03-18",
+      "peakShare": 0.0011435287409182861,
+      "peakDate": "2026-03-05",
+      "cards": [
+        "2:a2-070",
+        "1:b1-104",
+        "2:b1-105",
+        "2:b2a-052",
+        "2:b2a-053",
+        "1:b1-120",
+        "2:b1-225",
+        "2:pa-007",
+        "2:pa-005",
+        "1:a3-144",
+        "1:b2-147",
+        "1:a2-147",
+        "1:b2-155"
+      ]
+    },
+    {
+      "variant": "houndstone-b2a-053&gourgeist-b2-072",
+      "name": "houndstone-b2a-053&gourgeist-b2-072",
+      "firstSeen": "2026-03-05",
+      "lastSeen": "2026-06-29",
+      "peakShare": 0.026894363034345316,
+      "peakDate": "2026-03-18",
+      "cards": [
+        "2:b2-071",
+        "2:b2-072",
+        "2:b2a-052",
+        "2:b2a-053",
+        "2:b2-070",
+        "1:b1-120",
+        "2:pa-007",
+        "1:a2-150",
+        "1:b1-225",
+        "2:pa-005",
+        "1:a2-147",
+        "2:b2-155"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "hub": "mega-scizor-ex",
+  "name": "Mega Scizor ex",
+  "variants": [
+    {
+      "variant": "mega-scizor-ex-b2b-047&revavroom-b2b-050",
+      "name": "mega-scizor-ex-b2b-047&revavroom-b2b-050",
+      "firstSeen": "2026-03-30",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.05791752279383559,
+      "peakDate": "2026-04-06",
+      "cards": [
+        "2:b2b-049",
+        "2:b2b-050",
+        "2:b2b-001",
+        "2:b2b-047",
+        "1:b2a-077",
+        "2:b1-225",
+        "2:pa-007",
+        "1:a2b-071",
+        "1:a2-150",
+        "2:pa-005",
+        "2:b2-148",
+        "1:b2-153"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "hub": "probopass-ex",
+  "name": "Probopass ex",
+  "variants": [
+    {
+      "variant": "probopass-ex-a2a-057",
+      "name": "Probopass ex-A2a-057",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0001875400030302613,
+      "peakDate": "2025-07-21",
+      "cards": [
+        "2:pa-045",
+        "2:a2a-057",
+        "2:a2-111",
+        "2:pa-007",
+        "2:a2a-075",
+        "1:a2-150",
+        "1:a1-225",
+        "2:pa-005",
+        "1:pa-002",
+        "1:pa-001",
+        "2:a2-148",
+        "2:a2-147"
+      ]
+    },
+    {
+      "variant": "probopass-ex-a2a-057&dialga-ex-a2-119",
+      "name": "Probopass ex-A2a-057&Dialga ex-A2-119",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.000029814843856176765,
+      "peakDate": "2025-11-03",
+      "cards": [
+        "2:a2-086",
+        "2:a2a-057",
+        "2:a2-119",
+        "2:pa-007",
+        "2:a1a-068",
+        "2:a2a-075",
+        "1:a1-225",
+        "1:a2-150",
+        "2:pa-005",
+        "1:pa-001",
+        "2:a2-147",
+        "1:a2-148"
+      ]
+    }
+  ]
+}

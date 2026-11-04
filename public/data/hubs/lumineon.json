@@ -1,0 +1,26 @@
+{
+  "hub": "lumineon",
+  "name": "Lumineon",
+  "variants": [
+    {
+      "variant": "lumineon-a1a-021",
+      "name": "Lumineon-A1a-021",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00033132177108710235,
+      "peakDate": "2025-08-14",
+      "cards": [
+        "2:a1a-020",
+        "2:a1a-021",
+        "2:a1-087",
+        "2:a1-088",
+        "2:a1-089",
+        "2:pa-007",
+        "2:a1-225",
+        "2:a1-220",
+        "2:pa-005",
+        "2:pa-001"
+      ]
+    }
+  ]
+}

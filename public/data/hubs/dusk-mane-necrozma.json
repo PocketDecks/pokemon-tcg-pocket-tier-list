@@ -1,0 +1,75 @@
+{
+  "hub": "dusk-mane-necrozma",
+  "name": "Dusk Mane Necrozma",
+  "variants": [
+    {
+      "variant": "dusk-mane-necrozma-pa-079",
+      "name": "Dusk Mane Necrozma-PA-079",
+      "firstSeen": "2026-01-27",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00008249364177797374,
+      "peakDate": "2026-01-27",
+      "cards": [
+        "2:b1a-041",
+        "2:b1a-053",
+        "2:b1a-054",
+        "2:pa-079",
+        "1:a4a-023",
+        "2:pa-007",
+        "2:a1a-068",
+        "2:a3a-069",
+        "1:a1-225",
+        "1:a2-150",
+        "1:b1-223",
+        "2:pa-005"
+      ]
+    },
+    {
+      "variant": "dusk-mane-necrozma-pa-079&celesteela-a3a-062",
+      "name": "Dusk Mane Necrozma-PA-079&Celesteela-A3a-062",
+      "firstSeen": "2025-11-28",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0000013632093923599982,
+      "peakDate": "2025-12-20",
+      "cards": [
+        "2:a2b-035",
+        "2:a3a-062",
+        "2:pa-079",
+        "1:pa-081",
+        "2:pa-007",
+        "2:a3a-069",
+        "2:a2-154",
+        "1:a2-155",
+        "1:a2-150",
+        "2:pa-005",
+        "1:a2-148",
+        "1:a2-147",
+        "1:a3-146"
+      ]
+    },
+    {
+      "variant": "dusk-mane-necrozma-pa-079&stakataka-a3a-053",
+      "name": "Dusk Mane Necrozma-PA-079&Stakataka-A3a-053",
+      "firstSeen": "2025-11-28",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0000014086497054386648,
+      "peakDate": "2025-12-20",
+      "cards": [
+        "2:pa-079",
+        "2:a3a-062",
+        "2:a3a-053",
+        "2:a3a-069",
+        "2:pa-007",
+        "1:a2a-075",
+        "1:a1-225",
+        "1:a3-151",
+        "1:a2-150",
+        "2:pa-005",
+        "1:pa-006",
+        "1:a3a-063",
+        "1:a3a-066",
+        "1:a2-147"
+      ]
+    }
+  ]
+}

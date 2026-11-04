@@ -1,0 +1,29 @@
+{
+  "hub": "mega-mewtwo-x-ex",
+  "name": "Mega Mewtwo X ex",
+  "variants": [
+    {
+      "variant": "mega-mewtwo-x-ex-c1-056&mew-ex-c1-057",
+      "name": "mega-mewtwo-x-ex-c1-056&mew-ex-c1-057",
+      "firstSeen": "2026-11-02",
+      "lastSeen": "2026-11-02",
+      "peakShare": 0.0428913564119312,
+      "peakDate": "2026-11-02",
+      "cards": [
+        "2:c1-057",
+        "2:c1-056",
+        "1:b3b-035",
+        "2:pa-007",
+        "1:b3-149",
+        "1:b1-225",
+        "1:a2-150",
+        "1:a2-155",
+        "2:pa-005",
+        "2:b3-147",
+        "2:c1-123",
+        "2:b2-155",
+        "1:b3-154"
+      ]
+    }
+  ]
+}

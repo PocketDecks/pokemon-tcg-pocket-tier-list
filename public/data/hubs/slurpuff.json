@@ -1,0 +1,28 @@
+{
+  "hub": "slurpuff",
+  "name": "Slurpuff",
+  "variants": [
+    {
+      "variant": "slurpuff-a3b-032&alcremie-a3b-037",
+      "name": "Slurpuff-A3b-032&Alcremie-A3b-037",
+      "firstSeen": "2025-07-08",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.014112701846018639,
+      "peakDate": "2025-07-08",
+      "cards": [
+        "2:a3b-031",
+        "2:a3b-032",
+        "2:a3b-036",
+        "2:a3b-037",
+        "2:pa-007",
+        "2:a2a-072",
+        "1:a1-225",
+        "1:a2-150",
+        "2:pa-005",
+        "1:pa-002",
+        "1:a2-146",
+        "2:a2-147"
+      ]
+    }
+  ]
+}

@@ -374,5 +374,30 @@
     "20d": "20 Tage",
     "30d": "30 Tage",
     "all": "gesamter Zeitraum"
+  },
+  "deckHub": {
+    "title": "{{name}}-Deck",
+    "liveSummary_one": "{{count}} aktive Variante im aktuellen Meta, die stärkste Liste zuerst",
+    "liveSummary_other": "{{count}} aktive Varianten im aktuellen Meta, die stärksten Listen zuerst",
+    "notInMeta": "Nicht im aktuellen {{expansion}}-Meta. Durchsuche die Tier-Liste nach aktuellen Deck-Rankings",
+    "expansionFallback": "Erweiterung",
+    "unavailable": "Live-Deckstatistiken sind momentan nicht verfügbar. Das Archiv unten ist weiterhin aktuell",
+    "seenFrom": "Gesehen von {{from}} bis {{to}}",
+    "winRate": "{{value}}% Siegrate",
+    "metaShare": "{{value}}% Meta-Anteil",
+    "allVariants": "Alle Varianten von {{name}}",
+    "coreCards": "Kernkarten",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "Für diesen Archetyp ist noch keine Kartenliste erfasst.",
+    "matchups": "Matchups",
+    "bestMatchups": "Beste Matchups",
+    "worstMatchups": "Schwächste Matchups",
+    "noMatchups": "Es sind noch nicht genug Spiele gegen andere Decks erfasst.",
+    "similarDecks": "Ähnliche aktuelle Decks",
+    "sharedCards_one": "{{count}} gemeinsame Karte",
+    "sharedCards_other": "{{count}} gemeinsame Karten",
+    "noSimilarDecks": "Kein aktuelles Deck teilt Karten mit dieser Liste.",
+    "variantHistory": "Verlauf der Varianten",
+    "peakShare": "Höchstwert {{value}} % am {{date}}"
   }
 }

@@ -1,0 +1,95 @@
+{
+  "hub": "galarian-obstagoon",
+  "name": "Galarian Obstagoon",
+  "variants": [
+    {
+      "variant": "galarian-obstagoon-b2-100",
+      "name": "galarian-obstagoon-b2-100",
+      "firstSeen": "2026-01-31",
+      "lastSeen": "2026-08-27",
+      "peakShare": 0.11980639173008699,
+      "peakDate": "2026-01-31",
+      "cards": [
+        "2:b4-095",
+        "2:b2-100",
+        "2:b4-103",
+        "1:b3-115",
+        "2:pa-007",
+        "2:a2-150",
+        "1:b1-225",
+        "1:b2-152",
+        "2:pa-005",
+        "2:a3-144",
+        "1:b3-147",
+        "2:b4-148"
+      ]
+    },
+    {
+      "variant": "galarian-obstagoon-b2-100&chingling-b1-109",
+      "name": "Galarian Obstagoon-B2-100&Chingling-B1-109",
+      "firstSeen": "2026-01-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.12580219498345155,
+      "peakDate": "2026-01-30",
+      "cards": [
+        "2:b2-098",
+        "2:b2-100",
+        "2:b1-109",
+        "1:b1-151",
+        "1:a2-110",
+        "2:b2-152",
+        "2:b1-225",
+        "2:pa-007",
+        "1:a2-150",
+        "2:a3-144",
+        "2:pa-005",
+        "1:a2-148"
+      ]
+    },
+    {
+      "variant": "galarian-obstagoon-b2-100&darkrai-ex-a2-110",
+      "name": "Galarian Obstagoon-B2-100&Darkrai ex-A2-110",
+      "firstSeen": "2026-01-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.005026811127902873,
+      "peakDate": "2026-01-30",
+      "cards": [
+        "2:b2-098",
+        "1:b2-099",
+        "2:b2-100",
+        "2:a2-110",
+        "2:pa-007",
+        "2:b1-225",
+        "2:b2-152",
+        "1:a2-150",
+        "2:a3-144",
+        "2:pa-005",
+        "2:a2-148"
+      ]
+    },
+    {
+      "variant": "galarian-obstagoon-b2-100&mega-absol-ex-b1-151",
+      "name": "Galarian Obstagoon-B2-100&Mega Absol ex-B1-151",
+      "firstSeen": "2026-01-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.011372066298537044,
+      "peakDate": "2026-01-30",
+      "cards": [
+        "2:b2-098",
+        "2:b2-100",
+        "1:a2-110",
+        "1:b1-109",
+        "1:b1-151",
+        "2:pa-007",
+        "2:b2-152",
+        "1:a1a-068",
+        "1:a2-150",
+        "1:b1-225",
+        "1:b1-223",
+        "2:pa-005",
+        "2:a3-144",
+        "1:a2-148"
+      ]
+    }
+  ]
+}

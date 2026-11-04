@@ -3,3 +3,11 @@ export const JA_DECK_TITLE_SUFFIX: string;
 export const JA_HOME_LABEL: string;
 export const JA_TIER_LIST_LABEL: string;
 export const JA_DECK_DESCRIPTION_SUFFIX: string;
+export const JA_HUB_TITLE_SUFFIX: string;
+export const JA_HUB_LIVE_DESCRIPTION_SUFFIX: string;
+export const JA_HUB_RETIRED_DESCRIPTION_SUFFIX: string;
+export const hubHead: (
+  name: string,
+  status: "live" | "retired" | "unknown",
+  translated: boolean
+) => { title: string; description: string };

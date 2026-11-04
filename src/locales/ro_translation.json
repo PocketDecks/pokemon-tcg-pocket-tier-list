@@ -374,5 +374,30 @@
     "20d": "20 zile",
     "30d": "30 zile",
     "all": "toată perioada"
+  },
+  "deckHub": {
+    "title": "Deck {{name}}",
+    "liveSummary_one": "{{count}} variantă activă în metagame-ul actual, cu cea mai puternică listă primă",
+    "liveSummary_other": "{{count}} variante active în metagame-ul actual, cu cele mai puternice liste primele",
+    "notInMeta": "Nu este în metagame-ul {{expansion}} actual. Consultă lista de tier-uri pentru clasamentele actuale",
+    "expansionFallback": "expansiune",
+    "unavailable": "Statisticile live ale deck-urilor nu sunt disponibile acum. Arhiva de mai jos este totuși actuală",
+    "seenFrom": "Văzut din {{from}} până în {{to}}",
+    "winRate": "{{value}}% rată de victorii",
+    "metaShare": "{{value}}% din metagame",
+    "allVariants": "Toate variantele {{name}}",
+    "coreCards": "Carduri de bază",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "Nu există încă o listă de carduri înregistrată pentru acest arhetip.",
+    "matchups": "Meciuri directe",
+    "bestMatchups": "Cele mai bune meciuri directe",
+    "worstMatchups": "Cele mai slabe meciuri directe",
+    "noMatchups": "Încă nu există suficiente partide înregistrate împotriva altor decks.",
+    "similarDecks": "Decks actuale similare",
+    "sharedCards_one": "{{count}} card comun",
+    "sharedCards_other": "{{count}} carduri comune",
+    "noSimilarDecks": "Niciun deck actual nu are carduri comune cu această listă.",
+    "variantHistory": "Istoricul variantelor",
+    "peakShare": "Vârf de {{value}}% pe {{date}}"
   }
 }

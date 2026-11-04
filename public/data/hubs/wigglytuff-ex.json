@@ -1,0 +1,49 @@
+{
+  "hub": "wigglytuff-ex",
+  "name": "Wigglytuff ex",
+  "variants": [
+    {
+      "variant": "wigglytuff-ex-a1-195",
+      "name": "Wigglytuff ex-A1-195",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0004247539650999831,
+      "peakDate": "2025-11-05",
+      "cards": [
+        "2:pa-022",
+        "2:a1-195",
+        "2:a2-119",
+        "2:pa-007",
+        "1:a1-223",
+        "1:a1-225",
+        "1:a2-150",
+        "1:a1a-068",
+        "2:pa-005",
+        "2:pa-001",
+        "2:pa-002",
+        "2:a2-147"
+      ]
+    },
+    {
+      "variant": "wigglytuff-ex-a1-195&greninja-a1-089",
+      "name": "Wigglytuff ex-A1-195&Greninja-A1-089",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.000020148697836467432,
+      "peakDate": "2025-05-27",
+      "cards": [
+        "2:pa-022",
+        "2:a1-195",
+        "2:a1-087",
+        "2:a1-088",
+        "2:a1-089",
+        "2:a1a-056",
+        "2:pa-007",
+        "2:a1a-068",
+        "1:a1-223",
+        "2:pa-005",
+        "1:pa-002"
+      ]
+    }
+  ]
+}

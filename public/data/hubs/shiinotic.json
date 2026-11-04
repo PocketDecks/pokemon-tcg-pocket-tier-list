@@ -1,0 +1,28 @@
+{
+  "hub": "shiinotic",
+  "name": "Shiinotic",
+  "variants": [
+    {
+      "variant": "shiinotic-a3a-027",
+      "name": "Shiinotic-A3a-027",
+      "firstSeen": "2025-06-07",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0010279838179890776,
+      "peakDate": "2025-06-16",
+      "cards": [
+        "2:b1-103",
+        "2:a2-072",
+        "2:a3a-026",
+        "2:a3a-027",
+        "2:b1-151",
+        "2:pa-007",
+        "1:b1-226",
+        "1:a2-150",
+        "1:a2-155",
+        "2:a3-144",
+        "2:pa-005",
+        "1:a2-147"
+      ]
+    }
+  ]
+}

@@ -374,5 +374,30 @@
     "20d": "20 giorni",
     "30d": "30 giorni",
     "all": "tutto il periodo"
+  },
+  "deckHub": {
+    "title": "Mazzo {{name}}",
+    "liveSummary_one": "{{count}} variante attiva nel meta attuale, con la lista più forte per prima",
+    "liveSummary_other": "{{count}} varianti attive nel meta attuale, con le liste più forti per prime",
+    "notInMeta": "Non presente nel meta {{expansion}} attuale. Consulta la lista dei tier per le classifiche attuali",
+    "expansionFallback": "espansione",
+    "unavailable": "Le statistiche dei mazzi in tempo reale non sono disponibili al momento. L'archivio qui sotto è comunque aggiornato",
+    "seenFrom": "Visto dal {{from}} al {{to}}",
+    "winRate": "{{value}}% di vittorie",
+    "metaShare": "{{value}}% del meta",
+    "allVariants": "Tutte le varianti di {{name}}",
+    "coreCards": "Carte principali",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "Non è ancora registrata una lista di carte per questo archetipo.",
+    "matchups": "Matchup",
+    "bestMatchups": "Migliori matchup",
+    "worstMatchups": "Peggiori matchup",
+    "noMatchups": "Non ci sono ancora abbastanza partite registrate contro altri mazzi.",
+    "similarDecks": "Mazzi attuali simili",
+    "sharedCards_one": "{{count}} carta in comune",
+    "sharedCards_other": "{{count}} carte in comune",
+    "noSimilarDecks": "Nessun mazzo attuale condivide carte con questa lista.",
+    "variantHistory": "Storico delle varianti",
+    "peakShare": "Picco del {{value}} % il {{date}}"
   }
 }

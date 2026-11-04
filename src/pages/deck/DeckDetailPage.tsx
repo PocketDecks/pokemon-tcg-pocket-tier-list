@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { CardType, fetchCards } from "../../app/cards-api";
 import DeckCardGrid from "./DeckCardGrid";
 import DeckHeadTags from "./DeckHeadTags";
+import DeckHubLink from "./DeckHubLink";
 import DeckCard from "../../components/DeckCard";
 import { MIN_MATCHUP_GAMES, WINRATE_THRESHOLD } from "../../app/config";
 import useIsPremium from "../../app/use-is-premium";
@@ -241,6 +242,7 @@ const DeckDetailPage = () => {
         <BackIcon name="arrowRight" size={18} />
         {t("notFound.backToTierList", "Back to the tier list")}
       </BackToTierList>
+      <DeckHubLink variant={deckId ?? ""} />
       <StyledDeckPage>
         <CardSection>
           <DeckCardGrid cards={uniqueCards} counts={cardCounts} />

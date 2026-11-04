@@ -1,0 +1,56 @@
+{
+  "hub": "galarian-cursola",
+  "name": "Galarian Cursola",
+  "variants": [
+    {
+      "variant": "galarian-cursola-a4a-035",
+      "name": "Galarian Cursola-A4a-035",
+      "firstSeen": "2025-10-31",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0013130555981914285,
+      "peakDate": "2025-12-26",
+      "cards": [
+        "2:a4a-034",
+        "2:a4a-035",
+        "1:b1-184",
+        "1:a4-134",
+        "1:a3b-028",
+        "1:a3b-034",
+        "1:a2b-035",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:a2-155",
+        "1:a1-225",
+        "2:pa-005",
+        "1:a3a-064",
+        "1:a2-147"
+      ]
+    },
+    {
+      "variant": "galarian-cursola-a4a-035&giratina-ex-a2b-035",
+      "name": "Galarian Cursola-A4a-035&Giratina ex-A2b-035",
+      "firstSeen": "2025-10-31",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.013716531547224325,
+      "peakDate": "2025-10-31",
+      "cards": [
+        "2:a4a-034",
+        "2:a4a-035",
+        "2:a2b-035",
+        "1:a1-129",
+        "2:pa-007",
+        "1:a1-225",
+        "1:a1a-068",
+        "1:a2b-071",
+        "1:a2-155",
+        "1:a2b-070",
+        "1:a3-151",
+        "1:a2-154",
+        "2:pa-005",
+        "1:pa-006",
+        "1:a2-147"
+      ]
+    }
+  ]
+}

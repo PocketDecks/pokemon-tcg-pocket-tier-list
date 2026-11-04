@@ -1,0 +1,142 @@
+{
+  "hub": "mega-steelix-ex",
+  "name": "Mega Steelix ex",
+  "variants": [
+    {
+      "variant": "mega-steelix-ex-b1a-052",
+      "name": "mega-steelix-ex-b1a-052",
+      "firstSeen": "2025-12-20",
+      "lastSeen": "2026-08-27",
+      "peakShare": 0.05324965172371213,
+      "peakDate": "2026-04-05",
+      "cards": [
+        "2:b1a-038",
+        "2:b1a-052",
+        "2:b1-121",
+        "2:pa-007",
+        "2:a2b-070",
+        "2:b1-225",
+        "2:a1-224",
+        "1:a2-150",
+        "2:pa-005",
+        "2:b2-147",
+        "1:b1-219"
+      ]
+    },
+    {
+      "variant": "mega-steelix-ex-b1a-052&dialga-ex-a2-119",
+      "name": "Mega Steelix ex-B1a-052&Dialga ex-A2-119",
+      "firstSeen": "2025-12-20",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.006511749715932317,
+      "peakDate": "2025-12-20",
+      "cards": [
+        "2:a4-092",
+        "2:b1a-052",
+        "2:a2-119",
+        "2:a1-224",
+        "2:pa-007",
+        "1:b1-223",
+        "1:b1-225",
+        "1:a2b-070",
+        "1:a2-150",
+        "2:pa-005",
+        "1:pa-006",
+        "2:b1-219",
+        "1:a4-153"
+      ]
+    },
+    {
+      "variant": "mega-steelix-ex-b1a-052&indeedee-ex-b1-121",
+      "name": "mega-steelix-ex-b1a-052&indeedee-ex-b1-121",
+      "firstSeen": "2025-12-22",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.0009987537926003872,
+      "peakDate": "2026-09-24",
+      "cards": [
+        "2:b1a-038",
+        "2:b1a-052",
+        "1:b1-121",
+        "2:pa-007",
+        "2:b4a-070",
+        "2:a1-224",
+        "1:b1-225",
+        "1:a2b-070",
+        "1:a2-150",
+        "2:b2-145",
+        "1:pa-005",
+        "1:a3-142",
+        "1:b1-219",
+        "1:a4-153"
+      ]
+    },
+    {
+      "variant": "mega-steelix-ex-b1a-052&mantyke-a4a-023",
+      "name": "Mega Steelix ex-B1a-052&Mantyke-A4a-023",
+      "firstSeen": "2025-12-22",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0008137730288807541,
+      "peakDate": "2025-12-22",
+      "cards": [
+        "2:a4-092",
+        "2:b1a-052",
+        "2:a4a-023",
+        "2:pa-007",
+        "2:a1-224",
+        "1:b1a-069",
+        "1:b1-225",
+        "1:a2-150",
+        "1:a2b-070",
+        "1:a1a-068",
+        "1:a1-225",
+        "2:pa-005",
+        "2:b1-219"
+      ]
+    },
+    {
+      "variant": "mega-steelix-ex-b1a-052&oricorio-a3-066",
+      "name": "Mega Steelix ex-B1a-052&Oricorio-A3-066",
+      "firstSeen": "2025-12-20",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.02389817153733955,
+      "peakDate": "2025-12-20",
+      "cards": [
+        "2:a4-092",
+        "2:b1a-052",
+        "2:a4-066",
+        "2:a3-066",
+        "2:pa-007",
+        "2:a1-224",
+        "1:b1a-069",
+        "1:a1-225",
+        "1:a2-150",
+        "2:pa-005",
+        "1:pa-006",
+        "2:b1-219"
+      ]
+    },
+    {
+      "variant": "mega-steelix-ex-b1a-052&pichu-a4-066",
+      "name": "Mega Steelix ex-B1a-052&Pichu-A4-066",
+      "firstSeen": "2025-12-20",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0022397823541945566,
+      "peakDate": "2026-01-08",
+      "cards": [
+        "2:a4-092",
+        "2:b1a-052",
+        "2:a4-066",
+        "1:a3-066",
+        "2:pa-007",
+        "2:a1-224",
+        "1:a2b-070",
+        "1:a2-150",
+        "1:a1-225",
+        "1:b1-225",
+        "1:a4-157",
+        "2:pa-005",
+        "2:b1-219"
+      ]
+    }
+  ]
+}

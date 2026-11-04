@@ -374,5 +374,30 @@
     "20d": "20 días",
     "30d": "30 días",
     "all": "todo el periodo"
+  },
+  "deckHub": {
+    "title": "Mazo {{name}}",
+    "liveSummary_one": "{{count}} variante activa en el meta actual, con la lista más fuerte primero",
+    "liveSummary_other": "{{count}} variantes activas en el meta actual, con las listas más fuertes primero",
+    "notInMeta": "No está en el meta de {{expansion}} actual. Consulta la lista de niveles para ver los rankings actuales",
+    "expansionFallback": "expansión",
+    "unavailable": "Las estadísticas de mazos en directo no están disponibles ahora. El archivo de abajo sigue actualizado",
+    "seenFrom": "Visto desde {{from}} hasta {{to}}",
+    "winRate": "{{value}}% de victorias",
+    "metaShare": "{{value}}% del meta",
+    "allVariants": "Todas las variantes de {{name}}",
+    "coreCards": "Cartas clave",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "Todavía no hay una lista de cartas registrada para este arquetipo.",
+    "matchups": "Enfrentamientos",
+    "bestMatchups": "Mejores enfrentamientos",
+    "worstMatchups": "Peores enfrentamientos",
+    "noMatchups": "Todavía no hay suficientes partidas contra otros mazos registradas.",
+    "similarDecks": "Mazos actuales similares",
+    "sharedCards_one": "{{count}} carta en común",
+    "sharedCards_other": "{{count}} cartas en común",
+    "noSimilarDecks": "Ningún mazo actual comparte cartas con esta lista.",
+    "variantHistory": "Historial de variantes",
+    "peakShare": "Máximo de {{value}} % el {{date}}"
   }
 }

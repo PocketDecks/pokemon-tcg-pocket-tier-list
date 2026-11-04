@@ -1,0 +1,28 @@
+{
+  "hub": "iron-valiant",
+  "name": "Iron Valiant",
+  "variants": [
+    {
+      "variant": "iron-valiant-b3a-027&iron-boulder-b3a-029",
+      "name": "iron-valiant-b3a-027&iron-boulder-b3a-029",
+      "firstSeen": "2026-09-24",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.0016103337353471664,
+      "peakDate": "2026-10-06",
+      "cards": [
+        "2:b3a-027",
+        "2:b3a-029",
+        "2:b3a-030",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a1-225",
+        "1:a2-150",
+        "2:pa-005",
+        "1:b3-147",
+        "2:b3a-070",
+        "1:a2-147",
+        "2:b2-155"
+      ]
+    }
+  ]
+}

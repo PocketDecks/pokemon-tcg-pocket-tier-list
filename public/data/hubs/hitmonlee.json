@@ -1,0 +1,70 @@
+{
+  "hub": "hitmonlee",
+  "name": "Hitmonlee",
+  "variants": [
+    {
+      "variant": "hitmonlee-a1-154",
+      "name": "Hitmonlee-A1-154",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0002189725676675799,
+      "peakDate": "2025-10-17",
+      "cards": [
+        "2:a1-154",
+        "2:a1a-047",
+        "2:a1-198",
+        "1:a1a-032",
+        "1:a1a-060",
+        "2:pa-007",
+        "2:a1-223",
+        "2:a1-225",
+        "1:a1a-068",
+        "2:pa-002",
+        "2:pa-005",
+        "1:pa-001"
+      ]
+    },
+    {
+      "variant": "hitmonlee-a1-154&greninja-a1-089",
+      "name": "Hitmonlee-A1-154&Greninja-A1-089",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0004881440923257264,
+      "peakDate": "2025-06-25",
+      "cards": [
+        "2:a1-087",
+        "2:a1-088",
+        "2:a1-089",
+        "2:a1a-047",
+        "2:a1-198",
+        "2:a1-154",
+        "2:pa-007",
+        "1:a1-223",
+        "1:a1-225",
+        "2:pa-005",
+        "2:pa-002"
+      ]
+    },
+    {
+      "variant": "hitmonlee-a1-154&magnezone-a2-053",
+      "name": "Hitmonlee-A1-154&Magnezone-A2-053",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0010889004039384138,
+      "peakDate": "2025-11-17",
+      "cards": [
+        "2:a2-051",
+        "2:a1-098",
+        "2:a2-053",
+        "2:a1a-047",
+        "2:a1-154",
+        "1:a1-155",
+        "2:pa-007",
+        "2:a2-150",
+        "2:pa-005",
+        "2:pa-002",
+        "1:a2-146"
+      ]
+    }
+  ]
+}

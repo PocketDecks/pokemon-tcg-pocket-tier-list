@@ -12,7 +12,7 @@ const i18nReady = vi.hoisted(async () => {
 import { fireEvent, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes } from "react-router";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import ExpansionPage from "../ExpansionPage";
 import { fetchCards } from "../../../app/cards-api";
 import { useMarkContentReady } from "../../../ads/ContentReadyContext";
@@ -77,6 +77,7 @@ const fixtures = vi.hoisted(() => {
       { id: "b4b", name: "Deluxe Pack: Mega", release_date: "2026-09-30", packs: [] },
     ],
     cards: [higher, lower, gengar],
+    decksError: null as Error | null,
   };
 });
 
@@ -86,6 +87,7 @@ vi.mock("../../../app/use-decks", () => ({
     rawDecks: fixtures.rawDecks,
     metaShareBySlug: fixtures.metaShareBySlug,
     loading: false,
+    error: fixtures.decksError,
   }),
 }));
 
@@ -104,9 +106,9 @@ vi.mock("../../../ads/ContentReadyContext", () => ({
   useMarkContentReady: vi.fn(),
 }));
 
-const renderPage = (path = "/expansion-list/c1") => {
+const renderPage = (path = "/expansion-list/c1", cards = fixtures.cards) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-  queryClient.setQueryData(["cards"], { cards: fixtures.cards });
+  queryClient.setQueryData(["cards"], { cards });
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={[path]}>
@@ -233,6 +235,26 @@ describe("ExpansionPage card data failure", () => {
     );
     expect(await screen.findByText("Card data didn't load. Refresh the page to try again.")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Cards used in live decks" })).toBeNull();
+    expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(true);
+  });
+});
+
+describe("ExpansionPage settled data", () => {
+  afterEach(() => {
+    fixtures.decksError = null;
+  });
+
+  it("renders the shrug empty state for a successful empty card dataset", () => {
+    renderPage("/expansion-list/c1", []);
+    expect(screen.getByText("¯\\_(ツ)_/¯")).toBeInTheDocument();
+    expect(screen.getByText("None of the Dual Fusion cards are in a top deck right now.")).toBeInTheDocument();
+  });
+
+  it("renders the load error and marks the page ready when the deck query fails", async () => {
+    await i18nReady;
+    fixtures.decksError = new Error("boom");
+    renderPage();
+    expect(screen.getByText("Card data didn't load. Refresh the page to try again.")).toBeInTheDocument();
     expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(true);
   });
 });

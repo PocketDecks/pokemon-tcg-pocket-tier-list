@@ -144,14 +144,14 @@ const BreadcrumbSeparator = styled.span`
 
 const ExpansionPage = () => {
   const { expansionId } = useParams();
-  const { decks, rawDecks, metaShareBySlug, loading: decksLoading } = useDecks();
+  const { decks, rawDecks, error: decksError, metaShareBySlug, loading: decksLoading } = useDecks();
   const expansions = useExpansions();
   const { t, i18n } = useTranslation();
   const expansion = expansions?.find((entry) => entry.id === expansionId);
   const allCardsQuery = useQuery({ queryKey: ["cards"], queryFn: fetchCards });
   const rawCards = allCardsQuery.data?.cards ?? [];
   const cardsSettled = allCardsQuery.isSuccess || allCardsQuery.isError;
-  const data = expansion && rawCards.length > 0 && rawDecks
+  const data = expansion && allCardsQuery.isSuccess && rawDecks
     ? expansionPageData(expansion, rawCards, rawDecks, decks ?? [])
     : null;
   useMarkContentReady(!decksLoading && !!expansions && cardsSettled);
@@ -176,7 +176,7 @@ const ExpansionPage = () => {
         {releaseDate && <Meta>{t("expansionPage.released", { date: releaseDate })}</Meta>}
         {!(data && data.cards.length === 0) && <Meta>{t("expansionPage.intro", { name: expansion.name })}</Meta>}
       </Header>
-      {allCardsQuery.isError ? (
+      {allCardsQuery.isError || decksError ? (
         <Meta>{t("expansionPage.loadError")}</Meta>
       ) : data && data.cards.length === 0 ? (
         <EmptyState>

@@ -10,5 +10,4 @@ export const previousExpansionDate = (list = expansions) => {
 
 export const hubEntries = (archive, hub) => archive.filter((entry) => entry.hub === hub);
 
-export const shouldIndexHub = (entries, liveVariants, previousDate = previousExpansionDate()) =>
-  entries.some((entry) => liveVariants.has(entry.variant) || entry.lastSeen >= previousDate);
+export const shouldIndexHub = (entries) => entries.length > 0;

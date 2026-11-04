@@ -35,14 +35,13 @@ const makeDist = (files) => {
 const archive = [
   { variant: "alpha-b1-102", hub: "alpha", name: "Alpha-B1-102", firstSeen: "2025-10-01", lastSeen: "2026-10-01" },
 ];
-const PREVIOUS = "2026-08-27";
 
 test("well-formed hub pages in both locales have no issues", () => {
   const dir = makeDist({
     "deck/alpha/index.html": page({ canonicals: [EN] }),
     "ja/deck/alpha/index.html": page({ canonicals: [JA], robots: "noindex, follow" }),
   });
-  assert.deepStrictEqual(findHubPageIssues(dir, archive, [], PREVIOUS), []);
+  assert.deepStrictEqual(findHubPageIssues(dir, archive), []);
 });
 
 test("a hub page with undefined text, a wrong robots value or no H1 is reported", () => {
@@ -58,7 +57,7 @@ test("a hub page with undefined text, a wrong robots value or no H1 is reported"
       breadcrumb: "undefined",
     }),
   });
-  const issues = findHubPageIssues(dir, archive, [], PREVIOUS);
+  const issues = findHubPageIssues(dir, archive);
   assert.ok(issues.some((issue) => issue.startsWith("deck/alpha/index.html") && /robots/.test(issue)), issues.join("\n"));
   assert.ok(issues.some((issue) => issue.startsWith("deck/alpha/index.html") && /undefined/.test(issue)), issues.join("\n"));
   assert.ok(issues.some((issue) => issue.startsWith("deck/alpha/index.html") && /H1/.test(issue)), issues.join("\n"));
@@ -68,7 +67,7 @@ test("a hub page with undefined text, a wrong robots value or no H1 is reported"
 
 test("a missing hub page is reported", () => {
   const dir = makeDist({});
-  const issues = findHubPageIssues(dir, archive, [], PREVIOUS);
+  const issues = findHubPageIssues(dir, archive);
   assert.ok(issues.includes("deck/alpha/index.html: missing"));
 });
 
@@ -77,7 +76,7 @@ test("a hub page whose H1 does not name the hub is reported", () => {
     "deck/alpha/index.html": page({ h1: "Page not found" }),
     "ja/deck/alpha/index.html": page({ canonicals: [JA], robots: "noindex, follow" }),
   });
-  const issues = findHubPageIssues(dir, archive, [], PREVIOUS);
+  const issues = findHubPageIssues(dir, archive);
   assert.ok(
     issues.some((issue) => issue.startsWith("deck/alpha/index.html") && /H1/.test(issue) && /Alpha/.test(issue)),
     issues.join("\n")
@@ -90,7 +89,7 @@ test("a hub page with more than one canonical is reported", () => {
     "deck/alpha/index.html": page({ canonicals: [EN, EN] }),
     "ja/deck/alpha/index.html": page({ canonicals: [JA], robots: "noindex, follow" }),
   });
-  const issues = findHubPageIssues(dir, archive, [], PREVIOUS);
+  const issues = findHubPageIssues(dir, archive);
   assert.deepStrictEqual(issues, ["deck/alpha/index.html: expected 1 canonical, found 2"]);
 });
 
@@ -99,7 +98,7 @@ test("a hub page with no canonical is reported", () => {
     "deck/alpha/index.html": page({ canonicals: [] }),
     "ja/deck/alpha/index.html": page({ canonicals: [JA], robots: "noindex, follow" }),
   });
-  const issues = findHubPageIssues(dir, archive, [], PREVIOUS);
+  const issues = findHubPageIssues(dir, archive);
   assert.deepStrictEqual(issues, ["deck/alpha/index.html: expected 1 canonical, found 0"]);
 });
 
@@ -108,7 +107,7 @@ test("a hub page with an empty title is reported", () => {
     "deck/alpha/index.html": page({ title: "" }),
     "ja/deck/alpha/index.html": page({ canonicals: [JA], robots: "noindex, follow" }),
   });
-  const issues = findHubPageIssues(dir, archive, [], PREVIOUS);
+  const issues = findHubPageIssues(dir, archive);
   assert.deepStrictEqual(issues, ["deck/alpha/index.html: empty title"]);
 });
 
@@ -117,6 +116,30 @@ test("a hub page with an empty description is reported", () => {
     "deck/alpha/index.html": page({ description: "" }),
     "ja/deck/alpha/index.html": page({ canonicals: [JA], robots: "noindex, follow" }),
   });
-  const issues = findHubPageIssues(dir, archive, [], PREVIOUS);
+  const issues = findHubPageIssues(dir, archive);
   assert.deepStrictEqual(issues, ["deck/alpha/index.html: empty description"]);
+});
+
+test("a retired English hub page is indexable too", () => {
+  const retired = [
+    { variant: "alpha-b1-102", hub: "retired", name: "Alpha-B1-102", firstSeen: "2024-01-01", lastSeen: "2024-06-01" },
+  ];
+  const indexed = makeDist({
+    "deck/retired/index.html": page({ canonicals: ["https://pocketdecks.top/deck/retired/"], robots: "index, follow" }),
+    "ja/deck/retired/index.html": page({
+      canonicals: ["https://pocketdecks.top/ja/deck/retired/"],
+      robots: "noindex, follow",
+    }),
+  });
+  assert.deepStrictEqual(findHubPageIssues(indexed, retired), []);
+  const noindex = makeDist({
+    "deck/retired/index.html": page({ canonicals: ["https://pocketdecks.top/deck/retired/"], robots: "noindex, follow" }),
+    "ja/deck/retired/index.html": page({
+      canonicals: ["https://pocketdecks.top/ja/deck/retired/"],
+      robots: "noindex, follow",
+    }),
+  });
+  assert.deepStrictEqual(findHubPageIssues(noindex, retired), [
+    "deck/retired/index.html: robots noindex, follow is not index, follow",
+  ]);
 });

@@ -10,8 +10,7 @@ const {
 const { resolveHosting } = require("./firebase-hosting");
 const { inlineScriptHashes, parsePolicy, reportOnlyPolicy } = require("./content-security-policy");
 const { DELUXE_EXPANSION_IDS, newestExpansion } = require("../src/app/expansion-policy.mjs");
-const { deckSlug } = require("./deck-slug.mjs");
-const { previousExpansionDate, shouldIndexHub } = require("./deck-archive-policy.mjs");
+const { shouldIndexHub } = require("./deck-archive-policy.mjs");
 const { hubDisplayName } = require("./deck-archetype.mjs");
 
 const DIST_DIR = process.env.BUILD_DIR
@@ -141,17 +140,11 @@ const hubHtmlIssues = (entry, html, expectedRobots, expectedName) => {
   return issues;
 };
 
-const findHubPageIssues = (
-  dir = DIST_DIR,
-  archive = loadArchive(),
-  decks = loadDecks(),
-  previousDate = previousExpansionDate()
-) => {
-  const live = new Set(decks.map((deck) => deckSlug(deck.name)));
+const findHubPageIssues = (dir = DIST_DIR, archive = loadArchive()) => {
   const hubs = [...new Set(archive.map((entry) => entry.hub))];
   return hubs.flatMap((hub) => {
     const entries = archive.filter((entry) => entry.hub === hub);
-    const indexed = shouldIndexHub(entries, live, previousDate);
+    const indexed = shouldIndexHub(entries);
     const name = hubDisplayName(entries);
     return ["", "ja/"].flatMap((prefix) => {
       const entry = `${prefix}deck/${hub}/index.html`;

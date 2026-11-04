@@ -5,7 +5,7 @@ const { localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
 const { deckSlug } = require("./deck-slug.mjs");
 const { hubDisplayName } = require("./deck-archetype.mjs");
 const { JA_HOME_LABEL, JA_TIER_LIST_LABEL } = require("./deck-friendly-name.mjs");
-const { previousExpansionDate, shouldIndexHub } = require("./deck-archive-policy.mjs");
+const { shouldIndexHub } = require("./deck-archive-policy.mjs");
 const {
   captureDocument,
   createPrerenderPage,
@@ -25,7 +25,6 @@ const HUB_CONCURRENCY = 8;
 
 const buildHubJobs = (archive, liveDecks) => {
   const live = new Set(liveDecks.map((deck) => deckSlug(deck.name)));
-  const previousDate = previousExpansionDate();
   return [...new Set(archive.map((entry) => entry.hub))].map((hub) => {
     const entries = archive.filter((entry) => entry.hub === hub);
     return {
@@ -33,7 +32,7 @@ const buildHubJobs = (archive, liveDecks) => {
       name: hubDisplayName(entries),
       entries,
       live: entries.filter((entry) => live.has(entry.variant)),
-      indexed: shouldIndexHub(entries, live, previousDate),
+      indexed: shouldIndexHub(entries),
     };
   });
 };

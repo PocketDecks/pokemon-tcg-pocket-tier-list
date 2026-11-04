@@ -40,12 +40,19 @@ test("hub pages render a titled, described and breadcrumbed head with no undefin
   assert.doesNotMatch(html, /undefined/);
 });
 
-test("hubs outside the expansion window stay noindex unless live", () => {
+test("every English hub is indexable, retired ones included", () => {
   const jobs = buildHubJobs(archive, [{ name: "mega-altaria-ex-b1-102" }]);
   const greninja = jobs.find((job) => job.hub === "greninja");
-  assert.match(renderHubHtml(greninja, template, "en"), /name="robots" content="noindex, follow"/);
+  assert.match(renderHubHtml(greninja, template, "en"), /name="robots" content="index, follow"/);
   const altaria = jobs.find((job) => job.hub === "mega-altaria-ex");
   assert.match(renderHubHtml(altaria, template, "en"), /name="robots" content="index, follow"/);
+});
+
+test("no Japanese hub is indexable, live or retired", () => {
+  const jobs = buildHubJobs(archive, [{ name: "mega-altaria-ex-b1-102" }]);
+  for (const job of jobs) {
+    assert.match(renderHubHtml(job, template, "ja"), /name="robots" content="noindex, follow"/, job.hub);
+  }
 });
 
 test("Japanese hub breadcrumbs use the Japanese labels", () => {

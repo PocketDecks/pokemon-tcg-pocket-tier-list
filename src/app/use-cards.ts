@@ -3,6 +3,9 @@ import { CardType, fetchCards } from "./cards-api";
 import { parseScoreRef } from "./card-ref";
 import useFilters from "./use-filters";
 import useMissing from "./use-missing";
+import { EXPANSIONS_URL } from "./constants";
+
+const knownSets = new Set((EXPANSIONS_URL as { id: string }[]).map((entry) => entry.id));
 
 export interface CardScoreType extends CardType {
   count: number;
@@ -36,7 +39,8 @@ const isValidScoreRow = (row: unknown): row is ScoreRow => {
   if (!/^\d+$/.test(parts[0])) return false;
   if (!parts[parts.length - 2]) return false;
   if (!/^\d{1,3}$/.test(parts[parts.length - 1])) return false;
-  return typeof candidate.score === "number" && candidate.score >= 0 && Number.isFinite(candidate.popularity);
+  if (!knownSets.has(parseScoreRef(candidate.name).set)) return false;
+  return typeof candidate.score === "number" && Number.isFinite(candidate.score) && candidate.score >= 0 && typeof candidate.popularity === "number" && Number.isFinite(candidate.popularity) && candidate.popularity >= 0;
 };
 
 export const parseCardScores = (payload: unknown): ScoreRow[] => {

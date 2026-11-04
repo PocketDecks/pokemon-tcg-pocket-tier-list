@@ -139,6 +139,16 @@ const UserAccount = ({ compact = false }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
   const isPremium = useIsPremium();
+  const hasUser = !!user;
+  const [wasSignedIn, setWasSignedIn] = useState(hasUser);
+
+  if (wasSignedIn !== hasUser) {
+    setWasSignedIn(hasUser);
+    if (!hasUser) {
+      setIsOpen(false);
+      setIsContactOpen(false);
+    }
+  }
 
   return (
     <>

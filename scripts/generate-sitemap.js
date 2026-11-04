@@ -44,8 +44,9 @@ const expansionRoutes = (expansions, decks) => {
 const buildSitemap = ({ decks, staticRoutes = STATIC_ROUTES, archive = [], expansions = [], lastmod }) => {
   const grouped = new Map(archive.map((entry) => [entry.hub, []]));
   for (const entry of archive) grouped.get(entry.hub).push(entry);
+  const liveSlugs = new Set(decks.map((deck) => deckSlug(deck.name)));
   const hubRoutes = [...grouped.entries()]
-    .filter(([, entries]) => shouldIndexHub(entries))
+    .filter(([hub, entries]) => !liveSlugs.has(hub) && shouldIndexHub(entries))
     .map(([hub]) => `/deck/${hub}`);
   const baseRoutes = [
     ...staticRoutes,

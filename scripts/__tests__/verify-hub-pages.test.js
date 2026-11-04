@@ -143,3 +143,10 @@ test("a retired English hub page is indexable too", () => {
     "deck/retired/index.html: robots noindex, follow is not index, follow",
   ]);
 });
+
+test("skips a hub slug that a live deck owns", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-owned-"));
+  const archive = [{ variant: "garchomp", hub: "garchomp", name: "garchomp", firstSeen: "2025-01-01", lastSeen: "2026-11-01" }];
+  assert.deepStrictEqual(findHubPageIssues(dir, archive, [{ name: "garchomp" }]), []);
+  assert.notDeepStrictEqual(findHubPageIssues(dir, archive, []), []);
+});

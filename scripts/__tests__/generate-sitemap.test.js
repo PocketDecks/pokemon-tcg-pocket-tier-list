@@ -96,3 +96,9 @@ test("sitemap includes only the newest covered listed expansion with enough card
   const decks = [{ lists: [{ cards: ["1:a1-001", "1:b4a-001", "1:c1-001", "1:c1-002", "1:c1-003", "1:c1-004", "1:c1-005"] }] }];
   assert.deepStrictEqual(expansionRoutes(expansions, decks), ["/expansion-list/c1"]);
 });
+
+test("lists a slug once when a live deck and a hub share it", () => {
+  const archive = [{ variant: "garchomp", hub: "garchomp", name: "garchomp", firstSeen: "2025-01-01", lastSeen: "2099-01-01" }];
+  const xml = buildSitemap({ decks: [{ name: "garchomp" }], staticRoutes: [], archive, lastmod: "2026-11-04" });
+  assert.strictEqual((xml.match(/<loc>https:\/\/pocketdecks\.top\/deck\/garchomp\/<\/loc>/g) ?? []).length, 1);
+});

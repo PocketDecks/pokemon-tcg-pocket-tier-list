@@ -143,8 +143,9 @@ const hubHtmlIssues = (entry, html, expectedRobots, expectedName) => {
   return issues;
 };
 
-const findHubPageIssues = (dir = DIST_DIR, archive = loadArchive()) => {
-  const hubs = [...new Set(archive.map((entry) => entry.hub))];
+const findHubPageIssues = (dir = DIST_DIR, archive = loadArchive(), decks = loadDecks()) => {
+  const liveSlugs = new Set(decks.map((deck) => deckSlug(deck.name)));
+  const hubs = [...new Set(archive.map((entry) => entry.hub))].filter((hub) => !liveSlugs.has(hub));
   return hubs.flatMap((hub) => {
     const entries = archive.filter((entry) => entry.hub === hub);
     const indexed = shouldIndexHub(entries);

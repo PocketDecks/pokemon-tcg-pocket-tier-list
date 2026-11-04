@@ -102,3 +102,12 @@ test("a retired English hub is listed in the sitemap with en and x-default hrefl
   assert.deepStrictEqual(hreflangs(block), ["en", "x-default"]);
   assert.doesNotMatch(xml, /<loc>https:\/\/pocketdecks\.top\/ja\/deck\/retired-x\//);
 });
+
+test("a live deck owns its slug, so no hub job is built for it", () => {
+  const archive = [
+    { variant: "garchomp", hub: "garchomp", name: "garchomp", firstSeen: "2025-01-01", lastSeen: "2026-11-01" },
+    { variant: "venusaur-ex-a1-004", hub: "venusaur-ex", name: "Venusaur ex-A1-004", firstSeen: "2025-01-01", lastSeen: "2026-11-01" },
+  ];
+  const hubs = buildHubJobs(archive, [{ name: "garchomp" }, { name: "venusaur-ex-a1-004" }]).map((job) => job.hub);
+  assert.deepStrictEqual(hubs, ["venusaur-ex"]);
+});

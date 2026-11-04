@@ -25,7 +25,7 @@ const HUB_CONCURRENCY = 8;
 
 const buildHubJobs = (archive, liveDecks) => {
   const live = new Set(liveDecks.map((deck) => deckSlug(deck.name)));
-  return [...new Set(archive.map((entry) => entry.hub))].map((hub) => {
+  return [...new Set(archive.map((entry) => entry.hub))].filter((hub) => !live.has(hub)).map((hub) => {
     const entries = archive.filter((entry) => entry.hub === hub);
     return {
       hub,

@@ -175,6 +175,8 @@ describe("useCards score failures", () => {
     ["a negative score", [{ name: "1 Copycat B1 225", score: -0.5, popularity: 0.9 }]],
     ["a trailing count", [{ name: "2x Copycat B1 225", score: 0.8, popularity: 0.9 }]],
     ["a negative count", [{ name: "-1 Copycat B1 225", score: 0.8, popularity: 0.9 }]],
+    ["an overflowing count", [{ name: `${"9".repeat(310)} Copycat B1 225`, score: 0.8, popularity: 0.9 }]],
+    ["an unsafe integer count", [{ name: "9007199254740992 Copycat B1 225", score: 0.8, popularity: 0.9 }]],
     ["a non-numeric card number", [{ name: "2 b4a abc", score: 0.8, popularity: 0.9 }]],
   ])("rejects %s", async (_label, rows) => {
     vi.stubGlobal(

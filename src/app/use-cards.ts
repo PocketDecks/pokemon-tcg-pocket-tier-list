@@ -39,7 +39,9 @@ const isValidScoreRow = (row: unknown): row is ScoreRow => {
   if (!/^\d+$/.test(parts[0])) return false;
   if (!parts[parts.length - 2]) return false;
   if (!/^\d{1,3}$/.test(parts[parts.length - 1])) return false;
-  if (!knownSets.has(parseScoreRef(candidate.name).set)) return false;
+  const { count, set } = parseScoreRef(candidate.name);
+  if (!Number.isSafeInteger(count) || count < 0) return false;
+  if (!knownSets.has(set)) return false;
   return typeof candidate.score === "number" && Number.isFinite(candidate.score) && candidate.score >= 0 && typeof candidate.popularity === "number" && Number.isFinite(candidate.popularity) && candidate.popularity >= 0;
 };
 

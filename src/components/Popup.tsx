@@ -1,6 +1,7 @@
 import React, { useEffect, useId, useRef } from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
+import { acquirePopup } from "./popup-state";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -256,6 +257,7 @@ const Popup: React.FC<Props> = ({ isOpen, header, close, children, width }) => {
     const trigger =
       active instanceof HTMLElement && active !== document.body ? active : lastPressed;
     const releaseOutside = makeOutsideInert(overlay);
+    const releasePopup = acquirePopup();
     const focusFirst = () => (getFocusable(dialog)[0] ?? dialog).focus();
 
     focusFirst();
@@ -310,6 +312,7 @@ const Popup: React.FC<Props> = ({ isOpen, header, close, children, width }) => {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("focusin", handleFocusIn);
       releaseOutside();
+      releasePopup();
       if (trigger?.isConnected) trigger.focus();
     };
   }, [isOpen]);

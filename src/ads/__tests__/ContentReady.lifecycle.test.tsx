@@ -6,7 +6,7 @@ import { ContentReadyProvider, useMarkContentReady } from "../ContentReadyContex
 import useAdsState from "../useAdsState";
 import { Layout } from "../../App";
 
-const fault = vi.hoisted(() => ({ reached: false }));
+const fault = vi.hoisted(() => ({ reached: vi.fn() }));
 const i18n = vi.hoisted(() => ({ language: "en", changeLanguage: vi.fn() }));
 const originalGpcDescriptor = Object.getOwnPropertyDescriptor(navigator, "globalPrivacyControl");
 const originalRouteReady = document.documentElement.dataset.routeReady;
@@ -36,7 +36,7 @@ const ReadyCrashPage = () => {
   const [crash, setCrash] = useState(false);
   useMarkContentReady(true);
   if (crash) {
-    fault.reached = true;
+    fault.reached();
     throw new Error("same path render crash");
   }
   return <button onClick={() => setCrash(true)}>crash route</button>;
@@ -48,7 +48,7 @@ const HealthyPage = () => {
 };
 
 afterEach(() => {
-  fault.reached = false;
+  fault.reached.mockClear();
   if (originalGpcDescriptor) {
     Object.defineProperty(navigator, "globalPrivacyControl", originalGpcDescriptor);
   } else {
@@ -127,7 +127,7 @@ describe("content readiness ownership", () => {
 
       fireEvent.click(screen.getByRole("button", { name: "crash route" }));
 
-      expect(fault.reached).toBe(true);
+      expect(fault.reached).toHaveBeenCalled();
       expect(screen.getByRole("alert")).toBeInTheDocument();
       expect(screen.getByTestId("ads")).toHaveTextContent("false");
       expect(document.documentElement.dataset.routeReady).toBe("/cards-list");

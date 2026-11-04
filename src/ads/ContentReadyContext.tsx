@@ -84,10 +84,11 @@ export const useMarkContentReady = (isReady: boolean, isSettled = isReady): void
   const { pathname } = useLocation();
   const owner = React.useRef<object>({});
   useEffect(() => {
+    const readyOwner = owner.current;
     if (isReady) {
-      markReady(pathname, owner.current);
+      markReady(pathname, readyOwner);
     } else {
-      clearReady(owner.current);
+      clearReady(readyOwner);
     }
     if (isSettled) {
       document.documentElement.dataset.routeReady = pathname;
@@ -95,6 +96,6 @@ export const useMarkContentReady = (isReady: boolean, isSettled = isReady): void
     } else if (document.documentElement.dataset.routeReady === pathname) {
       delete document.documentElement.dataset.routeReady;
     }
-    return () => clearReady(owner.current);
+    return () => clearReady(readyOwner);
   }, [isReady, isSettled, pathname, markReady, clearReady]);
 };

@@ -16,7 +16,8 @@
 
 ## Expansions
 
-- [Dual Fusion expansion](https://pocketdecks.top/expansion-list/c1/): the newest covered expansion with its cards and live decks.
+- [Expansion list](https://pocketdecks.top/expansion-list/): every expansion with its card count and meta impact.
+- [Dual Fusion (C1)](https://pocketdecks.top/expansion-list/c1/): cards from the set in current top decks, and the decks that play them.
 
 ## About and methodology
 

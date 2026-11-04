@@ -48,8 +48,13 @@ const consentPendingRules = () =>
 const isPhoneQuery = (mediaText: string | null) =>
   mediaText !== null && /\(\s*max-width:\s*900px\s*\)/.test(mediaText);
 
-const targets = (rule: StyleRuleInfo, element: Element) =>
-  Array.from(element.classList).some((name) => rule.selectorText.includes(`.${name}`));
+const matchesPhoneRule = (element: Element, declaration: string) =>
+  consentPendingRules().some(
+    (rule) =>
+      isPhoneQuery(rule.mediaText) &&
+      rule.declarations.includes(declaration) &&
+      element.matches(rule.selectorText)
+  );
 
 describe("Popup layout beside the consent banner", () => {
   it("reserves room for the banner on phones only while consent is pending", () => {
@@ -60,24 +65,17 @@ describe("Popup layout beside the consent banner", () => {
     );
     const dialog = screen.getByRole("dialog");
     const overlay = dialog.parentElement as HTMLElement;
-    const rules = consentPendingRules();
 
-    expect(
-      rules.some(
-        (rule) =>
-          isPhoneQuery(rule.mediaText) &&
-          targets(rule, overlay) &&
-          rule.declarations.includes("padding-bottom: 50vh")
-      )
-    ).toBe(true);
-    expect(
-      rules.some(
-        (rule) =>
-          isPhoneQuery(rule.mediaText) &&
-          targets(rule, dialog) &&
-          rule.declarations.includes("max-height: calc(50vh - 2.4rem)")
-      )
-    ).toBe(true);
-    expect(rules.filter((rule) => rule.mediaText === null)).toEqual([]);
+    expect(matchesPhoneRule(overlay, "padding-bottom: 50vh")).toBe(false);
+    expect(matchesPhoneRule(dialog, "max-height: calc(50vh - 2.4rem)")).toBe(false);
+
+    document.documentElement.setAttribute("data-consent-pending", "");
+    try {
+      expect(matchesPhoneRule(overlay, "padding-bottom: 50vh")).toBe(true);
+      expect(matchesPhoneRule(dialog, "max-height: calc(50vh - 2.4rem)")).toBe(true);
+      expect(consentPendingRules().filter((rule) => rule.mediaText === null)).toEqual([]);
+    } finally {
+      document.documentElement.removeAttribute("data-consent-pending");
+    }
   });
 });

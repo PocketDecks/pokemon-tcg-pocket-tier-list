@@ -335,3 +335,21 @@ describe("DeckHubPage content", () => {
     await waitFor(() => expect(readiness.markContentReady).toHaveBeenLastCalledWith(true));
   });
 });
+
+describe("DeckHubPage tiny shares", () => {
+  it("shows a peak share above zero and under 0.05% as under 0.1%", async () => {
+    stubHubFiles({
+      "mega-greninja-ex": {
+        ...GRENINJA_HUB,
+        variants: [
+          { ...GRENINJA_HUB.variants[0], peakShare: 0.0002, peakDate: "2026-10-29" },
+          { ...GRENINJA_HUB.variants[1], peakShare: 0.0001, peakDate: "2025-12-01" },
+        ],
+      },
+    });
+    renderAt("/deck/mega-greninja-ex");
+    expect(await screen.findByText("Peak <0.1% on 29 Oct 2026")).toBeTruthy();
+    expect(screen.getByText("Peak <0.1% on 1 Dec 2025")).toBeTruthy();
+    expect(screen.getByText(/peak share was <0\.1% on 29 Oct 2026/)).toBeTruthy();
+  });
+});

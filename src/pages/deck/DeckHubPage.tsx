@@ -171,6 +171,8 @@ const formatDate = (date: string, language: string) =>
 
 const percent = (value: number) => (value * 100).toFixed(1);
 
+const shareText = (value: number) => (value > 0 && value < 0.0005 ? "<0.1" : percent(value));
+
 const HubPage = () => {
   const { deckId: hubSlug } = useParams();
   const { decks, metaShareBySlug, loading } = useDecks();
@@ -232,7 +234,7 @@ const HubPage = () => {
       : t("hub.liveStatus", {
           ns: "seo",
           winRate: percent(strongestDeck.expectedWinRate),
-          metaShare: percent(strongestShare),
+          metaShare: shareText(strongestShare),
         })
     : t("hub.retiredStatus", {
         ns: "seo",
@@ -248,7 +250,7 @@ const HubPage = () => {
           count: records.length,
           name,
           firstSeen: formatDate(recordSeen.firstSeen, i18n.language),
-          peakShare: percent(peak.share),
+          peakShare: shareText(peak.share),
           peakDate: formatDate(peak.date, i18n.language),
         });
   const coreSentence =
@@ -298,7 +300,7 @@ const HubPage = () => {
                 <VariantMeta>
                   {[
                     deck ? t("deckHub.winRate", { value: (deck.expectedWinRate * 100).toFixed(1) }) : null,
-                    share === undefined ? null : t("deckHub.metaShare", { value: (share * 100).toFixed(1) }),
+                    share === undefined ? null : t("deckHub.metaShare", { value: shareText(share) }),
                   ]
                     .filter(Boolean)
                     .join(" · ")}
@@ -372,7 +374,7 @@ const HubPage = () => {
                   record.peakShare === null || record.peakDate === null
                     ? null
                     : t("deckHub.peakShare", {
-                        value: percent(record.peakShare),
+                        value: shareText(record.peakShare),
                         date: formatDate(record.peakDate, i18n.language),
                       });
                 return deck ? (

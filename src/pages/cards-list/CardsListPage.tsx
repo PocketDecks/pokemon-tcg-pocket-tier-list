@@ -20,8 +20,7 @@ const CardsListPage = () => {
   const { expansion, setExpansion } = useFilters();
   const expansions = useExpansions();
 
-  const ready = !!error || !!cards;
-  useMarkContentReady(ready);
+  useMarkContentReady(!error && !!cards?.length, !!error || cards !== null);
 
   const filters = (
     <>

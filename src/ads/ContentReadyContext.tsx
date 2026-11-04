@@ -60,7 +60,7 @@ export const useContentReady = (): boolean => {
 // For pages: call with `true` once primary content has rendered, and `false`
 // while loading or on empty/error states. Pages that never become ready simply
 // never show ads.
-export const useMarkContentReady = (isReady: boolean): void => {
+export const useMarkContentReady = (isReady: boolean, isSettled = isReady): void => {
   const { markReady } = useContentReadyContext();
   const { pathname } = useLocation();
   useEffect(() => {
@@ -69,11 +69,11 @@ export const useMarkContentReady = (isReady: boolean): void => {
     // loading/empty state ensures global units like AdAnchor don't linger on a
     // content-less screen.
     markReady(isReady ? pathname : "");
-    if (isReady) {
+    if (isSettled) {
       document.documentElement.dataset.routeReady = pathname;
       notifyContentReady();
     } else if (document.documentElement.dataset.routeReady === pathname) {
       delete document.documentElement.dataset.routeReady;
     }
-  }, [isReady, pathname, markReady]);
+  }, [isReady, isSettled, pathname, markReady]);
 };

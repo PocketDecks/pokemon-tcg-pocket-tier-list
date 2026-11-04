@@ -31,7 +31,7 @@ const ExpansionListPage = () => {
 
   const expansionData = buildExpansionData(cards ?? [], expansions ?? []);
   const packData = buildExpansionPackData(cards ?? [], expansions ?? []);
-  useMarkContentReady(!!error || loaded);
+  useMarkContentReady(!error && loaded && (view === "packs" ? packData : expansionData).length > 0, !!error || loaded);
   const expansionName = (id: string) => expansions?.find((entry) => entry.id === id)?.name ?? id;
 
   const selectView = (next: ExpansionView) => {

@@ -243,7 +243,7 @@ describe("ExpansionPage unlisted ids", () => {
 });
 
 describe("ExpansionPage card data failure", () => {
-  it("shows a load error in place of the sections and marks the page ready", async () => {
+  it("shows a load error, settles prerendering and keeps ads off", async () => {
     await i18nReady;
     vi.mocked(fetchCards).mockRejectedValueOnce(new Error("offline"));
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -258,7 +258,7 @@ describe("ExpansionPage card data failure", () => {
     );
     expect(await screen.findByText("Card data didn't load. Refresh the page to try again.")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Cards used in live decks" })).toBeNull();
-    expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(true);
+    expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(false, true);
   });
 });
 
@@ -273,12 +273,12 @@ describe("ExpansionPage settled data", () => {
     expect(screen.getByText(/None of the Dual Fusion cards are in a top deck right now\./)).toBeInTheDocument();
   });
 
-  it("renders the load error and marks the page ready when the deck query fails", async () => {
+  it("settles prerendering with ads off when the deck query fails", async () => {
     await i18nReady;
     fixtures.decksError = new Error("boom");
     renderPage();
     expect(screen.getByText("Card data didn't load. Refresh the page to try again.")).toBeInTheDocument();
-    expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(true);
+    expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(false, true);
   });
 });
 

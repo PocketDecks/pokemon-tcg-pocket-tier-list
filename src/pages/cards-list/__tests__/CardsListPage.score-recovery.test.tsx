@@ -61,6 +61,6 @@ describe("CardsListPage score recovery", () => {
     fireEvent.click(screen.getByRole("button", { name: "loadError.retry" }));
 
     expect(retry).toHaveBeenCalledTimes(1);
-    expect(vi.mocked(useMarkContentReady).mock.calls.at(-1)?.[0]).toBe(true);
+    expect(vi.mocked(useMarkContentReady).mock.calls.at(-1)).toEqual([false, true]);
   });
 });

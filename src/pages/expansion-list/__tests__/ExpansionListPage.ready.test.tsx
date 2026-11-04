@@ -1,82 +1,38 @@
-import { render } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { MemoryRouter, Route, Routes } from "react-router";
+import { ContentReadyProvider } from "../../../ads/ContentReadyContext";
+import useAdsState from "../../../ads/useAdsState";
+
+vi.mock("../../../app/use-is-premium", () => ({ default: () => false }));
+vi.mock("../../../app/use-app-visible", () => ({ useAppVisible: () => true }));
+vi.mock("../../../app/prerender", () => ({ isPrerender: false }));
+vi.mock("../../../ads/adsConfig", () => ({ ADS_ENABLED: true, IS_DEV: false }));
+vi.mock("@c15t/react", () => ({ useConsentManager: () => ({ has: () => true }) }));
+const Ads = () => <output data-testid="ads">{String(useAdsState().showAds)}</output>;
+
 import ExpansionListPage from "../ExpansionListPage";
-import { useMarkContentReady } from "../../../ads/ContentReadyContext";
+const state = vi.hoisted(() => ({ mode: "empty" }));
+vi.mock("../../../app/use-expansions", () => ({ default: () => [{ id: "b4a", name: "Team Rocket's Ambition", release_date: null, packs: [{ id: "b4a-booster", name: "Booster", image: "b4a.webp" }] }] }));
 
-const state = vi.hoisted(() => ({
-  cards: [] as unknown[],
-  expansions: [] as unknown[],
-  error: null as Error | null,
-}));
-
-vi.mock("../../../app/use-cards", () => ({
-  __esModule: true,
-  default: () => ({ cards: state.error ? null : state.cards, error: state.error, retry: vi.fn() }),
-}));
-
-vi.mock("../../../app/use-expansions", () => ({
-  __esModule: true,
-  default: () => state.expansions,
-}));
-
-vi.mock("../../../ads/ContentReadyContext", () => ({
-  __esModule: true,
-  useMarkContentReady: vi.fn(),
-}));
-
-const expansion = {
-  id: "b4a",
-  name: "Team Rocket's Ambition",
-  release_date: "2026-08-27",
-  packs: [{ id: "b4a-booster", name: "Booster", image: "b4a.webp" }],
-};
-
-const lastReady = () => {
-  const calls = vi.mocked(useMarkContentReady).mock.calls;
-  return calls[calls.length - 1]?.[0];
-};
+vi.mock("../../../app/use-cards", () => ({ default: () => ({
+  error: state.mode === "error" ? new Error("503") : null,
+  cards: state.mode === "error" ? null : state.mode === "empty" ? [] : [{ id: "b4a-001", name: "Volbeat", set: "b4a", pack: "Booster", score: 0.8 }],
+  retry: vi.fn(),
+}) }));
+vi.mock("../../../components/CardIcon", () => ({ default: () => <span>card row</span> }));
+vi.mock("../../../components/LastUpdated", () => ({ default: () => null }));
 
 describe("ExpansionListPage content readiness", () => {
-  beforeEach(() => {
-    vi.mocked(useMarkContentReady).mockClear();
-  });
-
-  it("marks ready on a valid empty score list", () => {
-    state.cards = [];
-    state.expansions = [expansion];
-    render(
-      <MemoryRouter>
-        <ExpansionListPage />
-      </MemoryRouter>
-    );
-
-    expect(lastReady()).toBe(true);
-  });
-
-  it("marks ready once tiles are visible", () => {
-    state.cards = [{ id: "b4a-001", name: "Volbeat", set: "b4a", pack: "Booster", score: 0.8 }];
-    state.expansions = [expansion];
-    render(
-      <MemoryRouter>
-        <ExpansionListPage />
-      </MemoryRouter>
-    );
-
-    expect(lastReady()).toBe(true);
-  });
-
-  it("marks ready on a score-load error so prerender does not hang", () => {
-    state.cards = [];
-    state.error = new Error("Card score request failed with status 500");
-    state.expansions = [expansion];
-    render(
-      <MemoryRouter>
-        <ExpansionListPage />
-      </MemoryRouter>
-    );
-
-    expect(lastReady()).toBe(true);
-    state.error = null;
+  it("settles error and empty screens without ads, and enables ads for rows", () => {
+    state.mode = "good";
+    const { rerender } = render(<MemoryRouter initialEntries={["/expansion-list"]}><ContentReadyProvider><Routes><Route path="/expansion-list" element={<ExpansionListPage />} /></Routes><Ads /></ContentReadyProvider></MemoryRouter>);
+    expect(screen.getByTestId("ads")).toHaveTextContent("true");
+    for (const mode of ["error", "empty", "good"]) {
+      state.mode = mode;
+      rerender(<MemoryRouter initialEntries={["/expansion-list"]}><ContentReadyProvider><Routes><Route path="/expansion-list" element={<ExpansionListPage />} /></Routes><Ads /></ContentReadyProvider></MemoryRouter>);
+      expect(document.documentElement.dataset.routeReady).toBe("/expansion-list");
+      expect(screen.getByTestId("ads")).toHaveTextContent(String(mode === "good"));
+    }
   });
 });

@@ -385,6 +385,19 @@
     "seenFrom": "出現於 {{from}} 至 {{to}}",
     "winRate": "勝率 {{value}}%",
     "metaShare": "環境佔比 {{value}}%",
-    "allVariants": "{{name}} 的所有變體"
+    "allVariants": "{{name}} 的所有變體",
+    "coreCards": "核心卡牌",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "此原型尚未記錄卡表。",
+    "matchups": "對戰關係",
+    "bestMatchups": "最有利的對戰",
+    "worstMatchups": "最不利的對戰",
+    "noMatchups": "與其他牌組的對戰局數尚不足夠。",
+    "similarDecks": "相似的當前牌組",
+    "sharedCards_one": "{{count}} 張相同卡牌",
+    "sharedCards_other": "{{count}} 張相同卡牌",
+    "noSimilarDecks": "沒有當前牌組與此卡表共享卡牌。",
+    "variantHistory": "變體歷史",
+    "peakShare": "峰值 {{value}}%（{{date}}）"
   }
 }

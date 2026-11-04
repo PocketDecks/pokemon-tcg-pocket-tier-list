@@ -385,6 +385,19 @@
     "seenFrom": "{{from}}から{{to}}まで確認",
     "winRate": "勝率 {{value}}%",
     "metaShare": "メタシェア {{value}}%",
-    "allVariants": "{{name}}のすべてのバリエーション"
+    "allVariants": "{{name}}のすべてのバリエーション",
+    "coreCards": "コアカード",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "このアーキタイプのカードリストはまだ記録されていません。",
+    "matchups": "相性",
+    "bestMatchups": "相性の良い相手",
+    "worstMatchups": "相性の悪い相手",
+    "noMatchups": "ほかのデッキとの対戦データはまだ十分ではありません。",
+    "similarDecks": "似ている現在のデッキ",
+    "sharedCards_one": "共通カード {{count}} 枚",
+    "sharedCards_other": "共通カード {{count}} 枚",
+    "noSimilarDecks": "このリストとカードを共有する現在のデッキはありません。",
+    "variantHistory": "バリエーションの履歴",
+    "peakShare": "ピーク {{value}}%（{{date}}）"
   }
 }

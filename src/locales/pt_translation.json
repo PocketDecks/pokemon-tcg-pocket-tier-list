@@ -385,6 +385,19 @@
     "seenFrom": "Visto de {{from}} a {{to}}",
     "winRate": "{{value}}% de vitórias",
     "metaShare": "{{value}}% do meta",
-    "allVariants": "Todas as variantes de {{name}}"
+    "allVariants": "Todas as variantes de {{name}}",
+    "coreCards": "Cartas principais",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "Ainda não há uma lista de cartas registrada para este arquétipo.",
+    "matchups": "Confrontos",
+    "bestMatchups": "Melhores confrontos",
+    "worstMatchups": "Piores confrontos",
+    "noMatchups": "Ainda não há partidas suficientes contra outros decks registradas.",
+    "similarDecks": "Decks atuais semelhantes",
+    "sharedCards_one": "{{count}} carta em comum",
+    "sharedCards_other": "{{count}} cartas em comum",
+    "noSimilarDecks": "Nenhum deck atual compartilha cartas com esta lista.",
+    "variantHistory": "Histórico de variantes",
+    "peakShare": "Pico de {{value}}% em {{date}}"
   }
 }

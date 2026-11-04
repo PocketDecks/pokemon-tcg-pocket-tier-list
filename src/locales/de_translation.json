@@ -385,6 +385,19 @@
     "seenFrom": "Gesehen von {{from}} bis {{to}}",
     "winRate": "{{value}}% Siegrate",
     "metaShare": "{{value}}% Meta-Anteil",
-    "allVariants": "Alle Varianten von {{name}}"
+    "allVariants": "Alle Varianten von {{name}}",
+    "coreCards": "Kernkarten",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "Für diesen Archetyp ist noch keine Kartenliste erfasst.",
+    "matchups": "Matchups",
+    "bestMatchups": "Beste Matchups",
+    "worstMatchups": "Schwächste Matchups",
+    "noMatchups": "Es sind noch nicht genug Spiele gegen andere Decks erfasst.",
+    "similarDecks": "Ähnliche aktuelle Decks",
+    "sharedCards_one": "{{count}} gemeinsame Karte",
+    "sharedCards_other": "{{count}} gemeinsame Karten",
+    "noSimilarDecks": "Kein aktuelles Deck teilt Karten mit dieser Liste.",
+    "variantHistory": "Verlauf der Varianten",
+    "peakShare": "Höchstwert {{value}} % am {{date}}"
   }
 }

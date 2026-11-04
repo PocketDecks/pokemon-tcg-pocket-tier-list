@@ -385,6 +385,19 @@
     "seenFrom": "Seen from {{from}} to {{to}}",
     "winRate": "{{value}}% win rate",
     "metaShare": "{{value}}% meta share",
-    "allVariants": "All {{name}} variants"
+    "allVariants": "All {{name}} variants",
+    "coreCards": "Core cards",
+    "cardLine": "{{count}} × {{name}}",
+    "noCoreCards": "No card list has been recorded for this archetype yet.",
+    "matchups": "Matchups",
+    "bestMatchups": "Best matchups",
+    "worstMatchups": "Worst matchups",
+    "noMatchups": "Not enough games against other decks have been recorded yet.",
+    "similarDecks": "Similar current decks",
+    "sharedCards_one": "{{count}} shared card",
+    "sharedCards_other": "{{count}} shared cards",
+    "noSimilarDecks": "No current deck shares cards with this list.",
+    "variantHistory": "Variant history",
+    "peakShare": "Peak {{value}}% on {{date}}"
   }
 }

@@ -83,5 +83,14 @@
     "contactHeading": "Contact",
     "contact": "Send questions, feedback, or feature requests to <0/>.",
     "fanNotice": "\"Top Pocket Decks\" is a fan-made project and is not affiliated with, endorsed by, or sponsored by Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc., or DeNA. All trademarks belong to their owners."
+  },
+  "hub": {
+    "heading": "{{name}} Deck Guide",
+    "overview_one": "{{name}} is tracked on Top Pocket Decks in {{count}} variant. Its first sighting was on {{firstSeen}}, and its peak share was {{peakShare}}% on {{peakDate}}.",
+    "overview_other": "{{name}} is tracked on Top Pocket Decks in {{count}} variants. Its first sighting was on {{firstSeen}}, and its peak share was {{peakShare}}% on {{peakDate}}.",
+    "liveStatus": "The top-ranked list has an expected win rate of {{winRate}}% and a {{metaShare}}% meta share in the current tournament data.",
+    "liveStatusNoShare": "The top-ranked list has an expected win rate of {{winRate}}% in the current tournament data.",
+    "retiredStatus": "{{name}} was last seen on {{lastSeen}} and is not in the current meta for {{expansion}}.",
+    "coreCards": "The most-included cards on the core list are {{cards}}."
   }
 }

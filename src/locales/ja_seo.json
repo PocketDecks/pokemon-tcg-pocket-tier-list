@@ -83,5 +83,14 @@
     "contactHeading": "お問い合わせ",
     "contact": "ご質問、ご意見、機能のご要望は <0/> までお送りください。",
     "fanNotice": "「Top Pocket Decks」はファンによる非公式プロジェクトであり、任天堂、株式会社ポケモン、株式会社クリーチャーズ、株式会社ゲームフリーク、株式会社ディー・エヌ・エーとは提携しておらず、承認や支援も受けていません。すべての商標は各権利者に帰属します。"
+  },
+  "hub": {
+    "heading": "{{name}} デッキガイド",
+    "overview_one": "{{name}} は Top Pocket Decks で {{count}} 件のバリエーションが記録されています。最初に確認されたのは {{firstSeen}} で、ピークのシェアは {{peakDate}} に記録された {{peakShare}}% でした。",
+    "overview_other": "{{name}} は Top Pocket Decks で {{count}} 件のバリエーションが記録されています。最初に確認されたのは {{firstSeen}} で、ピークのシェアは {{peakDate}} に記録された {{peakShare}}% でした。",
+    "liveStatus": "現在の大会データで、最上位のリストの期待勝率は {{winRate}}%、メタシェアは {{metaShare}}% です。",
+    "liveStatusNoShare": "現在の大会データで、最上位のリストの期待勝率は {{winRate}}% です。",
+    "retiredStatus": "{{name}} は {{lastSeen}} に最後に確認されており、現在の {{expansion}} のメタには含まれていません。",
+    "coreCards": "コアリストで最も多く採用されているカードは {{cards}} です。"
   }
 }

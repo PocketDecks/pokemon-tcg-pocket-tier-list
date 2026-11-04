@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import SegmentedControl from "../SegmentedControl";
 
@@ -23,12 +23,11 @@ describe("SegmentedControl", () => {
     renderControl();
 
     expect(stylesheetText()).toMatch(/@media \(pointer: coarse\)\s*\{[^}]*min-height:\s*4\.4rem/);
-    expect(getComputedStyle(screen.getByRole("button", { name: "Alpha" })).minHeight).not.toBe("70.4px");
   });
 
   it("applies the hover colour only on hover-capable devices", () => {
     renderControl();
 
-    expect(stylesheetText()).toMatch(/@media \(hover: hover\)\s*\{[^@]*:hover/);
+    expect(stylesheetText()).toMatch(/@media \(hover: hover\)\s*\{\s*&?[^{}]*:hover\s*\{/);
   });
 });

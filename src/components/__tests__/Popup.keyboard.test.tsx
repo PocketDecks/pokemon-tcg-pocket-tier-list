@@ -141,6 +141,23 @@ const CookieNotice = () => (
   </div>
 );
 
+const NativeDialogHarness = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setIsOpen(true)}>
+        Open panel
+      </button>
+      <Popup isOpen={isOpen} header="panel.title" close={() => setIsOpen(false)}>
+        <button type="button">Inside action</button>
+      </Popup>
+      <dialog open aria-label="Preferences">
+        <button type="button">Save preferences</button>
+      </dialog>
+    </>
+  );
+};
+
 const UnmountingTrigger = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasTrigger, setHasTrigger] = useState(true);
@@ -751,5 +768,30 @@ describe("Popup keyboard accessibility", () => {
     background.focus();
     expect(fireEvent.keyDown(background, { key: "Tab" })).toBe(true);
     expect(background).toHaveFocus();
+  });
+
+  it("keeps a native open dialog beside the popup usable while the popup is open", async () => {
+    const user = userEvent.setup();
+    render(<NativeDialogHarness />);
+
+    await openPanel(user);
+    const save = screen.getByRole("button", { name: "Save preferences" });
+    expect(save.closest("[inert]")).toBeNull();
+
+    save.focus();
+
+    expect(save).toHaveFocus();
+  });
+
+  it("does not close the popup on Escape while focus is in a native open dialog", async () => {
+    const user = userEvent.setup();
+    render(<NativeDialogHarness />);
+
+    await openPanel(user);
+    const save = screen.getByRole("button", { name: "Save preferences" });
+    save.focus();
+    fireEvent.keyDown(save, { key: "Escape" });
+
+    expect(screen.getByRole("dialog", { name: "Panel title" })).toBeInTheDocument();
   });
 });

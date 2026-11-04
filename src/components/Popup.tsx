@@ -147,19 +147,21 @@ const isRendered = (element: HTMLElement) =>
 const getFocusable = (root: HTMLElement) =>
   Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(isRendered);
 
+const OPEN_MODAL_SELECTOR = '[aria-modal="true"], dialog[open]';
+
 const isOtherModal = (candidate: HTMLElement, dialog: HTMLElement) =>
   candidate !== dialog && !candidate.contains(dialog);
 
 const isInOtherModal = (target: EventTarget | null, dialog: HTMLElement) => {
   if (!(target instanceof Element)) return false;
-  const modal = target.closest<HTMLElement>('[aria-modal="true"]');
+  const modal = target.closest<HTMLElement>(OPEN_MODAL_SELECTOR);
   return modal !== null && isOtherModal(modal, dialog);
 };
 
 const returnFromOtherModal = (event: KeyboardEvent, dialog: HTMLElement) => {
   const current = document.activeElement;
   if (!(current instanceof Element)) return false;
-  const modal = current.closest<HTMLElement>('[aria-modal="true"]');
+  const modal = current.closest<HTMLElement>(OPEN_MODAL_SELECTOR);
   if (!modal) return false;
   const modalFocusables = getFocusable(modal);
   const ownFocusables = getFocusable(dialog);
@@ -177,7 +179,7 @@ const returnFromOtherModal = (event: KeyboardEvent, dialog: HTMLElement) => {
 };
 
 const otherModalFocusables = (dialog: HTMLElement, forward: boolean) => {
-  const others = Array.from(document.querySelectorAll<HTMLElement>('[aria-modal="true"]')).filter(
+  const others = Array.from(document.querySelectorAll<HTMLElement>(OPEN_MODAL_SELECTOR)).filter(
     (candidate) => isOtherModal(candidate, dialog)
   );
   const following = others.filter(
@@ -192,7 +194,7 @@ const otherModalFocusables = (dialog: HTMLElement, forward: boolean) => {
 };
 
 const hasOpenModal = (element: Element) =>
-  element.matches('[aria-modal="true"]') || element.querySelector('[aria-modal="true"]') !== null;
+  element.matches(OPEN_MODAL_SELECTOR) || element.querySelector(OPEN_MODAL_SELECTOR) !== null;
 
 const makeOutsideInert = (target: Element) => {
   const claimed: Element[] = [];

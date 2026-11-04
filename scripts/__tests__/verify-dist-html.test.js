@@ -519,14 +519,15 @@ test("findExpansionListIssues needs the newest set and rejects deluxe packs", ()
 
 test("expansion page verification requires every listed page and its robots policy", () => {
   const page = (title, robots, h1, canonical) => `<title>${title}</title><meta name="description" content="${title} cards"><meta name="robots" content="${robots}"><h1>${h1}</h1><link rel="canonical" href="${canonical}"><script type="application/ld+json">{"@type":"BreadcrumbList"}</script>`;
-  const dir = makeDist({
+  const pages = {
     "expansion-list/c1/index.html": page("Dual Fusion", "index, follow", "Dual Fusion (C1)", "https://pocketdecks.top/expansion-list/c1/"),
     "ja/expansion-list/c1/index.html": page("デュアルフュージョン", "index, follow", "デュアルフュージョン (C1)", "https://pocketdecks.top/ja/expansion-list/c1/"),
     "expansion-list/b4a/index.html": page("Team Rocket's Ambition", "noindex, follow", "Team Rocket's Ambition (B4A)", "https://pocketdecks.top/expansion-list/b4a/"),
     "ja/expansion-list/b4a/index.html": page("ロケット団の栄光", "noindex, follow", "ロケット団の栄光 (B4A)", "https://pocketdecks.top/ja/expansion-list/b4a/"),
     "expansion-list/a1/index.html": page("Genetic Apex", "noindex, follow", "Genetic Apex (A1)", "https://pocketdecks.top/expansion-list/a1/"),
     "ja/expansion-list/a1/index.html": page("最強の遺伝子", "noindex, follow", "最強の遺伝子 (A1)", "https://pocketdecks.top/ja/expansion-list/a1/"),
-  });
+  };
+  const dir = makeDist(pages);
   const expansions = [
     { id: "a1", release_date: "2024-01-01" },
     { id: "b4a", release_date: "2026-08-27" },
@@ -534,6 +535,20 @@ test("expansion page verification requires every listed page and its robots poli
   ];
   const decks = [{ lists: [{ cards: ["1:a1-001", "1:b4a-001", "1:c1-001", "1:c1-002", "1:c1-003", "1:c1-004", "1:c1-005"] }] }];
   assert.deepStrictEqual(findExpansionPageIssues(dir, expansions, decks), []);
+  const withoutJaC1 = { ...pages };
+  delete withoutJaC1["ja/expansion-list/c1/index.html"];
+  assert.ok(
+    findExpansionPageIssues(makeDist(withoutJaC1), expansions, decks).includes("ja/expansion-list/c1/index.html: missing")
+  );
+  const b4aIndexed = {
+    ...pages,
+    "expansion-list/b4a/index.html": page("Team Rocket's Ambition", "index, follow", "Team Rocket's Ambition (B4A)", "https://pocketdecks.top/expansion-list/b4a/"),
+  };
+  assert.ok(
+    findExpansionPageIssues(makeDist(b4aIndexed), expansions, decks).includes(
+      "expansion-list/b4a/index.html: robots index, follow is not noindex, follow"
+    )
+  );
 });
 
 test("expansion page verification flags a page without BreadcrumbList structured data", () => {

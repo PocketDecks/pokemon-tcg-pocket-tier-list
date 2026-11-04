@@ -794,4 +794,43 @@ describe("Popup keyboard accessibility", () => {
 
     expect(screen.getByRole("dialog", { name: "Panel title" })).toBeInTheDocument();
   });
+
+  it("keeps Tab inside a nested popup from its last control to its own close button", async () => {
+    const user = userEvent.setup();
+    render(<NestedHarness />);
+    await user.click(screen.getByRole("button", { name: "Open outer" }));
+    await user.click(screen.getByRole("button", { name: "Open inner" }));
+    const outerDialog = screen.getByRole("dialog", { name: "Panel title" });
+    const innerDialog = screen.getByRole("dialog", { name: "Inner panel" });
+    const outerClose = within(outerDialog).getAllByRole("button", { name: "Close panel" })[0];
+    const innerClose = within(innerDialog).getByRole("button", { name: "Close panel" });
+    const onOuterFocus = vi.fn();
+    outerClose.addEventListener("focus", onOuterFocus);
+
+    await user.tab();
+    expect(within(innerDialog).getByRole("button", { name: "Inner action" })).toHaveFocus();
+    await user.tab();
+
+    expect(innerClose).toHaveFocus();
+    expect(onOuterFocus).not.toHaveBeenCalled();
+  });
+
+  it("keeps Shift+Tab inside a nested popup from its close button to its last control", async () => {
+    const user = userEvent.setup();
+    render(<NestedHarness />);
+    await user.click(screen.getByRole("button", { name: "Open outer" }));
+    await user.click(screen.getByRole("button", { name: "Open inner" }));
+    const outerDialog = screen.getByRole("dialog", { name: "Panel title" });
+    const innerDialog = screen.getByRole("dialog", { name: "Inner panel" });
+    const outerClose = within(outerDialog).getAllByRole("button", { name: "Close panel" })[0];
+    const innerClose = within(innerDialog).getByRole("button", { name: "Close panel" });
+    const onOuterFocus = vi.fn();
+    outerClose.addEventListener("focus", onOuterFocus);
+    expect(innerClose).toHaveFocus();
+
+    await user.tab({ shift: true });
+
+    expect(within(innerDialog).getByRole("button", { name: "Inner action" })).toHaveFocus();
+    expect(onOuterFocus).not.toHaveBeenCalled();
+  });
 });

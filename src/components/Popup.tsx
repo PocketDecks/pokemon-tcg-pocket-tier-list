@@ -162,7 +162,7 @@ const returnFromOtherModal = (event: KeyboardEvent, dialog: HTMLElement) => {
   const current = document.activeElement;
   if (!(current instanceof Element)) return false;
   const modal = current.closest<HTMLElement>(OPEN_MODAL_SELECTOR);
-  if (!modal) return false;
+  if (!modal || dialog.contains(modal)) return false;
   const modalFocusables = getFocusable(modal);
   const ownFocusables = getFocusable(dialog);
   if (!event.shiftKey && current === modalFocusables[modalFocusables.length - 1]) {

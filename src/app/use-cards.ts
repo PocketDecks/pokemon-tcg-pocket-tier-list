@@ -10,8 +10,13 @@ export interface CardScoreType extends CardType {
   popularity: number;
 }
 
-const useCards = (amount: number = 30): CardScoreType[] | null => {
-  const { expansion } = useFilters();
+interface UseCardsOptions {
+  ignoreExpansionFilter?: boolean;
+}
+
+const useCards = (amount: number = 30, options: UseCardsOptions = {}): CardScoreType[] | null => {
+  const { expansion: chosenExpansion } = useFilters();
+  const expansion = options.ignoreExpansionFilter ? null : chosenExpansion;
   const { missing: collected } = useMissing();
 
   const { data: cardsPayload } = useQuery({

@@ -11,3 +11,15 @@ it("documents route boundary recovery for pathname and search changes", () => {
   const doc = readFileSync("docs/reference/frontend-architecture.md", "utf8");
   expect(doc).toContain("The boundary resets when the pathname or search parameters change");
 });
+
+it("documents MetaWindowProvider between AuthProvider and DecksProvider", () => {
+  const doc = readFileSync("docs/reference/frontend-architecture.md", "utf8");
+  const stack = doc.slice(doc.indexOf("Inside `App` (`src/App.tsx`)"));
+  const auth = stack.indexOf("AuthProvider");
+  const metaWindow = stack.indexOf("MetaWindowProvider");
+  const decks = stack.indexOf("DecksProvider");
+  expect(metaWindow).toBeGreaterThan(auth);
+  expect(metaWindow).toBeLessThan(decks);
+  expect(stack).toContain("src/contexts/MetaWindowContext.tsx");
+  expect(doc).toContain("Six contexts hold client state.");
+});

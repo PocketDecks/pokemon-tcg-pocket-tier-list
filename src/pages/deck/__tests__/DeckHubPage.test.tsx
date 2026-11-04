@@ -407,3 +407,19 @@ describe("DeckHubPage dates in UTC", () => {
     }
   });
 });
+
+describe("DeckHubPage head", () => {
+  it("sets the document title and description when the hub renders", async () => {
+    decksState.value = {
+      decks: [liveDeck(GRENINJA, 70, ["Mega Greninja ex", "Greninja ex"])],
+      metaShareBySlug: {},
+      loading: false,
+      error: null,
+    };
+    renderAt("/deck/mega-greninja-ex");
+    await waitFor(() => expect(document.title).toBe("Mega Greninja ex Deck | Pokemon TCG Pocket"));
+    expect(document.querySelector('meta[name="description"]')?.getAttribute("content")).toBe(
+      "Mega Greninja ex Pokemon TCG Pocket deck variants, win rates and meta share from current tournament data."
+    );
+  });
+});

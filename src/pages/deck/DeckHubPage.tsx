@@ -16,6 +16,7 @@ import { MIN_MATCHUP_GAMES } from "../../app/config";
 import { newestExpansion } from "../../app/expansion-policy.mjs";
 import { EXPANSIONS_URL } from "../../app/constants";
 import SeoContent from "../../components/SeoContent";
+import DeckHubHeadTags, { type HubHeadStatus } from "./DeckHubHeadTags";
 import NotFoundPage from "../not-found/NotFoundPage";
 import {
   coreCardsOf,
@@ -199,6 +200,8 @@ const HubPage = () => {
 
   const name = hubDisplayName(variants);
   const seen = hubSeenRange(variants);
+  const headStatus: HubHeadStatus =
+    loading || decks === null ? "unknown" : liveVariants.length > 0 ? "live" : "retired";
   const records = hub?.variants ?? [];
   const recordSeen = hubSeenRange(records.length > 0 ? records : variants);
   const strongest = liveVariants[0];
@@ -266,6 +269,7 @@ const HubPage = () => {
 
   return (
     <Page>
+      <DeckHubHeadTags name={name} status={headStatus} />
       <Header>
         <Title>{t("deckHub.title", { name })}</Title>
         {loading ? null : !decks ? (

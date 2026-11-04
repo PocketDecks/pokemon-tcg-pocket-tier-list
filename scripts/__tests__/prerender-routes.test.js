@@ -196,10 +196,10 @@ test("tier-list title names the newest expansion by name", () => {
   );
 });
 
-test("tier-list description names the expansion and says the list is ranked from tournament data and updated four times a week", () => {
+test("tier-list description names the expansion and says the list is ranked by power score from tournament data and updated four times a week", () => {
   const { description } = buildRouteMeta(STUB)["/tier-list"];
   assert.match(description, /Test Set/);
-  assert.match(description, /ranked from tournament data/);
+  assert.match(description, /ranked by power score from tournament data/);
   assert.match(description, /updated four times a week/);
 });
 
@@ -253,15 +253,22 @@ test("expansion names with regex punctuation are matched literally", () => {
   assert.ok(meta["/tier-list"].description.includes("Set (A1)"));
 });
 
-test("tier-list descriptions name only controls the page has", () => {
+test("tier-list descriptions describe what every visitor sees, with no filter or sort control", () => {
+  const descriptions = [
+    ROUTE_META["/tier-list"].description,
+    JA_ROUTE_META["/tier-list"].description,
+    buildRouteMeta(null)["/tier-list"].description,
+    buildJaRouteMeta(null)["/tier-list"].description,
+  ];
+  for (const description of descriptions) {
+    assert.doesNotMatch(description, /filter|sort|絞り込|並べ替|フィルター/i);
+  }
   const en = ROUTE_META["/tier-list"].description;
-  assert.match(en, /Filter by energy type and sort by power score/);
-  assert.doesNotMatch(en, /win rate to find|filter by win rate/i);
+  assert.match(en, /ranked by power score/);
+  assert.match(en, /See each deck's tier, win rate and matchups/);
   const ja = JA_ROUTE_META["/tier-list"].description;
-  assert.match(ja, /エネルギー/);
   assert.match(ja, /パワースコア/);
-  assert.match(ja, /人気度/);
-  assert.doesNotMatch(ja, /勝率で絞り込/);
+  assert.match(ja, /ティア/);
 });
 
 test("with no covered expansion the tier-list and homepage copy is generic", () => {

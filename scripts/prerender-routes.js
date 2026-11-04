@@ -65,8 +65,8 @@ const buildRouteMeta = (latest) => ({
       ? `Pokemon TCG Pocket Tier List: Best ${latest.name} Decks | Top Pocket Decks`
       : "Pokemon TCG Pocket Tier List: Best Decks | Top Pocket Decks",
     description: latest
-      ? `Pokemon TCG Pocket tier list for ${latest.name}, ranked from tournament data and updated four times a week. Filter by energy type and sort by power score.`
-      : "Pokemon TCG Pocket tier list, ranked from tournament data and updated four times a week. Filter by energy type and sort by power score.",
+      ? `Pokemon TCG Pocket tier list for ${latest.name}, ranked by power score from tournament data and updated four times a week. See each deck's tier, win rate and matchups.`
+      : "Pokemon TCG Pocket tier list, ranked by power score from tournament data and updated four times a week. See each deck's tier, win rate and matchups.",
     canonical: "https://pocketdecks.top/tier-list/",
   },
   "/cards-list": {
@@ -118,8 +118,8 @@ const buildJaRouteMeta = (latest) => ({
       ? `ポケポケ ティアリスト ${latest.name} 最強デッキ | Top Pocket Decks`
       : "ポケポケ ティアリスト 最強デッキ一覧 | Top Pocket Decks",
     description: latest
-      ? `${latest.name}のデッキを大会データをもとに週4回ランク付けしています。エネルギーで絞り込み、パワースコアや人気度で並べ替えられます。`
-      : "大会データをもとに全アーキタイプを週4回ランク付けしています。エネルギーで絞り込み、パワースコアや人気度で並べ替えられます。",
+      ? `${latest.name}のデッキを大会データをもとにパワースコア順にランク付けし、週4回更新しています。各デッキのティア、勝率、相性を確認できます。`
+      : "大会データをもとに全アーキタイプをパワースコア順にランク付けし、週4回更新しています。各デッキのティア、勝率、相性を確認できます。",
   },
   "/cards-list": {
     title: "ポケポケ カード ティアリスト 最強カード | Top Pocket Decks",

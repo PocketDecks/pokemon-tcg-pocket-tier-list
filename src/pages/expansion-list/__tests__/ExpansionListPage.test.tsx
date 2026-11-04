@@ -145,15 +145,17 @@ describe("ExpansionListPage", () => {
 
   it("switches views through the URL query", async () => {
     const user = userEvent.setup();
-    const { container } = renderPage();
+    renderPage();
 
     await user.click(screen.getByRole("button", { name: "expansionList.viewPacks" }));
     expect(screen.getByTestId("search")).toHaveTextContent("?view=packs");
-    expect(expansionLinks(container)).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "Team Rocket's Ambition: Pack 1" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Team Rocket's Ambition" })).toBeNull();
 
     await user.click(screen.getByRole("button", { name: "expansionList.viewExpansions" }));
     expect(screen.getByTestId("search")).toHaveTextContent(/^$/);
-    expect(expansionLinks(container)).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "Team Rocket's Ambition" })).toHaveAttribute("href", "/expansion-list/b4a");
+    expect(screen.queryByRole("link", { name: "Team Rocket's Ambition: Pack 1" })).toBeNull();
   });
   it("links a single-pack set in the packs view without a pack query", () => {
     renderPage("/expansion-list/?view=packs");

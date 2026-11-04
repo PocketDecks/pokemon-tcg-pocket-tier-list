@@ -1,0 +1,50 @@
+{
+  "hub": "alolan-exeggutor-ex",
+  "name": "Alolan Exeggutor ex",
+  "variants": [
+    {
+      "variant": "alolan-exeggutor-ex-c1-005&leafeon-ex-a2a-010",
+      "name": "alolan-exeggutor-ex-c1-005&leafeon-ex-a2a-010",
+      "firstSeen": "2026-11-02",
+      "lastSeen": "2026-11-02",
+      "peakShare": 0.007184846505551927,
+      "peakDate": "2026-11-03",
+      "cards": [
+        "2:b1-184",
+        "2:a2a-010",
+        "1:a3b-002",
+        "2:a1a-001",
+        "2:c1-005",
+        "2:pa-007",
+        "2:a2-150",
+        "1:b1-225",
+        "2:pa-005",
+        "2:b2-145",
+        "2:a3-147"
+      ]
+    },
+    {
+      "variant": "alolan-exeggutor-ex-c1-005&ribombee-c1-015",
+      "name": "alolan-exeggutor-ex-c1-005&ribombee-c1-015",
+      "firstSeen": "2026-11-02",
+      "lastSeen": "2026-11-02",
+      "peakShare": 0.008926627476594819,
+      "peakDate": "2026-11-03",
+      "cards": [
+        "2:c1-014",
+        "2:c1-015",
+        "2:a1a-001",
+        "1:c1-005",
+        "1:a2-017",
+        "1:c1-008",
+        "2:pa-007",
+        "1:c1-127",
+        "1:a2-150",
+        "2:b1a-067",
+        "1:c1-119",
+        "2:a3-147",
+        "2:b3-153"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "hub": "exeggutor-ex",
+  "name": "Exeggutor ex",
+  "variants": [
+    {
+      "variant": "exeggutor-ex-a1-023",
+      "name": "Exeggutor ex-A1-023",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.01009252924041361,
+      "peakDate": "2025-07-28",
+      "cards": [
+        "2:a1-021",
+        "2:a1-023",
+        "1:a1a-003",
+        "2:pa-007",
+        "2:a1-225",
+        "2:a1-219",
+        "2:a2-150",
+        "2:pa-005",
+        "2:a2-146",
+        "1:pa-002",
+        "2:a2-147"
+      ]
+    },
+    {
+      "variant": "exeggutor-ex-a1-023&alolan-exeggutor-a3-002",
+      "name": "Exeggutor ex-A1-023&Alolan Exeggutor-A3-002",
+      "firstSeen": "2025-09-15",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.010604620291661832,
+      "peakDate": "2025-10-06",
+      "cards": [
+        "2:a1a-001",
+        "2:a3-002",
+        "1:a1-023",
+        "2:pa-007",
+        "2:a1-219",
+        "1:a1-225",
+        "1:a2-150",
+        "1:a4-156",
+        "1:b1-223",
+        "1:b1-225",
+        "2:b1a-067",
+        "1:pa-005",
+        "2:a3-147",
+        "1:b1-219"
+      ]
+    },
+    {
+      "variant": "exeggutor-ex-a1-023&leafeon-ex-a2a-010",
+      "name": "Exeggutor ex-A1-023&Leafeon ex-A2a-010",
+      "firstSeen": "2025-08-02",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00000821478679991904,
+      "peakDate": "2025-11-03",
+      "cards": [
+        "1:a1a-001",
+        "1:a1-021",
+        "1:a1a-002",
+        "1:a1-022",
+        "1:a1-023",
+        "1:a3-002",
+        "1:a3b-056",
+        "1:a2a-010",
+        "2:pa-007",
+        "1:a2b-070",
+        "1:a1-225",
+        "1:a1a-068",
+        "1:a2-150",
+        "2:pa-006",
+        "2:pa-005",
+        "2:a2-148"
+      ]
+    },
+    {
+      "variant": "exeggutor-ex-a1-023&serperior-a1a-006",
+      "name": "exeggutor-ex-a1-023&serperior-a1a-006",
+      "firstSeen": "2026-10-06",
+      "lastSeen": "2026-10-10",
+      "peakShare": 0.00980537810132224,
+      "peakDate": "2026-10-10",
+      "cards": [
+        "2:a1-021",
+        "2:a1-023",
+        "2:a1a-003",
+        "1:a1a-004",
+        "2:a1a-005",
+        "2:a1a-006",
+        "2:a1-219",
+        "2:pa-007",
+        "1:a1-225",
+        "2:pa-002",
+        "2:pa-005"
+      ]
+    }
+  ]
+}

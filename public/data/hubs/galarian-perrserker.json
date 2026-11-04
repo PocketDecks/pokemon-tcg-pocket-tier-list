@@ -1,0 +1,50 @@
+{
+  "hub": "galarian-perrserker",
+  "name": "Galarian Perrserker",
+  "variants": [
+    {
+      "variant": "galarian-perrserker-b2-111",
+      "name": "galarian-perrserker-b2-111",
+      "firstSeen": "2026-01-30",
+      "lastSeen": "2026-03-18",
+      "peakShare": 0.0014434779361364282,
+      "peakDate": "2026-01-31",
+      "cards": [
+        "2:b2-110",
+        "2:b2-111",
+        "2:a1-181",
+        "2:b1-174",
+        "2:b2a-077",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a1a-068",
+        "1:a2-150",
+        "1:pa-005",
+        "1:b2-148",
+        "1:a2-148",
+        "1:b2-153"
+      ]
+    },
+    {
+      "variant": "galarian-perrserker-b2-111&mega-mawile-ex-b2-113",
+      "name": "galarian-perrserker-b2-111&mega-mawile-ex-b2-113",
+      "firstSeen": "2026-02-01",
+      "lastSeen": "2026-03-18",
+      "peakShare": 0.0010249825907286492,
+      "peakDate": "2026-02-01",
+      "cards": [
+        "2:b2-110",
+        "2:b2-111",
+        "2:b2-113",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "2:pa-005",
+        "2:pa-001",
+        "2:b2-145",
+        "2:b2-148",
+        "1:b2-154"
+      ]
+    }
+  ]
+}

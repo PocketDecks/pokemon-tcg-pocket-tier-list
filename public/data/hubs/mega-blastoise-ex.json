@@ -1,0 +1,31 @@
+{
+  "hub": "mega-blastoise-ex",
+  "name": "Mega Blastoise ex",
+  "variants": [
+    {
+      "variant": "mega-blastoise-ex-b1a-020",
+      "name": "Mega Blastoise ex-B1a-020",
+      "firstSeen": "2025-12-20",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.003470417411844867,
+      "peakDate": "2025-12-20",
+      "cards": [
+        "2:b1-135",
+        "2:b1-136",
+        "2:b1a-004",
+        "2:b1-052",
+        "2:b1a-020",
+        "1:b1-129",
+        "1:a4-132",
+        "1:a1-185",
+        "1:a1-004",
+        "1:b1a-052",
+        "1:a2b-069",
+        "1:b1-223",
+        "1:b1-225",
+        "1:pa-005",
+        "1:a2-146"
+      ]
+    }
+  ]
+}

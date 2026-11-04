@@ -1,0 +1,28 @@
+{
+  "hub": "electivire",
+  "name": "Electivire",
+  "variants": [
+    {
+      "variant": "electivire-a2-057",
+      "name": "Electivire-A2-057",
+      "firstSeen": "2025-08-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0024981958320971155,
+      "peakDate": "2025-08-30",
+      "cards": [
+        "2:a2-056",
+        "2:a2-057",
+        "2:a3a-021",
+        "2:pa-007",
+        "2:a2-153",
+        "1:a2-154",
+        "1:b1-225",
+        "1:a2-150",
+        "2:a4-151",
+        "2:pa-005",
+        "1:a2-146",
+        "2:a4-155"
+      ]
+    }
+  ]
+}

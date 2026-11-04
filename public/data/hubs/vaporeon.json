@@ -1,0 +1,29 @@
+{
+  "hub": "vaporeon",
+  "name": "Vaporeon",
+  "variants": [
+    {
+      "variant": "vaporeon-a1a-019&articuno-ex-a1-084",
+      "name": "Vaporeon-A1a-019&Articuno ex-A1-084",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00003063632253616864,
+      "peakDate": "2025-11-03",
+      "cards": [
+        "2:a1-206",
+        "1:a2a-022",
+        "1:a1a-019",
+        "1:a2-049",
+        "1:a1-084",
+        "2:a2-150",
+        "2:a2a-072",
+        "2:a1-220",
+        "1:a2-155",
+        "2:pa-005",
+        "2:pa-001",
+        "2:a2-148",
+        "1:a2-147"
+      ]
+    }
+  ]
+}

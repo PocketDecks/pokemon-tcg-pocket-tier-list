@@ -1,0 +1,26 @@
+{
+  "hub": "rhyperior",
+  "name": "Rhyperior",
+  "variants": [
+    {
+      "variant": "rhyperior-a2-082",
+      "name": "Rhyperior-A2-082",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00015207114385997907,
+      "peakDate": "2026-01-25",
+      "cards": [
+        "2:b1-135",
+        "2:b1-136",
+        "2:a2-082",
+        "2:a3-103",
+        "2:b1-129",
+        "2:pa-007",
+        "2:b1-223",
+        "2:a2b-069",
+        "2:a2-146",
+        "2:b1-219"
+      ]
+    }
+  ]
+}

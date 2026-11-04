@@ -1,0 +1,27 @@
+{
+  "hub": "eevee-ex",
+  "name": "Eevee ex",
+  "variants": [
+    {
+      "variant": "eevee-ex-a3b-056&vaporeon-ex-b3-037",
+      "name": "eevee-ex-a3b-056&vaporeon-ex-b3-037",
+      "firstSeen": "2026-09-09",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.015705181350050994,
+      "peakDate": "2026-09-09",
+      "cards": [
+        "2:a3b-056",
+        "2:b3-037",
+        "2:b1-121",
+        "2:pa-007",
+        "2:b1-225",
+        "2:a2a-072",
+        "1:a2b-071",
+        "1:a2-150",
+        "2:pa-005",
+        "2:b1-219",
+        "2:b4-154"
+      ]
+    }
+  ]
+}

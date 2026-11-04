@@ -1,0 +1,28 @@
+{
+  "hub": "sylveon",
+  "name": "Sylveon",
+  "variants": [
+    {
+      "variant": "sylveon-a3b-033&sylveon-ex-a3b-034",
+      "name": "Sylveon-A3b-033&Sylveon ex-A3b-034",
+      "firstSeen": "2025-06-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.01647674326132229,
+      "peakDate": "2025-10-31",
+      "cards": [
+        "2:b1-170",
+        "2:b1-172",
+        "2:a3b-055",
+        "2:a3b-033",
+        "2:a3b-034",
+        "2:a3b-056",
+        "2:pa-007",
+        "1:a2-150",
+        "1:a2-155",
+        "1:b1-223",
+        "2:a3-144",
+        "1:pa-002"
+      ]
+    }
+  ]
+}

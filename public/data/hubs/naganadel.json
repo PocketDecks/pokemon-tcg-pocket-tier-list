@@ -1,0 +1,73 @@
+{
+  "hub": "naganadel",
+  "name": "Naganadel",
+  "variants": [
+    {
+      "variant": "naganadel-a3a-045",
+      "name": "naganadel-a3a-045",
+      "firstSeen": "2025-06-02",
+      "lastSeen": "2026-06-29",
+      "peakShare": 0.010457359909115858,
+      "peakDate": "2026-04-27",
+      "cards": [
+        "2:a3a-044",
+        "2:a3a-045",
+        "2:a3a-042",
+        "1:a3a-043",
+        "1:a3a-062",
+        "2:a3a-069",
+        "2:pa-007",
+        "1:b1-225",
+        "1:a2-150",
+        "2:pa-005",
+        "1:pa-006",
+        "2:a3-146",
+        "1:b2-154"
+      ]
+    },
+    {
+      "variant": "naganadel-a3a-045&darkrai-ex-a2-110",
+      "name": "Naganadel-A3a-045&Darkrai ex-A2-110",
+      "firstSeen": "2025-06-02",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.002372456580116924,
+      "peakDate": "2025-06-09",
+      "cards": [
+        "2:a3a-044",
+        "2:a3a-045",
+        "2:a2-110",
+        "2:a3a-042",
+        "2:pa-007",
+        "2:a1a-068",
+        "1:a3-151",
+        "1:a2-150",
+        "1:a1-225",
+        "2:pa-005",
+        "2:a3-146",
+        "1:a2-147"
+      ]
+    },
+    {
+      "variant": "naganadel-a3a-045&nihilego-a3a-042",
+      "name": "Naganadel-A3a-045&Nihilego-A3a-042",
+      "firstSeen": "2025-06-02",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.019217903759269198,
+      "peakDate": "2025-10-31",
+      "cards": [
+        "2:a3a-044",
+        "2:a3a-045",
+        "2:a3a-042",
+        "1:a3a-062",
+        "1:a3a-043",
+        "2:a3a-069",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:a2b-070",
+        "2:pa-005",
+        "2:a3-146"
+      ]
+    }
+  ]
+}

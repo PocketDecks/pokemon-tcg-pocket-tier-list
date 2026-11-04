@@ -1,0 +1,79 @@
+{
+  "hub": "mega-charizard-x-ex",
+  "name": "Mega Charizard X ex",
+  "variants": [
+    {
+      "variant": "mega-charizard-x-ex-b2b-009",
+      "name": "mega-charizard-x-ex-b2b-009",
+      "firstSeen": "2026-03-30",
+      "lastSeen": "2026-09-09",
+      "peakShare": 0.14165627428259536,
+      "peakDate": "2026-03-30",
+      "cards": [
+        "2:b2b-007",
+        "2:b2b-008",
+        "1:b2b-009",
+        "1:b1a-014",
+        "2:a4a-010",
+        "2:pa-007",
+        "1:b1-225",
+        "1:b1-223",
+        "1:b4-153",
+        "2:pa-005",
+        "2:b1-217",
+        "1:b2-145",
+        "1:a2-148",
+        "1:b4-155"
+      ]
+    },
+    {
+      "variant": "mega-charizard-x-ex-b2b-009&entei-ex-a4a-010",
+      "name": "mega-charizard-x-ex-b2b-009&entei-ex-a4a-010",
+      "firstSeen": "2026-09-09",
+      "lastSeen": "2026-09-09",
+      "peakShare": 0.009760930745528227,
+      "peakDate": "2026-09-09",
+      "cards": [
+        "2:b2b-007",
+        "2:b2b-008",
+        "1:b2b-009",
+        "1:b1a-014",
+        "2:a4a-010",
+        "2:pa-007",
+        "1:b1-225",
+        "1:b1-223",
+        "1:b4-153",
+        "2:pa-005",
+        "2:b1-217",
+        "1:b2-145",
+        "1:a2-148",
+        "1:b4-155"
+      ]
+    },
+    {
+      "variant": "mega-charizard-x-ex-b2b-009&mega-charizard-y-ex-b1a-014",
+      "name": "mega-charizard-x-ex-b2b-009&mega-charizard-y-ex-b1a-014",
+      "firstSeen": "2026-09-09",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.009751358629494306,
+      "peakDate": "2026-09-09",
+      "cards": [
+        "1:b2b-007",
+        "1:a2b-008",
+        "2:b2b-008",
+        "1:b1a-014",
+        "1:b2b-009",
+        "2:a4a-010",
+        "2:pa-007",
+        "1:a2-150",
+        "1:a1-225",
+        "1:b1-223",
+        "1:b1-225",
+        "2:pa-005",
+        "2:b1-217",
+        "1:b2-147",
+        "1:b4-155"
+      ]
+    }
+  ]
+}

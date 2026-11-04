@@ -1,0 +1,30 @@
+{
+  "hub": "exeggutor",
+  "name": "Exeggutor",
+  "variants": [
+    {
+      "variant": "exeggutor-a1-022&carnivine-a2a-009",
+      "name": "Exeggutor-A1-022&Carnivine-A2a-009",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00000483222752936414,
+      "peakDate": "2025-11-03",
+      "cards": [
+        "2:a1-021",
+        "2:a1-022",
+        "2:a2a-071",
+        "2:a2a-009",
+        "2:pa-007",
+        "1:a2b-070",
+        "1:a2b-071",
+        "1:a2-150",
+        "1:a1a-068",
+        "1:a1-225",
+        "2:pa-005",
+        "1:pa-001",
+        "1:a2-147",
+        "1:a2-148"
+      ]
+    }
+  ]
+}

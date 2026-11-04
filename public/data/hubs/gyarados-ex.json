@@ -1,0 +1,142 @@
+{
+  "hub": "gyarados-ex",
+  "name": "Gyarados ex",
+  "variants": [
+    {
+      "variant": "gyarados-ex-a1a-018",
+      "name": "Gyarados ex-A1a-018",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00226570908748446,
+      "peakDate": "2025-10-27",
+      "cards": [
+        "2:a1-074",
+        "1:a1-076",
+        "2:a1a-017",
+        "2:a1a-018",
+        "1:b1-051",
+        "2:pa-007",
+        "2:a1-220",
+        "2:a1-225",
+        "1:a4-159",
+        "2:pa-001",
+        "2:pa-005",
+        "1:a3a-064"
+      ]
+    },
+    {
+      "variant": "gyarados-ex-a1a-018&druddigon-a1a-056",
+      "name": "Gyarados ex-A1a-018&Druddigon-A1a-056",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00033446558096725704,
+      "peakDate": "2025-06-21",
+      "cards": [
+        "2:a1a-017",
+        "2:a1a-018",
+        "2:a1a-056",
+        "1:a1-087",
+        "1:a1-088",
+        "1:a1-089",
+        "2:pa-007",
+        "1:a1-220",
+        "1:a1a-068",
+        "1:a2a-072",
+        "1:a2-150",
+        "1:a3-151",
+        "1:pa-005",
+        "1:a3-144",
+        "1:a2-148",
+        "1:a2-147"
+      ]
+    },
+    {
+      "variant": "gyarados-ex-a1a-018&giratina-ex-a2b-035",
+      "name": "Gyarados ex-A1a-018&Giratina ex-A2b-035",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 2.41611376468207e-7,
+      "peakDate": "2025-11-03",
+      "cards": [
+        "2:a1a-017",
+        "2:a1a-018",
+        "2:a2b-035",
+        "2:pa-007",
+        "2:a1a-068",
+        "2:a1-220",
+        "1:a2a-072",
+        "1:a1-225",
+        "1:a2b-071",
+        "2:pa-005",
+        "1:a2-146",
+        "1:a2-148",
+        "1:a2-147"
+      ]
+    },
+    {
+      "variant": "gyarados-ex-a1a-018&greninja-a1-089",
+      "name": "gyarados-ex-a1a-018&greninja-a1-089",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-10-10",
+      "peakShare": 0.017679393849353735,
+      "peakDate": "2026-10-10",
+      "cards": [
+        "2:a1a-017",
+        "2:a1a-018",
+        "2:a1-087",
+        "2:a1-088",
+        "2:a1-089",
+        "2:a1a-056",
+        "2:pa-007",
+        "2:a1a-068",
+        "2:a1-220",
+        "2:pa-005"
+      ]
+    },
+    {
+      "variant": "gyarados-ex-a1a-018&manaphy-a2-050",
+      "name": "Gyarados ex-A1a-018&Manaphy-A2-050",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.004310829617636368,
+      "peakDate": "2025-08-25",
+      "cards": [
+        "2:a1a-017",
+        "2:a1a-018",
+        "2:a2-050",
+        "1:a2a-023",
+        "2:a1-220",
+        "2:pa-007",
+        "1:a1-223",
+        "1:a1-225",
+        "1:a2a-072",
+        "2:pa-005",
+        "1:a2-146",
+        "2:a2-148",
+        "1:a2-147"
+      ]
+    },
+    {
+      "variant": "gyarados-ex-a1a-018&vaporeon-a1a-019",
+      "name": "Gyarados ex-A1a-018&Vaporeon-A1a-019",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00012215871194232528,
+      "peakDate": "2025-11-03",
+      "cards": [
+        "2:a1a-017",
+        "2:a1a-018",
+        "2:a1a-061",
+        "2:a1a-019",
+        "2:a2-049",
+        "1:a2-050",
+        "2:a1-220",
+        "2:pa-007",
+        "1:a1a-068",
+        "1:a2-150",
+        "2:pa-005",
+        "1:pa-002"
+      ]
+    }
+  ]
+}

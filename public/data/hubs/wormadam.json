@@ -1,0 +1,29 @@
+{
+  "hub": "wormadam",
+  "name": "Wormadam",
+  "variants": [
+    {
+      "variant": "wormadam-a2-115&skarmory-a2-111",
+      "name": "Wormadam-A2-115&Skarmory-A2-111",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00046298848039772264,
+      "peakDate": "2025-07-28",
+      "cards": [
+        "2:a2-015",
+        "2:a2-115",
+        "2:a2-111",
+        "1:a2-112",
+        "2:pa-007",
+        "1:a1-223",
+        "1:a1-225",
+        "1:a2-150",
+        "2:pa-005",
+        "1:pa-006",
+        "1:pa-002",
+        "2:a2-147",
+        "2:a2-148"
+      ]
+    }
+  ]
+}

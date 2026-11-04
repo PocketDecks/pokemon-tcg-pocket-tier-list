@@ -1,0 +1,42 @@
+{
+  "hub": "venusaur-ex",
+  "name": "Venusaur ex",
+  "variants": [
+    {
+      "variant": "venusaur-ex-a1-004",
+      "name": "venusaur-ex-a1-004",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-08-22",
+      "peakShare": 0.06699048014212013,
+      "peakDate": "2026-08-22",
+      "cards": [
+        "2:a1-001",
+        "2:a1-004",
+        "2:a1-219",
+        "1:a2-025"
+      ]
+    },
+    {
+      "variant": "venusaur-ex-a1-004&exeggutor-ex-a1-023",
+      "name": "Venusaur ex-A1-004&Exeggutor ex-A1-023",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0002493159848343557,
+      "peakDate": "2025-06-25",
+      "cards": [
+        "2:a1-021",
+        "2:a1-023",
+        "1:a1-022",
+        "2:a1-001",
+        "2:a1-004",
+        "2:pa-007",
+        "2:a1-219",
+        "1:a2-150",
+        "1:b1-225",
+        "2:pa-005",
+        "2:a3-144",
+        "1:pa-002"
+      ]
+    }
+  ]
+}

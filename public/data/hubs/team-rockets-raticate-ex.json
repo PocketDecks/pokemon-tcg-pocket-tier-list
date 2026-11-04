@@ -1,0 +1,74 @@
+{
+  "hub": "team-rockets-raticate-ex",
+  "name": "Team Rocket's Raticate ex",
+  "variants": [
+    {
+      "variant": "team-rockets-raticate-ex-b4a-059",
+      "name": "team-rocket's-raticate-ex-b4a-059",
+      "firstSeen": "2026-09-08",
+      "lastSeen": "2026-09-09",
+      "peakShare": 0.0024390770362961458,
+      "peakDate": "2026-09-08",
+      "cards": [
+        "2:b4a-058",
+        "2:b4a-059",
+        "2:b4-103",
+        "1:b3b-041",
+        "1:a2-110",
+        "2:b1-225",
+        "2:pa-007",
+        "1:a2-150",
+        "1:a2-154",
+        "2:pa-005",
+        "1:a3a-064",
+        "1:pa-002",
+        "2:b4-148"
+      ]
+    },
+    {
+      "variant": "team-rockets-raticate-ex-b4a-059&alolan-ninetales-ex-b2-029",
+      "name": "team-rocket's-raticate-ex-b4a-059&alolan-ninetales-ex-b2-029",
+      "firstSeen": "2026-09-08",
+      "lastSeen": "2026-10-15",
+      "peakShare": 0.012963967145152239,
+      "peakDate": "2026-09-08",
+      "cards": [
+        "2:a3-040",
+        "2:b2-029",
+        "1:a3-041",
+        "2:b4a-058",
+        "2:b4a-059",
+        "2:b1-225",
+        "2:pa-007",
+        "1:a2b-070",
+        "1:a2-150",
+        "1:a1-225",
+        "2:pa-005",
+        "2:a2-147"
+      ]
+    },
+    {
+      "variant": "team-rockets-raticate-ex-b4a-059&mega-lucario-ex-b3-081",
+      "name": "team-rocket's-raticate-ex-b4a-059&mega-lucario-ex-b3-081",
+      "firstSeen": "2026-09-10",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.003627832846581729,
+      "peakDate": "2026-09-11",
+      "cards": [
+        "2:a2-091",
+        "2:b3-081",
+        "2:b4a-058",
+        "2:b4a-059",
+        "2:pa-007",
+        "2:b1-225",
+        "1:b3-149",
+        "1:a2-150",
+        "2:pa-005",
+        "1:pa-002",
+        "1:b2-145",
+        "1:b3-147",
+        "1:b3-154"
+      ]
+    }
+  ]
+}

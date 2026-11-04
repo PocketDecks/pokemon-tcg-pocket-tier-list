@@ -1,0 +1,28 @@
+{
+  "hub": "lapras-ex",
+  "name": "Lapras ex",
+  "variants": [
+    {
+      "variant": "lapras-ex-pa-014&greninja-a1-089",
+      "name": "Lapras ex-PA-014&Greninja-A1-089",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.000015069476845972306,
+      "peakDate": "2025-05-27",
+      "cards": [
+        "2:pa-014",
+        "1:a1-087",
+        "1:a1-088",
+        "1:a1-089",
+        "1:a1-084",
+        "2:a1-220",
+        "2:a2a-072",
+        "2:pa-007",
+        "2:pa-005",
+        "2:pa-001",
+        "2:pa-002",
+        "2:a2-147"
+      ]
+    }
+  ]
+}

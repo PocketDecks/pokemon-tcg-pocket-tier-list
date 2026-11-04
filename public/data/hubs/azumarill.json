@@ -1,0 +1,29 @@
+{
+  "hub": "azumarill",
+  "name": "Azumarill",
+  "variants": [
+    {
+      "variant": "azumarill-c1-059&lopunny-c1-116",
+      "name": "azumarill-c1-059&lopunny-c1-116",
+      "firstSeen": "2026-11-02",
+      "lastSeen": "2026-11-02",
+      "peakShare": 0.011757021554539516,
+      "peakDate": "2026-11-03",
+      "cards": [
+        "2:c1-022",
+        "2:c1-023",
+        "2:c1-115",
+        "2:c1-116",
+        "1:c1-058",
+        "1:c1-059",
+        "2:pa-007",
+        "2:b1-225",
+        "1:b1-226",
+        "1:b2-150",
+        "2:pa-005",
+        "1:pa-002",
+        "1:a2-147"
+      ]
+    }
+  ]
+}

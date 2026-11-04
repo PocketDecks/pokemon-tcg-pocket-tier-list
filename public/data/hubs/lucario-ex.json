@@ -1,0 +1,28 @@
+{
+  "hub": "lucario-ex",
+  "name": "Lucario ex",
+  "variants": [
+    {
+      "variant": "lucario-ex-a2b-043",
+      "name": "Lucario ex-A2b-043",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.001027027336864302,
+      "peakDate": "2025-06-21",
+      "cards": [
+        "2:a2-091",
+        "2:a2b-043",
+        "2:a1-139",
+        "2:a1-140",
+        "2:pa-007",
+        "2:a4-156",
+        "1:a4-158",
+        "1:a2-150",
+        "1:a2b-070",
+        "1:a2-155",
+        "2:pa-005",
+        "2:pa-001"
+      ]
+    }
+  ]
+}

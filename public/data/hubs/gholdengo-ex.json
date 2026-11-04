@@ -1,0 +1,50 @@
+{
+  "hub": "gholdengo-ex",
+  "name": "Gholdengo ex",
+  "variants": [
+    {
+      "variant": "gholdengo-ex-b2a-078",
+      "name": "gholdengo-ex-b2a-078",
+      "firstSeen": "2026-03-02",
+      "lastSeen": "2026-06-29",
+      "peakShare": 0.02665296487776482,
+      "peakDate": "2026-03-02",
+      "cards": [
+        "2:b2a-054",
+        "2:b2a-078",
+        "2:a2-119",
+        "2:b1-225",
+        "2:pa-007",
+        "1:a1a-068",
+        "1:a2-155",
+        "1:a2a-075",
+        "1:b1-223",
+        "2:pa-005",
+        "2:pa-001",
+        "2:b2-148"
+      ]
+    },
+    {
+      "variant": "gholdengo-ex-b2a-078&dialga-ex-a2-119",
+      "name": "gholdengo-ex-b2a-078&dialga-ex-a2-119",
+      "firstSeen": "2026-09-24",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.0006437425602239147,
+      "peakDate": "2026-09-24",
+      "cards": [
+        "2:b2a-054",
+        "2:b2a-078",
+        "2:a2-119",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a1a-068",
+        "1:a2b-070",
+        "1:b2a-089",
+        "2:pa-005",
+        "2:a4-153",
+        "2:b2-148",
+        "1:b2-153"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "hub": "mega-houndoom-ex",
+  "name": "Mega Houndoom ex",
+  "variants": [
+    {
+      "variant": "mega-houndoom-ex-pb-080",
+      "name": "mega-houndoom-ex-pb-080",
+      "firstSeen": "2026-08-13",
+      "lastSeen": "2026-08-27",
+      "peakShare": 0.0024381722187511823,
+      "peakDate": "2026-08-18",
+      "cards": [
+        "2:b3-024",
+        "1:b1a-015",
+        "1:pb-080",
+        "1:b1-044",
+        "1:b2a-021",
+        "1:b3-025",
+        "2:pa-007",
+        "1:b1-225",
+        "1:a2-155",
+        "1:a2-150",
+        "2:pa-005",
+        "2:b1-217",
+        "1:b2-145",
+        "1:b2-154",
+        "1:b2b-069",
+        "1:b3a-074"
+      ]
+    },
+    {
+      "variant": "mega-houndoom-ex-pb-080&castform-sunny-form-b3-024",
+      "name": "mega-houndoom-ex-pb-080&castform-sunny-form-b3-024",
+      "firstSeen": "2026-10-06",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.0007825611944161923,
+      "peakDate": "2026-10-06",
+      "cards": [
+        "2:b4-027",
+        "2:pb-080",
+        "1:b3-024",
+        "1:b1-044",
+        "1:b3-025",
+        "2:b1-225",
+        "2:pa-007",
+        "1:a2-150",
+        "1:a1-225",
+        "2:b1-217",
+        "2:pa-005",
+        "1:b3b-065",
+        "2:b4-155"
+      ]
+    }
+  ]
+}

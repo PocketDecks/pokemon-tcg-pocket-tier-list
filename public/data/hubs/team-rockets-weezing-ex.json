@@ -1,0 +1,141 @@
+{
+  "hub": "team-rockets-weezing-ex",
+  "name": "Team Rocket's Weezing ex",
+  "variants": [
+    {
+      "variant": "team-rockets-weezing-ex-b4a-043",
+      "name": "team-rocket's-weezing-ex-b4a-043",
+      "firstSeen": "2026-09-08",
+      "lastSeen": "2026-09-09",
+      "peakShare": 0.05045020014363391,
+      "peakDate": "2026-09-08",
+      "cards": [
+        "2:b4a-042",
+        "2:b4a-043",
+        "2:b4-103",
+        "1:b1-151",
+        "2:pa-007",
+        "2:a2-150",
+        "2:b1-225",
+        "1:a2-155",
+        "2:pa-005",
+        "1:pa-002",
+        "1:b3-147",
+        "2:b4-148"
+      ]
+    },
+    {
+      "variant": "team-rockets-weezing-ex-b4a-043&hoopa-ex-b4-103",
+      "name": "team-rocket's-weezing-ex-b4a-043&hoopa-ex-b4-103",
+      "firstSeen": "2026-09-10",
+      "lastSeen": "2026-10-20",
+      "peakShare": 0.037926237972196596,
+      "peakDate": "2026-09-11",
+      "cards": [
+        "2:b4a-042",
+        "2:b4a-043",
+        "2:b4-103",
+        "1:a2-110",
+        "2:pa-007",
+        "2:a2-150",
+        "1:b1-225",
+        "1:a2b-070",
+        "2:pa-005",
+        "2:b2-145",
+        "1:pa-002",
+        "2:b4-148"
+      ]
+    },
+    {
+      "variant": "team-rockets-weezing-ex-b4a-043&mega-absol-ex-b1-151",
+      "name": "team-rocket's-weezing-ex-b4a-043&mega-absol-ex-b1-151",
+      "firstSeen": "2026-09-11",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.0035282263915986213,
+      "peakDate": "2026-09-11",
+      "cards": [
+        "2:b4a-042",
+        "2:b4a-043",
+        "2:b4-100",
+        "2:a3a-042",
+        "1:b1-151",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:pa-005",
+        "2:b4-148",
+        "2:a3-146",
+        "1:b3b-064"
+      ]
+    },
+    {
+      "variant": "team-rockets-weezing-ex-b4a-043&mega-sableye-ex-b3b-041",
+      "name": "team-rocket's-weezing-ex-b4a-043&mega-sableye-ex-b3b-041",
+      "firstSeen": "2026-09-09",
+      "lastSeen": "2026-09-09",
+      "peakShare": 0.01370774043575986,
+      "peakDate": "2026-09-09",
+      "cards": [
+        "2:b4-103",
+        "1:b4a-042",
+        "1:b4a-043",
+        "1:b3b-041",
+        "2:pa-007",
+        "2:a2-150",
+        "2:b4a-070",
+        "1:b1-225",
+        "1:a2b-070",
+        "2:b2-145",
+        "2:pa-005",
+        "1:a3-142",
+        "2:b4-148"
+      ]
+    },
+    {
+      "variant": "team-rockets-weezing-ex-b4a-043&nihilego-a3a-042",
+      "name": "team-rocket's-weezing-ex-b4a-043&nihilego-a3a-042",
+      "firstSeen": "2026-09-09",
+      "lastSeen": "2026-09-09",
+      "peakShare": 0.0032583073147288426,
+      "peakDate": "2026-09-09",
+      "cards": [
+        "2:b4a-042",
+        "2:b4a-043",
+        "2:b4-100",
+        "2:a3a-042",
+        "1:b1-151",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:pa-005",
+        "1:a3a-064",
+        "2:a3-146",
+        "1:b4-148",
+        "1:b3b-064"
+      ]
+    },
+    {
+      "variant": "team-rockets-weezing-ex-b4a-043&zoroark-ex-b3-106",
+      "name": "team-rocket's-weezing-ex-b4a-043&zoroark-ex-b3-106",
+      "firstSeen": "2026-09-08",
+      "lastSeen": "2026-10-10",
+      "peakShare": 0.009205465861749156,
+      "peakDate": "2026-09-11",
+      "cards": [
+        "2:b3-105",
+        "2:b3-106",
+        "2:b4a-042",
+        "2:b4a-043",
+        "1:b3-115",
+        "1:a3a-042",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "2:pa-005",
+        "1:b4-148",
+        "1:b3b-065",
+        "1:b2-153"
+      ]
+    }
+  ]
+}

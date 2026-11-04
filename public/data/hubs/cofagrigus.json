@@ -1,0 +1,30 @@
+{
+  "hub": "cofagrigus",
+  "name": "Cofagrigus",
+  "variants": [
+    {
+      "variant": "cofagrigus-b1-111&chandelure-b2-069",
+      "name": "cofagrigus-b1-111&chandelure-b2-069",
+      "firstSeen": "2026-09-24",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.0008203581508526074,
+      "peakDate": "2026-09-24",
+      "cards": [
+        "2:b2-067",
+        "2:b2-069",
+        "2:b2-070",
+        "1:b1-110",
+        "1:b1-111",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a1-225",
+        "1:a2-150",
+        "1:a2-155",
+        "1:b1-226",
+        "2:a3-144",
+        "1:pa-005",
+        "1:b2-155"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "hub": "paldean-clodsire-ex",
+  "name": "Paldean Clodsire ex",
+  "variants": [
+    {
+      "variant": "paldean-clodsire-ex-a2b-048",
+      "name": "Paldean Clodsire ex-A2b-048",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.002012011457066642,
+      "peakDate": "2025-09-22",
+      "cards": [
+        "1:b1-161",
+        "1:b1-162",
+        "1:a2b-047",
+        "1:a2b-048",
+        "1:a4-120",
+        "1:b1-151",
+        "1:a2-110",
+        "2:a2b-070",
+        "1:a1-225",
+        "1:a2-150",
+        "1:pa-007",
+        "1:a2b-071",
+        "1:a3-155",
+        "1:pa-005",
+        "1:pa-001",
+        "1:a3-144",
+        "2:a2-148",
+        "1:a2-147"
+      ]
+    },
+    {
+      "variant": "paldean-clodsire-ex-a2b-048&grafaiai-a2b-051",
+      "name": "Paldean Clodsire ex-A2b-048&Grafaiai-A2b-051",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0003330018968245539,
+      "peakDate": "2025-09-22",
+      "cards": [
+        "2:a2b-047",
+        "2:a2b-048",
+        "2:a2b-050",
+        "2:a2b-051",
+        "2:a3a-042",
+        "2:pa-007",
+        "2:b1-223",
+        "1:a1a-068",
+        "2:pa-005",
+        "2:a3-146",
+        "1:a4-154"
+      ]
+    },
+    {
+      "variant": "paldean-clodsire-ex-a2b-048&weezing-a1-177",
+      "name": "Paldean Clodsire ex-A2b-048&Weezing-A1-177",
+      "firstSeen": "2025-05-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0009739775324517129,
+      "peakDate": "2025-06-02",
+      "cards": [
+        "2:a1-176",
+        "2:a1-177",
+        "2:a2b-047",
+        "2:a2b-048",
+        "2:a3a-042",
+        "2:pa-007",
+        "2:a1-222",
+        "1:a2-150",
+        "1:a4-157",
+        "2:pa-005",
+        "2:a4a-068"
+      ]
+    }
+  ]
+}

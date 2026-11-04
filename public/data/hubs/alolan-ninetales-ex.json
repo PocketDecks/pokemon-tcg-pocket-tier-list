@@ -1,0 +1,118 @@
+{
+  "hub": "alolan-ninetales-ex",
+  "name": "Alolan Ninetales ex",
+  "variants": [
+    {
+      "variant": "alolan-ninetales-ex-b2-029",
+      "name": "alolan-ninetales-ex-b2-029",
+      "firstSeen": "2026-01-30",
+      "lastSeen": "2026-05-26",
+      "peakShare": 0.012759742789981267,
+      "peakDate": "2026-02-02",
+      "cards": [
+        "2:a3-040",
+        "2:b2-029",
+        "1:a3-041",
+        "2:a4a-023",
+        "1:b2a-037",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a1-225",
+        "1:a2-150",
+        "1:a2b-070",
+        "2:pa-005",
+        "2:a4a-067",
+        "1:b2b-069"
+      ]
+    },
+    {
+      "variant": "alolan-ninetales-ex-b2-029&crawdaunt-a4-061",
+      "name": "alolan-ninetales-ex-b2-029&crawdaunt-a4-061",
+      "firstSeen": "2026-01-30",
+      "lastSeen": "2026-08-27",
+      "peakShare": 0.024504071690167363,
+      "peakDate": "2026-05-04",
+      "cards": [
+        "2:b1-058",
+        "2:a4-061",
+        "2:a3-040",
+        "2:b2-029",
+        "1:b2a-037",
+        "2:pa-007",
+        "2:b1-225",
+        "2:b3-152",
+        "1:a1-225",
+        "2:pa-005",
+        "1:b3b-065",
+        "1:b2-153"
+      ]
+    },
+    {
+      "variant": "alolan-ninetales-ex-b2-029&froakie-b1-071",
+      "name": "Alolan Ninetales ex-B2-029&Froakie-B1-071",
+      "firstSeen": "2026-01-31",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.006188367880681919,
+      "peakDate": "2026-01-31",
+      "cards": [
+        "2:a3-040",
+        "2:b2-029",
+        "2:b1-071",
+        "2:a1-089",
+        "1:b1-073",
+        "2:pa-007",
+        "2:a2-150",
+        "2:a2b-072",
+        "1:b1-225",
+        "2:pa-005",
+        "2:a3-144"
+      ]
+    },
+    {
+      "variant": "alolan-ninetales-ex-b2-029&greninja-a1-089",
+      "name": "Alolan Ninetales ex-B2-029&Greninja-A1-089",
+      "firstSeen": "2026-01-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00980300849267736,
+      "peakDate": "2026-01-30",
+      "cards": [
+        "2:a3-040",
+        "2:b2-029",
+        "2:a1-087",
+        "1:a1-088",
+        "2:a1-089",
+        "2:pa-007",
+        "2:a2-150",
+        "1:a2a-072",
+        "1:b1-225",
+        "1:b2-150",
+        "2:pa-005",
+        "1:a3-144",
+        "1:b2-153"
+      ]
+    },
+    {
+      "variant": "alolan-ninetales-ex-b2-029&team-rockets-raticate-ex-b4a-059",
+      "name": "alolan-ninetales-ex-b2-029&team-rocket's-raticate-ex-b4a-059",
+      "firstSeen": "2026-09-09",
+      "lastSeen": "2026-09-09",
+      "peakShare": 0.011018528653666511,
+      "peakDate": "2026-09-09",
+      "cards": [
+        "2:a3-040",
+        "2:b2-029",
+        "2:b4a-058",
+        "2:b4a-059",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:a1-225",
+        "2:pa-005",
+        "1:a3a-064",
+        "1:b3b-065",
+        "1:b4-154",
+        "1:b2-153"
+      ]
+    }
+  ]
+}

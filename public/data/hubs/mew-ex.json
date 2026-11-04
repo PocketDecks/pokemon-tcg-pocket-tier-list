@@ -1,0 +1,27 @@
+{
+  "hub": "mew-ex",
+  "name": "Mew ex",
+  "variants": [
+    {
+      "variant": "mew-ex-a1a-032&greninja-a1-089",
+      "name": "Mew ex-A1a-032&Greninja-A1-089",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0007898009627619993,
+      "peakDate": "2025-12-22",
+      "cards": [
+        "2:a1-087",
+        "2:a1-088",
+        "2:a1-089",
+        "2:a1a-001",
+        "2:a1-023",
+        "1:a1a-002",
+        "2:a1a-032",
+        "2:pa-007",
+        "1:a1a-068",
+        "2:pa-002",
+        "2:pa-005"
+      ]
+    }
+  ]
+}

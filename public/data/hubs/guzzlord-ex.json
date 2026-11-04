@@ -1,0 +1,144 @@
+{
+  "hub": "guzzlord-ex",
+  "name": "Guzzlord ex",
+  "variants": [
+    {
+      "variant": "guzzlord-ex-a3a-043",
+      "name": "guzzlord-ex-a3a-043",
+      "firstSeen": "2025-06-02",
+      "lastSeen": "2026-05-26",
+      "peakShare": 0.07585486209055206,
+      "peakDate": "2025-09-29",
+      "cards": [
+        "2:a3a-043",
+        "2:b1-121",
+        "2:pa-007",
+        "2:a2b-070",
+        "1:b1-225",
+        "1:a2-150",
+        "1:a3a-069",
+        "1:a4-156",
+        "2:b2-145",
+        "2:pa-005",
+        "2:b1-219",
+        "1:b2-147",
+        "1:b2-154"
+      ]
+    },
+    {
+      "variant": "guzzlord-ex-a3a-043&celesteela-a3a-062",
+      "name": "Guzzlord ex-A3a-043&Celesteela-A3a-062",
+      "firstSeen": "2025-06-02",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.008622520253806961,
+      "peakDate": "2025-06-07",
+      "cards": [
+        "2:a3a-043",
+        "2:a3a-062",
+        "2:b1-225",
+        "2:pa-007",
+        "2:a3a-069",
+        "1:a2-150",
+        "1:a4-156",
+        "1:a2-155",
+        "1:a1-225",
+        "2:pa-005",
+        "1:pa-006",
+        "1:b1-219",
+        "1:a2-148",
+        "1:b2-154"
+      ]
+    },
+    {
+      "variant": "guzzlord-ex-a3a-043&delcatty-b1-194",
+      "name": "Guzzlord ex-A3a-043&Delcatty-B1-194",
+      "firstSeen": "2025-11-02",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0011862377333213782,
+      "peakDate": "2025-11-02",
+      "cards": [
+        "2:a3-129",
+        "2:b1-194",
+        "2:a3a-043",
+        "1:a3a-062",
+        "2:a4-156",
+        "2:pa-007",
+        "1:a3a-069",
+        "1:a2b-072",
+        "1:a2-150",
+        "1:a2b-070",
+        "1:a4-158",
+        "2:b1-215",
+        "2:pa-005"
+      ]
+    },
+    {
+      "variant": "guzzlord-ex-a3a-043&naganadel-a3a-045",
+      "name": "Guzzlord ex-A3a-043&Naganadel-A3a-045",
+      "firstSeen": "2025-06-02",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.05325938340763603,
+      "peakDate": "2025-08-19",
+      "cards": [
+        "2:a3a-044",
+        "2:a3a-045",
+        "2:a3a-043",
+        "2:a3a-042",
+        "1:a3a-062",
+        "2:a3a-069",
+        "2:pa-007",
+        "1:b1-225",
+        "1:a2-150",
+        "2:pa-005",
+        "1:pa-006",
+        "2:a3-146"
+      ]
+    },
+    {
+      "variant": "guzzlord-ex-a3a-043&nihilego-a3a-042",
+      "name": "Guzzlord ex-A3a-043&Nihilego-A3a-042",
+      "firstSeen": "2025-06-02",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.08246738442318309,
+      "peakDate": "2025-06-30",
+      "cards": [
+        "2:a3a-043",
+        "2:a3a-042",
+        "1:a3a-044",
+        "1:a3a-045",
+        "1:a3a-062",
+        "2:pa-007",
+        "2:a3a-069",
+        "1:a2-150",
+        "1:a3-151",
+        "1:b1-225",
+        "1:a1-225",
+        "2:pa-005",
+        "2:b1-219",
+        "1:a3-146"
+      ]
+    },
+    {
+      "variant": "guzzlord-ex-a3a-043&poison-barb-a3-146",
+      "name": "guzzlord-ex-a3a-043&poison-barb-a3-146",
+      "firstSeen": "2026-02-23",
+      "lastSeen": "2026-03-18",
+      "peakShare": 0.0033338973239859094,
+      "peakDate": "2026-02-23",
+      "cards": [
+        "2:a3a-044",
+        "2:a3a-045",
+        "2:a3a-043",
+        "2:a3a-042",
+        "1:a3a-062",
+        "2:pa-007",
+        "2:a3a-069",
+        "1:a1-225",
+        "1:a2-150",
+        "2:pa-005",
+        "1:pa-006",
+        "2:a3-146"
+      ]
+    }
+  ]
+}

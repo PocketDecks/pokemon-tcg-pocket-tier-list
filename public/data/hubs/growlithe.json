@@ -1,0 +1,27 @@
+{
+  "hub": "growlithe",
+  "name": "Growlithe",
+  "variants": [
+    {
+      "variant": "growlithe-b3b-010&lillipup-b3-137",
+      "name": "growlithe-b3b-010&lillipup-b3-137",
+      "firstSeen": "2026-09-24",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.001082375592524781,
+      "peakDate": "2026-09-24",
+      "cards": [
+        "2:b3b-010",
+        "2:b3b-025",
+        "2:b3b-034",
+        "2:b3b-038",
+        "2:b3-137",
+        "2:b3b-067",
+        "2:pa-007",
+        "2:pa-005",
+        "2:a3a-065",
+        "1:a2-147",
+        "1:b3b-069"
+      ]
+    }
+  ]
+}

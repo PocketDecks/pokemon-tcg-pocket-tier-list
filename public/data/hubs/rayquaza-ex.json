@@ -1,0 +1,28 @@
+{
+  "hub": "rayquaza-ex",
+  "name": "Rayquaza ex",
+  "variants": [
+    {
+      "variant": "rayquaza-ex-pa-065&ho-oh-ex-a4-034",
+      "name": "Rayquaza ex-PA-065&Ho-Oh ex-A4-034",
+      "firstSeen": "2025-11-28",
+      "lastSeen": "2026-01-31",
+      "peakShare": 5.452837569439992e-7,
+      "peakDate": "2025-12-20",
+      "cards": [
+        "2:pa-065",
+        "2:a4-034",
+        "2:a4a-023",
+        "1:a4-066",
+        "2:pa-007",
+        "2:a1a-068",
+        "2:a2a-072",
+        "1:a2-150",
+        "1:a3-149",
+        "2:pa-005",
+        "2:a2-146",
+        "1:a2-147"
+      ]
+    }
+  ]
+}

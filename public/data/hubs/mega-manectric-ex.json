@@ -1,0 +1,121 @@
+{
+  "hub": "mega-manectric-ex",
+  "name": "Mega Manectric ex",
+  "variants": [
+    {
+      "variant": "mega-manectric-ex-b2b-027",
+      "name": "mega-manectric-ex-b2b-027",
+      "firstSeen": "2026-03-30",
+      "lastSeen": "2026-08-11",
+      "peakShare": 0.14720836027991344,
+      "peakDate": "2026-04-22",
+      "cards": [
+        "2:b1a-028",
+        "2:b4-061",
+        "2:pb-043",
+        "2:b2b-027",
+        "2:b1a-068",
+        "2:pa-007",
+        "1:a2-150",
+        "1:b1-225",
+        "2:b1a-066",
+        "2:pa-005",
+        "1:b3-147",
+        "1:b3b-065"
+      ]
+    },
+    {
+      "variant": "mega-manectric-ex-b2b-027&heliolisk-b1a-029",
+      "name": "mega-manectric-ex-b2b-027&heliolisk-b1a-029",
+      "firstSeen": "2026-09-09",
+      "lastSeen": "2026-09-09",
+      "peakShare": 0.02200305142793413,
+      "peakDate": "2026-09-09",
+      "cards": [
+        "2:b1a-028",
+        "2:b4-061",
+        "1:b2b-026",
+        "2:b2b-027",
+        "2:b1a-068",
+        "2:pa-007",
+        "1:a2-150",
+        "1:b1-225",
+        "2:b1a-066",
+        "2:pa-005",
+        "1:b3-147",
+        "1:b3b-065",
+        "1:b2-153"
+      ]
+    },
+    {
+      "variant": "mega-manectric-ex-b2b-027&heliolisk-b4-061",
+      "name": "mega-manectric-ex-b2b-027&heliolisk-b4-061",
+      "firstSeen": "2026-08-11",
+      "lastSeen": "2026-11-02",
+      "peakShare": 0.054555814677875576,
+      "peakDate": "2026-08-11",
+      "cards": [
+        "2:b1a-028",
+        "2:b4-061",
+        "1:pb-043",
+        "2:b2b-027",
+        "2:pa-007",
+        "2:b1a-068",
+        "1:b1-225",
+        "1:a2-150",
+        "1:a1-225",
+        "2:pa-005",
+        "2:b1a-066",
+        "1:b3b-065",
+        "1:b2-153"
+      ]
+    },
+    {
+      "variant": "mega-manectric-ex-b2b-027&team-rockets-electrode-b4a-020",
+      "name": "mega-manectric-ex-b2b-027&team-rocket's-electrode-b4a-020",
+      "firstSeen": "2026-09-08",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.004892682829414307,
+      "peakDate": "2026-09-11",
+      "cards": [
+        "2:b4a-019",
+        "2:b4a-020",
+        "2:b2b-026",
+        "2:b2b-027",
+        "1:a3-066",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2b-070",
+        "1:a2-150",
+        "1:b1-223",
+        "2:pa-005",
+        "1:b2-145",
+        "1:b3b-065"
+      ]
+    },
+    {
+      "variant": "mega-manectric-ex-b2b-027&zeraora-a3a-021",
+      "name": "mega-manectric-ex-b2b-027&zeraora-a3a-021",
+      "firstSeen": "2026-10-06",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.00068781738227663,
+      "peakDate": "2026-10-06",
+      "cards": [
+        "2:pb-043",
+        "2:b2b-027",
+        "2:a3a-021",
+        "1:a3-066",
+        "2:pa-007",
+        "1:a2-150",
+        "1:a1-225",
+        "1:a1-223",
+        "1:a2b-070",
+        "1:b1-225",
+        "2:pa-005",
+        "1:a4-151",
+        "2:a2-148",
+        "1:b2-153"
+      ]
+    }
+  ]
+}

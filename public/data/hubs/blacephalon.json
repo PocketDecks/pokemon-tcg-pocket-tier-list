@@ -1,0 +1,29 @@
+{
+  "hub": "blacephalon",
+  "name": "Blacephalon",
+  "variants": [
+    {
+      "variant": "blacephalon-a3a-009",
+      "name": "Blacephalon-A3a-009",
+      "firstSeen": "2025-06-09",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0013259977502739365,
+      "peakDate": "2025-06-16",
+      "cards": [
+        "2:a2-027",
+        "1:a2-028",
+        "1:a2-029",
+        "2:a3a-009",
+        "1:a3a-062",
+        "2:pa-007",
+        "2:a3a-069",
+        "1:b1-225",
+        "1:b1-223",
+        "2:b1-217",
+        "2:a3-144",
+        "2:pa-005",
+        "1:pa-006"
+      ]
+    }
+  ]
+}

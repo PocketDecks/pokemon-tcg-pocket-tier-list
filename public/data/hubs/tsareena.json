@@ -1,0 +1,50 @@
+{
+  "hub": "tsareena",
+  "name": "Tsareena",
+  "variants": [
+    {
+      "variant": "tsareena-a3-020",
+      "name": "Tsareena-A3-020",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.009081254615754125,
+      "peakDate": "2025-07-08",
+      "cards": [
+        "2:a3-018",
+        "1:a3b-004",
+        "2:a3-020",
+        "2:pb-002",
+        "2:b1-018",
+        "2:a3-154",
+        "2:pa-007",
+        "1:b1-226",
+        "1:a2-150",
+        "2:b1a-067",
+        "1:pa-005",
+        "1:a3-144",
+        "1:a3-147"
+      ]
+    },
+    {
+      "variant": "tsareena-a3-020&alolan-exeggutor-a3-002",
+      "name": "Tsareena-A3-020&Alolan Exeggutor-A3-002",
+      "firstSeen": "2025-09-15",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.000506899810524314,
+      "peakDate": "2025-09-15",
+      "cards": [
+        "2:a1a-001",
+        "2:a3-002",
+        "2:a3-018",
+        "2:a3-020",
+        "2:pa-007",
+        "2:a1-219",
+        "2:a4-156",
+        "1:a3-154",
+        "2:a3-144",
+        "1:pa-005",
+        "2:a3-147"
+      ]
+    }
+  ]
+}

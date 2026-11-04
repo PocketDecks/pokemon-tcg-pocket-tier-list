@@ -1,0 +1,30 @@
+{
+  "hub": "pachirisu",
+  "name": "Pachirisu",
+  "variants": [
+    {
+      "variant": "pachirisu-a2b-025&oricorio-a3-066",
+      "name": "Pachirisu-A2b-025&Oricorio-A3-066",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00621143890493546,
+      "peakDate": "2025-05-12",
+      "cards": [
+        "2:a4-067",
+        "1:b1-083",
+        "1:a4-069",
+        "1:b1-085",
+        "2:a2b-025",
+        "2:a3-066",
+        "2:pa-007",
+        "1:b1-223",
+        "1:a2-150",
+        "1:a3-155",
+        "2:pa-005",
+        "2:a3-144",
+        "1:pa-006",
+        "1:a2-148"
+      ]
+    }
+  ]
+}

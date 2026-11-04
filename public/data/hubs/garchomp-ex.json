@@ -1,0 +1,141 @@
+{
+  "hub": "garchomp-ex",
+  "name": "Garchomp ex",
+  "variants": [
+    {
+      "variant": "garchomp-ex-a2a-047",
+      "name": "Garchomp ex-A2a-047",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0019422170746764627,
+      "peakDate": "2025-07-28",
+      "cards": [
+        "2:a2a-045",
+        "1:a2a-046",
+        "2:a2a-047",
+        "2:a4-102",
+        "1:b1a-065",
+        "2:a2-150",
+        "2:pa-007",
+        "1:a2-155",
+        "1:b1-225",
+        "2:a3-144",
+        "2:pa-005",
+        "2:a2-148"
+      ]
+    },
+    {
+      "variant": "garchomp-ex-a2a-047&aerodactyl-ex-a1a-046",
+      "name": "Garchomp ex-A2a-047&Aerodactyl ex-A1a-046",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0010357639274327355,
+      "peakDate": "2025-05-12",
+      "cards": [
+        "2:a2a-045",
+        "1:a2a-046",
+        "2:a2a-047",
+        "2:a1a-046",
+        "1:a3b-055",
+        "1:a3b-034",
+        "1:a1-155",
+        "2:pa-007",
+        "2:a3-155",
+        "2:pa-005",
+        "2:a3-144",
+        "2:a1a-063"
+      ]
+    },
+    {
+      "variant": "garchomp-ex-a2a-047&arceus-ex-a2a-071",
+      "name": "Garchomp ex-A2a-047&Arceus ex-A2a-071",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 6.281895788173383e-7,
+      "peakDate": "2025-11-03",
+      "cards": [
+        "2:a2-121",
+        "2:a2a-046",
+        "2:a2a-047",
+        "2:a2a-071",
+        "1:a2-022",
+        "1:a2a-013",
+        "2:pa-007",
+        "1:a2-150",
+        "1:a1-225",
+        "2:pa-005",
+        "2:a2-146",
+        "1:pa-001",
+        "1:a2-147"
+      ]
+    },
+    {
+      "variant": "garchomp-ex-a2a-047&donphan-ex-a4-100",
+      "name": "Garchomp ex-A2a-047&Donphan ex-A4-100",
+      "firstSeen": "2025-10-31",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.016458956686928584,
+      "peakDate": "2025-10-31",
+      "cards": [
+        "2:a2a-045",
+        "2:a2a-046",
+        "2:a2a-047",
+        "2:a4a-043",
+        "2:a4-100",
+        "2:pa-007",
+        "1:a1-225",
+        "1:b1-223",
+        "1:a1a-068",
+        "1:b1-225",
+        "2:pa-005",
+        "1:a3-144",
+        "1:a4a-068"
+      ]
+    },
+    {
+      "variant": "garchomp-ex-a2a-047&lucario-a2-092",
+      "name": "Garchomp ex-A2a-047&Lucario-A2-092",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00045330595088483846,
+      "peakDate": "2025-05-12",
+      "cards": [
+        "2:a2b-042",
+        "2:a2-092",
+        "2:a2a-045",
+        "2:a2a-046",
+        "2:a2a-047",
+        "1:a4-102",
+        "2:pa-007",
+        "2:a2-150",
+        "2:pa-005",
+        "1:a3-144",
+        "1:a2-147",
+        "1:a2-148"
+      ]
+    },
+    {
+      "variant": "garchomp-ex-a2a-047&rampardos-a2-089",
+      "name": "garchomp-ex-a2a-047&rampardos-a2-089",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.062167574331652896,
+      "peakDate": "2025-05-12",
+      "cards": [
+        "2:b4a-052",
+        "1:a2a-046",
+        "2:a2a-047",
+        "1:a2-088",
+        "2:a2-089",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "2:a2-144",
+        "2:a3-144",
+        "1:pa-005",
+        "1:a2-148",
+        "1:b2b-069"
+      ]
+    }
+  ]
+}

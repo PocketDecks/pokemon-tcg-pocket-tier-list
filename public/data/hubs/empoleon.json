@@ -1,0 +1,27 @@
+{
+  "hub": "empoleon",
+  "name": "Empoleon",
+  "variants": [
+    {
+      "variant": "empoleon-a2-037&magnezone-a2-053",
+      "name": "Empoleon-A2-037&Magnezone-A2-053",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 2.41611376468207e-7,
+      "peakDate": "2025-11-03",
+      "cards": [
+        "2:a2-035",
+        "2:a2-036",
+        "2:a2-037",
+        "2:a2-051",
+        "2:a1-098",
+        "2:a2-053",
+        "2:pa-007",
+        "2:a1-220",
+        "1:a2-150",
+        "2:pa-005",
+        "1:a2-146"
+      ]
+    }
+  ]
+}

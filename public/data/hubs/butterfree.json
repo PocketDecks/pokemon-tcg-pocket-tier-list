@@ -1,0 +1,77 @@
+{
+  "hub": "butterfree",
+  "name": "Butterfree",
+  "variants": [
+    {
+      "variant": "butterfree-b3b-003",
+      "name": "butterfree-b3b-003",
+      "firstSeen": "2026-07-03",
+      "lastSeen": "2026-08-27",
+      "peakShare": 0.07874480761435004,
+      "peakDate": "2026-07-05",
+      "cards": [
+        "2:b3b-001",
+        "2:b3b-002",
+        "2:b3b-003",
+        "1:b3-005",
+        "1:b3-006",
+        "1:b3-008",
+        "2:pa-007",
+        "1:a1-219",
+        "1:a1-225",
+        "1:a2-150",
+        "1:b1-225",
+        "2:b1a-067",
+        "1:a3-147",
+        "2:b3-153"
+      ]
+    },
+    {
+      "variant": "butterfree-b3b-003&decidueye-ex-a3-012",
+      "name": "butterfree-b3b-003&decidueye-ex-a3-012",
+      "firstSeen": "2026-09-24",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.0008832078358298708,
+      "peakDate": "2026-09-24",
+      "cards": [
+        "2:b3b-001",
+        "2:b3b-002",
+        "2:b3b-003",
+        "1:a3-010",
+        "1:a3a-004",
+        "1:a3-012",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:a1-225",
+        "2:b1a-067",
+        "1:a3-147",
+        "2:b3-153"
+      ]
+    },
+    {
+      "variant": "butterfree-b3b-003&mega-sceptile-ex-b3-008",
+      "name": "butterfree-b3b-003&mega-sceptile-ex-b3-008",
+      "firstSeen": "2026-09-08",
+      "lastSeen": "2026-10-27",
+      "peakShare": 0.0672241825639949,
+      "peakDate": "2026-09-09",
+      "cards": [
+        "2:b3b-001",
+        "2:b3b-002",
+        "2:b3b-003",
+        "1:b3-005",
+        "1:b3-006",
+        "1:b3-008",
+        "2:pa-007",
+        "1:b1-225",
+        "1:a2-150",
+        "1:a1-219",
+        "1:a1-225",
+        "2:b1a-067",
+        "1:a3-147",
+        "2:b3-153"
+      ]
+    }
+  ]
+}

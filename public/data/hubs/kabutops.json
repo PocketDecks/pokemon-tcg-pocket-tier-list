@@ -1,0 +1,28 @@
+{
+  "hub": "kabutops",
+  "name": "Kabutops",
+  "variants": [
+    {
+      "variant": "kabutops-a1-159&primeape-a1-142",
+      "name": "Kabutops-A1-159&Primeape-A1-142",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.000010494814232016427,
+      "peakDate": "2025-05-27",
+      "cards": [
+        "2:a1a-041",
+        "2:a1-142",
+        "2:a1-158",
+        "2:a1-159",
+        "2:pa-007",
+        "1:a1-225",
+        "1:a2-150",
+        "2:a1-217",
+        "2:pa-001",
+        "1:pa-005",
+        "1:a2-146",
+        "2:a2-147"
+      ]
+    }
+  ]
+}

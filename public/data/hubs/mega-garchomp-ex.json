@@ -1,0 +1,30 @@
+{
+  "hub": "mega-garchomp-ex",
+  "name": "Mega Garchomp ex",
+  "variants": [
+    {
+      "variant": "mega-garchomp-ex-pb-099&dragonair-b4-117",
+      "name": "mega-garchomp-ex-pb-099&dragonair-b4-117",
+      "firstSeen": "2026-10-20",
+      "lastSeen": "2026-10-27",
+      "peakShare": 0.008693428790590641,
+      "peakDate": "2026-10-27",
+      "cards": [
+        "2:a2-121",
+        "1:pb-099",
+        "1:b4a-054",
+        "2:b1-177",
+        "1:a1-183",
+        "1:b4-117",
+        "2:pa-007",
+        "2:b1-225",
+        "1:b3a-071",
+        "1:a2-152",
+        "1:b1-223",
+        "2:a3-144",
+        "2:pa-005",
+        "1:b4-155"
+      ]
+    }
+  ]
+}

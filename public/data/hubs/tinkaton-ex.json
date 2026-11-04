@@ -1,0 +1,50 @@
+{
+  "hub": "tinkaton-ex",
+  "name": "Tinkaton ex",
+  "variants": [
+    {
+      "variant": "tinkaton-ex-a2b-054",
+      "name": "Tinkaton ex-A2b-054",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0012436884972218483,
+      "peakDate": "2025-08-02",
+      "cards": [
+        "2:a2b-052",
+        "2:a2b-054",
+        "2:a2-119",
+        "1:pa-079",
+        "2:pa-007",
+        "2:a4-156",
+        "1:a3-155",
+        "1:a3a-069",
+        "2:a3-144",
+        "2:pa-005",
+        "1:a3a-064",
+        "2:a4-153"
+      ]
+    },
+    {
+      "variant": "tinkaton-ex-a2b-054&skarmory-a2-111",
+      "name": "Tinkaton ex-A2b-054&Skarmory-A2-111",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.000831449840197691,
+      "peakDate": "2025-08-02",
+      "cards": [
+        "2:a2b-052",
+        "1:a2b-053",
+        "2:a2b-054",
+        "2:a2-111",
+        "2:pa-007",
+        "1:a2b-069",
+        "1:a2b-071",
+        "2:a3-144",
+        "2:pa-005",
+        "1:a2-146",
+        "2:a2-148",
+        "2:a4-153"
+      ]
+    }
+  ]
+}

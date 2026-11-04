@@ -1,0 +1,143 @@
+{
+  "hub": "meowscarada",
+  "name": "Meowscarada",
+  "variants": [
+    {
+      "variant": "meowscarada-a2b-007",
+      "name": "meowscarada-a2b-007",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-06-29",
+      "peakShare": 0.09929834075734588,
+      "peakDate": "2025-05-27",
+      "cards": [
+        "2:a2b-005",
+        "1:b2a-002",
+        "2:a2b-007",
+        "1:a1-008",
+        "1:a2b-002",
+        "1:a2b-003",
+        "2:pa-007",
+        "1:b1-225",
+        "1:a2-150",
+        "1:a3-155",
+        "2:a3-144",
+        "2:pa-005",
+        "1:b1a-067",
+        "2:a3-147"
+      ]
+    },
+    {
+      "variant": "meowscarada-a2b-007&carnivine-a2a-009",
+      "name": "Meowscarada-A2b-007&Carnivine-A2a-009",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.00031673766519659175,
+      "peakDate": "2025-05-19",
+      "cards": [
+        "2:a2b-005",
+        "1:a2b-006",
+        "2:a2b-007",
+        "2:a2a-009",
+        "1:a2a-071",
+        "2:pa-007",
+        "2:a2b-071",
+        "1:a1-219",
+        "1:a2b-069",
+        "1:a2b-072",
+        "2:pa-005",
+        "1:pa-002",
+        "1:a3-144",
+        "1:a3-147"
+      ]
+    },
+    {
+      "variant": "meowscarada-a2b-007&exeggutor-ex-a1-023",
+      "name": "Meowscarada-A2b-007&Exeggutor ex-A1-023",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0006307362898180654,
+      "peakDate": "2025-05-19",
+      "cards": [
+        "2:a2b-005",
+        "2:a2b-007",
+        "2:a1-021",
+        "2:a1-023",
+        "2:pa-007",
+        "1:a2b-070",
+        "1:a2b-071",
+        "1:a2-150",
+        "1:a2-155",
+        "1:a1-219",
+        "2:a3-144",
+        "1:pa-005",
+        "1:pa-002",
+        "1:a2-147"
+      ]
+    },
+    {
+      "variant": "meowscarada-a2b-007&leafeon-ex-a2a-010",
+      "name": "Meowscarada-A2b-007&Leafeon ex-A2a-010",
+      "firstSeen": "2025-11-01",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.006267677609121733,
+      "peakDate": "2025-11-01",
+      "cards": [
+        "2:b1-184",
+        "2:a2a-010",
+        "2:a2b-005",
+        "1:a2b-006",
+        "2:a2b-007",
+        "1:a4a-006",
+        "2:pa-007",
+        "1:a2-150",
+        "1:b1-225",
+        "2:a3-144",
+        "2:pa-005",
+        "2:a2-148"
+      ]
+    },
+    {
+      "variant": "meowscarada-a2b-007&magnezone-a2-053",
+      "name": "Meowscarada-A2b-007&Magnezone-A2-053",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0010598709862640456,
+      "peakDate": "2025-05-12",
+      "cards": [
+        "2:a2b-005",
+        "2:a2b-007",
+        "2:a2-051",
+        "2:a1-098",
+        "2:a2-053",
+        "2:pa-007",
+        "1:a2-150",
+        "1:a2b-071",
+        "1:b1-225",
+        "2:pa-005",
+        "2:a3-144",
+        "1:a2-147"
+      ]
+    },
+    {
+      "variant": "meowscarada-a2b-007&pheromosa-a3a-007",
+      "name": "Meowscarada-A2b-007&Pheromosa-A3a-007",
+      "firstSeen": "2025-11-02",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.006219775658290835,
+      "peakDate": "2025-11-02",
+      "cards": [
+        "2:a2b-005",
+        "1:a2b-006",
+        "2:a2b-007",
+        "2:a3a-007",
+        "2:pa-007",
+        "2:a2-150",
+        "2:a1-219",
+        "1:b1-225",
+        "2:pa-005",
+        "2:a3-144",
+        "2:a3-147"
+      ]
+    }
+  ]
+}

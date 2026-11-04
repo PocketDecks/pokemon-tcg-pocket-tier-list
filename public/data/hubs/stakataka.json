@@ -1,0 +1,51 @@
+{
+  "hub": "stakataka",
+  "name": "Stakataka",
+  "variants": [
+    {
+      "variant": "stakataka-a3a-053",
+      "name": "Stakataka-A3a-053",
+      "firstSeen": "2025-06-09",
+      "lastSeen": "2025-12-17",
+      "peakShare": 0.0008434873858365007,
+      "peakDate": "2025-06-11",
+      "cards": [
+        "2:a2a-053",
+        "2:a1-098",
+        "2:a2a-055",
+        "2:a3a-053",
+        "1:a2a-071",
+        "2:pa-007",
+        "2:a3-155",
+        "1:a2-154",
+        "1:a2-150",
+        "1:a2b-069",
+        "2:pa-005",
+        "2:a2-147"
+      ]
+    },
+    {
+      "variant": "stakataka-a3a-053&celesteela-a3a-062",
+      "name": "Stakataka-A3a-053&Celesteela-A3a-062",
+      "firstSeen": "2025-06-09",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0013183875134987662,
+      "peakDate": "2025-06-11",
+      "cards": [
+        "2:a3a-053",
+        "2:pa-081",
+        "2:a3a-062",
+        "1:pa-079",
+        "2:pa-007",
+        "2:a3a-069",
+        "1:a2-150",
+        "1:a2-155",
+        "1:a2b-070",
+        "2:pa-005",
+        "1:pa-006",
+        "2:a2-148",
+        "1:a2-147"
+      ]
+    }
+  ]
+}

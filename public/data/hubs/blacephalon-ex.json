@@ -1,0 +1,52 @@
+{
+  "hub": "blacephalon-ex",
+  "name": "Blacephalon ex",
+  "variants": [
+    {
+      "variant": "blacephalon-ex-b2-023",
+      "name": "Blacephalon ex-B2-023",
+      "firstSeen": "2026-01-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.003759677247969873,
+      "peakDate": "2026-01-31",
+      "cards": [
+        "2:b2-023",
+        "2:a3a-062",
+        "2:a4-032",
+        "1:a3a-042",
+        "2:pa-007",
+        "1:a2-150",
+        "1:b1-225",
+        "2:pa-005",
+        "2:b1-217",
+        "1:a2-146",
+        "1:a4-151",
+        "2:a3-146",
+        "1:b2-154"
+      ]
+    },
+    {
+      "variant": "blacephalon-ex-b2-023&celesteela-a3a-062",
+      "name": "Blacephalon ex-B2-023&Celesteela-A3a-062",
+      "firstSeen": "2026-01-30",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.004016551363497972,
+      "peakDate": "2026-01-30",
+      "cards": [
+        "2:b2-023",
+        "2:a3a-062",
+        "2:a4-032",
+        "1:a3a-042",
+        "2:pa-007",
+        "1:a2-150",
+        "1:b1-225",
+        "2:pa-005",
+        "2:b1-217",
+        "1:a2-146",
+        "1:a4-151",
+        "2:a3-146",
+        "1:b2-154"
+      ]
+    }
+  ]
+}

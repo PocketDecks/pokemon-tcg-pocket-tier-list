@@ -1,0 +1,72 @@
+{
+  "hub": "mega-venusaur-ex",
+  "name": "Mega Venusaur ex",
+  "variants": [
+    {
+      "variant": "mega-venusaur-ex-b1a-004",
+      "name": "mega-venusaur-ex-b1a-004",
+      "firstSeen": "2025-12-20",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.02512308544047611,
+      "peakDate": "2025-12-20",
+      "cards": [
+        "2:b1a-001",
+        "2:b1a-002",
+        "2:b1a-004",
+        "2:pa-007",
+        "2:a1-219",
+        "2:a3-155",
+        "1:a1-225",
+        "1:b1-225",
+        "2:b1a-067",
+        "1:pa-006",
+        "1:a3-142",
+        "2:b1-219"
+      ]
+    },
+    {
+      "variant": "mega-venusaur-ex-b1a-004&exeggutor-ex-a1-023",
+      "name": "mega-venusaur-ex-b1a-004&exeggutor-ex-a1-023",
+      "firstSeen": "2026-01-31",
+      "lastSeen": "2026-03-18",
+      "peakShare": 0.0000569639682604277,
+      "peakDate": "2026-01-31",
+      "cards": [
+        "2:a1-021",
+        "2:a1-023",
+        "1:a1-022",
+        "2:a1-001",
+        "2:a1-004",
+        "2:pa-007",
+        "2:a1-219",
+        "1:a2-150",
+        "1:b1-225",
+        "2:pa-005",
+        "2:a3-144",
+        "1:pa-002"
+      ]
+    },
+    {
+      "variant": "mega-venusaur-ex-b1a-004&lilligant-b1-018",
+      "name": "mega-venusaur-ex-b1a-004&lilligant-b1-018",
+      "firstSeen": "2026-01-31",
+      "lastSeen": "2026-03-18",
+      "peakShare": 0.00000998182843035163,
+      "peakDate": "2026-01-31",
+      "cards": [
+        "2:a3a-001",
+        "2:b1-018",
+        "1:b1a-001",
+        "2:b1a-002",
+        "2:b1a-004",
+        "2:pa-007",
+        "1:a4-157",
+        "1:b1-223",
+        "2:a3-144",
+        "2:b1a-067",
+        "1:pa-005",
+        "2:a3-147"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "hub": "mega-ampharos-ex",
+  "name": "Mega Ampharos ex",
+  "variants": [
+    {
+      "variant": "mega-ampharos-ex-b1-085",
+      "name": "mega-ampharos-ex-b1-085",
+      "firstSeen": "2025-11-01",
+      "lastSeen": "2026-08-27",
+      "peakShare": 0.01131464272106735,
+      "peakDate": "2025-11-02",
+      "cards": [
+        "2:b1-082",
+        "1:a4-068",
+        "1:b1-085",
+        "1:a4-069",
+        "1:a4-066",
+        "1:a4-077",
+        "2:pa-007",
+        "1:b1-225",
+        "1:a2-150",
+        "1:a3-155",
+        "1:a2b-070",
+        "2:a3-144",
+        "2:pa-005",
+        "1:b3-147",
+        "1:b2-145",
+        "1:b2a-093"
+      ]
+    },
+    {
+      "variant": "mega-ampharos-ex-b1-085&alolan-raichu-b2-050",
+      "name": "mega-ampharos-ex-b1-085&alolan-raichu-b2-050",
+      "firstSeen": "2026-01-31",
+      "lastSeen": "2026-02-26",
+      "peakShare": 0.0012075119642866166,
+      "peakDate": "2026-01-31",
+      "cards": [
+        "2:a2a-025",
+        "2:b2-050",
+        "1:a4-067",
+        "1:b1-083",
+        "1:b1-085",
+        "1:a3-066",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-155",
+        "1:b2-150",
+        "1:b1a-069",
+        "2:pa-005",
+        "2:a1a-064",
+        "1:a3a-065"
+      ]
+    },
+    {
+      "variant": "mega-ampharos-ex-b1-085&oricorio-a3-066",
+      "name": "Mega Ampharos ex-B1-085&Oricorio-A3-066",
+      "firstSeen": "2025-11-03",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.019799871761570487,
+      "peakDate": "2025-11-03",
+      "cards": [
+        "2:a2a-025",
+        "2:b2-050",
+        "1:a4-067",
+        "1:b1-083",
+        "1:b1-085",
+        "1:a3-066",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-155",
+        "1:b2-150",
+        "1:b1a-069",
+        "2:pa-005",
+        "2:a1a-064",
+        "1:a3a-065"
+      ]
+    },
+    {
+      "variant": "mega-ampharos-ex-b1-085&pichu-a4-066",
+      "name": "Mega Ampharos ex-B1-085&Pichu-A4-066",
+      "firstSeen": "2025-11-01",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.008652414665180025,
+      "peakDate": "2025-11-10",
+      "cards": [
+        "2:b1-082",
+        "2:b1-085",
+        "2:a4-066",
+        "1:a4-070",
+        "1:a4a-025",
+        "2:pa-007",
+        "2:a2-150",
+        "1:b1-225",
+        "1:a3-155",
+        "2:pa-005",
+        "2:a3-144",
+        "1:pa-006",
+        "1:a3a-065"
+      ]
+    },
+    {
+      "variant": "mega-ampharos-ex-b1-085&team-rockets-electrode-b4a-020",
+      "name": "mega-ampharos-ex-b1-085&team-rocket's-electrode-b4a-020",
+      "firstSeen": "2026-09-08",
+      "lastSeen": "2026-10-06",
+      "peakShare": 0.002488213364413628,
+      "peakDate": "2026-09-11",
+      "cards": [
+        "2:a4-067",
+        "2:b1-085",
+        "2:b4a-019",
+        "2:b4a-020",
+        "2:b4-153",
+        "2:b1-225",
+        "2:pa-007",
+        "1:a2-150",
+        "2:a3-144",
+        "2:pa-005",
+        "1:b2a-086"
+      ]
+    },
+    {
+      "variant": "mega-ampharos-ex-b1-085&zeraora-a3a-021",
+      "name": "Mega Ampharos ex-B1-085&Zeraora-A3a-021",
+      "firstSeen": "2025-11-01",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.02818650869896077,
+      "peakDate": "2025-11-01",
+      "cards": [
+        "2:b1-082",
+        "2:b1-085",
+        "2:a3a-021",
+        "2:a4-066",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:a3-155",
+        "2:pa-005",
+        "2:a3-144",
+        "1:pa-002",
+        "1:a4-151"
+      ]
+    }
+  ]
+}

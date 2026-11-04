@@ -1,0 +1,28 @@
+{
+  "hub": "vikavolt",
+  "name": "Vikavolt",
+  "variants": [
+    {
+      "variant": "vikavolt-a3-065&oricorio-a3-066",
+      "name": "Vikavolt-A3-065&Oricorio-A3-066",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0017505907890523226,
+      "peakDate": "2025-05-12",
+      "cards": [
+        "2:a3-013",
+        "1:a3-064",
+        "2:a3-065",
+        "2:b1-109",
+        "2:a3-066",
+        "2:b1-225",
+        "2:pa-007",
+        "1:a3-153",
+        "1:a2-150",
+        "2:a3-144",
+        "2:pa-005",
+        "1:pa-006"
+      ]
+    }
+  ]
+}

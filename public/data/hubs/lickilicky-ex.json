@@ -1,0 +1,27 @@
+{
+  "hub": "lickilicky-ex",
+  "name": "Lickilicky ex",
+  "variants": [
+    {
+      "variant": "lickilicky-ex-a2-125&greninja-a1-089",
+      "name": "Lickilicky ex-A2-125&Greninja-A1-089",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0000062335735128797415,
+      "peakDate": "2025-11-03",
+      "cards": [
+        "2:a2-124",
+        "2:a2-125",
+        "2:a1a-056",
+        "1:a1-087",
+        "2:a1-088",
+        "2:a1-089",
+        "2:pa-007",
+        "2:a1a-068",
+        "2:pa-005",
+        "1:a2-146",
+        "2:a2-148"
+      ]
+    }
+  ]
+}

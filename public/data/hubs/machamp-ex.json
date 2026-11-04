@@ -1,0 +1,26 @@
+{
+  "hub": "machamp-ex",
+  "name": "Machamp ex",
+  "variants": [
+    {
+      "variant": "machamp-ex-a1-146",
+      "name": "Machamp ex-A1-146",
+      "firstSeen": "2025-05-12",
+      "lastSeen": "2026-01-31",
+      "peakShare": 0.0005614889146399337,
+      "peakDate": "2025-06-09",
+      "cards": [
+        "2:b1-135",
+        "2:b1-136",
+        "2:a3a-036",
+        "2:a3b-039",
+        "2:a4a-044",
+        "2:a4-100",
+        "2:a4a-047",
+        "2:a2a-041",
+        "2:a1-146",
+        "2:a2b-069"
+      ]
+    }
+  ]
+}

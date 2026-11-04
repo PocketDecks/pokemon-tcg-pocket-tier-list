@@ -1,0 +1,30 @@
+{
+  "hub": "mega-gallade-ex",
+  "name": "Mega Gallade ex",
+  "variants": [
+    {
+      "variant": "mega-gallade-ex-b4-084",
+      "name": "mega-gallade-ex-b4-084",
+      "firstSeen": "2026-09-24",
+      "lastSeen": "2026-09-24",
+      "peakShare": 0.0006276806042330244,
+      "peakDate": "2026-09-24",
+      "cards": [
+        "2:a2-068",
+        "1:a2-069",
+        "2:b4-084",
+        "1:a2b-040",
+        "1:b3-078",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a2-150",
+        "1:a3-155",
+        "1:b4-153",
+        "2:pa-005",
+        "2:a3-144",
+        "1:b2-147",
+        "1:b3-154"
+      ]
+    }
+  ]
+}

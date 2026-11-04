@@ -41,6 +41,8 @@ const visibleText = (html) =>
     .replace(/\s+/g, " ")
     .trim();
 
+const robotsOf = (html) => html.match(/<meta name="robots" content="([^"]*)"/)?.[1] ?? null;
+
 const cjkCount = (text) => (text.match(/[\u3040-\u30ff\u4e00-\u9faf]/g) || []).length;
 
 const expectedUrl = (entry) => {
@@ -152,7 +154,12 @@ test("locale page graph in the built output", { skip: !hasDist && "dist/ is not 
 
   await t.test("English pages carry substantive visible content", () => {
     for (const entry of enEntries) {
-      const text = visibleText(fs.readFileSync(path.join(DIST_DIR, entry), "utf8"));
+      const html = fs.readFileSync(path.join(DIST_DIR, entry), "utf8");
+      if (!(robotsOf(html) ?? "").startsWith("index")) {
+        assert.match(html, /<meta name="robots" content="noindex/, `${entry}: exempt page is not noindex`);
+        continue;
+      }
+      const text = visibleText(html);
       assert.ok(text.length > 1000, `${entry}: only ${text.length} visible chars`);
     }
   });

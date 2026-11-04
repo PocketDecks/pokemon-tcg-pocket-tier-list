@@ -33,6 +33,9 @@ const Meta = styled.p`
   color: var(--text-muted);
   font-size: 1.6rem;
 `;
+const BackLink = styled(Meta)`
+  margin-top: 4rem;
+`;
 const Section = styled.section`
   display: grid;
   gap: 1.6rem;
@@ -185,7 +188,7 @@ const ExpansionPage = () => {
           <Empty>{t("expansionPage.noDecks")}</Empty>
         )}
       </Section>
-      <Meta><LocaleLink to="/tier-list">{t("notFound.backToTierList")}</LocaleLink></Meta>
+      <BackLink><LocaleLink to="/tier-list">{t("notFound.backToTierList")}</LocaleLink></BackLink>
     </Page>
   );
 };

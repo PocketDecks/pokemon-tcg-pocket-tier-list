@@ -1,6 +1,7 @@
 import type { CardType } from "./cards-api";
 import type { ExpansionType } from "./use-expansions";
 import type { FullDeckType } from "./deck-types";
+import { coveredSetCodes } from "./expansion-feed.mjs";
 
 export interface ExpansionLiveCard extends CardType {
   cardNumber: string;
@@ -23,13 +24,13 @@ export const expansionPageData = (
       .map((card) => [card.id, { ...card, cardNumber: card.id.slice(card.id.lastIndexOf("-") + 1) }])
   );
   const liveDecks = decks
-    .filter((deck) => deck.bestList.cards.some((card) => expansionCards.has(card.id)))
+    .filter((deck) => coveredSetCodes([deck]).has(expansion.id))
     .map((deck) => ({ deck, displayName: displayName(deck) }))
     .sort((a, b) => a.displayName.localeCompare(b.displayName));
   const used = new Set(
     liveDecks.flatMap(({ deck }) =>
-      deck.bestList.cards
-        .map((card) => card.id)
+      deck.lists
+        .flatMap((list) => list.cards.map((card) => card.id))
         .filter((id) => expansionCards.has(id))
     )
   );

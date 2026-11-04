@@ -261,8 +261,8 @@
       "description": "Die Tier-Liste basiert auf Turnierergebnissen. Ein Algorithmus bestimmt das Tier und die Deckliste."
     },
     "weeklyUpdates": {
-      "title": "Wöchentliche Updates",
-      "description": "Die Tier-Liste wird wöchentlich aktualisiert und bringt jeden Montag neue Decks und Matchups."
+      "title": "Häufige Updates",
+      "description": "Die Tier-Liste wird viermal pro Woche aktualisiert und bringt neue Decks und Matchups."
     },
     "filters": {
       "title": "Filter",

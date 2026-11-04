@@ -261,8 +261,8 @@
       "description": "La tier list si basa sui risultati dei tornei. Un algoritmo determina il tier e la lista del mazzo."
     },
     "weeklyUpdates": {
-      "title": "Aggiornamenti Settimanali",
-      "description": "La tier list si aggiorna settimanalmente, portando nuovi mazzi e matchup ogni lunedì."
+      "title": "Aggiornamenti frequenti",
+      "description": "La tier list si aggiorna quattro volte a settimana, portando nuovi mazzi e matchup."
     },
     "filters": {
       "title": "Filtri",

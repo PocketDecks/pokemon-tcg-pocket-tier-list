@@ -261,8 +261,8 @@
       "description": "等级列表依赖于比赛结果。算法确定等级和卡组列表。"
     },
     "weeklyUpdates": {
-      "title": "每周更新",
-      "description": "等级列表每周更新一次，在每个星期一带来新的卡组和对战。"
+      "title": "频繁更新",
+      "description": "等级列表一周更新四次，带来新的卡组和对战。"
     },
     "filters": {
       "title": "筛选",

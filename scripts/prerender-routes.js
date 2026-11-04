@@ -58,7 +58,7 @@ const buildRouteMeta = (latest) => ({
   },
   "/tier-list": {
     title: `Pokemon TCG Pocket Tier List: Best ${latest.name} Decks | Top Pocket Decks`,
-    description: `Pokemon TCG Pocket tier list for ${latest.name}, ranked from tournament data and updated daily. Filter by energy type and win rate to find the best decks.`,
+    description: `Pokemon TCG Pocket tier list for ${latest.name}, ranked from tournament data and updated four times a week. Filter by energy type and win rate to find the best decks.`,
     canonical: "https://pocketdecks.top/tier-list/",
   },
   "/cards-list": {
@@ -105,7 +105,7 @@ const buildJaRouteMeta = (latest) => ({
   },
   "/tier-list": {
     title: `ポケポケ ティアリスト ${latest.name} 最強デッキ | Top Pocket Decks`,
-    description: `${latest.name}のデッキを大会データをもとに毎日ランク付けしています。エネルギー、勝率で絞り込んで最強デッキを探せます。`,
+    description: `${latest.name}のデッキを大会データをもとに週4回ランク付けしています。エネルギー、勝率で絞り込んで最強デッキを探せます。`,
   },
   "/cards-list": {
     title: "ポケポケ カード ティアリスト 最強カード | Top Pocket Decks",

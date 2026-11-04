@@ -196,11 +196,11 @@ test("tier-list title names the newest expansion by name", () => {
   );
 });
 
-test("tier-list description names the expansion and says the list is ranked from tournament data and updated daily", () => {
+test("tier-list description names the expansion and says the list is ranked from tournament data and updated four times a week", () => {
   const { description } = buildRouteMeta(STUB)["/tier-list"];
   assert.match(description, /Test Set/);
   assert.match(description, /ranked from tournament data/);
-  assert.match(description, /updated daily/);
+  assert.match(description, /updated four times a week/);
 });
 
 test("stamped tier-list head carries one title and the expansion description", () => {
@@ -239,4 +239,9 @@ test("the homepage description names the newest expansion in both locales", () =
 
 test("the homepage keeps its canonical", () => {
   assert.strictEqual(buildRouteMeta(STUB)["/"].canonical, "https://pocketdecks.top/");
+});
+
+test("tier-list copy states the four-times-a-week refresh in both locales", () => {
+  assert.match(ROUTE_META["/tier-list"].description, /updated four times a week/);
+  assert.match(buildJaRouteMeta(STUB)["/tier-list"].description, /週4回/);
 });

@@ -261,8 +261,8 @@
       "description": "Clasamentul se bazează pe rezultatele din turnee. Un algoritm determină nivelul (tier-ul) și lista deck-ului."
     },
     "weeklyUpdates": {
-      "title": "Actualizări săptămânale",
-      "description": "Clasamentul se actualizează săptămânal, aducând deck-uri și matchup-uri noi în fiecare luni."
+      "title": "Actualizări frecvente",
+      "description": "Clasamentul se actualizează de patru ori pe săptămână, aducând deck-uri și matchup-uri noi."
     },
     "filters": {
       "title": "Filtre",

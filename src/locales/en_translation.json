@@ -261,8 +261,8 @@
       "description": "The tier list relies on tournament results. An algorithm determines the tier and decklist."
     },
     "weeklyUpdates": {
-      "title": "Weekly Updates",
-      "description": "The tier list updates weekly, bringing new decks and matchups every Monday."
+      "title": "Frequent Updates",
+      "description": "The tier list updates four times a week, bringing new decks and matchups."
     },
     "filters": {
       "title": "Filters",

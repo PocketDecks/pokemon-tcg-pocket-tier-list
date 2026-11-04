@@ -261,8 +261,8 @@
       "description": "A tier list baseia-se em resultados de torneios. Um algoritmo determina o tier e a lista do deck."
     },
     "weeklyUpdates": {
-      "title": "Atualizações Semanais",
-      "description": "A tier list é atualizada semanalmente, trazendo novos decks e confrontos todas as segundas-feiras."
+      "title": "Atualizações frequentes",
+      "description": "A tier list é atualizada quatro vezes por semana, trazendo novos decks e confrontos."
     },
     "filters": {
       "title": "Filtros",

@@ -412,6 +412,6 @@
     "cardsHeading": "Carte usate nei mazzi attuali",
     "decksHeading": "Mazzi attuali che usano questa espansione",
     "noDecks": "Nessun mazzo attuale usa questa espansione.",
-    "empty": "Nessuna carta di {{name}} è attualmente in un mazzo di vertice."
+    "empty": "Al momento nessuna carta di {{name}} è nei mazzi migliori."
   }
 }

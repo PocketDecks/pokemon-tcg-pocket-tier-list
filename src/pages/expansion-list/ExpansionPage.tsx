@@ -174,7 +174,7 @@ const ExpansionPage = () => {
         </Breadcrumbs>
         <Title>{t("expansionPage.heading", { name: expansion.name, id: expansion.id.toUpperCase() })}</Title>
         {releaseDate && <Meta>{t("expansionPage.released", { date: releaseDate })}</Meta>}
-        <Meta>{t("expansionPage.intro", { name: expansion.name })}</Meta>
+        {!(data && data.cards.length === 0) && <Meta>{t("expansionPage.intro", { name: expansion.name })}</Meta>}
       </Header>
       {data && data.cards.length === 0 ? (
         <EmptyState>

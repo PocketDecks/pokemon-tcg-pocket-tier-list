@@ -412,6 +412,6 @@
     "cardsHeading": "Cartas usadas nos decks atuais",
     "decksHeading": "Decks atuais que usam esta expansão",
     "noDecks": "Nenhum deck atual usa esta expansão.",
-    "empty": "Nenhuma carta de {{name}} está atualmente em um deck de topo."
+    "empty": "Nenhuma carta de {{name}} está nos melhores decks no momento."
   }
 }

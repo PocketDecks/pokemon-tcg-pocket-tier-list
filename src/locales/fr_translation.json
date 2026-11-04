@@ -412,6 +412,6 @@
     "cardsHeading": "Cartes utilisées dans les decks actuels",
     "decksHeading": "Decks actuels utilisant cette extension",
     "noDecks": "Aucun deck actuel n'utilise cette extension.",
-    "empty": "Aucune carte de {{name}} ne figure actuellement dans un deck de tête."
+    "empty": "Aucune carte de {{name}} ne figure dans les meilleurs decks en ce moment."
   }
 }

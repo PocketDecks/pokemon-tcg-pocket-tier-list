@@ -156,6 +156,7 @@ describe("ExpansionPage", () => {
     expect(screen.getByText("None of the Team Rocket's Ambition cards are in a top deck right now.")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Cards used in live decks" })).toBeNull();
     expect(screen.queryByRole("heading", { name: "Live decks using this expansion" })).toBeNull();
+    expect(screen.queryByText(/that appear in current tournament decks/)).toBeNull();
     expect(screen.getByRole("link", { name: "Back to the tier list" })).toBeInTheDocument();
   });
 

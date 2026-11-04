@@ -178,7 +178,11 @@ const ExpansionPage = () => {
       ) : data && data.cards.length === 0 ? (
         <EmptyState>
           <Shrug aria-hidden="true">{"¯\\_(ツ)_/¯"}</Shrug>
-          <Meta>{t("expansionPage.empty", { name: expansion.name })}</Meta>
+          <Meta>
+            {t("expansionPage.empty", { name: expansion.name })}
+            <br />
+            {t("expansionPage.emptyAside")}
+          </Meta>
         </EmptyState>
       ) : (
         <>

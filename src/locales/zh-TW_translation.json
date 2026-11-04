@@ -416,6 +416,7 @@
     "cardsHeading": "目前牌組使用的卡牌",
     "decksHeading": "使用此擴充包的目前牌組",
     "empty": "{{name}}的卡牌目前都不在頂級牌組中。",
+    "emptyAside": "真可惜。:(",
     "loadError": "卡牌資料載入失敗。請重新整理頁面再試一次。",
     "breadcrumb": "麵包屑導覽"
   }

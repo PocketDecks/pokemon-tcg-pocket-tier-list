@@ -416,6 +416,7 @@
     "cardsHeading": "Cartas usadas nos decks atuais",
     "decksHeading": "Decks atuais que usam esta expansão",
     "empty": "Nenhuma carta de {{name}} está nos melhores decks no momento.",
+    "emptyAside": "Que pena. :(",
     "loadError": "Os dados das cartas não carregaram. Atualize a página para tentar novamente.",
     "breadcrumb": "Trilha de navegação"
   }

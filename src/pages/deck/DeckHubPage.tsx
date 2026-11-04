@@ -223,7 +223,9 @@ const HubPage = () => {
   const peak = hubPeak(records);
   const topCards = mostIncluded(namedCore, 3).map((card) => card.name);
   const expansionName = latest?.name ?? t("deckHub.expansionFallback");
-  const status = strongestDeck
+  const status = decks === null || loading
+    ? null
+    : strongestDeck
     ? strongestShare === undefined
       ? t("hub.liveStatusNoShare", {
           ns: "seo",
@@ -403,7 +405,7 @@ const HubPage = () => {
         <SeoContent>
           <h2>{t("hub.heading", { ns: "seo", name })}</h2>
           {overview !== null && <p>{overview}</p>}
-          <p>{status}</p>
+          {status !== null && <p>{status}</p>}
           {coreSentence !== null && <p>{coreSentence}</p>}
         </SeoContent>
       )}

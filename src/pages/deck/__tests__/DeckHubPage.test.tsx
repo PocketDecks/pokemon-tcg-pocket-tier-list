@@ -423,3 +423,12 @@ describe("DeckHubPage head", () => {
     );
   });
 });
+
+describe("DeckHubPage without live data", () => {
+  it("makes no meta claim in the summary paragraph when live deck data is unavailable", async () => {
+    decksState.value = { decks: null, metaShareBySlug: {}, loading: false, error: new Error("offline") };
+    renderAt("/deck/mega-greninja-ex");
+    expect(await screen.findByText(/is tracked on Top Pocket Decks/)).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/was last seen on|not in the current meta/);
+  });
+});

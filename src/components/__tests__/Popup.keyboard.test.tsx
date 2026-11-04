@@ -243,7 +243,7 @@ describe("Popup keyboard accessibility", () => {
     expect(rejectAll).toHaveFocus();
   });
 
-  it("keeps Tab wrapping inside the popup while another modal is mounted", async () => {
+  it("moves Tab from the popup's last control to the other open modal's first control", async () => {
     const user = userEvent.setup();
     render(
       <>
@@ -252,11 +252,51 @@ describe("Popup keyboard accessibility", () => {
       </>
     );
 
-    const dialog = await openPanel(user);
-    for (let press = 0; press < 10; press += 1) {
-      await user.tab();
-      expect(dialog).toContainElement(document.activeElement as HTMLElement);
-    }
+    await openPanel(user);
+    await user.tab();
+    expect(screen.getByRole("button", { name: "Inside action" })).toHaveFocus();
+    await user.tab();
+
+    expect(screen.getByRole("button", { name: "Reject all" })).toHaveFocus();
+  });
+
+  it("moves Shift+Tab from the popup's first control to the other open modal's last control", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <Harness />
+        <CookieNotice />
+      </>
+    );
+
+    await openPanel(user);
+    expect(screen.getByRole("button", { name: "Close panel" })).toHaveFocus();
+    await user.tab({ shift: true });
+
+    expect(screen.getByRole("button", { name: "Reject all" })).toHaveFocus();
+  });
+
+  it("wraps Tab from the popup's last control to its first when no other modal is open", async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+
+    await openPanel(user);
+    await user.tab();
+    expect(screen.getByRole("button", { name: "Inside action" })).toHaveFocus();
+    await user.tab();
+
+    expect(screen.getByRole("button", { name: "Close panel" })).toHaveFocus();
+  });
+
+  it("wraps Shift+Tab from the popup's first control to its last when no other modal is open", async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+
+    await openPanel(user);
+    expect(screen.getByRole("button", { name: "Close panel" })).toHaveFocus();
+    await user.tab({ shift: true });
+
+    expect(screen.getByRole("button", { name: "Inside action" })).toHaveFocus();
   });
 
   it("does not close the popup on Escape while focus is in another open modal", async () => {

@@ -143,6 +143,13 @@ const isInOtherModal = (target: EventTarget | null, dialog: HTMLElement) => {
   return modal !== null && modal !== dialog && !dialog.contains(modal);
 };
 
+const otherModalFocusables = (dialog: HTMLElement) => {
+  const modal = Array.from(document.querySelectorAll<HTMLElement>('[aria-modal="true"]')).find(
+    (candidate) => candidate !== dialog && !dialog.contains(candidate)
+  );
+  return modal ? getFocusable(modal) : [];
+};
+
 const hasOpenModal = (element: Element) =>
   element.matches('[aria-modal="true"]') || element.querySelector('[aria-modal="true"]') !== null;
 
@@ -212,12 +219,14 @@ const Popup: React.FC<Props> = ({ isOpen, header, close, children, width }) => {
       const current = document.activeElement;
       const inside = current instanceof Node && dialog.contains(current);
 
+      const other = otherModalFocusables(dialog);
+
       if (event.shiftKey && (!inside || current === first || current === dialog)) {
         event.preventDefault();
-        last.focus();
+        (other[other.length - 1] ?? last).focus();
       } else if (!event.shiftKey && (!inside || current === last)) {
         event.preventDefault();
-        first.focus();
+        (other[0] ?? first).focus();
       }
     };
 

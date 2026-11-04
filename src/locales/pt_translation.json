@@ -413,6 +413,9 @@
     "decksHeading": "Decks atuais que usam esta expansão",
     "metaShare": "Evolução da participação no meta",
     "noCards": "Nenhuma carta desta expansão é usada nos decks atuais.",
-    "noDecks": "Nenhum deck atual usa esta expansão."
+    "noDecks": "Nenhum deck atual usa esta expansão.",
+    "summary": "Esta página de {{name}} ({{id}}) reúne a identidade da expansão, a data de lançamento, as cartas da expansão usadas nos decks atuais e os hubs de arquétipos correspondentes. As cartas seguem a ordem de pontuação do site. Os links de decks abrem a página do arquétipo correspondente. A evolução do meta aparece apenas com pelo menos duas observações históricas após o lançamento.",
+    "cardsEmptyDetail": "O feed atual de decks ao vivo não inclui cartas de {{name}}. A expansão continua disponível como página histórica, com as informações de lançamento e uma rota rastreável.",
+    "decksEmptyDetail": "O feed atual de decks ao vivo ainda não conecta nenhum hub de arquétipo a {{name}}. Execuções futuras do pipeline podem adicionar cartas e links."
   }
 }

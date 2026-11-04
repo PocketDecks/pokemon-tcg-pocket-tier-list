@@ -138,6 +138,7 @@ const ExpansionPage = () => {
         <Title>{title}</Title>
         <Meta>{expansion.name} ({expansion.id.toUpperCase()}) · {releaseDate}</Meta>
         <Meta>{policy.isIndexable(expansion.id) ? t("expansionPage.current") : t("expansionPage.archive")}</Meta>
+        <Meta>{t("expansionPage.summary", { name: expansion.name, id: expansion.id.toUpperCase() })}</Meta>
       </Header>
       <Section>
         <SectionTitle>{t("expansionPage.cardsHeading")}</SectionTitle>
@@ -150,7 +151,12 @@ const ExpansionPage = () => {
               </CardItem>
             ))}
           </CardGrid>
-        ) : <Empty>{t("expansionPage.noCards")}</Empty>}
+        ) : (
+          <>
+            <Empty>{t("expansionPage.noCards")}</Empty>
+            <Meta>{t("expansionPage.cardsEmptyDetail", { name: expansion.name })}</Meta>
+          </>
+        )}
       </Section>
       <Section>
         <SectionTitle>{t("expansionPage.decksHeading")}</SectionTitle>
@@ -168,7 +174,12 @@ const ExpansionPage = () => {
               </div>
             ))}
           </DeckGrid>
-        ) : <Empty>{t("expansionPage.noDecks")}</Empty>}
+        ) : (
+          <>
+            <Empty>{t("expansionPage.noDecks")}</Empty>
+            <Meta>{t("expansionPage.decksEmptyDetail", { name: expansion.name })}</Meta>
+          </>
+        )}
       </Section>
       <Meta><a href={tierListHref}>{t("notFound.backToTierList")}</a></Meta>
     </Page>

@@ -24,13 +24,13 @@ export const expansionPageData = (
       .map((card) => [card.id, { ...card, cardNumber: card.id.slice(card.id.lastIndexOf("-") + 1) }])
   );
   const liveDecks = decks
-    .filter((deck) => coveredSetCodes([deck]).has(expansion.id))
+    .filter((deck) => coveredSetCodes([{ lists: [deck.bestList] }]).has(expansion.id))
     .map((deck) => ({ deck, displayName: displayName(deck) }))
     .sort((a, b) => a.displayName.localeCompare(b.displayName));
   const used = new Set(
     liveDecks.flatMap(({ deck }) =>
-      deck.lists
-        .flatMap((list) => list.cards.map((card) => card.id))
+      deck.bestList.cards
+        .map((card) => card.id)
         .filter((id) => expansionCards.has(id))
     )
   );

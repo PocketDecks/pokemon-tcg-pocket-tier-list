@@ -29,9 +29,16 @@ describe("expansion index policy", () => {
     expect(result.isIndexable("c1")).toBe(true);
   });
 
-  it("counts a card once across lists and decks", () => {
+  it("counts a card once within the best list", () => {
     const repeated = [...setCards("c1", 4), "1:c1-001"];
-    const result = expansionIndexPolicy(LIST, [{ lists: [{ cards: repeated }, { cards: ["1:c1-002"] }] }]);
+    const result = expansionIndexPolicy(LIST, [{ lists: [{ score: 1, cards: repeated }, { score: 0.5, cards: ["1:c1-005"] }] }]);
+    expect(result.isIndexable("c1")).toBe(false);
+  });
+
+  it("does not count a set card that sits only in a non-best list", () => {
+    const result = expansionIndexPolicy(LIST, [
+      { lists: [{ score: 1, cards: setCards("b4a", 1) }, { score: 0.4, cards: setCards("c1", 5) }] },
+    ]);
     expect(result.isIndexable("c1")).toBe(false);
   });
 
@@ -66,13 +73,13 @@ describe("expansion index policy", () => {
     expect(result.isIndexable("c1")).toBe(false);
   });
 
-  it("indexes C1 and not B4A in the shipped data", () => {
+  it("indexes C1 and B4 in the shipped data, and not B4A", () => {
     const result = expansionIndexPolicy(expansions, decks);
     expect(result.newest?.id).toBe("c1");
-    expect(result.previous?.id).toBe("b4a");
+    expect(result.previous?.id).toBe("b4");
     expect(result.isIndexable("c1")).toBe(true);
     expect(result.isIndexable("b4a")).toBe(false);
     const indexable = expansions.map((expansion) => expansion.id).filter((id) => result.isIndexable(id));
-    expect(indexable).toEqual(["c1"]);
+    expect(indexable).toEqual(["b4", "c1"]);
   });
 });

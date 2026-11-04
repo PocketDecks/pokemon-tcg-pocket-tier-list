@@ -1,6 +1,6 @@
 type ExpansionIndexEntry = { id: string; release_date: string | null };
 
-type DeckCoverage = { lists?: readonly { cards?: readonly unknown[] }[] };
+type DeckCoverage = { lists?: readonly { score?: number; cards?: readonly unknown[] }[] };
 
 export declare const MIN_INDEXED_EXPANSION_CARDS: number;
 

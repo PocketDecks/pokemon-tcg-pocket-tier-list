@@ -1,7 +1,7 @@
 import { newestExpansion } from "./expansion-policy.mjs";
 
 const setCodeOf = (entry) => {
-  const cardId = typeof entry === "string" ? entry.replace(/^\d+:/, "") : entry?.id;
+  const cardId = cardIdOf(entry);
   if (typeof cardId !== "string") return null;
   const dash = cardId.lastIndexOf("-");
   return dash > 0 ? cardId.slice(0, dash) : null;
@@ -9,17 +9,22 @@ const setCodeOf = (entry) => {
 
 const cardIdOf = (entry) => (typeof entry === "string" ? entry.replace(/^\d+:/, "") : entry?.id);
 
+export const bestListCards = (deck) => {
+  const lists = deck.lists ?? [];
+  if (lists.length === 0) return [];
+  const best = [...lists].sort((a, b) => (b.score ?? 0) - (a.score ?? 0))[0];
+  return best.cards ?? [];
+};
+
 export const coveredCardIdsBySet = (decks) => {
   const bySet = new Map();
   if (!decks) return bySet;
   for (const deck of decks) {
-    for (const entry of deck.lists ?? []) {
-      for (const card of entry.cards ?? []) {
-        const setCode = setCodeOf(card);
-        if (!setCode) continue;
-        if (!bySet.has(setCode)) bySet.set(setCode, new Set());
-        bySet.get(setCode).add(cardIdOf(card));
-      }
+    for (const card of bestListCards(deck)) {
+      const setCode = setCodeOf(card);
+      if (!setCode) continue;
+      if (!bySet.has(setCode)) bySet.set(setCode, new Set());
+      bySet.get(setCode).add(cardIdOf(card));
     }
   }
   return bySet;

@@ -42,7 +42,7 @@ describe("ExpansionListPage content readiness", () => {
     vi.mocked(useMarkContentReady).mockClear();
   });
 
-  it("does not mark ready when the dataset has no tiles to show", () => {
+  it("marks ready on a valid empty score list", () => {
     state.cards = [];
     state.expansions = [expansion];
     render(
@@ -51,7 +51,7 @@ describe("ExpansionListPage content readiness", () => {
       </MemoryRouter>
     );
 
-    expect(lastReady()).toBe(false);
+    expect(lastReady()).toBe(true);
   });
 
   it("marks ready once tiles are visible", () => {

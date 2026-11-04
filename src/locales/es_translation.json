@@ -412,6 +412,7 @@
     "cardsHeading": "Cartas usadas en mazos actuales",
     "decksHeading": "Mazos actuales que usan esta expansión",
     "noDecks": "Ningún mazo actual usa esta expansión.",
-    "empty": "Ninguna carta de {{name}} aparece ahora mismo en un mazo destacado."
+    "empty": "Ninguna carta de {{name}} aparece ahora mismo en un mazo destacado.",
+    "loadError": "No se cargaron los datos de las cartas. Actualiza la página para intentarlo de nuevo."
   }
 }

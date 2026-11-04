@@ -412,6 +412,7 @@
     "cardsHeading": "Carte usate nei mazzi attuali",
     "decksHeading": "Mazzi attuali che usano questa espansione",
     "noDecks": "Nessun mazzo attuale usa questa espansione.",
-    "empty": "Al momento nessuna carta di {{name}} è nei mazzi migliori."
+    "empty": "Al momento nessuna carta di {{name}} è nei mazzi migliori.",
+    "loadError": "I dati delle carte non sono stati caricati. Ricarica la pagina per riprovare."
   }
 }

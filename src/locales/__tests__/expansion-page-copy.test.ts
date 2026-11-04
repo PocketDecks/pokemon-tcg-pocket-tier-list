@@ -25,7 +25,7 @@ const locales: Record<string, { expansionPage: Record<string, string> }> = {
   "zh-TW": zhTW,
 };
 
-const PAGE_KEYS = ["cardsHeading", "decksHeading", "empty", "expansions", "heading", "home", "intro", "noDecks", "released"];
+const PAGE_KEYS = ["cardsHeading", "decksHeading", "empty", "expansions", "heading", "home", "intro", "loadError", "noDecks", "released"];
 
 describe("expansion page copy", () => {
   it.each(Object.entries(locales))("%s has exactly the expansion page keys in use", (_name, locale) => {

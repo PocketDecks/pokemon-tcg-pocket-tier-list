@@ -14,6 +14,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 import ExpansionPage from "../ExpansionPage";
+import { fetchCards } from "../../../app/cards-api";
+import { useMarkContentReady } from "../../../ads/ContentReadyContext";
 import { cardThumbUrl } from "../../../app/deck-thumb";
 
 const fixtures = vi.hoisted(() => {
@@ -91,6 +93,11 @@ vi.mock("../../../app/use-expansions", () => ({
   __esModule: true,
   default: () => fixtures.expansions,
 }));
+
+vi.mock("../../../app/cards-api", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../../app/cards-api")>();
+  return { ...actual, fetchCards: vi.fn(actual.fetchCards) };
+});
 
 vi.mock("../../../ads/ContentReadyContext", () => ({
   __esModule: true,
@@ -202,5 +209,25 @@ describe("ExpansionPage unlisted ids", () => {
   it("renders the not-found page for a deluxe expansion id", () => {
     renderPage("/expansion-list/b4b");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Page not found");
+  });
+});
+
+describe("ExpansionPage card data failure", () => {
+  it("shows a load error in place of the sections and marks the page ready", async () => {
+    await i18nReady;
+    vi.mocked(fetchCards).mockRejectedValueOnce(new Error("offline"));
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={["/expansion-list/c1"]}>
+          <Routes>
+            <Route path="/expansion-list/:expansionId" element={<ExpansionPage />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
+    expect(await screen.findByText("Card data didn't load. Refresh the page to try again.")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Cards used in live decks" })).toBeNull();
+    expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(true);
   });
 });

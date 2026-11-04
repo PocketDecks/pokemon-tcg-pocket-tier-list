@@ -150,10 +150,11 @@ const ExpansionPage = () => {
   const expansion = expansions?.find((entry) => entry.id === expansionId);
   const allCardsQuery = useQuery({ queryKey: ["cards"], queryFn: fetchCards });
   const rawCards = allCardsQuery.data?.cards ?? [];
+  const cardsSettled = allCardsQuery.isSuccess || allCardsQuery.isError;
   const data = expansion && rawCards.length > 0 && rawDecks
     ? expansionPageData(expansion, rawCards, rawDecks, decks ?? [])
     : null;
-  useMarkContentReady(!decksLoading && !!expansions && rawCards.length > 0);
+  useMarkContentReady(!decksLoading && !!expansions && cardsSettled);
 
   if (!expansion || !isListedExpansion(expansion)) return <NotFoundPage />;
   const locale = i18n.language === "en" ? "en-GB" : i18n.language;
@@ -175,7 +176,9 @@ const ExpansionPage = () => {
         {releaseDate && <Meta>{t("expansionPage.released", { date: releaseDate })}</Meta>}
         {!(data && data.cards.length === 0) && <Meta>{t("expansionPage.intro", { name: expansion.name })}</Meta>}
       </Header>
-      {data && data.cards.length === 0 ? (
+      {allCardsQuery.isError ? (
+        <Meta>{t("expansionPage.loadError")}</Meta>
+      ) : data && data.cards.length === 0 ? (
         <EmptyState>
           <Shrug aria-hidden="true">{"¯\\_(ツ)_/¯"}</Shrug>
           <Meta>{t("expansionPage.empty", { name: expansion.name })}</Meta>

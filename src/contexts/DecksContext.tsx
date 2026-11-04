@@ -13,6 +13,7 @@ import useExpansions from "../app/use-expansions";
 import { newestExpansion } from "../app/expansion-policy.mjs";
 import { MetaShareEntry, PipelineMatchupData, PipelineMetaShare, PipelinePartialDeck, PipelineDeckList } from "../types/pipeline-data";
 import { FullDeckType, MatchupType } from "../app/deck-types";
+import { settleAllNewShares } from "../app/meta-share-window";
 import { SortBy } from "../app/sort-by";
 import {
   deckNameToIconIds,
@@ -319,7 +320,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
     const share: PipelineMetaShare | null | undefined = metaShare;
     if (!share) return null;
     return Object.fromEntries(
-      share.decks.map((d) => [d.name, d])
+      settleAllNewShares(share.decks).map((d) => [d.name, d])
     ) as Record<string, MetaShareEntry>;
   }, [metaShare]);
 

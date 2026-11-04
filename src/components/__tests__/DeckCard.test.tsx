@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import DeckCard from "../DeckCard";
 import type { FullDeckType } from "../../contexts/DecksContext";
 import type { MetaShareEntry } from "../../types/pipeline-data";
+import { settleAllNewShares } from "../../app/meta-share-window";
 
 const card = {
   id: "card-1",
@@ -208,5 +209,44 @@ describe("DeckCard name label geometry", () => {
     expect(screen.getByText("Card One")).toBeInTheDocument();
     fireEvent.scroll(document);
     expect(screen.queryByText("Card One")).not.toBeInTheDocument();
+  });
+});
+describe("DeckCard meta share for a window", () => {
+  const allNew = (name: string, share: number): MetaShareEntry => ({
+    name,
+    share,
+    sharePrev: 0,
+    delta: share,
+    windowGames: 100,
+    firstSeen: "2026-10-30",
+    isNew: true,
+  });
+
+  it("shows the share with no NEW text and no arrow when every deck in the window is new", () => {
+    const [settled] = settleAllNewShares([allNew("Test Deck", 0.1)]);
+    render(
+      <MemoryRouter>
+        <DeckCard deck={deck} metaShare={settled} />
+      </MemoryRouter>
+    );
+    const share = screen.getByText("10.0%");
+    expect(share.querySelector("svg")).toBeNull();
+    expect(screen.queryByText("NEW")).toBeNull();
+  });
+
+  it("shows NEW for a new deck and share with an arrow for the others in a mixed window", () => {
+    const [newDeck, established] = [
+      allNew("Test Deck", 0.1),
+      { ...allNew("Other Deck", 0.2), isNew: false, sharePrev: 0.15, delta: 0.05 },
+    ];
+    render(
+      <MemoryRouter>
+        <DeckCard deck={deck} metaShare={newDeck} />
+        <DeckCard deck={{ ...deck, id: "deck-2", name: "Other Deck" }} metaShare={established} />
+      </MemoryRouter>
+    );
+    expect(screen.getByText("NEW")).toBeTruthy();
+    const share = screen.getByText("20.0%");
+    expect(share.querySelector("svg")).not.toBeNull();
   });
 });

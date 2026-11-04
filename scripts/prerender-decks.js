@@ -73,7 +73,9 @@ const renderDeckHtml = (deck, documentHtml, locale = DEFAULT_LOCALE) => {
       `<meta name="twitter:title" content="${eTitle}" />`,
       `<meta name="twitter:description" content="${eDesc}" />`,
       `<meta name="twitter:image" content="${escapeXml(ogImage)}" />`,
-      `<link rel="preload" as="image" imagesrcset="${escapeXml(cardThumbSrcSet(cardId))}" imagesizes="${escapeXml(DECK_CARD_SIZES)}" fetchpriority="high" />`,
+      ...(cardId === null
+        ? []
+        : [`<link rel="preload" as="image" imagesrcset="${escapeXml(cardThumbSrcSet(cardId))}" imagesizes="${escapeXml(DECK_CARD_SIZES)}" fetchpriority="high" />`]),
     ],
     jsonLd: {
       "@context": "https://schema.org",
@@ -122,6 +124,8 @@ const deckJob = (deck, archive = []) => {
   };
 };
 
+const jobsForLiveDecks = (decks, archive = []) => decks.map((deck) => deckJob(deck, archive));
+
 const renderDeckPage = async (page, job, template, locale = DEFAULT_LOCALE) => {
   await openDocument(page, `${localeRoute(locale, `/deck/${job.slug}`)}/`);
   await waitForRouteReady(page);
@@ -142,9 +146,7 @@ const main = async () => {
   }
   const template = readTemplate(fs.readFileSync(path.join(BUILD_DIR, "index.html"), "utf8"));
   const archive = JSON.parse(fs.readFileSync(ARCHIVE_FILE, "utf8"));
-  const jobs = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"))
-    .map((deck) => deckJob(deck, archive))
-    .filter((job) => job.cardId !== null);
+  const jobs = jobsForLiveDecks(JSON.parse(fs.readFileSync(DATA_FILE, "utf8")), archive);
 
   const server = await startServer(BUILD_DIR, template.html);
   const browser = await launchBrowser();
@@ -187,6 +189,7 @@ if (require.main === module) {
 
 module.exports = {
   deckJob,
+  jobsForLiveDecks,
   DECK_CONCURRENCY,
   renderDeckHtml,
   friendlyName,

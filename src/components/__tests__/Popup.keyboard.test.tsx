@@ -115,6 +115,26 @@ const RemovableModalHarness = ({ showNotice }: { showNotice: boolean }) => {
   );
 };
 
+const SurroundedHarness = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <>
+      <div role="dialog" aria-modal="true" aria-label="Before notice">
+        <button type="button">Before action</button>
+      </div>
+      <button type="button" onClick={() => setIsOpen(true)}>
+        Open panel
+      </button>
+      <Popup isOpen={isOpen} header="panel.title" close={() => setIsOpen(false)}>
+        <button type="button">Inside action</button>
+      </Popup>
+      <div role="dialog" aria-modal="true" aria-label="After notice">
+        <button type="button">After action</button>
+      </div>
+    </>
+  );
+};
+
 const CookieNotice = () => (
   <div role="dialog" aria-modal="true" aria-label="Cookie notice">
     <button type="button">Reject all</button>
@@ -645,6 +665,28 @@ describe("Popup keyboard accessibility", () => {
     view.rerender(<RemovableModalHarness showNotice={false} />);
 
     await waitFor(() => expect(screen.getByRole("button", { name: "Close panel" })).toHaveFocus());
+  });
+
+  it("bridges Tab to the other modal that follows the popup and Shift+Tab to the one before it", async () => {
+    const user = userEvent.setup();
+    render(<SurroundedHarness />);
+
+    await user.click(screen.getByRole("button", { name: "Open panel" }));
+    await user.tab();
+    expect(screen.getByRole("button", { name: "Inside action" })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: "After action" })).toHaveFocus();
+  });
+
+  it("bridges Shift+Tab from the popup's first control to the modal before it", async () => {
+    const user = userEvent.setup();
+    render(<SurroundedHarness />);
+
+    await user.click(screen.getByRole("button", { name: "Open panel" }));
+    expect(screen.getByRole("button", { name: "Close panel" })).toHaveFocus();
+    await user.tab({ shift: true });
+
+    expect(screen.getByRole("button", { name: "Before action" })).toHaveFocus();
   });
 
   it("returns Tab from the other modal's last control to the popup's first control", async () => {

@@ -176,10 +176,18 @@ const returnFromOtherModal = (event: KeyboardEvent, dialog: HTMLElement) => {
   return false;
 };
 
-const otherModalFocusables = (dialog: HTMLElement) => {
-  const modal = Array.from(document.querySelectorAll<HTMLElement>('[aria-modal="true"]')).find(
+const otherModalFocusables = (dialog: HTMLElement, forward: boolean) => {
+  const others = Array.from(document.querySelectorAll<HTMLElement>('[aria-modal="true"]')).filter(
     (candidate) => isOtherModal(candidate, dialog)
   );
+  const following = others.filter(
+    (candidate) => dialog.compareDocumentPosition(candidate) & Node.DOCUMENT_POSITION_FOLLOWING
+  );
+  const preceding = others.filter((candidate) => !following.includes(candidate));
+  const ordered = forward
+    ? [...following, ...preceding]
+    : [...preceding.reverse(), ...following.reverse()];
+  const modal = ordered.find((candidate) => getFocusable(candidate).length > 0);
   return modal ? getFocusable(modal) : [];
 };
 
@@ -290,7 +298,7 @@ const Popup: React.FC<Props> = ({ isOpen, header, close, children, width }) => {
       const current = document.activeElement;
       const inside = current instanceof Node && dialog.contains(current);
 
-      const other = otherModalFocusables(dialog);
+      const other = otherModalFocusables(dialog, !event.shiftKey);
 
       if (event.shiftKey && (!inside || current === first || current === dialog)) {
         event.preventDefault();

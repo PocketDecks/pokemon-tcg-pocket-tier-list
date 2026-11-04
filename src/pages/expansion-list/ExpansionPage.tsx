@@ -120,9 +120,6 @@ const DeckName = styled.span`
   font-size: 1.6rem;
   font-weight: 600;
 `;
-const Empty = styled.p`
-  color: var(--text-muted);
-`;
 const EmptyState = styled.div`
   display: grid;
   justify-items: start;
@@ -223,9 +220,8 @@ const ExpansionPage = () => {
           </Section>
           <Section>
             <SectionTitle>{t("expansionPage.decksHeading")}</SectionTitle>
-            {data &&
-              (data.decks.length ? (
-                <DeckList>
+            {data && (
+              <DeckList>
                   {data.decks.map(({ name, hub, deck, displayName: label }) => (
                     <DeckRow key={name}>
                       {deck && (
@@ -236,10 +232,8 @@ const ExpansionPage = () => {
                       <DeckName>{deck ? label : <LocaleLink to={`/deck/${hub}`}>{label}</LocaleLink>}</DeckName>
                     </DeckRow>
                   ))}
-                </DeckList>
-              ) : (
-                <Empty>{t("expansionPage.noDecks")}</Empty>
-              ))}
+              </DeckList>
+            )}
           </Section>
         </>
       )}

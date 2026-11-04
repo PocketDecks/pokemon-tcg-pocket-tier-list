@@ -411,7 +411,6 @@
     "intro": "Cartas de {{name}} que aparecem nos decks de torneio atuais, e os decks que as utilizam.",
     "cardsHeading": "Cartas usadas nos decks atuais",
     "decksHeading": "Decks atuais que usam esta expansão",
-    "noDecks": "Nenhum deck atual usa esta expansão.",
     "empty": "Nenhuma carta de {{name}} está nos melhores decks no momento.",
     "loadError": "Os dados das cartas não carregaram. Atualize a página para tentar novamente.",
     "breadcrumb": "Trilha de navegação"

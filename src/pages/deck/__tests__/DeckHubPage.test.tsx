@@ -360,3 +360,21 @@ describe("DeckHubPage tiny shares", () => {
     expect(screen.getByText(/peak share was <0\.1% on 29 Oct 2026/)).toBeTruthy();
   });
 });
+
+describe("DeckHubPage landmarks", () => {
+  it("renders no main element of its own inside the layout's main", () => {
+    decksState.value = { decks: [], metaShareBySlug: {}, loading: false, error: null };
+    const { container } = render(
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <main>
+          <MemoryRouter initialEntries={["/deck/mega-greninja-ex"]}>
+            <Routes>
+              <Route path="/deck/:deckId" element={<DeckHubPage />} />
+            </Routes>
+          </MemoryRouter>
+        </main>
+      </QueryClientProvider>
+    );
+    expect(container.querySelectorAll("main")).toHaveLength(1);
+  });
+});

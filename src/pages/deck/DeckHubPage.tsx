@@ -26,7 +26,7 @@ import {
   similarDecks,
 } from "./hub-content";
 
-const Page = styled.main`
+const Page = styled.div`
   width: 100%;
   max-width: 100rem;
   margin: 0 auto;

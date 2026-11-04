@@ -141,7 +141,7 @@ const FOCUSABLE_SELECTOR = [
 
 const isRendered = (element: HTMLElement) =>
   typeof element.checkVisibility === "function"
-    ? element.checkVisibility()
+    ? element.checkVisibility({ visibilityProperty: true, contentVisibilityAuto: true })
     : element.getClientRects().length > 0;
 
 const getFocusable = (root: HTMLElement) =>

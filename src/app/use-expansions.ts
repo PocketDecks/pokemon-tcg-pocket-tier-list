@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { EXPANSIONS_URL } from "./constants";
 import { isListedExpansion } from "./expansion-policy.mjs";
 import { newestCoveredExpansion } from "./expansion-feed.mjs";
+import { expansionIndexPolicy } from "./expansion-index-policy.mjs";
 import type { FullDeckType } from "./deck-types";
 
 export interface PackType {
@@ -21,6 +22,10 @@ const ALL_EXPANSIONS = EXPANSIONS_URL as unknown as ExpansionType[];
 
 export const latestCoveredExpansion = (decks: FullDeckType[] | null): ExpansionType | null =>
   newestCoveredExpansion(ALL_EXPANSIONS, decks) ?? null;
+
+export const latestBestListExpansion = (
+  rawDecks: readonly { lists?: readonly { score?: number; cards?: readonly unknown[] }[] }[] | null
+): ExpansionType | null => expansionIndexPolicy(ALL_EXPANSIONS, rawDecks).newest;
 
 const useExpansions = (): ExpansionType[] | null => {
   const { data: expansions } = useQuery({

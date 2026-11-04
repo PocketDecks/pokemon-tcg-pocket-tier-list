@@ -1,7 +1,7 @@
 import { Trans, useTranslation } from "react-i18next";
 import { useDecks } from "../../app/use-decks";
 import useFilters from "../../app/use-filters";
-import { latestCoveredExpansion } from "../../app/use-expansions";
+import { latestBestListExpansion, latestCoveredExpansion } from "../../app/use-expansions";
 import { LocaleLink } from "../../app/locale-link";
 import useIsPremium from "../../app/use-is-premium";
 
@@ -80,7 +80,7 @@ const ENERGY_TYPES = [
 ];
 
 const TierListPage = () => {
-  const { decks, metaShareBySlug, loading, error } = useDecks();
+  const { decks, rawDecks, metaShareBySlug, loading, error } = useDecks();
   const {
     energy,
     setEnergy,
@@ -95,6 +95,7 @@ const TierListPage = () => {
   } = useFilters();
   const { t } = useTranslation();
   const newest = latestCoveredExpansion(decks);
+  const bestListNewest = latestBestListExpansion(rawDecks);
   const isPremium = useIsPremium();
 
   const ready = !loading && !!decks && decks.length > 0;
@@ -220,13 +221,13 @@ const TierListPage = () => {
           </a>{" "}
           {t("tierList.introAfter", { ns: "seo" })}
         </p>
-        {newest && (
+        {bestListNewest && (
           <p>
             <Trans
               i18nKey="tierList.expansionLink"
               ns="seo"
-              values={{ name: newest.name }}
-              components={[<LocaleLink to={`/expansion-list/${newest.id}`} />]}
+              values={{ name: bestListNewest.name }}
+              components={[<LocaleLink to={`/expansion-list/${bestListNewest.id}`} />]}
             />
           </p>
         )}

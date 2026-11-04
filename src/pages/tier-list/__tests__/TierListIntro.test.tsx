@@ -20,9 +20,10 @@ const card = (id: string, name: string) => ({
 });
 
 const decks = vi.hoisted(() => ({ value: [] as unknown[] }));
+const rawDecks = vi.hoisted(() => ({ value: [] as unknown[] }));
 
 vi.mock("../../../app/use-decks", () => ({
-  useDecks: () => ({ decks: decks.value, metaShareBySlug: null, loading: false, error: null }),
+  useDecks: () => ({ decks: decks.value, rawDecks: rawDecks.value, metaShareBySlug: null, loading: false, error: null }),
 }));
 
 vi.mock("../../../app/use-filters", () => ({
@@ -78,6 +79,7 @@ describe("tier list expansion sentence", () => {
 
   beforeEach(() => {
     decks.value = [coveredDeck];
+    rawDecks.value = [{ name: "alpha-c1-001", lists: [{ score: 1, cards: ["2:c1-001"] }] }];
   });
 
   it("keeps the intro paragraph on its main-branch text", async () => {
@@ -104,5 +106,39 @@ describe("tier list expansion sentence", () => {
       "href",
       "/expansion-list/c1"
     );
+  });
+
+  it("does not link a set present only in a non-best raw list", async () => {
+    await i18nReady;
+    rawDecks.value = [
+      {
+        name: "alpha-deck",
+        lists: [
+          { score: 1, cards: ["1:a1-001"] },
+          { score: 0.2, cards: ["1:c1-001"] },
+        ],
+      },
+    ];
+    render(
+      <MemoryRouter>
+        <TierListPage />
+      </MemoryRouter>
+    );
+    expect(document.querySelector('a[href="/expansion-list/c1"]')).toBeNull();
+    expect(screen.getByRole("link", { name: "Genetic Apex cards and decks" })).toHaveAttribute(
+      "href",
+      "/expansion-list/a1"
+    );
+  });
+
+  it("renders no expansion sentence when no set has best-list coverage", async () => {
+    await i18nReady;
+    rawDecks.value = [];
+    render(
+      <MemoryRouter>
+        <TierListPage />
+      </MemoryRouter>
+    );
+    expect(screen.queryByRole("link", { name: /cards and decks$/ })).toBeNull();
   });
 });

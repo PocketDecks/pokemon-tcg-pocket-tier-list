@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import Popup from "../Popup";
-import { heldInertCount } from "../popup-state";
+import { heldInertCount, openPopupCount } from "../popup-state";
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -388,6 +388,37 @@ describe("Popup keyboard accessibility", () => {
 
     expect(added).not.toHaveAttribute("inert");
     added.remove();
+  });
+
+  it("leaves no inert element and no held popup when focusing the dialog throws on open", () => {
+    const view = render(
+      <>
+        <button type="button">Background action</button>
+        <Popup isOpen={false} header="panel.title" close={() => {}}>
+          <button type="button">Inside action</button>
+        </Popup>
+      </>
+    );
+    const focus = vi.spyOn(HTMLElement.prototype, "focus").mockImplementation(() => {
+      throw new Error("focus blocked");
+    });
+    try {
+      expect(() =>
+        view.rerender(
+          <>
+            <button type="button">Background action</button>
+            <Popup isOpen header="panel.title" close={() => {}}>
+              <button type="button">Inside action</button>
+            </Popup>
+          </>
+        )
+      ).toThrow("focus blocked");
+    } finally {
+      focus.mockRestore();
+    }
+
+    expect(document.querySelector("[inert]")).toBeNull();
+    expect(openPopupCount()).toBe(0);
   });
 
   it("forgets the inert claim for a node added and then removed while a popup is open", async () => {

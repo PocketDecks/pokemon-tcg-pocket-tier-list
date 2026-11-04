@@ -262,11 +262,11 @@ const Popup: React.FC<Props> = ({ isOpen, header, close, children, width }) => {
       lastPressed && Date.now() - lastPressed.at <= PRESS_WINDOW_MS ? lastPressed.element : null;
     lastPressed = null;
     const trigger = active instanceof HTMLElement && active !== document.body ? active : pressed;
-    const releaseOutside = makeOutsideInert(overlay);
-    const releasePopup = acquirePopup();
     const focusFirst = () => (getFocusable(dialog)[0] ?? dialog).focus();
 
     focusFirst();
+    const releaseOutside = makeOutsideInert(overlay);
+    const releasePopup = acquirePopup();
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {

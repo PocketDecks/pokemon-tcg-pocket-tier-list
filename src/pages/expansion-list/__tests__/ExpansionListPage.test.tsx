@@ -102,13 +102,15 @@ describe("ExpansionListPage", () => {
     expect(screen.queryByRole("group", { name: "header.bestExpansions" })).toBeNull();
   });
 
-  it("shows every pack in the packs view without expansion links", () => {
+  it("links every pack in the packs view to the set filtered to that pack", () => {
     setPacksFixture("c1", "Dual Fusion", ["c1-a.webp", "c1-b.webp"]);
     const { container } = renderPage("/expansion-list/?view=packs");
 
     expect(screen.getByRole("img", { name: "Dual Fusion: Pack 1" })).toHaveAttribute("src", "c1-a.webp");
     expect(screen.getByRole("img", { name: "Dual Fusion: Pack 2" })).toHaveAttribute("src", "c1-b.webp");
-    expect(expansionLinks(container)).toHaveLength(0);
+    expect(screen.getByRole("link", { name: "Dual Fusion: Pack 1" })).toHaveAttribute("href", "/expansion-list/c1?pack=pack-1");
+    expect(screen.getByRole("link", { name: "Dual Fusion: Pack 2" })).toHaveAttribute("href", "/expansion-list/c1?pack=pack-2");
+    expect(expansionLinks(container)).toHaveLength(2);
     expect(screen.getByRole("button", { name: "expansionList.viewPacks" })).toHaveAttribute(
       "aria-pressed",
       "true"
@@ -121,10 +123,15 @@ describe("ExpansionListPage", () => {
 
     await user.click(screen.getByRole("button", { name: "expansionList.viewPacks" }));
     expect(screen.getByTestId("search")).toHaveTextContent("?view=packs");
-    expect(expansionLinks(container)).toHaveLength(0);
+    expect(expansionLinks(container)).toHaveLength(1);
 
     await user.click(screen.getByRole("button", { name: "expansionList.viewExpansions" }));
     expect(screen.getByTestId("search")).toHaveTextContent(/^$/);
     expect(expansionLinks(container)).toHaveLength(1);
+  });
+  it("links a single-pack set in the packs view without a pack query", () => {
+    renderPage("/expansion-list/?view=packs");
+
+    expect(screen.getByRole("link", { name: "Team Rocket's Ambition: Pack 1" })).toHaveAttribute("href", "/expansion-list/b4a");
   });
 });

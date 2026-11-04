@@ -22,15 +22,28 @@ interface RawDeck {
   lists?: readonly { score?: number; cards?: readonly unknown[] }[];
 }
 
+export const packSlug = (expansionId: string, packId: string) => packId.slice(expansionId.length + 1);
+
+export const packNameForSlug = (expansion: ExpansionType, slug: string | null): string | null => {
+  if (!slug || expansion.packs.length < 2) return null;
+  return expansion.packs.find((pack) => packSlug(expansion.id, pack.id) === slug)?.name ?? null;
+};
+
+const inPack = (card: CardType, packName: string) =>
+  card.pack === packName || card.pack.toLowerCase().includes("shared");
+
 export const expansionPageData = (
   expansion: ExpansionType,
   cards: CardType[],
   rawDecks: readonly RawDeck[],
-  resolvedDecks: readonly FullDeckType[]
+  resolvedDecks: readonly FullDeckType[],
+  packName?: string
 ) => {
+  const activePack =
+    expansion.packs.length > 1 && expansion.packs.some((pack) => pack.name === packName) ? packName : undefined;
   const expansionCards = new Map(
     cards
-      .filter((card) => card.set === expansion.id)
+      .filter((card) => card.set === expansion.id && (activePack === undefined || inPack(card, activePack)))
       .map((card) => [card.id, { ...card, cardNumber: card.id.slice(card.id.lastIndexOf("-") + 1) }])
   );
   const qualifying = rawDecks.filter((deck) => bestListCardIds(deck).some((id) => expansionCards.has(id)));

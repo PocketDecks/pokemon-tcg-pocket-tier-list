@@ -1,12 +1,12 @@
 import styled from "styled-components";
-import { useParams } from "react-router";
+import { useParams, useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { useDecks } from "../../app/use-decks";
 import useExpansions from "../../app/use-expansions";
 import { fetchCards } from "../../app/cards-api";
-import { expansionPageData } from "../../app/expansion-page-data";
+import { expansionPageData, packNameForSlug } from "../../app/expansion-page-data";
 import { cardThumbUrl, onDeckThumbError } from "../../app/deck-thumb";
 import { LocaleLink } from "../../app/locale-link";
 import { expansionCode, isListedExpansion } from "../../app/expansion-policy.mjs";
@@ -141,15 +141,17 @@ const BreadcrumbSeparator = styled.span`
 
 const ExpansionPage = () => {
   const { expansionId } = useParams();
+  const [searchParams] = useSearchParams();
   const { decks, rawDecks, error: decksError, metaShareBySlug, loading: decksLoading } = useDecks();
   const expansions = useExpansions();
   const { t, i18n } = useTranslation();
   const expansion = expansions?.find((entry) => entry.id === expansionId);
+  const packName = expansion ? packNameForSlug(expansion, searchParams.get("pack")) : null;
   const allCardsQuery = useQuery({ queryKey: ["cards"], queryFn: fetchCards });
   const rawCards = allCardsQuery.data?.cards ?? [];
   const cardsSettled = allCardsQuery.isSuccess || allCardsQuery.isError;
   const data = expansion && allCardsQuery.isSuccess && rawDecks
-    ? expansionPageData(expansion, rawCards, rawDecks, decks ?? [])
+    ? expansionPageData(expansion, rawCards, rawDecks, decks ?? [], packName ?? undefined)
     : null;
   useMarkContentReady(!decksLoading && !!expansions && cardsSettled);
 
@@ -170,6 +172,12 @@ const ExpansionPage = () => {
           <span>{expansionCode(expansion.id)}</span>
         </Breadcrumbs>
         <Title>{t("expansionPage.heading", { name: expansion.name, id: expansionCode(expansion.id) })}</Title>
+        {packName && (
+          <Meta>
+            {t("expansionPage.packFilter", { pack: packName })}{" "}
+            <LocaleLink to={`/expansion-list/${expansion.id}`}>{t("expansionPage.allPacks")}</LocaleLink>
+          </Meta>
+        )}
         {releaseDate && <Meta>{t("expansionPage.released", { date: releaseDate })}</Meta>}
         {!(data && data.cards.length === 0) && <Meta>{t("expansionPage.intro", { name: expansion.name })}</Meta>}
       </Header>

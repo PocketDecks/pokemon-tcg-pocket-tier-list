@@ -412,6 +412,7 @@
     "home": "首頁",
     "expansions": "擴充包",
     "heading": "{{name}}（{{id}}）卡牌與牌組",
+    "packFilter": "正在顯示{{pack}}卡包與共享卡牌。",
     "released": "發布於 {{date}}",
     "intro": "{{name}}中出現在目前錦標賽牌組裡的卡牌，以及使用這些卡牌的牌組。",
     "cardsHeading": "目前牌組使用的卡牌",
@@ -419,6 +420,7 @@
     "empty": "{{name}}的卡牌目前都不在頂級牌組中。",
     "emptyAside": "真可惜。:(",
     "loadError": "卡牌資料載入失敗。請重新整理頁面再試一次。",
+    "allPacks": "顯示全部卡包",
     "breadcrumb": "麵包屑導覽"
   }
 }

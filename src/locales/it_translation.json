@@ -412,6 +412,7 @@
     "home": "Pagina iniziale",
     "expansions": "Espansioni",
     "heading": "{{name}} ({{id}}) Carte e mazzi",
+    "packFilter": "Mostrate la busta {{pack}} e le carte condivise.",
     "released": "Uscito il {{date}}",
     "intro": "Carte di {{name}} presenti nei mazzi da torneo attuali, e i mazzi che le utilizzano.",
     "cardsHeading": "Carte usate nei mazzi attuali",
@@ -419,6 +420,7 @@
     "empty": "Al momento nessuna carta di {{name}} è nei mazzi migliori.",
     "emptyAside": "Peccato. :(",
     "loadError": "I dati delle carte non sono stati caricati. Ricarica la pagina per riprovare.",
+    "allPacks": "Mostra tutte le buste",
     "breadcrumb": "Percorso di navigazione"
   }
 }

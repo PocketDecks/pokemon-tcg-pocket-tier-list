@@ -412,6 +412,7 @@
     "home": "Acasă",
     "expansions": "Expansiuni",
     "heading": "{{name}} ({{id}}) Cărți și deckuri",
+    "packFilter": "Se afișează pachetul {{pack}} și cărțile comune.",
     "released": "Lansat la {{date}}",
     "intro": "Cărți din {{name}} care apar în deckurile de turneu actuale și deckurile care le folosesc.",
     "cardsHeading": "Cărți folosite în deckurile actuale",
@@ -419,6 +420,7 @@
     "empty": "Nicio carte din {{name}} nu se află acum într-un deck de top.",
     "emptyAside": "Păcat. :(",
     "loadError": "Datele cardurilor nu s-au încărcat. Reîncarcă pagina pentru a încerca din nou.",
+    "allPacks": "Afișează toate pachetele",
     "breadcrumb": "Traseu de navigare"
   }
 }

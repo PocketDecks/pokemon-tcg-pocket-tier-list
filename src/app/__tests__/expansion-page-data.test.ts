@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { expansionPageData } from "../expansion-page-data";
+import { expansionPageData, packNameForSlug, packSlug } from "../expansion-page-data";
 import { coveredCardIdsBySet } from "../expansion-feed.mjs";
 import type { FullDeckType } from "../deck-types";
 
@@ -65,5 +65,53 @@ describe("expansion page data", () => {
     const result = expansionPageData(C1, cards, raw, []);
     expect(result.decks).toEqual([]);
     expect(result.cards).toEqual([]);
+  });
+});
+
+describe("expansion page pack filter", () => {
+  const A1 = {
+    id: "a1",
+    name: "Genetic Apex",
+    release_date: null,
+    packs: [
+      { id: "a1-charizard", name: "Charizard", image: null },
+      { id: "a1-mewtwo", name: "Mewtwo", image: null },
+    ],
+  };
+  const inPack = (id: string, name: string, pack: string) => ({ ...card(id, name, "a1"), pack });
+  const cards = [
+    inPack("a1-089", "Greninja", "Charizard"),
+    inPack("a1-050", "Mewtwo Card", "Mewtwo"),
+    inPack("a1-200", "Shared Card", "Shared(Genetic Apex)"),
+  ];
+  const raw = [
+    rawDeck("greninja-deck", [{ score: 1, cards: ["2:a1-089"] }]),
+    rawDeck("mewtwo-deck", [{ score: 1, cards: ["2:a1-050"] }]),
+    rawDeck("shared-deck", [{ score: 1, cards: ["2:a1-200"] }]),
+  ];
+
+  it("keeps only the chosen pack's cards and shared cards, and shrinks the deck list to match", () => {
+    const result = expansionPageData(A1, cards, raw, [], "Mewtwo");
+    expect(result.cards.map((value) => value.id)).toEqual(["a1-050", "a1-200"]);
+    expect(result.decks.map((value) => value.name)).toEqual(["mewtwo-deck", "shared-deck"]);
+  });
+
+  it("shows the full set when the pack name is unknown", () => {
+    const result = expansionPageData(A1, cards, raw, [], "Pikachu");
+    expect(result.cards.map((value) => value.id)).toEqual(["a1-050", "a1-089", "a1-200"]);
+    expect(result.decks.map((value) => value.name)).toEqual(["greninja-deck", "mewtwo-deck", "shared-deck"]);
+  });
+
+  it("shows the full set for a single-pack expansion", () => {
+    const single = { ...A1, packs: [{ id: "a1-charizard", name: "Charizard", image: null }] };
+    const result = expansionPageData(single, cards, raw, [], "Charizard");
+    expect(result.cards.length).toBe(3);
+  });
+
+  it("maps a pack id to its URL slug and back to the pack name", () => {
+    expect(packSlug("a1", "a1-mewtwo")).toBe("mewtwo");
+    expect(packNameForSlug(A1, "mewtwo")).toBe("Mewtwo");
+    expect(packNameForSlug(A1, "pikachu")).toBeNull();
+    expect(packNameForSlug(A1, null)).toBeNull();
   });
 });

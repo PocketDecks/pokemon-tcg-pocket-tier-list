@@ -10,6 +10,7 @@ import ExpansionIcon from "../../components/ExpansionIcon";
 import ExpansionStack from "../../components/ExpansionStack";
 import SegmentedControl from "../../components/SegmentedControl";
 import { buildExpansionData, buildExpansionPackData } from "../../app/expansion-scores";
+import { packSlug } from "../../app/expansion-page-data";
 import { useLocaleHref, LocaleLink } from "../../app/locale-link";
 
 type ExpansionView = "expansions" | "packs";
@@ -57,12 +58,19 @@ const ExpansionListPage = () => {
             items={ready ? packData : null}
             getScore={(d) => d.averageScore}
             getKey={(d) => d.packId}
-            renderItem={(data) => (
-              <ExpansionIcon
-                image={data.packImage}
-                alt={`${expansionName(data.expansionId)}: ${data.packName}`}
-              />
-            )}
+            renderItem={(data) => {
+              const name = `${expansionName(data.expansionId)}: ${data.packName}`;
+              const expansion = expansions?.find((entry) => entry.id === data.expansionId);
+              const to =
+                (expansion?.packs.length ?? 0) > 1
+                  ? `/expansion-list/${data.expansionId}?pack=${packSlug(data.expansionId, data.packId)}`
+                  : `/expansion-list/${data.expansionId}`;
+              return (
+                <LocaleLink to={to} aria-label={name}>
+                  <ExpansionIcon image={data.packImage} alt={name} />
+                </LocaleLink>
+              );
+            }}
             filters={viewToggle}
           />
         ) : (

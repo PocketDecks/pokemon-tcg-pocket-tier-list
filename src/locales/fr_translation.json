@@ -412,6 +412,7 @@
     "home": "Accueil",
     "expansions": "Extensions",
     "heading": "{{name}} ({{id}}) Cartes et decks",
+    "packFilter": "Affichage du booster {{pack}} et des cartes partagées.",
     "released": "Sorti le {{date}}",
     "intro": "Cartes de {{name}} présentes dans les decks de tournoi actuels, et les decks qui les jouent.",
     "cardsHeading": "Cartes utilisées dans les decks actuels",
@@ -419,6 +420,7 @@
     "empty": "Aucune carte de {{name}} ne figure dans les meilleurs decks en ce moment.",
     "emptyAside": "C'est dommage. :(",
     "loadError": "Les données des cartes n'ont pas pu être chargées. Actualisez la page pour réessayer.",
+    "allPacks": "Afficher tous les boosters",
     "breadcrumb": "Fil d'Ariane"
   }
 }

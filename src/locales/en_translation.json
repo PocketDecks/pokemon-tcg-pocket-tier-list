@@ -412,6 +412,7 @@
     "home": "Home",
     "expansions": "Expansions",
     "heading": "{{name}} ({{id}}) Cards & Decks",
+    "packFilter": "Showing the {{pack}} pack and shared cards.",
     "released": "Released {{date}}",
     "intro": "Cards from {{name}} that appear in current tournament decks, and the decks that play them.",
     "cardsHeading": "Cards used in live decks",
@@ -419,6 +420,7 @@
     "empty": "None of the {{name}} cards are in a top deck right now.",
     "emptyAside": "That's unfortunate. :(",
     "loadError": "Card data didn't load. Refresh the page to try again.",
+    "allPacks": "Show all packs",
     "breadcrumb": "Breadcrumb"
   }
 }

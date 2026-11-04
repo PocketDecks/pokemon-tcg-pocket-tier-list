@@ -46,13 +46,13 @@ export const LoadingNotice = () => {
 };
 
 const ErrorNotice = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(undefined, { useSuspense: false });
   return (
     <Notice role="alert">
-      <Title>{t("loadError.errorTitle")}</Title>
-      <Message>{t("loadError.errorMessage")}</Message>
+      <Title>{t("loadError.errorTitle", { defaultValue: "Something went wrong" })}</Title>
+      <Message>{t("loadError.errorMessage", { defaultValue: "This part of the site failed to load. Reloading usually fixes it. Usually." })}</Message>
       <RetryButton type="button" onClick={() => window.location.reload()}>
-        {t("loadError.reload")}
+        {t("loadError.reload", { defaultValue: "Reload the page" })}
       </RetryButton>
     </Notice>
   );

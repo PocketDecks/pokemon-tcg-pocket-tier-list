@@ -7,7 +7,7 @@ import { useSearchParams } from "react-router";
 import TierGrid from "../../components/TierGrid";
 import PageTitle from "../../components/PageTitle";
 import ExpansionIcon from "../../components/ExpansionIcon";
-import ExpansionFan from "../../components/ExpansionFan";
+import ExpansionStack from "../../components/ExpansionStack";
 import SegmentedControl from "../../components/SegmentedControl";
 import { buildExpansionData, buildExpansionPackData } from "../../app/expansion-scores";
 import { useLocaleHref, LocaleLink } from "../../app/locale-link";
@@ -73,7 +73,7 @@ const ExpansionListPage = () => {
             renderItem={(data) => (
               <LocaleLink to={`/expansion-list/${data.expansionId}`} aria-label={data.name}>
                 {data.packImages.length > 1 ? (
-                  <ExpansionFan images={data.packImages} />
+                  <ExpansionStack images={data.packImages} />
                 ) : (
                   <ExpansionIcon image={data.packImages[0]} alt="" />
                 )}

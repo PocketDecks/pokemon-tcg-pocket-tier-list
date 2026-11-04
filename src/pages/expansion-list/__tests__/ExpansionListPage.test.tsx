@@ -79,12 +79,12 @@ describe("ExpansionListPage", () => {
     expect(screen.getByRole("link", { name: "Dual Fusion" })).toHaveAttribute("href", "/expansion-list/c1");
   });
 
-  it("fans up to three pack images into a multi-pack expansion tile", () => {
+  it("stacks up to three pack images into a multi-pack expansion tile", () => {
     setPacksFixture("c1", "Dual Fusion", ["a.webp", "b.webp", "c.webp", "d.webp"]);
     renderPage();
 
     const images = screen.getByRole("link", { name: "Dual Fusion" }).querySelectorAll("img");
-    expect(Array.from(images, (image) => image.getAttribute("src"))).toEqual(["a.webp", "b.webp", "c.webp"]);
+    expect(Array.from(images, (image) => image.getAttribute("src"))).toEqual(["c.webp", "b.webp", "a.webp"]);
   });
 
   it("omits a deluxe expansion from the expansions view", () => {

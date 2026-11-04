@@ -4,7 +4,7 @@ import useExpansions, { ExpansionType } from "../../app/use-expansions";
 import Dropdown from "../../components/Dropdown";
 import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
-import { type ChangeEvent } from "react";
+import { type ChangeEvent, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import TierGrid from "../../components/TierGrid";
 import PageTitle from "../../components/PageTitle";
@@ -17,6 +17,11 @@ const CardsListPage = () => {
   const { t } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");
   const { cards, error, retry } = useCards(30);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const retryAndFocus = async () => {
+    await retry();
+    heading.current?.focus();
+  };
   const { expansion, setExpansion } = useFilters();
   const expansions = useExpansions();
 
@@ -43,12 +48,12 @@ const CardsListPage = () => {
 
   return (
     <>
-      <PageTitle>{t("header.bestCards")}</PageTitle>
-      {error && cards && <QueryRetryLine onRetry={retry} />}
+      <PageTitle ref={heading} tabIndex={-1}>{t("header.bestCards")}</PageTitle>
+      {error && cards && <QueryRetryLine onRetry={retryAndFocus} />}
       {error && !cards ? (
         <>
           {filters}
-          <QueryErrorNotice onRetry={retry} />
+          <QueryErrorNotice onRetry={retryAndFocus} />
         </>
       ) : (
       <TierGrid

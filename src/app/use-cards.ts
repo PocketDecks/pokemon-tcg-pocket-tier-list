@@ -13,7 +13,7 @@ export interface CardScoreType extends CardType {
 export interface UseCardsResult {
   cards: CardScoreType[] | null;
   error: Error | null;
-  retry: () => void;
+  retry: () => Promise<void>;
 }
 
 interface UseCardsOptions {
@@ -84,9 +84,8 @@ const useCards = (amount: number = 30, options: UseCardsOptions = {}): UseCardsR
   });
 
   const error = scoresError ?? cardsError;
-  const retry = () => {
-    void refetchScores();
-    void refetchCards();
+  const retry = async () => {
+    await Promise.all([refetchScores(), refetchCards()]);
   };
 
   if (!cardData || !cards) {

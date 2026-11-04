@@ -4,6 +4,7 @@ import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router";
+import { useRef } from "react";
 import TierGrid from "../../components/TierGrid";
 import PageTitle from "../../components/PageTitle";
 import ExpansionIcon from "../../components/ExpansionIcon";
@@ -23,6 +24,11 @@ const ExpansionListPage = () => {
   const tierListHref = useLocaleHref("/tier-list");
   const cardsListHref = useLocaleHref("/cards-list");
   const { cards, error, retry } = useCards(1_000_000, { ignoreExpansionFilter: true, ignoreCollection: true });
+  const heading = useRef<HTMLHeadingElement>(null);
+  const retryAndFocus = async () => {
+    await retry();
+    heading.current?.focus();
+  };
   const expansions = useExpansions();
   const [searchParams, setSearchParams] = useSearchParams();
   const view: ExpansionView = searchParams.get("view") === "packs" ? "packs" : "expansions";
@@ -55,12 +61,12 @@ const ExpansionListPage = () => {
 
   return (
       <>
-        <PageTitle>{t("header.bestExpansions")}</PageTitle>
-        {error && cards && <QueryRetryLine onRetry={retry} />}
+        <PageTitle ref={heading} tabIndex={-1}>{t("header.bestExpansions")}</PageTitle>
+        {error && cards && <QueryRetryLine onRetry={retryAndFocus} />}
         {error && !cards ? (
           <>
             {viewToggle}
-            <QueryErrorNotice onRetry={retry} />
+            <QueryErrorNotice onRetry={retryAndFocus} />
           </>
         ) : view === "packs" ? (
           <TierGrid

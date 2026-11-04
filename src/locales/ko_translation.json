@@ -248,12 +248,6 @@
       "title": "메타 읽기",
       "description": "매주 어떤 덱이 오르고 내려가는지, 대회 게임 점유율이 어떻게 바뀌는지, 상위 덱끼리의 상성은 어떤지 확인하세요.",
       "button": "통계 열기"
-    },
-    "topDecks": {
-      "title": "{{name}} 상위 덱",
-      "genericTitle": "상위 덱",
-      "winRate": "승률 {{value}}%",
-      "fullList": "전체 티어 리스트"
     }
   },
   "features": {

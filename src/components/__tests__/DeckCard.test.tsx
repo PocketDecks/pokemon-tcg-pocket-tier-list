@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import DeckCard from "../DeckCard";
@@ -85,6 +85,17 @@ describe("DeckCard", () => {
     expect(screen.getAllByRole("link")).toHaveLength(1);
   });
 
+  it("gives the primary link's image the full deck name as its alt text", () => {
+    render(
+      <MemoryRouter>
+        <DeckCard deck={pairDeck} />
+      </MemoryRouter>
+    );
+
+    const link = screen.getByRole("link", { name: "Mega Blaziken ex / Greninja" });
+    expect(within(link).getByRole("img")).toHaveAttribute("alt", "Mega Blaziken ex / Greninja");
+  });
+
   it("clears responsive sources on primary and secondary fallback", () => {
     const remoteDeck: FullDeckType = {
       ...pairDeck,
@@ -97,7 +108,7 @@ describe("DeckCard", () => {
       </MemoryRouter>
     );
 
-    const images = [screen.getByAltText("Primary"), screen.getByAltText("Secondary")];
+    const images = [screen.getByAltText("Primary / Secondary"), screen.getByAltText("Secondary")];
     images.forEach((image) => {
       expect(image).toHaveAttribute("srcset");
       expect(image).toHaveAttribute("sizes");
@@ -115,7 +126,7 @@ describe("DeckCard", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByAltText("Mega Blaziken ex")).toHaveAttribute(
+    expect(screen.getByAltText("Mega Blaziken ex / Greninja")).toHaveAttribute(
       "sizes",
       "(max-width: 900px) 25vw, 8vw"
     );

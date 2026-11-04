@@ -248,12 +248,6 @@
       "title": "Read the meta",
       "description": "See which decks are climbing or falling each week, how their share of tournament games shifts, and how every top deck fares head to head.",
       "button": "Open Statistics"
-    },
-    "topDecks": {
-      "title": "Top {{name}} decks",
-      "genericTitle": "Top decks",
-      "winRate": "{{value}}% win rate",
-      "fullList": "Full tier list"
     }
   },
   "features": {

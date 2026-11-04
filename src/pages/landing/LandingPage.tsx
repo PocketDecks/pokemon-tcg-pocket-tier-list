@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import Hero from "./Hero";
-import TopDecks from "./TopDecks";
 import Features from "./Features";
 import StatsPreview from "./StatsPreview";
 import BestDeckFinder from "./BestDeckFinder";
@@ -25,7 +24,6 @@ const LandingPage = () => {
   return (
     <StyledLandingPage>
       <Hero />
-      <TopDecks />
       <StatsPreview />
       <Features />
       <AdInContent placement="landing" />

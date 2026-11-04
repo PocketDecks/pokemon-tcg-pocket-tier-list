@@ -212,7 +212,7 @@ const DeckCard = ({ deck, metaShare, metaShareLabel }: Props) => {
                     srcSet={`${deckThumbUrl(deck.iconPrimary.id, THUMB_SIZES.small)} ${THUMB_SIZES.small}w, ${deckThumbUrl(deck.iconPrimary.id, THUMB_SIZES.large)} ${THUMB_SIZES.large}w`}
                     sizes="(max-width: 900px) 25vw, 8vw"
                     onError={onDeckThumbError(deck.iconPrimary.image)}
-                    alt={deck.iconPrimary.name}
+                    alt={name}
                     width={183}
                     height={183}
                 />

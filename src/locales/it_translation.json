@@ -248,12 +248,6 @@
       "title": "Leggi il meta",
       "description": "Scopri quali mazzi salgono o scendono ogni settimana, come cambia la loro quota di partite nei tornei e come se la cava ogni mazzo di punta negli scontri diretti.",
       "button": "Apri le statistiche"
-    },
-    "topDecks": {
-      "title": "I migliori mazzi di {{name}}",
-      "genericTitle": "I migliori mazzi",
-      "winRate": "{{value}}% di vittorie",
-      "fullList": "Classifica completa"
     }
   },
   "features": {

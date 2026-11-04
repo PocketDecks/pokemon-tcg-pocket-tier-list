@@ -248,12 +248,6 @@
       "title": "Das Meta lesen",
       "description": "Sieh, welche Decks jede Woche steigen oder fallen, wie sich ihr Anteil an Turnierspielen verschiebt und wie jedes Top-Deck im direkten Vergleich abschneidet.",
       "button": "Statistiken öffnen"
-    },
-    "topDecks": {
-      "title": "Top-Decks für {{name}}",
-      "genericTitle": "Top-Decks",
-      "winRate": "{{value}} % Siegquote",
-      "fullList": "Vollständige Tierliste"
     }
   },
   "features": {

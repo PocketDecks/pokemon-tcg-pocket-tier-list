@@ -248,12 +248,6 @@
       "title": "メタを読み解く",
       "description": "毎週どのデッキが伸びているか、落ちているか、大会での使用率がどう変化しているか、そして上位デッキ同士の相性をチェックできます。",
       "button": "統計を開く"
-    },
-    "topDecks": {
-      "title": "{{name}}の上位デッキ",
-      "genericTitle": "上位デッキ",
-      "winRate": "勝率 {{value}}%",
-      "fullList": "ティアリストを見る"
     }
   },
   "features": {

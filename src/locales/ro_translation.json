@@ -248,12 +248,6 @@
       "title": "Citește meta",
       "description": "Vezi ce pachete urcă sau coboară în fiecare săptămână, cum se schimbă ponderea lor în meciurile de turneu și cum se descurcă fiecare pachet de top în confruntări directe.",
       "button": "Deschide statisticile"
-    },
-    "topDecks": {
-      "title": "Cele mai bune decks {{name}}",
-      "genericTitle": "Cele mai bune decks",
-      "winRate": "{{value}}% rată de victorie",
-      "fullList": "Lista completă de niveluri"
     }
   },
   "features": {

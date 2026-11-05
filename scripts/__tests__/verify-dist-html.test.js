@@ -690,6 +690,41 @@ test("rejects inert and nomodule bootstrap tags", () => {
   }
 });
 
+test("rejects a bootstrap policy missing strict-dynamic", () => {
+  const dir = makeDist({
+    "index.html": cspBootstrapHtml,
+    "app.js": "import './assets/chunk.js';",
+  });
+  assert.deepStrictEqual(
+    findCspBootstrapIssues(dir, cspWithPolicy(`script-src ${sha(cspBootstrap)}`)),
+    ["script-src: 'strict-dynamic' is missing"]
+  );
+});
+
+test("rejects a parser-inserted external script beside a valid bootstrap", () => {
+  const html = `<html><head><script src="/untrusted.js"></script></head><body><div id="root"></div><script data-csp-bootstrap="true">${cspBootstrap}</script></body></html>`;
+  const dir = makeDist({
+    "index.html": html,
+    "app.js": "import './assets/chunk.js';",
+  });
+  assert.deepStrictEqual(
+    findCspBootstrapIssues(dir, cspWithPolicy(`script-src ${sha(cspBootstrap)} 'strict-dynamic'`)),
+    ["index.html: parser-inserted external script remains"]
+  );
+});
+
+test("rejects a parser-inserted modulepreload beside a valid bootstrap", () => {
+  const html = `<html><head><link rel="modulepreload" href="/assets/chunk.js"></head><body><div id="root"></div><script data-csp-bootstrap="true">${cspBootstrap}</script></body></html>`;
+  const dir = makeDist({
+    "index.html": html,
+    "app.js": "import './assets/chunk.js';",
+  });
+  assert.deepStrictEqual(
+    findCspBootstrapIssues(dir, cspWithPolicy(`script-src ${sha(cspBootstrap)} 'strict-dynamic'`)),
+    ["index.html: parser-inserted modulepreload remains"]
+  );
+});
+
 test("passes built HTML whose inline scripts are all hashed in script-src", () => {
   const body = "window.theme='dark';";
   const dir = makeDist({ "index.html": inlineHtml(body), "tier-list/index.html": inlineHtml(body) });

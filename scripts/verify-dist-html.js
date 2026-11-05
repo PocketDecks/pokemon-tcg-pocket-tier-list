@@ -584,7 +584,7 @@ const main = () => {
   const cspHashIssues = findCspHashIssues();
   if (cspHashIssues.length > 0) {
     console.error(
-      `Inline scripts missing from the Report-Only CSP in firebase.json:\n${cspHashIssues.join("\n")}`
+      `Inline scripts missing from the enforced Content-Security-Policy in firebase.json:\n${cspHashIssues.join("\n")}`
     );
     process.exit(1);
   }

@@ -54,9 +54,11 @@ test("restricts every resource type with explicit directives", () => {
   assert.deepStrictEqual(policy.get("form-action"), ["'self'"]);
 });
 
-test("keeps unsafe-eval and unsafe-inline out of script-src", () => {
+test("keeps unsafe-inline only in the hash-backed strict compatibility policy", () => {
   assert.ok(!scriptSources.includes("'unsafe-eval'"));
-  assert.ok(!scriptSources.includes("'unsafe-inline'"));
+  assert.ok(scriptSources.includes("'unsafe-inline'"));
+  assert.ok(scriptSources.includes("'strict-dynamic'"));
+  assert.ok(scriptSources.some((source) => /^'sha256-[A-Za-z0-9+/]+=*'$/.test(source)));
 });
 
 test("uses a hash-trusted bootstrap and strict-dynamic for the application", () => {

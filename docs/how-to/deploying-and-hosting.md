@@ -76,6 +76,11 @@ immutable. When any inline script changes, stage 7 checks the hashes, fixed
 URL, and every prerendered page. The node test
 `scripts/__tests__/content-security-policy.test.js` checks the source hashes
 and cache rules without a build.
+`script-src` also includes `'unsafe-inline'` as Lighthouse's older-browser
+compatibility fallback; browsers that support hash sources ignore it. The
+production-browser regression checks that injected inline code and a
+parser-inserted same-origin script remain blocked while the trusted bootstrap
+and lazy route code execute.
 
 Real AdSense ads and Funding Choices/consent acceptance still require browser
 validation. The live and preview AdSense loader failed DNS resolution during

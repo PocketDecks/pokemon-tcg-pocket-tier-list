@@ -17,14 +17,15 @@ const inlineScriptHashes = (html) => {
   return [...new Set(hashes)];
 };
 
-const parsePolicy = (value) =>
-  new Map(
-    value
-      .split(";")
-      .map((directive) => directive.trim().split(/\s+/))
-      .filter(([name]) => name)
-      .map(([name, ...sources]) => [name, sources])
-  );
+const parsePolicy = (value) => {
+  const policy = new Map();
+  for (const directive of value.split(";")) {
+    const [name, ...sources] = directive.trim().split(/\s+/);
+    const normalizedName = name.toLowerCase();
+    if (name && !policy.has(normalizedName)) policy.set(normalizedName, sources);
+  }
+  return policy;
+};
 
 const enforcedPolicy = (firebase) =>
   firebase.hosting.headers

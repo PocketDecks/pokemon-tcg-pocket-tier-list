@@ -680,6 +680,101 @@ test("the shipped firebase.json policy passes a page carrying the template theme
   assert.deepStrictEqual(findCspHashIssues(dir, firebase), []);
 });
 
+const cspWithPolicy = (value) => ({
+  hosting: {
+    headers: [{ source: "**", headers: [{ key: "Content-Security-Policy", value }] }],
+  },
+});
+
+test("uses the first duplicate script-src directive", () => {
+  const body = "window.duplicate=1;";
+  const dir = makeDist({ "index.html": inlineHtml(body) });
+  assert.deepStrictEqual(
+    findCspHashIssues(dir, cspWithPolicy(`script-src 'none'; script-src ${sha(body)}`)),
+    [`index.html: ${sha(body)} is not in script-src`]
+  );
+});
+
+test("keeps the first allowed duplicate script-src directive", () => {
+  const body = "window.duplicate=1;";
+  const dir = makeDist({ "index.html": inlineHtml(body) });
+  assert.deepStrictEqual(
+    findCspHashIssues(dir, cspWithPolicy(`script-src ${sha(body)}; script-src 'none'`)),
+    []
+  );
+});
+
+test("applies first-wins to mixed-case duplicate script-src names", () => {
+  const body = "window.duplicate=1;";
+  const dir = makeDist({ "index.html": inlineHtml(body) });
+  assert.deepStrictEqual(
+    findCspHashIssues(dir, cspWithPolicy(`SCRIPT-SRC 'none'; script-src ${sha(body)}`)),
+    [`index.html: ${sha(body)} is not in script-src`]
+  );
+});
+
+test("keeps a first empty script-src restrictive over a duplicate", () => {
+  const body = "window.duplicate=1;";
+  const dir = makeDist({ "index.html": inlineHtml(body) });
+  assert.deepStrictEqual(
+    findCspHashIssues(dir, cspWithPolicy(`script-src; script-src ${sha(body)}`)),
+    [`index.html: ${sha(body)} is not in script-src`]
+  );
+});
+
+test("uses script-src-elem before script-src for inline scripts", () => {
+  const body = "window.element=1;";
+  const dir = makeDist({ "index.html": inlineHtml(body) });
+  assert.deepStrictEqual(
+    findCspHashIssues(dir, cspWithPolicy(`script-src ${sha(body)}; script-src-elem 'none'`)),
+    [`index.html: ${sha(body)} is not in script-src-elem`]
+  );
+});
+
+test("allows a hash in script-src-elem over a restrictive script-src", () => {
+  const body = "window.element=1;";
+  const dir = makeDist({ "index.html": inlineHtml(body) });
+  assert.deepStrictEqual(
+    findCspHashIssues(dir, cspWithPolicy(`script-src 'none'; script-src-elem ${sha(body)}`)),
+    []
+  );
+});
+
+test("keeps an empty script-src-elem restrictive", () => {
+  const body = "window.element=1;";
+  const dir = makeDist({ "index.html": inlineHtml(body) });
+  assert.deepStrictEqual(
+    findCspHashIssues(dir, cspWithPolicy(`script-src ${sha(body)}; script-src-elem`)),
+    [`index.html: ${sha(body)} is not in script-src-elem`]
+  );
+});
+
+test("falls back to default-src when no script directive is present", () => {
+  const body = "window.defaulted=1;";
+  const dir = makeDist({ "index.html": inlineHtml(body) });
+  assert.deepStrictEqual(
+    findCspHashIssues(dir, cspWithPolicy(`default-src ${sha(body)}`)),
+    []
+  );
+});
+
+test("names default-src when it does not allow the inline script", () => {
+  const body = "window.defaulted=1;";
+  const dir = makeDist({ "index.html": inlineHtml(body) });
+  assert.deepStrictEqual(
+    findCspHashIssues(dir, cspWithPolicy("default-src 'self'")),
+    [`index.html: ${sha(body)} is not in default-src`]
+  );
+});
+
+test("keeps an empty script-src restrictive over default-src", () => {
+  const body = "window.defaulted=1;";
+  const dir = makeDist({ "index.html": inlineHtml(body) });
+  assert.deepStrictEqual(
+    findCspHashIssues(dir, cspWithPolicy(`default-src ${sha(body)}; script-src`)),
+    [`index.html: ${sha(body)} is not in script-src`]
+  );
+});
 test("flags a built page with two titles and passes a page with one", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "title-count-"));
   fs.mkdirSync(path.join(dir, "deck", "a"), { recursive: true });

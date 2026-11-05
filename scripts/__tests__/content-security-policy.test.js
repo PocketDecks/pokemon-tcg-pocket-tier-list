@@ -16,6 +16,16 @@ const headers = firebase.hosting.headers.find((rule) => rule.source === "**").he
 const policy = parsePolicy(enforcedPolicy(firebase));
 const scriptSources = policy.get("script-src");
 
+test("normalises directive names and keeps their first occurrence", () => {
+  const parsed = parsePolicy(
+    "SCRIPT-SRC 'none' 'sha256-ValueAbc='; script-src 'sha256-second='; DEFAULT-SRC 'Self'"
+  );
+  assert.deepStrictEqual([...parsed], [
+    ["script-src", ["'none'", "'sha256-ValueAbc='"]],
+    ["default-src", ["'Self'"]],
+  ]);
+});
+
 test("ships the enforced Content-Security-Policy header", () => {
   const enforced = headers.find((header) => header.key === "Content-Security-Policy");
   assert.ok(enforced, "Content-Security-Policy header is missing");

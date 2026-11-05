@@ -475,11 +475,17 @@ const findCspHashIssues = (
   if (policy === undefined) {
     return ["firebase.json: no Content-Security-Policy header on **"];
   }
-  const allowed = new Set(parsePolicy(policy).get("script-src") ?? []);
+  const parsedPolicy = parsePolicy(policy);
+  const directive = [
+    "script-src-elem",
+    "script-src",
+    "default-src",
+  ].find((name) => parsedPolicy.has(name)) ?? "script-src";
+  const allowed = new Set(parsedPolicy.get(directive) ?? []);
   return listHtmlFiles(dir).flatMap((entry) =>
     inlineScriptHashes(fs.readFileSync(path.join(dir, entry), "utf8"))
       .filter((hash) => !allowed.has(hash))
-      .map((hash) => `${entry}: ${hash} is not in script-src`)
+      .map((hash) => `${entry}: ${hash} is not in ${directive}`)
   );
 };
 

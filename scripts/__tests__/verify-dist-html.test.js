@@ -8,6 +8,7 @@ const {
   findBakedAppState,
   findCanonicalIssues,
   findCspHashIssues,
+  findCspBootstrapIssues,
   findShellPageIssues,
   findTitleCountIssues,
   findUnresolvedAppRoutes,
@@ -642,6 +643,52 @@ const cspFirebase = (scriptSrc, extra = []) => ({
 });
 const sha = (body) => `'sha256-${createHash("sha256").update(body, "utf8").digest("base64")}'`;
 const inlineHtml = (body) => `<html><head><script>${body}</script></head></html>`;
+
+const cspBootstrap = 'const script=document.createElement("script");script.type="module";script.src="/app.js";document.head.append(script);';
+const cspBootstrapHtml = `<html><body><div id="root"></div><script data-csp-bootstrap="true">${cspBootstrap}</script></body></html>`;
+
+test("verifies valid shell and route bootstraps and rejects stale or missing ones", () => {
+  const validDir = makeDist({
+    "index.html": cspBootstrapHtml,
+    "404.html": cspBootstrapHtml,
+    "app-shell.html": cspBootstrapHtml,
+    "ja/privacy/index.html": cspBootstrapHtml,
+    "app.js": "import './assets/chunk.js';",
+  });
+  const firebase = cspWithPolicy(`script-src ${sha(cspBootstrap)} 'strict-dynamic'`);
+  assert.deepStrictEqual(findCspBootstrapIssues(validDir, firebase), []);
+  const wrongUrl = cspBootstrap.replace("/app.js", "/old-app.js");
+  const invalidDir = makeDist({
+    "index.html": cspBootstrapHtml,
+    "404.html": `<html><script data-csp-bootstrap="true">${wrongUrl}</script></html>`,
+    "ja/privacy/index.html": "<html><body></body></html>",
+  });
+  const issues = findCspBootstrapIssues(invalidDir, firebase);
+  assert.ok(issues.includes("404.html: bootstrap must insert /app.js"));
+  assert.ok(issues.includes(`404.html: bootstrap hash is not allowed by script-src`));
+  assert.ok(issues.includes(`ja${path.sep}privacy${path.sep}index.html: expected one hash-authorised application bootstrap, found 0`));
+  assert.ok(issues.includes("app.js: fixed application entry is missing"));
+});
+
+test("rejects a bootstrap placed before the application root", () => {
+  const dir = makeDist({
+    "index.html": `<html><body><script data-csp-bootstrap="true">${cspBootstrap}</script><div id="root"></div></body></html>`,
+    "app.js": "document.querySelector('#root').dataset.loaded='true';",
+  });
+  const issues = findCspBootstrapIssues(dir, cspWithPolicy(`script-src ${sha(cspBootstrap)} 'strict-dynamic'`));
+  assert.ok(issues.includes("index.html: bootstrap must follow the application root"));
+});
+
+test("rejects inert and nomodule bootstrap tags", () => {
+  for (const attributes of ['type="application/json"', "nomodule"]) {
+    const dir = makeDist({
+      "index.html": `<html><body><div id="root"></div><script ${attributes} data-csp-bootstrap="true">${cspBootstrap}</script></body></html>`,
+      "app.js": "document.querySelector('#root').dataset.loaded='true';",
+    });
+    assert.ok(findCspBootstrapIssues(dir, cspWithPolicy(`script-src ${sha(cspBootstrap)} 'strict-dynamic'`))
+      .includes("index.html: bootstrap must be an inline classic script"));
+  }
+});
 
 test("passes built HTML whose inline scripts are all hashed in script-src", () => {
   const body = "window.theme='dark';";

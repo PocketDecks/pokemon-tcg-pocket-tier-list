@@ -15,8 +15,9 @@ Yarn's lifecycle hooks turn one command into a seven-stage pipeline. In order:
    `Wrote 86 routes to ...\public\sitemap.xml`.
 2. Typecheck. `yarn typecheck` runs `tsc --noEmit`.
 3. Lint. `yarn lint` runs ESLint with `--max-warnings 0`.
-4. Bundle. `vite build` transforms the app into `dist/`, emitting hashed
-   chunks under `dist/assets/`.
+4. Bundle. `vite build` transforms the app into `dist/`, emitting the stable
+   `dist/app.js` application entry and hashed dependency chunks under
+   `dist/assets/`.
 5. Deck prerendering. `node scripts/prerender-decks.js` writes one
    `dist/deck/<slug>/index.html` per deck in `best-decks.json`, each stamped
    with Open Graph and Twitter meta plus BreadcrumbList JSON-LD.
@@ -46,7 +47,7 @@ The first build downloads a Chromium build for Puppeteer. Later runs reuse it.
 
 | Source | Cache-Control | Reason |
 | --- | --- | --- |
-| `**` | `no-cache` | Every HTML page revalidates, so a reload picks up new chunk references immediately. |
+| `**` | `no-cache` | Every HTML page and the stable `/app.js` entry revalidate, so a reload picks up current code. |
 | `/assets/**` | `public, max-age=31536000, immutable` | Hashed filenames change whenever content changes, so a year of caching is safe. |
 | `/data/**` | `public, max-age=300, s-maxage=300` | Pipeline JSON may be up to five minutes stale at the edge. |
 
@@ -65,13 +66,16 @@ error. Because HTML is `no-cache`, a reload of the tab fetches a fresh
 `Content-Security-Policy` header. The browser blocks resources that do not
 match it. Inline executable scripts must be allowed by a SHA-256 hash in the
 effective script directive, selected in this order: `script-src-elem`,
-`script-src`, then `default-src`. The two scripts that ship on every page are
-the theme initialiser in `index.html` and the consent-pending script generated
-by `src/consent/consent-pending.mjs`. When either changes, stage 7 fails and
-prints the hash and selected directive. Add it to that directive in
-`firebase.json`. The node test
-`scripts/__tests__/content-security-policy.test.js` checks both hashes against
-the source without a build.
+`script-src`, then `default-src`. The theme initialiser, consent-pending
+script, and application bootstrap ship on every page. The bootstrap is a
+hash-authorised classic inline script after `#root`; it inserts the module
+entry at the fixed `/app.js` URL. `strict-dynamic` carries that trust to the
+app and its lazy imports in modern browsers. The stable entry is outside
+`/assets/`, so it inherits `no-cache`; its hashed dependency chunks remain
+immutable. When any inline script changes, stage 7 checks the hashes, fixed
+URL, and every prerendered page. The node test
+`scripts/__tests__/content-security-policy.test.js` checks the source hashes
+and cache rules without a build.
 
 Real AdSense ads and Funding Choices/consent acceptance still require browser
 validation. The live and preview AdSense loader failed DNS resolution during

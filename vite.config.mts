@@ -71,11 +71,55 @@ const consentPending = (): Plugin => ({
   },
 });
 
+const cspBootstrap = (): Plugin => ({
+  name: "csp-bootstrap",
+  apply: "build",
+  transformIndexHtml: {
+    order: "post",
+    handler(html, { bundle }) {
+      const appEntries = Object.values(bundle ?? {}).filter(
+        (item) =>
+          item.type === "chunk" &&
+          item.name === "index" &&
+          item.facadeModuleId?.replaceAll("\\", "/").endsWith("/index.html")
+      );
+      if (appEntries.length !== 1 || appEntries[0].fileName !== "app.js") {
+        throw new Error("Could not resolve the stable application entry at /app.js");
+      }
+      const bootstrapTags = [...html.matchAll(/<script\b(?=[^>]*\bid=["']csp-bootstrap-template["'])[^>]*>([\s\S]*?)<\/script>/gi)];
+      if (bootstrapTags.length !== 1) {
+        throw new Error(`Expected one application bootstrap template, found ${bootstrapTags.length}`);
+      }
+      const appScriptPattern = /<script\b(?=[^>]*\bsrc=["']\/app\.js["'])[^>]*>\s*<\/script>/gi;
+      if ((html.match(appScriptPattern) ?? []).length !== 1) {
+        throw new Error("Could not resolve the parser-inserted application entry script");
+      }
+      const bootstrap = `<script data-csp-bootstrap="true">${bootstrapTags[0][1]}</script>`;
+      return html
+        .replace(bootstrapTags[0][0], bootstrap)
+        .replace(appScriptPattern, "")
+        .replace(/<link\b(?=[^>]*\brel=["']modulepreload["'])[^>]*>\s*/gi, "");
+    },
+  },
+});
+
 export default defineConfig({
-  plugins: [react(), manropePreload(), consentPending()],
+  plugins: [react(), manropePreload(), consentPending(), cspBootstrap()],
   envPrefix: "VITE_",
   server: { port: 3000 },
-  build: { target: "baseline-widely-available", sourcemap: true },
+  build: {
+    target: "baseline-widely-available",
+    sourcemap: true,
+    rolldownOptions: {
+      output: {
+        entryFileNames: (chunk) =>
+          chunk.name === "index" &&
+          chunk.facadeModuleId?.replaceAll("\\", "/").endsWith("/index.html")
+            ? "app.js"
+            : "assets/[name]-[hash].js",
+      },
+    },
+  },
   test: {
     environment: "jsdom",
     setupFiles: ["./src/setupTests.ts"],

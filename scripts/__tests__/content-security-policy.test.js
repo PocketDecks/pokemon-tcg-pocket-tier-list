@@ -59,6 +59,30 @@ test("keeps unsafe-eval and unsafe-inline out of script-src", () => {
   assert.ok(!scriptSources.includes("'unsafe-inline'"));
 });
 
+test("uses a hash-trusted bootstrap and strict-dynamic for the application", () => {
+  const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const bootstrap = html.match(/<script\b(?=[^>]*\bid=["']csp-bootstrap-template["'])[^>]*>([\s\S]*?)<\/script>/i);
+  assert.ok(bootstrap, "the HTML must carry its application bootstrap template");
+  const body = bootstrap[1];
+  assert.match(body, /createElement\s*\(\s*["']script["']\s*\)/);
+  assert.match(body, /\.type\s*=\s*["']module["']/);
+  assert.match(body, /\.src\s*=\s*["']\/app\.js["']/);
+  assert.match(body, /document\.head\.append/);
+  const [bootstrapHash] = inlineScriptHashes(`<script>${body}</script>`);
+  assert.ok(scriptSources.includes(bootstrapHash), `${bootstrapHash} is not in script-src`);
+  assert.ok(scriptSources.includes("'strict-dynamic'"));
+  const cacheControlFor = (pathname) => firebase.hosting.headers
+    .filter((rule) =>
+      rule.source === "**" ||
+      (rule.source === "/assets/**" && pathname.startsWith("/assets/"))
+    )
+    .map((rule) => rule.headers.find((header) => header.key === "Cache-Control")?.value)
+    .filter(Boolean)
+    .at(-1);
+  assert.equal(cacheControlFor("/app.js"), "no-cache");
+  assert.equal(cacheControlFor("/assets/chunk-AbCd1234.js"), "public, max-age=31536000, immutable");
+});
+
 test("does not enforce Trusted Types, which would break the ad and consent scripts", () => {
   assert.ok(!policy.has("require-trusted-types-for"));
 });

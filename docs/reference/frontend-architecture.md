@@ -42,7 +42,6 @@ Inside `App` (`src/App.tsx`) a second layer adds the parts the routes need:
 ErrorBoundary
 QueryClientProvider    queryClient created at module scope in App.tsx
 AuthProvider           src/contexts/AuthContext.tsx
-MetaWindowProvider     src/contexts/MetaWindowContext.tsx
 DecksProvider          src/contexts/DecksContext.tsx
 ContentReadyProvider   src/ads/ContentReadyContext.tsx
 Routes
@@ -118,11 +117,10 @@ builds each deck's best list.
 
 ## Contexts
 
-The route state described here uses several contexts. `AuthContext`,
-`DecksContext`, `MetaWindowContext` and `UIContext` live in `src/contexts/`.
-`FilterContext` and `MissingContext` keep their provider components in
-`src/components/` with thin accessor hooks, `useFilters` and `useMissing`, in
-`src/app/`.
+Five contexts hold client state. `AuthContext`, `DecksContext` and `UIContext`
+live in `src/contexts/`. The other two keep their provider components in
+`src/components/` (`FilterContext.tsx`, `MissingContext.tsx`) with thin accessor
+hooks, `useFilters` and `useMissing`, in `src/app/`.
 
 ### DecksContext
 
@@ -159,11 +157,6 @@ pipeline output.
 
 `metaShareBySlug` indexes the optional meta-share entries by their `name`
 field, which matches a deck id, so movement tables can link on it.
-
-### MetaWindowContext
-
-Keeps the selected meta window in `src/contexts/MetaWindowContext.tsx`.
-A premium-only window reverts to the default if premium status ends.
 
 ### FilterContext
 

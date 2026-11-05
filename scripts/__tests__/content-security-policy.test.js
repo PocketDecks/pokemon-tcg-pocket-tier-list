@@ -16,6 +16,24 @@ const headers = firebase.hosting.headers.find((rule) => rule.source === "**").he
 const policy = parsePolicy(enforcedPolicy(firebase));
 const scriptSources = policy.get("script-src");
 
+const cacheControlFor = (rules, pathname) => {
+  const filePath = pathname.replace(/^\/+/, "");
+  return rules
+    .filter((rule) => {
+      if (typeof rule.regex === "string") {
+        return new RegExp(rule.regex).test(`/${filePath}`);
+      }
+      if (typeof rule.source !== "string") return false;
+      const negated = rule.source.startsWith("!") && !rule.source.startsWith("!(");
+      const source = rule.source.slice(negated ? 1 : 0).replace(/^\/+/, "");
+      const matches = path.posix.matchesGlob(filePath, source);
+      return negated ? !matches : matches;
+    })
+    .flatMap((rule) => rule.headers)
+    .filter((header) => header.key.toLowerCase() === "cache-control")
+    .at(-1)?.value;
+};
+
 test("normalises directive names and keeps their first occurrence", () => {
   const parsed = parsePolicy(
     "SCRIPT-SRC 'none' 'sha256-ValueAbc='; script-src 'sha256-second='; DEFAULT-SRC 'Self'"
@@ -73,16 +91,98 @@ test("uses a hash-trusted bootstrap and strict-dynamic for the application", () 
   const [bootstrapHash] = inlineScriptHashes(`<script>${body}</script>`);
   assert.ok(scriptSources.includes(bootstrapHash), `${bootstrapHash} is not in script-src`);
   assert.ok(scriptSources.includes("'strict-dynamic'"));
-  const cacheControlFor = (pathname) => firebase.hosting.headers
-    .filter((rule) =>
-      rule.source === "**" ||
-      (rule.source === "/assets/**" && pathname.startsWith("/assets/"))
-    )
-    .map((rule) => rule.headers.find((header) => header.key === "Cache-Control")?.value)
-    .filter(Boolean)
-    .at(-1);
-  assert.equal(cacheControlFor("/app.js"), "no-cache");
-  assert.equal(cacheControlFor("/assets/chunk-AbCd1234.js"), "public, max-age=31536000, immutable");
+  assert.equal(cacheControlFor(firebase.hosting.headers, "/app.js"), "no-cache");
+  assert.equal(cacheControlFor(firebase.hosting.headers, "/assets/chunk-AbCd1234.js"), "public, max-age=31536000, immutable");
+});
+
+test("matches ordered Firebase cache rules with exact, wildcard, brace and extglob sources", () => {
+  const cacheRule = (source, value) => ({
+    source,
+    headers: [{ key: "Cache-Control", value }],
+  });
+  const rules = [
+    cacheRule("**", "global"),
+    cacheRule("app.js", "exact"),
+    cacheRule("*.js", "wildcard"),
+    cacheRule("/{app,main}.js", "brace"),
+    cacheRule("+(app|main).js", "extglob"),
+    cacheRule("/assets/**", "immutable"),
+    cacheRule("/styles/**", "unrelated"),
+  ];
+
+  assert.equal(cacheControlFor(rules, "/app.js"), "extglob");
+  assert.equal(cacheControlFor(rules, "/other.js"), "wildcard");
+  assert.equal(cacheControlFor(rules, "/assets/chunk.js"), "immutable");
+  assert.equal(cacheControlFor(rules, "/image.png"), "global");
+});
+
+test("matches Firebase negated globs, negative extglobs and regular-expression sources", () => {
+  const cacheRule = (source, value) => ({
+    source,
+    headers: [{ key: "Cache-Control", value }],
+  });
+  const rules = [
+    cacheRule("**", "global"),
+    cacheRule("!/@(js|css)/**", "outside js and css"),
+    cacheRule("!(main|other).js", "negative extglob"),
+    {
+      regex: "^/app\\.js$",
+      headers: [{ key: "Cache-Control", value: "regex exact" }],
+    },
+    {
+      regex: "^/style\\.css$",
+      headers: [{ key: "Cache-Control", value: "regex unrelated" }],
+    },
+  ];
+
+  assert.equal(cacheControlFor(rules, "/app.js"), "regex exact");
+  assert.equal(cacheControlFor(rules, "/main.js"), "outside js and css");
+  assert.equal(cacheControlFor(rules, "/js/chunk.js"), "global");
+  assert.equal(cacheControlFor(rules, "/site.css"), "outside js and css");
+});
+
+test("rejects later unsafe app-entry cache overrides but honours unrelated and restored rules", () => {
+  const cacheRule = (source, value, key = "Cache-Control") => ({
+    source,
+    headers: [{ key, value }],
+  });
+  const assertAppEntryNoCache = (rules) => assert.equal(
+    cacheControlFor(rules, "/app.js"),
+    "no-cache"
+  );
+  const unsafeCache = "public, max-age=3600";
+
+  assert.throws(
+    () => assertAppEntryNoCache([...firebase.hosting.headers, cacheRule("/app.js", unsafeCache)]),
+    assert.AssertionError
+  );
+  assert.throws(
+    () => assertAppEntryNoCache([...firebase.hosting.headers, cacheRule("*.js", unsafeCache)]),
+    assert.AssertionError
+  );
+  const lowercaseUnsafeRules = [
+    ...firebase.hosting.headers,
+    cacheRule("/app.js", unsafeCache, "cache-control"),
+  ];
+  const emptyOverrideRules = [
+    ...firebase.hosting.headers,
+    cacheRule("/app.js", ""),
+  ];
+  assert.deepStrictEqual(
+    [
+      cacheControlFor(lowercaseUnsafeRules, "/app.js"),
+      cacheControlFor(emptyOverrideRules, "/app.js"),
+    ],
+    [unsafeCache, ""]
+  );
+  assert.throws(() => assertAppEntryNoCache(lowercaseUnsafeRules), assert.AssertionError);
+  assert.throws(() => assertAppEntryNoCache(emptyOverrideRules), assert.AssertionError);
+  assertAppEntryNoCache([...firebase.hosting.headers, cacheRule("/other.js", unsafeCache)]);
+  assertAppEntryNoCache([
+    ...firebase.hosting.headers,
+    cacheRule("/app.js", unsafeCache),
+    cacheRule("app.js", "no-cache"),
+  ]);
 });
 
 test("does not enforce Trusted Types, which would break the ad and consent scripts", () => {

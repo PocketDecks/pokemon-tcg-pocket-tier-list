@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ConsentBanner,
@@ -18,7 +18,7 @@ import { GOOGLE_GTAG } from "../app/constants";
 import { consentTheme } from "./consent-theme";
 import { toConsentLanguage } from "./consent-language";
 import { consentMessages } from "./consent-messages";
-import { CONSENT_PENDING_ATTRIBUTE } from "./consent-pending-keys.mjs";
+import { useClearConsentPending } from "./use-clear-consent-pending";
 import { resolveVisitorRegion, type VisitorRegion } from "./visitor-region.mjs";
 import { policyPacks } from "./policy-packs.mjs";
 
@@ -51,11 +51,7 @@ const readVisitorRegion = (): VisitorRegion | null => {
 
 const ConsentPendingSync = (): null => {
   const { hasFetchedBanner, activeUI } = useConsentManager();
-  const settled = hasFetchedBanner && activeUI === "none";
-
-  useEffect(() => {
-    if (settled) document.documentElement.removeAttribute(CONSENT_PENDING_ATTRIBUTE);
-  }, [settled]);
+  useClearConsentPending(hasFetchedBanner && activeUI === "none");
 
   return null;
 };

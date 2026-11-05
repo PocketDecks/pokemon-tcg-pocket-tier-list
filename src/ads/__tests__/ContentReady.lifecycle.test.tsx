@@ -14,6 +14,7 @@ const originalRouteReady = document.documentElement.dataset.routeReady;
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key, i18n }),
 }));
+vi.mock("../../contexts/AuthContext", () => ({ AuthProvider: ({ children }: { children: React.ReactNode }) => children }));
 vi.mock("../../app/use-is-premium", () => ({ default: () => false }));
 vi.mock("../../app/use-app-visible", () => ({ useAppVisible: () => true }));
 vi.mock("../../app/prerender", () => ({ isPrerender: false }));

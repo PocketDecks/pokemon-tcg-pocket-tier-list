@@ -50,22 +50,16 @@ const CardsListPage = () => {
     <>
       <PageTitle ref={heading} tabIndex={-1}>{t("header.bestCards")}</PageTitle>
       {error && cards && <QueryRetryLine onRetry={retryAndFocus} />}
-      {error && !cards ? (
-        <>
-          {filters}
-          <QueryErrorNotice onRetry={retryAndFocus} />
-        </>
-      ) : (
       <TierGrid
         items={cards}
         getScore={(c) => c.score}
         getKey={(c) => c.id}
         renderItem={(card) => <CardIcon card={card} />}
         filters={filters}
+        error={error && !cards ? <QueryErrorNotice onRetry={retryAndFocus} /> : undefined}
         footer={<LastUpdated />}
         emptyLabel="No cards found"
       />
-      )}
       <SeoContent>
         <h2>{t("cardsList.heading", { ns: "seo" })}</h2>
         <p>{t("cardsList.intro", { ns: "seo" })}</p>

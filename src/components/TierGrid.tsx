@@ -142,6 +142,7 @@ interface Props<T> {
   filters?: ReactNode;
   /** Rendered after the last tier row, inside the page shell. */
   footer?: ReactNode;
+  error?: ReactNode;
   loadingLabel?: string;
   emptyLabel?: string;
 }
@@ -154,6 +155,7 @@ const TierGrid = <T,>({
   isRanked = () => true,
   filters,
   footer,
+  error,
   loadingLabel = "Loading...",
   emptyLabel = "No decks found",
 }: Props<T>) => {
@@ -169,7 +171,7 @@ const TierGrid = <T,>({
   return (
     <Page>
       {filters && <FilterContainer>{filters}</FilterContainer>}
-      {isEmpty ? (
+      {error ? error : isEmpty ? (
         <Loading role="status" aria-busy={items === null}>{items === null ? loadingLabel : emptyLabel}</Loading>
       ) : (
         <>

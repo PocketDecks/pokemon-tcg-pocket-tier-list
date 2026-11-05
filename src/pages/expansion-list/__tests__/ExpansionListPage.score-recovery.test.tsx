@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router";
 import ExpansionListPage from "../ExpansionListPage";
 
@@ -38,9 +38,11 @@ vi.mock("react-i18next", () => ({
 }));
 
 describe("ExpansionListPage score recovery", () => {
-  it("shows an error and retry instead of a loading grid", () => {
+  beforeEach(() => retry.mockClear());
+
+  it.each(["/expansion-list", "/expansion-list?view=packs"])("keeps disabled view options with the error at %s", (path) => {
     render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[path]}>
         <ExpansionListPage />
       </MemoryRouter>
     );
@@ -48,9 +50,8 @@ describe("ExpansionListPage score recovery", () => {
     expect(screen.getByRole("alert")).toBeInTheDocument();
     expect(screen.getByText("loadError.title")).toBeInTheDocument();
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("group", { name: "expansionList.viewLabel" })
-    ).not.toBeInTheDocument();
+    const toggle = screen.getByRole("group", { name: "expansionList.viewLabel" });
+    for (const button of within(toggle).getAllByRole("button")) expect(button).toBeDisabled();
 
     fireEvent.click(screen.getByRole("button", { name: "loadError.retry" }));
 

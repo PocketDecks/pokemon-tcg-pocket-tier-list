@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => (key === "a11y.premiumOnly" ? "(Premium)" : key) }),
@@ -78,5 +78,27 @@ describe("SegmentedControl", () => {
 
     expect(screen.getByRole("button", { name: "Beta (Premium)" })).toHaveAttribute("aria-disabled", "true");
     expect(screen.getByRole("button", { name: "Alpha" })).not.toHaveAttribute("aria-disabled");
+  });
+
+  it("disables all options without a Premium label and re-enables them when the error clears", () => {
+    const onChange = vi.fn();
+    const props = {
+      label: "View",
+      options: [{ value: "a", label: "Alpha" }, { value: "b", label: "Beta" }],
+      value: "a",
+      onChange,
+    };
+    const { rerender } = render(<SegmentedControl {...props} disabled />);
+
+    for (const button of screen.getAllByRole("button")) expect(button).toBeDisabled();
+    expect(screen.queryByText("(Premium)")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Beta" }));
+    expect(onChange).not.toHaveBeenCalled();
+
+    rerender(<SegmentedControl {...props} />);
+
+    for (const button of screen.getAllByRole("button")) expect(button).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "Beta" }));
+    expect(onChange).toHaveBeenCalledWith("b");
   });
 });

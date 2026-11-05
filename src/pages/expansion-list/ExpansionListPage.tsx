@@ -47,8 +47,10 @@ const ExpansionListPage = () => {
     setSearchParams(params, { replace: true });
   };
 
+  const errorNotice = error && !cards ? <QueryErrorNotice onRetry={retryAndFocus} /> : undefined;
   const viewToggle = (
     <SegmentedControl<ExpansionView>
+      disabled={!!errorNotice}
       label={t("expansionList.viewLabel")}
       value={view}
       options={[
@@ -63,9 +65,7 @@ const ExpansionListPage = () => {
       <>
         <PageTitle ref={heading} tabIndex={-1}>{t("header.bestExpansions")}</PageTitle>
         {error && cards && <QueryRetryLine onRetry={retryAndFocus} />}
-        {error && !cards ? (
-          <QueryErrorNotice onRetry={retryAndFocus} />
-        ) : view === "packs" ? (
+        {view === "packs" ? (
           <TierGrid
             items={loaded ? packData : null}
             getScore={(d) => d.averageScore}
@@ -84,6 +84,7 @@ const ExpansionListPage = () => {
               );
             }}
             filters={viewToggle}
+            error={errorNotice}
           />
         ) : (
           <TierGrid
@@ -100,6 +101,7 @@ const ExpansionListPage = () => {
               </LocaleLink>
             )}
             filters={viewToggle}
+            error={errorNotice}
           />
         )}
         <SeoContent>

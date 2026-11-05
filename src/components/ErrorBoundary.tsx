@@ -1,5 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from "react";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 
 const Notice = styled.div`
   width: 100%;
@@ -45,33 +46,79 @@ export const LoadingNotice = () => {
 };
 
 const ErrorNotice = () => {
+  const { t } = useTranslation(undefined, { useSuspense: false });
   return (
     <Notice role="alert">
-      <Title>Something went wrong</Title>
-      <Message>
-        This part of the site failed to load. Reloading usually fixes it. <i>Usually.</i>
-      </Message>
+      <Title>{t("loadError.errorTitle", { defaultValue: "Something went wrong" })}</Title>
+      <Message>{t("loadError.errorMessage", { defaultValue: "This part of the site failed to load. Reloading usually fixes it. Usually." })}</Message>
       <RetryButton type="button" onClick={() => window.location.reload()}>
-        Reload the page
+        {t("loadError.reload", { defaultValue: "Reload the page" })}
       </RetryButton>
     </Notice>
   );
 };
 
+export const QueryErrorNotice = ({ onRetry }: { onRetry: () => void }) => {
+  const { t } = useTranslation();
+  return (
+    <Notice role="alert">
+      <Title>{t("loadError.title")}</Title>
+      <Message>{t("loadError.message")}</Message>
+      <RetryButton type="button" onClick={onRetry}>
+        {t("loadError.retry")}
+      </RetryButton>
+    </Notice>
+  );
+};
+
+const RetryLine = styled.p`
+  padding: 1.2rem 2rem;
+  font-size: 1.4rem;
+  color: var(--text-muted);
+
+  button {
+    margin-inline-start: 1rem;
+    color: var(--main);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+`;
+
+export const QueryRetryLine = ({ onRetry }: { onRetry: () => void }) => {
+  const { t } = useTranslation();
+  return <RetryLine role="status">{t("loadError.message")}<button type="button" onClick={onRetry}>{t("loadError.retry")}</button></RetryLine>;
+};
+
 interface Props {
   children: ReactNode;
+  resetKeys?: readonly unknown[];
 }
 
 interface State {
   hasError: boolean;
+  resetKeys?: readonly unknown[];
 }
 
 /** Degrades a render-time throw to a notice instead of a blank page. */
 class ErrorBoundary extends Component<Props, State> {
-  override state: State = { hasError: false };
+  override state: State = { hasError: false, resetKeys: this.props.resetKeys };
 
   static getDerivedStateFromError(): State {
     return { hasError: true };
+  }
+
+  static getDerivedStateFromProps(props: Props, state: State): Partial<State> | null {
+    const next = props.resetKeys;
+    const prev = state.resetKeys;
+    if (next === undefined || prev === undefined) {
+      return next === prev ? null : { resetKeys: next };
+    }
+    const changed =
+      next.length !== prev.length || next.some((key, index) => key !== prev[index]);
+    if (changed) {
+      return { hasError: false, resetKeys: next };
+    }
+    return null;
   }
 
   override componentDidCatch(error: Error, errorInfo: ErrorInfo) {

@@ -425,5 +425,13 @@
     "loadError": "卡牌数据加载失败。请刷新页面重试。",
     "allPacks": "显示全部卡包",
     "breadcrumb": "面包屑导航"
+  },
+  "loadError": {
+    "title": "加载失败",
+    "message": "无法加载卡牌评分。请重试。",
+    "retry": "重试",
+    "errorTitle": "出错了",
+    "errorMessage": "此页面部分加载失败。重新加载通常可以解决。通常。",
+    "reload": "重新加载页面"
   }
 }

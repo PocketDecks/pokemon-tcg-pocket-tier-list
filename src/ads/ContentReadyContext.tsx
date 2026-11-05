@@ -20,7 +20,13 @@ import { notifyContentReady } from "../app/app-bootstrap";
 // next page's "mark ready" effect.
 interface ContentReadyValue {
   readyPath: string | null;
-  markReady: (path: string) => void;
+  markReady: (path: string, owner: object) => void;
+  clearReady: (owner: object) => void;
+}
+
+interface ReadyClaim {
+  path: string;
+  owner: object;
 }
 
 const ContentReadyContext = createContext<ContentReadyValue | undefined>(
@@ -30,10 +36,23 @@ const ContentReadyContext = createContext<ContentReadyValue | undefined>(
 export const ContentReadyProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [readyPath, setReadyPath] = useState<string | null>(null);
-  const markReady = useCallback((path: string) => setReadyPath(path), []);
+  const [readyClaim, setReadyClaim] = useState<ReadyClaim | null>(null);
+  const readyPath = readyClaim?.path ?? null;
+  const markReady = useCallback(
+    (path: string, owner: object) => setReadyClaim({ path, owner }),
+    []
+  );
+  const clearReady = useCallback(
+    (owner: object) => {
+      setReadyClaim((current) => (current?.owner === owner ? null : current));
+    },
+    []
+  );
 
-  const value = useMemo(() => ({ readyPath, markReady }), [readyPath, markReady]);
+  const value = useMemo(
+    () => ({ readyPath, markReady, clearReady }),
+    [readyPath, markReady, clearReady]
+  );
 
   return (
     <ContentReadyContext.Provider value={value}>
@@ -60,20 +79,23 @@ export const useContentReady = (): boolean => {
 // For pages: call with `true` once primary content has rendered, and `false`
 // while loading or on empty/error states. Pages that never become ready simply
 // never show ads.
-export const useMarkContentReady = (isReady: boolean): void => {
-  const { markReady } = useContentReadyContext();
+export const useMarkContentReady = (isReady: boolean, isSettled = isReady): void => {
+  const { markReady, clearReady } = useContentReadyContext();
   const { pathname } = useLocation();
+  const owner = React.useRef<object>({});
   useEffect(() => {
-    // Reflect the current ready state. Clearing readiness (an empty path never
-    // matches the current pathname) when a route transitions back to a
-    // loading/empty state ensures global units like AdAnchor don't linger on a
-    // content-less screen.
-    markReady(isReady ? pathname : "");
+    const readyOwner = owner.current;
     if (isReady) {
+      markReady(pathname, readyOwner);
+    } else {
+      clearReady(readyOwner);
+    }
+    if (isSettled) {
       document.documentElement.dataset.routeReady = pathname;
       notifyContentReady();
     } else if (document.documentElement.dataset.routeReady === pathname) {
       delete document.documentElement.dataset.routeReady;
     }
-  }, [isReady, pathname, markReady]);
+    return () => clearReady(readyOwner);
+  }, [isReady, isSettled, pathname, markReady, clearReady]);
 };

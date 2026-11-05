@@ -425,5 +425,13 @@
     "loadError": "I dati delle carte non sono stati caricati. Ricarica la pagina per riprovare.",
     "allPacks": "Mostra tutte le buste",
     "breadcrumb": "Percorso di navigazione"
+  },
+  "loadError": {
+    "title": "Caricamento non riuscito",
+    "message": "Impossibile caricare i punteggi delle carte. Riprova.",
+    "retry": "Riprova",
+    "errorTitle": "Qualcosa è andato storto",
+    "errorMessage": "Questa parte del sito non è stata caricata. Di solito basta ricaricare. Di solito.",
+    "reload": "Ricarica la pagina"
   }
 }

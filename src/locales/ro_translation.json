@@ -425,5 +425,13 @@
     "loadError": "Datele cardurilor nu s-au încărcat. Reîncarcă pagina pentru a încerca din nou.",
     "allPacks": "Afișează toate pachetele",
     "breadcrumb": "Traseu de navigare"
+  },
+  "loadError": {
+    "title": "Încărcarea a eșuat",
+    "message": "Scorurile cărților nu au putut fi încărcate. Încearcă din nou.",
+    "retry": "Reîncearcă",
+    "errorTitle": "Ceva nu a funcționat",
+    "errorMessage": "Această parte a site-ului nu a putut fi încărcată. Reîncărcarea ajută de obicei. De obicei.",
+    "reload": "Reîncarcă pagina"
   }
 }

@@ -4,23 +4,28 @@ import useExpansions, { ExpansionType } from "../../app/use-expansions";
 import Dropdown from "../../components/Dropdown";
 import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
-import { type ChangeEvent } from "react";
+import { type ChangeEvent, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import TierGrid from "../../components/TierGrid";
 import PageTitle from "../../components/PageTitle";
 import CardIcon from "../../components/CardIcon";
 import LastUpdated from "../../components/LastUpdated";
+import { QueryErrorNotice, QueryRetryLine } from "../../components/ErrorBoundary";
 import { useLocaleHref } from "../../app/locale-link";
 
 const CardsListPage = () => {
   const { t } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");
-  const cards = useCards(30);
+  const { cards, error, retry } = useCards(30);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const retryAndFocus = async () => {
+    await retry();
+    heading.current?.focus();
+  };
   const { expansion, setExpansion } = useFilters();
   const expansions = useExpansions();
 
-  const ready = !!cards && cards.length > 0;
-  useMarkContentReady(ready);
+  useMarkContentReady(!!cards?.length, !!error || cards !== null);
 
   const filters = (
     <>
@@ -43,13 +48,15 @@ const CardsListPage = () => {
 
   return (
     <>
-      <PageTitle>{t("header.bestCards")}</PageTitle>
+      <PageTitle ref={heading} tabIndex={-1}>{t("header.bestCards")}</PageTitle>
+      {error && cards && <QueryRetryLine onRetry={retryAndFocus} />}
       <TierGrid
         items={cards}
         getScore={(c) => c.score}
         getKey={(c) => c.id}
         renderItem={(card) => <CardIcon card={card} />}
         filters={filters}
+        error={error && !cards ? <QueryErrorNotice onRetry={retryAndFocus} /> : undefined}
         footer={<LastUpdated />}
         emptyLabel="No cards found"
       />

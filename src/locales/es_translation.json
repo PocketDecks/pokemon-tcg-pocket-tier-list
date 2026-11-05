@@ -425,5 +425,13 @@
     "loadError": "No se cargaron los datos de las cartas. Actualiza la página para intentarlo de nuevo.",
     "allPacks": "Mostrar todos los sobres",
     "breadcrumb": "Ruta de navegación"
+  },
+  "loadError": {
+    "title": "Error al cargar",
+    "message": "No se pudieron cargar las puntuaciones de cartas. Inténtalo de nuevo.",
+    "retry": "Reintentar",
+    "errorTitle": "Algo salió mal",
+    "errorMessage": "Esta parte del sitio no se pudo cargar. Recargar suele resolverlo. Normalmente.",
+    "reload": "Recargar la página"
   }
 }

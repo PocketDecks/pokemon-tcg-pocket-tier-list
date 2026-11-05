@@ -7,6 +7,7 @@ import ExpansionListPage from "../ExpansionListPage";
 const state = vi.hoisted(() => ({
   cards: [] as unknown[],
   expansions: [] as unknown[],
+  error: null as Error | null,
 }));
 
 const setFixture = (id: string, name: string, image: string) => {
@@ -25,7 +26,7 @@ const setPacksFixture = (id: string, name: string, images: string[]) => {
 
 vi.mock("../../../app/use-cards", () => ({
   __esModule: true,
-  default: () => state.cards,
+  default: () => ({ cards: state.error ? null : state.cards, error: state.error, retry: vi.fn() }),
 }));
 
 vi.mock("../../../app/use-expansions", () => ({

@@ -425,5 +425,13 @@
     "loadError": "卡牌資料載入失敗。請重新整理頁面再試一次。",
     "allPacks": "顯示全部卡包",
     "breadcrumb": "麵包屑導覽"
+  },
+  "loadError": {
+    "title": "載入失敗",
+    "message": "無法載入卡牌評分。請重試。",
+    "retry": "重試",
+    "errorTitle": "發生問題",
+    "errorMessage": "此頁面部分載入失敗。重新載入通常可以解決。通常。",
+    "reload": "重新載入頁面"
   }
 }

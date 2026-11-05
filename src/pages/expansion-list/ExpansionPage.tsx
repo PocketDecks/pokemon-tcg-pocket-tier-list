@@ -153,7 +153,7 @@ const ExpansionPage = () => {
   const data = expansion && allCardsQuery.isSuccess && rawDecks
     ? expansionPageData(expansion, rawCards, rawDecks, decks ?? [], packName ?? undefined)
     : null;
-  useMarkContentReady(!decksLoading && !!expansions && cardsSettled);
+  useMarkContentReady(!decksLoading && !decksError && !allCardsQuery.isError && !!data?.cards.length, !decksLoading && !!expansions && cardsSettled);
 
   if (expansions === null) return null;
   if (!expansion || !isListedExpansion(expansion)) return <NotFoundPage />;

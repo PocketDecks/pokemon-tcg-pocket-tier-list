@@ -52,6 +52,9 @@ payload fetched once stays fresh for the session.
 
 Each route renders inside a second `ErrorBoundary` wrapped around the
 `Suspense` boundary in `Layout`. A crash on one page leaves the shell standing.
+The boundary resets when the pathname or search parameters change, so navigating
+to another route or changing a view can recover without reloading. Failed lazy
+route imports are retried on the next render.
 `AdBlockerNotice` and `AdAnchor` sit outside that inner boundary so they render
 regardless of page errors.
 

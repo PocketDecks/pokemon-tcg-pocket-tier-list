@@ -4,11 +4,13 @@ import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router";
+import { useRef } from "react";
 import TierGrid from "../../components/TierGrid";
 import PageTitle from "../../components/PageTitle";
 import ExpansionIcon from "../../components/ExpansionIcon";
 import ExpansionStack from "../../components/ExpansionStack";
 import SegmentedControl from "../../components/SegmentedControl";
+import { QueryErrorNotice, QueryRetryLine } from "../../components/ErrorBoundary";
 import { buildExpansionData, buildExpansionPackData } from "../../app/expansion-scores";
 import { packSlug } from "../../app/expansion-page-data";
 import { useLocaleHref, LocaleLink } from "../../app/locale-link";
@@ -21,7 +23,12 @@ const ExpansionListPage = () => {
   const { t } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");
   const cardsListHref = useLocaleHref("/cards-list");
-  const cards = useCards(1_000_000, { ignoreExpansionFilter: true, ignoreCollection: true });
+  const { cards, error, retry } = useCards(1_000_000, { ignoreExpansionFilter: true, ignoreCollection: true });
+  const heading = useRef<HTMLHeadingElement>(null);
+  const retryAndFocus = async () => {
+    await retry();
+    heading.current?.focus();
+  };
   const expansions = useExpansions();
   const [searchParams, setSearchParams] = useSearchParams();
   const view: ExpansionView = searchParams.get("view") === "packs" ? "packs" : "expansions";
@@ -30,7 +37,7 @@ const ExpansionListPage = () => {
 
   const expansionData = buildExpansionData(cards ?? [], expansions ?? []);
   const packData = buildExpansionPackData(cards ?? [], expansions ?? []);
-  useMarkContentReady(loaded && (view === "packs" ? packData.length > 0 : expansionData.length > 0));
+  useMarkContentReady(loaded && (view === "packs" ? packData : expansionData).length > 0, !!error || loaded);
   const expansionName = (id: string) => expansions?.find((entry) => entry.id === id)?.name ?? id;
 
   const selectView = (next: ExpansionView) => {
@@ -40,8 +47,10 @@ const ExpansionListPage = () => {
     setSearchParams(params, { replace: true });
   };
 
+  const errorNotice = error && !cards ? <QueryErrorNotice onRetry={retryAndFocus} /> : undefined;
   const viewToggle = (
     <SegmentedControl<ExpansionView>
+      disabled={!!errorNotice}
       label={t("expansionList.viewLabel")}
       value={view}
       options={[
@@ -54,7 +63,8 @@ const ExpansionListPage = () => {
 
   return (
       <>
-        <PageTitle>{t("header.bestExpansions")}</PageTitle>
+        <PageTitle ref={heading} tabIndex={-1}>{t("header.bestExpansions")}</PageTitle>
+        {error && cards && <QueryRetryLine onRetry={retryAndFocus} />}
         {view === "packs" ? (
           <TierGrid
             items={loaded ? packData : null}
@@ -74,6 +84,7 @@ const ExpansionListPage = () => {
               );
             }}
             filters={viewToggle}
+            error={errorNotice}
           />
         ) : (
           <TierGrid
@@ -90,6 +101,7 @@ const ExpansionListPage = () => {
               </LocaleLink>
             )}
             filters={viewToggle}
+            error={errorNotice}
           />
         )}
         <SeoContent>

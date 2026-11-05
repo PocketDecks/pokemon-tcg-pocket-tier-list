@@ -1,4 +1,5 @@
-import { Suspense, lazy } from "react";
+import { Suspense } from "react";
+import { lazyRoute as lazy } from "./app/lazy-route";
 import { Outlet, Route, Routes, useLocation } from "react-router";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
@@ -89,7 +90,7 @@ const SkipLink = styled.a`
 
 export const Layout = () => {
   const { t } = useTranslation();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   useDocumentLanguage();
 
   return (
@@ -102,7 +103,7 @@ export const Layout = () => {
         )}
         <Header />
         <LayoutMain id="main-content" tabIndex={-1}>
-          <ErrorBoundary>
+          <ErrorBoundary resetKeys={[pathname, search]}>
             <Suspense fallback={<LoadingNotice />}>
               <Outlet />
             </Suspense>

@@ -50,9 +50,10 @@ interface Props<T extends string> {
   options: SegmentedOption<T>[];
   value: T;
   onChange: (value: T) => void;
+  disabled?: boolean;
 }
 
-const SegmentedControl = <T extends string>({ label, options, value, onChange }: Props<T>) => {
+const SegmentedControl = <T extends string>({ label, options, value, onChange, disabled = false }: Props<T>) => {
   const { t } = useTranslation();
   return (
     <Container role="group" aria-label={label}>
@@ -64,7 +65,8 @@ const SegmentedControl = <T extends string>({ label, options, value, onChange }:
             key={option.value}
             type="button"
             $active={active}
-            $locked={locked}
+            $locked={locked || disabled}
+            disabled={disabled}
             aria-pressed={active}
             aria-disabled={locked || undefined}
             onClick={() => {

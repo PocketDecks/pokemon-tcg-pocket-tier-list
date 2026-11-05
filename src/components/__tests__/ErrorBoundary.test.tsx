@@ -2,6 +2,10 @@ import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } fr
 import { render, screen } from "@testing-library/react";
 import ErrorBoundary from "../ErrorBoundary";
 
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
+}));
+
 const Boom = (): React.JSX.Element => {
   throw new Error("kaboom");
 };
@@ -36,9 +40,9 @@ describe("ErrorBoundary", () => {
     );
 
     expect(screen.getByRole("alert")).toBeInTheDocument();
-    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    expect(screen.getByText("loadError.errorTitle")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Reload the page" })
+      screen.getByRole("button", { name: "loadError.reload" })
     ).toBeInTheDocument();
   });
 

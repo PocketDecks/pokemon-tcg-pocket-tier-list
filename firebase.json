@@ -326,6 +326,11 @@
         "type": 301
       },
       {
+        "source": "/deck/azumarill-c1-059&lopunny-c1-116{,/**}",
+        "destination": "/deck/azumarill/",
+        "type": 301
+      },
+      {
         "source": "/deck/banette-a3-075{,/**}",
         "destination": "/deck/banette/",
         "type": 301
@@ -2876,11 +2881,6 @@
         "type": 301
       },
       {
-        "source": "/deck/mega-diancie-ex-b3b-032&carbink-b3b-031{,/**}",
-        "destination": "/deck/mega-diancie-ex/",
-        "type": 301
-      },
-      {
         "source": "/deck/mega-diancie-ex-b3b-032&mega-gardevoir-ex-b2-066{,/**}",
         "destination": "/deck/mega-diancie-ex/",
         "type": 301
@@ -5053,6 +5053,11 @@
       {
         "source": "/ja/deck/articuno-ex-a1-084&magnezone-a2-053{,/**}",
         "destination": "/ja/deck/articuno-ex/",
+        "type": 301
+      },
+      {
+        "source": "/ja/deck/azumarill-c1-059&lopunny-c1-116{,/**}",
+        "destination": "/ja/deck/azumarill/",
         "type": 301
       },
       {
@@ -7603,11 +7608,6 @@
       {
         "source": "/ja/deck/mega-charizard-y-ex-b1a-014&entei-ex-a4a-010{,/**}",
         "destination": "/ja/deck/mega-charizard-y-ex/",
-        "type": 301
-      },
-      {
-        "source": "/ja/deck/mega-diancie-ex-b3b-032&carbink-b3b-031{,/**}",
-        "destination": "/ja/deck/mega-diancie-ex/",
         "type": 301
       },
       {

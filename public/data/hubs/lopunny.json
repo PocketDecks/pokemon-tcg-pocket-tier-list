@@ -1,0 +1,27 @@
+{
+  "hub": "lopunny",
+  "name": "Lopunny",
+  "variants": [
+    {
+      "variant": "lopunny-c1-116&raboot-c1-023",
+      "name": "lopunny-c1-116&raboot-c1-023",
+      "firstSeen": "2026-11-05",
+      "lastSeen": "2026-11-05",
+      "peakShare": 0.01225644248900063,
+      "peakDate": "2026-11-05",
+      "cards": [
+        "2:c1-115",
+        "2:c1-116",
+        "2:c1-022",
+        "2:c1-023",
+        "1:c1-058",
+        "1:c1-059",
+        "2:pa-007",
+        "2:b1-225",
+        "2:b1-226",
+        "2:b2-150",
+        "2:pa-005"
+      ]
+    }
+  ]
+}

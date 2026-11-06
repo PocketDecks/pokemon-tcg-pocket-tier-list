@@ -7,19 +7,48 @@ const { pathToFileURL } = require("node:url");
 const {
   inlineScriptHashes,
   parsePolicy,
-  reportOnlyPolicy,
+  enforcedPolicy,
 } = require("../content-security-policy");
 
 const ROOT = path.join(__dirname, "..", "..");
 const firebase = JSON.parse(fs.readFileSync(path.join(ROOT, "firebase.json"), "utf8"));
 const headers = firebase.hosting.headers.find((rule) => rule.source === "**").headers;
-const policy = parsePolicy(reportOnlyPolicy(firebase));
+const policy = parsePolicy(enforcedPolicy(firebase));
 const scriptSources = policy.get("script-src");
 
-test("ships the enforced frame-ancestors header and a Report-Only policy beside it", () => {
+const cacheControlFor = (rules, pathname) => {
+  const filePath = pathname.replace(/^\/+/, "");
+  return rules
+    .filter((rule) => {
+      if (typeof rule.regex === "string") {
+        return new RegExp(rule.regex).test(`/${filePath}`);
+      }
+      if (typeof rule.source !== "string") return false;
+      const negated = rule.source.startsWith("!") && !rule.source.startsWith("!(");
+      const source = rule.source.slice(negated ? 1 : 0).replace(/^\/+/, "");
+      const matches = path.posix.matchesGlob(filePath, source);
+      return negated ? !matches : matches;
+    })
+    .flatMap((rule) => rule.headers)
+    .filter((header) => header.key.toLowerCase() === "cache-control")
+    .at(-1)?.value;
+};
+
+test("normalises directive names and keeps their first occurrence", () => {
+  const parsed = parsePolicy(
+    "SCRIPT-SRC 'none' 'sha256-ValueAbc='; script-src 'sha256-second='; DEFAULT-SRC 'Self'"
+  );
+  assert.deepStrictEqual([...parsed], [
+    ["script-src", ["'none'", "'sha256-ValueAbc='"]],
+    ["default-src", ["'Self'"]],
+  ]);
+});
+
+test("ships the enforced Content-Security-Policy header", () => {
   const enforced = headers.find((header) => header.key === "Content-Security-Policy");
-  assert.strictEqual(enforced?.value, "frame-ancestors 'none'");
-  assert.ok(reportOnlyPolicy(firebase), "Content-Security-Policy-Report-Only is missing");
+  assert.ok(enforced, "Content-Security-Policy header is missing");
+  assert.ok(!headers.some((header) => header.key === "Content-Security-Policy-Report-Only"), "Report-Only header must not ship beside the enforced policy");
+  assert.deepStrictEqual(policy.get("frame-ancestors"), ["'none'"]);
 });
 
 test("restricts every resource type with explicit directives", () => {
@@ -43,9 +72,117 @@ test("restricts every resource type with explicit directives", () => {
   assert.deepStrictEqual(policy.get("form-action"), ["'self'"]);
 });
 
-test("keeps unsafe-eval and unsafe-inline out of script-src", () => {
+test("keeps unsafe-inline only in the hash-backed strict compatibility policy", () => {
   assert.ok(!scriptSources.includes("'unsafe-eval'"));
-  assert.ok(!scriptSources.includes("'unsafe-inline'"));
+  assert.ok(scriptSources.includes("'unsafe-inline'"));
+  assert.ok(scriptSources.includes("'strict-dynamic'"));
+  assert.ok(scriptSources.some((source) => /^'sha256-[A-Za-z0-9+/]+=*'$/.test(source)));
+});
+
+test("uses a hash-trusted bootstrap and strict-dynamic for the application", () => {
+  const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const bootstrap = html.match(/<script\b(?=[^>]*\bid=["']csp-bootstrap-template["'])[^>]*>([\s\S]*?)<\/script>/i);
+  assert.ok(bootstrap, "the HTML must carry its application bootstrap template");
+  const body = bootstrap[1];
+  assert.match(body, /createElement\s*\(\s*["']script["']\s*\)/);
+  assert.match(body, /\.type\s*=\s*["']module["']/);
+  assert.match(body, /\.src\s*=\s*["']\/app\.js["']/);
+  assert.match(body, /document\.head\.append/);
+  const [bootstrapHash] = inlineScriptHashes(`<script>${body}</script>`);
+  assert.ok(scriptSources.includes(bootstrapHash), `${bootstrapHash} is not in script-src`);
+  assert.ok(scriptSources.includes("'strict-dynamic'"));
+  assert.equal(cacheControlFor(firebase.hosting.headers, "/app.js"), "no-cache");
+  assert.equal(cacheControlFor(firebase.hosting.headers, "/assets/chunk-AbCd1234.js"), "public, max-age=31536000, immutable");
+});
+
+test("matches ordered Firebase cache rules with exact, wildcard, brace and extglob sources", () => {
+  const cacheRule = (source, value) => ({
+    source,
+    headers: [{ key: "Cache-Control", value }],
+  });
+  const rules = [
+    cacheRule("**", "global"),
+    cacheRule("app.js", "exact"),
+    cacheRule("*.js", "wildcard"),
+    cacheRule("/{app,main}.js", "brace"),
+    cacheRule("+(app|main).js", "extglob"),
+    cacheRule("/assets/**", "immutable"),
+    cacheRule("/styles/**", "unrelated"),
+  ];
+
+  assert.equal(cacheControlFor(rules, "/app.js"), "extglob");
+  assert.equal(cacheControlFor(rules, "/other.js"), "wildcard");
+  assert.equal(cacheControlFor(rules, "/assets/chunk.js"), "immutable");
+  assert.equal(cacheControlFor(rules, "/image.png"), "global");
+});
+
+test("matches Firebase negated globs, negative extglobs and regular-expression sources", () => {
+  const cacheRule = (source, value) => ({
+    source,
+    headers: [{ key: "Cache-Control", value }],
+  });
+  const rules = [
+    cacheRule("**", "global"),
+    cacheRule("!/@(js|css)/**", "outside js and css"),
+    cacheRule("!(main|other).js", "negative extglob"),
+    {
+      regex: "^/app\\.js$",
+      headers: [{ key: "Cache-Control", value: "regex exact" }],
+    },
+    {
+      regex: "^/style\\.css$",
+      headers: [{ key: "Cache-Control", value: "regex unrelated" }],
+    },
+  ];
+
+  assert.equal(cacheControlFor(rules, "/app.js"), "regex exact");
+  assert.equal(cacheControlFor(rules, "/main.js"), "outside js and css");
+  assert.equal(cacheControlFor(rules, "/js/chunk.js"), "global");
+  assert.equal(cacheControlFor(rules, "/site.css"), "outside js and css");
+});
+
+test("rejects later unsafe app-entry cache overrides but honours unrelated and restored rules", () => {
+  const cacheRule = (source, value, key = "Cache-Control") => ({
+    source,
+    headers: [{ key, value }],
+  });
+  const assertAppEntryNoCache = (rules) => assert.equal(
+    cacheControlFor(rules, "/app.js"),
+    "no-cache"
+  );
+  const unsafeCache = "public, max-age=3600";
+
+  assert.throws(
+    () => assertAppEntryNoCache([...firebase.hosting.headers, cacheRule("/app.js", unsafeCache)]),
+    assert.AssertionError
+  );
+  assert.throws(
+    () => assertAppEntryNoCache([...firebase.hosting.headers, cacheRule("*.js", unsafeCache)]),
+    assert.AssertionError
+  );
+  const lowercaseUnsafeRules = [
+    ...firebase.hosting.headers,
+    cacheRule("/app.js", unsafeCache, "cache-control"),
+  ];
+  const emptyOverrideRules = [
+    ...firebase.hosting.headers,
+    cacheRule("/app.js", ""),
+  ];
+  assert.deepStrictEqual(
+    [
+      cacheControlFor(lowercaseUnsafeRules, "/app.js"),
+      cacheControlFor(emptyOverrideRules, "/app.js"),
+    ],
+    [unsafeCache, ""]
+  );
+  assert.throws(() => assertAppEntryNoCache(lowercaseUnsafeRules), assert.AssertionError);
+  assert.throws(() => assertAppEntryNoCache(emptyOverrideRules), assert.AssertionError);
+  assertAppEntryNoCache([...firebase.hosting.headers, cacheRule("/other.js", unsafeCache)]);
+  assertAppEntryNoCache([
+    ...firebase.hosting.headers,
+    cacheRule("/app.js", unsafeCache),
+    cacheRule("app.js", "no-cache"),
+  ]);
 });
 
 test("does not enforce Trusted Types, which would break the ad and consent scripts", () => {
@@ -86,4 +223,13 @@ test("allows the AdSense traffic quality frames and scripts seen in the preview 
   assert.ok(policy.get("frame-src").includes("https://www.google.com"));
   assert.ok(policy.get("script-src").includes("https://*.adtrafficquality.google"));
   assert.ok(policy.get("connect-src").includes("https://*.adtrafficquality.google"));
+});
+
+test("allows the consent and font hosts seen in the live PageSpeed run", () => {
+  assert.ok(policy.get("connect-src").includes("https://analytics.google.com"));
+  assert.ok(policy.get("script-src").includes("https://fundingchoicesmessages.google.com"));
+  assert.ok(policy.get("connect-src").includes("https://fundingchoicesmessages.google.com"));
+  assert.ok(policy.get("frame-src").includes("https://fundingchoicesmessages.google.com"));
+  assert.ok(policy.get("style-src").includes("https://fonts.googleapis.com"));
+  assert.ok(policy.get("font-src").includes("https://fonts.gstatic.com"));
 });

@@ -180,7 +180,10 @@ describe("withStoreLock", () => {
     const ran = vi.fn(() => "ran");
     fs.writeFileSync(lockFile, "");
 
-    expect(() => withStoreLock(store, ran)).toThrow(`Store lock ${lockFile} is held by`);
+    expect(thrownMessage(() => withStoreLock(store, ran))).toBe(
+      `Store lock ${lockFile} is held by a process that has not written its pid yet; ` +
+        "wait for that run to finish, or remove the lock file if the process is gone"
+    );
 
     expect(ran).not.toHaveBeenCalled();
     expect(fs.readFileSync(lockFile, "utf8")).toBe("");
@@ -387,7 +390,9 @@ describe("withStoreLock", () => {
 
     expect(withStoreLock(store, ran)).toBe("ran");
 
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining(claim));
+    expect(warn).toHaveBeenCalledWith(
+      `Store lock claim ${claim} names this process but was not created by it; reclaiming it`
+    );
     expect(ran).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(claim)).toBe(false);
     expect(fs.existsSync(lockFile)).toBe(false);
@@ -402,7 +407,9 @@ describe("withStoreLock", () => {
 
     expect(withStoreLock(store, ran)).toBe("ran");
 
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining(leftover));
+    expect(warn).toHaveBeenCalledWith(
+      `Store lock claim ${leftover} names this process but was not created by it; reclaiming it`
+    );
     expect(ran).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(leftover)).toBe(false);
   });
@@ -540,7 +547,7 @@ describe("withStoreLock", () => {
     expect(fs.existsSync(lockFile)).toBe(false);
   });
 
-  it("keeps the lock held and names the live pid when a stale lock changes before removal", () => {
+  it("keeps the lock held when it changes to a live pid before the re-read, which the two reads prove", () => {
     const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
     const read = fs.readFileSync;
     const ran = vi.fn(() => "ran");
@@ -957,6 +964,7 @@ describe("withStoreLock", () => {
 
     expect(thrown).toBeInstanceOf(AggregateError);
     const aggregate = thrown as AggregateError;
+    expect(aggregate.message).toBe("no space left on device; closing the store lock file also failed");
     expect(aggregate.errors).toHaveLength(2);
     expect(aggregate.errors[0]).toBe(writeError);
     expect(aggregate.errors[1]).toBe(closeError);

@@ -45,8 +45,8 @@ const claimHeldMessage = (claim: string, held: number | undefined, retry: boolea
 };
 
 const ownClaimHeldMessage = (claim: string, held: number): string =>
-  `Store lock claim ${claim} is still held by process ${held}, which is this process and could not remove it; ` +
-  "a later run clears it once this process has exited";
+  `Store lock claim ${claim} is held by process ${held}, which is this process: either a store lock call ` +
+  "is still running in it, or it could not remove the claim; it clears when that call ends or this process exits";
 
 const changingMessage = (lockFile: string): string =>
   `Store lock ${lockFile} kept changing while this run was acquiring it, so retry the run`;

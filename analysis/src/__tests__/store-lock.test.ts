@@ -236,7 +236,8 @@ describe("withStoreLock", () => {
 
     expect(message).toContain(leftover);
     expect(message).toContain(`process ${process.pid}`);
-    expect(message).toContain("could not remove it");
+    expect(message).toContain("which is this process");
+    expect(message).toContain("could not remove the claim");
     expect(message).not.toContain("retry shortly");
     expect(ran).not.toHaveBeenCalled();
     expect(fs.existsSync(leftover)).toBe(true);

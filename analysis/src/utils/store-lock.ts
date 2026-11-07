@@ -10,7 +10,9 @@ export const LOCK_CONTENT_GRACE_MS = 5_000;
 
 const ACQUIRE_ATTEMPTS = 5;
 
-const ownClaims = new Set<string>();
+const ownClaimsKey = Symbol.for("pokemon-tcg-pocket.store-lock.own-claims");
+const sharedWithOwnClaims = globalThis as typeof globalThis & { [ownClaimsKey]?: Set<string> };
+const ownClaims: Set<string> = (sharedWithOwnClaims[ownClaimsKey] ??= new Set<string>());
 
 const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 

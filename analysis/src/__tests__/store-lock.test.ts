@@ -323,6 +323,26 @@ describe("withStoreLock", () => {
     expect(claimEntries()).toEqual([]);
   });
 
+  it("refuses a live claim that another copy of the module made in this process", async () => {
+    vi.resetModules();
+    const second = await import("../utils/store-lock");
+    expect(second.withStoreLock).not.toBe(withStoreLock);
+    const nestedCallback = vi.fn(() => "nested");
+    let message = "";
+
+    expect(
+      withStoreLock(store, () => {
+        message = thrownMessage(() => second.withStoreLock(store, nestedCallback));
+        return "outer";
+      })
+    ).toBe("outer");
+
+    expect(message).toContain(`process ${process.pid}`);
+    expect(message).toContain("which is this process");
+    expect(nestedCallback).not.toHaveBeenCalled();
+    expect(claimEntries()).toEqual([]);
+  });
+
   it("forgets a claim this process failed to remove, so its next call reclaims it with a warning and runs", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const claimsDir = `${lockFile}.claims`;

@@ -140,9 +140,12 @@ describe("downloadDecks", () => {
   });
 
   it("refuses a batch when another run holds the store lock", async () => {
+    const holder = process.ppid;
+    expect(holder).not.toBe(process.pid);
+    expect(() => process.kill(holder, 0)).not.toThrow();
     getTournaments.mockResolvedValue(tournaments(1));
     const store = path.join(dataDir, "decks");
-    fs.writeFileSync(`${store}.lock`, String(process.pid));
+    fs.writeFileSync(`${store}.lock`, String(holder));
 
     await expect(downloadDecks()).rejects.toThrow(/is held by process/);
 

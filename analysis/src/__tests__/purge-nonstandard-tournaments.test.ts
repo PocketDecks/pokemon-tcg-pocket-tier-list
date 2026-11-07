@@ -229,21 +229,25 @@ describe("purge-nonstandard-tournaments", () => {
   });
 
   it("refuses before the first request when another run holds the store lock", async () => {
+    const holder = process.ppid;
+    expect(holder).not.toBe(process.pid);
+    expect(() => process.kill(holder, 0)).not.toThrow();
     standardStore(dir);
     const before = readTree(dir);
-    fs.writeFileSync(`${dir}.lock`, String(process.pid));
+    fs.writeFileSync(`${dir}.lock`, String(holder));
     const fetchMock = stubFetch();
     global.fetch = fetchMock;
 
-    await expect(purgeNonStandardTournaments({ dir, apply: true })).rejects.toThrow(
-      /is held by process/
-    );
+    await expect(purgeNonStandardTournaments({ dir, apply: true })).rejects.toThrow(/is held by process/);
 
     expect(fetchMock).not.toHaveBeenCalled();
     expect(readTree(dir)).toEqual(before);
   });
 
   it("refuses the apply path when another run holds the store lock", async () => {
+    const holder = process.ppid;
+    expect(holder).not.toBe(process.pid);
+    expect(() => process.kill(holder, 0)).not.toThrow();
     standardStore(dir);
     const before = readTree(dir);
     const lockFile = `${dir}.lock`;
@@ -257,16 +261,14 @@ describe("purge-nonstandard-tournaments", () => {
         // A download that reaches its write phase mid-purge holds the lock the
         // purge needs for its own compare and write.
         if (url.includes("/tournaments/std/details")) {
-          fs.writeFileSync(lockFile, String(process.pid));
+          fs.writeFileSync(lockFile, String(holder));
         }
       }
     );
 
-    await expect(purgeNonStandardTournaments({ dir, apply: true })).rejects.toThrow(
-      /is held by process/
-    );
+    await expect(purgeNonStandardTournaments({ dir, apply: true })).rejects.toThrow(/is held by process/);
     expect(readTree(dir)).toEqual(before);
     // The purge never held the lock, so the holder's lock file survives.
-    expect(fs.readFileSync(lockFile, "utf8")).toBe(String(process.pid));
+    expect(fs.readFileSync(lockFile, "utf8")).toBe(String(holder));
   });
 });

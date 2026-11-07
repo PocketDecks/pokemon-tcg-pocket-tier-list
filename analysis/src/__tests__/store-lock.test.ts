@@ -3,7 +3,9 @@ import { randomUUID } from "crypto";
 import fs from "fs";
 import os from "os";
 import path from "path";
+import { pathToFileURL } from "url";
 import { expectTypeOf, vi } from "vitest";
+import { Worker } from "worker_threads";
 import { LOCK_CONTENT_GRACE_MS, lockFileFor, type SyncResult, withStoreLock } from "../utils/store-lock";
 
 vi.mock("crypto", async (importOriginal) => {
@@ -21,6 +23,34 @@ const backdate = (file: string): void => {
   const old = new Date(Date.now() - LOCK_CONTENT_GRACE_MS * 2);
   fs.utimesSync(file, old, old);
 };
+
+const storeLockUrl = pathToFileURL(path.resolve(__dirname, "../utils/store-lock.ts")).href;
+
+const workerSource = `
+const { parentPort, workerData } = require("node:worker_threads");
+(async () => {
+  const { withStoreLock } = await import(workerData.moduleUrl);
+  let ran = false;
+  let message;
+  try {
+    withStoreLock(workerData.store, () => {
+      ran = true;
+      return "ran";
+    });
+  } catch (error) {
+    message = error.message;
+  }
+  parentPort.postMessage({ ran, message });
+})();
+`;
+
+const runInWorker = (store: string): Promise<{ ran: boolean; message?: string }> =>
+  new Promise((resolve, reject) => {
+    const worker = new Worker(workerSource, { eval: true, workerData: { moduleUrl: storeLockUrl, store } });
+    worker.once("message", (outcome: { ran: boolean; message?: string }) => resolve(outcome));
+    worker.once("error", reject);
+    worker.once("exit", (code) => reject(new Error(`store lock worker exited with code ${code} before reporting`)));
+  });
 
 const thrownMessage = (run: () => unknown): string => {
   try {
@@ -1845,5 +1875,16 @@ describe("withStoreLock", () => {
     expect(withStoreLock(nested, () => 42)).toBe(42);
 
     expect(fs.readdirSync(path.dirname(lockFileFor(nested)))).toEqual([]);
+  });
+
+  it("refuses to take the lock off the main thread before touching the filesystem, and never runs the callback", async () => {
+    const outcome = await runInWorker(store);
+
+    expect(outcome.message).toBe(
+      "Store lock can only be taken on the main thread, because worker threads share the process pid but not its record of claims"
+    );
+    expect(outcome.ran).toBe(false);
+    expect(fs.existsSync(lockFile)).toBe(false);
+    expect(fs.existsSync(`${lockFile}.claims`)).toBe(false);
   });
 });

@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import fs from "fs";
 import path from "path";
+import { isMainThread } from "worker_threads";
 
 export const lockFileFor = (dir: string): string => `${path.resolve(dir)}.lock`;
 
@@ -54,6 +55,9 @@ const ownClaimHeldMessage = (claim: string, held: number): string =>
 
 const claimMismatchMessage = (claim: string): string =>
   `Store lock claim ${claim} did not read back this process's pid`;
+
+const mainThreadMessage =
+  "Store lock can only be taken on the main thread, because worker threads share the process pid but not its record of claims";
 
 const changingMessage = (lockFile: string): string =>
   `Store lock ${lockFile} kept changing while this run was acquiring it, so retry the run`;
@@ -368,6 +372,7 @@ const isThenable = (value: unknown): value is PromiseLike<unknown> =>
 export type SyncResult<T> = T extends PromiseLike<unknown> ? never : unknown;
 
 export const withStoreLock = <T>(dir: string, fn: () => T & SyncResult<T>): T => {
+  if (!isMainThread) throw new Error(mainThreadMessage);
   const lockFile = lockFileFor(dir);
   fs.mkdirSync(path.dirname(lockFile), { recursive: true });
   const claim = acquire(lockFile);

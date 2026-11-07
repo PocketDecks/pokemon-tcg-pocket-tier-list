@@ -20,7 +20,7 @@ vi.mock("../../../ads/AdInContent", () => ({
 
 vi.mock("../../../app/use-is-premium", () => ({
   __esModule: true,
-  default: () => true,
+  default: () => false,
 }));
 
 // UserAccount pulls the real firebase auth module; stub the hook instead of

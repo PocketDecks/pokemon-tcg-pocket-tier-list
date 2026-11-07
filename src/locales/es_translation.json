@@ -47,7 +47,7 @@
       "matchups": {
         "title": "Fortalezas y debilidades de los mazos",
         "description": "Mira a qué mazos vence tu construcción y contra cuáles pierde, incluyendo los porcentajes de tasa de victoria.",
-        "free": "🚫",
+        "free": "Top 10",
         "premium": "✅"
       },
       "filters": {
@@ -144,7 +144,8 @@
     "shareQrDownload": "Descargar QR",
     "premiumGateTitle": "Este mazo solo aparece en un periodo Premium",
     "premiumGateBody": "Figura en las vistas de 30 días y de todo el tiempo, que forman parte de Premium.",
-    "premiumGateAction": "Ver Premium"
+    "premiumGateAction": "Ver Premium",
+    "matchupsPremium": "Los enfrentamientos de este mazo forman parte de Premium. Las cuentas gratuitas los ven para los 10 mejores mazos."
   },
   "energyDropdown": {
     "all": "Todos los tipos de Energía",
@@ -196,6 +197,7 @@
     "deltaColumn": "Cambio",
     "noTrends": "Los datos de tendencias no están disponibles ahora mismo.",
     "noMovement": "No hay movimiento de mazos en este periodo.",
+    "movementPremium": "El movimiento se muestra para los 10 mejores mazos. Premium lo muestra para todos los mazos.",
     "introGeneric": "Analiza el metajuego actual de Pokémon TCG Pocket con datos históricos en vivo y mapas de calor de enfrentamientos entre arquetipos. Estos datos muestran cómo cambian con el tiempo la popularidad de los mazos y las tasas de victoria."
   },
   "bestDeckFinder": {

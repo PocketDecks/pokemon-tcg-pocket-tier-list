@@ -47,7 +47,7 @@
       "matchups": {
         "title": "卡组优势和劣势",
         "description": "查看您的构筑击败和输给哪些卡组，包括胜率百分比。",
-        "free": "无",
+        "free": "前10名",
         "premium": "有"
       },
       "filters": {
@@ -144,7 +144,8 @@
     "shareQrDownload": "下载二维码",
     "premiumGateTitle": "该卡组仅出现在高级会员时间范围内",
     "premiumGateBody": "它列在 30 天和全部时间视图中，这些视图属于高级会员功能。",
-    "premiumGateAction": "了解高级会员"
+    "premiumGateAction": "了解高级会员",
+    "matchupsPremium": "该卡组的对战数据属于高级会员功能。免费账号仅可查看前 10 名卡组。"
   },
   "energyDropdown": {
     "all": "所有能量类型",
@@ -196,6 +197,7 @@
     "deltaColumn": "变化",
     "noTrends": "暂时无法获取趋势数据。",
     "noMovement": "此时间段内没有卡组变动。",
+    "movementPremium": "环境动向仅显示前 10 名卡组。高级会员可查看所有卡组。",
     "introGeneric": "借助实时历史数据和原型对战热力图，分析当前的宝可梦卡牌 Pocket 环境。这些追踪数据展示卡组人气和胜率如何随时间变化。"
   },
   "bestDeckFinder": {

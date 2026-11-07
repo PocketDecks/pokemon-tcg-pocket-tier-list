@@ -9,7 +9,7 @@ import rawCards from "../../app/__fixtures__/cards.json";
 
 vi.mock("../../app/use-is-premium", () => ({
   __esModule: true,
-  default: () => true,
+  default: () => false,
 }));
 
 vi.mock("../../app/use-expansions", () => ({

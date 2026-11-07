@@ -313,13 +313,12 @@ export const MatchupSection = styled.section`
   }
 `;
 
-export const MatchupList = styled.div<{ $blur?: boolean }>`
+export const MatchupList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   gap: 1.2rem;
   flex: 1;
   width: 100%;
-  filter: ${(props) => (props.$blur ? "blur(10px) saturate(1.2)" : "none")};
 
   @media (max-width: 900px) {
     grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
@@ -353,6 +352,17 @@ export const VisuallyHidden = styled.span`
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
+`;
+
+export const MatchupNotice = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  width: 100%;
+  color: var(--white-72);
+  line-height: 1.5;
+  text-align: center;
 `;
 
 export const MatchupUnavailable = styled.p`

@@ -19,6 +19,8 @@ import { buildTiers } from "../../app/tier-helper";
 import { deckDisplayName, formatArchetypeId } from "../../app/deck-display";
 import { latestCoveredExpansion } from "../../app/use-expansions";
 import { sortByPowerScore } from "../../app/score-baseline";
+import { hasMovement } from "../../app/meta-share-window";
+import useFreeDeckNames from "../../app/use-free-deck-names";
 import PageTitle from "../../components/PageTitle";
 import NavIcon from "../../components/NavIcon";
 import WindowToggle from "../../components/WindowToggle";
@@ -206,6 +208,19 @@ const MovementTable = styled.table`
     }
 `;
 
+const MovementNote = styled.p`
+    margin: 0;
+    color: var(--white-72);
+    font-size: 1.4rem;
+    line-height: 1.5;
+
+    a {
+        margin-left: 0.6rem;
+        color: var(--main);
+        font-weight: 600;
+    }
+`;
+
 const Delta = styled.td<{ $rising: boolean }>`
     color: ${(props) => (props.$rising ? "var(--f-text)" : "var(--s-text)")};
     font-weight: 600;
@@ -335,9 +350,11 @@ const StatisticsPage = () => {
         queryFn: fetchCards,
     });
 
+    const movementLimited = !!metaShare && metaShare.decks.some((entry) => !hasMovement(entry));
+
     const movementDecks = useMemo(() => {
         if (!metaShare) return [];
-        const entries = [...metaShare.decks];
+        const entries = metaShare.decks.filter(hasMovement);
         if (movementView === "new") {
             return entries.filter((d) => d.isNew).sort((a, b) => b.share - a.share);
         }
@@ -358,9 +375,11 @@ const StatisticsPage = () => {
         return sortByPowerScore(decks);
     }, [decks]);
 
+    const freeNames = useFreeDeckNames();
+
     const matrixDecks = useMemo(() => {
-        return isPremium ? sortedDecks : sortedDecks.slice(0, 10);
-    }, [sortedDecks, isPremium]);
+        return isPremium ? sortedDecks : sortedDecks.filter((deck) => freeNames.has(deck.name));
+    }, [sortedDecks, isPremium, freeNames]);
 
     const tierMap = useMemo(() => {
         const map = new Map<string, string>();
@@ -459,6 +478,13 @@ const StatisticsPage = () => {
                         ))}
                     </ToggleContainer>
                 </SectionHeader>
+
+                {movementLimited && (
+                    <MovementNote>
+                        {t("statistics.movementPremium")}
+                        <Link to="/about#premium">{t("deckPage.premiumGateAction")}</Link>
+                    </MovementNote>
+                )}
 
                 {movementDecks.length > 0 ? (
                     <MovementTable>

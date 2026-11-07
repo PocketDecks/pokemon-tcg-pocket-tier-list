@@ -12,6 +12,7 @@ import DeckHubLink from "./DeckHubLink";
 import DeckCard from "../../components/DeckCard";
 import { MIN_MATCHUP_GAMES, WINRATE_THRESHOLD } from "../../app/config";
 import useIsPremium from "../../app/use-is-premium";
+import useFreeDeckNames from "../../app/use-free-deck-names";
 import { useMetaWindow } from "../../app/use-meta-window";
 import useWindowSearchParam from "../../app/use-window-search-param";
 import ShareDeckCode from "../../components/ShareDeckCode";
@@ -49,6 +50,7 @@ import {
   MatchupContainer,
   MatchupLabel,
   MatchupList,
+  MatchupNotice,
   MatchupSkeletonTile,
   MatchupUnavailable,
   MatchupSection,
@@ -93,7 +95,9 @@ const DeckDetailPage = () => {
   const { missing, canUndo, undoMissing, lastRemovedId } = useMissing();
   const { t } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");
+  const premiumHref = useLocaleHref("/about#premium");
   const isPremium = useIsPremium();
+  const freeNames = useFreeDeckNames();
   const { window: metaWindow } = useMetaWindow();
   useWindowSearchParam();
 
@@ -120,6 +124,9 @@ const DeckDetailPage = () => {
   const shareEntry: MetaShareEntry | null =
     metaShareBySlug?.[deckId ?? ""] ?? null;
   const deckMatchups = deck ? matchupsByName?.[deck.name] : undefined;
+  const isFreeDeck = !!deck && freeNames.has(deck.name);
+  const matchupsLocked = isPremium === false && !!deck && !isFreeDeck;
+  const matchupsPending = matchupsLoading || (isPremium === null && !isFreeDeck);
 
   // Ready (for showing ads) only once a real deck is resolved, never on the
   // loading or "not enough cards" screens.
@@ -359,59 +366,73 @@ const DeckDetailPage = () => {
               </MatchupSection>
             )}
 
-            <MatchupSection>
-              <SubHeader $backgroundColor="var(--f)">
-                {t("deckPage.strongAgainst")}
-              </SubHeader>
-              {matchupsLoading ? (
-                <MatchupList aria-busy="true">
-                  {Array.from({ length: 6 }, (_, index) => <MatchupSkeletonTile key={index} aria-hidden="true" />)}
-                  <VisuallyHidden role="status">{t("deckPage.matchupsLoading")}</VisuallyHidden>
-                </MatchupList>
-              ) : matchupsError ? (
-                <MatchupUnavailable>{t("deckPage.matchupsUnavailable")}</MatchupUnavailable>
-              ) : (
-                <MatchupList $blur={!isPremium}>
-                  {strongAgainst.map((matchup: MatchupType) => (
-                    <MatchupContainer key={matchup.name}>
-                      <DeckCardContainer>
-                        <DeckCard deck={deckMap.get(matchup.name)!} />
-                      </DeckCardContainer>
-                      <MatchupLabel $winRate={matchup.winRate}>
-                        {`${(matchup.winRate * 100).toFixed(0)}%`}
-                      </MatchupLabel>
-                    </MatchupContainer>
-                  ))}
-                </MatchupList>
-              )}
-            </MatchupSection>
+            {matchupsLocked ? (
+              <MatchupSection>
+                <SubHeader $backgroundColor="var(--c)">
+                  {t("deckPage.matchups")}
+                </SubHeader>
+                <MatchupNotice>
+                  <span>{t("deckPage.matchupsPremium")}</span>
+                  <StyledLink to={premiumHref}>{t("deckPage.premiumGateAction")}</StyledLink>
+                </MatchupNotice>
+              </MatchupSection>
+            ) : (
+              <>
+                <MatchupSection>
+                  <SubHeader $backgroundColor="var(--f)">
+                    {t("deckPage.strongAgainst")}
+                  </SubHeader>
+                  {matchupsPending ? (
+                    <MatchupList aria-busy="true">
+                      {Array.from({ length: 6 }, (_, index) => <MatchupSkeletonTile key={index} aria-hidden="true" />)}
+                      <VisuallyHidden role="status">{t("deckPage.matchupsLoading")}</VisuallyHidden>
+                    </MatchupList>
+                  ) : matchupsError ? (
+                    <MatchupUnavailable>{t("deckPage.matchupsUnavailable")}</MatchupUnavailable>
+                  ) : (
+                    <MatchupList>
+                      {strongAgainst.map((matchup: MatchupType) => (
+                        <MatchupContainer key={matchup.name}>
+                          <DeckCardContainer>
+                            <DeckCard deck={deckMap.get(matchup.name)!} />
+                          </DeckCardContainer>
+                          <MatchupLabel $winRate={matchup.winRate}>
+                            {`${(matchup.winRate * 100).toFixed(0)}%`}
+                          </MatchupLabel>
+                        </MatchupContainer>
+                      ))}
+                    </MatchupList>
+                  )}
+                </MatchupSection>
 
-            <MatchupSection>
-              <SubHeader $backgroundColor="var(--s)">
-                {t("deckPage.weakAgainst")}
-              </SubHeader>
-              {matchupsLoading ? (
-                <MatchupList aria-busy="true">
-                  {Array.from({ length: 6 }, (_, index) => <MatchupSkeletonTile key={index} aria-hidden="true" />)}
-                  <VisuallyHidden role="status">{t("deckPage.matchupsLoading")}</VisuallyHidden>
-                </MatchupList>
-              ) : matchupsError ? (
-                <MatchupUnavailable>{t("deckPage.matchupsUnavailable")}</MatchupUnavailable>
-              ) : (
-                <MatchupList $blur={!isPremium}>
-                  {weakAgainst.map((matchup: MatchupType) => (
-                    <MatchupContainer key={matchup.name}>
-                      <DeckCardContainer>
-                        <DeckCard deck={deckMap.get(matchup.name)!} />
-                      </DeckCardContainer>
-                      <MatchupLabel $winRate={matchup.winRate}>
-                        {`${(matchup.winRate * 100).toFixed(0)}%`}
-                      </MatchupLabel>
-                    </MatchupContainer>
-                  ))}
-                </MatchupList>
-              )}
-            </MatchupSection>
+                <MatchupSection>
+                  <SubHeader $backgroundColor="var(--s)">
+                    {t("deckPage.weakAgainst")}
+                  </SubHeader>
+                  {matchupsPending ? (
+                    <MatchupList aria-busy="true">
+                      {Array.from({ length: 6 }, (_, index) => <MatchupSkeletonTile key={index} aria-hidden="true" />)}
+                      <VisuallyHidden role="status">{t("deckPage.matchupsLoading")}</VisuallyHidden>
+                    </MatchupList>
+                  ) : matchupsError ? (
+                    <MatchupUnavailable>{t("deckPage.matchupsUnavailable")}</MatchupUnavailable>
+                  ) : (
+                    <MatchupList>
+                      {weakAgainst.map((matchup: MatchupType) => (
+                        <MatchupContainer key={matchup.name}>
+                          <DeckCardContainer>
+                            <DeckCard deck={deckMap.get(matchup.name)!} />
+                          </DeckCardContainer>
+                          <MatchupLabel $winRate={matchup.winRate}>
+                            {`${(matchup.winRate * 100).toFixed(0)}%`}
+                          </MatchupLabel>
+                        </MatchupContainer>
+                      ))}
+                    </MatchupList>
+                  )}
+                </MatchupSection>
+              </>
+            )}
           </Matchups>
         </PanelSection>
       </StyledDeckPage>

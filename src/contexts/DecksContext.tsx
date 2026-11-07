@@ -32,8 +32,10 @@ import {
 import { getScoreBaseline, type ScoreBaseline } from "../app/score-baseline";
 import {
   isPremiumMetaWindow,
+  loadTieredArtefact,
   loadWindowArtefact,
   metaWindowDataFile,
+  type ArtefactTier,
   type MetaWindow,
 } from "../app/meta-window";
 import { PremiumAccessError } from "../app/premium-data";
@@ -76,9 +78,12 @@ const maxScore = (deck: PartialDeckType): number => {
 
 // Share data is optional: any failure (network, 404, malformed JSON, wrong
 // shape) degrades to null so deck pages and statistics keep loading.
-const loadMetaShare = async (window: MetaWindow): Promise<PipelineMetaShare | null> => {
+const loadMetaShare = async (
+  window: MetaWindow,
+  tier: ArtefactTier
+): Promise<PipelineMetaShare | null> => {
   try {
-    const data = await loadWindowArtefact("meta-share", window);
+    const data = await loadTieredArtefact("meta-share", window, tier);
     if (
       data &&
       typeof data === "object" &&
@@ -134,9 +139,12 @@ export const sanitiseMatchupData = (
   return { matchups, dropped };
 };
 
-const fetchMatchupData = async (window: MetaWindow): Promise<PipelineMatchupData> => {
+const fetchMatchupData = async (
+  window: MetaWindow,
+  tier: ArtefactTier
+): Promise<PipelineMatchupData> => {
   const file = metaWindowDataFile("matchup-data", window);
-  const data = await loadWindowArtefact("matchup-data", window);
+  const data = await loadTieredArtefact("matchup-data", window, tier);
   if (data === null || typeof data !== "object" || Array.isArray(data)) {
     throw new Error(`${file} has an unexpected shape`);
   }
@@ -408,9 +416,10 @@ export const useDecks = () => {
 export const useMatchups = () => {
   const { window } = useMetaWindow();
   const isPremium = useIsPremium();
+  const tier = tierOf(isPremium);
   const { data, isLoading, error } = useQuery({
-    queryKey: ["matchups", window],
-    queryFn: () => fetchMatchupData(window),
+    queryKey: ["matchups", window, tier],
+    queryFn: () => fetchMatchupData(window, tier),
     retry: 1,
     ...windowQueryOptions(window, isPremium),
   });
@@ -449,6 +458,9 @@ const windowQueryOptions = (window: MetaWindow, isPremium: boolean | null) => ({
   ...(isPremiumMetaWindow(window) ? { retry: retryUnlessDenied } : {}),
 });
 
+const tierOf = (isPremium: boolean | null): ArtefactTier =>
+  isPremium === true ? "full" : "public";
+
 const useDecksData = (window: MetaWindow) => {
   const isPremium = useIsPremium();
   return useQuery({
@@ -460,9 +472,10 @@ const useDecksData = (window: MetaWindow) => {
 
 const useMetaShareData = (window: MetaWindow) => {
   const isPremium = useIsPremium();
+  const tier = tierOf(isPremium);
   return useQuery({
-    queryKey: ["meta-share", window],
-    queryFn: () => loadMetaShare(window),
+    queryKey: ["meta-share", window, tier],
+    queryFn: () => loadMetaShare(window, tier),
     ...windowQueryOptions(window, isPremium),
   });
 };

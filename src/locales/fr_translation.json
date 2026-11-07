@@ -47,7 +47,7 @@
       "matchups": {
         "title": "Forces et faiblesses des decks",
         "description": "Voyez quels decks votre construction bat et contre lesquels elle perd, y compris les pourcentages de taux de victoire.",
-        "free": "🚫",
+        "free": "Top 10",
         "premium": "✅"
       },
       "filters": {
@@ -144,7 +144,8 @@
     "shareQrDownload": "Télécharger le QR",
     "premiumGateTitle": "Ce deck n'apparaît que dans une période Premium",
     "premiumGateBody": "Il figure dans les vues de 30 jours et de toute la période, qui font partie de Premium.",
-    "premiumGateAction": "Découvrir Premium"
+    "premiumGateAction": "Découvrir Premium",
+    "matchupsPremium": "Les matchups de ce deck font partie de Premium. Les comptes gratuits les voient pour les 10 meilleurs decks."
   },
   "energyDropdown": {
     "all": "Tous les types d'énergie",
@@ -196,6 +197,7 @@
     "deltaColumn": "Changement",
     "noTrends": "Les données de tendance ne sont pas disponibles pour le moment.",
     "noMovement": "Aucun mouvement de decks sur cette période.",
+    "movementPremium": "Le mouvement est affiché pour les 10 meilleurs decks. Premium l'affiche pour tous les decks.",
     "introGeneric": "Analysez le métajeu actuel de Pokémon TCG Pocket grâce à des données historiques en direct et des cartes de chaleur des matchups entre archétypes. Ces données montrent comment la popularité des decks et les taux de victoire évoluent au fil du temps."
   },
   "bestDeckFinder": {

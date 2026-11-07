@@ -47,7 +47,7 @@
       "matchups": {
         "title": "덱 강점과 약점",
         "description": "구축한 덱이 어떤 덱을 이기고 지는지 승률 백분율을 포함하여 확인하세요.",
-        "free": "🚫",
+        "free": "상위 10",
         "premium": "✅"
       },
       "filters": {
@@ -144,7 +144,8 @@
     "shareQrDownload": "QR 다운로드",
     "premiumGateTitle": "이 덱은 Premium 집계 기간에서만 볼 수 있습니다",
     "premiumGateBody": "30일과 전체 기간 보기에 포함되어 있으며, 이 보기들은 Premium에 속합니다.",
-    "premiumGateAction": "Premium 보기"
+    "premiumGateAction": "Premium 보기",
+    "matchupsPremium": "이 덱의 매치업은 Premium에 포함됩니다. 무료 계정은 상위 10개 덱에 대해서만 볼 수 있습니다."
   },
   "energyDropdown": {
     "all": "모든 에너지 타입",
@@ -196,6 +197,7 @@
     "deltaColumn": "변화",
     "noTrends": "트렌드 데이터를 현재 사용할 수 없습니다.",
     "noMovement": "이 기간에 덱 변동이 없습니다.",
+    "movementPremium": "동향은 상위 10개 덱에 대해서만 표시됩니다. Premium에서는 모든 덱에 대해 표시됩니다.",
     "introGeneric": "실시간 과거 데이터와 아키타입 상성 히트맵으로 현재 포켓몬 TCG 포켓 메타를 분석하세요. 이 데이터는 덱 인기와 승률이 시간에 따라 어떻게 변하는지 보여줍니다."
   },
   "bestDeckFinder": {

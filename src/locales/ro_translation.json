@@ -47,7 +47,7 @@
       "matchups": {
         "title": "Puncte forte și slabe ale deck-ului",
         "description": "Vezi ce deck-uri poate învinge construcția ta și în fața cărora pierde, inclusiv procentele ratei de victorie.",
-        "free": "🚫",
+        "free": "Top 10",
         "premium": "✅"
       },
       "filters": {
@@ -144,7 +144,8 @@
     "shareQrDownload": "Descarcă QR",
     "premiumGateTitle": "Acest deck apare doar într-o perioadă Premium",
     "premiumGateBody": "Figurează în vizualizările de 30 de zile și pentru toată perioada, care fac parte din Premium.",
-    "premiumGateAction": "Vezi Premium"
+    "premiumGateAction": "Vezi Premium",
+    "matchupsPremium": "Matchup-urile acestui deck fac parte din Premium. Conturile gratuite le văd pentru primele 10 deckuri."
   },
   "energyDropdown": {
     "all": "Toate tipurile de energie",
@@ -196,6 +197,7 @@
     "deltaColumn": "Schimbare",
     "noTrends": "Datele despre tendințe nu sunt disponibile acum.",
     "noMovement": "Nicio mișcare a pachetelor în această perioadă.",
+    "movementPremium": "Mișcarea este afișată pentru primele 10 deckuri. Premium o afișează pentru fiecare deck.",
     "introGeneric": "Analizați metajocul actual al Pokémon TCG Pocket folosind date istorice în timp real și hărți termice ale matchup-urilor dintre arhetipuri. Aceste date arată cum se schimbă în timp popularitatea deck-urilor și ratele de victorie."
   },
   "bestDeckFinder": {

@@ -159,14 +159,19 @@ const removeClaim = (lockFile: string, claim: string): void => {
   }
 };
 
+const cleanupFailedSuffix = "; store lock cleanup also failed";
+
+const withCleanupFailed = (message: string): string =>
+  message.endsWith(cleanupFailedSuffix) ? message : `${message}${cleanupFailedSuffix}`;
+
 const failedWithCleanup = (error: unknown, cleanup: () => void): unknown => {
   try {
     cleanup();
   } catch (cleanupError) {
     if (error instanceof AggregateError) {
-      return new AggregateError([...error.errors, cleanupError], error.message);
+      return new AggregateError([...error.errors, cleanupError], withCleanupFailed(error.message));
     }
-    return new AggregateError([error, cleanupError], `${errorMessage(error)}; store lock cleanup also failed`);
+    return new AggregateError([error, cleanupError], withCleanupFailed(errorMessage(error)));
   }
   return error;
 };
@@ -346,7 +351,7 @@ export const withStoreLock = <T>(dir: string, fn: () => T & SyncResult<T>): T =>
     if (cleanupErrors.length === 0) throw callbackError;
     throw new AggregateError(
       [callbackError, ...cleanupErrors],
-      `${errorMessage(callbackError)}; store lock cleanup also failed`
+      withCleanupFailed(errorMessage(callbackError))
     );
   }
   const cleanupErrors = releaseAndRemoveClaim(lockFile, claim);

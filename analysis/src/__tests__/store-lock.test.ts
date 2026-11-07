@@ -747,6 +747,50 @@ describe("withStoreLock", () => {
     expect(aggregate.errors[2]).toBe(claimCleanupError);
   });
 
+  it("names every cleanup failure once when a write and close aggregate meets a lock cleanup failure", () => {
+    const open = fs.openSync;
+    const writeFile = fs.writeFileSync;
+    const close = fs.closeSync;
+    const remove = fs.rmSync;
+    let lockDescriptor: number | undefined;
+    const writeError = Object.assign(new Error("no space left on device"), { code: "ENOSPC" });
+    const closeError = Object.assign(new Error("close failed"), { code: "EIO" });
+    const cleanupError = Object.assign(new Error("lock removal denied"), { code: "EACCES" });
+    vi.spyOn(fs, "openSync").mockImplementation((...args) => {
+      const fd = open(...args);
+      if (String(args[0]) === lockFile) lockDescriptor = fd;
+      return fd;
+    });
+    vi.spyOn(fs, "writeFileSync").mockImplementation((file, data, options) => {
+      if (file === lockDescriptor) throw writeError;
+      return writeFile(file, data, options);
+    });
+    vi.spyOn(fs, "closeSync").mockImplementation((fd) => {
+      close(fd);
+      if (fd === lockDescriptor) throw closeError;
+    });
+    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+      if (String(target) === lockFile) throw cleanupError;
+      remove(target, options);
+    });
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, () => "ran");
+    } catch (error) {
+      thrown = error;
+    }
+
+    const suffix = "; store lock cleanup also failed";
+    expect(thrown).toBeInstanceOf(AggregateError);
+    const aggregate = thrown as AggregateError;
+    expect(aggregate.message).toContain("no space left on device");
+    expect(aggregate.message.endsWith(suffix)).toBe(true);
+    expect(aggregate.message.split(suffix)).toHaveLength(2);
+    expect(aggregate.errors).toHaveLength(3);
+    expect(aggregate.errors).toEqual([writeError, closeError, cleanupError]);
+  });
+
   it("keeps both the pid write error and the close error when the lock write and close both fail", () => {
     const open = fs.openSync;
     const writeFile = fs.writeFileSync;

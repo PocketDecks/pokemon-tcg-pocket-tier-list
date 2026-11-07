@@ -20,7 +20,7 @@ export const decideGrant = (input: {
   if (existing && existing.premium && existing.expiresAtMs === null) {
     return { status: "already-lifetime" };
   }
-  const currentExpiry = existing?.expiresAtMs ?? 0;
+  const currentExpiry = existing?.premium ? (existing.expiresAtMs ?? 0) : 0;
   const base = currentExpiry > now.getTime() ? new Date(currentExpiry) : now;
   return { status: "granted", expiresAt: addCalendarMonths(base, months) };
 };

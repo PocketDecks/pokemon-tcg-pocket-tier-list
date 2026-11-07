@@ -26,6 +26,8 @@ interface Match {
   matchedBy: "code" | "email";
 }
 
+const PREMIUM_TYPES = new Set(["Donation", "Subscription"]);
+
 const reply = (status: number, body: string): Response =>
   new Response(body, { status, headers: { "content-type": "text/plain; charset=utf-8" } });
 
@@ -58,7 +60,9 @@ const processPayment = async (
   payment: KofiPayment,
   now: Date,
 ): Promise<{ status: PaymentStatus; duplicate: boolean }> => {
-  const months = monthsForPayment(payment.amountPence, payment.currency);
+  const months = PREMIUM_TYPES.has(payment.type)
+    ? monthsForPayment(payment.amountPence, payment.currency)
+    : 0;
   const kofiDate = new Date(payment.timestamp);
   const paymentDate = Number.isNaN(kofiDate.getTime()) ? now : kofiDate;
 

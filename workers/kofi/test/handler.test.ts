@@ -234,6 +234,28 @@ describe("review and matching", () => {
     });
   });
 
+  it.each(["Shop Order", "Commission"])(
+    "records a %s as needs-review with no entitlement write",
+    async (type) => {
+      const { post, google } = setup();
+      google.addUser("ash@example.com", "uid-ash");
+      await post(payment({ type }));
+      expect(google.read("entitlements/uid-ash")).toBeUndefined();
+      expect(google.read("kofiPayments/txn-1")).toMatchObject({
+        status: "needs-review",
+        type,
+        months: 0,
+      });
+    },
+  );
+
+  it("grants months for a monthly subscription payment", async () => {
+    const { post, google } = setup();
+    google.addUser("ash@example.com", "uid-ash");
+    await post(payment({ type: "Subscription", amount: "3.00", is_subscription_payment: true }));
+    expect(google.read("kofiPayments/txn-1")).toMatchObject({ status: "granted", months: 3 });
+  });
+
   it("prefers a code in the message over the email", async () => {
     const { post, google } = setup();
     google.addUser("ash@example.com", "uid-email");

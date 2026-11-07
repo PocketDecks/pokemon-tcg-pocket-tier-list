@@ -24,6 +24,18 @@ describe("decideGrant", () => {
     }
   });
 
+  it("restarts from now when a revoked entitlement still holds a future expiry", () => {
+    const decision = decideGrant({
+      months: 1,
+      existing: { premium: false, expiresAtMs: Date.parse("2027-06-01T00:00:00.000Z") },
+      now,
+    });
+    expect(decision.status).toBe("granted");
+    if (decision.status === "granted") {
+      expect(decision.expiresAt.toISOString()).toBe("2026-12-08T12:00:00.000Z");
+    }
+  });
+
   it("restarts from now when the expiry has passed", () => {
     const decision = decideGrant({
       months: 1,

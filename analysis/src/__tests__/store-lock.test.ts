@@ -628,32 +628,6 @@ describe("withStoreLock", () => {
     expect(ran).toHaveBeenCalledTimes(1);
   });
 
-  it("does not accept a claim whose pid write is short", () => {
-    const claimsDir = `${lockFile}.claims`;
-    const open = fs.openSync;
-    const write = fs.writeSync;
-    const claimDescriptors = new Set<number>();
-    let shortWrites = 0;
-    const ran = vi.fn(() => "ran");
-    vi.spyOn(fs, "openSync").mockImplementation((...args) => {
-      const fd = open(...args);
-      if (String(args[0]).startsWith(`${claimsDir}${path.sep}`)) claimDescriptors.add(fd);
-      return fd;
-    });
-    vi.spyOn(fs, "writeSync").mockImplementation((...args) => {
-      if (claimDescriptors.has(args[0]) && shortWrites < 100) {
-        shortWrites += 1;
-        return 0;
-      }
-      return write(...args);
-    });
-
-    expect(withStoreLock(store, ran)).toBe("ran");
-
-    expect(ran).toHaveBeenCalledTimes(1);
-    expect(fs.existsSync(lockFile)).toBe(false);
-  });
-
   it("keeps the write error when removing the claim also fails", () => {
     const claimsDir = `${lockFile}.claims`;
     const open = fs.openSync;

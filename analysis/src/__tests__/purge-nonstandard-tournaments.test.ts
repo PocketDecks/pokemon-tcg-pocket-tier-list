@@ -1,3 +1,4 @@
+import { spawn } from "child_process";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -229,44 +230,56 @@ describe("purge-nonstandard-tournaments", () => {
   });
 
   it("refuses before the first request when another run holds the store lock", async () => {
-    standardStore(dir);
-    const before = readTree(dir);
-    fs.writeFileSync(`${dir}.lock`, String(process.pid));
-    const fetchMock = stubFetch();
-    global.fetch = fetchMock;
+    const holder = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    try {
+      if (holder.pid === undefined) throw new Error("could not spawn a live holder");
+      standardStore(dir);
+      const before = readTree(dir);
+      fs.writeFileSync(`${dir}.lock`, String(holder.pid));
+      const fetchMock = stubFetch();
+      global.fetch = fetchMock;
 
-    await expect(purgeNonStandardTournaments({ dir, apply: true })).rejects.toThrow(
-      /is held by process/
-    );
+      await expect(purgeNonStandardTournaments({ dir, apply: true })).rejects.toThrow(
+        /is held by process/
+      );
 
-    expect(fetchMock).not.toHaveBeenCalled();
-    expect(readTree(dir)).toEqual(before);
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(readTree(dir)).toEqual(before);
+    } finally {
+      holder.kill();
+    }
   });
 
   it("refuses the apply path when another run holds the store lock", async () => {
-    standardStore(dir);
-    const before = readTree(dir);
-    const lockFile = `${dir}.lock`;
-    global.fetch = respondByUrl(
-      {
-        "/tournaments/std/details": {},
-        "/tournaments/cus/details": {},
-        "/tournaments?limit=": listing,
-      },
-      (url) => {
-        // A download that reaches its write phase mid-purge holds the lock the
-        // purge needs for its own compare and write.
-        if (url.includes("/tournaments/std/details")) {
-          fs.writeFileSync(lockFile, String(process.pid));
+    const holder = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    try {
+      if (holder.pid === undefined) throw new Error("could not spawn a live holder");
+      standardStore(dir);
+      const before = readTree(dir);
+      const lockFile = `${dir}.lock`;
+      global.fetch = respondByUrl(
+        {
+          "/tournaments/std/details": {},
+          "/tournaments/cus/details": {},
+          "/tournaments?limit=": listing,
+        },
+        (url) => {
+          // A download that reaches its write phase mid-purge holds the lock the
+          // purge needs for its own compare and write.
+          if (url.includes("/tournaments/std/details")) {
+            fs.writeFileSync(lockFile, String(holder.pid));
+          }
         }
-      }
-    );
+      );
 
-    await expect(purgeNonStandardTournaments({ dir, apply: true })).rejects.toThrow(
-      /is held by process/
-    );
-    expect(readTree(dir)).toEqual(before);
-    // The purge never held the lock, so the holder's lock file survives.
-    expect(fs.readFileSync(lockFile, "utf8")).toBe(String(process.pid));
+      await expect(purgeNonStandardTournaments({ dir, apply: true })).rejects.toThrow(
+        /is held by process/
+      );
+      expect(readTree(dir)).toEqual(before);
+      // The purge never held the lock, so the holder's lock file survives.
+      expect(fs.readFileSync(lockFile, "utf8")).toBe(String(holder.pid));
+    } finally {
+      holder.kill();
+    }
   });
 });

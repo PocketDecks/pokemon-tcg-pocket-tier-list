@@ -1,3 +1,4 @@
+import { spawn } from "child_process";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -140,16 +141,22 @@ describe("downloadDecks", () => {
   });
 
   it("refuses a batch when another run holds the store lock", async () => {
-    getTournaments.mockResolvedValue(tournaments(1));
-    const store = path.join(dataDir, "decks");
-    fs.writeFileSync(`${store}.lock`, String(process.pid));
+    const holder = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    try {
+      if (holder.pid === undefined) throw new Error("could not spawn a live holder");
+      getTournaments.mockResolvedValue(tournaments(1));
+      const store = path.join(dataDir, "decks");
+      fs.writeFileSync(`${store}.lock`, String(holder.pid));
 
-    await expect(downloadDecks()).rejects.toThrow(/is held by process/);
+      await expect(downloadDecks()).rejects.toThrow(/is held by process/);
 
-    // The batch downloads before it takes the lock, and then writes nothing.
-    expect(getTournamentDecks).toHaveBeenCalledTimes(1);
-    expect(fs.existsSync(path.join(dataDir, "processed-tournaments.json"))).toBe(false);
-    expect(Object.keys(readManifest(store).shards)).toEqual([]);
+      // The batch downloads before it takes the lock, and then writes nothing.
+      expect(getTournamentDecks).toHaveBeenCalledTimes(1);
+      expect(fs.existsSync(path.join(dataDir, "processed-tournaments.json"))).toBe(false);
+      expect(Object.keys(readManifest(store).shards)).toEqual([]);
+    } finally {
+      holder.kill();
+    }
   });
 
   describe("readProcessed", () => {

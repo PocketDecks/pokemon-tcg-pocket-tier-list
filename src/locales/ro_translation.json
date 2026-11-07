@@ -141,7 +141,10 @@
     "shareQrCopyTitle": "Atinge pentru a copia codul deck-ului",
     "shareQrCopy": "Copiază codul deck-ului",
     "shareQrCopied": "Copiat!",
-    "shareQrDownload": "Descarcă QR"
+    "shareQrDownload": "Descarcă QR",
+    "premiumGateTitle": "Acest deck apare doar într-o perioadă Premium",
+    "premiumGateBody": "Figurează în vizualizările de 30 de zile și pentru toată perioada, care fac parte din Premium.",
+    "premiumGateAction": "Vezi Premium"
   },
   "energyDropdown": {
     "all": "Toate tipurile de energie",

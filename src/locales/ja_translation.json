@@ -141,7 +141,10 @@
     "shareQrCopyTitle": "タップしてデッキコードをコピー",
     "shareQrCopy": "デッキコードをコピー",
     "shareQrCopied": "コピーしました",
-    "shareQrDownload": "QRをダウンロード"
+    "shareQrDownload": "QRをダウンロード",
+    "premiumGateTitle": "このデッキはPremium限定の集計期間にのみ表示されます",
+    "premiumGateBody": "30日間と全期間の表示に載っており、これらはPremiumに含まれます。",
+    "premiumGateAction": "Premiumを見る"
   },
   "energyDropdown": {
     "all": "すべてのエネルギータイプ",

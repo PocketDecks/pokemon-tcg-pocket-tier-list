@@ -141,7 +141,10 @@
     "shareQrCopyTitle": "Toque para copiar o código do deck",
     "shareQrCopy": "Copiar código do deck",
     "shareQrCopied": "Copiado!",
-    "shareQrDownload": "Transferir QR"
+    "shareQrDownload": "Transferir QR",
+    "premiumGateTitle": "Este deck só aparece em um período Premium",
+    "premiumGateBody": "Ele consta nas visões de 30 dias e de todo o período, que fazem parte do Premium.",
+    "premiumGateAction": "Conhecer o Premium"
   },
   "energyDropdown": {
     "all": "Todos os Tipos de Energia",

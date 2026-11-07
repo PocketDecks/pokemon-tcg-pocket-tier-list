@@ -141,7 +141,10 @@
     "shareQrCopyTitle": "Toca para copiar el código del mazo",
     "shareQrCopy": "Copiar código del mazo",
     "shareQrCopied": "¡Copiado!",
-    "shareQrDownload": "Descargar QR"
+    "shareQrDownload": "Descargar QR",
+    "premiumGateTitle": "Este mazo solo aparece en un periodo Premium",
+    "premiumGateBody": "Figura en las vistas de 30 días y de todo el tiempo, que forman parte de Premium.",
+    "premiumGateAction": "Ver Premium"
   },
   "energyDropdown": {
     "all": "Todos los tipos de Energía",

@@ -141,7 +141,10 @@
     "shareQrCopyTitle": "點按複製牌組代碼",
     "shareQrCopy": "複製牌組代碼",
     "shareQrCopied": "已複製！",
-    "shareQrDownload": "下載 QR 碼"
+    "shareQrDownload": "下載 QR 碼",
+    "premiumGateTitle": "此牌組僅出現在 Premium 時間範圍內",
+    "premiumGateBody": "它列在 30 天與全部時間的檢視中，這些檢視屬於 Premium。",
+    "premiumGateAction": "了解 Premium"
   },
   "energyDropdown": {
     "all": "所有能量屬性",

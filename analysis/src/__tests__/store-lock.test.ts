@@ -498,9 +498,10 @@ describe("withStoreLock", () => {
     expect(fs.existsSync(claimsDir)).toBe(false);
   });
 
-  it("surfaces persistent EPERM when claim directory cleanup sees an empty directory", () => {
+  it("warns and keeps the result when claim directory cleanup sees a persistent EPERM on an empty directory", () => {
     const claimsDir = `${lockFile}.claims`;
     const rmdir = fs.rmdirSync;
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const ran = vi.fn(() => "ran");
     let attempts = 0;
     vi.spyOn(fs, "rmdirSync").mockImplementation((target) => {
@@ -511,12 +512,35 @@ describe("withStoreLock", () => {
       return rmdir(target);
     });
 
-    expect(() => withStoreLock(store, ran)).toThrow("claim directory cleanup denied");
+    expect(withStoreLock(store, ran)).toBe("ran");
 
     expect(attempts).toBe(2);
     expect(ran).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining(claimsDir));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("EPERM"));
     expect(fs.existsSync(lockFile)).toBe(false);
     expect(fs.readdirSync(claimsDir)).toEqual([]);
+  });
+
+  it("surfaces a claim file removal failure without warning about the claims directory", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const remove = fs.rmSync;
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const cleanupError = Object.assign(new Error("claim removal denied"), { code: "EACCES" });
+    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+      if (String(target).startsWith(`${claimsDir}${path.sep}`)) throw cleanupError;
+      remove(target, options);
+    });
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, () => "ran");
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBe(cleanupError);
+    expect(warn).not.toHaveBeenCalled();
   });
 
   it("removes a claim whose pid write fails and leaves the lock usable", () => {

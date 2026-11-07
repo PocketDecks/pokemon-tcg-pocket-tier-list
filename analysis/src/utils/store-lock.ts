@@ -108,9 +108,7 @@ const entriesIfPresent = (claimsDir: string): string[] | undefined => {
   }
 };
 
-const removeClaim = (lockFile: string, claim: string): void => {
-  fs.rmSync(claim, { force: true });
-  const claimsDir = claimDirectoryFor(lockFile);
+const removeEmptyClaimsDirectory = (claimsDir: string): void => {
   try {
     fs.rmdirSync(claimsDir);
   } catch (error) {
@@ -132,6 +130,18 @@ const removeClaim = (lockFile: string, claim: string): void => {
       }
     }
     if (code !== "ENOENT" && code !== "ENOTEMPTY" && code !== "EEXIST") throw error;
+  }
+};
+
+const removeClaim = (lockFile: string, claim: string): void => {
+  fs.rmSync(claim, { force: true });
+  const claimsDir = claimDirectoryFor(lockFile);
+  try {
+    removeEmptyClaimsDirectory(claimsDir);
+  } catch (error) {
+    console.warn(
+      `Store lock claims directory ${claimsDir} could not be removed (${(error as NodeJS.ErrnoException).code}); leaving it in place`
+    );
   }
 };
 

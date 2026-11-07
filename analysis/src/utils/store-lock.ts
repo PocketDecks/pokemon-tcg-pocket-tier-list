@@ -136,6 +136,28 @@ const removeStaleClaims = (lockFile: string, ownClaim: string): void => {
   }
 };
 
+const writeClaim = (lockFile: string, claim: string): boolean => {
+  let fd: number;
+  try {
+    fd = fs.openSync(claim, "wx");
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === "ENOENT" || code === "EEXIST") return false;
+    throw error;
+  }
+  try {
+    try {
+      fs.writeSync(fd, String(process.pid));
+    } finally {
+      fs.closeSync(fd);
+    }
+  } catch (error) {
+    removeClaim(lockFile, claim);
+    throw error;
+  }
+  return true;
+};
+
 const createClaim = (lockFile: string): string => {
   const claimsDir = claimDirectoryFor(lockFile);
   for (let attempt = 0; attempt < ACQUIRE_ATTEMPTS; attempt += 1) {
@@ -146,13 +168,7 @@ const createClaim = (lockFile: string): string => {
       throw error;
     }
     const claim = path.join(claimsDir, `${process.pid}-${randomUUID()}`);
-    try {
-      fs.writeFileSync(claim, String(process.pid), { flag: "wx" });
-    } catch (error) {
-      const code = (error as NodeJS.ErrnoException).code;
-      if (code === "ENOENT" || code === "EEXIST") continue;
-      throw error;
-    }
+    if (!writeClaim(lockFile, claim)) continue;
 
     try {
       removeStaleClaims(lockFile, claim);

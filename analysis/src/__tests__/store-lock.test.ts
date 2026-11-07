@@ -198,15 +198,15 @@ describe("withStoreLock", () => {
     const claimsDir = `${lockFile}.claims`;
     const staleClaim = path.join(claimsDir, "dead-owner");
     const remove = fs.rmSync;
-    const write = fs.writeFileSync;
+    const open = fs.openSync;
     let claimDisappeared = 0;
     let claimWrites = 0;
     fs.mkdirSync(claimsDir, { recursive: true });
     fs.writeFileSync(staleClaim, String(deadPid()));
     fs.writeFileSync(lockFile, String(deadPid()));
-    vi.spyOn(fs, "writeFileSync").mockImplementation((target, data, options) => {
-      if (String(target).startsWith(`${claimsDir}${path.sep}`)) claimWrites += 1;
-      write(target, data, options);
+    vi.spyOn(fs, "openSync").mockImplementation((...args) => {
+      if (String(args[0]).startsWith(`${claimsDir}${path.sep}`) && args[1] === "wx") claimWrites += 1;
+      return open(...args);
     });
     vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
       remove(target, options);
@@ -386,6 +386,38 @@ describe("withStoreLock", () => {
     expect(ran).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(lockFile)).toBe(false);
     expect(fs.readdirSync(claimsDir)).toEqual([]);
+  });
+
+  it("removes a claim whose pid write fails and leaves the lock usable", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const open = fs.openSync;
+    const write = fs.writeSync;
+    const claimDescriptors = new Set<number>();
+    let failedWrites = 0;
+    vi.spyOn(fs, "openSync").mockImplementation((...args) => {
+      const fd = open(...args);
+      if (String(args[0]).startsWith(`${claimsDir}${path.sep}`)) claimDescriptors.add(fd);
+      return fd;
+    });
+    vi.spyOn(fs, "writeSync").mockImplementation((...args) => {
+      if (claimDescriptors.has(args[0]) && failedWrites === 0) {
+        failedWrites += 1;
+        throw Object.assign(new Error("no space left on device"), { code: "ENOSPC" });
+      }
+      return write(...args);
+    });
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, () => "ran");
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toMatchObject({ code: "ENOSPC" });
+    expect(failedWrites).toBe(1);
+    expect(fs.existsSync(claimsDir) ? fs.readdirSync(claimsDir) : []).toEqual([]);
+    expect(withStoreLock(store, () => "ran")).toBe("ran");
   });
 
   it("leaves another process's lock file in place when the file no longer holds our pid", () => {

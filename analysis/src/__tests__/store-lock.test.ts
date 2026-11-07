@@ -233,6 +233,19 @@ describe("withStoreLock", () => {
     expect(fs.existsSync(`${lockFile}.claims`) ? fs.readdirSync(`${lockFile}.claims`) : []).toEqual([]);
   });
 
+  it("ignores a stray directory in the claims directory", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const stray = path.join(claimsDir, "stray");
+    const ran = vi.fn(() => "ran");
+    fs.mkdirSync(stray, { recursive: true });
+
+    expect(withStoreLock(store, ran)).toBe("ran");
+
+    expect(ran).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(lockFile)).toBe(false);
+    expect(fs.existsSync(stray)).toBe(true);
+  });
+
   it("fails closed when it cannot inspect claim entries", () => {
     const claimsDir = `${lockFile}.claims`;
     const ran = vi.fn(() => "ran");

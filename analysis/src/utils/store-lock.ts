@@ -94,6 +94,15 @@ const lockAgeMs = (lockFile: string): number | undefined => {
   }
 };
 
+const entriesIfPresent = (claimsDir: string): string[] | undefined => {
+  try {
+    return fs.readdirSync(claimsDir);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return undefined;
+    throw error;
+  }
+};
+
 const removeClaim = (lockFile: string, claim: string): void => {
   fs.rmSync(claim, { force: true });
   const claimsDir = claimDirectoryFor(lockFile);
@@ -102,14 +111,8 @@ const removeClaim = (lockFile: string, claim: string): void => {
   } catch (error) {
     const code = (error as NodeJS.ErrnoException).code;
     if (code === "EPERM") {
-      let entries: string[];
-      try {
-        entries = fs.readdirSync(claimsDir);
-      } catch (inspectError) {
-        if ((inspectError as NodeJS.ErrnoException).code === "ENOENT") return;
-        throw inspectError;
-      }
-      if (entries.length > 0) return;
+      const entries = entriesIfPresent(claimsDir);
+      if (entries === undefined || entries.length > 0) return;
       try {
         fs.rmdirSync(claimsDir);
         return;
@@ -117,14 +120,8 @@ const removeClaim = (lockFile: string, claim: string): void => {
         const retryCode = (retryError as NodeJS.ErrnoException).code;
         if (retryCode === "ENOENT" || retryCode === "ENOTEMPTY" || retryCode === "EEXIST") return;
         if (retryCode === "EPERM") {
-          let retryEntries: string[];
-          try {
-            retryEntries = fs.readdirSync(claimsDir);
-          } catch (inspectError) {
-            if ((inspectError as NodeJS.ErrnoException).code === "ENOENT") return;
-            throw inspectError;
-          }
-          if (retryEntries.length > 0) return;
+          const retryEntries = entriesIfPresent(claimsDir);
+          if (retryEntries === undefined || retryEntries.length > 0) return;
         }
         throw retryError;
       }
@@ -148,7 +145,7 @@ const removeStaleClaims = (lockFile: string, ownClaim: string): void => {
   for (const entry of entries) {
     const candidate = path.join(claimsDir, entry.name);
     if (candidate === ownClaim) continue;
-    if (!entry.isFile()) throw new Error(`Store lock claim ${candidate} is not a file`);
+    if (!entry.isFile()) continue;
 
     const contents = readLockContents(candidate);
     if (contents === undefined) continue;
@@ -216,30 +213,28 @@ const createClaim = (lockFile: string): string => {
   throw new Error(changingMessage(lockFile));
 };
 
-type ReclaimOutcome = "claimed" | "held" | "raced";
-
-const reclaimStale = (lockFile: string, inspected: string): ReclaimOutcome => {
-  const claimed = `${lockFile}.${process.pid}.reclaim`;
+const reclaimStale = (lockFile: string, inspected: string): boolean => {
+  const movedAside = `${lockFile}.${process.pid}.reclaim`;
   try {
-    fs.renameSync(lockFile, claimed);
+    fs.renameSync(lockFile, movedAside);
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return "raced";
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
     throw error;
   }
 
-  const moved = fs.readFileSync(claimed, "utf8");
+  const moved = fs.readFileSync(movedAside, "utf8");
   if (moved !== inspected) {
     try {
-      fs.renameSync(claimed, lockFile);
+      fs.renameSync(movedAside, lockFile);
     } catch {
-      return "held";
+      return true;
     }
-    return "held";
+    return true;
   }
 
-  fs.rmSync(claimed, { force: true });
+  fs.rmSync(movedAside, { force: true });
   warnReclaim(lockFile, inspected);
-  return "claimed";
+  return false;
 };
 
 const acquire = (lockFile: string): string => {
@@ -260,8 +255,7 @@ const acquire = (lockFile: string): string => {
         if (age < LOCK_CONTENT_GRACE_MS) throw new Error(heldMessage(lockFile, contents));
       }
 
-      const outcome = reclaimStale(lockFile, contents);
-      if (outcome === "held") {
+      if (reclaimStale(lockFile, contents)) {
         throw new Error(heldMessage(lockFile, readLockContents(lockFile) ?? contents));
       }
     }

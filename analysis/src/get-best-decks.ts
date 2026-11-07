@@ -29,6 +29,11 @@ import {
   renderDataVersion,
   splitArtefactFiles,
 } from "./utils/premium-artefacts";
+import {
+  buildPremiumDeckSlugs,
+  PREMIUM_DECK_SLUGS_FILE,
+  renderPremiumDeckSlugs,
+} from "./utils/premium-deck-slugs";
 import { writeArtefacts } from "./utils/write-artifacts";
 import { deckNameToIconIds } from "../../src/types/deck-name";
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
@@ -169,6 +174,13 @@ export const run = async (): Promise<void> => {
         ])
       ),
       "../public/data/data-version.json": renderDataVersion(premiumVersion(premiumFiles)),
+      [PREMIUM_DECK_SLUGS_FILE]: renderPremiumDeckSlugs(
+        buildPremiumDeckSlugs(
+          Object.fromEntries(WINDOW_IDS.map((window) => [window, artefacts[window].bestDecks])),
+          DEFAULT_WINDOW,
+          PREMIUM_WINDOWS
+        )
+      ),
       "../public/data/historical-trends.json": JSON.stringify(trends, null, 2),
       "../public/data/card-scores.json": JSON.stringify(cardScoresList, null, 2),
       "../src/app/last-updated.ts": `export const LAST_UPDATED = new Date("${today.toISOString()}");`,

@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { deckSlug } from "./deck-slug.mjs";
+import { loadPremiumDeckSlugs } from "./premium-deck-slugs.mjs";
 import { writeFileAtomic } from "./atomic-write.mjs";
 import { fileURLToPath } from "node:url";
 
@@ -37,11 +38,14 @@ export const redirectRules = (archive, liveSlugs) =>
     })
   );
 
+export const liveDeckSlugs = (decks, premiumSlugs) =>
+  new Set([...decks.map((deck) => deckSlug(deck.name)), ...Object.keys(premiumSlugs)]);
+
 const main = () => {
   const archive = JSON.parse(fs.readFileSync(ARCHIVE_FILE, "utf8"));
-  const liveSlugs = new Set(
-    JSON.parse(fs.readFileSync(path.join(ROOT, "public", "data", "best-decks.json"), "utf8"))
-      .map((deck) => deckSlug(deck.name))
+  const liveSlugs = liveDeckSlugs(
+    JSON.parse(fs.readFileSync(path.join(ROOT, "public", "data", "best-decks.json"), "utf8")),
+    loadPremiumDeckSlugs()
   );
   const rules = redirectRules(archive, liveSlugs);
   const config = JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8"));

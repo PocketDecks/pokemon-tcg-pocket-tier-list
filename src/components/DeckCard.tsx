@@ -2,6 +2,7 @@ import styled, { keyframes } from "styled-components";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { LocaleLink as Link } from "../app/locale-link";
 import { deckDisplayName } from "../app/deck-display";
+import useDeckHref from "../app/use-deck-href";
 import { deckThumbUrl, onDeckThumbError } from "../app/deck-thumb";
 import { FullDeckType } from "../contexts/DecksContext";
 import { MetaShareEntry } from "../types/pipeline-data";
@@ -161,6 +162,8 @@ const formatShare = (share: number): string => `${(share * 100).toFixed(1)}%`;
 
 
 const DeckCard = ({ deck, metaShare, metaShareLabel, linkTo }: Props) => {
+    const deckHref = useDeckHref();
+    const target = linkTo ?? deckHref(deck.id);
     const share = metaShare?.share ?? null;
     const delta = metaShare?.delta ?? null;
     const trend = deltaTrend(delta);
@@ -204,7 +207,7 @@ const DeckCard = ({ deck, metaShare, metaShareLabel, linkTo }: Props) => {
             onBlur={hide}
         >
             <StyledDeckCard
-                to={linkTo ?? `/deck/${deck.id}`}
+                to={target}
                 aria-label={shareLabel ? `${name}, ${shareLabel}` : name}
             >
                 <DeckImage
@@ -231,7 +234,7 @@ const DeckCard = ({ deck, metaShare, metaShareLabel, linkTo }: Props) => {
                 ) : null}
             </StyledDeckCard>
             {deck.iconSecondary && (
-                <SubCard to={linkTo ?? `/deck/${deck.id}`} tabIndex={-1} aria-hidden="true">
+                <SubCard to={target} tabIndex={-1} aria-hidden="true">
                     <DeckImage
                         key={deck.iconSecondary.id}
                         src={deckThumbUrl(deck.iconSecondary.id, THUMB_SIZES.large)}

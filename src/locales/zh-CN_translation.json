@@ -141,7 +141,10 @@
     "shareQrCopyTitle": "点按复制卡组代码",
     "shareQrCopy": "复制卡组代码",
     "shareQrCopied": "已复制！",
-    "shareQrDownload": "下载二维码"
+    "shareQrDownload": "下载二维码",
+    "premiumGateTitle": "该卡组仅出现在高级会员时间范围内",
+    "premiumGateBody": "它列在 30 天和全部时间视图中，这些视图属于高级会员功能。",
+    "premiumGateAction": "了解高级会员"
   },
   "energyDropdown": {
     "all": "所有能量类型",

@@ -1,7 +1,5 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -10,31 +8,29 @@ import {
 import {
   DEFAULT_META_WINDOW,
   isPremiumMetaWindow,
+  parseMetaWindow,
   type MetaWindow,
 } from "../app/meta-window";
 import { useQueryClient } from "@tanstack/react-query";
 import { PremiumAccessError } from "../app/premium-data";
 import useIsPremium from "../app/use-is-premium";
+import { MetaWindowContext } from "./meta-window-state";
 
-interface MetaWindowContextValue {
-  window: MetaWindow;
-  setWindow: (window: MetaWindow) => void;
-}
+export { useMetaWindow } from "./meta-window-state";
 
-// Non-null default keeps tests and the prerender working without the provider.
-const MetaWindowContext = createContext<MetaWindowContextValue>({
-  window: DEFAULT_META_WINDOW,
-  setWindow: () => {},
-});
+const windowFromUrl = (): MetaWindow | null =>
+  parseMetaWindow(new URLSearchParams(globalThis.location?.search ?? "").get("window"));
 
 export const MetaWindowProvider = ({
   children,
-  initialWindow = DEFAULT_META_WINDOW,
+  initialWindow,
 }: {
   children: ReactNode;
   initialWindow?: MetaWindow;
 }) => {
-  const [window, setWindowState] = useState<MetaWindow>(initialWindow);
+  const [window, setWindowState] = useState<MetaWindow>(
+    () => initialWindow ?? windowFromUrl() ?? DEFAULT_META_WINDOW
+  );
   const isPremium = useIsPremium();
   const queryClient = useQueryClient();
   const setWindow = useCallback((next: MetaWindow) => setWindowState(next), []);
@@ -70,6 +66,3 @@ export const MetaWindowProvider = ({
     </MetaWindowContext.Provider>
   );
 };
-
-export const useMetaWindow = (): MetaWindowContextValue =>
-  useContext(MetaWindowContext);

@@ -141,7 +141,10 @@
     "shareQrCopyTitle": "탭하여 덱 코드 복사",
     "shareQrCopy": "덱 코드 복사",
     "shareQrCopied": "복사했습니다",
-    "shareQrDownload": "QR 다운로드"
+    "shareQrDownload": "QR 다운로드",
+    "premiumGateTitle": "이 덱은 Premium 집계 기간에서만 볼 수 있습니다",
+    "premiumGateBody": "30일과 전체 기간 보기에 포함되어 있으며, 이 보기들은 Premium에 속합니다.",
+    "premiumGateAction": "Premium 보기"
   },
   "energyDropdown": {
     "all": "모든 에너지 타입",

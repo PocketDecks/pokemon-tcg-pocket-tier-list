@@ -107,7 +107,7 @@ describe("run", () => {
 
     expect(writeArtefacts).toHaveBeenCalledTimes(1);
     const files = writeArtefacts.mock.calls[0][0] as Record<string, string>;
-    expect(Object.keys(files)).toHaveLength(19);
+    expect(Object.keys(files)).toHaveLength(20);
     for (const name of [
       "../public/data/best-decks.json",
       "../public/data/best-decks-10d.json",
@@ -163,6 +163,29 @@ describe("run", () => {
     expect(files["../public/data/data-version.json"]).toBe(
       renderDataVersion(premiumVersion(premium))
     );
+  });
+
+  it("writes the premium deck slug list beside the other frontend data", async () => {
+    await run();
+
+    const files = writeArtefacts.mock.calls[0][0] as Record<string, string>;
+    expect(files["../src/data/premium-deck-slugs.json"]).toBe("{}\n");
+  });
+
+  it("lists a deck only the premium windows offer, by name and window", async () => {
+    getDecks.mockReturnValue([
+      ...makeDecks(),
+      ...makeDecks("2026-09-01T02:00:00.000Z")
+        .slice(0, 1)
+        .map((deck) => ({ ...deck, id: "old-deck", name: "old-arch" })),
+    ]);
+
+    await run();
+
+    const files = writeArtefacts.mock.calls[0][0] as Record<string, string>;
+    expect(JSON.parse(files["../src/data/premium-deck-slugs.json"])).toEqual({
+      "old-arch": ["30d", "all"],
+    });
   });
 
   it("stages one image per archetype before anything is written", async () => {

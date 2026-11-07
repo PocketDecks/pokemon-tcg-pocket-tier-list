@@ -141,7 +141,10 @@
     "shareQrCopyTitle": "Tippen, um den Deck-Code zu kopieren",
     "shareQrCopy": "Deck-Code kopieren",
     "shareQrCopied": "Kopiert!",
-    "shareQrDownload": "QR herunterladen"
+    "shareQrDownload": "QR herunterladen",
+    "premiumGateTitle": "Dieses Deck gibt es nur in einem Premium-Zeitfenster",
+    "premiumGateBody": "Es steht in den Ansichten 30 Tage und Gesamtzeit, die zu Premium gehören.",
+    "premiumGateAction": "Premium ansehen"
   },
   "energyDropdown": {
     "all": "Alle Energietypen",

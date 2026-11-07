@@ -5,6 +5,7 @@ import { LocaleLink as Link } from "../../app/locale-link";
 
 import useIsPremium from "../../app/use-is-premium";
 import { useMetaWindow } from "../../app/use-meta-window";
+import useDeckHref from "../../app/use-deck-href";
 import { META_WINDOW_LENGTH_DAYS } from "../../app/meta-window";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCards } from "../../app/cards-api";
@@ -322,6 +323,7 @@ const StatisticsPage = () => {
     const activeSeries = hoveredSeries ?? pinnedSeries;
     const isPremium = useIsPremium();
     const { window: metaWindow } = useMetaWindow();
+    const deckHref = useDeckHref();
     const trendQuery = usePipelineTrends();
     const trendData = trendQuery.rows;
     const [movementView, setMovementView] = useState<"rising" | "falling" | "new">("rising");
@@ -495,7 +497,7 @@ const StatisticsPage = () => {
                                                         .join(" / ")
                                                   : null;
                                             return (
-                                                <Link to={`/deck/${entry.name}`}>
+                                                <Link to={deckHref(entry.name)}>
                                                     {deck
                                                         ? deckDisplayName(deck)
                                                         : iconNames ||

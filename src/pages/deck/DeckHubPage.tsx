@@ -7,6 +7,7 @@ import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { archiveForHub } from "../../app/deck-archive";
 import { LocaleLink, useLocaleHref } from "../../app/locale-link";
 import { deckSlug } from "../../app/deck-slug";
+import useDeckHref from "../../app/use-deck-href";
 import { hubDisplayName, hubSeenRange } from "../../app/deck-archetype";
 import { deckDisplayName, variantDisplayName } from "../../app/deck-display";
 import { useDecks, useMatchups } from "../../app/use-decks";
@@ -175,6 +176,7 @@ const HubPage = () => {
   const { matchupsByName, loading: matchupsLoading } = useMatchups();
   const { t, i18n } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");
+  const deckHref = useDeckHref();
   const deckFinderHref = useLocaleHref("/deck");
   const variants = hubSlug ? archiveForHub(hubSlug) : [];
   const hubQuery = useHubFile(hubSlug);
@@ -302,7 +304,7 @@ const HubPage = () => {
             const deck = liveBySlug.get(entry.variant);
             const share = metaShareBySlug?.[entry.variant]?.share;
             return (
-              <Variant key={entry.variant} to={`/deck/${entry.variant}`}>
+              <Variant key={entry.variant} to={deckHref(entry.variant)}>
                 <VariantName>{variantDisplayName(entry.name, deck)}</VariantName>
                 <VariantMeta>
                   {[
@@ -358,7 +360,7 @@ const HubPage = () => {
               <Rows>
                 {similar.map(({ deck, shared }) => (
                   <li key={deck.name}>
-                    <Variant to={`/deck/${deckSlug(deck.name)}`}>
+                    <Variant to={deckHref(deckSlug(deck.name))}>
                       <VariantName>{deckDisplayName(deck)}</VariantName>
                       <VariantMeta>{t("deckHub.sharedCards", { count: shared })}</VariantMeta>
                     </Variant>
@@ -387,7 +389,7 @@ const HubPage = () => {
                 const historyLine = [seenText, peakText].filter(Boolean).join(" · ");
                 return deck ? (
                   <li key={record.variant}>
-                    <Variant to={`/deck/${record.variant}`}>
+                    <Variant to={deckHref(record.variant)}>
                       <VariantName>{label}</VariantName>
                       <VariantMeta>{historyLine}</VariantMeta>
                     </Variant>

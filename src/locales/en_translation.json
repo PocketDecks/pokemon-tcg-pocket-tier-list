@@ -141,7 +141,10 @@
     "shareQrCopyTitle": "Tap to copy deck code",
     "shareQrCopy": "Copy deck code",
     "shareQrCopied": "Copied!",
-    "shareQrDownload": "Download QR"
+    "shareQrDownload": "Download QR",
+    "premiumGateTitle": "This deck only appears in a Premium window",
+    "premiumGateBody": "It is listed in the 30 day and all time views, which are part of Premium.",
+    "premiumGateAction": "See Premium"
   },
   "energyDropdown": {
     "all": "All Energy Types",

@@ -10,6 +10,9 @@ export const DEFAULT_META_WINDOW: MetaWindow = "20d";
 
 const PREMIUM_META_WINDOWS: readonly MetaWindow[] = ["30d", "all"];
 
+export const parseMetaWindow = (value: string | null): MetaWindow | null =>
+  META_WINDOWS.find((window) => window === value) ?? null;
+
 export const isPremiumMetaWindow = (window: MetaWindow): boolean =>
   PREMIUM_META_WINDOWS.includes(window);
 

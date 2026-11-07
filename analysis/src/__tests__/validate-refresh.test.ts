@@ -20,10 +20,13 @@ afterEach(() => {
   }
 });
 
+const PREMIUM: readonly string[] = ["30d", "all"];
+
 const writeWindows = (
   dir: string,
   counts: Partial<Record<(typeof REFRESH_WINDOWS)[number], number>>,
-  extra: Partial<Record<(typeof REFRESH_WINDOWS)[number], string[]>> = {}
+  extra: Partial<Record<(typeof REFRESH_WINDOWS)[number], string[]>> = {},
+  premiumDir: string = dir
 ): string[] => {
   const names: string[] = [];
   for (const window of REFRESH_WINDOWS) {
@@ -36,7 +39,8 @@ const writeWindows = (
     ];
     names.push(...decks.map((deck) => deck.name));
     const body = JSON.stringify(decks);
-    fs.writeFileSync(path.join(dir, `best-decks-${window}.json`), body);
+    const target = PREMIUM.includes(window) ? premiumDir : dir;
+    fs.writeFileSync(path.join(target, `best-decks-${window}.json`), body);
     if (window === "20d") {
       fs.writeFileSync(path.join(dir, "best-decks.json"), body);
     }
@@ -54,10 +58,11 @@ const healthy = { "10d": 12, "20d": 25, "30d": 32, all: 32 } as const;
 describe("validateRefresh", () => {
   it("passes when every window clears its floor and the union has one image each", () => {
     const data = tmp();
+    const premium = tmp();
     const images = tmp();
-    writeImages(images, writeWindows(data, healthy));
+    writeImages(images, writeWindows(data, healthy, {}, premium));
 
-    const report = validateRefresh(data, images, null);
+    const report = validateRefresh(data, images, null, premium);
 
     expect(report.failures).toEqual([]);
     expect(report.windows.map((row) => row.archetypes)).toEqual([12, 25, 32, 32]);
@@ -67,10 +72,11 @@ describe("validateRefresh", () => {
 
   it("counts a name shared by two windows once", () => {
     const data = tmp();
+    const premium = tmp();
     const images = tmp();
-    writeImages(images, writeWindows(data, healthy, { all: ["deck-20d-0"] }));
+    writeImages(images, writeWindows(data, healthy, { all: ["deck-20d-0"] }, premium));
 
-    const report = validateRefresh(data, images, null);
+    const report = validateRefresh(data, images, null, premium);
 
     expect(report.union).toBe(101);
     expect(report.failures).toEqual([]);
@@ -78,11 +84,12 @@ describe("validateRefresh", () => {
 
   it("fails when a deck name has no image", () => {
     const data = tmp();
+    const premium = tmp();
     const images = tmp();
-    const names = writeWindows(data, healthy);
+    const names = writeWindows(data, healthy, {}, premium);
     writeImages(images, names.slice(1));
 
-    const report = validateRefresh(data, images, null);
+    const report = validateRefresh(data, images, null, premium);
 
     expect(report.missingImages).toEqual([names[0]]);
     expect(report.failures).toEqual(["1 deck names have no OG image"]);
@@ -90,10 +97,11 @@ describe("validateRefresh", () => {
 
   it("fails when an image matches no deck name", () => {
     const data = tmp();
+    const premium = tmp();
     const images = tmp();
-    writeImages(images, [...writeWindows(data, healthy), "retired-deck"]);
+    writeImages(images, [...writeWindows(data, healthy, {}, premium), "retired-deck"]);
 
-    const report = validateRefresh(data, images, null);
+    const report = validateRefresh(data, images, null, premium);
 
     expect(report.orphanImages).toEqual(["retired-deck"]);
     expect(report.failures).toEqual(["1 OG images match no deck name"]);
@@ -101,12 +109,13 @@ describe("validateRefresh", () => {
 
   it("fails when a window falls below half the previous snapshot", () => {
     const data = tmp();
+    const premium = tmp();
     const images = tmp();
     const previous = tmp();
-    writeImages(images, writeWindows(data, healthy));
+    writeImages(images, writeWindows(data, healthy, {}, premium));
     writeWindows(previous, { ...healthy, "10d": 40 });
 
-    const report = validateRefresh(data, images, previous);
+    const report = validateRefresh(data, images, previous, premium);
 
     expect(report.windows[0]).toEqual({ window: "10d", archetypes: 12, floor: 20, previous: 40 });
     expect(report.failures).toEqual(["10d: 12 archetypes, floor 20 (half of 40)"]);
@@ -114,10 +123,11 @@ describe("validateRefresh", () => {
 
   it("keeps the code floor when no previous snapshot exists", () => {
     const data = tmp();
+    const premium = tmp();
     const images = tmp();
-    writeImages(images, writeWindows(data, { ...healthy, "10d": 5 }));
+    writeImages(images, writeWindows(data, { ...healthy, "10d": 5 }, {}, premium));
 
-    const report = validateRefresh(data, images, null);
+    const report = validateRefresh(data, images, null, premium);
 
     expect(report.windows[0]).toEqual({ window: "10d", archetypes: 5, floor: 12, previous: null });
     expect(report.failures).toEqual(["10d: 5 archetypes, floor 12"]);
@@ -125,11 +135,12 @@ describe("validateRefresh", () => {
 
   it("fails when the default file is not the 20d copy", () => {
     const data = tmp();
+    const premium = tmp();
     const images = tmp();
-    writeImages(images, writeWindows(data, healthy));
+    writeImages(images, writeWindows(data, healthy, {}, premium));
     fs.writeFileSync(path.join(data, "best-decks.json"), "[]");
 
-    const report = validateRefresh(data, images, null);
+    const report = validateRefresh(data, images, null, premium);
 
     expect(report.failures).toEqual(["best-decks.json differs from best-decks-20d.json"]);
   });
@@ -142,12 +153,13 @@ describe("validateRefresh", () => {
     "rounds the half floor up for %s",
     (window, previousCount, floor, current) => {
       const data = tmp();
+      const premium = tmp();
       const images = tmp();
       const previous = tmp();
-      writeImages(images, writeWindows(data, healthy));
+      writeImages(images, writeWindows(data, healthy, {}, premium));
       writeWindows(previous, { ...healthy, [window]: previousCount });
 
-      const report = validateRefresh(data, images, previous);
+      const report = validateRefresh(data, images, previous, premium);
 
       const row = report.windows.find((entry) => entry.window === window);
       expect(row?.floor).toBe(floor);
@@ -160,34 +172,85 @@ describe("validateRefresh", () => {
 
   it("fails when the default file is missing", () => {
     const data = tmp();
+    const premium = tmp();
     const images = tmp();
-    writeImages(images, writeWindows(data, healthy));
+    writeImages(images, writeWindows(data, healthy, {}, premium));
     fs.rmSync(path.join(data, "best-decks.json"));
 
-    const report = validateRefresh(data, images, null);
+    const report = validateRefresh(data, images, null, premium);
 
     expect(report.failures).toEqual(["best-decks.json is missing"]);
   });
 
   it("throws when the previous snapshot lacks a window file", () => {
     const data = tmp();
+    const premium = tmp();
     const images = tmp();
     const previous = tmp();
-    writeImages(images, writeWindows(data, healthy));
+    writeImages(images, writeWindows(data, healthy, {}, premium));
+    writeWindows(previous, healthy);
+    fs.rmSync(path.join(previous, "best-decks-10d.json"));
+
+    expect(() => validateRefresh(data, images, previous, premium)).toThrow(
+      /best-decks-10d\.json/
+    );
+  });
+
+  it("treats a premium window missing from the previous snapshot as having no previous", () => {
+    const data = tmp();
+    const premium = tmp();
+    const images = tmp();
+    const previous = tmp();
+    writeImages(images, writeWindows(data, healthy, {}, premium));
     writeWindows(previous, healthy);
     fs.rmSync(path.join(previous, "best-decks-30d.json"));
 
-    expect(() => validateRefresh(data, images, previous)).toThrow(
-      /best-decks-30d\.json/
+    const report = validateRefresh(data, images, previous, premium);
+
+    expect(report.windows.find((row) => row.window === "30d")).toEqual({
+      window: "30d",
+      archetypes: 32,
+      floor: 32,
+      previous: null,
+    });
+    expect(report.failures).toEqual([]);
+  });
+
+  it("reads the premium windows from the premium directory and the others from the data directory", () => {
+    const data = tmp();
+    const premium = tmp();
+    const images = tmp();
+    writeImages(images, writeWindows(data, healthy, {}, premium));
+
+    expect(fs.existsSync(path.join(data, "best-decks-30d.json"))).toBe(false);
+    expect(fs.existsSync(path.join(premium, "best-decks-10d.json"))).toBe(false);
+    const report = validateRefresh(data, images, null, premium);
+
+    expect(report.windows.map((row) => row.archetypes)).toEqual([12, 25, 32, 32]);
+    expect(report.failures).toEqual([]);
+  });
+
+  it("does not fall back to the data directory for a premium window", () => {
+    const data = tmp();
+    const premium = tmp();
+    const images = tmp();
+    writeWindows(data, healthy, {}, premium);
+    fs.copyFileSync(
+      path.join(premium, "best-decks-all.json"),
+      path.join(data, "best-decks-all.json")
     );
+    fs.rmSync(path.join(premium, "best-decks-all.json"));
+
+    expect(() => validateRefresh(data, images, null, premium)).toThrow(/best-decks-all\.json/);
   });
 
   it("throws when a window file is missing", () => {
     const data = tmp();
+    const premium = tmp();
     const images = tmp();
-    writeWindows(data, healthy);
-    fs.rmSync(path.join(data, "best-decks-30d.json"));
+    writeWindows(data, healthy, {}, premium);
+    fs.rmSync(path.join(premium, "best-decks-30d.json"));
 
-    expect(() => validateRefresh(data, images, null)).toThrow(/best-decks-30d\.json/);
+    expect(() => validateRefresh(data, images, null, premium)).toThrow(/best-decks-30d\.json/);
   });
 });

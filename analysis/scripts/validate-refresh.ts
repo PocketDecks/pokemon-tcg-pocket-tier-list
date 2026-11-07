@@ -3,6 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+import { PREMIUM_DIR, PREMIUM_WINDOWS } from "../src/utils/premium-artefacts";
 import {
   REFRESH_WINDOWS,
   validateRefresh,
@@ -23,6 +24,7 @@ const flag = (name: string): string | null => {
 const repoRoot = path.resolve(__dirname, "../..");
 const dataDir = flag("--data") ?? path.join(repoRoot, "public/data");
 const imagesDir = flag("--images") ?? path.join(repoRoot, "public/og/deck");
+const premiumDir = flag("--premium") ?? PREMIUM_DIR;
 
 const readPrevious = (): string | null => {
   const explicit = flag("--previous");
@@ -41,6 +43,7 @@ const readPrevious = (): string | null => {
         stdio: ["ignore", "pipe", "pipe"],
       });
     } catch {
+      if ((PREMIUM_WINDOWS as readonly string[]).includes(window)) continue;
       throw new Error(
         `cannot read ${ref}:${file}; fetch ${ref} or pass --previous <dir> or --no-previous`
       );
@@ -58,7 +61,7 @@ try {
   process.exit(1);
 }
 
-const report = validateRefresh(dataDir, imagesDir, previousDir);
+const report = validateRefresh(dataDir, imagesDir, previousDir, premiumDir);
 
 for (const row of report.windows) {
   const previous = row.previous === null ? "no previous" : `previous ${row.previous}`;

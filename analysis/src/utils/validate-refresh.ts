@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { MIN_PUBLISHED_ARCHETYPES } from "../settings";
+import { PREMIUM_WINDOWS } from "./premium-artefacts";
 
 export const REFRESH_WINDOWS = ["10d", "20d", "30d", "all"] as const;
 export type RefreshWindow = (typeof REFRESH_WINDOWS)[number];
@@ -22,26 +23,44 @@ export interface RefreshReport {
   failures: string[];
 }
 
+const isPremiumWindow = (window: RefreshWindow): boolean =>
+  (PREMIUM_WINDOWS as readonly string[]).includes(window);
+
 const readDecks = (dir: string, window: RefreshWindow): { name: string }[] => {
   const file = path.join(dir, `best-decks-${window}.json`);
   if (!fs.existsSync(file)) throw new Error(`missing ${file}`);
   return JSON.parse(fs.readFileSync(file, "utf8")) as { name: string }[];
 };
 
+const readPreviousCount = (
+  previousDir: string | null,
+  window: RefreshWindow
+): number | null => {
+  if (previousDir === null) return null;
+  if (
+    isPremiumWindow(window) &&
+    !fs.existsSync(path.join(previousDir, `best-decks-${window}.json`))
+  ) {
+    return null;
+  }
+  return readDecks(previousDir, window).length;
+};
+
 export const validateRefresh = (
   dataDir: string,
   imagesDir: string,
-  previousDir: string | null
+  previousDir: string | null,
+  premiumDir: string
 ): RefreshReport => {
   const failures: string[] = [];
   const windows: WindowReport[] = [];
   const union = new Set<string>();
 
   for (const window of REFRESH_WINDOWS) {
-    const decks = readDecks(dataDir, window);
+    const decks = readDecks(isPremiumWindow(window) ? premiumDir : dataDir, window);
     for (const deck of decks) union.add(deck.name);
 
-    const previous = previousDir ? readDecks(previousDir, window).length : null;
+    const previous = readPreviousCount(previousDir, window);
 
     const floor = Math.max(
       MIN_PUBLISHED_ARCHETYPES[window],

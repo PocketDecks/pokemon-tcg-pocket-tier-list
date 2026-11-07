@@ -32,6 +32,7 @@ const ARCHIVE_FILE = path.join(ROOT, "public", "data", "deck-archive.json");
 const DECK_CONCURRENCY = 8;
 
 const { deckSlug } = require("./deck-slug.mjs");
+const { loadPremiumDeckSlugs } = require("./premium-deck-slugs.mjs");
 const { hubDisplayName } = require("./deck-archetype.mjs");
 const { cardThumbSrcSet, DECK_CARD_SIZES, firstBestListCardId } = require("./deck-thumbs.mjs");
 
@@ -139,6 +140,31 @@ const writeDeckPage = (job, html, locale = DEFAULT_LOCALE) => {
   fs.writeFileSync(path.join(outDir, "index.html"), html);
 };
 
+const premiumShellHtml = (templateHtml, locale = DEFAULT_LOCALE) =>
+  stampHead(templateHtml.replace(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi, ""), {
+    robots: "noindex",
+    lang: locale,
+    alternates: [],
+  });
+
+const premiumShellPages = (slugs, liveSlugs) => {
+  const clashes = slugs.filter((slug) => liveSlugs.has(slug));
+  if (clashes.length > 0) {
+    throw new Error(`Premium-only deck slugs that are also live: ${clashes.join(", ")}`);
+  }
+  return ROUTE_LOCALES.flatMap((locale) =>
+    slugs.map((slug) => ({ slug, locale, route: localeRoute(locale, `/deck/${slug}`) }))
+  );
+};
+
+const writePremiumShells = (buildDir, templateHtml, pages) => {
+  for (const { locale, route } of pages) {
+    const outDir = path.join(buildDir, route.replace(/^\//, ""));
+    fs.mkdirSync(outDir, { recursive: true });
+    fs.writeFileSync(path.join(outDir, "index.html"), premiumShellHtml(templateHtml, locale));
+  }
+};
+
 const main = async () => {
   if (!fs.existsSync(BUILD_DIR)) {
     console.error("Build output not found; run `yarn build` first.");
@@ -146,7 +172,12 @@ const main = async () => {
   }
   const template = readTemplate(fs.readFileSync(path.join(BUILD_DIR, "index.html"), "utf8"));
   const archive = JSON.parse(fs.readFileSync(ARCHIVE_FILE, "utf8"));
-  const jobs = jobsForLiveDecks(JSON.parse(fs.readFileSync(DATA_FILE, "utf8")), archive);
+  const liveDecks = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
+  const jobs = jobsForLiveDecks(liveDecks, archive);
+  const shellPages = premiumShellPages(
+    Object.keys(loadPremiumDeckSlugs()),
+    new Set(liveDecks.map((deck) => slugFor(deck.name)))
+  );
 
   const server = await startServer(BUILD_DIR, template.html);
   const browser = await launchBrowser();
@@ -177,7 +208,9 @@ const main = async () => {
   if (pageErrors.length > 0) {
     throw new Error(`Page errors during deck prerender:\n${pageErrors.join("\n")}`);
   }
+  writePremiumShells(BUILD_DIR, template.html, shellPages);
   console.log(`Prerendered ${jobs.length * ROUTE_LOCALES.length} deck pages into ${BUILD_DIR}/deck/`);
+  console.log(`Wrote ${shellPages.length} premium deck shells into ${BUILD_DIR}/deck/`);
 };
 
 if (require.main === module) {
@@ -192,6 +225,9 @@ module.exports = {
   jobsForLiveDecks,
   DECK_CONCURRENCY,
   renderDeckHtml,
+  premiumShellHtml,
+  premiumShellPages,
+  writePremiumShells,
   friendlyName,
   slugFor,
 };

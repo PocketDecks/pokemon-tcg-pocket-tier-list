@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { deckNameToIconIds } = require("./deck-name.mjs");
 const { deckSlug } = require("./deck-slug.mjs");
+const { loadPremiumDeckSlugs } = require("./premium-deck-slugs.mjs");
 const {
   CARD_THUMB_WIDTHS,
   DECK_THUMB_SIZES,
@@ -39,6 +40,13 @@ const findPremiumDataFiles = (dir = DIST_DIR) => {
     .filter((entry) => PREMIUM_DATA_FILES.includes(path.basename(entry)))
     .map((entry) => path.join("data", entry));
 };
+
+const premiumDeckSlugList = () => Object.keys(loadPremiumDeckSlugs());
+
+const posixEntry = (entry) => entry.split(path.sep).join("/");
+
+const premiumShellEntries = (slugs) =>
+  new Set(["", "ja/"].flatMap((prefix) => slugs.map((slug) => `${prefix}deck/${slug}/index.html`)));
 
 const listHtmlFiles = (dir = DIST_DIR) =>
   fs.readdirSync(dir, { recursive: true }).filter((entry) => entry.endsWith(".html"));
@@ -78,8 +86,8 @@ const findBakedAppState = (dir = DIST_DIR) =>
 
 const EMPTY_ROOT = /<div\b[^>]*id=["']root["'][^>]*>\s*<\/div>/i;
 
-const findEmptyDeckRoots = (dir = DIST_DIR) =>
-  deckDetailFiles(dir)
+const findEmptyDeckRoots = (dir = DIST_DIR, shellSlugs = premiumDeckSlugList()) =>
+  deckDetailFiles(dir, shellSlugs)
     .filter((file) => EMPTY_ROOT.test(fs.readFileSync(file, "utf8")))
     .map((file) => path.relative(dir, file));
 
@@ -88,8 +96,8 @@ const hasCapturedStyles = (html) =>
     (match) => match[1].trim() !== ""
   );
 
-const findUncapturedDeckStyles = (dir = DIST_DIR) =>
-  deckDetailFiles(dir)
+const findUncapturedDeckStyles = (dir = DIST_DIR, shellSlugs = premiumDeckSlugList()) =>
+  deckDetailFiles(dir, shellSlugs)
     .filter((file) => !hasCapturedStyles(fs.readFileSync(file, "utf8")))
     .map((file) => path.relative(dir, file));
 
@@ -110,9 +118,9 @@ const expectedCanonical = (entry) => {
   return dir === "." ? `https://${SITE_HOST}/` : `https://${SITE_HOST}/${dir}/`;
 };
 
-const findCanonicalIssues = (dir = DIST_DIR) =>
+const findCanonicalIssues = (dir = DIST_DIR, shellSlugs = premiumDeckSlugList()) =>
   listHtmlFiles(dir)
-    .filter((entry) => !SHELL_PAGES.has(entry))
+    .filter((entry) => !SHELL_PAGES.has(entry) && !premiumShellEntries(shellSlugs).has(posixEntry(entry)))
     .flatMap((entry) => {
       const tags = fs.readFileSync(path.join(dir, entry), "utf8").match(CANONICAL_TAG) ?? [];
       if (tags.length !== 1) {
@@ -283,8 +291,9 @@ const collectModulepreloads = (html) =>
     .map((tag) => (tag.match(/href=["']([^"']*)["']/i) || [])[1])
     .filter((href) => href !== undefined);
 
-const deckDetailFiles = (dir = DIST_DIR) => {
+const deckDetailFiles = (dir = DIST_DIR, shellSlugs = premiumDeckSlugList()) => {
   if (!fs.existsSync(dir)) return [];
+  const shells = premiumShellEntries(shellSlugs);
   return fs
     .readdirSync(dir, { recursive: true, withFileTypes: true })
     .filter((entry) => entry.isFile() && entry.name === "index.html")
@@ -293,7 +302,40 @@ const deckDetailFiles = (dir = DIST_DIR) => {
       const segments = path.relative(dir, file).split(path.sep);
       return segments.length >= 3 && segments[segments.length - 3] === "deck";
     })
+    .filter((file) => !shells.has(posixEntry(path.relative(dir, file))))
     .sort();
+};
+
+const defaultOtherDeckSlugs = () => {
+  const live = loadDecks().map((deck) => deckSlug(deck.name));
+  const hubs = loadArchive().map((entry) => entry.hub);
+  return new Set([...live, ...hubs]);
+};
+
+const findPremiumShellIssues = (
+  dir = DIST_DIR,
+  { slugs = premiumDeckSlugList(), otherSlugs = defaultOtherDeckSlugs() } = {}
+) => {
+  const expected = [...premiumShellEntries(slugs)];
+  const issues = expected.flatMap((entry) => {
+    const file = path.join(dir, entry);
+    const local = entry.split("/").join(path.sep);
+    if (!fs.existsSync(file)) return [`${local}: missing`];
+    const html = fs.readFileSync(file, "utf8");
+    const robots = (html.match(/<meta\b[^>]*>/gi) ?? []).filter((tag) => /\bname=["']robots["']/i.test(tag));
+    return [
+      ...(robots.some((tag) => /\bnoindex\b/i.test(tag)) ? [] : [`${local}: no noindex robots meta`]),
+      ...((html.match(CANONICAL_TAG) ?? []).length > 0 ? [`${local}: has a canonical`] : []),
+      ...(/<link\b[^>]*\bhreflang=/i.test(html) ? [`${local}: has alternates`] : []),
+      ...(EMPTY_ROOT.test(html) ? [] : [`${local}: carries rendered content`]),
+    ];
+  });
+  const allowed = new Set([...expected, ...[...otherSlugs].flatMap((slug) => [`deck/${slug}/index.html`, `ja/deck/${slug}/index.html`])]);
+  const extras = deckDetailFiles(dir, [])
+    .map((file) => posixEntry(path.relative(dir, file)))
+    .filter((entry) => !allowed.has(entry))
+    .map((entry) => `${entry.split("/").join(path.sep)}: unexpected deck page`);
+  return [...issues, ...extras];
 };
 
 const findTemplateModulepreloads = (dir = DIST_DIR) => {
@@ -617,6 +659,13 @@ const main = () => {
     );
     process.exit(1);
   }
+  const premiumShellIssues = findPremiumShellIssues();
+  if (premiumShellIssues.length > 0) {
+    console.error(
+      `Premium deck shells must match the slug list exactly:\n${premiumShellIssues.join("\n")}`
+    );
+    process.exit(1);
+  }
   const shellIssues = findShellPageIssues();
   if (shellIssues.length > 0) {
     console.error(
@@ -707,6 +756,7 @@ if (require.main === module) main();
 module.exports = {
   PREMIUM_DATA_FILES,
   findPremiumDataFiles,
+  findPremiumShellIssues,
   findBakedAppState,
   findHubPageIssues,
   findExpansionPageIssues,

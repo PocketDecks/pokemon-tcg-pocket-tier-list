@@ -1,9 +1,15 @@
 import { spawn, spawnSync } from "child_process";
+import { randomUUID } from "crypto";
 import fs from "fs";
 import os from "os";
 import path from "path";
 import { expectTypeOf, vi } from "vitest";
 import { LOCK_CONTENT_GRACE_MS, lockFileFor, type SyncResult, withStoreLock } from "../utils/store-lock";
+
+vi.mock("crypto", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("crypto")>();
+  return { ...actual, randomUUID: vi.fn(actual.randomUUID) };
+});
 
 const deadPid = (): number => {
   const child = spawnSync(process.execPath, ["-e", ""]);
@@ -541,6 +547,7 @@ describe("withStoreLock", () => {
   });
 
   it("retries claim directory removal after a peer exits during EPERM cleanup", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const claimsDir = `${lockFile}.claims`;
     const peer = path.join(claimsDir, `${process.pid + 1}-00000000-0000-4000-8000-000000000000`);
     const remove = fs.rmSync;
@@ -564,6 +571,7 @@ describe("withStoreLock", () => {
     expect(withStoreLock(store, () => "ran")).toBe("ran");
 
     expect(peerCreated).toBe(1);
+    expect(warn).not.toHaveBeenCalled();
     expect(fs.existsSync(claimsDir)).toBe(false);
   });
 
@@ -572,10 +580,8 @@ describe("withStoreLock", () => {
     const rmdir = fs.rmdirSync;
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const ran = vi.fn(() => "ran");
-    let attempts = 0;
     vi.spyOn(fs, "rmdirSync").mockImplementation((target) => {
       if (String(target) === claimsDir) {
-        attempts += 1;
         throw Object.assign(new Error("claim directory cleanup denied"), { code: "EPERM" });
       }
       return rmdir(target);
@@ -583,8 +589,8 @@ describe("withStoreLock", () => {
 
     expect(withStoreLock(store, ran)).toBe("ran");
 
-    expect(attempts).toBe(2);
     expect(ran).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledTimes(1);
     expect(warn).toHaveBeenCalledWith(expect.stringContaining(claimsDir));
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("EPERM"));
     expect(fs.existsSync(lockFile)).toBe(false);
@@ -741,6 +747,7 @@ describe("withStoreLock", () => {
     expect(thrown).toBeInstanceOf(AggregateError);
     const aggregate = thrown as AggregateError;
     expect(aggregate.message).toContain("no space left on device");
+    expect(aggregate.message.split("; store lock cleanup also failed")).toHaveLength(2);
     expect(aggregate.errors).toHaveLength(3);
     expect(aggregate.errors[0]).toBe(writeError);
     expect(aggregate.errors[1]).toBe(lockCleanupError);
@@ -827,39 +834,31 @@ describe("withStoreLock", () => {
     expect(fs.existsSync(lockFile)).toBe(false);
   });
 
-  it("removes its claim once when the read-back mismatch removal fails", () => {
+  it("removes its claim once when the read-back mismatch is cleaned up", () => {
     const claimsDir = `${lockFile}.claims`;
     const read = fs.readFileSync;
     const remove = fs.rmSync;
-    const cleanupError = Object.assign(new Error("claim removal denied"), { code: "EACCES" });
     const ran = vi.fn(() => "ran");
-    let misread = 0;
-    let claimRemovals = 0;
+    const misreads: string[] = [];
+    const removals = new Map<string, number>();
     vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
-      if (misread === 0 && String(target).startsWith(`${claimsDir}${path.sep}`)) {
-        misread += 1;
+      if (misreads.length === 0 && String(target).startsWith(`${claimsDir}${path.sep}`)) {
+        misreads.push(String(target));
         return "0";
       }
       return read(target, options);
     });
     vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
-      if (String(target).startsWith(`${claimsDir}${path.sep}`)) {
-        claimRemovals += 1;
-        throw cleanupError;
-      }
+      removals.set(String(target), (removals.get(String(target)) ?? 0) + 1);
       remove(target, options);
     });
 
-    let thrown: unknown;
-    try {
-      withStoreLock(store, ran);
-    } catch (error) {
-      thrown = error;
-    }
+    expect(withStoreLock(store, ran)).toBe("ran");
 
-    expect(thrown).toBe(cleanupError);
-    expect(claimRemovals).toBe(1);
-    expect(ran).not.toHaveBeenCalled();
+    expect(misreads).toHaveLength(1);
+    expect(removals.get(misreads[0])).toBe(1);
+    expect(ran).toHaveBeenCalledTimes(1);
+    expect(claimEntries()).toEqual([]);
   });
 
   it("keeps the claim refusal when removing the claim also fails", () => {
@@ -1087,6 +1086,26 @@ describe("withStoreLock", () => {
     expect(fs.existsSync(lockFile)).toBe(false);
   });
 
+  it("retries the claim open instead of overwriting a file already at the claim path", () => {
+    const fixed = "00000000-0000-4000-8000-0000000000aa";
+    const claim = path.join(`${lockFile}.claims`, `${process.pid}-${fixed}`);
+    const ran = vi.fn(() => "ran");
+    fs.mkdirSync(path.dirname(claim), { recursive: true });
+    fs.writeFileSync(claim, "unrelated");
+    let message = "";
+    vi.mocked(randomUUID).mockReturnValue(fixed);
+    try {
+      message = thrownMessage(() => withStoreLock(store, ran));
+    } finally {
+      vi.mocked(randomUUID).mockRestore();
+    }
+
+    expect(message).toContain(lockFile);
+    expect(message).toContain("kept changing");
+    expect(ran).not.toHaveBeenCalled();
+    expect(fs.readFileSync(claim, "utf8")).toBe("unrelated");
+  });
+
   it("retries when an empty lock file vanishes before its age is read", () => {
     const stat = fs.statSync;
     const ran = vi.fn(() => "ran");
@@ -1179,6 +1198,7 @@ describe("withStoreLock", () => {
   it.each(["ENOENT", "ENOTEMPTY", "EEXIST"])("tolerates %s when the claims directory cannot be removed", (code) => {
     const claimsDir = `${lockFile}.claims`;
     const rmdir = fs.rmdirSync;
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const ran = vi.fn(() => "ran");
     vi.spyOn(fs, "rmdirSync").mockImplementation((target) => {
       if (String(target) === claimsDir) throw Object.assign(new Error("claims directory refused"), { code });
@@ -1188,6 +1208,7 @@ describe("withStoreLock", () => {
     expect(withStoreLock(store, ran)).toBe("ran");
 
     expect(ran).toHaveBeenCalledTimes(1);
+    expect(warn).not.toHaveBeenCalled();
     expect(fs.existsSync(lockFile)).toBe(false);
   });
 
@@ -1208,6 +1229,21 @@ describe("withStoreLock", () => {
     expect(warn).not.toHaveBeenCalled();
     expect(ran).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(lockFile)).toBe(false);
+  });
+
+  it("tells the caller to retry when a young claim has no pid and no lock file exists", () => {
+    const claim = path.join(`${lockFile}.claims`, "incomplete");
+    const ran = vi.fn(() => "ran");
+    fs.mkdirSync(path.dirname(claim), { recursive: true });
+    fs.writeFileSync(claim, "");
+
+    const message = thrownMessage(() => withStoreLock(store, ran));
+
+    expect(message).toContain(claim);
+    expect(message).toContain("has not written its pid yet");
+    expect(message).toContain("another run is starting, so retry shortly");
+    expect(ran).not.toHaveBeenCalled();
+    expect(fs.existsSync(claim)).toBe(true);
   });
 
   it("does not say another run is starting when a live claim is exactly at the grace period", () => {
@@ -1280,7 +1316,7 @@ describe("withStoreLock", () => {
       return rmdir(target, options);
     });
     vi.spyOn(fs, "readdirSync").mockImplementation((target, options) => {
-      if (removalAttempted && String(target) === claimsDir && options === undefined) {
+      if (removalAttempted && String(target) === claimsDir) {
         throw Object.assign(new Error("claims directory vanished"), { code: "ENOENT" });
       }
       return readdir(target, options);
@@ -1288,7 +1324,7 @@ describe("withStoreLock", () => {
 
     expect(withStoreLock(store, ran)).toBe("ran");
 
-    expect(removalAttempted).toBe(true);
+    expect(fs.existsSync(claimsDir)).toBe(true);
     expect(ran).toHaveBeenCalledTimes(1);
     expect(warn).not.toHaveBeenCalled();
     expect(fs.existsSync(lockFile)).toBe(false);
@@ -1301,7 +1337,6 @@ describe("withStoreLock", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const ran = vi.fn(() => "ran");
     let removalAttempts = 0;
-    let listings = 0;
     vi.spyOn(fs, "rmdirSync").mockImplementation((target, options) => {
       if (String(target) === claimsDir) {
         removalAttempts += 1;
@@ -1310,17 +1345,15 @@ describe("withStoreLock", () => {
       return rmdir(target, options);
     });
     vi.spyOn(fs, "readdirSync").mockImplementation((target, options) => {
-      if (removalAttempts > 0 && String(target) === claimsDir && options === undefined) {
-        listings += 1;
-        if (listings === 2) throw Object.assign(new Error("claims directory vanished"), { code: "ENOENT" });
+      if (removalAttempts > 1 && String(target) === claimsDir) {
+        throw Object.assign(new Error("claims directory vanished"), { code: "ENOENT" });
       }
       return readdir(target, options);
     });
 
     expect(withStoreLock(store, ran)).toBe("ran");
 
-    expect(removalAttempts).toBe(2);
-    expect(listings).toBe(2);
+    expect(fs.existsSync(claimsDir)).toBe(true);
     expect(ran).toHaveBeenCalledTimes(1);
     expect(warn).not.toHaveBeenCalled();
     expect(fs.existsSync(lockFile)).toBe(false);
@@ -1442,6 +1475,33 @@ describe("withStoreLock", () => {
     ).toBe("ran");
 
     expect(fs.existsSync(lockFile)).toBe(false);
+  });
+
+  it("surfaces a close error after a successful pid write and removes the lock file", () => {
+    const open = fs.openSync;
+    const close = fs.closeSync;
+    let lockDescriptor: number | undefined;
+    const closeError = Object.assign(new Error("close failed"), { code: "EIO" });
+    vi.spyOn(fs, "openSync").mockImplementation((...args) => {
+      const fd = open(...args);
+      if (String(args[0]) === lockFile) lockDescriptor = fd;
+      return fd;
+    });
+    vi.spyOn(fs, "closeSync").mockImplementation((fd) => {
+      close(fd);
+      if (fd === lockDescriptor) throw closeError;
+    });
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, () => "ran");
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBe(closeError);
+    expect(fs.existsSync(lockFile)).toBe(false);
+    expect(claimEntries()).toEqual([]);
   });
 
   it("closes the claim descriptor after a failed pid write", () => {

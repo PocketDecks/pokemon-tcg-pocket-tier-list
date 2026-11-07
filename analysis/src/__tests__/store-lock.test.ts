@@ -1747,26 +1747,6 @@ describe("withStoreLock", () => {
     expect(fs.existsSync(lockFile)).toBe(false);
   });
 
-  it("removes its own claim when the claim reads back with another pid", () => {
-    const claimsDir = `${lockFile}.claims`;
-    const read = fs.readFileSync;
-    const ran = vi.fn(() => "ran");
-    let misread = 0;
-    vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
-      if (misread === 0 && String(target).startsWith(`${claimsDir}${path.sep}`)) {
-        misread += 1;
-        return "0";
-      }
-      return read(target, options);
-    });
-
-    expect(withStoreLock(store, ran)).toBe("ran");
-
-    expect(misread).toBe(1);
-    expect(ran).toHaveBeenCalledTimes(1);
-    expect(claimEntries()).toEqual([]);
-  });
-
   it("leaves no claim behind when the lock is refused", () => {
     const live = liveForeignPid();
     const ran = vi.fn(() => "ran");

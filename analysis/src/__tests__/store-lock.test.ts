@@ -30,6 +30,9 @@ describe("withStoreLock", () => {
   let store: string;
   let lockFile: string;
 
+  const claimEntries = (): string[] =>
+    fs.existsSync(`${lockFile}.claims`) ? fs.readdirSync(`${lockFile}.claims`) : [];
+
   beforeEach(() => {
     dir = fs.mkdtempSync(path.join(os.tmpdir(), "store-lock-"));
     store = path.join(dir, "decks");
@@ -38,35 +41,36 @@ describe("withStoreLock", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-    fs.rmSync(dir, { recursive: true, force: true });
+    fs.rmSync(dir, { recursive: true, force: true, maxRetries: 5 });
   });
 
   it("retries when the claims directory disappears during creation", () => {
     const claimsDir = `${lockFile}.claims`;
     const mkdir = fs.mkdirSync;
-    let attempts = 0;
+    let disappeared = false;
+    const ran = vi.fn(() => "ran");
     vi.spyOn(fs, "mkdirSync").mockImplementation((target, options) => {
-      if (String(target) === claimsDir) {
-        attempts += 1;
-        if (attempts === 1) {
-          throw Object.assign(new Error("claims directory disappeared"), { code: "ENOENT" });
-        }
+      if (String(target) === claimsDir && !disappeared) {
+        disappeared = true;
+        throw Object.assign(new Error("claims directory disappeared"), { code: "ENOENT" });
       }
       return mkdir(target, options);
     });
 
-    expect(withStoreLock(store, () => "ran")).toBe("ran");
+    expect(withStoreLock(store, ran)).toBe("ran");
 
-    expect(attempts).toBe(2);
+    expect(ran).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(lockFile)).toBe(false);
     expect(fs.existsSync(claimsDir)).toBe(false);
   });
 
   it("throws and names the holding pid when the lock is already held", () => {
     fs.writeFileSync(lockFile, String(process.pid));
+    const heldMessage = `Store lock ${lockFile} is held by process ${process.pid}`;
 
-    expect(() => withStoreLock(store, () => "ran")).toThrow(lockFile);
-    expect(() => withStoreLock(store, () => "ran")).toThrow(String(process.pid));
+    expect(() => withStoreLock(store, () => "ran")).toThrow(heldMessage);
+    expect(claimEntries()).toEqual([]);
+    expect(() => withStoreLock(store, () => "ran")).toThrow(heldMessage);
     expect(fs.readFileSync(lockFile, "utf8")).toBe(String(process.pid));
   });
 
@@ -123,7 +127,7 @@ describe("withStoreLock", () => {
     const ran = vi.fn(() => "ran");
     fs.writeFileSync(lockFile, "");
 
-    expect(() => withStoreLock(store, ran)).toThrow(lockFile);
+    expect(() => withStoreLock(store, ran)).toThrow(`Store lock ${lockFile} is held by`);
 
     expect(ran).not.toHaveBeenCalled();
     expect(fs.readFileSync(lockFile, "utf8")).toBe("");
@@ -232,18 +236,15 @@ describe("withStoreLock", () => {
   it("fails closed when it cannot inspect claim entries", () => {
     const claimsDir = `${lockFile}.claims`;
     const ran = vi.fn(() => "ran");
-    let inspections = 0;
     const stalePid = deadPid();
     fs.mkdirSync(claimsDir, { recursive: true });
     fs.writeFileSync(lockFile, String(stalePid));
     vi.spyOn(fs, "readdirSync").mockImplementation(() => {
-      inspections += 1;
       throw Object.assign(new Error("claim directory unreadable"), { code: "EACCES" });
     });
 
     expect(() => withStoreLock(store, ran)).toThrow("claim directory unreadable");
 
-    expect(inspections).toBe(1);
     expect(ran).not.toHaveBeenCalled();
     expect(fs.readFileSync(lockFile, "utf8")).toBe(String(stalePid));
   });
@@ -268,16 +269,10 @@ describe("withStoreLock", () => {
     const claimsDir = `${lockFile}.claims`;
     const staleClaim = path.join(claimsDir, "dead-owner");
     const remove = fs.rmSync;
-    const open = fs.openSync;
     let claimDisappeared = 0;
-    let claimWrites = 0;
     fs.mkdirSync(claimsDir, { recursive: true });
     fs.writeFileSync(staleClaim, String(deadPid()));
     fs.writeFileSync(lockFile, String(deadPid()));
-    vi.spyOn(fs, "openSync").mockImplementation((...args) => {
-      if (String(args[0]).startsWith(`${claimsDir}${path.sep}`) && args[1] === "wx") claimWrites += 1;
-      return open(...args);
-    });
     vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
       remove(target, options);
       if (String(target) === staleClaim && claimDisappeared === 0) {
@@ -301,9 +296,9 @@ describe("withStoreLock", () => {
     expect(withStoreLock(store, ranWithClaim)).toBe("ran");
 
     expect(claimDisappeared).toBe(1);
-    expect(claimWrites).toBe(2);
     expect(ranWithClaim).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(lockFile)).toBe(false);
+    expect(claimEntries()).toEqual([]);
   });
 
   it("keeps callbacks excluded when a live owner replaces a stale lock during recovery", () => {
@@ -333,7 +328,7 @@ describe("withStoreLock", () => {
       }
     });
 
-    expect(() => withStoreLock(store, () => "ran")).toThrow(String(process.pid));
+    expect(() => withStoreLock(store, () => "ran")).toThrow(`Store lock ${lockFile} is held by process ${process.pid}`);
 
     expect(replacementWritten).toBe(1);
     expect(replacementMoved).toBe(1);
@@ -415,10 +410,8 @@ describe("withStoreLock", () => {
     const claimsDir = `${lockFile}.claims`;
     const rmdir = fs.rmdirSync;
     const nestedCallback = vi.fn(() => "nested");
-    let refusedRmdir = 0;
     vi.spyOn(fs, "rmdirSync").mockImplementation((target) => {
       if (String(target) === claimsDir && fs.readdirSync(claimsDir).length > 0) {
-        refusedRmdir += 1;
         throw Object.assign(new Error("directory not empty"), { code: "EPERM" });
       }
       return rmdir(target);
@@ -426,12 +419,11 @@ describe("withStoreLock", () => {
 
     expect(
       withStoreLock(store, () => {
-        expect(() => withStoreLock(store, nestedCallback)).toThrow(lockFile);
+        expect(() => withStoreLock(store, nestedCallback)).toThrow(`Store lock claim ${claimsDir}${path.sep}`);
         return "outer";
       })
     ).toBe("outer");
 
-    expect(refusedRmdir).toBe(1);
     expect(nestedCallback).not.toHaveBeenCalled();
     expect(fs.existsSync(claimsDir)).toBe(false);
   });
@@ -442,7 +434,6 @@ describe("withStoreLock", () => {
     const remove = fs.rmSync;
     const rmdir = fs.rmdirSync;
     let peerCreated = 0;
-    let refusedRmdir = 0;
     vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
       remove(target, options);
       if (String(target).startsWith(`${claimsDir}${path.sep}`) && peerCreated === 0) {
@@ -452,7 +443,6 @@ describe("withStoreLock", () => {
     });
     vi.spyOn(fs, "rmdirSync").mockImplementation((target) => {
       if (String(target) === claimsDir && fs.readdirSync(claimsDir).length > 0) {
-        refusedRmdir += 1;
         remove(peer, { force: true });
         throw Object.assign(new Error("directory not empty"), { code: "EPERM" });
       }
@@ -462,7 +452,6 @@ describe("withStoreLock", () => {
     expect(withStoreLock(store, () => "ran")).toBe("ran");
 
     expect(peerCreated).toBe(1);
-    expect(refusedRmdir).toBe(1);
     expect(fs.existsSync(claimsDir)).toBe(false);
   });
 

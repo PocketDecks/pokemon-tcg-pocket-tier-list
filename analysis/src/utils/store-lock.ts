@@ -49,10 +49,12 @@ const displacedMessage = (lockFile: string, current: string | undefined, moved: 
 };
 
 const claimHeldMessage = (claim: string, held: number | undefined, retry: boolean): string => {
-  const holder = held === undefined ? "has not written its pid yet" : `is held by process ${held}`;
+  if (held === undefined) {
+    return `Store lock claim ${claim} has not written its pid yet; another run is starting, so retry shortly`;
+  }
   const suffix = retry ? "; another run is starting, so retry shortly" : "";
   return (
-    `Store lock claim ${claim} ${holder}; wait for that run to finish, ` +
+    `Store lock claim ${claim} is held by process ${held}; wait for that run to finish, ` +
     `or remove that claim file if the process is gone${suffix}`
   );
 };

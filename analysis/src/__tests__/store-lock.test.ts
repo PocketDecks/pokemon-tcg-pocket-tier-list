@@ -262,8 +262,25 @@ describe("withStoreLock", () => {
 
     expect(message).toContain(claim);
     expect(message).toContain("has not written its pid yet");
-    expect(message).not.toContain("another run is starting");
+    expect(message).toContain("another run is starting, so retry shortly");
     expect(message).not.toContain("remove the lock file");
+    expect(ran).not.toHaveBeenCalled();
+    expect(fs.existsSync(claim)).toBe(true);
+    expect(fs.readFileSync(lockFile, "utf8")).toBe(String(stalePid));
+  });
+
+  it("tells the caller to retry, not to remove the claim, when a young claim has no pid while a lock file exists", () => {
+    const claim = path.join(`${lockFile}.claims`, "incomplete");
+    const ran = vi.fn(() => "ran");
+    const stalePid = deadPid();
+    fs.mkdirSync(path.dirname(claim), { recursive: true });
+    fs.writeFileSync(claim, "");
+    fs.writeFileSync(lockFile, String(stalePid));
+
+    expect(thrownMessage(() => withStoreLock(store, ran))).toBe(
+      `Store lock claim ${claim} has not written its pid yet; another run is starting, so retry shortly`
+    );
+
     expect(ran).not.toHaveBeenCalled();
     expect(fs.existsSync(claim)).toBe(true);
     expect(fs.readFileSync(lockFile, "utf8")).toBe(String(stalePid));
@@ -323,10 +340,7 @@ describe("withStoreLock", () => {
 
     const message = thrownMessage(() => withStoreLock(store, ran));
 
-    expect(message).toBe(
-      `Store lock claim ${claim} has not written its pid yet; wait for that run to finish, ` +
-        "or remove that claim file if the process is gone"
-    );
+    expect(message).toBe(`Store lock claim ${claim} has not written its pid yet; another run is starting, so retry shortly`);
     expect(ran).not.toHaveBeenCalled();
     expect(fs.existsSync(claim)).toBe(true);
   });

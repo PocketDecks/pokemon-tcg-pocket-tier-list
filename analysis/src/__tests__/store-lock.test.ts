@@ -638,7 +638,7 @@ describe("withStoreLock", () => {
     expect(reclaimFiles()).toEqual([]);
   });
 
-  it("keeps the lock held when it changes to a live pid before the re-read, which the two reads prove", () => {
+  it("keeps the lock held when it changes to a live pid before the re-read, which the second read proves the reclaimer reached", () => {
     const live = liveForeignPid();
     const read = fs.readFileSync;
     const ran = vi.fn(() => "ran");
@@ -659,7 +659,7 @@ describe("withStoreLock", () => {
     expect(fs.readFileSync(lockFile, "utf8")).toBe(String(live));
   });
 
-  it("refuses a same-version writer that enters during the reclaim window and never opens the lock", () => {
+  it("refuses a same-version writer that enters during the reclaim window, which the second read proves the reclaimer reached, and never opens the lock", () => {
     vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const read = fs.readFileSync;
     const open = fs.openSync;

@@ -33,7 +33,7 @@ Windows anchor on the newest data date, so stale raw data still fills every wind
 
 - Do not publish raw tournament data.
 - Do not treat a failed download as a finished one. The store holds the batches that completed, so rerun `yarn.cmd download` and let it finish. A killed run needs the recovery in step 5 and `yarn.cmd store:verify` before rerunning.
-- A download that finds the store lock held by a live process stops and reports the holding pid. A later run reclaims a lock whose owner has gone, so nothing needs deleting by hand.
+- A download that finds the store lock held by a live process stops and reports the holding pid, or the claim file that names it. A later run reclaims a lock or claim whose owner has gone. The exception is a claim or lock whose pid has been reused by an unrelated process: it still looks held and needs deleting by hand, which this job must not do. Stop and report the refusal instead.
 - Do not override a refusal from `yarn.cmd start`. Report the failures it prints.
 - Do not open a second review for the same dated branch.
 - A run with no tracked output changes is silent.

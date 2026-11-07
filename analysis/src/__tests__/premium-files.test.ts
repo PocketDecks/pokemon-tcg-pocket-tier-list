@@ -37,7 +37,7 @@ const writeAll = (dir: string): Record<string, string> => {
 };
 
 describe("loadPremiumFiles", () => {
-  it("returns the six artefacts keyed by name", () => {
+  it("returns every artefact keyed by name", () => {
     const dir = tmp();
     const written = writeAll(dir);
 

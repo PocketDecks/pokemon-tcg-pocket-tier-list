@@ -12,39 +12,88 @@ import {
   splitArtefactFiles,
 } from "../utils/premium-artefacts";
 
-const PUBLIC_NAMES = [
-  "best-decks",
-  "best-decks-10d",
-  "best-decks-20d",
-  "matchup-data",
-  "matchup-data-10d",
-  "matchup-data-20d",
-  "meta-share",
-  "meta-share-10d",
-  "meta-share-20d",
-  "card-scores",
-  "historical-trends",
-];
+const DECKS = Array.from({ length: 12 }, (_, index) => `deck-${index}`);
+
+const bestDecks = (reverse: boolean): string =>
+  JSON.stringify(
+    DECKS.map((name, index) => ({
+      name,
+      powerScore: reverse ? index : 100 - index,
+    })),
+    null,
+    2
+  );
+
+const matchupData = (): string =>
+  JSON.stringify(
+    Object.fromEntries(
+      DECKS.map((name) => [
+        name,
+        [
+          ...DECKS.filter((other) => other !== name).map((other) => ({
+            name: other,
+            winRate: 0.6,
+            totalGames: 9,
+          })),
+          { name: "Total", winRate: 0.55, totalGames: 99 },
+        ],
+      ])
+    ),
+    null,
+    2
+  );
+
+const metaShare = (window: string): string =>
+  JSON.stringify(
+    {
+      generatedAt: "2026-11-07T00:00:00.000Z",
+      windowDays: window === "10d" ? 10 : 20,
+      decks: DECKS.map((name, index) => ({
+        name,
+        share: 0.1 - index * 0.001,
+        sharePrev: 0.05,
+        delta: 0.05 - index * 0.001,
+        windowGames: 100 - index,
+        firstSeen: "2026-10-01",
+        isNew: index % 2 === 0,
+      })),
+    },
+    null,
+    2
+  );
+
+const DIR = "../public/data/";
 
 const buildFiles = (): Record<string, string> => {
   const files: Record<string, string> = {};
-  for (const name of PUBLIC_NAMES) files[`../public/data/${name}.json`] = `public ${name}`;
-  for (const base of ["best-decks", "matchup-data", "meta-share"]) {
-    for (const window of PREMIUM_WINDOWS) {
-      files[`../public/data/${base}-${window}.json`] = `premium ${base}-${window}`;
-    }
+  for (const window of ["10d", "20d", "30d", "all"]) {
+    files[`${DIR}best-decks-${window}.json`] = bestDecks(window === "10d");
+    files[`${DIR}matchup-data-${window}.json`] = matchupData();
+    files[`${DIR}meta-share-${window}.json`] = metaShare(window);
   }
+  files[`${DIR}best-decks.json`] = files[`${DIR}best-decks-20d.json`];
+  files[`${DIR}matchup-data.json`] = files[`${DIR}matchup-data-20d.json`];
+  files[`${DIR}meta-share.json`] = files[`${DIR}meta-share-20d.json`];
+  files[`${DIR}card-scores.json`] = "[]";
+  files[`${DIR}historical-trends.json`] = "[]";
   files["../src/app/last-updated.ts"] = "export const LAST_UPDATED = 1;";
   return files;
 };
 
+const freeIn = (window: "10d" | "20d"): string[] =>
+  window === "10d" ? DECKS.slice(2) : DECKS.slice(0, 10);
+
 describe("premium artefact names", () => {
-  it("lists the six window artefacts", () => {
+  it("lists the ten artefacts", () => {
     expect([...PREMIUM_ARTEFACT_NAMES].sort()).toEqual([
       "best-decks-30d",
       "best-decks-all",
+      "matchup-data-10d",
+      "matchup-data-20d",
       "matchup-data-30d",
       "matchup-data-all",
+      "meta-share-10d",
+      "meta-share-20d",
       "meta-share-30d",
       "meta-share-all",
     ]);
@@ -58,24 +107,92 @@ describe("premium artefact names", () => {
 });
 
 describe("splitArtefactFiles", () => {
-  it("keeps the six premium names out of the public files", () => {
-    const { publicFiles, premiumFiles } = splitArtefactFiles(buildFiles());
+  it("puts the ten full artefacts in the premium files", () => {
+    const { premiumFiles } = splitArtefactFiles(buildFiles());
 
     expect(Object.keys(premiumFiles).sort()).toEqual([...PREMIUM_ARTEFACT_NAMES].sort());
-    for (const name of PREMIUM_ARTEFACT_NAMES) {
-      expect(publicFiles).not.toHaveProperty([`../public/data/${name}.json`]);
-    }
-    expect(Object.keys(publicFiles).some((key) => /-(30d|all)\.json$/.test(key))).toBe(false);
   });
 
-  it("carries the content across unchanged and leaves every other file alone", () => {
-    const files = buildFiles();
-    const { publicFiles, premiumFiles } = splitArtefactFiles(files);
+  it("keeps the 30d and all-time files out of the public files", () => {
+    const { publicFiles } = splitArtefactFiles(buildFiles());
 
-    expect(premiumFiles["matchup-data-30d"]).toBe("premium matchup-data-30d");
-    expect(publicFiles["../public/data/best-decks.json"]).toBe("public best-decks");
+    expect(Object.keys(publicFiles).some((key) => /-(30d|all).json$/.test(key))).toBe(false);
+  });
+
+  it("carries the full 10d and 20d matchups and meta share into the premium files unchanged", () => {
+    const files = buildFiles();
+    const { premiumFiles } = splitArtefactFiles(files);
+
+    expect(premiumFiles["matchup-data-20d"]).toBe(files[`${DIR}matchup-data-20d.json`]);
+    expect(premiumFiles["meta-share-10d"]).toBe(files[`${DIR}meta-share-10d.json`]);
+    expect(premiumFiles["matchup-data-30d"]).toBe(files[`${DIR}matchup-data-30d.json`]);
+  });
+
+  it("leaves best-decks public and whole for 10d, 20d and the default", () => {
+    const files = buildFiles();
+    const { publicFiles } = splitArtefactFiles(files);
+
+    for (const name of ["best-decks", "best-decks-10d", "best-decks-20d"]) {
+      expect(publicFiles[`${DIR}${name}.json`]).toBe(files[`${DIR}${name}.json`]);
+    }
+  });
+
+  it("trims the public matchups to full rows for the free decks and Total for the rest", () => {
+    const { publicFiles } = splitArtefactFiles(buildFiles());
+    const trimmed = JSON.parse(publicFiles[`${DIR}matchup-data-20d.json`]);
+
+    for (const name of DECKS) {
+      const names = trimmed[name].map((row: { name: string }) => row.name);
+      if (freeIn("20d").includes(name)) expect(names).toHaveLength(DECKS.length);
+      else expect(names).toEqual(["Total"]);
+    }
+  });
+
+  it("trims the public meta share to name, share and window games for the other decks", () => {
+    const { publicFiles } = splitArtefactFiles(buildFiles());
+    const trimmed = JSON.parse(publicFiles[`${DIR}meta-share-20d.json`]);
+
+    for (const entry of trimmed.decks) {
+      if (freeIn("20d").includes(entry.name)) {
+        expect(Object.keys(entry)).toContain("delta");
+      } else {
+        expect(Object.keys(entry)).toEqual(["name", "share", "windowGames"]);
+      }
+    }
+  });
+
+  it("chooses the free decks from each window's own ranking", () => {
+    const { publicFiles } = splitArtefactFiles(buildFiles());
+    const tenDay = JSON.parse(publicFiles[`${DIR}matchup-data-10d.json`]);
+    const twentyDay = JSON.parse(publicFiles[`${DIR}matchup-data-20d.json`]);
+
+    expect(tenDay["deck-0"]).toHaveLength(1);
+    expect(twentyDay["deck-0"]).toHaveLength(DECKS.length);
+    expect(tenDay["deck-11"]).toHaveLength(DECKS.length);
+    expect(twentyDay["deck-11"]).toHaveLength(1);
+  });
+
+  it("trims the un-suffixed files against the default ranking, matching 20d", () => {
+    const { publicFiles } = splitArtefactFiles(buildFiles());
+
+    expect(publicFiles[`${DIR}matchup-data.json`]).toBe(publicFiles[`${DIR}matchup-data-20d.json`]);
+    expect(publicFiles[`${DIR}meta-share.json`]).toBe(publicFiles[`${DIR}meta-share-20d.json`]);
+  });
+
+  it("refuses to trim a window whose ranking is missing", () => {
+    const files = buildFiles();
+    delete files[`${DIR}best-decks-10d.json`];
+
+    expect(() => splitArtefactFiles(files)).toThrow(/best-decks-10d/);
+  });
+
+  it("leaves every other file alone", () => {
+    const files = buildFiles();
+    const { publicFiles } = splitArtefactFiles(files);
+
+    expect(publicFiles[`${DIR}card-scores.json`]).toBe("[]");
     expect(publicFiles["../src/app/last-updated.ts"]).toBe("export const LAST_UPDATED = 1;");
-    expect(Object.keys(publicFiles)).toHaveLength(PUBLIC_NAMES.length + 1);
+    expect(Object.keys(publicFiles)).toHaveLength(12);
   });
 });
 

@@ -1,14 +1,32 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
 
+import { freeDeckNames } from "../../../src/app/free-tier";
+import {
+  PipelineMatchupData,
+  PipelineMetaShare,
+  PipelinePartialDeck,
+} from "../../../src/types/pipeline-data";
+import { trimMatchupData, trimMetaShare } from "./trim-free-window";
+
 export const PREMIUM_WINDOWS = ["30d", "all"] as const;
 export type PremiumWindow = (typeof PREMIUM_WINDOWS)[number];
 
 export const PREMIUM_BASES = ["best-decks", "matchup-data", "meta-share"] as const;
 
-export const PREMIUM_ARTEFACT_NAMES: readonly string[] = PREMIUM_BASES.flatMap((base) =>
+export const TRIMMED_BASES = ["matchup-data", "meta-share"] as const;
+export type TrimmedBase = (typeof TRIMMED_BASES)[number];
+
+export const TRIMMED_WINDOWS = ["10d", "20d"] as const;
+
+const premiumWindowNames: readonly string[] = PREMIUM_BASES.flatMap((base) =>
   PREMIUM_WINDOWS.map((window) => `${base}-${window}`)
 );
+
+export const PREMIUM_ARTEFACT_NAMES: readonly string[] = [
+  ...premiumWindowNames,
+  ...TRIMMED_BASES.flatMap((base) => TRIMMED_WINDOWS.map((window) => `${base}-${window}`)),
+];
 
 export const PREMIUM_DIR = path.resolve(__dirname, "../../out/premium");
 
@@ -20,12 +38,25 @@ export const premiumFilePath = (name: string, dir: string = PREMIUM_DIR): string
 export const sha256Hex = (text: string): string =>
   createHash("sha256").update(text, "utf8").digest("hex");
 
-const premiumNameOf = (file: string): string | null => {
+const dataNameOf = (file: string): string | null => {
   if (!file.startsWith(PUBLIC_DATA_PREFIX)) return null;
   const rest = file.slice(PUBLIC_DATA_PREFIX.length);
-  if (!rest.endsWith(".json")) return null;
-  const name = rest.slice(0, -".json".length);
-  return PREMIUM_ARTEFACT_NAMES.includes(name) ? name : null;
+  return rest.endsWith(".json") ? rest.slice(0, -".json".length) : null;
+};
+
+const TRIMMED_NAME = new RegExp(
+  `^(${TRIMMED_BASES.join("|")})(?:-(${TRIMMED_WINDOWS.join("|")}))?$`
+);
+
+const render = (value: unknown): string => JSON.stringify(value, null, 2);
+
+const freeNamesFor = (files: Record<string, string>, suffix: string): Set<string> => {
+  const file = `${PUBLIC_DATA_PREFIX}best-decks${suffix}.json`;
+  const content = files[file];
+  if (content === undefined) {
+    throw new Error(`cannot trim the public data without best-decks${suffix}.json`);
+  }
+  return freeDeckNames(JSON.parse(content) as PipelinePartialDeck[]);
 };
 
 export const splitArtefactFiles = (
@@ -34,9 +65,25 @@ export const splitArtefactFiles = (
   const publicFiles: Record<string, string> = {};
   const premiumFiles: Record<string, string> = {};
   for (const [file, content] of Object.entries(files)) {
-    const name = premiumNameOf(file);
-    if (name === null) publicFiles[file] = content;
-    else premiumFiles[name] = content;
+    const name = dataNameOf(file);
+    if (name !== null && premiumWindowNames.includes(name)) {
+      premiumFiles[name] = content;
+      continue;
+    }
+    const trimmed = name === null ? null : TRIMMED_NAME.exec(name);
+    if (trimmed === null) {
+      publicFiles[file] = content;
+      continue;
+    }
+    const [, base, window] = trimmed;
+    const freeNames = freeNamesFor(files, window ? `-${window}` : "");
+    const parsed: unknown = JSON.parse(content);
+    publicFiles[file] = render(
+      base === "matchup-data"
+        ? trimMatchupData(parsed as PipelineMatchupData, freeNames)
+        : trimMetaShare(parsed as PipelineMetaShare, freeNames)
+    );
+    if (window) premiumFiles[name as string] = content;
   }
   return { publicFiles, premiumFiles };
 };

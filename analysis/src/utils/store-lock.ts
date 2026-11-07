@@ -173,6 +173,12 @@ const isYoung = (file: string): boolean => {
   return age !== undefined && age < LOCK_CONTENT_GRACE_MS;
 };
 
+const blocksReclaim = (lockFile: string, contents: string): boolean => {
+  const held = pidFrom(contents);
+  if (held !== undefined) return isRunning(held);
+  return isYoung(lockFile);
+};
+
 const removeStaleClaims = (lockFile: string, ownClaim: string): void => {
   const claimsDir = claimDirectoryFor(lockFile);
   const entries = fs.readdirSync(claimsDir, { withFileTypes: true });
@@ -254,7 +260,7 @@ const createClaim = (lockFile: string): string => {
 const reclaimStale = (lockFile: string, inspected: string): string | undefined => {
   const current = readLockContents(lockFile);
   if (current === undefined) return undefined;
-  if (current !== inspected) return current;
+  if (current !== inspected) return blocksReclaim(lockFile, current) ? current : undefined;
 
   fs.rmSync(lockFile, { force: true });
   warnReclaim(lockFile, inspected);
@@ -270,14 +276,7 @@ const acquire = (lockFile: string): string => {
       const contents = readLockContents(lockFile);
       if (contents === undefined) continue;
 
-      const held = pidFrom(contents);
-      if (held !== undefined && isRunning(held)) throw new Error(heldMessage(lockFile, contents));
-
-      if (held === undefined) {
-        const age = lockAgeMs(lockFile);
-        if (age === undefined) continue;
-        if (age < LOCK_CONTENT_GRACE_MS) throw new Error(heldMessage(lockFile, contents));
-      }
+      if (blocksReclaim(lockFile, contents)) throw new Error(heldMessage(lockFile, contents));
 
       const heldBy = reclaimStale(lockFile, contents);
       if (heldBy !== undefined) throw new Error(heldMessage(lockFile, heldBy));

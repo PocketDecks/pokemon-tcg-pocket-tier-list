@@ -416,6 +416,29 @@ describe("withStoreLock", () => {
     expect(fs.readFileSync(lockFile, "utf8")).toBe(String(process.pid));
   });
 
+  it("reclaims a lock that changes to a dead pid before the re-read", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const read = fs.readFileSync;
+    const ran = vi.fn(() => "ran");
+    const inspected = String(deadPid());
+    const changed = String(deadPid());
+    let reads = 0;
+    fs.writeFileSync(lockFile, inspected);
+    vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
+      if (String(target) === lockFile) {
+        reads += 1;
+        if (reads === 2) fs.writeFileSync(lockFile, changed);
+      }
+      return read(target, options);
+    });
+
+    expect(withStoreLock(store, ran)).toBe("ran");
+
+    expect(ran).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining(changed));
+    expect(fs.existsSync(lockFile)).toBe(false);
+  });
+
   it("refuses a contender while another live process holds a claim", () => {
     const claimsDir = `${lockFile}.claims`;
     const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);

@@ -52,6 +52,9 @@ const ownClaimHeldMessage = (claim: string, held: number): string =>
   `Store lock claim ${claim} is held by process ${held}, which is this process: a store lock call is still running in it; ` +
   "the claim clears when that call ends";
 
+const claimMismatchMessage = (claim: string): string =>
+  `Store lock claim ${claim} did not read back this process's pid`;
+
 const changingMessage = (lockFile: string): string =>
   `Store lock ${lockFile} kept changing while this run was acquiring it, so retry the run`;
 
@@ -169,19 +172,29 @@ const removeClaim = (lockFile: string, claim: string): void => {
   }
 };
 
-const cleanupFailedSuffix = "; store lock cleanup also failed";
+const cleanupFailedLabel = "; store lock cleanup also failed";
 
-const withCleanupFailed = (message: string): string =>
-  message.endsWith(cleanupFailedSuffix) ? message : `${message}${cleanupFailedSuffix}`;
+const withCleanupFailed = (message: string, cleanupMessages: string[]): string => {
+  const labelAt = message.indexOf(cleanupFailedLabel);
+  const base = labelAt === -1 ? message : message.slice(0, labelAt);
+  const named = labelAt === -1 ? [] : [message.slice(labelAt + cleanupFailedLabel.length + ": ".length)];
+  return `${base}${cleanupFailedLabel}: ${[...named, ...cleanupMessages].join("; ")}`;
+};
+
+const withCleanupErrors = (error: unknown, cleanupErrors: unknown[]): AggregateError => {
+  const originals = error instanceof AggregateError ? error.errors : [error];
+  const message = error instanceof AggregateError ? error.message : errorMessage(error);
+  return new AggregateError(
+    [...originals, ...cleanupErrors],
+    withCleanupFailed(message, cleanupErrors.map(errorMessage))
+  );
+};
 
 const failedWithCleanup = (error: unknown, cleanup: () => void): unknown => {
   try {
     cleanup();
   } catch (cleanupError) {
-    if (error instanceof AggregateError) {
-      return new AggregateError([...error.errors, cleanupError], withCleanupFailed(error.message));
-    }
-    return new AggregateError([error, cleanupError], withCleanupFailed(errorMessage(error)));
+    return withCleanupErrors(error, [cleanupError]);
   }
   return error;
 };
@@ -286,7 +299,9 @@ const createClaim = (lockFile: string): string => {
       throw failedWithCleanup(error, () => removeClaim(lockFile, claim));
     }
     if (!owned) {
-      removeClaim(lockFile, claim);
+      const mismatch = new Error(claimMismatchMessage(claim));
+      const failure = failedWithCleanup(mismatch, () => removeClaim(lockFile, claim));
+      if (failure !== mismatch) throw failure;
       continue;
     }
     return claim;
@@ -368,10 +383,7 @@ export const withStoreLock = <T>(dir: string, fn: () => T & SyncResult<T>): T =>
   } catch (callbackError) {
     const cleanupErrors = releaseAndRemoveClaim(lockFile, claim);
     if (cleanupErrors.length === 0) throw callbackError;
-    throw new AggregateError(
-      [callbackError, ...cleanupErrors],
-      withCleanupFailed(errorMessage(callbackError))
-    );
+    throw withCleanupErrors(callbackError, cleanupErrors);
   }
   const cleanupErrors = releaseAndRemoveClaim(lockFile, claim);
   if (cleanupErrors.length === 1) throw cleanupErrors[0];

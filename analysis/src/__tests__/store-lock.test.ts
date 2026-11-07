@@ -765,6 +765,25 @@ describe("withStoreLock", () => {
     expect(fs.readFileSync(lockFile, "utf8")).toBe(otherPid);
   });
 
+  it("places the lock beside the store when the store path has a trailing separator", () => {
+    const storeWithSeparator = `${store}${path.sep}`;
+    let lockDuringCallback = false;
+    let lockInsideStore = true;
+
+    expect(
+      withStoreLock(storeWithSeparator, () => {
+        lockDuringCallback = fs.existsSync(lockFile);
+        lockInsideStore = fs.existsSync(path.join(store, ".lock"));
+        return "ran";
+      })
+    ).toBe("ran");
+
+    expect(lockFileFor(storeWithSeparator)).toBe(lockFile);
+    expect(path.dirname(lockFileFor(storeWithSeparator))).toBe(dir);
+    expect(lockDuringCallback).toBe(true);
+    expect(lockInsideStore).toBe(false);
+  });
+
   it("creates a missing parent directory, runs the callback and leaves no lock file behind", () => {
     const nested = path.join(dir, "nested", "decks");
 

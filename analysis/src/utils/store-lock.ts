@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import fs from "fs";
 import path from "path";
 
-export const lockFileFor = (dir: string): string => `${dir}.lock`;
+export const lockFileFor = (dir: string): string => `${path.resolve(dir)}.lock`;
 
 const claimDirectoryFor = (lockFile: string): string => `${lockFile}.claims`;
 

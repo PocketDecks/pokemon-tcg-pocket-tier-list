@@ -234,21 +234,54 @@ describe("withStoreLock", () => {
   it("names this process without a retry suffix when a nested call meets the outer claim", () => {
     const claimsDir = `${lockFile}.claims`;
     const nestedCallback = vi.fn(() => "nested");
+    let ownClaim = "";
     let message = "";
 
     expect(
       withStoreLock(store, () => {
+        ownClaim = path.join(claimsDir, claimEntries()[0]);
         message = thrownMessage(() => withStoreLock(store, nestedCallback));
         return "outer";
       })
     ).toBe("outer");
 
-    expect(message).toContain(`${claimsDir}${path.sep}${process.pid}-`);
-    expect(message).toContain(`process ${process.pid}`);
-    expect(message).toContain("which is this process");
-    expect(message).toContain("could not remove the claim");
-    expect(message).not.toContain("retry shortly");
+    expect(message).toBe(
+      `Store lock claim ${ownClaim} is held by process ${process.pid}, which is this process: ` +
+        "a store lock call is still running in it; the claim clears when that call ends"
+    );
     expect(nestedCallback).not.toHaveBeenCalled();
+    expect(claimEntries()).toEqual([]);
+  });
+
+  it("forgets a claim this process failed to remove, so its next call reclaims it with a warning and runs", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const claimsDir = `${lockFile}.claims`;
+    const remove = fs.rmSync;
+    const cleanupError = Object.assign(new Error("claim removal denied"), { code: "EACCES" });
+    let failures = 0;
+    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+      if (String(target).startsWith(`${claimsDir}${path.sep}`) && failures === 0) {
+        failures += 1;
+        throw cleanupError;
+      }
+      remove(target, options);
+    });
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, () => "first");
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBe(cleanupError);
+    expect(claimEntries()).toHaveLength(1);
+    const ran = vi.fn(() => "ran");
+
+    expect(withStoreLock(store, ran)).toBe("ran");
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("names this process but was not created by it"));
+    expect(ran).toHaveBeenCalledTimes(1);
     expect(claimEntries()).toEqual([]);
   });
 

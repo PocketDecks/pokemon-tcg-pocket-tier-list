@@ -47,8 +47,8 @@ const claimHeldMessage = (claim: string, held: number | undefined, retry: boolea
 };
 
 const ownClaimHeldMessage = (claim: string, held: number): string =>
-  `Store lock claim ${claim} is held by process ${held}, which is this process: either a store lock call ` +
-  "is still running in it, or it could not remove the claim; it clears when that call ends or this process exits";
+  `Store lock claim ${claim} is held by process ${held}, which is this process: a store lock call is still running in it; ` +
+  "the claim clears when that call ends";
 
 const changingMessage = (lockFile: string): string =>
   `Store lock ${lockFile} kept changing while this run was acquiring it, so retry the run`;
@@ -147,8 +147,11 @@ const removeEmptyClaimsDirectory = (claimsDir: string): void => {
 };
 
 const removeClaim = (lockFile: string, claim: string): void => {
-  fs.rmSync(claim, { force: true });
-  ownClaims.delete(claim);
+  try {
+    fs.rmSync(claim, { force: true });
+  } finally {
+    ownClaims.delete(claim);
+  }
   const claimsDir = claimDirectoryFor(lockFile);
   try {
     removeEmptyClaimsDirectory(claimsDir);

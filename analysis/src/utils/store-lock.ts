@@ -199,7 +199,11 @@ const reclaimStale = (lockFile: string, inspected: string): ReclaimOutcome => {
 
   const moved = fs.readFileSync(claimed, "utf8");
   if (moved !== inspected) {
-    fs.renameSync(claimed, lockFile);
+    try {
+      fs.renameSync(claimed, lockFile);
+    } catch {
+      return "held";
+    }
     return "held";
   }
 

@@ -275,6 +275,32 @@ describe("withStoreLock", () => {
     expect(fs.readFileSync(lockFile, "utf8")).toBe(String(process.pid));
   });
 
+  it("refuses with the held message when restoring a newer lock fails", () => {
+    fs.writeFileSync(lockFile, String(deadPid()));
+    const rename = fs.renameSync;
+    const ran = vi.fn(() => "ran");
+    const movedAside = `${lockFile}.${process.pid}.reclaim`;
+    let replaced = 0;
+    let restoreFailed = 0;
+    vi.spyOn(fs, "renameSync").mockImplementation((from, to) => {
+      if (String(from) === lockFile && replaced === 0) {
+        replaced += 1;
+        fs.writeFileSync(lockFile, String(process.pid));
+      }
+      if (String(from) === movedAside && String(to) === lockFile && restoreFailed === 0) {
+        restoreFailed += 1;
+        throw Object.assign(new Error("rename denied"), { code: "EPERM" });
+      }
+      rename(from, to);
+    });
+
+    expect(() => withStoreLock(store, ran)).toThrow(`Store lock ${lockFile} is held by`);
+
+    expect(restoreFailed).toBe(1);
+    expect(ran).not.toHaveBeenCalled();
+    expect(fs.existsSync(movedAside)).toBe(true);
+  });
+
   it("refuses a contender while another live process holds a claim", () => {
     const claimsDir = `${lockFile}.claims`;
     const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);

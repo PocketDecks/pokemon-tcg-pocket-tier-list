@@ -1,1 +1,1 @@
-export { useMetaWindow } from "../contexts/MetaWindowContext";
+export { useMetaWindow } from "../contexts/meta-window-state";

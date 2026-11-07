@@ -219,28 +219,14 @@ const createClaim = (lockFile: string): string => {
   throw new Error(changingMessage(lockFile));
 };
 
-const reclaimStale = (lockFile: string, inspected: string): boolean => {
-  const movedAside = `${lockFile}.${process.pid}.reclaim`;
-  try {
-    fs.renameSync(lockFile, movedAside);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
-    throw error;
-  }
+const reclaimStale = (lockFile: string, inspected: string): string | undefined => {
+  const current = readLockContents(lockFile);
+  if (current === undefined) return undefined;
+  if (current !== inspected) return current;
 
-  const moved = fs.readFileSync(movedAside, "utf8");
-  if (moved !== inspected) {
-    try {
-      fs.renameSync(movedAside, lockFile);
-    } catch {
-      return true;
-    }
-    return true;
-  }
-
-  fs.rmSync(movedAside, { force: true });
+  fs.rmSync(lockFile, { force: true });
   warnReclaim(lockFile, inspected);
-  return false;
+  return undefined;
 };
 
 const acquire = (lockFile: string): string => {
@@ -261,9 +247,8 @@ const acquire = (lockFile: string): string => {
         if (age < LOCK_CONTENT_GRACE_MS) throw new Error(heldMessage(lockFile, contents));
       }
 
-      if (reclaimStale(lockFile, contents)) {
-        throw new Error(heldMessage(lockFile, readLockContents(lockFile) ?? contents));
-      }
+      const heldBy = reclaimStale(lockFile, contents);
+      if (heldBy !== undefined) throw new Error(heldMessage(lockFile, heldBy));
     }
 
     throw new Error(changingMessage(lockFile));

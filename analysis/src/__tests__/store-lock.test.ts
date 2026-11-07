@@ -315,69 +315,37 @@ describe("withStoreLock", () => {
     expect(claimEntries()).toEqual([]);
   });
 
-  it("keeps callbacks excluded when a live owner replaces a stale lock during recovery", () => {
+  it("removes a stale lock in place without renaming it", () => {
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const rename = vi.spyOn(fs, "renameSync");
+    const ran = vi.fn(() => "ran");
     fs.writeFileSync(lockFile, String(deadPid()));
-    const rename = fs.renameSync;
-    const contenderCallback = vi.fn(() => "ran");
-    let replacementWritten = 0;
-    let replacementMoved = 0;
-    let contenderAttempted = 0;
-    let contenderRejected = 0;
-    let contenderError = "";
-    vi.spyOn(fs, "renameSync").mockImplementation((from, to) => {
-      if (String(from) === lockFile && replacementWritten === 0) {
-        replacementWritten += 1;
-        fs.writeFileSync(lockFile, String(process.pid));
-      }
-      rename(from, to);
-      if (String(from) === lockFile) {
-        replacementMoved += 1;
-        contenderAttempted += 1;
-        try {
-          withStoreLock(store, contenderCallback);
-        } catch (error) {
-          contenderRejected += 1;
-          contenderError = String(error);
-        }
-      }
-    });
 
-    expect(() => withStoreLock(store, () => "ran")).toThrow(`Store lock ${lockFile} is held by process ${process.pid}`);
+    expect(withStoreLock(store, ran)).toBe("ran");
 
-    expect(replacementWritten).toBe(1);
-    expect(replacementMoved).toBe(1);
-    expect(contenderAttempted).toBe(1);
-    expect(contenderCallback).not.toHaveBeenCalled();
-    expect(contenderRejected).toBe(1);
-    expect(contenderError).toContain(lockFile);
-    expect(contenderError).toContain(String(process.pid));
-    expect(fs.readFileSync(lockFile, "utf8")).toBe(String(process.pid));
+    expect(rename).not.toHaveBeenCalled();
+    expect(ran).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(lockFile)).toBe(false);
   });
 
-  it("refuses with the held message when restoring a newer lock fails", () => {
-    fs.writeFileSync(lockFile, String(deadPid()));
-    const rename = fs.renameSync;
+  it("keeps the lock held and names the live pid when a stale lock changes before removal", () => {
+    const read = fs.readFileSync;
     const ran = vi.fn(() => "ran");
-    const movedAside = `${lockFile}.${process.pid}.reclaim`;
-    let replaced = 0;
-    let restoreFailed = 0;
-    vi.spyOn(fs, "renameSync").mockImplementation((from, to) => {
-      if (String(from) === lockFile && replaced === 0) {
-        replaced += 1;
-        fs.writeFileSync(lockFile, String(process.pid));
+    let reads = 0;
+    fs.writeFileSync(lockFile, String(deadPid()));
+    vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
+      if (String(target) === lockFile) {
+        reads += 1;
+        if (reads === 2) fs.writeFileSync(lockFile, String(process.pid));
       }
-      if (String(from) === movedAside && String(to) === lockFile && restoreFailed === 0) {
-        restoreFailed += 1;
-        throw Object.assign(new Error("rename denied"), { code: "EPERM" });
-      }
-      rename(from, to);
+      return read(target, options);
     });
 
-    expect(() => withStoreLock(store, ran)).toThrow(`Store lock ${lockFile} is held by`);
+    expect(() => withStoreLock(store, ran)).toThrow(`Store lock ${lockFile} is held by process ${process.pid}`);
 
-    expect(restoreFailed).toBe(1);
+    expect(reads).toBe(2);
     expect(ran).not.toHaveBeenCalled();
-    expect(fs.existsSync(movedAside)).toBe(true);
+    expect(fs.readFileSync(lockFile, "utf8")).toBe(String(process.pid));
   });
 
   it("refuses a contender while another live process holds a claim", () => {
@@ -875,24 +843,29 @@ describe("withStoreLock", () => {
     expect(ran).toHaveBeenCalledTimes(1);
   });
 
-  it("retries when a stale lock is removed before it can be moved aside", () => {
-    fs.writeFileSync(lockFile, String(deadPid()));
-    const rename = fs.renameSync;
+  it("retries when a stale lock vanishes before it is removed", () => {
+    const read = fs.readFileSync;
     const ran = vi.fn(() => "ran");
-    let raced = 0;
-    vi.spyOn(fs, "renameSync").mockImplementation((from, to) => {
-      if (String(from) === lockFile && raced === 0) {
-        raced += 1;
-        fs.rmSync(lockFile, { force: true });
-        throw Object.assign(new Error("lock file vanished"), { code: "ENOENT" });
-      }
-      rename(from, to);
+    const stale = String(deadPid());
+    let staleReads = 0;
+    let vanished = 0;
+    fs.writeFileSync(lockFile, stale);
+    vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
+      if (String(target) !== lockFile) return read(target, options);
+      const contents = read(target, options);
+      if (contents !== stale) return contents;
+      staleReads += 1;
+      if (staleReads !== 2) return contents;
+      vanished += 1;
+      fs.rmSync(lockFile, { force: true });
+      return read(target, options);
     });
 
     expect(withStoreLock(store, ran)).toBe("ran");
 
-    expect(raced).toBe(1);
+    expect(vanished).toBe(1);
     expect(ran).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(lockFile)).toBe(false);
   });
 
   it("skips a claim that vanishes during the scan", () => {
@@ -1058,15 +1031,6 @@ describe("withStoreLock", () => {
     expect(warn).toHaveBeenCalledWith(expect.stringContaining(lockFile));
     expect(ran).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(claim)).toBe(false);
-  });
-
-  it("leaves no reclaim file behind after a successful reclaim", () => {
-    vi.spyOn(console, "warn").mockImplementation(() => undefined);
-    fs.writeFileSync(lockFile, String(deadPid()));
-
-    expect(withStoreLock(store, () => "ran")).toBe("ran");
-
-    expect(fs.readdirSync(dir).filter((name) => name.endsWith(".reclaim"))).toEqual([]);
   });
 
   it("tolerates the lock vanishing before release", () => {

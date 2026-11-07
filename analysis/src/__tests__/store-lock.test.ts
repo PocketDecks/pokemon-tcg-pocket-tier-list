@@ -168,6 +168,7 @@ describe("withStoreLock", () => {
     const message = thrownMessage(() => withStoreLock(store, ran));
 
     expect(message).toContain(claim);
+    expect(message).toContain("another run is starting, so retry shortly");
     expect(message).not.toContain("remove the lock file");
     expect(ran).not.toHaveBeenCalled();
     expect(fs.existsSync(claim)).toBe(true);
@@ -393,10 +394,32 @@ describe("withStoreLock", () => {
 
       expect(message).toContain(claim);
       expect(message).toContain(`process ${child.pid}`);
+      expect(message).toContain("another run is starting, so retry shortly");
       expect(message).not.toContain("remove the lock file");
       expect(ran).not.toHaveBeenCalled();
       expect(fs.existsSync(claim)).toBe(true);
       expect(fs.existsSync(lockFile)).toBe(false);
+    } finally {
+      child.kill();
+    }
+  });
+
+  it("does not say another run is starting when the live claim is past the grace period", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    const ran = vi.fn(() => "ran");
+    try {
+      if (child.pid === undefined) throw new Error("could not spawn a live child");
+      const claim = path.join(claimsDir, `${child.pid}-00000000-0000-4000-8000-000000000000`);
+      fs.mkdirSync(claimsDir, { recursive: true });
+      fs.writeFileSync(claim, String(child.pid));
+      backdate(claim);
+
+      const message = thrownMessage(() => withStoreLock(store, ran));
+
+      expect(message).toContain(claim);
+      expect(message).not.toContain("another run is starting");
+      expect(ran).not.toHaveBeenCalled();
     } finally {
       child.kill();
     }

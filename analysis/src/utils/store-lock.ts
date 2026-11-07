@@ -35,11 +35,12 @@ const heldMessage = (lockFile: string, contents: string): string => {
   );
 };
 
-const claimHeldMessage = (claim: string, held: number | undefined): string => {
+const claimHeldMessage = (claim: string, held: number | undefined, starting: boolean): string => {
   const holder = held === undefined ? "has not written its pid yet" : `is held by process ${held}`;
+  const retry = starting ? "; another run is starting, so retry shortly" : "";
   return (
     `Store lock claim ${claim} ${holder}; wait for that run to finish, ` +
-    `or remove that claim file if the process is gone`
+    `or remove that claim file if the process is gone${retry}`
   );
 };
 
@@ -139,6 +140,11 @@ const failedWithCleanup = (error: unknown, cleanup: () => void): unknown => {
   return error;
 };
 
+const isYoung = (file: string): boolean => {
+  const age = lockAgeMs(file);
+  return age !== undefined && age < LOCK_CONTENT_GRACE_MS;
+};
+
 const removeStaleClaims = (lockFile: string, ownClaim: string): void => {
   const claimsDir = claimDirectoryFor(lockFile);
   const entries = fs.readdirSync(claimsDir, { withFileTypes: true });
@@ -157,11 +163,11 @@ const removeStaleClaims = (lockFile: string, ownClaim: string): void => {
     }
     const held = namedPid ?? contentPid;
     if (held !== undefined) {
-      if (isRunning(held)) throw new Error(claimHeldMessage(candidate, held));
+      if (isRunning(held)) throw new Error(claimHeldMessage(candidate, held, isYoung(candidate)));
     } else {
       const age = lockAgeMs(candidate);
       if (age === undefined) continue;
-      if (age < LOCK_CONTENT_GRACE_MS) throw new Error(claimHeldMessage(candidate, undefined));
+      if (age < LOCK_CONTENT_GRACE_MS) throw new Error(claimHeldMessage(candidate, undefined, true));
     }
 
     warnReclaim(lockFile, held === undefined ? contents : String(held));

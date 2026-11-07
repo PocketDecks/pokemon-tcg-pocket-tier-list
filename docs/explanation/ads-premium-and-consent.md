@@ -10,6 +10,12 @@ The first is content volume. On `/statistics`, a free visitor sees only the ten 
 
 The second is advertising itself. Free visitors see Google AdSense units: a sticky anchor bar along the bottom of every page, plus in-content units on individual routes. Premium users see none of it. Both gates hang off one hook, `useAdsState()`, which combines the master switch `ADS_ENABLED` in `adsConfig.ts`, premium status, marketing consent and page readiness into a single `showAds` decision. Placement components never make these calls themselves, so there is exactly one place where ad policy lives.
 
+### How the window data is protected
+
+The 30-day and All Time ranking windows are enforced by delivery, not by the interface. Their artefacts are not published under `public/data/`, and the repository does not commit them. The refresh uploads them to Firestore, whose security rules allow a read only when the signed-in user token carries `stripeRole == "premium"`. `loadWindowArtefact` in `src/app/meta-window.ts` fetches the public windows exactly as before and sends the two premium windows through `loadPremiumArtefact` in `src/app/premium-data.ts`, which loads the Firestore code only at that point, so free pages never download it. If a read is denied even after a forced token refresh, the window selector falls back to the default window. The upload and rollback steps are in the [publish premium data guide](../how-to/publish-premium-data.md).
+
+Two things are still presentation only. The matchup rows that free visitors see blurred on the default windows, and the depth of the movement table, are public data that the interface hides. Moving them behind the same rules needs a designed free-tier teaser and is separate work.
+
 ## How premium status resolves
 
 `useIsPremium()` returns three states. It is `null` while authentication is loading or the subscription query is in flight, then resolves to `true` or `false`. A signed-out visitor resolves to `false` immediately. A signed-in visitor is checked against the Firestore Stripe payments extension for subscriptions whose status is `active`, `trialing` or `past_due`.

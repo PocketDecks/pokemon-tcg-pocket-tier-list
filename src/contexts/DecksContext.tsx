@@ -30,7 +30,13 @@ import {
   resolveDeckDetail,
 } from "../app/deck-resolution";
 import { getScoreBaseline, type ScoreBaseline } from "../app/score-baseline";
-import { metaWindowDataFile, type MetaWindow } from "../app/meta-window";
+import {
+  isPremiumMetaWindow,
+  loadWindowArtefact,
+  metaWindowDataFile,
+  type MetaWindow,
+} from "../app/meta-window";
+import { PremiumAccessError } from "../app/premium-data";
 import { useMetaWindow } from "../app/use-meta-window";
 
 export type { CardType };
@@ -71,9 +77,7 @@ const maxScore = (deck: PartialDeckType): number => {
 // shape) degrades to null so deck pages and statistics keep loading.
 const loadMetaShare = async (window: MetaWindow): Promise<PipelineMetaShare | null> => {
   try {
-    const res = await fetch(`/data/${metaWindowDataFile("meta-share", window)}`);
-    if (!res.ok) return null;
-    const data = await res.json();
+    const data = await loadWindowArtefact("meta-share", window);
     if (
       data &&
       typeof data === "object" &&
@@ -131,18 +135,12 @@ export const sanitiseMatchupData = (
 
 const fetchMatchupData = async (window: MetaWindow): Promise<PipelineMatchupData> => {
   const file = metaWindowDataFile("matchup-data", window);
-  const response = await fetch(`/data/${file}`);
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch ${file}: ${response.status} ${response.statusText}`
-    );
-  }
-  const data = await response.json();
+  const data = await loadWindowArtefact("matchup-data", window);
   if (data === null || typeof data !== "object" || Array.isArray(data)) {
     throw new Error(`${file} has an unexpected shape`);
   }
 
-  const { matchups, dropped } = sanitiseMatchupData(data);
+  const { matchups, dropped } = sanitiseMatchupData(data as Record<string, unknown>);
 
   if (dropped > 0) {
     console.warn(`Dropped ${dropped} invalid matchup entries from ${file}`);
@@ -311,6 +309,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const { data: decksData, isLoading: decksLoading, error: decksError } = useDecksData(window);
   const { data: metaShare } = useMetaShareData(window);
+  const awaitingPremium = isPremiumMetaWindow(window) && isPremium === null;
 
   const scoreBaseline = useMemo(
     () => (decksData ? getScoreBaseline(decksData.decks) : null),
@@ -374,7 +373,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
       scoreBaseline,
       metaShare: settledMetaShare,
       metaShareBySlug,
-      loading: cardsLoading || decksLoading,
+      loading: cardsLoading || decksLoading || awaitingPremium,
       error: decksError ?? null,
     }),
     [
@@ -385,6 +384,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
       metaShareBySlug,
       cardsLoading,
       decksLoading,
+      awaitingPremium,
       decksError,
     ]
   );
@@ -404,10 +404,12 @@ export const useDecks = () => {
 
 export const useMatchups = () => {
   const { window } = useMetaWindow();
+  const isPremium = useIsPremium();
   const { data, isLoading, error } = useQuery({
     queryKey: ["matchups", window],
     queryFn: () => fetchMatchupData(window),
     retry: 1,
+    ...windowQueryOptions(window, isPremium),
   });
   return { matchupsByName: data ?? null, loading: isLoading, error: error ?? null };
 };
@@ -430,26 +432,35 @@ const useCardsData = () => {
 };
 
 const fetchDeckData = async (window: MetaWindow) => {
-  const file = metaWindowDataFile("best-decks", window);
-  const decksResponse = await fetch(`/data/${file}`);
-  if (!decksResponse.ok) {
-    throw new Error(`Failed to fetch ${file}: ${decksResponse.status} ${decksResponse.statusText}`);
-  }
-  const decks = (await decksResponse.json()) as PartialDeckType[];
+  const decks = (await loadWindowArtefact("best-decks", window)) as PartialDeckType[];
   return { decks };
 };
 
+const PREMIUM_LOAD_ATTEMPTS = 3;
+
+const retryUnlessDenied = (failureCount: number, error: Error): boolean =>
+  !(error instanceof PremiumAccessError) && failureCount < PREMIUM_LOAD_ATTEMPTS - 1;
+
+const windowQueryOptions = (window: MetaWindow, isPremium: boolean | null) => ({
+  enabled: !isPremiumMetaWindow(window) || isPremium === true,
+  ...(isPremiumMetaWindow(window) ? { retry: retryUnlessDenied } : {}),
+});
+
 const useDecksData = (window: MetaWindow) => {
+  const isPremium = useIsPremium();
   return useQuery({
     queryKey: ["decks", window],
     queryFn: () => fetchDeckData(window),
+    ...windowQueryOptions(window, isPremium),
   });
 };
 
 const useMetaShareData = (window: MetaWindow) => {
+  const isPremium = useIsPremium();
   return useQuery({
     queryKey: ["meta-share", window],
     queryFn: () => loadMetaShare(window),
+    ...windowQueryOptions(window, isPremium),
   });
 };
 

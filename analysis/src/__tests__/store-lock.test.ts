@@ -664,6 +664,117 @@ describe("withStoreLock", () => {
     expect(aggregate.errors).toEqual([writeError, cleanupError]);
   });
 
+  it("flattens a lock write failure with lock and claim cleanup failures into one aggregate", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const open = fs.openSync;
+    const writeFile = fs.writeFileSync;
+    const remove = fs.rmSync;
+    let lockDescriptor: number | undefined;
+    const writeError = Object.assign(new Error("no space left on device"), { code: "ENOSPC" });
+    const lockCleanupError = Object.assign(new Error("lock removal denied"), { code: "EACCES" });
+    const claimCleanupError = Object.assign(new Error("claim removal denied"), { code: "EACCES" });
+    vi.spyOn(fs, "openSync").mockImplementation((...args) => {
+      const fd = open(...args);
+      if (String(args[0]) === lockFile) lockDescriptor = fd;
+      return fd;
+    });
+    vi.spyOn(fs, "writeFileSync").mockImplementation((file, data, options) => {
+      if (file === lockDescriptor) throw writeError;
+      return writeFile(file, data, options);
+    });
+    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+      if (String(target) === lockFile) throw lockCleanupError;
+      if (String(target).startsWith(`${claimsDir}${path.sep}`)) throw claimCleanupError;
+      remove(target, options);
+    });
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, () => "ran");
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(AggregateError);
+    const aggregate = thrown as AggregateError;
+    expect(aggregate.message).toContain("no space left on device");
+    expect(aggregate.errors).toHaveLength(3);
+    expect(aggregate.errors[0]).toBe(writeError);
+    expect(aggregate.errors[1]).toBe(lockCleanupError);
+    expect(aggregate.errors[2]).toBe(claimCleanupError);
+  });
+
+  it("keeps both the pid write error and the close error when the lock write and close both fail", () => {
+    const open = fs.openSync;
+    const writeFile = fs.writeFileSync;
+    const close = fs.closeSync;
+    let lockDescriptor: number | undefined;
+    const writeError = Object.assign(new Error("no space left on device"), { code: "ENOSPC" });
+    const closeError = Object.assign(new Error("close failed"), { code: "EIO" });
+    vi.spyOn(fs, "openSync").mockImplementation((...args) => {
+      const fd = open(...args);
+      if (String(args[0]) === lockFile) lockDescriptor = fd;
+      return fd;
+    });
+    vi.spyOn(fs, "writeFileSync").mockImplementation((file, data, options) => {
+      if (file === lockDescriptor) throw writeError;
+      return writeFile(file, data, options);
+    });
+    vi.spyOn(fs, "closeSync").mockImplementation((fd) => {
+      close(fd);
+      if (fd === lockDescriptor) throw closeError;
+    });
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, () => "ran");
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(AggregateError);
+    const aggregate = thrown as AggregateError;
+    expect(aggregate.errors).toHaveLength(2);
+    expect(aggregate.errors[0]).toBe(writeError);
+    expect(aggregate.errors[1]).toBe(closeError);
+    expect(fs.existsSync(lockFile)).toBe(false);
+  });
+
+  it("removes its claim once when the read-back mismatch removal fails", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const read = fs.readFileSync;
+    const remove = fs.rmSync;
+    const cleanupError = Object.assign(new Error("claim removal denied"), { code: "EACCES" });
+    const ran = vi.fn(() => "ran");
+    let misread = 0;
+    let claimRemovals = 0;
+    vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
+      if (misread === 0 && String(target).startsWith(`${claimsDir}${path.sep}`)) {
+        misread += 1;
+        return "0";
+      }
+      return read(target, options);
+    });
+    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+      if (String(target).startsWith(`${claimsDir}${path.sep}`)) {
+        claimRemovals += 1;
+        throw cleanupError;
+      }
+      remove(target, options);
+    });
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, ran);
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBe(cleanupError);
+    expect(claimRemovals).toBe(1);
+    expect(ran).not.toHaveBeenCalled();
+  });
+
   it("keeps the claim refusal when removing the claim also fails", () => {
     const claimsDir = `${lockFile}.claims`;
     const staleClaim = path.join(claimsDir, `${deadPid()}-00000000-0000-4000-8000-000000000000`);

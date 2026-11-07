@@ -58,11 +58,22 @@ const warnReclaim = (lockFile: string, contents: string): void => {
 };
 
 const writePidAndClose = (fd: number): void => {
+  let writeFailure: { error: unknown } | undefined;
   try {
     fs.writeFileSync(fd, String(process.pid));
-  } finally {
-    fs.closeSync(fd);
+  } catch (error) {
+    writeFailure = { error };
   }
+  try {
+    fs.closeSync(fd);
+  } catch (closeError) {
+    if (writeFailure === undefined) throw closeError;
+    throw new AggregateError(
+      [writeFailure.error, closeError],
+      `${errorMessage(writeFailure.error)}; closing the store lock file also failed`
+    );
+  }
+  if (writeFailure !== undefined) throw writeFailure.error;
 };
 
 const tryCreate = (lockFile: string): boolean => {
@@ -149,6 +160,9 @@ const failedWithCleanup = (error: unknown, cleanup: () => void): unknown => {
   try {
     cleanup();
   } catch (cleanupError) {
+    if (error instanceof AggregateError) {
+      return new AggregateError([...error.errors, cleanupError], error.message);
+    }
     return new AggregateError([error, cleanupError], `${errorMessage(error)}; store lock cleanup also failed`);
   }
   return error;
@@ -220,16 +234,18 @@ const createClaim = (lockFile: string): string => {
     const claim = path.join(claimsDir, `${process.pid}-${randomUUID()}`);
     if (!writeClaim(lockFile, claim)) continue;
 
+    let owned: boolean;
     try {
       removeStaleClaims(lockFile, claim);
-      if (readLockContents(claim) !== String(process.pid)) {
-        removeClaim(lockFile, claim);
-        continue;
-      }
-      return claim;
+      owned = readLockContents(claim) === String(process.pid);
     } catch (error) {
       throw failedWithCleanup(error, () => removeClaim(lockFile, claim));
     }
+    if (!owned) {
+      removeClaim(lockFile, claim);
+      continue;
+    }
+    return claim;
   }
 
   throw new Error(changingMessage(lockFile));

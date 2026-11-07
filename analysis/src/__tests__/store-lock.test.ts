@@ -231,6 +231,56 @@ describe("withStoreLock", () => {
     }
   });
 
+  it("keeps the live claim refusal when the lock cannot be read", () => {
+    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    const ran = vi.fn(() => "ran");
+    const read = fs.readFileSync;
+    try {
+      if (child.pid === undefined) throw new Error("could not spawn a live child");
+      const claim = path.join(`${lockFile}.claims`, `${child.pid}-00000000-0000-4000-8000-000000000000`);
+      fs.mkdirSync(path.dirname(claim), { recursive: true });
+      fs.writeFileSync(claim, String(child.pid));
+      fs.writeFileSync(lockFile, String(child.pid));
+      vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
+        if (String(target) === lockFile) throw Object.assign(new Error("lock unreadable"), { code: "EACCES" });
+        return read(target, options);
+      });
+
+      const message = thrownMessage(() => withStoreLock(store, ran));
+
+      expect(message).toBe(
+        `Store lock claim ${claim} is held by process ${child.pid}; wait for that run to finish, ` +
+          "or remove that claim file if the process is gone"
+      );
+      expect(ran).not.toHaveBeenCalled();
+      expect(fs.existsSync(claim)).toBe(true);
+    } finally {
+      child.kill();
+    }
+  });
+
+  it("keeps the claim refusal when the lock cannot be read while a young claim has no pid", () => {
+    const claim = path.join(`${lockFile}.claims`, "incomplete");
+    const ran = vi.fn(() => "ran");
+    const read = fs.readFileSync;
+    fs.mkdirSync(path.dirname(claim), { recursive: true });
+    fs.writeFileSync(claim, "");
+    fs.writeFileSync(lockFile, String(deadPid()));
+    vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
+      if (String(target) === lockFile) throw Object.assign(new Error("lock unreadable"), { code: "EACCES" });
+      return read(target, options);
+    });
+
+    const message = thrownMessage(() => withStoreLock(store, ran));
+
+    expect(message).toBe(
+      `Store lock claim ${claim} has not written its pid yet; wait for that run to finish, ` +
+        "or remove that claim file if the process is gone"
+    );
+    expect(ran).not.toHaveBeenCalled();
+    expect(fs.existsSync(claim)).toBe(true);
+  });
+
   it("names this process without a retry suffix when a nested call meets the outer claim", () => {
     const claimsDir = `${lockFile}.claims`;
     const nestedCallback = vi.fn(() => "nested");

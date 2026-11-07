@@ -190,6 +190,14 @@ const blocksReclaim = (lockFile: string, contents: string): boolean => {
   return isYoung(lockFile);
 };
 
+const lockIsAbsent = (lockFile: string): boolean => {
+  try {
+    return readLockContents(lockFile) === undefined;
+  } catch {
+    return false;
+  }
+};
+
 const removeStaleClaims = (lockFile: string, ownClaim: string): void => {
   const claimsDir = claimDirectoryFor(lockFile);
   const entries = fs.readdirSync(claimsDir, { withFileTypes: true });
@@ -215,14 +223,14 @@ const removeStaleClaims = (lockFile: string, ownClaim: string): void => {
     }
     if (held !== undefined) {
       if (isRunning(held)) {
-        const lockAbsent = readLockContents(lockFile) === undefined;
+        const lockAbsent = lockIsAbsent(lockFile);
         throw new Error(claimHeldMessage(candidate, held, lockAbsent && isYoung(candidate)));
       }
     } else {
       const age = lockAgeMs(candidate);
       if (age === undefined) continue;
       if (age < LOCK_CONTENT_GRACE_MS) {
-        const lockAbsent = readLockContents(lockFile) === undefined;
+        const lockAbsent = lockIsAbsent(lockFile);
         throw new Error(claimHeldMessage(candidate, undefined, lockAbsent));
       }
     }

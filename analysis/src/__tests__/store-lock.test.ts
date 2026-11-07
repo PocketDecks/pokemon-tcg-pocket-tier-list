@@ -225,42 +225,57 @@ describe("withStoreLock", () => {
     }
   });
 
-  it("names this process without a retry suffix when a young own-pid claim is left behind", () => {
+  it("names this process without a retry suffix when a nested call meets the outer claim", () => {
     const claimsDir = `${lockFile}.claims`;
-    const leftover = path.join(claimsDir, `${process.pid}-00000000-0000-4000-8000-000000000000`);
-    const ran = vi.fn(() => "ran");
-    fs.mkdirSync(claimsDir, { recursive: true });
-    fs.writeFileSync(leftover, String(process.pid));
+    const nestedCallback = vi.fn(() => "nested");
+    let message = "";
 
-    const message = thrownMessage(() => withStoreLock(store, ran));
+    expect(
+      withStoreLock(store, () => {
+        message = thrownMessage(() => withStoreLock(store, nestedCallback));
+        return "outer";
+      })
+    ).toBe("outer");
 
-    expect(message).toContain(leftover);
+    expect(message).toContain(`${claimsDir}${path.sep}${process.pid}-`);
     expect(message).toContain(`process ${process.pid}`);
     expect(message).toContain("which is this process");
     expect(message).toContain("could not remove the claim");
     expect(message).not.toContain("retry shortly");
-    expect(ran).not.toHaveBeenCalled();
-    expect(fs.existsSync(leftover)).toBe(true);
+    expect(nestedCallback).not.toHaveBeenCalled();
+    expect(claimEntries()).toEqual([]);
   });
 
-  it("keeps an aged empty claim held when its filename names a live pid", () => {
+  it("reclaims an aged empty claim named with this pid that this process did not create", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const claimsDir = `${lockFile}.claims`;
     const claim = path.join(claimsDir, `${process.pid}-00000000-0000-4000-8000-000000000000`);
-    const stalePid = deadPid();
     const ran = vi.fn(() => "ran");
     fs.mkdirSync(claimsDir, { recursive: true });
     fs.writeFileSync(claim, "");
     backdate(claim);
-    fs.writeFileSync(lockFile, String(stalePid));
+    fs.writeFileSync(lockFile, String(deadPid()));
 
-    const message = thrownMessage(() => withStoreLock(store, ran));
+    expect(withStoreLock(store, ran)).toBe("ran");
 
-    expect(message).toContain(claim);
-    expect(message).toContain(`process ${process.pid}`);
-    expect(message).not.toContain("remove the lock file");
-    expect(ran).not.toHaveBeenCalled();
-    expect(fs.readFileSync(claim, "utf8")).toBe("");
-    expect(fs.readFileSync(lockFile, "utf8")).toBe(String(stalePid));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining(claim));
+    expect(ran).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(claim)).toBe(false);
+    expect(fs.existsSync(lockFile)).toBe(false);
+  });
+
+  it("reclaims a claim named with this pid that this process did not create, and runs the callback", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const leftover = path.join(`${lockFile}.claims`, `${process.pid}-00000000-0000-4000-8000-000000000001`);
+    const ran = vi.fn(() => "ran");
+    fs.mkdirSync(path.dirname(leftover), { recursive: true });
+    fs.writeFileSync(leftover, String(process.pid));
+
+    expect(withStoreLock(store, ran)).toBe("ran");
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining(leftover));
+    expect(ran).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(leftover)).toBe(false);
   });
 
   it("asks for a retry when the claims directory keeps disappearing", () => {

@@ -10,6 +10,8 @@ export const LOCK_CONTENT_GRACE_MS = 5_000;
 
 const ACQUIRE_ATTEMPTS = 5;
 
+const ownClaims = new Set<string>();
+
 const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
 const isRunning = (pid: number): boolean => {
@@ -146,6 +148,7 @@ const removeEmptyClaimsDirectory = (claimsDir: string): void => {
 
 const removeClaim = (lockFile: string, claim: string): void => {
   fs.rmSync(claim, { force: true });
+  ownClaims.delete(claim);
   const claimsDir = claimDirectoryFor(lockFile);
   try {
     removeEmptyClaimsDirectory(claimsDir);
@@ -196,7 +199,12 @@ const removeStaleClaims = (lockFile: string, ownClaim: string): void => {
       throw new Error(`Store lock claim ${candidate} has conflicting owner pids`);
     }
     const held = namedPid ?? contentPid;
-    if (held === process.pid) throw new Error(ownClaimHeldMessage(candidate, held));
+    if (held === process.pid) {
+      if (ownClaims.has(candidate)) throw new Error(ownClaimHeldMessage(candidate, held));
+      console.warn(`Store lock claim ${candidate} names this process but was not created by it; reclaiming it`);
+      fs.rmSync(candidate, { force: true });
+      continue;
+    }
     if (held !== undefined) {
       if (isRunning(held)) {
         const lockAbsent = readLockContents(lockFile) === undefined;
@@ -225,6 +233,7 @@ const writeClaim = (lockFile: string, claim: string): boolean => {
     if (code === "ENOENT" || code === "EEXIST") return false;
     throw error;
   }
+  ownClaims.add(claim);
   try {
     writePidAndClose(fd);
   } catch (error) {

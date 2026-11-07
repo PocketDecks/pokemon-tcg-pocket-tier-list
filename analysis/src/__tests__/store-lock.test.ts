@@ -573,6 +573,44 @@ describe("withStoreLock", () => {
     }
   });
 
+  it("refuses a same-version writer that enters during the reclaim window and never opens the lock", () => {
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const read = fs.readFileSync;
+    const open = fs.openSync;
+    const stale = String(deadPid());
+    const ran = vi.fn(() => "ran");
+    const nestedCallback = vi.fn(() => "nested");
+    let lockReads = 0;
+    let inWindow = false;
+    let windowOpens = 0;
+    let nestedMessage = "";
+    fs.writeFileSync(lockFile, stale);
+    vi.spyOn(fs, "openSync").mockImplementation((...args) => {
+      if (inWindow && String(args[0]) === lockFile) windowOpens += 1;
+      return open(...args);
+    });
+    vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
+      if (String(target) === lockFile) {
+        lockReads += 1;
+        if (lockReads === 2) {
+          inWindow = true;
+          nestedMessage = thrownMessage(() => withStoreLock(store, nestedCallback));
+          inWindow = false;
+        }
+      }
+      return read(target, options);
+    });
+
+    expect(withStoreLock(store, ran)).toBe("ran");
+
+    expect(nestedMessage).toContain(`${lockFile}.claims${path.sep}${process.pid}-`);
+    expect(nestedMessage).toContain("which is this process");
+    expect(windowOpens).toBe(0);
+    expect(nestedCallback).not.toHaveBeenCalled();
+    expect(ran).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(lockFile)).toBe(false);
+  });
+
   it("reclaims a lock that changes to a dead pid before the re-read", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const read = fs.readFileSync;

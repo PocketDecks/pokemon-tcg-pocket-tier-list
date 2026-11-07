@@ -145,7 +145,8 @@ describe("withStoreLock", () => {
 
     expect(withStoreLock(store, () => "ran")).toBe("ran");
 
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining("holds pid 0, which is not running"));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("holds no pid"));
+    expect(warn).not.toHaveBeenCalledWith(expect.stringContaining("pid 0"));
     expect(fs.existsSync(lockFile)).toBe(false);
   });
 

@@ -52,8 +52,8 @@ const changingMessage = (lockFile: string): string =>
   `Store lock ${lockFile} kept changing while this run was acquiring it, so retry the run`;
 
 const warnReclaim = (lockFile: string, contents: string): void => {
-  const held = Number.parseInt(contents.trim(), 10);
-  const holder = Number.isInteger(held) ? `pid ${held}, which is not running` : "no pid";
+  const held = pidFrom(contents);
+  const holder = held === undefined ? "no pid" : `pid ${held}, which is not running`;
   console.warn(`Store lock ${lockFile} holds ${holder}; reclaiming it`);
 };
 

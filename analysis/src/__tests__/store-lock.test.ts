@@ -2,8 +2,8 @@ import { spawn, spawnSync } from "child_process";
 import fs from "fs";
 import os from "os";
 import path from "path";
-import { vi } from "vitest";
-import { LOCK_CONTENT_GRACE_MS, lockFileFor, withStoreLock } from "../utils/store-lock";
+import { expectTypeOf, vi } from "vitest";
+import { LOCK_CONTENT_GRACE_MS, lockFileFor, type SyncResult, withStoreLock } from "../utils/store-lock";
 
 const deadPid = (): number => {
   const child = spawnSync(process.execPath, ["-e", ""]);
@@ -89,6 +89,32 @@ describe("withStoreLock", () => {
     expect(asyncCallback).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(lockFile)).toBe(false);
     expect(fs.existsSync(`${lockFile}.claims`) ? fs.readdirSync(`${lockFile}.claims`) : []).toEqual([]);
+  });
+
+  it("types a promise-returning callback out and a synchronous one in", () => {
+    expectTypeOf<SyncResult<Promise<number>>>().toEqualTypeOf<never>();
+    expectTypeOf<Parameters<typeof withStoreLock<number>>[1]>().toEqualTypeOf<() => number>();
+    expectTypeOf<() => Promise<number>>().not.toExtend<Parameters<typeof withStoreLock<Promise<number>>>[1]>();
+  });
+
+  it("keeps a late rejection from a promise-returning callback from becoming unhandled", async () => {
+    const unhandled = vi.fn();
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const lateCallback = (async () => {
+      await Promise.resolve();
+      throw new Error("late failure");
+    }) as unknown as () => string;
+    process.on("unhandledRejection", unhandled);
+    try {
+      expect(() => withStoreLock(store, lateCallback)).toThrow(TypeError);
+      await new Promise((resolve) => setImmediate(resolve));
+    } finally {
+      process.off("unhandledRejection", unhandled);
+    }
+
+    expect(unhandled).not.toHaveBeenCalled();
+    expect(consoleError).toHaveBeenCalledWith(expect.stringContaining("late failure"));
+    expect(fs.existsSync(lockFile)).toBe(false);
   });
 
   it("releases the lock when the callback throws", () => {

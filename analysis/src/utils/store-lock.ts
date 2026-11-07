@@ -313,7 +313,7 @@ const releaseAndRemoveClaim = (lockFile: string, claim: string): unknown[] => {
 const isThenable = (value: unknown): value is PromiseLike<unknown> =>
   typeof (value as { then?: unknown } | null)?.then === "function";
 
-type SyncResult<T> = T extends PromiseLike<unknown> ? never : unknown;
+export type SyncResult<T> = T extends PromiseLike<unknown> ? never : unknown;
 
 export const withStoreLock = <T>(dir: string, fn: () => T & SyncResult<T>): T => {
   const lockFile = lockFileFor(dir);
@@ -323,6 +323,9 @@ export const withStoreLock = <T>(dir: string, fn: () => T & SyncResult<T>): T =>
   try {
     result = fn();
     if (isThenable(result)) {
+      Promise.resolve(result).catch((rejection: unknown) => {
+        console.error(`Store lock callback returned a promise that later rejected: ${errorMessage(rejection)}`);
+      });
       throw new TypeError("store lock callback must be synchronous, but it returned a promise");
     }
   } catch (callbackError) {

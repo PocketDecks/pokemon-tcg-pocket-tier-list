@@ -188,8 +188,9 @@ Wraps Firebase Auth: `user`, `loading`, `signInWithGoogle` (popup) and
 auth is unresolved, so first paint never blocks on Firebase.
 
 Premium status is not a context. `useIsPremium` in `src/app/use-is-premium.ts`
-queries Firestore Stripe subscriptions with the statuses `active`, `trialing`
-and `past_due`, returning `boolean | null` while it works. Trialing counts
+returns `true` when the user's own `entitlements/{uid}` document grants access
+or when a Firestore Stripe subscription with the status `active`, `trialing` or
+`past_due` exists, and `boolean | null` while it works. Trialing counts
 because new subscribers spend their first seven days in a trial, and
 `past_due` keeps access through Stripe's payment-retry grace period.
 `DecksContext` waits for a non-null answer before computing decks.

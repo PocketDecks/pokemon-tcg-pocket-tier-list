@@ -473,7 +473,7 @@ describe("withStoreLock", () => {
   it("removes a claim whose pid write fails and leaves the lock usable", () => {
     const claimsDir = `${lockFile}.claims`;
     const open = fs.openSync;
-    const write = fs.writeSync;
+    const writeFile = fs.writeFileSync;
     const claimDescriptors = new Set<number>();
     let failedWrites = 0;
     vi.spyOn(fs, "openSync").mockImplementation((...args) => {
@@ -481,12 +481,12 @@ describe("withStoreLock", () => {
       if (String(args[0]).startsWith(`${claimsDir}${path.sep}`)) claimDescriptors.add(fd);
       return fd;
     });
-    vi.spyOn(fs, "writeSync").mockImplementation((...args) => {
-      if (claimDescriptors.has(args[0]) && failedWrites === 0) {
+    vi.spyOn(fs, "writeFileSync").mockImplementation((file, data, options) => {
+      if (claimDescriptors.has(file as number) && failedWrites === 0) {
         failedWrites += 1;
         throw Object.assign(new Error("no space left on device"), { code: "ENOSPC" });
       }
-      return write(...args);
+      return writeFile(file, data, options);
     });
 
     let thrown: unknown;
@@ -502,10 +502,63 @@ describe("withStoreLock", () => {
     expect(withStoreLock(store, () => "ran")).toBe("ran");
   });
 
-  it("keeps the write error when removing the claim also fails", () => {
+  it("removes the lock file when its pid write fails and lets the next run take it", () => {
+    const open = fs.openSync;
+    const writeFile = fs.writeFileSync;
+    let lockDescriptor: number | undefined;
+    let failedWrites = 0;
+    const ran = vi.fn(() => "ran");
+    vi.spyOn(fs, "openSync").mockImplementation((...args) => {
+      const fd = open(...args);
+      if (String(args[0]) === lockFile) lockDescriptor = fd;
+      return fd;
+    });
+    vi.spyOn(fs, "writeFileSync").mockImplementation((file, data, options) => {
+      if (file === lockDescriptor && failedWrites === 0) {
+        failedWrites += 1;
+        throw Object.assign(new Error("no space left on device"), { code: "ENOSPC" });
+      }
+      return writeFile(file, data, options);
+    });
+
+    expect(() => withStoreLock(store, ran)).toThrow("no space left on device");
+
+    expect(failedWrites).toBe(1);
+    expect(fs.existsSync(lockFile)).toBe(false);
+    expect(withStoreLock(store, ran)).toBe("ran");
+    expect(ran).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not accept a claim whose pid write is short", () => {
     const claimsDir = `${lockFile}.claims`;
     const open = fs.openSync;
     const write = fs.writeSync;
+    const claimDescriptors = new Set<number>();
+    let shortWrites = 0;
+    const ran = vi.fn(() => "ran");
+    vi.spyOn(fs, "openSync").mockImplementation((...args) => {
+      const fd = open(...args);
+      if (String(args[0]).startsWith(`${claimsDir}${path.sep}`)) claimDescriptors.add(fd);
+      return fd;
+    });
+    vi.spyOn(fs, "writeSync").mockImplementation((...args) => {
+      if (claimDescriptors.has(args[0]) && shortWrites < 100) {
+        shortWrites += 1;
+        return 0;
+      }
+      return write(...args);
+    });
+
+    expect(withStoreLock(store, ran)).toBe("ran");
+
+    expect(ran).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(lockFile)).toBe(false);
+  });
+
+  it("keeps the write error when removing the claim also fails", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const open = fs.openSync;
+    const writeFile = fs.writeFileSync;
     const remove = fs.rmSync;
     const claimDescriptors = new Set<number>();
     const writeError = Object.assign(new Error("no space left on device"), { code: "ENOSPC" });
@@ -515,9 +568,9 @@ describe("withStoreLock", () => {
       if (String(args[0]).startsWith(`${claimsDir}${path.sep}`)) claimDescriptors.add(fd);
       return fd;
     });
-    vi.spyOn(fs, "writeSync").mockImplementation((...args) => {
-      if (claimDescriptors.has(args[0])) throw writeError;
-      return write(...args);
+    vi.spyOn(fs, "writeFileSync").mockImplementation((file, data, options) => {
+      if (claimDescriptors.has(file as number)) throw writeError;
+      return writeFile(file, data, options);
     });
     vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
       if (String(target).startsWith(`${claimsDir}${path.sep}`)) throw cleanupError;

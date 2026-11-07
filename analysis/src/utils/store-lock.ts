@@ -52,14 +52,28 @@ const warnReclaim = (lockFile: string, contents: string): void => {
   console.warn(`Store lock ${lockFile} holds ${holder}; reclaiming it`);
 };
 
-const tryCreate = (lockFile: string): boolean => {
+const writePidAndClose = (fd: number): void => {
   try {
-    fs.writeFileSync(lockFile, String(process.pid), { flag: "wx" });
-    return true;
+    fs.writeFileSync(fd, String(process.pid));
+  } finally {
+    fs.closeSync(fd);
+  }
+};
+
+const tryCreate = (lockFile: string): boolean => {
+  let fd: number;
+  try {
+    fd = fs.openSync(lockFile, "wx");
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
     return false;
   }
+  try {
+    writePidAndClose(fd);
+  } catch (error) {
+    throw failedWithCleanup(error, () => fs.rmSync(lockFile, { force: true }));
+  }
+  return true;
 };
 
 const readLockContents = (lockFile: string): string | undefined => {
@@ -119,9 +133,9 @@ const removeClaim = (lockFile: string, claim: string): void => {
   }
 };
 
-const failedWithCleanup = (lockFile: string, claim: string, error: unknown): unknown => {
+const failedWithCleanup = (error: unknown, cleanup: () => void): unknown => {
   try {
-    removeClaim(lockFile, claim);
+    cleanup();
   } catch (cleanupError) {
     return new AggregateError([error, cleanupError], `${errorMessage(error)}; store lock cleanup also failed`);
   }
@@ -168,13 +182,9 @@ const writeClaim = (lockFile: string, claim: string): boolean => {
     throw error;
   }
   try {
-    try {
-      fs.writeSync(fd, String(process.pid));
-    } finally {
-      fs.closeSync(fd);
-    }
+    writePidAndClose(fd);
   } catch (error) {
-    throw failedWithCleanup(lockFile, claim, error);
+    throw failedWithCleanup(error, () => removeClaim(lockFile, claim));
   }
   return true;
 };
@@ -199,7 +209,7 @@ const createClaim = (lockFile: string): string => {
       }
       return claim;
     } catch (error) {
-      throw failedWithCleanup(lockFile, claim, error);
+      throw failedWithCleanup(error, () => removeClaim(lockFile, claim));
     }
   }
 
@@ -258,11 +268,11 @@ const acquire = (lockFile: string): string => {
 
     throw new Error(changingMessage(lockFile));
   } catch (error) {
-    throw failedWithCleanup(lockFile, claim, error);
+    throw failedWithCleanup(error, () => removeClaim(lockFile, claim));
   }
 };
 
-const release =(lockFile: string): void => {
+const release = (lockFile: string): void => {
   const contents = readLockContents(lockFile);
   if (contents === undefined || pidFrom(contents) !== process.pid) return;
   fs.rmSync(lockFile, { force: true });

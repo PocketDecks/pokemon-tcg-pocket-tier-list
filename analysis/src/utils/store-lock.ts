@@ -293,13 +293,21 @@ const releaseAndRemoveClaim = (lockFile: string, claim: string): unknown[] => {
   return errors;
 };
 
-export const withStoreLock = <T>(dir: string, fn: () => T): T => {
+const isThenable = (value: unknown): value is PromiseLike<unknown> =>
+  typeof (value as { then?: unknown } | null)?.then === "function";
+
+type SyncResult<T> = T extends PromiseLike<unknown> ? never : unknown;
+
+export const withStoreLock = <T>(dir: string, fn: () => T & SyncResult<T>): T => {
   const lockFile = lockFileFor(dir);
   fs.mkdirSync(path.dirname(lockFile), { recursive: true });
   const claim = acquire(lockFile);
   let result: T;
   try {
     result = fn();
+    if (isThenable(result)) {
+      throw new TypeError("store lock callback must be synchronous, but it returned a promise");
+    }
   } catch (callbackError) {
     const cleanupErrors = releaseAndRemoveClaim(lockFile, claim);
     if (cleanupErrors.length === 0) throw callbackError;

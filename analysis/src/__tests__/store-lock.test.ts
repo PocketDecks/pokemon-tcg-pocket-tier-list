@@ -70,6 +70,23 @@ describe("withStoreLock", () => {
     expect(fs.readFileSync(lockFile, "utf8")).toBe(String(process.pid));
   });
 
+  it("rejects a callback that returns a promise and leaves no lock or claim", () => {
+    const asyncCallback = vi.fn(async () => "ran") as unknown as () => string;
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, asyncCallback);
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(TypeError);
+    expect((thrown as TypeError).message).toContain("synchronous");
+    expect(asyncCallback).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(lockFile)).toBe(false);
+    expect(fs.existsSync(`${lockFile}.claims`) ? fs.readdirSync(`${lockFile}.claims`) : []).toEqual([]);
+  });
+
   it("releases the lock when the callback throws", () => {
     expect(() =>
       withStoreLock(store, () => {

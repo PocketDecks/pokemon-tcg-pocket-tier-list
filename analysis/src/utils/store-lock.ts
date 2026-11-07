@@ -31,12 +31,20 @@ const pidFrom = (contents: string): number | undefined => {
   return Number.isInteger(held) && held > 0 ? held : undefined;
 };
 
-const heldMessage = (lockFile: string, contents: string): string => {
+const holderOf = (contents: string): string => {
   const held = pidFrom(contents);
-  const holder = held === undefined ? "a process that has not written its pid yet" : `process ${held}`;
+  return held === undefined ? "a process that has not written its pid yet" : `process ${held}`;
+};
+
+const heldMessage = (lockFile: string, contents: string): string =>
+  `Store lock ${lockFile} is held by ${holderOf(contents)}; wait for that run to finish, ` +
+  `or remove the lock file if the process is gone`;
+
+const displacedMessage = (lockFile: string, current: string | undefined, moved: string): string => {
+  const holder = current === undefined ? "no process, because the lock has been released" : holderOf(current);
   return (
-    `Store lock ${lockFile} is held by ${holder}; wait for that run to finish, ` +
-    `or remove the lock file if the process is gone`
+    `Store lock ${lockFile} was taken by ${holder} while a reclaim was moving the stale lock aside; ` +
+    `the displaced lock is left at ${moved}`
   );
 };
 
@@ -314,14 +322,38 @@ const createClaim = (lockFile: string): string => {
   throw new Error(changingMessage(lockFile));
 };
 
-const reclaimStale = (lockFile: string, inspected: string): string | undefined => {
+const reclaimStale = (lockFile: string, inspected: string): void => {
   const current = readLockContents(lockFile);
-  if (current === undefined) return undefined;
-  if (current !== inspected) return blocksReclaim(lockFile, current) ? current : undefined;
+  if (current === undefined) return;
+  if (current !== inspected) {
+    if (blocksReclaim(lockFile, current)) throw new Error(heldMessage(lockFile, current));
+    return;
+  }
 
-  fs.rmSync(lockFile, { force: true });
-  warnReclaim(lockFile, inspected);
-  return undefined;
+  const moved = `${lockFile}.${process.pid}.${randomUUID()}.reclaim`;
+  try {
+    fs.renameSync(lockFile, moved);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+    throw error;
+  }
+
+  const movedContents = readLockContents(moved);
+  if (movedContents === undefined) return;
+  if (movedContents === inspected) {
+    fs.rmSync(moved, { force: true });
+    warnReclaim(lockFile, inspected);
+    return;
+  }
+
+  try {
+    fs.linkSync(moved, lockFile);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+    throw new Error(displacedMessage(lockFile, readLockContents(lockFile), moved));
+  }
+  fs.rmSync(moved, { force: true });
+  if (blocksReclaim(lockFile, movedContents)) throw new Error(heldMessage(lockFile, movedContents));
 };
 
 const acquire = (lockFile: string): string => {
@@ -335,8 +367,7 @@ const acquire = (lockFile: string): string => {
 
       if (blocksReclaim(lockFile, contents)) throw new Error(heldMessage(lockFile, contents));
 
-      const heldBy = reclaimStale(lockFile, contents);
-      if (heldBy !== undefined) throw new Error(heldMessage(lockFile, heldBy));
+      reclaimStale(lockFile, contents);
     }
 
     throw new Error(changingMessage(lockFile));

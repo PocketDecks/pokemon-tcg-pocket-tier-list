@@ -1098,6 +1098,25 @@ describe("withStoreLock", () => {
     expect(fs.existsSync(lockFile)).toBe(false);
   });
 
+  it("reclaims a dead claim while the lock is unreadable and still surfaces the read error", () => {
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const read = fs.readFileSync;
+    const ran = vi.fn(() => "ran");
+    const deadClaim = path.join(`${lockFile}.claims`, "dead-owner");
+    fs.mkdirSync(path.dirname(deadClaim), { recursive: true });
+    fs.writeFileSync(deadClaim, String(deadPid()));
+    fs.writeFileSync(lockFile, String(deadPid()));
+    vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
+      if (String(target) === lockFile) throw Object.assign(new Error("lock unreadable"), { code: "EACCES" });
+      return read(target, options);
+    });
+
+    expect(() => withStoreLock(store, ran)).toThrow("lock unreadable");
+
+    expect(ran).not.toHaveBeenCalled();
+    expect(fs.existsSync(deadClaim)).toBe(false);
+  });
+
   it.each(["ENOENT", "ENOTEMPTY", "EEXIST"])("tolerates %s when the claims directory cannot be removed", (code) => {
     const claimsDir = `${lockFile}.claims`;
     const rmdir = fs.rmdirSync;

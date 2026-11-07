@@ -196,14 +196,19 @@ const removeStaleClaims = (lockFile: string, ownClaim: string): void => {
       throw new Error(`Store lock claim ${candidate} has conflicting owner pids`);
     }
     const held = namedPid ?? contentPid;
-    const lockAbsent = readLockContents(lockFile) === undefined;
     if (held === process.pid) throw new Error(ownClaimHeldMessage(candidate, held));
     if (held !== undefined) {
-      if (isRunning(held)) throw new Error(claimHeldMessage(candidate, held, lockAbsent && isYoung(candidate)));
+      if (isRunning(held)) {
+        const lockAbsent = readLockContents(lockFile) === undefined;
+        throw new Error(claimHeldMessage(candidate, held, lockAbsent && isYoung(candidate)));
+      }
     } else {
       const age = lockAgeMs(candidate);
       if (age === undefined) continue;
-      if (age < LOCK_CONTENT_GRACE_MS) throw new Error(claimHeldMessage(candidate, undefined, lockAbsent));
+      if (age < LOCK_CONTENT_GRACE_MS) {
+        const lockAbsent = readLockContents(lockFile) === undefined;
+        throw new Error(claimHeldMessage(candidate, undefined, lockAbsent));
+      }
     }
 
     warnReclaim(lockFile, held === undefined ? contents : String(held));

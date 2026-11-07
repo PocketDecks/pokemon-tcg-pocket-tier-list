@@ -20,6 +20,7 @@ export default tseslint.config(
       "private/**",
       "coverage/**",
       "node_modules/**",
+      "workers/**",
     ],
   },
   js.configs.recommended,

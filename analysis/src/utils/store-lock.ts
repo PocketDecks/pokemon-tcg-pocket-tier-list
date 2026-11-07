@@ -186,23 +186,29 @@ const removeClaim = (lockFile: string, claim: string): void => {
   }
 };
 
-type LabelledFailure = { original: string; cleanups: string[] };
-
-const labelledFailures = new WeakMap<AggregateError, LabelledFailure>();
-
 const cleanupFailureMessage = (original: string | undefined, cleanups: string[]): string =>
   original === undefined
     ? `store lock cleanup failed: ${cleanups.join("; ")}`
     : `${original}; store lock cleanup also failed: ${cleanups.join("; ")}`;
 
+class StoreLockCleanupError extends AggregateError {
+  readonly original: string | undefined;
+  readonly cleanups: string[];
+
+  constructor(errors: unknown[], original: string | undefined, cleanups: string[]) {
+    super(errors, cleanupFailureMessage(original, cleanups));
+    this.name = "AggregateError";
+    this.original = original;
+    this.cleanups = cleanups;
+  }
+}
+
 const withCleanupErrors = (error: unknown, cleanupErrors: unknown[]): AggregateError => {
-  const labelled = error instanceof AggregateError ? labelledFailures.get(error) : undefined;
+  const labelled = error instanceof StoreLockCleanupError && error.original !== undefined ? error : undefined;
   const originals = error instanceof AggregateError ? error.errors : [error];
   const original = labelled?.original ?? errorMessage(error);
   const cleanups = [...(labelled?.cleanups ?? []), ...cleanupErrors.map(errorMessage)];
-  const failure = new AggregateError([...originals, ...cleanupErrors], cleanupFailureMessage(original, cleanups));
-  labelledFailures.set(failure, { original, cleanups });
-  return failure;
+  return new StoreLockCleanupError([...originals, ...cleanupErrors], original, cleanups);
 };
 
 const failedWithCleanup = (error: unknown, cleanup: () => void): unknown => {
@@ -427,7 +433,7 @@ export const withStoreLock = <T>(dir: string, fn: () => T & SyncResult<T>): T =>
   const cleanupErrors = releaseAndRemoveClaim(lockFile, claim);
   if (cleanupErrors.length === 1) throw cleanupErrors[0];
   if (cleanupErrors.length > 1) {
-    throw new AggregateError(cleanupErrors, cleanupFailureMessage(undefined, cleanupErrors.map(errorMessage)));
+    throw new StoreLockCleanupError(cleanupErrors, undefined, cleanupErrors.map(errorMessage));
   }
   return result;
 };

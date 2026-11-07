@@ -71,13 +71,33 @@ describe("withStoreLock", () => {
   });
 
   it("throws and names the holding pid when the lock is already held", () => {
-    fs.writeFileSync(lockFile, String(process.pid));
-    const heldMessage = `Store lock ${lockFile} is held by process ${process.pid}`;
+    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    try {
+      if (child.pid === undefined) throw new Error("could not spawn a live child");
+      fs.writeFileSync(lockFile, String(child.pid));
+      const heldMessage = `Store lock ${lockFile} is held by process ${child.pid}`;
 
-    expect(() => withStoreLock(store, () => "ran")).toThrow(heldMessage);
-    expect(claimEntries()).toEqual([]);
-    expect(() => withStoreLock(store, () => "ran")).toThrow(heldMessage);
-    expect(fs.readFileSync(lockFile, "utf8")).toBe(String(process.pid));
+      expect(() => withStoreLock(store, () => "ran")).toThrow(heldMessage);
+      expect(claimEntries()).toEqual([]);
+      expect(() => withStoreLock(store, () => "ran")).toThrow(heldMessage);
+      expect(fs.readFileSync(lockFile, "utf8")).toBe(String(child.pid));
+    } finally {
+      child.kill();
+    }
+  });
+
+  it("reclaims a lock naming this process when it holds no claim, and runs the callback", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const ran = vi.fn(() => "ran");
+    fs.writeFileSync(lockFile, String(process.pid));
+
+    expect(withStoreLock(store, ran)).toBe("ran");
+
+    expect(warn).toHaveBeenCalledWith(
+      `Store lock ${lockFile} holds pid ${process.pid}, which is this process and holds no claim; reclaiming it`
+    );
+    expect(ran).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(lockFile)).toBe(false);
   });
 
   it("rejects a callback that returns a promise and leaves no lock or claim", () => {
@@ -501,23 +521,29 @@ describe("withStoreLock", () => {
   });
 
   it("keeps the lock held and names the live pid when a stale lock changes before removal", () => {
+    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
     const read = fs.readFileSync;
     const ran = vi.fn(() => "ran");
     let reads = 0;
-    fs.writeFileSync(lockFile, String(deadPid()));
-    vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
-      if (String(target) === lockFile) {
-        reads += 1;
-        if (reads === 2) fs.writeFileSync(lockFile, String(process.pid));
-      }
-      return read(target, options);
-    });
+    try {
+      if (child.pid === undefined) throw new Error("could not spawn a live child");
+      fs.writeFileSync(lockFile, String(deadPid()));
+      vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
+        if (String(target) === lockFile) {
+          reads += 1;
+          if (reads === 2) fs.writeFileSync(lockFile, String(child.pid));
+        }
+        return read(target, options);
+      });
 
-    expect(() => withStoreLock(store, ran)).toThrow(`Store lock ${lockFile} is held by process ${process.pid}`);
+      expect(() => withStoreLock(store, ran)).toThrow(`Store lock ${lockFile} is held by process ${child.pid}`);
 
-    expect(reads).toBe(2);
-    expect(ran).not.toHaveBeenCalled();
-    expect(fs.readFileSync(lockFile, "utf8")).toBe(String(process.pid));
+      expect(reads).toBe(2);
+      expect(ran).not.toHaveBeenCalled();
+      expect(fs.readFileSync(lockFile, "utf8")).toBe(String(child.pid));
+    } finally {
+      child.kill();
+    }
   });
 
   it("reclaims a lock that changes to a dead pid before the re-read", () => {
@@ -974,29 +1000,35 @@ describe("withStoreLock", () => {
   });
 
   it("keeps the held refusal when removing the claim also fails", () => {
+    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
     const claimsDir = `${lockFile}.claims`;
     const remove = fs.rmSync;
     const cleanupError = Object.assign(new Error("claim removal denied"), { code: "EACCES" });
-    fs.writeFileSync(lockFile, String(process.pid));
-    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
-      if (String(target).startsWith(`${claimsDir}${path.sep}`)) throw cleanupError;
-      remove(target, options);
-    });
     const ran = vi.fn(() => "ran");
-
-    let thrown: unknown;
     try {
-      withStoreLock(store, ran);
-    } catch (error) {
-      thrown = error;
-    }
+      if (child.pid === undefined) throw new Error("could not spawn a live child");
+      fs.writeFileSync(lockFile, String(child.pid));
+      vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+        if (String(target).startsWith(`${claimsDir}${path.sep}`)) throw cleanupError;
+        remove(target, options);
+      });
 
-    expect(thrown).toBeInstanceOf(AggregateError);
-    const aggregate = thrown as AggregateError;
-    expect(aggregate.message).toContain(`Store lock ${lockFile} is held by`);
-    expect(aggregate.errors).toHaveLength(2);
-    expect(aggregate.errors[1]).toBe(cleanupError);
-    expect(ran).not.toHaveBeenCalled();
+      let thrown: unknown;
+      try {
+        withStoreLock(store, ran);
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown).toBeInstanceOf(AggregateError);
+      const aggregate = thrown as AggregateError;
+      expect(aggregate.message).toContain(`Store lock ${lockFile} is held by process ${child.pid}`);
+      expect(aggregate.errors).toHaveLength(2);
+      expect(aggregate.errors[1]).toBe(cleanupError);
+      expect(ran).not.toHaveBeenCalled();
+    } finally {
+      child.kill();
+    }
   });
 
   it("keeps the callback error when claim cleanup also fails", () => {
@@ -1463,13 +1495,19 @@ describe("withStoreLock", () => {
   });
 
   it("leaves no claim behind when the lock is refused", () => {
-    fs.writeFileSync(lockFile, String(process.pid));
+    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
     const ran = vi.fn(() => "ran");
+    try {
+      if (child.pid === undefined) throw new Error("could not spawn a live child");
+      fs.writeFileSync(lockFile, String(child.pid));
 
-    expect(() => withStoreLock(store, ran)).toThrow(`Store lock ${lockFile} is held by process ${process.pid}`);
+      expect(() => withStoreLock(store, ran)).toThrow(`Store lock ${lockFile} is held by process ${child.pid}`);
 
-    expect(ran).not.toHaveBeenCalled();
-    expect(claimEntries()).toEqual([]);
+      expect(ran).not.toHaveBeenCalled();
+      expect(claimEntries()).toEqual([]);
+    } finally {
+      child.kill();
+    }
   });
 
   it("leaves no claim behind when claim inspection fails", () => {

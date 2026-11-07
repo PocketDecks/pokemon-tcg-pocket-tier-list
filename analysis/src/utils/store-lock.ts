@@ -55,7 +55,12 @@ const changingMessage = (lockFile: string): string =>
 
 const warnReclaim = (lockFile: string, contents: string): void => {
   const held = pidFrom(contents);
-  const holder = held === undefined ? "no pid" : `pid ${held}, which is not running`;
+  const holder =
+    held === undefined
+      ? "no pid"
+      : held === process.pid
+        ? `pid ${held}, which is this process and holds no claim`
+        : `pid ${held}, which is not running`;
   console.warn(`Store lock ${lockFile} holds ${holder}; reclaiming it`);
 };
 
@@ -186,6 +191,7 @@ const isYoung = (file: string): boolean => {
 
 const blocksReclaim = (lockFile: string, contents: string): boolean => {
   const held = pidFrom(contents);
+  if (held === process.pid) return false;
   if (held !== undefined) return isRunning(held);
   return isYoung(lockFile);
 };

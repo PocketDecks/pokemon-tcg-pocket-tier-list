@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { vi } from "vitest";
 import { withStoreLock } from "../utils/store-lock";
-import { useStoreLockFixture, deadPid, liveForeignPid } from "./store-lock-fixture";
+import { useStoreLockFixture, deadPid, liveForeignPid, thrownError } from "./store-lock-fixture";
 
 describe("withStoreLock", () => {
   const fixture = useStoreLockFixture();
@@ -92,12 +92,7 @@ describe("withStoreLock", () => {
       remove(target, options);
     });
 
-    let thrown: unknown;
-    try {
-      withStoreLock(fixture.store, () => "ran");
-    } catch (error) {
-      thrown = error;
-    }
+    const thrown = thrownError(() => withStoreLock(fixture.store, () => "ran"));
 
     expect(thrown).toBe(cleanupError);
     expect(warn).not.toHaveBeenCalled();
@@ -122,12 +117,7 @@ describe("withStoreLock", () => {
       return writeFile(file, data, options);
     });
 
-    let thrown: unknown;
-    try {
-      withStoreLock(fixture.store, () => "ran");
-    } catch (error) {
-      thrown = error;
-    }
+    const thrown = thrownError(() => withStoreLock(fixture.store, () => "ran"));
 
     expect(thrown).toMatchObject({ code: "ENOSPC" });
     expect(failedWrites).toBe(1);
@@ -184,12 +174,7 @@ describe("withStoreLock", () => {
       remove(target, options);
     });
 
-    let thrown: unknown;
-    try {
-      withStoreLock(fixture.store, () => "ran");
-    } catch (error) {
-      thrown = error;
-    }
+    const thrown = thrownError(() => withStoreLock(fixture.store, () => "ran"));
 
     expect(thrown).toBeInstanceOf(AggregateError);
     const aggregate = thrown as AggregateError;
@@ -222,12 +207,7 @@ describe("withStoreLock", () => {
       remove(target, options);
     });
 
-    let thrown: unknown;
-    try {
-      withStoreLock(fixture.store, () => "ran");
-    } catch (error) {
-      thrown = error;
-    }
+    const thrown = thrownError(() => withStoreLock(fixture.store, () => "ran"));
 
     expect(thrown).toBeInstanceOf(AggregateError);
     const aggregate = thrown as AggregateError;
@@ -267,12 +247,7 @@ describe("withStoreLock", () => {
       remove(target, options);
     });
 
-    let thrown: unknown;
-    try {
-      withStoreLock(fixture.store, () => "ran");
-    } catch (error) {
-      thrown = error;
-    }
+    const thrown = thrownError(() => withStoreLock(fixture.store, () => "ran"));
 
     expect(thrown).toBeInstanceOf(AggregateError);
     const aggregate = thrown as AggregateError;
@@ -304,12 +279,7 @@ describe("withStoreLock", () => {
       if (fd === lockDescriptor) throw closeError;
     });
 
-    let thrown: unknown;
-    try {
-      withStoreLock(fixture.store, () => "ran");
-    } catch (error) {
-      thrown = error;
-    }
+    const thrown = thrownError(() => withStoreLock(fixture.store, () => "ran"));
 
     expect(thrown).toBeInstanceOf(AggregateError);
     const aggregate = thrown as AggregateError;
@@ -334,12 +304,7 @@ describe("withStoreLock", () => {
     });
     const ran = vi.fn(() => "ran");
 
-    let thrown: unknown;
-    try {
-      withStoreLock(fixture.store, ran);
-    } catch (error) {
-      thrown = error;
-    }
+    const thrown = thrownError(() => withStoreLock(fixture.store, ran));
 
     expect(thrown).toBeInstanceOf(AggregateError);
     const aggregate = thrown as AggregateError;
@@ -361,12 +326,7 @@ describe("withStoreLock", () => {
       remove(target, options);
     });
 
-    let thrown: unknown;
-    try {
-      withStoreLock(fixture.store, ran);
-    } catch (error) {
-      thrown = error;
-    }
+    const thrown = thrownError(() => withStoreLock(fixture.store, ran));
 
     expect(thrown).toBeInstanceOf(AggregateError);
     const aggregate = thrown as AggregateError;
@@ -395,12 +355,7 @@ describe("withStoreLock", () => {
     });
     const ran = vi.fn(() => "ran");
 
-    let thrown: unknown;
-    try {
-      withStoreLock(fixture.store, ran);
-    } catch (error) {
-      thrown = error;
-    }
+    const thrown = thrownError(() => withStoreLock(fixture.store, ran));
 
     expect(misreads).toHaveLength(1);
     expect(thrown).toBeInstanceOf(AggregateError);
@@ -426,14 +381,11 @@ describe("withStoreLock", () => {
       remove(target, options);
     });
 
-    let thrown: unknown;
-    try {
+    const thrown = thrownError(() => {
       withStoreLock(fixture.store, () => {
         throw callbackError;
       });
-    } catch (error) {
-      thrown = error;
-    }
+    });
 
     expect(thrown).toBeInstanceOf(AggregateError);
     const aggregate = thrown as AggregateError;
@@ -456,14 +408,11 @@ describe("withStoreLock", () => {
       remove(target, options);
     });
 
-    let thrown: unknown;
-    try {
+    const thrown = thrownError(() => {
       withStoreLock(fixture.store, () => {
         throw callbackError;
       });
-    } catch (error) {
-      thrown = error;
-    }
+    });
 
     expect(thrown).toBeInstanceOf(AggregateError);
     const aggregate = thrown as AggregateError;
@@ -486,14 +435,11 @@ describe("withStoreLock", () => {
       remove(target, options);
     });
 
-    let thrown: unknown;
-    try {
+    const thrown = thrownError(() => {
       withStoreLock(fixture.store, () => {
         throw callbackError;
       });
-    } catch (error) {
-      thrown = error;
-    }
+    });
 
     expect(thrown).toBeInstanceOf(AggregateError);
     const aggregate = thrown as AggregateError;
@@ -514,14 +460,11 @@ describe("withStoreLock", () => {
       remove(target, options);
     });
 
-    let thrown: unknown;
-    try {
+    const thrown = thrownError(() => {
       withStoreLock(fixture.store, () => {
         throw callbackError;
       });
-    } catch (error) {
-      thrown = error;
-    }
+    });
 
     expect(thrown).toBeInstanceOf(AggregateError);
     const aggregate = thrown as AggregateError;
@@ -540,12 +483,7 @@ describe("withStoreLock", () => {
       remove(target, options);
     });
 
-    let thrown: unknown;
-    try {
-      withStoreLock(fixture.store, () => "ran");
-    } catch (error) {
-      thrown = error;
-    }
+    const thrown = thrownError(() => withStoreLock(fixture.store, () => "ran"));
 
     expect(thrown).toBe(cleanupError);
   });
@@ -553,14 +491,11 @@ describe("withStoreLock", () => {
   it("rethrows the callback error unchanged when cleanup succeeds", () => {
     const callbackError = new Error("purge refused");
 
-    let thrown: unknown;
-    try {
+    const thrown = thrownError(() => {
       withStoreLock(fixture.store, () => {
         throw callbackError;
       });
-    } catch (error) {
-      thrown = error;
-    }
+    });
 
     expect(thrown).toBe(callbackError);
   });
@@ -576,15 +511,12 @@ describe("withStoreLock", () => {
       remove(target, options);
     });
 
-    let thrown: unknown;
-    try {
+    const thrown = thrownError(() => {
       withStoreLock(fixture.store, () => {
         fs.writeFileSync(fixture.lockFile, String(process.pid));
         return "ran";
       });
-    } catch (error) {
-      thrown = error;
-    }
+    });
 
     expect(thrown).toBeInstanceOf(AggregateError);
     expect((thrown as AggregateError).errors).toHaveLength(2);
@@ -704,12 +636,7 @@ describe("withStoreLock", () => {
       if (fd === lockDescriptor) throw closeError;
     });
 
-    let thrown: unknown;
-    try {
-      withStoreLock(fixture.store, () => "ran");
-    } catch (error) {
-      thrown = error;
-    }
+    const thrown = thrownError(() => withStoreLock(fixture.store, () => "ran"));
 
     expect(thrown).toBe(closeError);
     expect(fs.existsSync(fixture.lockFile)).toBe(false);

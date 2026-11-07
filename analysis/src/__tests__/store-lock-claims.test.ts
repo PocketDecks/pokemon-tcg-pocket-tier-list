@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { vi } from "vitest";
 import { withStoreLock } from "../utils/store-lock";
-import { useStoreLockFixture, deadPid, liveForeignPid, backdate, thrownMessage } from "./store-lock-fixture";
+import { useStoreLockFixture, deadPid, liveForeignPid, backdate, thrownError, thrownMessage } from "./store-lock-fixture";
 
 vi.mock("crypto", async (importOriginal) => {
   const actual = await importOriginal<typeof import("crypto")>();
@@ -177,12 +177,7 @@ describe("withStoreLock", () => {
       remove(target, options);
     });
 
-    let thrown: unknown;
-    try {
-      withStoreLock(fixture.store, () => "first");
-    } catch (error) {
-      thrown = error;
-    }
+    const thrown = thrownError(() => withStoreLock(fixture.store, () => "first"));
 
     expect(thrown).toBe(cleanupError);
     expect(fixture.claimEntries()).toHaveLength(1);

@@ -55,14 +55,16 @@ export const runInWorker = (store: string): Promise<{ ran: boolean; message?: st
     worker.once("exit", (code) => reject(new Error(`store lock worker exited with code ${code} before reporting`)));
   });
 
-export const thrownMessage = (run: () => unknown): string => {
+export const thrownError = (run: () => unknown): unknown => {
   try {
     run();
   } catch (error) {
-    return (error as Error).message;
+    return error;
   }
   throw new Error("expected the run to throw");
 };
+
+export const thrownMessage = (run: () => unknown): string => (thrownError(run) as Error).message;
 
 interface StoreLockFixture {
   dir: string;

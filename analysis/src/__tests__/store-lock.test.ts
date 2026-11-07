@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { expectTypeOf, vi } from "vitest";
 import { lockFileFor, SyncResult, withStoreLock } from "../utils/store-lock";
-import { useStoreLockFixture, liveForeignPid, thrownMessage, runInWorker } from "./store-lock-fixture";
+import { useStoreLockFixture, liveForeignPid, thrownError, thrownMessage, runInWorker } from "./store-lock-fixture";
 
 describe("withStoreLock", () => {
   const fixture = useStoreLockFixture();
@@ -21,12 +21,7 @@ describe("withStoreLock", () => {
   it("rejects a callback that returns a promise and leaves no lock or claim", () => {
     const asyncCallback = vi.fn(async () => "ran") as unknown as () => string;
 
-    let thrown: unknown;
-    try {
-      withStoreLock(fixture.store, asyncCallback);
-    } catch (error) {
-      thrown = error;
-    }
+    const thrown = thrownError(() => withStoreLock(fixture.store, asyncCallback));
 
     expect(thrown).toBeInstanceOf(TypeError);
     expect((thrown as TypeError).message).toContain("synchronous");

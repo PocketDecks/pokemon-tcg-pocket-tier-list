@@ -53,11 +53,11 @@ The downloader commits a batch at a time: it writes the decks it fetched and the
 - A claim this process failed to remove is no longer recorded in memory, so its own next call reclaims it with a warning.
 - A claim that names this process's pid but that this process did not create is left by an earlier process with the same pid; the run that finds it removes it with a warning.
 - A lock that names this process's pid while no claim of this process is live is left by a release this process could not finish or by an earlier process with the same pid; the next call in this process reclaims it with a warning.
-- If that pid now belongs to an unrelated process, the claim or lock is stale and will not clear on its own, so delete it by hand only after confirming that no download or purge is running.
 
 ### Refusals
 
 - A refusal that names a pid means that pid is running, or that the probe for it failed with something other than "no such process", so the run could not show it had gone.
+- If that pid now belongs to an unrelated process, the claim or lock is stale and will not clear on its own, so delete it by hand only after confirming that no download or purge is running.
 - For a claim naming a pid, the refusal says another run is starting, so retry shortly, only when that claim is younger than five seconds and no lock file exists yet; a claim with no pid always says so.
 - The refusal for a young claim with no pid, and the refusal that the lock kept changing during acquisition, name no process; both are transient, so wait a few seconds, retry the run and delete nothing.
 

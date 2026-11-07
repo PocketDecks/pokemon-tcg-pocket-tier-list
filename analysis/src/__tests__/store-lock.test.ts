@@ -1321,6 +1321,33 @@ describe("withStoreLock", () => {
     expect(aggregate.errors[1]).toBe(cleanupError);
   });
 
+  it("labels a callback error that already names the cleanup label once, and keeps its text intact", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const remove = fs.rmSync;
+    const callbackError = new Error("purge; store lock cleanup also failed: old");
+    const cleanupError = Object.assign(new Error("claim removal denied"), { code: "EACCES" });
+    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+      if (String(target).startsWith(`${claimsDir}${path.sep}`)) throw cleanupError;
+      remove(target, options);
+    });
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, () => {
+        throw callbackError;
+      });
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(AggregateError);
+    const aggregate = thrown as AggregateError;
+    expect(aggregate.message).toBe(
+      "purge; store lock cleanup also failed: old; store lock cleanup also failed: claim removal denied"
+    );
+    expect(aggregate.errors).toEqual([callbackError, cleanupError]);
+  });
+
   it("surfaces a cleanup error when the callback succeeds", () => {
     const claimsDir = `${lockFile}.claims`;
     const remove = fs.rmSync;

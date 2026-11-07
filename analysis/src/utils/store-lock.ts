@@ -245,17 +245,45 @@ const release = (lockFile: string): void => {
   fs.rmSync(lockFile, { force: true });
 };
 
+const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+
+const releaseAndRemoveClaim = (lockFile: string, claim: string): unknown[] => {
+  const errors: unknown[] = [];
+  try {
+    release(lockFile);
+  } catch (error) {
+    errors.push(error);
+  }
+  try {
+    removeClaim(lockFile, claim);
+  } catch (error) {
+    errors.push(error);
+  }
+  return errors;
+};
+
 export const withStoreLock = <T>(dir: string, fn: () => T): T => {
   const lockFile = lockFileFor(dir);
   fs.mkdirSync(path.dirname(lockFile), { recursive: true });
   const claim = acquire(lockFile);
+  let result: T;
   try {
-    return fn();
-  } finally {
-    try {
-      release(lockFile);
-    } finally {
-      removeClaim(lockFile, claim);
-    }
+    result = fn();
+  } catch (callbackError) {
+    const cleanupErrors = releaseAndRemoveClaim(lockFile, claim);
+    if (cleanupErrors.length === 0) throw callbackError;
+    throw new AggregateError(
+      [callbackError, ...cleanupErrors],
+      `${errorMessage(callbackError)}; store lock cleanup also failed`
+    );
   }
+  const cleanupErrors = releaseAndRemoveClaim(lockFile, claim);
+  if (cleanupErrors.length === 1) throw cleanupErrors[0];
+  if (cleanupErrors.length > 1) {
+    throw new AggregateError(
+      cleanupErrors,
+      `store lock cleanup failed: ${cleanupErrors.map(errorMessage).join("; ")}`
+    );
+  }
+  return result;
 };

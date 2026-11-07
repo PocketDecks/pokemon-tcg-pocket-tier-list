@@ -420,6 +420,95 @@ describe("withStoreLock", () => {
     expect(withStoreLock(store, () => "ran")).toBe("ran");
   });
 
+  it("keeps the callback error when claim cleanup also fails", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const remove = fs.rmSync;
+    const callbackError = new Error("purge refused");
+    const cleanupError = Object.assign(new Error("claim removal denied"), { code: "EACCES" });
+    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+      if (String(target).startsWith(`${claimsDir}${path.sep}`)) throw cleanupError;
+      remove(target, options);
+    });
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, () => {
+        throw callbackError;
+      });
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(AggregateError);
+    const aggregate = thrown as AggregateError;
+    expect(aggregate.message).toMatch(/^purge refused/);
+    expect(aggregate.message).toContain("lock cleanup also failed");
+    expect(aggregate.errors).toHaveLength(2);
+    expect(aggregate.errors[0]).toBe(callbackError);
+    expect(aggregate.errors[1]).toBe(cleanupError);
+  });
+
+  it("surfaces a cleanup error when the callback succeeds", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const remove = fs.rmSync;
+    const cleanupError = Object.assign(new Error("claim removal denied"), { code: "EACCES" });
+    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+      if (String(target).startsWith(`${claimsDir}${path.sep}`)) throw cleanupError;
+      remove(target, options);
+    });
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, () => "ran");
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBe(cleanupError);
+  });
+
+  it("rethrows the callback error unchanged when cleanup succeeds", () => {
+    const callbackError = new Error("purge refused");
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, () => {
+        throw callbackError;
+      });
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBe(callbackError);
+  });
+
+  it("aggregates release and claim cleanup errors when the callback succeeds", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const remove = fs.rmSync;
+    const releaseError = Object.assign(new Error("lock removal denied"), { code: "EACCES" });
+    const claimError = Object.assign(new Error("claim removal denied"), { code: "EACCES" });
+    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+      if (String(target) === lockFile) throw releaseError;
+      if (String(target).startsWith(`${claimsDir}${path.sep}`)) throw claimError;
+      remove(target, options);
+    });
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, () => {
+        fs.writeFileSync(lockFile, String(process.pid));
+        return "ran";
+      });
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(AggregateError);
+    expect((thrown as AggregateError).errors).toHaveLength(2);
+    expect((thrown as AggregateError).errors[0]).toBe(releaseError);
+    expect((thrown as AggregateError).errors[1]).toBe(claimError);
+  });
+
   it("leaves another process's lock file in place when the file no longer holds our pid", () => {
     const otherPid = String(process.pid + 1);
 

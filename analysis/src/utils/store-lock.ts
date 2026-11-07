@@ -33,6 +33,17 @@ const heldMessage = (lockFile: string, contents: string): string => {
   );
 };
 
+const claimHeldMessage = (claim: string, held: number | undefined): string => {
+  const holder = held === undefined ? "has not written its pid yet" : `is held by process ${held}`;
+  return (
+    `Store lock claim ${claim} ${holder}; wait for that run to finish, ` +
+    `or remove that claim file if the process is gone`
+  );
+};
+
+const changingMessage = (lockFile: string): string =>
+  `Store lock ${lockFile} kept changing while this run was acquiring it, so retry the run`;
+
 const warnReclaim = (lockFile: string, contents: string): void => {
   const held = Number.parseInt(contents.trim(), 10);
   const holder = Number.isInteger(held) ? `pid ${held}, which is not running` : "no pid";
@@ -124,11 +135,11 @@ const removeStaleClaims = (lockFile: string, ownClaim: string): void => {
     }
     const held = namedPid ?? contentPid;
     if (held !== undefined) {
-      if (isRunning(held)) throw new Error(heldMessage(lockFile, String(held)));
+      if (isRunning(held)) throw new Error(claimHeldMessage(candidate, held));
     } else {
       const age = lockAgeMs(candidate);
       if (age === undefined) continue;
-      if (age < LOCK_CONTENT_GRACE_MS) throw new Error(heldMessage(lockFile, contents));
+      if (age < LOCK_CONTENT_GRACE_MS) throw new Error(claimHeldMessage(candidate, undefined));
     }
 
     warnReclaim(lockFile, held === undefined ? contents : String(held));
@@ -183,7 +194,7 @@ const createClaim = (lockFile: string): string => {
     }
   }
 
-  throw new Error(heldMessage(lockFile, ""));
+  throw new Error(changingMessage(lockFile));
 };
 
 type ReclaimOutcome = "claimed" | "held" | "raced";
@@ -236,7 +247,7 @@ const acquire = (lockFile: string): string => {
       }
     }
 
-    throw new Error(heldMessage(lockFile, readLockContents(lockFile) ?? ""));
+    throw new Error(changingMessage(lockFile));
   } catch (error) {
     removeClaim(lockFile, claim);
     throw error;

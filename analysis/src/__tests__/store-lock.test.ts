@@ -16,6 +16,15 @@ const backdate = (file: string): void => {
   fs.utimesSync(file, old, old);
 };
 
+const thrownMessage = (run: () => unknown): string => {
+  try {
+    run();
+  } catch (error) {
+    return (error as Error).message;
+  }
+  throw new Error("expected the run to throw");
+};
+
 describe("withStoreLock", () => {
   let dir: string;
   let store: string;
@@ -135,8 +144,10 @@ describe("withStoreLock", () => {
     fs.writeFileSync(claim, "");
     fs.writeFileSync(lockFile, String(stalePid));
 
-    expect(() => withStoreLock(store, ran)).toThrow(lockFile);
+    const message = thrownMessage(() => withStoreLock(store, ran));
 
+    expect(message).toContain(claim);
+    expect(message).not.toContain("remove the lock file");
     expect(ran).not.toHaveBeenCalled();
     expect(fs.existsSync(claim)).toBe(true);
     expect(fs.readFileSync(lockFile, "utf8")).toBe(String(stalePid));
@@ -152,11 +163,53 @@ describe("withStoreLock", () => {
     backdate(claim);
     fs.writeFileSync(lockFile, String(stalePid));
 
-    expect(() => withStoreLock(store, ran)).toThrow(String(process.pid));
+    const message = thrownMessage(() => withStoreLock(store, ran));
 
+    expect(message).toContain(claim);
+    expect(message).toContain(`process ${process.pid}`);
+    expect(message).not.toContain("remove the lock file");
     expect(ran).not.toHaveBeenCalled();
     expect(fs.readFileSync(claim, "utf8")).toBe("");
     expect(fs.readFileSync(lockFile, "utf8")).toBe(String(stalePid));
+  });
+
+  it("asks for a retry when the claims directory keeps disappearing", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const ran = vi.fn(() => "ran");
+    const mkdir = fs.mkdirSync;
+    vi.spyOn(fs, "mkdirSync").mockImplementation((target, options) => {
+      if (String(target) === claimsDir) {
+        throw Object.assign(new Error("claims directory disappeared"), { code: "ENOENT" });
+      }
+      return mkdir(target, options);
+    });
+
+    const message = thrownMessage(() => withStoreLock(store, ran));
+
+    expect(message).toContain(lockFile);
+    expect(message).toContain("kept changing");
+    expect(message).not.toContain("has not written its pid yet");
+    expect(ran).not.toHaveBeenCalled();
+  });
+
+  it("asks for a retry when the lock keeps changing during acquisition", () => {
+    fs.writeFileSync(lockFile, String(process.pid));
+    const ran = vi.fn(() => "ran");
+    const read = fs.readFileSync;
+    vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
+      if (String(target) === lockFile) {
+        throw Object.assign(new Error("lock file vanished"), { code: "ENOENT" });
+      }
+      return read(target, options);
+    });
+
+    const message = thrownMessage(() => withStoreLock(store, ran));
+
+    expect(message).toContain(lockFile);
+    expect(message).toContain("kept changing");
+    expect(message).not.toContain("has not written its pid yet");
+    expect(ran).not.toHaveBeenCalled();
+    expect(fs.existsSync(`${lockFile}.claims`) ? fs.readdirSync(`${lockFile}.claims`) : []).toEqual([]);
   });
 
   it("fails closed when it cannot inspect claim entries", () => {
@@ -311,8 +364,11 @@ describe("withStoreLock", () => {
       fs.mkdirSync(claimsDir, { recursive: true });
       fs.writeFileSync(claim, String(child.pid));
 
-      expect(() => withStoreLock(store, ran)).toThrow(`process ${child.pid}`);
+      const message = thrownMessage(() => withStoreLock(store, ran));
 
+      expect(message).toContain(claim);
+      expect(message).toContain(`process ${child.pid}`);
+      expect(message).not.toContain("remove the lock file");
       expect(ran).not.toHaveBeenCalled();
       expect(fs.existsSync(claim)).toBe(true);
       expect(fs.existsSync(lockFile)).toBe(false);

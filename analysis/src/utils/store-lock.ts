@@ -10,6 +10,8 @@ export const LOCK_CONTENT_GRACE_MS = 5_000;
 
 const ACQUIRE_ATTEMPTS = 5;
 
+const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+
 const isRunning = (pid: number): boolean => {
   try {
     process.kill(pid, 0);
@@ -117,6 +119,15 @@ const removeClaim = (lockFile: string, claim: string): void => {
   }
 };
 
+const failedWithCleanup = (lockFile: string, claim: string, error: unknown): unknown => {
+  try {
+    removeClaim(lockFile, claim);
+  } catch (cleanupError) {
+    return new AggregateError([error, cleanupError], `${errorMessage(error)}; store lock cleanup also failed`);
+  }
+  return error;
+};
+
 const removeStaleClaims = (lockFile: string, ownClaim: string): void => {
   const claimsDir = claimDirectoryFor(lockFile);
   const entries = fs.readdirSync(claimsDir, { withFileTypes: true });
@@ -163,8 +174,7 @@ const writeClaim = (lockFile: string, claim: string): boolean => {
       fs.closeSync(fd);
     }
   } catch (error) {
-    removeClaim(lockFile, claim);
-    throw error;
+    throw failedWithCleanup(lockFile, claim, error);
   }
   return true;
 };
@@ -189,8 +199,7 @@ const createClaim = (lockFile: string): string => {
       }
       return claim;
     } catch (error) {
-      removeClaim(lockFile, claim);
-      throw error;
+      throw failedWithCleanup(lockFile, claim, error);
     }
   }
 
@@ -249,18 +258,15 @@ const acquire = (lockFile: string): string => {
 
     throw new Error(changingMessage(lockFile));
   } catch (error) {
-    removeClaim(lockFile, claim);
-    throw error;
+    throw failedWithCleanup(lockFile, claim, error);
   }
 };
 
-const release = (lockFile: string): void => {
+const release =(lockFile: string): void => {
   const contents = readLockContents(lockFile);
   if (contents === undefined || pidFrom(contents) !== process.pid) return;
   fs.rmSync(lockFile, { force: true });
 };
-
-const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
 const releaseAndRemoveClaim = (lockFile: string, claim: string): unknown[] => {
   const errors: unknown[] = [];

@@ -502,6 +502,97 @@ describe("withStoreLock", () => {
     expect(withStoreLock(store, () => "ran")).toBe("ran");
   });
 
+  it("keeps the write error when removing the claim also fails", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const open = fs.openSync;
+    const write = fs.writeSync;
+    const remove = fs.rmSync;
+    const claimDescriptors = new Set<number>();
+    const writeError = Object.assign(new Error("no space left on device"), { code: "ENOSPC" });
+    const cleanupError = Object.assign(new Error("claim removal denied"), { code: "EACCES" });
+    vi.spyOn(fs, "openSync").mockImplementation((...args) => {
+      const fd = open(...args);
+      if (String(args[0]).startsWith(`${claimsDir}${path.sep}`)) claimDescriptors.add(fd);
+      return fd;
+    });
+    vi.spyOn(fs, "writeSync").mockImplementation((...args) => {
+      if (claimDescriptors.has(args[0])) throw writeError;
+      return write(...args);
+    });
+    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+      if (String(target).startsWith(`${claimsDir}${path.sep}`)) throw cleanupError;
+      remove(target, options);
+    });
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, () => "ran");
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(AggregateError);
+    const aggregate = thrown as AggregateError;
+    expect(aggregate.message).toContain("no space left on device");
+    expect(aggregate.message).toContain("store lock cleanup also failed");
+    expect(aggregate.errors).toEqual([writeError, cleanupError]);
+  });
+
+  it("keeps the claim refusal when removing the claim also fails", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const staleClaim = path.join(claimsDir, `${deadPid()}-00000000-0000-4000-8000-000000000000`);
+    const remove = fs.rmSync;
+    const cleanupError = Object.assign(new Error("claim removal denied"), { code: "EACCES" });
+    fs.mkdirSync(claimsDir, { recursive: true });
+    fs.writeFileSync(staleClaim, String(process.pid));
+    fs.writeFileSync(lockFile, String(deadPid()));
+    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+      if (String(target).startsWith(`${claimsDir}${path.sep}`) && String(target) !== staleClaim) throw cleanupError;
+      remove(target, options);
+    });
+    const ran = vi.fn(() => "ran");
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, ran);
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(AggregateError);
+    const aggregate = thrown as AggregateError;
+    expect(aggregate.message).toContain("conflicting owner pids");
+    expect(aggregate.errors).toHaveLength(2);
+    expect(aggregate.errors[1]).toBe(cleanupError);
+    expect(ran).not.toHaveBeenCalled();
+  });
+
+  it("keeps the held refusal when removing the claim also fails", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const remove = fs.rmSync;
+    const cleanupError = Object.assign(new Error("claim removal denied"), { code: "EACCES" });
+    fs.writeFileSync(lockFile, String(process.pid));
+    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+      if (String(target).startsWith(`${claimsDir}${path.sep}`)) throw cleanupError;
+      remove(target, options);
+    });
+    const ran = vi.fn(() => "ran");
+
+    let thrown: unknown;
+    try {
+      withStoreLock(store, ran);
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(AggregateError);
+    const aggregate = thrown as AggregateError;
+    expect(aggregate.message).toContain(`Store lock ${lockFile} is held by`);
+    expect(aggregate.errors).toHaveLength(2);
+    expect(aggregate.errors[1]).toBe(cleanupError);
+    expect(ran).not.toHaveBeenCalled();
+  });
+
   it("keeps the callback error when claim cleanup also fails", () => {
     const claimsDir = `${lockFile}.claims`;
     const remove = fs.rmSync;

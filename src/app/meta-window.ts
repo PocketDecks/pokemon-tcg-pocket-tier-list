@@ -1,3 +1,5 @@
+import { loadPremiumArtefact } from "./premium-data";
+
 // The 20-day window is also written under the un-suffixed artefact filenames.
 
 export const META_WINDOWS = ["10d", "20d", "30d", "all"] as const;
@@ -38,3 +40,18 @@ export const metaWindowDataFile = (base: string, window: MetaWindow): string =>
 
 export const metaWindowDataPath = (base: string, window: MetaWindow): string =>
   `/data/${metaWindowDataFile(base, window)}`;
+
+export const loadWindowArtefact = async (
+  base: string,
+  window: MetaWindow
+): Promise<unknown> => {
+  if (isPremiumMetaWindow(window)) {
+    return loadPremiumArtefact(`${base}-${window}`);
+  }
+  const file = metaWindowDataFile(base, window);
+  const response = await fetch(`/data/${file}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${file}: ${response.status} ${response.statusText}`);
+  }
+  return response.json();
+};

@@ -12,6 +12,8 @@ import {
   isPremiumMetaWindow,
   type MetaWindow,
 } from "../app/meta-window";
+import { useQueryClient } from "@tanstack/react-query";
+import { PremiumAccessError } from "../app/premium-data";
 import useIsPremium from "../app/use-is-premium";
 
 interface MetaWindowContextValue {
@@ -34,6 +36,7 @@ export const MetaWindowProvider = ({
 }) => {
   const [window, setWindowState] = useState<MetaWindow>(initialWindow);
   const isPremium = useIsPremium();
+  const queryClient = useQueryClient();
   const setWindow = useCallback((next: MetaWindow) => setWindowState(next), []);
 
   // Premium lapse mid-session falls back to the default; unknown premium
@@ -44,6 +47,20 @@ export const MetaWindowProvider = ({
       setWindowState(DEFAULT_META_WINDOW);
     }
   }, [isPremium, window]);
+
+  useEffect(
+    () =>
+      queryClient.getQueryCache().subscribe((event) => {
+        if (
+          event.type === "updated" &&
+          event.action.type === "error" &&
+          event.action.error instanceof PremiumAccessError
+        ) {
+          setWindowState(DEFAULT_META_WINDOW);
+        }
+      }),
+    [queryClient]
+  );
 
   const value = useMemo(() => ({ window, setWindow }), [window, setWindow]);
 

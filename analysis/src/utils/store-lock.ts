@@ -1,27 +1,22 @@
+import { randomUUID } from "crypto";
 import fs from "fs";
 import path from "path";
+import { isMainThread } from "worker_threads";
 
-// Two writers that read the store, plan a change and then write it back can
-// interleave: each read lands before the other write, so the second writer
-// builds on a stale read and discards the first writer's work. The downloader
-// and the format purge are both that shape, so both hold this lock across
-// their read-modify-write.
-//
-// The lock file sits beside the store directory, where the store verifier and
-// the shard readers cannot see it.
+export const lockFileFor = (dir: string): string => `${path.resolve(dir)}.lock`;
 
-export const lockFileFor = (dir: string): string => `${dir}.lock`;
+const claimDirectoryFor = (lockFile: string): string => `${lockFile}.claims`;
 
-// A writer that has just created the lock file has not written its pid yet, so
-// an empty or unparsable file counts as held until its mtime is this old.
 export const LOCK_CONTENT_GRACE_MS = 5_000;
 
-// A holder can release the lock between a failed create and the read that
-// follows, which leaves nothing to inspect, so the create is worth retrying.
 const ACQUIRE_ATTEMPTS = 5;
 
-// A pid this process cannot signal may still be running under another account,
-// so only ESRCH proves the process is gone.
+const ownClaimsKey = Symbol.for("pokemon-tcg-pocket.store-lock.own-claims");
+const sharedWithOwnClaims = globalThis as typeof globalThis & { [ownClaimsKey]?: Set<string> };
+const ownClaims: Set<string> = (sharedWithOwnClaims[ownClaimsKey] ??= new Set<string>());
+
+const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+
 const isRunning = (pid: number): boolean => {
   try {
     process.kill(pid, 0);
@@ -31,40 +26,96 @@ const isRunning = (pid: number): boolean => {
   }
 };
 
-// A writer records a positive pid, and pid 0 signals the whole process group,
-// so process.kill(0, 0) reports success. Only a positive pid names a writer.
 const pidFrom = (contents: string): number | undefined => {
   const held = Number.parseInt(contents.trim(), 10);
   return Number.isInteger(held) && held > 0 ? held : undefined;
 };
 
-const heldMessage = (lockFile: string, contents: string): string => {
+const holderOf = (contents: string): string => {
   const held = pidFrom(contents);
-  const holder = held === undefined ? "a process that has not written its pid yet" : `process ${held}`;
+  return held === undefined ? "a process that has not written its pid yet" : `process ${held}`;
+};
+
+const heldMessage = (lockFile: string, contents: string): string =>
+  `Store lock ${lockFile} is held by ${holderOf(contents)}; wait for that run to finish, ` +
+  `or remove the lock file if the process is gone`;
+
+const displacedMessage = (lockFile: string, current: string | undefined, moved: string): string => {
+  const holder = current === undefined ? "no process, because the lock has been released" : holderOf(current);
   return (
-    `Store lock ${lockFile} is held by ${holder}; wait for that run to finish, ` +
-    `or remove the lock file if the process is gone`
+    `Store lock ${lockFile} was taken by ${holder} while a reclaim was moving the stale lock aside; ` +
+    `the displaced lock is left at ${moved}`
   );
 };
 
+const claimHeldMessage = (claim: string, held: number | undefined, retry: boolean): string => {
+  const holder = held === undefined ? "has not written its pid yet" : `is held by process ${held}`;
+  const suffix = retry ? "; another run is starting, so retry shortly" : "";
+  return (
+    `Store lock claim ${claim} ${holder}; wait for that run to finish, ` +
+    `or remove that claim file if the process is gone${suffix}`
+  );
+};
+
+const ownClaimHeldMessage = (claim: string, held: number): string =>
+  `Store lock claim ${claim} is held by process ${held}, which is this process: a store lock call is still running in it; ` +
+  "the claim clears when that call ends";
+
+const claimMismatchMessage = (claim: string): string =>
+  `Store lock claim ${claim} did not read back this process's pid`;
+
+const mainThreadMessage =
+  "Store lock can only be taken on the main thread, because worker threads share the process pid but not its record of claims";
+
+const changingMessage = (lockFile: string): string =>
+  `Store lock ${lockFile} kept changing while this run was acquiring it, so retry the run`;
+
 const warnReclaim = (lockFile: string, contents: string): void => {
-  const held = Number.parseInt(contents.trim(), 10);
-  const holder = Number.isInteger(held) ? `pid ${held}, which is not running` : "no pid";
+  const held = pidFrom(contents);
+  const holder =
+    held === undefined
+      ? "no pid"
+      : held === process.pid
+        ? `pid ${held}, which is this process and holds no claim`
+        : `pid ${held}, which is not running`;
   console.warn(`Store lock ${lockFile} holds ${holder}; reclaiming it`);
 };
 
-const tryCreate = (lockFile: string): boolean => {
+const writePidAndClose = (fd: number): void => {
+  let writeFailure: { error: unknown } | undefined;
   try {
-    fs.writeFileSync(lockFile, String(process.pid), { flag: "wx" });
-    return true;
+    fs.writeFileSync(fd, String(process.pid));
+  } catch (error) {
+    writeFailure = { error };
+  }
+  try {
+    fs.closeSync(fd);
+  } catch (closeError) {
+    if (writeFailure === undefined) throw closeError;
+    throw new AggregateError(
+      [writeFailure.error, closeError],
+      `${errorMessage(writeFailure.error)}; closing the store lock file also failed`
+    );
+  }
+  if (writeFailure !== undefined) throw writeFailure.error;
+};
+
+const tryCreate = (lockFile: string): boolean => {
+  let fd: number;
+  try {
+    fd = fs.openSync(lockFile, "wx");
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
     return false;
   }
+  try {
+    writePidAndClose(fd);
+  } catch (error) {
+    throw failedWithCleanup(error, () => fs.rmSync(lockFile, { force: true }));
+  }
+  return true;
 };
 
-// undefined means the file is gone, which is not an error: the holder may have
-// released it since the failed create.
 const readLockContents = (lockFile: string): string | undefined => {
   try {
     return fs.readFileSync(lockFile, "utf8");
@@ -83,82 +134,298 @@ const lockAgeMs = (lockFile: string): number | undefined => {
   }
 };
 
-type ReclaimOutcome = "claimed" | "held" | "raced";
-
-// Claiming a stale lock starts by renaming it aside. A writer that replaces
-// the file between the inspection read and this rename keeps its own lock
-// file, and re-reading the renamed file shows that change: different contents
-// mean the file this call moved was that writer's replacement, so it goes back
-// under its own name and counts as held.
-const reclaimStale = (lockFile: string, inspected: string): ReclaimOutcome => {
-  const claimed = `${lockFile}.${process.pid}.reclaim`;
+const entriesIfPresent = (claimsDir: string): string[] | undefined => {
   try {
-    fs.renameSync(lockFile, claimed);
+    return fs.readdirSync(claimsDir);
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return "raced";
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return undefined;
+    throw error;
+  }
+};
+
+const removeEmptyClaimsDirectory = (claimsDir: string): void => {
+  try {
+    fs.rmdirSync(claimsDir);
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === "EPERM") {
+      const entries = entriesIfPresent(claimsDir);
+      if (entries === undefined || entries.length > 0) return;
+      try {
+        fs.rmdirSync(claimsDir);
+        return;
+      } catch (retryError) {
+        const retryCode = (retryError as NodeJS.ErrnoException).code;
+        if (retryCode === "ENOENT" || retryCode === "ENOTEMPTY" || retryCode === "EEXIST") return;
+        if (retryCode === "EPERM") {
+          const retryEntries = entriesIfPresent(claimsDir);
+          if (retryEntries === undefined || retryEntries.length > 0) return;
+        }
+        throw retryError;
+      }
+    }
+    if (code !== "ENOENT" && code !== "ENOTEMPTY" && code !== "EEXIST") throw error;
+  }
+};
+
+const removeClaim = (lockFile: string, claim: string): void => {
+  try {
+    fs.rmSync(claim, { force: true });
+  } finally {
+    ownClaims.delete(claim);
+  }
+  const claimsDir = claimDirectoryFor(lockFile);
+  try {
+    removeEmptyClaimsDirectory(claimsDir);
+  } catch (error) {
+    console.warn(
+      `Store lock claims directory ${claimsDir} could not be removed (${(error as NodeJS.ErrnoException).code}); leaving it in place`
+    );
+  }
+};
+
+type LabelledFailure = { original: string; cleanups: string[] };
+
+const labelledFailures = new WeakMap<AggregateError, LabelledFailure>();
+
+const cleanupFailureMessage = (original: string | undefined, cleanups: string[]): string =>
+  original === undefined
+    ? `store lock cleanup failed: ${cleanups.join("; ")}`
+    : `${original}; store lock cleanup also failed: ${cleanups.join("; ")}`;
+
+const withCleanupErrors = (error: unknown, cleanupErrors: unknown[]): AggregateError => {
+  const labelled = error instanceof AggregateError ? labelledFailures.get(error) : undefined;
+  const originals = error instanceof AggregateError ? error.errors : [error];
+  const original = labelled?.original ?? errorMessage(error);
+  const cleanups = [...(labelled?.cleanups ?? []), ...cleanupErrors.map(errorMessage)];
+  const failure = new AggregateError([...originals, ...cleanupErrors], cleanupFailureMessage(original, cleanups));
+  labelledFailures.set(failure, { original, cleanups });
+  return failure;
+};
+
+const failedWithCleanup = (error: unknown, cleanup: () => void): unknown => {
+  try {
+    cleanup();
+  } catch (cleanupError) {
+    return withCleanupErrors(error, [cleanupError]);
+  }
+  return error;
+};
+
+const isYoung = (file: string): boolean => {
+  const age = lockAgeMs(file);
+  return age !== undefined && age < LOCK_CONTENT_GRACE_MS;
+};
+
+const blocksReclaim = (lockFile: string, contents: string): boolean => {
+  const held = pidFrom(contents);
+  if (held === process.pid) return false;
+  if (held !== undefined) return isRunning(held);
+  return isYoung(lockFile);
+};
+
+const lockIsAbsent = (lockFile: string): boolean => {
+  try {
+    return readLockContents(lockFile) === undefined;
+  } catch {
+    return false;
+  }
+};
+
+const removeStaleClaims = (lockFile: string, ownClaim: string): void => {
+  const claimsDir = claimDirectoryFor(lockFile);
+  const entries = fs.readdirSync(claimsDir, { withFileTypes: true });
+  for (const entry of entries) {
+    const candidate = path.join(claimsDir, entry.name);
+    if (candidate === ownClaim) continue;
+    if (!entry.isFile()) continue;
+
+    const contents = readLockContents(candidate);
+    if (contents === undefined) continue;
+
+    const namedPid = pidFrom(entry.name.split("-", 1)[0]);
+    const contentPid = pidFrom(contents);
+    if (namedPid !== undefined && contentPid !== undefined && namedPid !== contentPid) {
+      throw new Error(`Store lock claim ${candidate} has conflicting owner pids`);
+    }
+    const held = namedPid ?? contentPid;
+    if (held === process.pid) {
+      if (ownClaims.has(candidate)) throw new Error(ownClaimHeldMessage(candidate, held));
+      console.warn(`Store lock claim ${candidate} names this process but was not created by it; reclaiming it`);
+      fs.rmSync(candidate, { force: true });
+      continue;
+    }
+    if (held !== undefined) {
+      if (isRunning(held)) {
+        const lockAbsent = lockIsAbsent(lockFile);
+        throw new Error(claimHeldMessage(candidate, held, lockAbsent && isYoung(candidate)));
+      }
+    } else {
+      const age = lockAgeMs(candidate);
+      if (age === undefined) continue;
+      if (age < LOCK_CONTENT_GRACE_MS) {
+        const lockAbsent = lockIsAbsent(lockFile);
+        throw new Error(claimHeldMessage(candidate, undefined, lockAbsent));
+      }
+    }
+
+    warnReclaim(lockFile, held === undefined ? contents : String(held));
+    fs.rmSync(candidate, { force: true });
+  }
+};
+
+const writeClaim = (lockFile: string, claim: string): boolean => {
+  let fd: number;
+  try {
+    fd = fs.openSync(claim, "wx");
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === "ENOENT" || code === "EEXIST") return false;
+    throw error;
+  }
+  ownClaims.add(claim);
+  try {
+    writePidAndClose(fd);
+  } catch (error) {
+    throw failedWithCleanup(error, () => removeClaim(lockFile, claim));
+  }
+  return true;
+};
+
+const createClaim = (lockFile: string): string => {
+  const claimsDir = claimDirectoryFor(lockFile);
+  for (let attempt = 0; attempt < ACQUIRE_ATTEMPTS; attempt += 1) {
+    try {
+      fs.mkdirSync(claimsDir, { recursive: true });
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") continue;
+      throw error;
+    }
+    const claim = path.join(claimsDir, `${process.pid}-${randomUUID()}`);
+    if (!writeClaim(lockFile, claim)) continue;
+
+    let owned: boolean;
+    try {
+      removeStaleClaims(lockFile, claim);
+      owned = readLockContents(claim) === String(process.pid);
+    } catch (error) {
+      throw failedWithCleanup(error, () => removeClaim(lockFile, claim));
+    }
+    if (!owned) {
+      const mismatch = new Error(claimMismatchMessage(claim));
+      const failure = failedWithCleanup(mismatch, () => removeClaim(lockFile, claim));
+      if (failure !== mismatch) throw failure;
+      continue;
+    }
+    return claim;
+  }
+
+  throw new Error(changingMessage(lockFile));
+};
+
+const reclaimStale = (lockFile: string, inspected: string): void => {
+  const current = readLockContents(lockFile);
+  if (current === undefined) return;
+  if (current !== inspected) {
+    if (blocksReclaim(lockFile, current)) throw new Error(heldMessage(lockFile, current));
+    return;
+  }
+
+  const moved = `${lockFile}.${process.pid}.${randomUUID()}.reclaim`;
+  try {
+    fs.renameSync(lockFile, moved);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
     throw error;
   }
 
-  const moved = fs.readFileSync(claimed, "utf8");
-  if (moved !== inspected) {
-    try {
-      fs.renameSync(claimed, lockFile);
-    } catch {
-      // Another writer took the name again; its lock file stays where it is.
-    }
-    return "held";
+  const movedContents = readLockContents(moved);
+  if (movedContents === undefined) return;
+  if (movedContents === inspected) {
+    fs.rmSync(moved, { force: true });
+    warnReclaim(lockFile, inspected);
+    return;
   }
 
-  fs.rmSync(claimed, { force: true });
-  warnReclaim(lockFile, inspected);
-  return "claimed";
-};
-
-const acquire = (lockFile: string): void => {
-  for (let attempt = 0; attempt < ACQUIRE_ATTEMPTS; attempt += 1) {
-    if (tryCreate(lockFile)) return;
-
-    const contents = readLockContents(lockFile);
-    if (contents === undefined) continue;
-
-    const held = pidFrom(contents);
-    if (held !== undefined && isRunning(held)) throw new Error(heldMessage(lockFile, contents));
-
-    // A writer records its pid immediately after the create, so contents that
-    // name no writer belong to a writer still inside that window until the
-    // file is older than the grace period.
-    if (held === undefined) {
-      const age = lockAgeMs(lockFile);
-      if (age === undefined) continue;
-      if (age < LOCK_CONTENT_GRACE_MS) throw new Error(heldMessage(lockFile, contents));
-    }
-
-    // A killed run leaves its lock behind. Taking over a file that no writer
-    // answers for keeps the store usable after such a run.
-    if (reclaimStale(lockFile, contents) === "held") {
-      throw new Error(heldMessage(lockFile, readLockContents(lockFile) ?? contents));
-    }
-    // The stale file is gone, so the next pass can create the lock.
+  try {
+    fs.linkSync(moved, lockFile);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+    throw new Error(displacedMessage(lockFile, readLockContents(lockFile), moved));
   }
-
-  throw new Error(heldMessage(lockFile, readLockContents(lockFile) ?? ""));
+  fs.rmSync(moved, { force: true });
+  if (blocksReclaim(lockFile, movedContents)) throw new Error(heldMessage(lockFile, movedContents));
 };
 
-// A lock reclaimed by another process holds that process's pid now, so this
-// process removes the file only while it still holds its own.
+const acquire = (lockFile: string): string => {
+  const claim = createClaim(lockFile);
+  try {
+    for (let attempt = 0; attempt < ACQUIRE_ATTEMPTS; attempt += 1) {
+      if (tryCreate(lockFile)) return claim;
+
+      const contents = readLockContents(lockFile);
+      if (contents === undefined) continue;
+
+      if (blocksReclaim(lockFile, contents)) throw new Error(heldMessage(lockFile, contents));
+
+      reclaimStale(lockFile, contents);
+    }
+
+    throw new Error(changingMessage(lockFile));
+  } catch (error) {
+    throw failedWithCleanup(error, () => removeClaim(lockFile, claim));
+  }
+};
+
 const release = (lockFile: string): void => {
   const contents = readLockContents(lockFile);
   if (contents === undefined || pidFrom(contents) !== process.pid) return;
   fs.rmSync(lockFile, { force: true });
 };
 
-export const withStoreLock = <T>(dir: string, fn: () => T): T => {
+const releaseAndRemoveClaim = (lockFile: string, claim: string): unknown[] => {
+  const errors: unknown[] = [];
+  try {
+    release(lockFile);
+  } catch (error) {
+    errors.push(error);
+  }
+  try {
+    removeClaim(lockFile, claim);
+  } catch (error) {
+    errors.push(error);
+  }
+  return errors;
+};
+
+const isThenable = (value: unknown): value is PromiseLike<unknown> =>
+  typeof (value as { then?: unknown } | null)?.then === "function";
+
+export type SyncResult<T> = T extends PromiseLike<unknown> ? never : unknown;
+
+export const withStoreLock = <T>(dir: string, fn: () => T & SyncResult<T>): T => {
+  if (!isMainThread) throw new Error(mainThreadMessage);
   const lockFile = lockFileFor(dir);
   fs.mkdirSync(path.dirname(lockFile), { recursive: true });
-  acquire(lockFile);
+  const claim = acquire(lockFile);
+  let result: T;
   try {
-    return fn();
-  } finally {
-    release(lockFile);
+    result = fn();
+    if (isThenable(result)) {
+      Promise.resolve(result).catch((rejection: unknown) => {
+        console.error(`Store lock callback returned a promise that later rejected: ${errorMessage(rejection)}`);
+      });
+      throw new TypeError("store lock callback must be synchronous, but it returned a promise");
+    }
+  } catch (callbackError) {
+    const cleanupErrors = releaseAndRemoveClaim(lockFile, claim);
+    if (cleanupErrors.length === 0) throw callbackError;
+    throw withCleanupErrors(callbackError, cleanupErrors);
   }
+  const cleanupErrors = releaseAndRemoveClaim(lockFile, claim);
+  if (cleanupErrors.length === 1) throw cleanupErrors[0];
+  if (cleanupErrors.length > 1) {
+    throw new AggregateError(cleanupErrors, cleanupFailureMessage(undefined, cleanupErrors.map(errorMessage)));
+  }
+  return result;
 };

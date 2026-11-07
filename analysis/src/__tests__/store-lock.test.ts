@@ -1,4 +1,4 @@
-import { spawn, spawnSync } from "child_process";
+import { spawnSync } from "child_process";
 import { randomUUID } from "crypto";
 import fs from "fs";
 import os from "os";
@@ -17,6 +17,13 @@ const deadPid = (): number => {
   const child = spawnSync(process.execPath, ["-e", ""]);
   if (child.pid === undefined) throw new Error("could not spawn a child to obtain a dead pid");
   return child.pid;
+};
+
+const liveForeignPid = (): number => {
+  const parent = process.ppid;
+  expect(parent).not.toBe(process.pid);
+  expect(() => process.kill(parent, 0)).not.toThrow();
+  return parent;
 };
 
 const backdate = (file: string): void => {
@@ -106,19 +113,14 @@ describe("withStoreLock", () => {
   });
 
   it("throws and names the holding pid when the lock is already held", () => {
-    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
-    try {
-      if (child.pid === undefined) throw new Error("could not spawn a live child");
-      fs.writeFileSync(lockFile, String(child.pid));
-      const heldMessage = `Store lock ${lockFile} is held by process ${child.pid}`;
+    const live = liveForeignPid();
+    fs.writeFileSync(lockFile, String(live));
+    const heldMessage = `Store lock ${lockFile} is held by process ${live}`;
 
-      expect(() => withStoreLock(store, () => "ran")).toThrow(heldMessage);
-      expect(claimEntries()).toEqual([]);
-      expect(() => withStoreLock(store, () => "ran")).toThrow(heldMessage);
-      expect(fs.readFileSync(lockFile, "utf8")).toBe(String(child.pid));
-    } finally {
-      child.kill();
-    }
+    expect(() => withStoreLock(store, () => "ran")).toThrow(heldMessage);
+    expect(claimEntries()).toEqual([]);
+    expect(() => withStoreLock(store, () => "ran")).toThrow(heldMessage);
+    expect(fs.readFileSync(lockFile, "utf8")).toBe(String(live));
   });
 
   it("reclaims a lock naming this process when it holds no claim, and runs the callback", () => {
@@ -268,53 +270,43 @@ describe("withStoreLock", () => {
   });
 
   it("keeps a young live claim without a retry suffix while a lock file exists", () => {
-    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    const live = liveForeignPid();
     const ran = vi.fn(() => "ran");
-    try {
-      if (child.pid === undefined) throw new Error("could not spawn a live child");
-      const claim = path.join(`${lockFile}.claims`, `${child.pid}-00000000-0000-4000-8000-000000000000`);
-      fs.mkdirSync(path.dirname(claim), { recursive: true });
-      fs.writeFileSync(claim, String(child.pid));
-      fs.writeFileSync(lockFile, String(child.pid));
+    const claim = path.join(`${lockFile}.claims`, `${live}-00000000-0000-4000-8000-000000000000`);
+    fs.mkdirSync(path.dirname(claim), { recursive: true });
+    fs.writeFileSync(claim, String(live));
+    fs.writeFileSync(lockFile, String(live));
 
-      const message = thrownMessage(() => withStoreLock(store, ran));
+    const message = thrownMessage(() => withStoreLock(store, ran));
 
-      expect(message).toContain(claim);
-      expect(message).toContain(`process ${child.pid}`);
-      expect(message).not.toContain("another run is starting");
-      expect(ran).not.toHaveBeenCalled();
-      expect(fs.existsSync(claim)).toBe(true);
-    } finally {
-      child.kill();
-    }
+    expect(message).toContain(claim);
+    expect(message).toContain(`process ${live}`);
+    expect(message).not.toContain("another run is starting");
+    expect(ran).not.toHaveBeenCalled();
+    expect(fs.existsSync(claim)).toBe(true);
   });
 
   it("keeps the live claim refusal when the lock cannot be read", () => {
-    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    const live = liveForeignPid();
     const ran = vi.fn(() => "ran");
     const read = fs.readFileSync;
-    try {
-      if (child.pid === undefined) throw new Error("could not spawn a live child");
-      const claim = path.join(`${lockFile}.claims`, `${child.pid}-00000000-0000-4000-8000-000000000000`);
-      fs.mkdirSync(path.dirname(claim), { recursive: true });
-      fs.writeFileSync(claim, String(child.pid));
-      fs.writeFileSync(lockFile, String(child.pid));
-      vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
-        if (String(target) === lockFile) throw Object.assign(new Error("lock unreadable"), { code: "EACCES" });
-        return read(target, options);
-      });
+    const claim = path.join(`${lockFile}.claims`, `${live}-00000000-0000-4000-8000-000000000000`);
+    fs.mkdirSync(path.dirname(claim), { recursive: true });
+    fs.writeFileSync(claim, String(live));
+    fs.writeFileSync(lockFile, String(live));
+    vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
+      if (String(target) === lockFile) throw Object.assign(new Error("lock unreadable"), { code: "EACCES" });
+      return read(target, options);
+    });
 
-      const message = thrownMessage(() => withStoreLock(store, ran));
+    const message = thrownMessage(() => withStoreLock(store, ran));
 
-      expect(message).toBe(
-        `Store lock claim ${claim} is held by process ${child.pid}; wait for that run to finish, ` +
-          "or remove that claim file if the process is gone"
-      );
-      expect(ran).not.toHaveBeenCalled();
-      expect(fs.existsSync(claim)).toBe(true);
-    } finally {
-      child.kill();
-    }
+    expect(message).toBe(
+      `Store lock claim ${claim} is held by process ${live}; wait for that run to finish, ` +
+        "or remove that claim file if the process is gone"
+    );
+    expect(ran).not.toHaveBeenCalled();
+    expect(fs.existsSync(claim)).toBe(true);
   });
 
   it("keeps the claim refusal when the lock cannot be read while a young claim has no pid", () => {
@@ -586,7 +578,7 @@ describe("withStoreLock", () => {
 
   it("restores a lock that changes to a live pid before it is moved aside, and refuses on that pid", () => {
     const ran = vi.fn(() => "ran");
-    const live = process.ppid;
+    const live = liveForeignPid();
     const rename = fs.renameSync;
     fs.writeFileSync(lockFile, String(deadPid()));
     vi.spyOn(fs, "renameSync").mockImplementation((from, to) => {
@@ -604,7 +596,7 @@ describe("withStoreLock", () => {
   it("refuses when another writer takes the lock name before the restore, names both, and leaves that lock untouched", () => {
     const ran = vi.fn(() => "ran");
     const changed = String(deadPid());
-    const gapWriter = process.ppid;
+    const gapWriter = liveForeignPid();
     const rename = fs.renameSync;
     fs.writeFileSync(lockFile, String(deadPid()));
     vi.spyOn(fs, "renameSync").mockImplementation((from, to) => {
@@ -647,29 +639,24 @@ describe("withStoreLock", () => {
   });
 
   it("keeps the lock held when it changes to a live pid before the re-read, which the two reads prove", () => {
-    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    const live = liveForeignPid();
     const read = fs.readFileSync;
     const ran = vi.fn(() => "ran");
     let reads = 0;
-    try {
-      if (child.pid === undefined) throw new Error("could not spawn a live child");
-      fs.writeFileSync(lockFile, String(deadPid()));
-      vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
-        if (String(target) === lockFile) {
-          reads += 1;
-          if (reads === 2) fs.writeFileSync(lockFile, String(child.pid));
-        }
-        return read(target, options);
-      });
+    fs.writeFileSync(lockFile, String(deadPid()));
+    vi.spyOn(fs, "readFileSync").mockImplementation((target, options) => {
+      if (String(target) === lockFile) {
+        reads += 1;
+        if (reads === 2) fs.writeFileSync(lockFile, String(live));
+      }
+      return read(target, options);
+    });
 
-      expect(() => withStoreLock(store, ran)).toThrow(`Store lock ${lockFile} is held by process ${child.pid}`);
+    expect(() => withStoreLock(store, ran)).toThrow(`Store lock ${lockFile} is held by process ${live}`);
 
-      expect(reads).toBe(2);
-      expect(ran).not.toHaveBeenCalled();
-      expect(fs.readFileSync(lockFile, "utf8")).toBe(String(child.pid));
-    } finally {
-      child.kill();
-    }
+    expect(reads).toBe(2);
+    expect(ran).not.toHaveBeenCalled();
+    expect(fs.readFileSync(lockFile, "utf8")).toBe(String(live));
   });
 
   it("refuses a same-version writer that enters during the reclaim window and never opens the lock", () => {
@@ -735,47 +722,37 @@ describe("withStoreLock", () => {
 
   it("refuses a contender while another live process holds a claim", () => {
     const claimsDir = `${lockFile}.claims`;
-    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    const live = liveForeignPid();
     const ran = vi.fn(() => "ran");
-    try {
-      if (child.pid === undefined) throw new Error("could not spawn a live child");
-      const claim = path.join(claimsDir, `${child.pid}-00000000-0000-4000-8000-000000000000`);
-      fs.mkdirSync(claimsDir, { recursive: true });
-      fs.writeFileSync(claim, String(child.pid));
+    const claim = path.join(claimsDir, `${live}-00000000-0000-4000-8000-000000000000`);
+    fs.mkdirSync(claimsDir, { recursive: true });
+    fs.writeFileSync(claim, String(live));
 
-      const message = thrownMessage(() => withStoreLock(store, ran));
+    const message = thrownMessage(() => withStoreLock(store, ran));
 
-      expect(message).toContain(claim);
-      expect(message).toContain(`process ${child.pid}`);
-      expect(message).toContain("another run is starting, so retry shortly");
-      expect(message).not.toContain("remove the lock file");
-      expect(ran).not.toHaveBeenCalled();
-      expect(fs.existsSync(claim)).toBe(true);
-      expect(fs.existsSync(lockFile)).toBe(false);
-    } finally {
-      child.kill();
-    }
+    expect(message).toContain(claim);
+    expect(message).toContain(`process ${live}`);
+    expect(message).toContain("another run is starting, so retry shortly");
+    expect(message).not.toContain("remove the lock file");
+    expect(ran).not.toHaveBeenCalled();
+    expect(fs.existsSync(claim)).toBe(true);
+    expect(fs.existsSync(lockFile)).toBe(false);
   });
 
   it("does not say another run is starting when the live claim is past the grace period", () => {
     const claimsDir = `${lockFile}.claims`;
-    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    const live = liveForeignPid();
     const ran = vi.fn(() => "ran");
-    try {
-      if (child.pid === undefined) throw new Error("could not spawn a live child");
-      const claim = path.join(claimsDir, `${child.pid}-00000000-0000-4000-8000-000000000000`);
-      fs.mkdirSync(claimsDir, { recursive: true });
-      fs.writeFileSync(claim, String(child.pid));
-      backdate(claim);
+    const claim = path.join(claimsDir, `${live}-00000000-0000-4000-8000-000000000000`);
+    fs.mkdirSync(claimsDir, { recursive: true });
+    fs.writeFileSync(claim, String(live));
+    backdate(claim);
 
-      const message = thrownMessage(() => withStoreLock(store, ran));
+    const message = thrownMessage(() => withStoreLock(store, ran));
 
-      expect(message).toContain(claim);
-      expect(message).not.toContain("another run is starting");
-      expect(ran).not.toHaveBeenCalled();
-    } finally {
-      child.kill();
-    }
+    expect(message).toContain(claim);
+    expect(message).not.toContain("another run is starting");
+    expect(ran).not.toHaveBeenCalled();
   });
 
   it("retries the exclusive create when the lock file is gone by the time it reads it", () => {
@@ -1165,35 +1142,30 @@ describe("withStoreLock", () => {
   });
 
   it("keeps the held refusal when removing the claim also fails", () => {
-    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    const live = liveForeignPid();
     const claimsDir = `${lockFile}.claims`;
     const remove = fs.rmSync;
     const cleanupError = Object.assign(new Error("claim removal denied"), { code: "EACCES" });
     const ran = vi.fn(() => "ran");
+    fs.writeFileSync(lockFile, String(live));
+    vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+      if (String(target).startsWith(`${claimsDir}${path.sep}`)) throw cleanupError;
+      remove(target, options);
+    });
+
+    let thrown: unknown;
     try {
-      if (child.pid === undefined) throw new Error("could not spawn a live child");
-      fs.writeFileSync(lockFile, String(child.pid));
-      vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
-        if (String(target).startsWith(`${claimsDir}${path.sep}`)) throw cleanupError;
-        remove(target, options);
-      });
-
-      let thrown: unknown;
-      try {
-        withStoreLock(store, ran);
-      } catch (error) {
-        thrown = error;
-      }
-
-      expect(thrown).toBeInstanceOf(AggregateError);
-      const aggregate = thrown as AggregateError;
-      expect(aggregate.message).toContain(`Store lock ${lockFile} is held by process ${child.pid}`);
-      expect(aggregate.errors).toHaveLength(2);
-      expect(aggregate.errors[1]).toBe(cleanupError);
-      expect(ran).not.toHaveBeenCalled();
-    } finally {
-      child.kill();
+      withStoreLock(store, ran);
+    } catch (error) {
+      thrown = error;
     }
+
+    expect(thrown).toBeInstanceOf(AggregateError);
+    const aggregate = thrown as AggregateError;
+    expect(aggregate.message).toContain(`Store lock ${lockFile} is held by process ${live}`);
+    expect(aggregate.errors).toHaveLength(2);
+    expect(aggregate.errors[1]).toBe(cleanupError);
+    expect(ran).not.toHaveBeenCalled();
   });
 
   it("surfaces a failed removal of a claim that reads back another pid, with the mismatch as the original", () => {
@@ -1655,24 +1627,19 @@ describe("withStoreLock", () => {
 
   it("does not say another run is starting when a live claim is exactly at the grace period", () => {
     const base = 1_700_000_000_000;
-    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    const live = liveForeignPid();
     const ran = vi.fn(() => "ran");
-    try {
-      if (child.pid === undefined) throw new Error("could not spawn a live child");
-      const claim = path.join(`${lockFile}.claims`, `${child.pid}-00000000-0000-4000-8000-000000000000`);
-      fs.mkdirSync(path.dirname(claim), { recursive: true });
-      fs.writeFileSync(claim, String(child.pid));
-      fs.utimesSync(claim, new Date(base), new Date(base));
-      vi.spyOn(Date, "now").mockReturnValue(base + LOCK_CONTENT_GRACE_MS);
+    const claim = path.join(`${lockFile}.claims`, `${live}-00000000-0000-4000-8000-000000000000`);
+    fs.mkdirSync(path.dirname(claim), { recursive: true });
+    fs.writeFileSync(claim, String(live));
+    fs.utimesSync(claim, new Date(base), new Date(base));
+    vi.spyOn(Date, "now").mockReturnValue(base + LOCK_CONTENT_GRACE_MS);
 
-      const message = thrownMessage(() => withStoreLock(store, ran));
+    const message = thrownMessage(() => withStoreLock(store, ran));
 
-      expect(message).toContain(claim);
-      expect(message).not.toContain("another run is starting");
-      expect(ran).not.toHaveBeenCalled();
-    } finally {
-      child.kill();
-    }
+    expect(message).toContain(claim);
+    expect(message).not.toContain("another run is starting");
+    expect(ran).not.toHaveBeenCalled();
   });
 
   it("reclaims a claim with no pid once it is exactly at the grace period", () => {
@@ -1787,19 +1754,14 @@ describe("withStoreLock", () => {
   });
 
   it("leaves no claim behind when the lock is refused", () => {
-    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    const live = liveForeignPid();
     const ran = vi.fn(() => "ran");
-    try {
-      if (child.pid === undefined) throw new Error("could not spawn a live child");
-      fs.writeFileSync(lockFile, String(child.pid));
+    fs.writeFileSync(lockFile, String(live));
 
-      expect(() => withStoreLock(store, ran)).toThrow(`Store lock ${lockFile} is held by process ${child.pid}`);
+    expect(() => withStoreLock(store, ran)).toThrow(`Store lock ${lockFile} is held by process ${live}`);
 
-      expect(ran).not.toHaveBeenCalled();
-      expect(claimEntries()).toEqual([]);
-    } finally {
-      child.kill();
-    }
+    expect(ran).not.toHaveBeenCalled();
+    expect(claimEntries()).toEqual([]);
   });
 
   it("leaves no claim behind when claim inspection fails", () => {

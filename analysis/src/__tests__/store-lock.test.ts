@@ -1,4 +1,4 @@
-import { spawnSync } from "child_process";
+import { spawn, spawnSync } from "child_process";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -273,6 +273,26 @@ describe("withStoreLock", () => {
     expect(contenderError).toContain(lockFile);
     expect(contenderError).toContain(String(process.pid));
     expect(fs.readFileSync(lockFile, "utf8")).toBe(String(process.pid));
+  });
+
+  it("refuses a contender while another live process holds a claim", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    const ran = vi.fn(() => "ran");
+    try {
+      if (child.pid === undefined) throw new Error("could not spawn a live child");
+      const claim = path.join(claimsDir, `${child.pid}-00000000-0000-4000-8000-000000000000`);
+      fs.mkdirSync(claimsDir, { recursive: true });
+      fs.writeFileSync(claim, String(child.pid));
+
+      expect(() => withStoreLock(store, ran)).toThrow(`process ${child.pid}`);
+
+      expect(ran).not.toHaveBeenCalled();
+      expect(fs.existsSync(claim)).toBe(true);
+      expect(fs.existsSync(lockFile)).toBe(false);
+    } finally {
+      child.kill();
+    }
   });
 
   it("retries the exclusive create when the lock file is gone by the time it reads it", () => {

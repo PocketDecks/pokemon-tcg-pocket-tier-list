@@ -27,6 +27,19 @@ const DATA_DIR = process.env.BUILD_DIR
 const SITE_HOST = "pocketdecks.top";
 const LOOPBACK = /(https?:)?\/\/(127\.0\.0\.1|localhost)(:\d+)?/g;
 
+const PREMIUM_DATA_FILES = ["best-decks", "matchup-data", "meta-share"].flatMap((base) =>
+  ["30d", "all"].map((window) => `${base}-${window}.json`)
+);
+
+const findPremiumDataFiles = (dir = DIST_DIR) => {
+  const dataDir = path.join(dir, "data");
+  if (!fs.existsSync(dataDir)) return [];
+  return fs
+    .readdirSync(dataDir, { recursive: true })
+    .filter((entry) => PREMIUM_DATA_FILES.includes(path.basename(entry)))
+    .map((entry) => path.join("data", entry));
+};
+
 const listHtmlFiles = (dir = DIST_DIR) =>
   fs.readdirSync(dir, { recursive: true }).filter((entry) => entry.endsWith(".html"));
 
@@ -597,6 +610,13 @@ const main = () => {
     console.error(`Expansion pages failing the head or coverage checks:\n${expansionIssues.join("\n")}`);
     process.exit(1);
   }
+  const premiumDataFiles = findPremiumDataFiles();
+  if (premiumDataFiles.length > 0) {
+    console.error(
+      `Premium window data shipped in the build output:\n${premiumDataFiles.join("\n")}`
+    );
+    process.exit(1);
+  }
   const shellIssues = findShellPageIssues();
   if (shellIssues.length > 0) {
     console.error(
@@ -685,6 +705,8 @@ const main = () => {
 if (require.main === module) main();
 
 module.exports = {
+  PREMIUM_DATA_FILES,
+  findPremiumDataFiles,
   findBakedAppState,
   findHubPageIssues,
   findExpansionPageIssues,

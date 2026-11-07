@@ -42,6 +42,11 @@ jobs:
         working-directory: analysis
       - run: yarn test
         working-directory: analysis
+      - uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.FIREBASE_PREMIUM_VERIFIER }}
+      - run: yarn verify:premium
+        working-directory: analysis
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"

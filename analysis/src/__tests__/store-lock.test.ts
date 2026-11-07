@@ -24,6 +24,8 @@ const backdate = (file: string): void => {
   fs.utimesSync(file, old, old);
 };
 
+const ownClaimsKey = Symbol.for("pokemon-tcg-pocket.store-lock.own-claims");
+
 const storeLockUrl = pathToFileURL(path.resolve(__dirname, "../utils/store-lock.ts")).href;
 
 const workerSource = `
@@ -79,6 +81,7 @@ describe("withStoreLock", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    (globalThis as typeof globalThis & { [ownClaimsKey]?: Set<string> })[ownClaimsKey]?.clear();
     fs.rmSync(dir, { recursive: true, force: true, maxRetries: 5 });
   });
 

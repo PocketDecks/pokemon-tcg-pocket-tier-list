@@ -35,14 +35,18 @@ const heldMessage = (lockFile: string, contents: string): string => {
   );
 };
 
-const claimHeldMessage = (claim: string, held: number | undefined, starting: boolean): string => {
+const claimHeldMessage = (claim: string, held: number | undefined, retry: boolean): string => {
   const holder = held === undefined ? "has not written its pid yet" : `is held by process ${held}`;
-  const retry = starting ? "; another run is starting, so retry shortly" : "";
+  const suffix = retry ? "; another run is starting, so retry shortly" : "";
   return (
     `Store lock claim ${claim} ${holder}; wait for that run to finish, ` +
-    `or remove that claim file if the process is gone${retry}`
+    `or remove that claim file if the process is gone${suffix}`
   );
 };
+
+const ownClaimHeldMessage = (claim: string, held: number): string =>
+  `Store lock claim ${claim} is still held by process ${held}, which is this process and could not remove it; ` +
+  "a later run clears it once this process has exited";
 
 const changingMessage = (lockFile: string): string =>
   `Store lock ${lockFile} kept changing while this run was acquiring it, so retry the run`;
@@ -162,12 +166,14 @@ const removeStaleClaims = (lockFile: string, ownClaim: string): void => {
       throw new Error(`Store lock claim ${candidate} has conflicting owner pids`);
     }
     const held = namedPid ?? contentPid;
+    const lockAbsent = readLockContents(lockFile) === undefined;
+    if (held === process.pid) throw new Error(ownClaimHeldMessage(candidate, held));
     if (held !== undefined) {
-      if (isRunning(held)) throw new Error(claimHeldMessage(candidate, held, isYoung(candidate)));
+      if (isRunning(held)) throw new Error(claimHeldMessage(candidate, held, lockAbsent && isYoung(candidate)));
     } else {
       const age = lockAgeMs(candidate);
       if (age === undefined) continue;
-      if (age < LOCK_CONTENT_GRACE_MS) throw new Error(claimHeldMessage(candidate, undefined, true));
+      if (age < LOCK_CONTENT_GRACE_MS) throw new Error(claimHeldMessage(candidate, undefined, lockAbsent));
     }
 
     warnReclaim(lockFile, held === undefined ? contents : String(held));

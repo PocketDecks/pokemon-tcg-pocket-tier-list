@@ -168,11 +168,50 @@ describe("withStoreLock", () => {
     const message = thrownMessage(() => withStoreLock(store, ran));
 
     expect(message).toContain(claim);
-    expect(message).toContain("another run is starting, so retry shortly");
+    expect(message).not.toContain("another run is starting");
     expect(message).not.toContain("remove the lock file");
     expect(ran).not.toHaveBeenCalled();
     expect(fs.existsSync(claim)).toBe(true);
     expect(fs.readFileSync(lockFile, "utf8")).toBe(String(stalePid));
+  });
+
+  it("keeps a young live claim without a retry suffix while a lock file exists", () => {
+    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 60000)"]);
+    const ran = vi.fn(() => "ran");
+    try {
+      if (child.pid === undefined) throw new Error("could not spawn a live child");
+      const claim = path.join(`${lockFile}.claims`, `${child.pid}-00000000-0000-4000-8000-000000000000`);
+      fs.mkdirSync(path.dirname(claim), { recursive: true });
+      fs.writeFileSync(claim, String(child.pid));
+      fs.writeFileSync(lockFile, String(child.pid));
+
+      const message = thrownMessage(() => withStoreLock(store, ran));
+
+      expect(message).toContain(claim);
+      expect(message).toContain(`process ${child.pid}`);
+      expect(message).not.toContain("another run is starting");
+      expect(ran).not.toHaveBeenCalled();
+      expect(fs.existsSync(claim)).toBe(true);
+    } finally {
+      child.kill();
+    }
+  });
+
+  it("names this process without a retry suffix when a young own-pid claim is left behind", () => {
+    const claimsDir = `${lockFile}.claims`;
+    const leftover = path.join(claimsDir, `${process.pid}-00000000-0000-4000-8000-000000000000`);
+    const ran = vi.fn(() => "ran");
+    fs.mkdirSync(claimsDir, { recursive: true });
+    fs.writeFileSync(leftover, String(process.pid));
+
+    const message = thrownMessage(() => withStoreLock(store, ran));
+
+    expect(message).toContain(leftover);
+    expect(message).toContain(`process ${process.pid}`);
+    expect(message).toContain("could not remove it");
+    expect(message).not.toContain("retry shortly");
+    expect(ran).not.toHaveBeenCalled();
+    expect(fs.existsSync(leftover)).toBe(true);
   });
 
   it("keeps an aged empty claim held when its filename names a live pid", () => {

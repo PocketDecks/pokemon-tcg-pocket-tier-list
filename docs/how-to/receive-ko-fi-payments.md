@@ -10,7 +10,7 @@ For each delivery it runs these steps in order:
 
 1. Parses the body. A body it cannot parse, or one missing the token, amount, currency or an id, returns 400.
 2. Compares `verification_token` with the `KOFI_VERIFICATION_TOKEN` secret in constant time. A mismatch returns 401 and nothing is written.
-3. Works out the months. Only GBP counts, and the months are the whole pounds in the amount. Any other currency, or an amount under GBP 1, is recorded as `needs-review` and grants nothing.
+3. Works out the months. Only one-off tips (`Donation`) and monthly tips (`Subscription`) in GBP count, and the months are the whole pounds in the amount. A shop order, a commission, any other currency, or an amount under GBP 1 is recorded as `needs-review` and grants nothing.
 4. Finds the user. A code like `PD-ABC123` in the message is looked up in `premiumCodes/{code}`, which holds `{ uid }`. The site does not issue codes yet, so for now matching falls through to the Ko-fi email, which the Worker looks up through the Identity Toolkit admin endpoint. If neither finds a user the payment is recorded as `unmatched`.
 5. Grants the months. Inside a Firestore transaction it reads `entitlements/{uid}`. A premium entitlement with no `expiresAt` is a lifetime grant, so the Worker leaves it alone and records `already-lifetime`. Otherwise the new `expiresAt` starts from the later of now and the current expiry, then adds the months as UTC calendar months. A start on 31 January plus one month ends on the last day of February.
 6. Commits once. The same Firestore commit creates `kofiPayments/{id}`, writes the entitlement and adds the amount to `tipTotals/{YYYY-MM}`.

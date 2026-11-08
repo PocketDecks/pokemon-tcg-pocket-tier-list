@@ -67,3 +67,6 @@ jobs:
 
       - name: Test Ko-fi receiver
         run: yarn --cwd workers/kofi test:ci
+
+      - name: Bundle Ko-fi receiver
+        run: yarn --cwd workers/kofi wrangler deploy --dry-run --outdir dist-dry

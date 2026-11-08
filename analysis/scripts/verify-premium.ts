@@ -68,7 +68,7 @@ export const verifyPremium = async (
   const problems = checkPremiumVersion(snapshot);
   if (problems.length) {
     for (const problem of problems) fail(problem);
-    return;
+    throw new Error(`premium version ${version} is not complete in ${projectId}`);
   }
   log(`premium version ${version} is complete in ${projectId}`);
 };

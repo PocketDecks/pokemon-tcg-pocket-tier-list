@@ -146,9 +146,13 @@ describe("checkPremiumVersion version recompute", () => {
     const snapshot = completeSnapshot();
     const expected = premiumVersion(files());
 
+    expect(checkPremiumVersion(snapshot)).toEqual([]);
     const renamed = { ...snapshot, version: expected };
     expect(checkPremiumVersion(renamed)).toEqual([]);
-    expect(checkPremiumVersion(snapshot)).toEqual([]);
+    const mislabelled = { ...snapshot, version: "0000000000000000" };
+    expect(checkPremiumVersion(mislabelled)).toContain(
+      "version 0000000000000000 does not match the artefacts"
+    );
   });
 });
 

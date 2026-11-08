@@ -43,10 +43,13 @@ describe("verify-premium entry point", () => {
     expect(lines[0]).toMatch(/is complete in/);
   });
 
-  it("fails when the version document is missing", async () => {
+  it("lists every problem before failing", async () => {
     const db = { doc: () => ({ get: async () => ({ exists: false, get: () => null }) }) };
     const failures: string[] = [];
-    await verifyPremium({ db }, () => {}, (line) => failures.push(line));
-    expect(failures[0]).toMatch(/is missing/);
+    await expect(
+      verifyPremium({ db }, () => {}, (line) => failures.push(line))
+    ).rejects.toThrow(/is not complete/);
+    expect(failures).toHaveLength(1);
+    expect(failures[0]).toMatch(/version .+ is missing/);
   });
 });

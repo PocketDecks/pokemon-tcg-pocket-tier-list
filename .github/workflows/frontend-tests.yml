@@ -43,3 +43,30 @@ jobs:
 
       - name: Run script tests
         run: yarn test:scripts
+
+  kofi-receiver:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24.22.1"
+          cache: "yarn"
+          cache-dependency-path: workers/kofi/yarn.lock
+
+      - name: Install Ko-fi receiver dependencies
+        run: yarn --cwd workers/kofi install --frozen-lockfile
+
+      - name: Typecheck Ko-fi receiver
+        run: yarn --cwd workers/kofi typecheck
+
+      - name: Test Ko-fi receiver
+        run: yarn --cwd workers/kofi test:ci
+
+      - name: Bundle Ko-fi receiver
+        run: yarn --cwd workers/kofi wrangler deploy --dry-run --outdir dist-dry

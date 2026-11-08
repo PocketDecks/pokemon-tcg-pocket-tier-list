@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { expansionPageData, packNameForSlug, packSlug } from "../expansion-page-data";
 import { coveredCardIdsBySet } from "../expansion-feed.mjs";
 import type { FullDeckType } from "../deck-types";
+import { expansionFixture } from "../__fixtures__/expansion";
 
 const card = (id: string, name: string, set = "c1") => ({
   id,
@@ -28,7 +29,12 @@ const resolvedDeck = (name: string, iconName: string) =>
     iconSecondary: null,
   }) as unknown as FullDeckType;
 
-const C1 = { id: "c1", name: "Dual Fusion", release_date: "2026-10-29", packs: [] };
+const C1 = expansionFixture({
+  id: "c1",
+  name: "Dual Fusion",
+  release_date: "2026-10-29",
+  packs: [{ id: "c1-booster", name: "Booster", image: null }],
+});
 
 describe("expansion page data", () => {
   it("keeps used cards in set-number order and decks sorted by display name", () => {
@@ -69,7 +75,7 @@ describe("expansion page data", () => {
 });
 
 describe("expansion page pack filter", () => {
-  const A1 = {
+  const A1 = expansionFixture({
     id: "a1",
     name: "Genetic Apex",
     release_date: null,
@@ -77,7 +83,7 @@ describe("expansion page pack filter", () => {
       { id: "a1-charizard", name: "Charizard", image: null },
       { id: "a1-mewtwo", name: "Mewtwo", image: null },
     ],
-  };
+  });
   const inPack = (id: string, name: string, pack: string) => ({ ...card(id, name, "a1"), pack });
   const cards = [
     inPack("a1-089", "Greninja", "Charizard"),
@@ -103,7 +109,7 @@ describe("expansion page pack filter", () => {
   });
 
   it("shows the full set for a single-pack expansion", () => {
-    const single = { ...A1, packs: [{ id: "a1-charizard", name: "Charizard", image: null }] };
+    const single = expansionFixture({ ...A1, packs: [{ id: "a1-charizard", name: "Charizard", image: null }] });
     const result = expansionPageData(single, cards, raw, [], "Charizard");
     expect(result.cards.length).toBe(3);
   });

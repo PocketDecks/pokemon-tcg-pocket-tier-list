@@ -1,12 +1,12 @@
 # Card data reference
 
 The frontend reads card data from the `pokemon-tcg-pocket-cards` npm package,
-resolved through the `data/v5/cards.core.min.json` export. That file is a sparse
+resolved through its typed `core` export. That file is a sparse
 projection: Trainers omit `ex`, `health` and `stage`, and `normaliseCard` coerces
 those fields back. Attack costs instead come from `src/data/attack-costs.json`,
 which `scripts/generate-attack-costs.mjs` builds at prebuild from
 `data/v5/cards.gameplay.no-image`. The field names in the payload differ from the
-ones the app uses, so everything passes through a normalisation layer first.
+ones the app uses, so everything passes through a normalisation layer first
 
 ## Where normalisation happens
 
@@ -27,8 +27,9 @@ frontend never imports the 1.19 MiB payload.
 | `ex` | `ex` | Boolean, not the string `"Yes"` or `"No"`. |
 | `id`, `name`, `rarity`, `pack`, `health`, `stage`, `image` | unchanged | |
 
-`RawCardType` describes the payload. `CardType` describes what the rest of the
-app sees. Neither carries `craftingCost`, which appears in no payload record.
+`RawCardType` aliases the package's generated core schema. `CardType` describes
+what the rest of the app sees. Neither carries `craftingCost`, which appears in
+no payload record
 
 ## Field values
 

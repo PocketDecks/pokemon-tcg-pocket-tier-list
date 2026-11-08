@@ -1,22 +1,8 @@
 import attackCosts from "../data/attack-costs.json";
 import { CARDS_URL } from "./constants";
+import type { PokemonTCGPocketCardsV5CoreSchema } from "pokemon-tcg-pocket-cards/core";
 
-/** The field names the v5 dataset ships. Only what the app reads is declared. */
-export interface RawCardType {
-  id: string;
-  name: string;
-  rarity: string | null;
-  pack: string;
-  type: string;
-  subtype: string;
-  health: number | null;
-  stage: string | null;
-  image: string;
-  ex: boolean;
-  set_code: string;
-  deckBuilderNr?: number | null;
-  attacks?: Record<string, { cost: string | null }>;
-}
+export type RawCardType = PokemonTCGPocketCardsV5CoreSchema[number];
 
 export interface CardType {
   id: string;
@@ -66,15 +52,14 @@ export interface CardsPayload {
  * index before the fetch that fills it.
  */
 export const fetchCards = async (): Promise<CardsPayload> => {
-  const raw = CARDS_URL as unknown as RawCardType[];
   const attacksByDeckBuilderNr = new Map(
     Object.entries(attackCosts).map(([nr, costs]) => [
       Number(nr),
-      costs as unknown as Record<string, { cost: string | null }>,
+      costs,
     ])
   );
   return {
-    cards: normaliseMultipleCards(raw),
+    cards: normaliseMultipleCards(CARDS_URL),
     attacksByDeckBuilderNr,
   };
 };

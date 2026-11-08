@@ -71,14 +71,14 @@ next delivery fetches a fresh one. Ko-fi retries
 every response other than 200, so the delivery arrives again and the Worker
 handles it afresh
 
-The Worker keeps the tipper's email and name only on payments it did not
-grant, because you need them to match an `unmatched` or `needs-review`
-payment by hand. Responses never carry the token, an email or the service
-account. A log line holds the payment id and its status, and a failure line
-adds the cause: the operation and HTTP status of a Google error, or just the
-error name for anything else. The Worker cuts stored text to 320 characters
-for the email, 200 for the name, 64 for the Ko-fi timestamp and 32 for the
-type
+The Worker keeps the tipper's email, name and message only on payments it
+did not grant, because you need them to match an `unmatched` or
+`needs-review` payment by hand. Responses never carry the token, an email
+or the service account. A log line holds the payment id and its status, and
+a failure line adds the cause: the operation and HTTP status of a Google
+error, or just the error name for anything else. The Worker cuts stored
+text to 320 characters for the email, 500 for the message, 200 for the
+name, 64 for the Ko-fi timestamp, 32 for the type and 8 for the currency
 
 The Firestore rules live in the Firebase console and need no change. They
 deny clients every collection they do not list, and the Worker signs in with
@@ -142,12 +142,24 @@ Each of Ko-fi's test buttons creates its own document, because the message
 ids differ. Pressing the same button twice sends a duplicate, so the
 Worker returns 200 and changes nothing
 
-In Ko-fi's webhook log, a 401 points at the verification token. A 500 has
-three causes: the `FIREBASE_SERVICE_ACCOUNT` secret or its roles, a Google
-outage, or a payment racing another for the same user, which Ko-fi's retry
-then settles
+In Ko-fi's webhook log, a 401 points at the verification token. For a 500,
+read the Worker's failure log line first, because it names the failing
+call and its status. Common causes are the `FIREBASE_SERVICE_ACCOUNT`
+secret or its roles, an exhausted Firestore quota, a Google outage, and a
+payment racing another for the same user, which Ko-fi's retry then settles
 
-To grant Premium for an `unmatched` payment, find the user's uid under
-Firebase Authentication and write `entitlements/{uid}` by hand with
-`premium: true`, `source: "kofi"`, an `expiresAt` timestamp and `updatedAt`.
+The payment document keeps the tipper's message on every payment the Worker
+did not grant, so a code or account email written there is still to hand.
+To grant Premium for an `unmatched` payment:
+
+1. Find the user's uid under Firebase Authentication
+2. Open `entitlements/{uid}`. If it has `premium: true` and no `expiresAt`,
+   the user already has lifetime access and needs nothing. If its
+   `expiresAt` is still in the future, add the paid months to that date.
+   Otherwise add them to today
+3. Write `premium: true`, `source: "kofi"`, the new `expiresAt` timestamp
+   and `updatedAt`
+4. In the same sitting, set the payment's `status` to `granted` and add
+   `uid` and `matchedBy: "manual"`, so nobody grants the same payment twice
+
 A script for this comes later

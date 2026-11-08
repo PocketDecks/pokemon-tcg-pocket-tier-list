@@ -41,13 +41,16 @@ For each delivery it works through these steps:
    `entitlements/{uid}`. A premium entitlement with no `expiresAt`, or with
    a null one, is a lifetime grant, which the Worker leaves alone and marks
    `already-lifetime`. An `expiresAt` of any other type counts as already
-   expired, as it does on the site, so the grant restarts from now. Any
-   other entitlement gets a new `expiresAt`, counted in UTC calendar months
-   from the later of now and an active expiry. One month from 31 January
-   ends on the last day of February
+   expired, as it does on the site, so the grant restarts from now. An
+   active `expiresAt` after 1 January 2100 counts as lifetime too, because
+   stacking months onto it would give a year Firestore rejects. Any other
+   entitlement gets a new `expiresAt`, counted in UTC calendar months from
+   the later of now and an active expiry. One month from 31 January ends on
+   the last day of February
 6. It commits once. A single Firestore commit creates `kofiPayments/{id}`,
-   writes the entitlement and, for a GBP `Donation` or `Subscription`, adds
-   the amount to `tipTotals/{YYYY-MM}`. The month comes from the Ko-fi
+   writes the entitlement only when the payment grants months and, for a
+   GBP `Donation` or `Subscription`, adds the amount to
+   `tipTotals/{YYYY-MM}`. The month comes from the Ko-fi
    timestamp when that lies within two days of now, and from now otherwise.
    The Worker still records other payments but leaves the totals alone
 
@@ -59,11 +62,12 @@ The Worker names each payment document after `kofi_transaction_id` and
 other is missing, and creates it only if it does not exist yet. Ko-fi's test
 payloads all share one transaction id, so the message id keeps them apart.
 When Ko-fi delivers the same payment twice, Firestore rejects the second
-create with `ALREADY_EXISTS` and the Worker returns 200
-without changing anything. Every other Firestore error, including an
-aborted transaction from two payments racing for one user, makes the Worker
-roll the transaction back and answer 500. Ko-fi retries every response other
-than 200, so the delivery arrives again and the Worker handles it afresh
+create with `ALREADY_EXISTS`, the Worker rolls the transaction back and
+returns 200 without changing anything. Every other Firestore error,
+including an aborted transaction from two payments racing for one user,
+makes the Worker roll the transaction back and answer 500. Ko-fi retries
+every response other than 200, so the delivery arrives again and the Worker
+handles it afresh
 
 The Worker keeps the tipper's email and name only on payments it did not
 grant, because you need them to match an `unmatched` or `needs-review`
@@ -117,13 +121,23 @@ Copy `workers/kofi/.dev.vars.example` to `workers/kofi/.dev.vars`, fill in
 both values and run `yarn --cwd workers/kofi dev`. Git ignores `.dev.vars`,
 so the key stays out of commits
 
+The file reads one variable per line, so the service account JSON must sit
+on a single line, wrapped in single quotes:
+
+```
+FIREBASE_SERVICE_ACCOUNT='{"type":"service_account",...}'
+```
+
 ## Checking a delivery
 
 Open `kofiPayments` in the Firestore console after a test. Ko-fi's test
-tipper has no account on the site, so the document shows `unmatched` with
-the email kept. That result means the token, the service account and the
-commit all work. Ko-fi may reuse one transaction id for every test, in which
-case a second test changes nothing
+payloads are in US dollars, so the document shows `needs-review` with the
+email kept. That result means the token, the service account and the
+commit all work
+
+Each of Ko-fi's test buttons creates its own document, because the message
+ids differ. Pressing the same button twice sends a duplicate, so the
+Worker returns 200 and changes nothing
 
 In Ko-fi's webhook log, a 401 points at the verification token. A 500 has
 three causes: the `FIREBASE_SERVICE_ACCOUNT` secret or its roles, a Google

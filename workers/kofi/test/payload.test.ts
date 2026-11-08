@@ -28,7 +28,7 @@ describe("parseKofiPayload", () => {
     const parsed = parseKofiPayload(form(base));
     expect(parsed).toMatchObject({
       verificationToken: "secret-token",
-      id: "txn-1",
+      id: "txn-1-msg-1",
       type: "Donation",
       fromName: "Ash",
       message: "Thanks",
@@ -42,6 +42,14 @@ describe("parseKofiPayload", () => {
 
   it("falls back to message_id when there is no transaction id", () => {
     expect(parseKofiPayload(form(without("kofi_transaction_id")))?.id).toBe("msg-1");
+  });
+
+  it("uses the transaction id alone when there is no message id", () => {
+    expect(parseKofiPayload(form(without("message_id")))?.id).toBe("txn-1");
+  });
+
+  it("rejects a combined id that is unsafe through its message id", () => {
+    expect(parseKofiPayload(form({ ...base, message_id: "a/b" }))).toBeNull();
   });
 
   it("rejects a body without the data field", () => {
@@ -76,10 +84,11 @@ describe("parseKofiPayload", () => {
   });
 
   it("rejects an id Firestore reserves", () => {
-    expect(parseKofiPayload(form({ ...base, kofi_transaction_id: "__abc__" }))).toBeNull();
-    expect(parseKofiPayload(form({ ...base, kofi_transaction_id: "____" }))).toBeNull();
-    expect(parseKofiPayload(form({ ...base, kofi_transaction_id: "__abc" }))?.id).toBe("__abc");
-    expect(parseKofiPayload(form({ ...base, kofi_transaction_id: "abc__" }))?.id).toBe("abc__");
+    const single = without("message_id");
+    expect(parseKofiPayload(form({ ...single, kofi_transaction_id: "__abc__" }))).toBeNull();
+    expect(parseKofiPayload(form({ ...single, kofi_transaction_id: "____" }))).toBeNull();
+    expect(parseKofiPayload(form({ ...single, kofi_transaction_id: "__abc" }))?.id).toBe("__abc");
+    expect(parseKofiPayload(form({ ...single, kofi_transaction_id: "abc__" }))?.id).toBe("abc__");
   });
 
   it("defaults optional text fields to empty strings", () => {

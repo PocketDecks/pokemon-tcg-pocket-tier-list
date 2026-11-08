@@ -35,7 +35,10 @@ export const parseKofiPayload = (body: string): KofiPayment | null => {
   const verificationToken = text(record.verification_token);
   const amount = text(record.amount);
   const currency = text(record.currency);
-  const id = text(record.kofi_transaction_id) || text(record.message_id);
+  const transactionId = text(record.kofi_transaction_id);
+  const messageId = text(record.message_id);
+  const id =
+    transactionId && messageId ? `${transactionId}-${messageId}` : transactionId || messageId;
   if (!verificationToken || !amount || !currency || !id) return null;
   if (!SAFE_ID.test(id) || RESERVED_ID.test(id)) return null;
 

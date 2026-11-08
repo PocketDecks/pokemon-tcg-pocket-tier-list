@@ -49,9 +49,10 @@ For each delivery it works through these steps:
 The entitlement keeps the fields the site reads: `premium`, `source` (always
 `kofi`), `expiresAt` and `updatedAt`
 
-The Worker names each payment document after `kofi_transaction_id`, or
-`message_id` when Ko-fi sends no transaction id, and creates it only if it
-does not exist yet. When Ko-fi delivers the same payment twice, Firestore
+The Worker names each payment document after `kofi_transaction_id` and
+`message_id` joined by a hyphen, or after whichever one Ko-fi sends when the
+other is missing, and creates it only if it does not exist yet. Ko-fi's test
+payloads all share one transaction id, so the message id keeps them apart. When Ko-fi delivers the same payment twice, Firestore
 rejects the second create with `ALREADY_EXISTS` and the Worker returns 200
 without changing anything. Every other Firestore error, including an
 aborted transaction from two payments racing for one user, makes the Worker

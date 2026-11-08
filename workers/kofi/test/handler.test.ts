@@ -176,7 +176,7 @@ describe("granting Premium", () => {
       expiresAt: "2027-04-08T12:00:00.000Z",
       updatedAt: NOW.toISOString(),
     });
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
       type: "Donation",
       amountPence: 500,
       currency: "GBP",
@@ -195,7 +195,7 @@ describe("granting Premium", () => {
     const { post, google } = setup();
     google.addUser("ash@example.com", "uid-ash");
     await post(payment());
-    const stored = google.read("kofiPayments/txn-1");
+    const stored = google.read("kofiPayments/txn-1-msg-1");
     expect(stored).not.toHaveProperty("email");
     expect(stored).not.toHaveProperty("fromName");
   });
@@ -241,7 +241,7 @@ describe("granting Premium", () => {
       source: "manual",
       updatedAt: "2026-01-01T00:00:00.000Z",
     });
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
       status: "already-lifetime",
       uid: "uid-ash",
     });
@@ -295,11 +295,34 @@ describe("granting Premium", () => {
     expect(responses.map((response) => response.status).sort()).toEqual([200, 500]);
     const failedId = responses[0].status === 500 ? "txn-a" : "txn-b";
     const failedAmount = failedId === "txn-a" ? "5.00" : "3.00";
-    expect(google.read(`kofiPayments/${failedId}`)).toBeUndefined();
+    expect(google.read(`kofiPayments/${failedId}-msg-1`)).toBeUndefined();
     const retry = await post(payment({ kofi_transaction_id: failedId, amount: failedAmount }));
     expect(retry.status).toBe(200);
     expect(google.read("entitlements/uid-ash")?.expiresAt).toBe("2027-07-08T12:00:00.000Z");
     expect(google.read("tipTotals/2026-11")).toEqual({ amountPence: 800, count: 2 });
+  });
+});
+
+describe("payment identity", () => {
+  it("records payments that share a transaction id but carry different message ids", async () => {
+    const { post, google } = setup();
+    google.addUser("ash@example.com", "uid-ash");
+    expect((await post(payment({ message_id: "msg-a", amount: "2.00" }))).status).toBe(200);
+    const second = await post(payment({ message_id: "msg-b", amount: "3.00" }));
+    expect(await second.text()).toBe("OK");
+    expect(google.read("kofiPayments/txn-1-msg-a")).toMatchObject({ months: 2 });
+    expect(google.read("kofiPayments/txn-1-msg-b")).toMatchObject({ months: 3 });
+    expect(google.read("tipTotals/2026-11")).toEqual({ amountPence: 500, count: 2 });
+  });
+
+  it("treats the same transaction and message id as a redelivery", async () => {
+    const { post, google } = setup();
+    google.addUser("ash@example.com", "uid-ash");
+    await post(payment());
+    const again = await post(payment());
+    expect(again.status).toBe(200);
+    expect(await again.text()).toBe("Duplicate");
+    expect(google.read("tipTotals/2026-11")).toEqual({ amountPence: 500, count: 1 });
   });
 });
 
@@ -310,7 +333,7 @@ describe("review and matching", () => {
     const response = await post(payment({ amount: "0.99" }));
     expect(response.status).toBe(200);
     expect(google.read("entitlements/uid-ash")).toBeUndefined();
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
       status: "needs-review",
       months: 0,
       amountPence: 99,
@@ -325,7 +348,7 @@ describe("review and matching", () => {
     google.addUser("ash@example.com", "uid-ash");
     await post(payment({ currency: "USD", amount: "10.00" }));
     expect(google.read("entitlements/uid-ash")).toBeUndefined();
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
       status: "needs-review",
       currency: "USD",
       months: 0,
@@ -344,14 +367,14 @@ describe("review and matching", () => {
     google.addUser("ash@example.com", "uid-ash");
     await post(payment({ amount: "121.00" }));
     expect(google.read("entitlements/uid-ash")).toBeUndefined();
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
       status: "needs-review",
       months: 0,
       email: "ash@example.com",
     });
     expect(google.read("tipTotals/2026-11")).toEqual({ amountPence: 12100, count: 1 });
     await post(payment({ kofi_transaction_id: "txn-2", amount: "120.00" }));
-    expect(google.read("kofiPayments/txn-2")).toMatchObject({ status: "granted", months: 120 });
+    expect(google.read("kofiPayments/txn-2-msg-1")).toMatchObject({ status: "granted", months: 120 });
     expect(google.read("entitlements/uid-ash")?.expiresAt).toBe("2036-11-08T12:00:00.000Z");
   });
 
@@ -362,7 +385,7 @@ describe("review and matching", () => {
       google.addUser("ash@example.com", "uid-ash");
       await post(payment({ type }));
       expect(google.read("entitlements/uid-ash")).toBeUndefined();
-      expect(google.read("kofiPayments/txn-1")).toMatchObject({
+      expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
         status: "needs-review",
         type,
         months: 0,
@@ -375,7 +398,7 @@ describe("review and matching", () => {
     const { post, google } = setup();
     google.addUser("ash@example.com", "uid-ash");
     await post(payment({ type: "Subscription", amount: "3.00", is_subscription_payment: true }));
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({ status: "granted", months: 3 });
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ status: "granted", months: 3 });
   });
 
   it("prefers a code in the message over the email", async () => {
@@ -385,7 +408,7 @@ describe("review and matching", () => {
     await post(payment({ message: "Great work PD-ABC123" }));
     expect(google.read("entitlements/uidcode")).toMatchObject({ premium: true });
     expect(google.read("entitlements/uid-email")).toBeUndefined();
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
       uid: "uidcode",
       matchedBy: "code",
     });
@@ -395,7 +418,7 @@ describe("review and matching", () => {
     const { post, google } = setup();
     google.addUser("ash@example.com", "uid-email");
     await post(payment({ message: "PD-ZZZZZZ" }));
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
       uid: "uid-email",
       matchedBy: "email",
     });
@@ -414,14 +437,14 @@ describe("review and matching", () => {
     const { post, google } = setup();
     google.addUser("ash@example.com", "uid-ash");
     await post(payment({ email: "  Ash@Example.COM " }));
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({ uid: "uid-ash", matchedBy: "email" });
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ uid: "uid-ash", matchedBy: "email" });
   });
 
   it("skips the lookup for a blank email", async () => {
     const { post, google } = setup();
     await post(payment({ email: "   " }));
     expect(google.calls.filter((call) => call.url.includes("accounts:lookup"))).toHaveLength(0);
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({ status: "unmatched" });
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ status: "unmatched" });
   });
 
   it.each([
@@ -432,7 +455,7 @@ describe("review and matching", () => {
     google.addUser("ash@example.com", "uid-ash", flags);
     await post(payment());
     expect(google.read("entitlements/uid-ash")).toBeUndefined();
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
       status: "unmatched",
       email: "ash@example.com",
     });
@@ -443,7 +466,7 @@ describe("review and matching", () => {
     google.addUser("ash@example.com", "uid-one");
     google.addUser("ash@example.com", "uid-two");
     await post(payment());
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({ status: "unmatched" });
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ status: "unmatched" });
     expect(google.docPaths().some((path) => path.startsWith("entitlements/"))).toBe(false);
   });
 
@@ -451,7 +474,7 @@ describe("review and matching", () => {
     const { post, google } = setup();
     google.lookupMissAs400(true);
     expect((await post(payment())).status).toBe(200);
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
       status: "unmatched",
       email: "ash@example.com",
     });
@@ -461,7 +484,7 @@ describe("review and matching", () => {
     const { post, google } = setup();
     google.lookupMissAs400(true);
     expect((await post(payment({ email: "not an email" }))).status).toBe(200);
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({ status: "unmatched" });
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ status: "unmatched" });
   });
 
   it("returns 500 when the lookup fails with a server error", async () => {
@@ -494,7 +517,7 @@ describe("review and matching", () => {
       google.addUser("ash@example.com", "uid-email");
       google.seed("premiumCodes/PD-ABC123", { uid });
       await post(payment({ message: "PD-ABC123" }));
-      expect(google.read("kofiPayments/txn-1")).toMatchObject({
+      expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
         uid: "uid-email",
         matchedBy: "email",
       });
@@ -506,27 +529,27 @@ describe("review and matching", () => {
     const uid = "a1".repeat(64);
     google.seed("premiumCodes/PD-ABC123", { uid });
     await post(payment({ message: "PD-ABC123" }));
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({ uid, matchedBy: "code" });
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ uid, matchedBy: "code" });
   });
 
   it("ignores a code glued to other letters", async () => {
     const { post, google } = setup();
     google.seed("premiumCodes/PD-ABC123", { uid: "uidcode" });
     await post(payment({ message: "XPD-ABC123" }));
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({ status: "unmatched" });
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ status: "unmatched" });
   });
 
   it("records unmatched payments with the email kept and no entitlement", async () => {
     const { post, google } = setup();
     const response = await post(payment());
     expect(response.status).toBe(200);
-    expect(google.read("kofiPayments/txn-1")).toMatchObject({
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
       status: "unmatched",
       email: "ash@example.com",
       fromName: "Ash Ketchum",
       months: 5,
     });
-    expect(google.read("kofiPayments/txn-1")).not.toHaveProperty("uid");
+    expect(google.read("kofiPayments/txn-1-msg-1")).not.toHaveProperty("uid");
     expect(google.docPaths().some((path) => path.startsWith("entitlements/"))).toBe(false);
     expect(google.read("tipTotals/2026-11")).toEqual({ amountPence: 500, count: 1 });
   });
@@ -547,14 +570,14 @@ describe("idempotency and failures", () => {
     const before = JSON.stringify([
       google.read("entitlements/uid-ash"),
       google.read("tipTotals/2026-11"),
-      google.read("kofiPayments/txn-1"),
+      google.read("kofiPayments/txn-1-msg-1"),
     ]);
     const second = await post(payment());
     expect(second.status).toBe(200);
     const after = JSON.stringify([
       google.read("entitlements/uid-ash"),
       google.read("tipTotals/2026-11"),
-      google.read("kofiPayments/txn-1"),
+      google.read("kofiPayments/txn-1-msg-1"),
     ]);
     expect(after).toBe(before);
   });
@@ -694,7 +717,7 @@ describe("stored text and totals month", () => {
         timestamp: "t".repeat(100),
       }),
     );
-    const stored = google.read("kofiPayments/txn-1");
+    const stored = google.read("kofiPayments/txn-1-msg-1");
     expect(String(stored?.email)).toHaveLength(320);
     expect(String(stored?.fromName)).toHaveLength(200);
     expect(String(stored?.type)).toHaveLength(32);
@@ -704,7 +727,7 @@ describe("stored text and totals month", () => {
   it("keeps strings at the limit whole", async () => {
     const { post, google } = setup();
     await post(payment({ email: "e".repeat(320), from_name: "n".repeat(200) }));
-    const stored = google.read("kofiPayments/txn-1");
+    const stored = google.read("kofiPayments/txn-1-msg-1");
     expect(String(stored?.email)).toHaveLength(320);
     expect(String(stored?.fromName)).toHaveLength(200);
   });
@@ -712,7 +735,7 @@ describe("stored text and totals month", () => {
   it("does not split a surrogate pair when truncating", async () => {
     const { post, google } = setup();
     await post(payment({ from_name: "\u{1F600}".repeat(250) }));
-    const stored = String(google.read("kofiPayments/txn-1")?.fromName);
+    const stored = String(google.read("kofiPayments/txn-1-msg-1")?.fromName);
     expect(Array.from(stored)).toHaveLength(200);
     expect(() => encodeURIComponent(stored)).not.toThrow();
   });

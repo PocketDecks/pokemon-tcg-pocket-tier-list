@@ -22,12 +22,14 @@ export const planPremiumUpload = ({
   existing,
   keep = DEFAULT_KEEP_VERSIONS,
   maxBytes = DEFAULT_MAX_BYTES,
+  protectedVersions = [],
 }: {
   files: Record<string, string>;
   version: string;
   existing: readonly ExistingVersion[];
   keep?: number;
   maxBytes?: number;
+  protectedVersions?: readonly string[];
 }): PremiumUploadPlan => {
   const names = Object.keys(files).sort();
 
@@ -47,10 +49,12 @@ export const planPremiumUpload = ({
   const others = existing
     .filter((entry) => entry.version !== version)
     .sort((a, b) => b.createdAt - a.createdAt);
+  const protectedSet = new Set(protectedVersions);
   const deleteVersions = others
     .slice(Math.max(keep - 1, 0))
     .reverse()
-    .map((entry) => entry.version);
+    .map((entry) => entry.version)
+    .filter((candidate) => !protectedSet.has(candidate));
 
   return {
     artefactWrites,

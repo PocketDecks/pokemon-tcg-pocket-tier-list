@@ -151,3 +151,19 @@ describe("checkPremiumVersion version recompute", () => {
     expect(checkPremiumVersion(snapshot)).toEqual([]);
   });
 });
+
+describe("planPremiumUpload live-version protection", () => {
+  it("never deletes the version main already points at", () => {
+    const existing = [
+      ...versions(7),
+      { version: "live-not-newest", createdAt: 500 },
+    ].map((entry) => ({ ...entry }));
+    const plan = planPremiumUpload({
+      files: files(),
+      version: "new",
+      existing,
+      protectedVersions: ["live-not-newest"],
+    });
+    expect(plan.deleteVersions).not.toContain("live-not-newest");
+  });
+});

@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 
 import { applicationDefault, initializeApp } from "firebase-admin/app";
@@ -22,6 +23,21 @@ export interface PremiumDb {
   recursiveDelete(ref: unknown): Promise<void>;
 }
 
+export const readLiveVersion = (repoRoot: string): string | undefined => {
+  try {
+    const output = execFileSync(
+      "git",
+      ["show", "HEAD:public/data/data-version.json"],
+      { cwd: repoRoot, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }
+    );
+    const parsed: unknown = JSON.parse(output);
+    const value = (parsed as { premium?: unknown } | null)?.premium;
+    return typeof value === "string" && /^[0-9a-f]{16}$/.test(value) ? value : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 const adapt = (firestore: Firestore): PremiumDb => ({
   collection: (name) =>
     firestore.collection(name) as unknown as { get(): Promise<{ docs: { id: string; get(field: string): unknown }[] }> },
@@ -38,12 +54,14 @@ export const publishPremium = async (
     files: injectedFiles,
     version: injectedVersion,
     projectId: injectedProjectId,
+    liveVersion,
   }: {
     db: PremiumDb | null;
     dryRun: boolean;
     files?: Record<string, string>;
     version?: string;
     projectId?: string;
+    liveVersion?: string;
   },
   log: (line: string) => void = console.log
 ): Promise<void> => {
@@ -76,7 +94,12 @@ export const publishPremium = async (
     };
   });
 
-  const plan = planPremiumUpload({ files, version, existing });
+  const plan = planPremiumUpload({
+    files,
+    version,
+    existing,
+    protectedVersions: liveVersion ? [liveVersion] : [],
+  });
 
   for (const write of plan.artefactWrites) {
     await db.doc(write.path).set(write.data);
@@ -105,7 +128,8 @@ if (require.main === module) {
           initializeApp({ projectId, credential: applicationDefault() })
         )
       );
-  publishPremium({ db, dryRun }).catch((error) => {
+  const liveVersion = readLiveVersion(repoRoot);
+  publishPremium({ db, dryRun, liveVersion }).catch((error) => {
     console.error(error instanceof Error ? error.message : error);
     process.exit(1);
   });

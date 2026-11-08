@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "wrangler dev",
     "test": "vitest",
+    "test:ci": "vitest run",
     "typecheck": "tsc --noEmit",
     "deploy": "wrangler deploy"
   },

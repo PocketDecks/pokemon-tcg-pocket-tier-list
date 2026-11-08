@@ -58,7 +58,7 @@ describe("createTokenProvider", () => {
   const setup = () => {
     let clock = 1_800_000_000_000;
     let counter = 0;
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => {
+    const fetchMock = vi.fn<typeof fetch>(async () => {
       counter += 1;
       return new Response(
         JSON.stringify({
@@ -71,7 +71,7 @@ describe("createTokenProvider", () => {
     });
     const provider = createTokenProvider({
       serviceAccount: parseServiceAccount(serviceAccountJson(keys.privateKeyPem)),
-      fetch: fetchMock as unknown as typeof fetch,
+      fetch: fetchMock,
       now: () => clock,
     });
     return {

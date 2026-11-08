@@ -18,6 +18,9 @@ const base = {
   kofi_transaction_id: "txn-1",
 };
 
+const without = (...keys: string[]) =>
+  Object.fromEntries(Object.entries(base).filter(([key]) => !keys.includes(key)));
+
 const form = (value: unknown) => `data=${encodeURIComponent(JSON.stringify(value))}`;
 
 describe("parseKofiPayload", () => {
@@ -38,8 +41,7 @@ describe("parseKofiPayload", () => {
   });
 
   it("falls back to message_id when there is no transaction id", () => {
-    const { kofi_transaction_id: _omitted, ...rest } = base;
-    expect(parseKofiPayload(form(rest))?.id).toBe("msg-1");
+    expect(parseKofiPayload(form(without("kofi_transaction_id")))?.id).toBe("msg-1");
   });
 
   it("rejects a body without the data field", () => {
@@ -81,8 +83,7 @@ describe("parseKofiPayload", () => {
   });
 
   it("defaults optional text fields to empty strings", () => {
-    const { email: _email, message: _message, from_name: _name, ...rest } = base;
-    const parsed = parseKofiPayload(form(rest));
+    const parsed = parseKofiPayload(form(without("email", "message", "from_name")));
     expect(parsed).toMatchObject({ email: "", message: "", fromName: "" });
   });
 });

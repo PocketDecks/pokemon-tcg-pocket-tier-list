@@ -20,7 +20,9 @@ export default tseslint.config(
       "private/**",
       "coverage/**",
       "node_modules/**",
-      "workers/**",
+      "workers/kofi/node_modules/**",
+      "workers/kofi/.wrangler/**",
+      "workers/kofi/dist-dry/**",
     ],
   },
   js.configs.recommended,
@@ -49,6 +51,15 @@ export default tseslint.config(
     languageOptions: {
       globals: {
         ...globals.browser,
+        ...globals.node,
+      },
+    },
+  },
+  {
+    files: ["workers/kofi/**/*.ts"],
+    languageOptions: {
+      globals: {
+        ...globals.serviceworker,
         ...globals.node,
       },
     },

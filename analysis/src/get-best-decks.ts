@@ -1,4 +1,5 @@
 import "./load-env-side-effect";
+import fs from "node:fs";
 import getDecks from "./utils/get-decks";
 import { calculateCardScores } from "./utils/calculate-card-scores";
 import { buildTrends, pickTrendNames } from "./utils/build-trends";
@@ -20,14 +21,26 @@ import { STANDARD_SET_CODES } from "./utils/set-codes";
 import listings from "./data/limitless-decks.json";
 import { EXPANSION_RELEASE_DATE, scoringWeights, ScoringWeights } from "./settings";
 import { Deck } from "./utils/types";
+import {
+  PREMIUM_DIR,
+  PREMIUM_WINDOWS,
+  premiumFilePath,
+  premiumVersion,
+  renderDataVersion,
+  splitArtefactFiles,
+} from "./utils/premium-artefacts";
 import { writeArtefacts } from "./utils/write-artifacts";
 import { deckNameToIconIds } from "../../src/types/deck-name";
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
-const previousBestDecks = (window: WindowId): string =>
-  `../public/data/best-decks-${window}.json`;
-const previousMetaShare = (window: WindowId): string =>
-  `../public/data/meta-share-${window}.json`;
+const isPremiumWindow = (window: WindowId): boolean =>
+  (PREMIUM_WINDOWS as readonly string[]).includes(window);
+const previousArtefact = (base: string, window: WindowId): string =>
+  isPremiumWindow(window)
+    ? premiumFilePath(`${base}-${window}`, PREMIUM_DIR)
+    : `../public/data/${base}-${window}.json`;
+const previousBestDecks = (window: WindowId): string => previousArtefact("best-decks", window);
+const previousMetaShare = (window: WindowId): string => previousArtefact("meta-share", window);
 const listingStore = listings as DeckListingStore;
 const newestSet = STANDARD_SET_CODES[STANDARD_SET_CODES.length - 1];
 const slugOf = (name: string): string => name.toLowerCase().replace(/\s/g, "-");
@@ -144,8 +157,18 @@ export const run = async (): Promise<void> => {
       },
     });
 
+    const { publicFiles, premiumFiles } = splitArtefactFiles(buildArtefactFiles(artefacts));
+    fs.mkdirSync(PREMIUM_DIR, { recursive: true });
+
     writeArtefacts({
-      ...buildArtefactFiles(artefacts),
+      ...publicFiles,
+      ...Object.fromEntries(
+        Object.entries(premiumFiles).map(([name, content]) => [
+          premiumFilePath(name, PREMIUM_DIR),
+          content,
+        ])
+      ),
+      "../public/data/data-version.json": renderDataVersion(premiumVersion(premiumFiles)),
       "../public/data/historical-trends.json": JSON.stringify(trends, null, 2),
       "../public/data/card-scores.json": JSON.stringify(cardScoresList, null, 2),
       "../src/app/last-updated.ts": `export const LAST_UPDATED = new Date("${today.toISOString()}");`,

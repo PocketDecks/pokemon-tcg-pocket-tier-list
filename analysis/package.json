@@ -12,6 +12,9 @@
     "real-decks:generate": "ts-node scripts/generate-real-deck-lists.ts",
     "start": "ts-node src/get-best-decks.ts",
     "validate:refresh": "ts-node scripts/validate-refresh.ts",
+    "publish:premium": "ts-node scripts/publish-premium.ts",
+    "verify:premium": "ts-node scripts/verify-premium.ts",
+    "grant:premium": "ts-node scripts/grant-premium.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -23,6 +26,7 @@
   "dependencies": {
     "canvas": "^3.2.3",
     "dotenv": "^16.4.5",
+    "firebase-admin": "^14.5.0",
     "pokemon-tcg-pocket-cards": "^5.5.2"
   },
   "devDependencies": {

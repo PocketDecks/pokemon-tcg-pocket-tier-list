@@ -73,8 +73,8 @@ console.log(
   `union: ${report.union} deck names, ${report.images} OG images, ` +
     `${report.missingImages.length} missing, ${report.orphanImages.length} orphan`
 );
-if (previousDir === null) {
-  console.log("previous snapshot not compared; ratio floors skipped");
+if (report.notCompared.length > 0) {
+  console.log(`no previous publish for ${report.notCompared.join(", ")}; their thinner-than-last-time floors were skipped`);
 }
 
 if (report.failures.length) {

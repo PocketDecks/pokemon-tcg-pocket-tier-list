@@ -16,6 +16,7 @@ export interface WindowReport {
 
 export interface RefreshReport {
   windows: WindowReport[];
+  notCompared: RefreshWindow[];
   union: number;
   images: number;
   missingImages: string[];
@@ -104,6 +105,7 @@ export const validateRefresh = (
 
   return {
     windows,
+    notCompared: windows.filter((row) => row.previous === null).map((row) => row.window),
     union: union.size,
     images: images.length,
     missingImages,

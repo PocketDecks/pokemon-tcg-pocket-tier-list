@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import fs from "node:fs";
 import path from "node:path";
 
 import { freeDeckNames } from "../../../src/app/free-tier";
@@ -29,6 +30,18 @@ export const PREMIUM_ARTEFACT_NAMES: readonly string[] = [
 ];
 
 export const PREMIUM_DIR = path.resolve(__dirname, "../../out/premium");
+
+export const previousPremiumDir = (dir: string = PREMIUM_DIR): string =>
+  path.join(path.dirname(dir), "premium-previous");
+
+export const snapshotPremiumPrevious = (dir: string = PREMIUM_DIR): void => {
+  if (!fs.existsSync(dir)) return;
+  fs.mkdirSync(previousPremiumDir(dir), { recursive: true });
+  for (const file of fs.readdirSync(dir)) {
+    if (!file.endsWith(".json")) continue;
+    fs.copyFileSync(path.join(dir, file), path.join(previousPremiumDir(dir), file));
+  }
+};
 
 export const PUBLIC_DATA_PREFIX = "../public/data/";
 

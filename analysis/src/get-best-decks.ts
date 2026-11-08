@@ -15,7 +15,7 @@ import {
   WindowId,
 } from "./utils/build-window-artefacts";
 import { stageOgImages } from "./utils/generate-og-images";
-import { assertPublishable, daysOfDataSince, newestDeckDate, readPreviousArchetypeCount } from "./utils/assert-publishable";
+import { assertPublishable, daysOfDataSince, newestDeckDate, readPreviousArchetypeCount, windowsWithoutComparison } from "./utils/assert-publishable";
 import { DeckListingStore } from "./utils/deck-listing-store";
 import { STANDARD_SET_CODES } from "./utils/set-codes";
 import listings from "./data/limitless-decks.json";
@@ -26,7 +26,9 @@ import {
   PREMIUM_WINDOWS,
   premiumFilePath,
   premiumVersion,
+  previousPremiumDir,
   renderDataVersion,
+  snapshotPremiumPrevious,
   splitArtefactFiles,
 } from "./utils/premium-artefacts";
 import {
@@ -42,7 +44,7 @@ const isPremiumWindow = (window: WindowId): boolean =>
   (PREMIUM_WINDOWS as readonly string[]).includes(window);
 const previousArtefact = (base: string, window: WindowId): string =>
   isPremiumWindow(window)
-    ? premiumFilePath(`${base}-${window}`, PREMIUM_DIR)
+    ? premiumFilePath(`${base}-${window}`, previousPremiumDir())
     : `../public/data/${base}-${window}.json`;
 const previousBestDecks = (window: WindowId): string => previousArtefact("best-decks", window);
 const previousMetaShare = (window: WindowId): string => previousArtefact("meta-share", window);
@@ -66,6 +68,9 @@ const buildCardScores = (qualifiedDecks: Deck[], weights: ScoringWeights) => {
 };
 
 export const run = async (): Promise<void> => {
+  // Keep the previous premium files aside before this run overwrites them,
+  // so the publish check can compare premium windows with what users had.
+  snapshotPremiumPrevious();
   const allDecks = getDecks();
   const today = new Date();
 
@@ -137,16 +142,23 @@ export const run = async (): Promise<void> => {
   );
 
   try {
+    const windowSnapshots = WINDOW_IDS.map((window) => ({
+      id: window,
+      bestDecks: artefacts[window].bestDecks,
+      previousArchetypeCount: readPreviousArchetypeCount(
+        previousBestDecks(window),
+        previousMetaShare(window),
+        EXPANSION_RELEASE_DATE
+      ),
+    }));
+    const uncompared = windowsWithoutComparison(windowSnapshots);
+    if (uncompared.length > 0) {
+      console.log(
+        `No previous publish for ${uncompared.join(", ")}, so their thinner-than-last-time floors were skipped`
+      );
+    }
     assertPublishable({
-      windows: WINDOW_IDS.map((window) => ({
-        id: window,
-        bestDecks: artefacts[window].bestDecks,
-        previousArchetypeCount: readPreviousArchetypeCount(
-          previousBestDecks(window),
-          previousMetaShare(window),
-          EXPANSION_RELEASE_DATE
-        ),
-      })),
+      windows: windowSnapshots,
       defaultWindow: DEFAULT_WINDOW,
       deckSlugs: [...ogSlugs].map(slugOf),
       newestDeckDate: newestDeckDate(allQualified),

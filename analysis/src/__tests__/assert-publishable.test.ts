@@ -347,3 +347,21 @@ describe("daysOfDataSince", () => {
     expect(daysOfDataSince(null, release)).toBe(0);
   });
 });
+
+import { windowsWithoutComparison } from "../utils/assert-publishable";
+
+describe("windowsWithoutComparison", () => {
+  it("names every window whose previous count is missing", () => {
+    expect(
+      windowsWithoutComparison([
+        snapshot("20d", 49, 40, 48),
+        snapshot("30d", 60, 50, null),
+        snapshot("all", 60, 50, null),
+      ])
+    ).toEqual(["30d", "all"]);
+  });
+
+  it("stays empty when every window has a previous count", () => {
+    expect(windowsWithoutComparison([snapshot("20d", 49, 40, 48)])).toEqual([]);
+  });
+});

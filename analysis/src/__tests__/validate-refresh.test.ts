@@ -254,3 +254,32 @@ describe("validateRefresh", () => {
     expect(() => validateRefresh(data, images, null, premium)).toThrow(/best-decks-30d\.json/);
   });
 });
+
+describe("notCompared", () => {
+  it("names the windows that had no previous snapshot", () => {
+    const data = tmp();
+    const images = tmp();
+    const premium = tmp();
+    const names = writeWindows(data, { "10d": 1, "20d": 1, "30d": 1, all: 1 }, {}, premium);
+    for (const name of names) {
+      fs.writeFileSync(path.join(images, `${name}.png`), "");
+    }
+    const report = validateRefresh(data, images, null, premium);
+    expect(report.notCompared).toEqual(["10d", "20d", "30d", "all"]);
+  });
+
+  it("stays empty when every window has a previous snapshot", () => {
+    const data = tmp();
+    const images = tmp();
+    const premium = tmp();
+    const previous = tmp();
+    const counts = { "10d": 1, "20d": 1, "30d": 1, all: 1 } as const;
+    const names = writeWindows(data, counts, {}, premium);
+    writeWindows(previous, counts, {}, previous);
+    for (const name of names) {
+      fs.writeFileSync(path.join(images, `${name}.png`), "");
+    }
+    const report = validateRefresh(data, images, previous, previous);
+    expect(report.notCompared).toEqual([]);
+  });
+});

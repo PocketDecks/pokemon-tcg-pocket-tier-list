@@ -22,6 +22,9 @@ export interface WindowSnapshot {
   previousArchetypeCount: number | null;
 }
 
+export const windowsWithoutComparison = (windows: readonly WindowSnapshot[]): string[] =>
+  windows.filter((window) => window.previousArchetypeCount === null).map((window) => window.id);
+
 export interface UnmatchedDeckSnapshot {
   decks: number;
   games: number;

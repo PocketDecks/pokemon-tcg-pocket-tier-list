@@ -237,3 +237,25 @@ describe("renderDataVersion", () => {
     expect(renderDataVersion("0123456789abcdef")).toBe('{ "premium": "0123456789abcdef" }\n');
   });
 });
+
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { previousPremiumDir, snapshotPremiumPrevious } from "../utils/premium-artefacts";
+
+describe("snapshotPremiumPrevious", () => {
+  it("copies the premium files aside so the next run can compare with them", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "premium-previous-"));
+    const premium = path.join(dir, "premium");
+    fs.mkdirSync(premium);
+    fs.writeFileSync(path.join(premium, "best-decks-30d.json"), "[1]");
+    snapshotPremiumPrevious(premium);
+    const previous = previousPremiumDir(premium);
+    expect(fs.readFileSync(path.join(previous, "best-decks-30d.json"), "utf8")).toBe("[1]");
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("copies nothing when the premium directory does not exist", () => {
+    snapshotPremiumPrevious(path.join(os.tmpdir(), "premium-missing-12345"));
+  });
+});

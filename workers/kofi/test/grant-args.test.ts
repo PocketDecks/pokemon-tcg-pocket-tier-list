@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_URL, parseGrantArgs, UsageError } from "../scripts/grant-args";
+import { resolve } from "node:path";
+import { DEFAULT_URL, parseGrantArgs, resolveUserPath, UsageError } from "../scripts/grant-args";
 
 const base = ["--payment", "txn-1-msg-1", "--uid", "uid123", "--key", "key.json"];
 const remote = ["--payment", "p1", "--uid", "u1", "--token-file", "t.txt"];
@@ -103,5 +104,22 @@ describe("parseGrantArgs", () => {
 
   it("rejects --url in key mode", () => {
     expect(() => parseGrantArgs([...base, "--url", "https://example.test"])).toThrow(UsageError);
+  });
+});
+
+describe("resolveUserPath", () => {
+  it("resolves a relative path from the folder yarn was started in", () => {
+    expect(resolveUserPath("private/token", { INIT_CWD: "/repo" }, "/repo/workers/kofi")).toBe(
+      resolve("/repo", "private/token"),
+    );
+  });
+
+  it("falls back to the current folder without INIT_CWD", () => {
+    expect(resolveUserPath("token", {}, "/somewhere")).toBe(resolve("/somewhere", "token"));
+  });
+
+  it("keeps an absolute path as it is", () => {
+    const absolute = resolve("/keys/token");
+    expect(resolveUserPath(absolute, { INIT_CWD: "/repo" }, "/x")).toBe(absolute);
   });
 });

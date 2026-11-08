@@ -8,13 +8,13 @@ import {
   resolveGrantUid,
   type ManualGrantOutcome,
 } from "../src/manual-grant";
-import { parseGrantArgs, USAGE, UsageError } from "./grant-args";
+import { parseGrantArgs, resolveUserPath, USAGE, UsageError } from "./grant-args";
 import { RemoteGrantError, runRemoteGrant } from "./grant-remote";
 
 const loadServiceAccount = async (path: string): Promise<ServiceAccount> => {
   let text: string;
   try {
-    text = await readFile(path, "utf8");
+    text = await readFile(resolveUserPath(path, process.env, process.cwd()), "utf8");
   } catch {
     throw new UsageError("The key file could not be read");
   }
@@ -28,7 +28,7 @@ const loadServiceAccount = async (path: string): Promise<ServiceAccount> => {
 const loadToken = async (path: string): Promise<string> => {
   let text: string;
   try {
-    text = await readFile(path, "utf8");
+    text = await readFile(resolveUserPath(path, process.env, process.cwd()), "utf8");
   } catch {
     throw new UsageError("The token file could not be read");
   }

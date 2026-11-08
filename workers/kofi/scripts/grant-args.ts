@@ -1,6 +1,13 @@
+import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 
 export class UsageError extends Error {}
+
+export const resolveUserPath = (
+  path: string,
+  env: Record<string, string | undefined>,
+  cwd: string,
+): string => resolve(env.INIT_CWD ?? cwd, path);
 
 export const DEFAULT_URL = "https://pocketdecks-kofi.pocketdecks.workers.dev";
 

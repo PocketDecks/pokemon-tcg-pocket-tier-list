@@ -5,6 +5,7 @@ import {
   type DocumentWrite,
   type FieldValue,
   type FirestoreClient,
+  UpstreamError,
 } from "./firestore";
 import { createTokenProvider, parseServiceAccount } from "./google-auth";
 import { monthKey, monthsForPayment } from "./months";
@@ -65,13 +66,17 @@ const readBody = async (request: Request): Promise<string | null> => {
 const reply = (status: number, body: string): Response =>
   new Response(body, { status, headers: { "content-type": "text/plain; charset=utf-8" } });
 
+const EXPIRED_MS = 0;
+
+const expiryOf = (value: unknown): number | null => {
+  if (value === undefined || value === null) return null;
+  if (value instanceof Date && !Number.isNaN(value.getTime())) return value.getTime();
+  return EXPIRED_MS;
+};
+
 const toEntitlement = (document: Record<string, unknown> | null): ExistingEntitlement | null => {
   if (!document) return null;
-  const expiresAt = document.expiresAt;
-  return {
-    premium: document.premium === true,
-    expiresAtMs: expiresAt instanceof Date ? expiresAt.getTime() : null,
-  };
+  return { premium: document.premium === true, expiresAtMs: expiryOf(document.expiresAt) };
 };
 
 const findMatch = async (client: FirestoreClient, payment: KofiPayment): Promise<Match | null> => {
@@ -79,7 +84,9 @@ const findMatch = async (client: FirestoreClient, payment: KofiPayment): Promise
   if (code) {
     const document = await client.getDocument(`premiumCodes/${code}`);
     if (document && typeof document.uid === "string" && SAFE_UID.test(document.uid)) {
-      return { uid: document.uid, matchedBy: "code" };
+      if (await client.hasActiveAccount(document.uid)) {
+        return { uid: document.uid, matchedBy: "code" };
+      }
     }
   }
   const email = payment.email.trim().toLowerCase();
@@ -221,8 +228,10 @@ export const createReceiver = (deps: ReceiverDeps) => {
         `kofi payment ${payment.id} ${outcome.duplicate ? "duplicate" : outcome.status}`,
       );
       return reply(200, outcome.duplicate ? "Duplicate" : "OK");
-    } catch {
-      console.error(`kofi payment ${payment.id} failed`);
+    } catch (error) {
+      const cause =
+        error instanceof UpstreamError ? error.message : error instanceof Error ? error.name : "unknown";
+      console.error(`kofi payment ${payment.id} failed: ${cause}`);
       return reply(500, "Upstream failure");
     }
   };

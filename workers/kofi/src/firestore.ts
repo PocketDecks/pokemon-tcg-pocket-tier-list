@@ -15,6 +15,7 @@ export interface FirestoreClient {
   commit(writes: DocumentWrite[], transaction?: string): Promise<CommitResult>;
   rollback(transaction: string): Promise<void>;
   lookupUidByEmail(email: string): Promise<string | null>;
+  hasActiveAccount(uid: string): Promise<boolean>;
 }
 
 const encodeValue = (value: FieldValue): Record<string, unknown> => {
@@ -28,12 +29,15 @@ const encodeValue = (value: FieldValue): Record<string, unknown> => {
 const encodeFields = (fields: Record<string, FieldValue>) =>
   Object.fromEntries(Object.entries(fields).map(([key, value]) => [key, encodeValue(value)]));
 
+export const UNSUPPORTED_VALUE = Symbol("unsupported");
+
 const decodeValue = (value: Record<string, unknown>): unknown => {
+  if ("nullValue" in value) return null;
   if (typeof value.stringValue === "string") return value.stringValue;
   if (typeof value.booleanValue === "boolean") return value.booleanValue;
   if (typeof value.integerValue === "string") return Number(value.integerValue);
   if (typeof value.timestampValue === "string") return new Date(value.timestampValue);
-  return null;
+  return UNSUPPORTED_VALUE;
 };
 
 const decodeFields = (fields: Record<string, Record<string, unknown>> | undefined) =>
@@ -149,6 +153,18 @@ export const createFirestoreClient = (options: {
       const [user] = body.users;
       if (user.emailVerified !== true || user.disabled === true) return null;
       return typeof user.localId === "string" ? user.localId : null;
+    },
+
+    async hasActiveAccount(uid) {
+      const response = await send(
+        `https://identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts:lookup`,
+        { method: "POST", body: JSON.stringify({ localId: [uid] }) },
+      );
+      if (response.status === 400) return false;
+      if (!response.ok) throw new UpstreamError(`accounts:lookup failed: ${response.status}`);
+      const body = (await response.json()) as { users?: { disabled?: unknown }[] };
+      if (body.users?.length !== 1) return false;
+      return body.users[0].disabled !== true;
     },
   };
 };

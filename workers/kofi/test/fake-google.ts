@@ -61,13 +61,24 @@ export interface FakeGoogleOptions {
   publicKey: CryptoKey;
   projectId?: string;
   tokenUri?: string;
+  now?: () => number;
+  tokenLifetimeSeconds?: number;
 }
 
+const MAX_CLOCK_SKEW_SECONDS = 300;
+const MAX_ASSERTION_LIFETIME_SECONDS = 3600;
+
 export const createFakeGoogle = (options: FakeGoogleOptions) => {
-  const { publicKey, projectId = "demo-project", tokenUri = TOKEN_URI } = options;
+  const {
+    publicKey,
+    projectId = "demo-project",
+    tokenUri = TOKEN_URI,
+    now = Date.now,
+    tokenLifetimeSeconds = 3600,
+  } = options;
   const docs = new Map<string, StoredDocument>();
   const users = new Map<string, TestUser[]>();
-  const issuedTokens = new Set<string>();
+  const issuedTokens = new Map<string, number>();
   const transactions = new Map<string, Map<string, number>>();
   const calls: RecordedCall[] = [];
   const commitWrites: Record<string, unknown>[][] = [];
@@ -113,6 +124,10 @@ export const createFakeGoogle = (options: FakeGoogleOptions) => {
       );
       if (!verified) return invalid();
       if (claims.aud !== tokenUri) return invalid();
+      const { iat, exp } = claims;
+      if (typeof iat !== "number" || typeof exp !== "number") return invalid();
+      if (Math.abs(iat - now() / 1000) > MAX_CLOCK_SKEW_SECONDS) return invalid();
+      if (exp - iat > MAX_ASSERTION_LIFETIME_SECONDS || exp <= iat) return invalid();
       const scopes = String(claims.scope ?? "").split(" ");
       if (!REQUIRED_SCOPES.every((scope) => scopes.includes(scope))) return invalid();
     } catch {
@@ -120,8 +135,12 @@ export const createFakeGoogle = (options: FakeGoogleOptions) => {
     }
     tokenCounter += 1;
     const token = `access-${tokenCounter}`;
-    issuedTokens.add(token);
-    return json(200, { access_token: token, expires_in: 3600, token_type: "Bearer" });
+    issuedTokens.set(token, now() + tokenLifetimeSeconds * 1000);
+    return json(200, {
+      access_token: token,
+      expires_in: tokenLifetimeSeconds,
+      token_type: "Bearer",
+    });
   };
 
   const commit = (body: { writes: Record<string, unknown>[]; transaction?: string }): Response => {
@@ -191,8 +210,11 @@ export const createFakeGoogle = (options: FakeGoogleOptions) => {
     return json(200, { name: `${docRoot}/${path}`, fields: stored.fields });
   };
 
-  const lookup = (body: { email?: string[] }): Response => {
-    const matches = users.get(String(body.email?.[0] ?? "")) ?? [];
+  const lookup = (body: { email?: string[]; localId?: string[] }): Response => {
+    const matches =
+      body.localId !== undefined
+        ? [...users.values()].flat().filter((user) => user.uid === String(body.localId?.[0] ?? ""))
+        : (users.get(String(body.email?.[0] ?? "")) ?? []);
     if (matches.length === 0) {
       return state.lookupMissAs400 ? failure(400, "USER_NOT_FOUND") : json(200, {});
     }
@@ -217,9 +239,14 @@ export const createFakeGoogle = (options: FakeGoogleOptions) => {
 
     const authorization = headers.get("authorization") ?? "";
     const bearer = authorization.startsWith("Bearer ") ? authorization.slice("Bearer ".length) : "";
-    if (!issuedTokens.has(bearer)) return failure(401, "UNAUTHENTICATED");
+    const tokenExpiry = issuedTokens.get(bearer);
+    if (tokenExpiry === undefined || now() >= tokenExpiry) {
+      return failure(401, "UNAUTHENTICATED");
+    }
 
-    if (url === lookupUrl && method === "POST") return lookup(body as { email?: string[] });
+    if (url === lookupUrl && method === "POST") {
+      return lookup(body as { email?: string[]; localId?: string[] });
+    }
 
     if (url === `${fsBase}:beginTransaction` && method === "POST") {
       transactionCounter += 1;
@@ -230,10 +257,10 @@ export const createFakeGoogle = (options: FakeGoogleOptions) => {
 
     if (url === `${fsBase}:rollback` && method === "POST") {
       const id = (body as { transaction?: string }).transaction ?? "";
+      rollbacks.push(id);
       if (state.rollback) return json(state.rollback.status, state.rollback.body);
       if (!transactions.has(id)) return failure(400, "INVALID_ARGUMENT");
       transactions.delete(id);
-      rollbacks.push(id);
       return json(200, {});
     }
 
@@ -253,6 +280,8 @@ export const createFakeGoogle = (options: FakeGoogleOptions) => {
       else if (typeof value === "boolean") fields[key] = { booleanValue: value };
       else if (typeof value === "number") fields[key] = { integerValue: String(value) };
       else if (value instanceof Date) fields[key] = { timestampValue: value.toISOString() };
+      else if (value === null) fields[key] = { nullValue: null };
+      else if (typeof value === "object") fields[key] = value as Record<string, unknown>;
     }
     store(path, fields);
   };

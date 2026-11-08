@@ -33,12 +33,16 @@ const payment = (overrides: Record<string, unknown> = {}) => ({
 });
 
 const setup = (now: Date = NOW) => {
-  const google = createFakeGoogle({ publicKey: keys.publicKey });
+  let current = now.getTime();
+  const google = createFakeGoogle({ publicKey: keys.publicKey, now: () => current });
   const fetchSpy = vi.fn(google.fetch);
   const receive = createReceiver({
     fetch: fetchSpy as unknown as typeof fetch,
-    now: () => now,
+    now: () => new Date(current),
   });
+  const advance = (milliseconds: number) => {
+    current += milliseconds;
+  };
   const env = { KOFI_VERIFICATION_TOKEN: TOKEN, FIREBASE_SERVICE_ACCOUNT: serviceAccount };
   const post = (data: unknown, path = "/kofi") =>
     receive(
@@ -49,7 +53,7 @@ const setup = (now: Date = NOW) => {
       }),
       env,
     );
-  return { google, fetchSpy, receive, env, post };
+  return { google, fetchSpy, receive, env, post, advance };
 };
 
 describe("routing", () => {
@@ -63,6 +67,12 @@ describe("routing", () => {
   it("returns 404 for a POST to another path", async () => {
     const { post, fetchSpy } = setup();
     expect((await post(payment(), "/other")).status).toBe(404);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it.each(["/kofi-extra", "/kofi/extra", "/kofi/"])("returns 404 for %s", async (path) => {
+    const { post, fetchSpy } = setup();
+    expect((await post(payment(), path)).status).toBe(404);
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 });
@@ -122,6 +132,22 @@ describe("authentication and validation", () => {
     );
     expect(response.status).toBe(413);
     expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("accepts a declared content-length of exactly the limit", async () => {
+    const { receive, env } = setup();
+    const response = await receive(
+      new Request("https://worker.example/kofi", {
+        method: "POST",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded",
+          "content-length": "16384",
+        },
+        body: `data=${encodeURIComponent(JSON.stringify(payment()))}`,
+      }),
+      env,
+    );
+    expect(response.status).toBe(200);
   });
 
   it("accepts a body at exactly the limit", async () => {
@@ -246,6 +272,34 @@ describe("granting Premium", () => {
       uid: "uid-ash",
     });
     expect(google.read("tipTotals/2026-11")).toEqual({ amountPence: 500, count: 1 });
+  });
+
+  it.each([
+    ["missing", undefined],
+    ["an explicit null", null],
+  ])("treats an expiry that is %s as a lifetime grant", async (_label, expiresAt) => {
+    const { post, google } = setup();
+    google.addUser("ash@example.com", "uid-ash");
+    google.seed("entitlements/uid-ash", { premium: true, source: "manual", expiresAt });
+    await post(payment());
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ status: "already-lifetime" });
+    expect(google.read("entitlements/uid-ash")?.source).toBe("manual");
+  });
+
+  it.each([
+    ["an integer", { integerValue: "4102444800000" }],
+    ["a string", { stringValue: "2099-01-01T00:00:00Z" }],
+    ["a double", { doubleValue: 4102444800000 }],
+  ])("treats an expiry stored as %s as already expired", async (_label, expiresAt) => {
+    const { post, google } = setup();
+    google.addUser("ash@example.com", "uid-ash");
+    google.seed("entitlements/uid-ash", { premium: true, source: "manual", expiresAt });
+    await post(payment({ amount: "1.00" }));
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ status: "granted" });
+    expect(google.read("entitlements/uid-ash")).toMatchObject({
+      source: "kofi",
+      expiresAt: "2026-12-08T12:00:00.000Z",
+    });
   });
 
   it("clamps a month-end expiry when stacking", async () => {
@@ -404,6 +458,7 @@ describe("review and matching", () => {
   it("prefers a code in the message over the email", async () => {
     const { post, google } = setup();
     google.addUser("ash@example.com", "uid-email");
+    google.addUser("code@example.com", "uidcode", { emailVerified: false });
     google.seed("premiumCodes/PD-ABC123", { uid: "uidcode" });
     await post(payment({ message: "Great work PD-ABC123" }));
     expect(google.read("entitlements/uidcode")).toMatchObject({ premium: true });
@@ -412,6 +467,75 @@ describe("review and matching", () => {
       uid: "uidcode",
       matchedBy: "code",
     });
+  });
+
+  it("looks a code's account up by its uid", async () => {
+    const { post, google } = setup();
+    google.addUser("code@example.com", "uidcode");
+    google.seed("premiumCodes/PD-ABC123", { uid: "uidcode" });
+    await post(payment({ message: "PD-ABC123" }));
+    const lookups = google.calls.filter((call) => call.url.includes("accounts:lookup"));
+    expect(lookups.map((call) => call.body)).toEqual([{ localId: ["uidcode"] }]);
+  });
+
+  it.each([
+    ["has no account", () => undefined],
+    [
+      "is disabled",
+      (google: ReturnType<typeof createFakeGoogle>) =>
+        google.addUser("code@example.com", "uidcode", { disabled: true }),
+    ],
+    [
+      "belongs to two accounts",
+      (google: ReturnType<typeof createFakeGoogle>) => {
+        google.addUser("code@example.com", "uidcode");
+        google.addUser("other@example.com", "uidcode");
+      },
+    ],
+  ])("falls back to the email when the code's uid %s", async (_label, arrange) => {
+    const { post, google } = setup();
+    google.addUser("ash@example.com", "uid-email");
+    arrange(google);
+    google.seed("premiumCodes/PD-ABC123", { uid: "uidcode" });
+    await post(payment({ message: "PD-ABC123" }));
+    expect(google.read("entitlements/uidcode")).toBeUndefined();
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
+      uid: "uid-email",
+      matchedBy: "email",
+    });
+  });
+
+  it("falls back to the email when the uid lookup answers 400", async () => {
+    const { post, google } = setup();
+    google.addUser("ash@example.com", "uid-email");
+    google.lookupMissAs400(true);
+    google.seed("premiumCodes/PD-ABC123", { uid: "uidcode" });
+    await post(payment({ message: "PD-ABC123" }));
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ matchedBy: "email" });
+  });
+
+  it("returns 500 when the uid lookup fails with a server error", async () => {
+    const { google } = setup();
+    google.addUser("code@example.com", "uidcode");
+    google.seed("premiumCodes/PD-ABC123", { uid: "uidcode" });
+    const original = google.fetch;
+    const failing = createReceiver({
+      fetch: (async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+        if (url.includes("accounts:lookup")) return new Response("{}", { status: 503 });
+        return original(input, init);
+      }) as typeof fetch,
+      now: () => NOW,
+    });
+    const response = await failing(
+      new Request("https://worker.example/kofi", {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        body: `data=${encodeURIComponent(JSON.stringify(payment({ message: "PD-ABC123" })))}`,
+      }),
+      { KOFI_VERIFICATION_TOKEN: TOKEN, FIREBASE_SERVICE_ACCOUNT: serviceAccount },
+    );
+    expect(response.status).toBe(500);
   });
 
   it("falls back to the email when the code is unknown", async () => {
@@ -521,15 +645,26 @@ describe("review and matching", () => {
         uid: "uid-email",
         matchedBy: "email",
       });
+      const lookups = google.calls.filter((call) => call.url.includes("accounts:lookup"));
+      expect(lookups.map((call) => call.body)).toEqual([{ email: ["ash@example.com"] }]);
     },
   );
 
   it("accepts a 128 character alphanumeric code uid", async () => {
     const { post, google } = setup();
     const uid = "a1".repeat(64);
+    google.addUser("code@example.com", uid);
     google.seed("premiumCodes/PD-ABC123", { uid });
     await post(payment({ message: "PD-ABC123" }));
     expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ uid, matchedBy: "code" });
+  });
+
+  it("does not match a lower-case code", async () => {
+    const { post, google } = setup();
+    google.seed("premiumCodes/PD-ABC123", { uid: "uidcode" });
+    await post(payment({ message: "pd-abc123" }));
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ status: "unmatched" });
+    expect(google.calls.some((call) => call.url.includes("premiumCodes"))).toBe(false);
   });
 
   it("ignores a code glued to other letters", async () => {
@@ -614,6 +749,7 @@ describe("idempotency and failures", () => {
     google.failCommits(500);
     expect((await post(payment())).status).toBe(500);
     expect(google.rollbacks).toHaveLength(1);
+    expect(google.calls.filter((call) => call.url.endsWith(":rollback"))).toHaveLength(1);
     expect(google.openTransactions()).toBe(0);
   });
 
@@ -639,6 +775,7 @@ describe("idempotency and failures", () => {
     expect((await post(payment())).status).toBe(200);
     expect((await post(payment())).status).toBe(200);
     expect(google.rollbacks).toHaveLength(0);
+    expect(google.calls.filter((call) => call.url.endsWith(":rollback"))).toHaveLength(0);
     expect(google.openTransactions()).toBe(0);
   });
 
@@ -695,6 +832,57 @@ describe("idempotency and failures", () => {
       expect(text).not.toContain("ash@example.com");
       expect(text).not.toContain(env.FIREBASE_SERVICE_ACCOUNT.slice(20, 60));
     }
+  });
+
+  it("refreshes the Google access token once it has expired", async () => {
+    const { post, google, advance } = setup();
+    google.addUser("ash@example.com", "uid-ash");
+    expect((await post(payment())).status).toBe(200);
+    advance(3600 * 1000 + 1000);
+    const mark = google.calls.length;
+    const response = await post(payment({ kofi_transaction_id: "txn-2" }));
+    expect(response.status).toBe(200);
+    const later = google.calls.slice(mark);
+    expect(later[0].url).toBe("https://oauth2.googleapis.com/token");
+    for (const call of later.slice(1)) expect(call.authorization).toBe("Bearer access-2");
+  });
+
+  it("logs the payment id and the cause of an upstream failure", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const { post, google } = setup();
+    google.addUser("ash@example.com", "uid-ash");
+    google.failCommits(500);
+    expect((await post(payment())).status).toBe(500);
+    const logged = error.mock.calls.flat().join(" ");
+    error.mockRestore();
+    expect(logged).toContain("txn-1-msg-1");
+    expect(logged).toContain("commit failed: 500");
+  });
+
+  it("logs no part of a malformed service account secret", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const { receive } = setup();
+    const secret =
+      '{"private_key":"MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7" "client_email":"x"}';
+    const response = await receive(
+      new Request("https://worker.example/kofi", {
+        method: "POST",
+        body: `data=${encodeURIComponent(JSON.stringify(payment()))}`,
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+      }),
+      { KOFI_VERIFICATION_TOKEN: TOKEN, FIREBASE_SERVICE_ACCOUNT: secret },
+    );
+    const logged = [...error.mock.calls, ...log.mock.calls, ...warn.mock.calls].flat().join(" ");
+    error.mockRestore();
+    log.mockRestore();
+    warn.mockRestore();
+    expect(response.status).toBe(500);
+    expect(logged).toContain("txn-1-msg-1");
+    expect(logged).toContain("SyntaxError");
+    expect(logged).not.toContain("MIIEvQIBADAN");
+    expect(logged).not.toContain("client_email");
   });
 
   it("reuses one Google access token across requests", async () => {

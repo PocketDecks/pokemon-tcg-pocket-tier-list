@@ -36,10 +36,21 @@ export const previousPremiumDir = (dir: string = PREMIUM_DIR): string =>
 
 export const snapshotPremiumPrevious = (dir: string = PREMIUM_DIR): void => {
   if (!fs.existsSync(dir)) return;
-  fs.mkdirSync(previousPremiumDir(dir), { recursive: true });
+  const previous = previousPremiumDir(dir);
+  fs.mkdirSync(previous, { recursive: true });
   for (const file of fs.readdirSync(dir)) {
     if (!file.endsWith(".json")) continue;
-    fs.copyFileSync(path.join(dir, file), path.join(previousPremiumDir(dir), file));
+    const source = path.join(dir, file);
+    const contents = fs.readFileSync(source, "utf8");
+    try {
+      const parsed: unknown = JSON.parse(contents);
+      if (!Array.isArray(parsed)) continue;
+    } catch {
+      continue;
+    }
+    const temporary = path.join(previous, `${file}.snapshot-tmp-${process.pid}`);
+    fs.writeFileSync(temporary, contents);
+    fs.renameSync(temporary, path.join(previous, file));
   }
 };
 

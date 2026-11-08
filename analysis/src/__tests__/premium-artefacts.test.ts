@@ -258,3 +258,22 @@ describe("snapshotPremiumPrevious", () => {
     snapshotPremiumPrevious(path.join(os.tmpdir(), "premium-missing-12345"));
   });
 });
+
+describe("snapshotPremiumPrevious truncation guard", () => {
+  it("skips files that do not parse as JSON arrays", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "premium-truncated-"));
+    const premium = path.join(dir, "premium");
+    fs.mkdirSync(premium);
+    fs.writeFileSync(path.join(premium, "good.json"), "[1]");
+    fs.writeFileSync(path.join(premium, "truncated.json"), "[1,2");
+    fs.writeFileSync(path.join(premium, "object.json"), "{}");
+    snapshotPremiumPrevious(premium);
+    const previous = previousPremiumDir(premium);
+    expect(fs.existsSync(path.join(previous, "good.json"))).toBe(true);
+    expect(fs.existsSync(path.join(previous, "truncated.json"))).toBe(false);
+    expect(fs.existsSync(path.join(previous, "object.json"))).toBe(false);
+    const leftovers = fs.readdirSync(previous).filter((name) => name.includes("tmp"));
+    expect(leftovers).toEqual([]);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+});

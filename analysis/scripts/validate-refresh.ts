@@ -31,22 +31,33 @@ const readPrevious = (): string | null => {
   if (explicit) return explicit;
   if (args.includes("--no-previous")) return null;
 
+  const previousPremiumDir = path.join(
+    path.dirname(premiumDir),
+    "premium-previous"
+  );
+
   const ref = flag("--previous-ref") ?? "origin/main";
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "refresh-previous-"));
   for (const window of REFRESH_WINDOWS) {
     const file = `public/data/best-decks-${window}.json`;
-    let contents: string;
-    try {
-      contents = execFileSync("git", ["show", `${ref}:${file}`], {
-        cwd: repoRoot,
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "pipe"],
-      });
-    } catch {
-      if ((PREMIUM_WINDOWS as readonly string[]).includes(window)) continue;
-      throw new Error(
-        `cannot read ${ref}:${file}; fetch ${ref} or pass --previous <dir> or --no-previous`
-      );
+    let contents: string | undefined;
+    if ((PREMIUM_WINDOWS as readonly string[]).includes(window)) {
+      const local = path.join(previousPremiumDir, `best-decks-${window}.json`);
+      if (fs.existsSync(local)) contents = fs.readFileSync(local, "utf8");
+    }
+    if (contents === undefined) {
+      try {
+        contents = execFileSync("git", ["show", `${ref}:${file}`], {
+          cwd: repoRoot,
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "pipe"],
+        });
+      } catch {
+        if ((PREMIUM_WINDOWS as readonly string[]).includes(window)) continue;
+        throw new Error(
+          `cannot read ${ref}:${file}; fetch ${ref} or pass --previous <dir> or --no-previous`
+        );
+      }
     }
     fs.writeFileSync(path.join(dir, `best-decks-${window}.json`), contents);
   }

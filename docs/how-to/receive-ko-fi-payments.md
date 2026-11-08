@@ -153,13 +153,19 @@ did not grant, so a code or account email written there is still to hand.
 To grant Premium for an `unmatched` payment:
 
 1. Find the user's uid under Firebase Authentication
-2. Open `entitlements/{uid}`. If it has `premium: true` and no `expiresAt`,
+2. Claim the payment first. Check its `status` still reads `unmatched`,
+   then set it to `granting` and add `uid` and `matchedBy: "manual"`. A
+   payment that already reads `granting` or `granted` belongs to someone
+   else's grant, so leave it
+3. Open `entitlements/{uid}`. If it has `premium: true` and no `expiresAt`,
    the user already has lifetime access and needs nothing. If its
    `expiresAt` is still in the future, add the paid months to that date.
    Otherwise add them to today
-3. Write `premium: true`, `source: "kofi"`, the new `expiresAt` timestamp
+4. Write `premium: true`, `source: "kofi"`, the new `expiresAt` timestamp
    and `updatedAt`
-4. In the same sitting, set the payment's `status` to `granted` and add
-   `uid` and `matchedBy: "manual"`, so nobody grants the same payment twice
+5. Set the payment's `status` to `granted`
 
-A script for this comes later
+A payment left on `granting` means a grant stopped part way. Compare the
+entitlement's `updatedAt` with the payment before finishing it, so the
+months go on once. The Firebase console cannot run a transaction, so the
+grant script planned as a follow-up will do steps 2 to 5 in one

@@ -25,7 +25,9 @@ jobs:
         with:
           node-version: "24.22.1"
           cache: "yarn"
-          cache-dependency-path: "yarn.lock"
+          cache-dependency-path: |
+            yarn.lock
+            workers/kofi/yarn.lock
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -43,3 +45,12 @@ jobs:
 
       - name: Run script tests
         run: yarn test:scripts
+
+      - name: Install Ko-fi receiver dependencies
+        run: yarn --cwd workers/kofi install --frozen-lockfile
+
+      - name: Typecheck Ko-fi receiver
+        run: yarn --cwd workers/kofi typecheck
+
+      - name: Test Ko-fi receiver
+        run: yarn --cwd workers/kofi test:ci

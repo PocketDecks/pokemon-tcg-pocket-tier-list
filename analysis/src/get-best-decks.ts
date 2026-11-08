@@ -37,6 +37,8 @@ import {
   renderPremiumDeckSlugs,
 } from "./utils/premium-deck-slugs";
 import { writeArtefacts } from "./utils/write-artifacts";
+import { decksDir } from "./utils/data-paths";
+import { withStoreLock } from "./utils/store-lock";
 import { deckNameToIconIds } from "../../src/types/deck-name";
 import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
@@ -68,10 +70,12 @@ const buildCardScores = (qualifiedDecks: Deck[], weights: ScoringWeights) => {
 };
 
 export const run = async (): Promise<void> => {
-  // Keep the previous premium files aside before this run overwrites them,
-  // so the publish check can compare premium windows with what users had.
+  // The deck store is read under the same lock `download` uses, so a start
+  // run cannot race a running download. `stageOgImages` awaits, so the lock
+  // is taken around the read here and around the write later, not around the
+  // whole run.
   snapshotPremiumPrevious();
-  const allDecks = getDecks();
+  const allDecks = withStoreLock(decksDir(), () => getDecks());
   const today = new Date();
 
   const artefacts = Object.fromEntries(
@@ -177,7 +181,7 @@ export const run = async (): Promise<void> => {
     const { publicFiles, premiumFiles } = splitArtefactFiles(buildArtefactFiles(artefacts));
     fs.mkdirSync(PREMIUM_DIR, { recursive: true });
 
-    writeArtefacts({
+    const files = {
       ...publicFiles,
       ...Object.fromEntries(
         Object.entries(premiumFiles).map(([name, content]) => [
@@ -196,7 +200,8 @@ export const run = async (): Promise<void> => {
       "../public/data/historical-trends.json": JSON.stringify(trends, null, 2),
       "../public/data/card-scores.json": JSON.stringify(cardScoresList, null, 2),
       "../src/app/last-updated.ts": `export const LAST_UPDATED = new Date("${today.toISOString()}");`,
-    });
+    };
+    withStoreLock(decksDir(), () => writeArtefacts(files));
   } catch (error) {
     staged.discard();
     throw error;

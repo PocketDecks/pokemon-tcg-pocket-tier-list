@@ -19,9 +19,19 @@ vi.mock("node:fs", async (importOriginal) => {
 });
 vi.mock("../utils/premium-artefacts", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../utils/premium-artefacts")>();
-  return { ...actual, PREMIUM_DIR: PREMIUM_TEST_DIR };
+  const path = require("node:path") as typeof import("node:path");
+  return {
+    ...actual,
+    PREMIUM_DIR: PREMIUM_TEST_DIR,
+    previousPremiumDir: (dir: string = PREMIUM_TEST_DIR) =>
+      path.join(path.dirname(dir), "premium-previous"),
+  };
 });
 vi.mock("../utils/write-artifacts", () => ({ writeArtefacts }));
+vi.mock("../utils/data-paths", () => ({ decksDir: () => "/mocked/decks" }));
+vi.mock("../utils/store-lock", () => ({
+  withStoreLock: (_dir: string, fn: () => unknown) => fn(),
+}));
 vi.mock("../utils/generate-og-images", () => ({ stageOgImages }));
 vi.mock("../utils/get-decks", () => ({ default: getDecks }));
 vi.mock("../utils/assert-publishable", async (importOriginal) => {
@@ -310,7 +320,7 @@ describe("run", () => {
       ["10d", "20d", "30d", "all"].map((window) => {
         const locate = (file: string) =>
           ["30d", "all"].includes(window)
-            ? path.join(PREMIUM_TEST_DIR, file)
+            ? path.join(path.dirname(PREMIUM_TEST_DIR), "premium-previous", file)
             : `../public/data/${file}`;
         return [
           locate(`best-decks-${window}.json`),

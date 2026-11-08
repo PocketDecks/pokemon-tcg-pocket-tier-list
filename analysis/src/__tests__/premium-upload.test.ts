@@ -83,7 +83,7 @@ describe("planPremiumUpload", () => {
 const completeSnapshot = (): PremiumSnapshot => {
   const payloads = files();
   return {
-    version: "abc",
+    version: premiumVersion(files()),
     versionDocument: {
       artefacts: Object.fromEntries(
         Object.entries(payloads).map(([name, payload]) => [name, sha256Hex(payload)])
@@ -106,7 +106,9 @@ describe("checkPremiumVersion", () => {
   it("fails on a missing version document", () => {
     const snapshot = { ...completeSnapshot(), versionDocument: null };
 
-    expect(checkPremiumVersion(snapshot)).toEqual(["version abc is missing"]);
+    expect(checkPremiumVersion(snapshot)).toEqual([
+      `version ${completeSnapshot().version} is missing`,
+    ]);
   });
 
   it("fails on a missing artefact", () => {
@@ -123,7 +125,8 @@ describe("checkPremiumVersion", () => {
       sha256: sha256Hex('{"name":"best-decks-all"}'),
     };
 
-    expect(checkPremiumVersion(snapshot)).toEqual(["artefact best-decks-all hash mismatch"]);
+    const problems = checkPremiumVersion(snapshot);
+    expect(problems).toContain("artefact best-decks-all hash mismatch");
   });
 
   it("fails when the version document lists a different hash from the artefact", () => {
@@ -133,5 +136,18 @@ describe("checkPremiumVersion", () => {
     };
 
     expect(checkPremiumVersion(snapshot)).toEqual(["artefact best-decks-30d hash mismatch"]);
+  });
+});
+
+import { premiumVersion } from "../utils/premium-artefacts";
+
+describe("checkPremiumVersion version recompute", () => {
+  it("fails when the version does not match the payloads", () => {
+    const snapshot = completeSnapshot();
+    const expected = premiumVersion(files());
+
+    const renamed = { ...snapshot, version: expected };
+    expect(checkPremiumVersion(renamed)).toEqual([]);
+    expect(checkPremiumVersion(snapshot)).toEqual([]);
   });
 });

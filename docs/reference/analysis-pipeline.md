@@ -20,7 +20,53 @@ The downloader commits a batch at a time: it writes the decks it fetched and the
 
 `yarn store:migrate` converts a legacy single-file `data/decks.json` into the shards, refusing a store that already holds decks. `yarn store:verify` reads the manifest and every shard it names, and reports a manifest count that disagrees with the file, a missing shard file, a manifest date range that disagrees with the shard's contents, a deck id in two shards, a deck filed in the wrong shard for its date, an untracked `.ndjson` file, and a stray `.tmp`, `.bak` or `.created` file. An empty `.created` marker beside a target records that the target did not exist before the write, so a recovery deletes it rather than restoring it. It exits 1 when the store directory is absent or holds no shards, unless `--allow-empty` is passed.
 
-`yarn store:purge-formats` removes the non-standard tournaments already in the store. The downloader now skips them at download time, so a rerun never clears them. It reads the decks in every shard that the pipeline's read cut-off reaches, groups them by tournament id, fetches one listing bounded to `LISTING_LIMIT` (`10,000`) rows for all tournaments, then one details request per tournament the listing omits or accepts, and applies the same format rule. By default it is a dry run: it prints one line per tournament it would remove, with id, date, name, reason and deck count, plus a total, and writes nothing. `--apply` rewrites each affected shard without those decks, updates that shard's manifest `count`, `minDate` and `maxDate` from the remaining decks, and commits through `writeArtefacts`, so an interrupted write recovers the documented way. It leaves `processed-tournaments.json` untouched, so a removed tournament is not downloaded again, and it refuses before writing anything if a shard would end up empty. `--dir` points it at another store location. The purge and a download batch take the same lock, so the two cannot interleave; the lock file is `analysis/data/decks.lock`, beside the store directory.
+`yarn store:purge-formats` removes the non-standard tournaments already in the store. The downloader now skips them at download time, so a rerun never clears them. It reads the decks in every shard that the pipeline's read cut-off reaches, groups them by tournament id, fetches one listing bounded to `LISTING_LIMIT` (`10,000`) rows for all tournaments, then one details request per tournament the listing omits or accepts, and applies the same format rule. By default it is a dry run: it prints one line per tournament it would remove, with id, date, name, reason and deck count, plus a total, and writes nothing. `--apply` rewrites each affected shard without those decks, updates that shard's manifest `count`, `minDate` and `maxDate` from the remaining decks, and commits through `writeArtefacts`, so an interrupted write recovers the documented way. It leaves `processed-tournaments.json` untouched, so a removed tournament is not downloaded again, and it refuses before writing anything if a shard would end up empty. `--dir` points it at another store location. The purge takes the store lock described in the [Store lock](#store-lock) section.
+
+## Store lock
+
+### Location
+
+- The purge and a download batch take the same store lock, so the two cannot interleave.
+- The lock file is `analysis/data/decks.lock`, beside the store directory.
+- `DECKS_DIR` and `ANALYSIS_DATA_DIR` move the lock and its claims directory with the store, because the lock is always the store directory's path with `.lock` added: `DECKS_DIR=/x/decks` puts it at `/x/decks.lock`, and `ANALYSIS_DATA_DIR=/y` without `DECKS_DIR` puts it at `/y/decks.lock`.
+- The purge's `--dir` option moves it the same way.
+
+### Claims
+
+- Before it takes the lock, a run writes a claim file into the `analysis/data/decks.lock.claims/` directory, named `<pid>-<uuid>` and holding its pid.
+- A claim whose pid is running blocks other runs; a claim whose pid has gone is removed by the next run; a claim with no pid in its name or contents blocks for five seconds after its last write, then is removed.
+- Two runs that start together can each see the other's claim and both refuse.
+- A claim that names this process's own pid and that this process created and has not removed belongs to a store lock call still running in the same process: a nested call is refused, the refusal says so, and the claim clears when the outer call ends.
+
+### Stale-lock reclaim
+
+- A stale lock is reclaimed once the run re-reads it and finds the same stale contents it inspected: the run moves the lock aside to a `decks.lock.<pid>.<uuid>.reclaim` file beside it, reads that file, and removes it if it still holds those stale contents.
+- If the lock has changed when the run re-reads it, the run refuses only when the new contents name a running pid other than this process's, or name no pid and the lock is younger than five seconds; otherwise it tries again.
+- If the moved file holds different contents, the run restores it with a hard link, which never overwrites, and then judges the restored lock as above: a live holder is refused on its pid, and a stale one is tried again.
+- If another writer has taken the lock name by then, the restore fails and the run refuses, naming both that holder and the moved file, and leaves the moved file in place.
+
+### Leftover files and manual clean-up
+
+- A run that stops after the move and before the restore leaves the lock name free and its `.reclaim` file holding the displaced lock.
+- A run that stops after the restore and before it removes the moved file leaves a `.reclaim` copy beside a lock that is still in place.
+- Later runs never read `.reclaim` files, so delete one by hand only after confirming that no download or purge is running and that the pid in it is not a live holder that still needs the lock.
+- A claim this process failed to remove is no longer recorded in memory, so its own next call reclaims it with a warning.
+- A claim that names this process's pid but that this process did not create is left by an earlier process with the same pid; the run that finds it removes it with a warning.
+- A lock that names this process's pid while no claim of this process is live is left by a release this process could not finish or by an earlier process with the same pid; the next call in this process reclaims it with a warning.
+
+### Refusals
+
+- A refusal that names a pid means that pid is running, or that the probe for it failed with something other than "no such process", so the run could not show it had gone.
+- If that pid now belongs to an unrelated process, the claim or lock is stale and will not clear on its own, so delete it by hand only after confirming that no download or purge is running.
+- For a claim naming a pid, the refusal says another run is starting, so retry shortly, only when that claim is younger than five seconds and no lock file exists yet; a claim with no pid always says so.
+- The refusal for a young claim with no pid, and the refusal that the lock kept changing during acquisition, name no process; both are transient, so wait a few seconds, retry the run and delete nothing.
+
+### Constraints
+
+- All writers to one store must run this version: a pre-claim build sharing the store is unsupported, because its lock writes can race a reclaim.
+- Run one store writer per process: withStoreLock refuses to run off the main thread, because worker threads share this process's pid but not its in-process record of claims, so a worker that took the lock could reclaim a claim the main thread holds.
+- The refusal stops a worker from entering while another thread holds the store.
+- A store lock callback must be synchronous: a callback that returns a promise makes the call throw a TypeError, because the callback's work continues after the lock is released.
 
 ## Deck naming
 

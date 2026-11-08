@@ -65,6 +65,7 @@ Detailed documentation for maintaining the project is available in the `docs/` d
 - **[How-to guide: Collecting feedback](docs/how-to/collecting-feedback.md)**: How the sign-in-only feedback page stores submissions in Firestore, and the security rules to add in the Firebase console.
 - **[How-to guide: Reporting and triage](docs/how-to/reporting-and-triage.md)**: The three issue forms, what each one asks for, how the form check runs, and how maintainers separate severity from priority.
 - **[How-to guide: Refreshing the robots list](docs/how-to/refreshing-the-robots-list.md)**: How to re-pin the upstream crawler list, regenerate `public/robots.txt` and decide which agents are allowed or left unlisted.
+- **[How-to guide: Receiving Ko-fi payments](docs/how-to/receive-ko-fi-payments.md)**: What the Ko-fi webhook Worker records in Firestore, how it grants Premium months, and the owner steps to deploy it and add its two secrets.
 - **[Explanation: Advertising, premium and consent](docs/explanation/ads-premium-and-consent.md)**: Why the site gates content and shows ads, how premium status resolves through Stripe subscription states, and how the ad and consent layers stay inside policy.
 
 ## 🙌 Contributing

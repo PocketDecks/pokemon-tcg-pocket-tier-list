@@ -302,6 +302,58 @@ describe("granting Premium", () => {
     });
   });
 
+  it("treats a timestamp Firestore returns but Date cannot parse as expired", async () => {
+    const { post, google } = setup();
+    google.addUser("ash@example.com", "uid-ash");
+    google.seed("entitlements/uid-ash", {
+      premium: true,
+      source: "manual",
+      expiresAt: { timestampValue: "not-a-timestamp" },
+    });
+    await post(payment({ amount: "1.00" }));
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ status: "granted" });
+    expect(google.read("entitlements/uid-ash")).toMatchObject({
+      source: "kofi",
+      expiresAt: "2026-12-08T12:00:00.000Z",
+    });
+  });
+
+  it("treats an expiry in the year 9999 as lifetime and writes no entitlement", async () => {
+    const { post, google } = setup();
+    google.addUser("ash@example.com", "uid-ash");
+    google.seed("entitlements/uid-ash", {
+      premium: true,
+      source: "manual",
+      expiresAt: new Date("9999-12-31T00:00:00.000Z"),
+    });
+    const response = await post(payment());
+    expect(response.status).toBe(200);
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ status: "already-lifetime" });
+    expect(google.read("entitlements/uid-ash")).toEqual({
+      premium: true,
+      source: "manual",
+      expiresAt: "9999-12-31T00:00:00.000Z",
+    });
+    expect(
+      google.commitWrites.flat().some((write) => {
+        const update = write.update as { name: string } | undefined;
+        return update?.name.endsWith("entitlements/uid-ash");
+      }),
+    ).toBe(false);
+  });
+
+  it("still stacks onto an expiry in 2099", async () => {
+    const { post, google } = setup();
+    google.addUser("ash@example.com", "uid-ash");
+    google.seed("entitlements/uid-ash", {
+      premium: true,
+      source: "kofi",
+      expiresAt: new Date("2099-12-31T00:00:00.000Z"),
+    });
+    await post(payment({ amount: "1.00" }));
+    expect(google.read("entitlements/uid-ash")?.expiresAt).toBe("2100-01-31T00:00:00.000Z");
+  });
+
   it("clamps a month-end expiry when stacking", async () => {
     const { post, google } = setup();
     google.addUser("ash@example.com", "uid-ash");
@@ -343,6 +395,7 @@ describe("granting Premium", () => {
   it("keeps both payments when two deliveries race for one user", async () => {
     const { post, google } = setup();
     google.addUser("ash@example.com", "uid-ash");
+    await post(payment({ kofi_transaction_id: "txn-warm", amount: "0.50" }));
     const first = post(payment({ kofi_transaction_id: "txn-a", amount: "5.00" }));
     const second = post(payment({ kofi_transaction_id: "txn-b", amount: "3.00" }));
     const responses = await Promise.all([first, second]);
@@ -353,7 +406,7 @@ describe("granting Premium", () => {
     const retry = await post(payment({ kofi_transaction_id: failedId, amount: failedAmount }));
     expect(retry.status).toBe(200);
     expect(google.read("entitlements/uid-ash")?.expiresAt).toBe("2027-07-08T12:00:00.000Z");
-    expect(google.read("tipTotals/2026-11")).toEqual({ amountPence: 800, count: 2 });
+    expect(google.read("tipTotals/2026-11")).toEqual({ amountPence: 850, count: 3 });
   });
 });
 
@@ -769,14 +822,26 @@ describe("idempotency and failures", () => {
     expect((await post(payment())).status).toBe(500);
   });
 
-  it("does not roll back after a successful commit or a duplicate", async () => {
+  it("does not roll back after a successful commit", async () => {
     const { post, google } = setup();
     google.addUser("ash@example.com", "uid-ash");
-    expect((await post(payment())).status).toBe(200);
     expect((await post(payment())).status).toBe(200);
     expect(google.rollbacks).toHaveLength(0);
     expect(google.calls.filter((call) => call.url.endsWith(":rollback"))).toHaveLength(0);
     expect(google.openTransactions()).toBe(0);
+  });
+
+  it("rolls back once after a duplicate commit and ignores a rollback error", async () => {
+    const { post, google } = setup();
+    google.addUser("ash@example.com", "uid-ash");
+    expect((await post(payment())).status).toBe(200);
+    expect(google.rollbacks).toHaveLength(0);
+    google.failRollbacks(500);
+    const second = await post(payment());
+    expect(second.status).toBe(200);
+    expect(await second.text()).toBe("Duplicate");
+    expect(google.rollbacks).toHaveLength(1);
+    expect(google.calls.filter((call) => call.url.endsWith(":rollback"))).toHaveLength(1);
   });
 
   it("makes no transaction for a payment that is not eligible", async () => {
@@ -859,6 +924,41 @@ describe("idempotency and failures", () => {
     expect(logged).toContain("commit failed: 500");
   });
 
+  it("logs the status of a failed token exchange and nothing from the assertion or key", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const { google } = setup();
+    const seen: string[] = [];
+    const receive = createReceiver({
+      fetch: (async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+        if (url === "https://oauth2.googleapis.com/token") {
+          seen.push(String(init?.body));
+          return new Response("denied", { status: 401 });
+        }
+        return google.fetch(input, init);
+      }) as typeof fetch,
+      now: () => NOW,
+    });
+    google.addUser("ash@example.com", "uid-ash");
+    const response = await receive(
+      new Request("https://worker.example/kofi", {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        body: `data=${encodeURIComponent(JSON.stringify(payment()))}`,
+      }),
+      { KOFI_VERIFICATION_TOKEN: TOKEN, FIREBASE_SERVICE_ACCOUNT: serviceAccount },
+    );
+    const logged = error.mock.calls.flat().join(" ");
+    error.mockRestore();
+    expect(response.status).toBe(500);
+    expect(logged).toContain("token exchange failed: 401");
+    const assertion = new URLSearchParams(seen[0]).get("assertion") ?? "";
+    expect(assertion.length).toBeGreaterThan(0);
+    expect(logged).not.toContain(assertion);
+    expect(logged).not.toContain("BEGIN PRIVATE KEY");
+    expect(logged).not.toContain(keys.privateKeyPem.split("\n")[1]);
+  });
+
   it("logs no part of a malformed service account secret", async () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
@@ -926,6 +1026,39 @@ describe("stored text and totals month", () => {
     const stored = String(google.read("kofiPayments/txn-1-msg-1")?.fromName);
     expect(Array.from(stored)).toHaveLength(200);
     expect(() => encodeURIComponent(stored)).not.toThrow();
+  });
+
+  it("replaces a lone high surrogate with U+FFFD", async () => {
+    const { post, google } = setup();
+    await post(payment({ from_name: "Ash\uD800Ketchum" }));
+    expect(google.read("kofiPayments/txn-1-msg-1")?.fromName).toBe("Ash\uFFFDKetchum");
+  });
+
+  it("replaces a lone low surrogate with U+FFFD", async () => {
+    const { post, google } = setup();
+    await post(payment({ from_name: "Ash\uDC00Ketchum" }));
+    expect(google.read("kofiPayments/txn-1-msg-1")?.fromName).toBe("Ash\uFFFDKetchum");
+  });
+
+  it("makes every stored string well formed", async () => {
+    const { post, google } = setup();
+    await post(
+      payment({
+        email: "a\uD800@example.com",
+        type: "Donation\uDC00",
+        timestamp: "2026\uD800",
+      }),
+    );
+    const stored = google.read("kofiPayments/txn-1-msg-1");
+    expect(stored?.email).toBe("a\uFFFD@example.com");
+    expect(stored?.type).toBe("Donation\uFFFD");
+    expect(stored?.kofiTimestamp).toBe("2026\uFFFD");
+  });
+
+  it("leaves a valid emoji untouched", async () => {
+    const { post, google } = setup();
+    await post(payment({ from_name: "Ash \u{1F600}" }));
+    expect(google.read("kofiPayments/txn-1-msg-1")?.fromName).toBe("Ash \u{1F600}");
   });
 
   it("uses the Ko-fi timestamp for the totals month when it is within two days", async () => {

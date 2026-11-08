@@ -1,3 +1,5 @@
+import { UpstreamError } from "./errors";
+
 export const GOOGLE_SCOPES = [
   "https://www.googleapis.com/auth/datastore",
   "https://www.googleapis.com/auth/identitytoolkit",
@@ -93,7 +95,6 @@ export const createTokenProvider = (options: {
   const { serviceAccount, fetch: fetchImpl } = options;
   const now = options.now ?? Date.now;
   let cached: { token: string; expiresAtMs: number } | null = null;
-  let inFlight: Promise<string> | null = null;
 
   const refresh = async (): Promise<string> => {
     const issuedAt = now();
@@ -106,9 +107,11 @@ export const createTokenProvider = (options: {
         assertion,
       }).toString(),
     });
-    if (!response.ok) throw new Error(`Token exchange failed with status ${response.status}`);
+    if (!response.ok) throw new UpstreamError(`token exchange failed: ${response.status}`);
     const body = (await response.json()) as { access_token?: unknown; expires_in?: unknown };
-    if (typeof body.access_token !== "string") throw new Error("Token exchange returned no token");
+    if (typeof body.access_token !== "string") {
+      throw new UpstreamError("token exchange returned no token");
+    }
     const lifetimeSeconds = typeof body.expires_in === "number" ? body.expires_in : 3600;
     cached = { token: body.access_token, expiresAtMs: issuedAt + lifetimeSeconds * 1000 };
     return body.access_token;
@@ -116,11 +119,6 @@ export const createTokenProvider = (options: {
 
   return async () => {
     if (cached && now() < cached.expiresAtMs - REFRESH_MARGIN_MS) return cached.token;
-    if (!inFlight) {
-      inFlight = refresh().finally(() => {
-        inFlight = null;
-      });
-    }
-    return inFlight;
+    return refresh();
   };
 };

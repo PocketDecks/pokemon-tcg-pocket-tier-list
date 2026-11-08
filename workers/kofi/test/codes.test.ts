@@ -19,6 +19,11 @@ describe("extractCode", () => {
     expect(extractCode("pd-abc123")).toBeNull();
   });
 
+  it("ignores lower-case letters after the prefix", () => {
+    expect(extractCode("PD-abc123")).toBeNull();
+    expect(extractCode("PD-ABc123")).toBeNull();
+  });
+
   it("ignores a code glued to a preceding letter or digit", () => {
     expect(extractCode("XPD-ABC123")).toBeNull();
     expect(extractCode("9PD-ABC123")).toBeNull();

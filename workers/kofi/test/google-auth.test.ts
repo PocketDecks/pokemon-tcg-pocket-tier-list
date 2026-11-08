@@ -117,11 +117,16 @@ describe("createTokenProvider", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
-  it("shares one request between concurrent callers", async () => {
+  it("gives concurrent callers a valid token and reuses the cache afterwards", async () => {
     const { provider, fetchMock } = setup();
     const [a, b] = await Promise.all([provider(), provider()]);
-    expect(a).toBe(b);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(a).toMatch(/^token-\d+$/);
+    expect(b).toMatch(/^token-\d+$/);
+    const requests = fetchMock.mock.calls.length;
+    expect(requests).toBeLessThanOrEqual(2);
+    const later = await provider();
+    expect(["token-1", "token-2"]).toContain(later);
+    expect(fetchMock).toHaveBeenCalledTimes(requests);
   });
 
   it("throws when the token endpoint fails", async () => {

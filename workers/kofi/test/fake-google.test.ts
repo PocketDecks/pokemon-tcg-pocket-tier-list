@@ -90,6 +90,18 @@ describe("fake token endpoint", () => {
     expect(future.status).toBe(400);
   });
 
+  it("rejects an assertion that expires at or before its issue time", async () => {
+    const google = setup();
+    for (const lifetime of [0, -60]) {
+      const response = await exchange(
+        google,
+        await signClaims(claimsAt(NOW_MS / 1000, lifetime)),
+      );
+      expect(response.status).toBe(400);
+      expect(await response.json()).toEqual({ error: "invalid_grant" });
+    }
+  });
+
   it("rejects an assertion that lives beyond one hour", async () => {
     const google = setup();
     const response = await exchange(google, await signClaims(claimsAt(NOW_MS / 1000, 3601)));

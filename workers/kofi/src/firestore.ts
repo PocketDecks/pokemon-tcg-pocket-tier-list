@@ -1,4 +1,4 @@
-export class UpstreamError extends Error {}
+import { UpstreamError } from "./errors";
 
 export type FieldValue = string | number | boolean | Date | null;
 

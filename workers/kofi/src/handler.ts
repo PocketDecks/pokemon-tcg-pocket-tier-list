@@ -1,11 +1,11 @@
 import { extractCode } from "./codes";
 import { decideGrant, type ExistingEntitlement, type PaymentStatus } from "./decision";
+import { UpstreamError } from "./errors";
 import {
   createFirestoreClient,
   type DocumentWrite,
   type FieldValue,
   type FirestoreClient,
-  UpstreamError,
 } from "./firestore";
 import { createTokenProvider, parseServiceAccount } from "./google-auth";
 import { monthKey, monthsForPayment } from "./months";
@@ -32,9 +32,12 @@ const MAX_BODY_BYTES = 16384;
 const MAX_TIMESTAMP_SKEW_MS = 2 * 24 * 60 * 60 * 1000;
 const SAFE_UID = /^[A-Za-z0-9]{1,128}$/;
 
+const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
+
 const truncate = (value: string, limit: number): string => {
-  const characters = Array.from(value);
-  return characters.length > limit ? characters.slice(0, limit).join("") : value;
+  const wellFormed = value.replace(LONE_SURROGATE, "\uFFFD");
+  const characters = Array.from(wellFormed);
+  return characters.length > limit ? characters.slice(0, limit).join("") : wellFormed;
 };
 
 const readBody = async (request: Request): Promise<string | null> => {
@@ -179,6 +182,9 @@ const processPayment = async (
     }
 
     const result = await client.commit(writes, transaction);
+    if (result === "duplicate" && transaction !== undefined) {
+      await client.rollback(transaction).catch(() => undefined);
+    }
     return { status, duplicate: result === "duplicate" };
   } catch (error) {
     if (transaction !== undefined) {

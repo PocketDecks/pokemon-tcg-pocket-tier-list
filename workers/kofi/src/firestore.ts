@@ -112,7 +112,8 @@ export const createFirestoreClient = (options: {
 
     async getDocument(path, transaction) {
       const query = transaction ? `?transaction=${encodeURIComponent(transaction)}` : "";
-      const response = await send(`${base}/${path}${query}`);
+      const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+      const response = await send(`${base}/${encodedPath}${query}`);
       if (response.status === 404 && (await errorStatus(response)) === "NOT_FOUND") return null;
       if (!response.ok) throw new UpstreamError(`getDocument failed: ${response.status}`);
       const body = (await response.json()) as {

@@ -95,7 +95,7 @@ const findMatch = async (client: FirestoreClient, payment: KofiPayment): Promise
   const email = payment.email.trim().toLowerCase();
   if (email) {
     const uid = await client.lookupUidByEmail(email);
-    if (uid) return { uid, matchedBy: "email" };
+    if (uid && uid.length <= 128 && !uid.includes("/")) return { uid, matchedBy: "email" };
   }
   return null;
 };
@@ -167,6 +167,7 @@ const processPayment = async (
     if (status !== "granted") {
       fields.email = truncate(payment.email, 320);
       fields.fromName = truncate(payment.fromName, 200);
+      fields.message = truncate(payment.message, 500);
     }
 
     const writes: DocumentWrite[] = [

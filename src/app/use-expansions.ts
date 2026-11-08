@@ -4,21 +4,12 @@ import { isListedExpansion } from "./expansion-policy.mjs";
 import { newestCoveredExpansion } from "./expansion-feed.mjs";
 import { expansionIndexPolicy } from "./expansion-index-policy.mjs";
 import type { FullDeckType } from "./deck-types";
+import type { PokemonTCGPocketExpansionsV5Schema } from "pokemon-tcg-pocket-cards/expansions";
 
-export interface PackType {
-  id: string;
-  name: string;
-  image: string | null;
-}
+export type ExpansionType = PokemonTCGPocketExpansionsV5Schema[number];
+export type PackType = ExpansionType["packs"][number];
 
-export interface ExpansionType {
-  id: string;
-  name: string;
-  release_date: string | null;
-  packs: PackType[];
-}
-
-const ALL_EXPANSIONS = EXPANSIONS_URL as unknown as ExpansionType[];
+const ALL_EXPANSIONS = EXPANSIONS_URL;
 
 export const latestCoveredExpansion = (decks: FullDeckType[] | null): ExpansionType | null =>
   newestCoveredExpansion(ALL_EXPANSIONS, decks) ?? null;

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildExpansionData, buildExpansionPackData, isSharedPack } from "../expansion-scores";
+import { expansionFixture } from "../__fixtures__/expansion";
 
 describe("buildExpansionPackData", () => {
   it("maps a single-pack set by its expansion name", () => {
@@ -10,7 +11,7 @@ describe("buildExpansionPackData", () => {
         { set: "a1", pack: "Pikachu", score: 0.7 },
       ],
       [
-        {
+        expansionFixture({
           id: "b4a",
           name: "Team Rocket's Ambition",
           release_date: null,
@@ -21,8 +22,8 @@ describe("buildExpansionPackData", () => {
               image: "b4a.webp",
             },
           ],
-        },
-        {
+        }),
+        expansionFixture({
           id: "a1",
           name: "Genetic Apex",
           release_date: null,
@@ -33,7 +34,7 @@ describe("buildExpansionPackData", () => {
               image: "pikachu.webp",
             },
           ],
-        },
+        }),
       ],
     );
 
@@ -50,7 +51,7 @@ describe("buildExpansionPackData", () => {
       buildExpansionPackData(
         [{ set: "a1", pack: "Pikachu", score: 0.5 }],
         [
-          {
+          expansionFixture({
             id: "a1",
             name: "Genetic Apex",
             release_date: null,
@@ -58,13 +59,13 @@ describe("buildExpansionPackData", () => {
               { id: "a1-pikachu", name: "Pikachu", image: "pikachu.webp" },
               { id: "a1-charizard", name: "Charizard", image: "charizard.webp" },
             ],
-          },
-          {
+          }),
+          expansionFixture({
             id: "pa",
             name: "Promo-A",
             release_date: null,
             packs: [{ id: "pa-shop", name: "Shop", image: null }],
-          },
+          }),
         ]
       )
     ).toEqual([
@@ -85,7 +86,7 @@ describe("buildExpansionData", () => {
     id: string,
     name: string,
     packs: { id: string; name: string; image: string | null }[]
-  ) => ({ id, name, release_date: null, packs });
+  ) => expansionFixture({ id, name, release_date: null, packs });
 
   it("averages every card of a multi-pack expansion once, shared cards included", () => {
     const [entry] = buildExpansionData(
@@ -169,7 +170,7 @@ describe("isSharedPack", () => {
 });
 
 describe("score ties", () => {
-  const tied = (id: string, name: string, pack: string) => ({
+  const tied = (id: string, name: string, pack: string) => expansionFixture({
     id,
     name,
     release_date: null,
@@ -192,7 +193,7 @@ describe("score ties", () => {
       { set: "a1", pack: "Charizard", score: 0.5 },
     ];
     const expansions = [
-      {
+      expansionFixture({
         id: "a1",
         name: "Genetic Apex",
         release_date: null,
@@ -200,11 +201,11 @@ describe("score ties", () => {
           { id: "a1-pikachu", name: "Pikachu", image: "pikachu.webp" },
           { id: "a1-charizard", name: "Charizard", image: "charizard.webp" },
         ],
-      },
+      }),
     ];
     const packIds = (list: typeof expansions) => buildExpansionPackData(scores, list).map((pack) => pack.packId);
     expect(packIds(expansions)).toEqual(["a1-charizard", "a1-pikachu"]);
-    const reversed = [{ ...expansions[0], packs: [...expansions[0].packs].reverse() }];
+    const reversed = [expansionFixture({ ...expansions[0], packs: [...expansions[0].packs].reverse() })];
     expect(packIds(reversed)).toEqual(["a1-charizard", "a1-pikachu"]);
   });
 });

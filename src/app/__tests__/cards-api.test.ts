@@ -67,7 +67,7 @@ describe("normaliseCard", () => {
       rarity: "\u25CA\u25CA",
       image: "https://example.com/a1-219.webp",
       deckBuilderNr: 1000011,
-    } as unknown as RawCardType;
+    };
     const card = normaliseCard(coreTrainer);
     expect(card.ex).toBe(false);
     expect(card.health).toBeNull();

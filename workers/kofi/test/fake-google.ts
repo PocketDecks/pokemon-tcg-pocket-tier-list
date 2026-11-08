@@ -4,10 +4,36 @@ export interface RecordedCall {
   method: string;
   url: string;
   body: unknown;
+  authorization: string | null;
 }
+
+interface StoredDocument {
+  fields: Fields;
+  version: number;
+}
+
+interface TestUser {
+  uid: string;
+  emailVerified: boolean;
+  disabled: boolean;
+}
+
+interface Failure {
+  status: number;
+  body: unknown;
+}
+
+const TOKEN_URI = "https://oauth2.googleapis.com/token";
+const REQUIRED_SCOPES = [
+  "https://www.googleapis.com/auth/datastore",
+  "https://www.googleapis.com/auth/identitytoolkit",
+];
 
 const json = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
+
+const failure = (status: number, code: string) =>
+  json(status, { error: { code: status, status: code } });
 
 const decodeValue = (value: Record<string, unknown>): unknown => {
   if ("stringValue" in value) return value.stringValue;
@@ -18,104 +44,206 @@ const decodeValue = (value: Record<string, unknown>): unknown => {
   return undefined;
 };
 
+const fromBase64Url = (segment: string): Uint8Array => {
+  const binary = atob(segment.replace(/-/g, "+").replace(/_/g, "/"));
+  return Uint8Array.from(binary, (char) => char.charCodeAt(0));
+};
+
+const decodeJson = (segment: string): Record<string, unknown> =>
+  JSON.parse(new TextDecoder().decode(fromBase64Url(segment)));
+
 interface TransformWrite {
   document: string;
   fieldTransforms: { fieldPath: string; increment: { integerValue: string } }[];
 }
 
-export const createFakeGoogle = (projectId = "demo-project") => {
-  const docs = new Map<string, Fields>();
-  const users = new Map<string, string>();
+export interface FakeGoogleOptions {
+  publicKey: CryptoKey;
+  projectId?: string;
+  tokenUri?: string;
+}
+
+export const createFakeGoogle = (options: FakeGoogleOptions) => {
+  const { publicKey, projectId = "demo-project", tokenUri = TOKEN_URI } = options;
+  const docs = new Map<string, StoredDocument>();
+  const users = new Map<string, TestUser[]>();
+  const issuedTokens = new Set<string>();
+  const transactions = new Map<string, Map<string, number>>();
   const calls: RecordedCall[] = [];
   const commitWrites: Record<string, unknown>[][] = [];
-  const state: { commitStatus?: number; commitBody?: unknown } = {};
+  const rollbacks: string[] = [];
+  const state: {
+    commit?: Failure;
+    read?: Failure & { transactionalOnly: boolean };
+    rollback?: Failure;
+    lookupMissAs400: boolean;
+  } = { lookupMissAs400: false };
   let tokenCounter = 0;
+  let transactionCounter = 0;
 
   const docRoot = `projects/${projectId}/databases/(default)/documents`;
   const fsBase = `https://firestore.googleapis.com/v1/${docRoot}`;
+  const lookupUrl = `https://identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts:lookup`;
   const relative = (name: string) => name.slice(docRoot.length + 1);
+  const versionOf = (path: string) => docs.get(path)?.version ?? 0;
+
+  const store = (path: string, fields: Fields) => {
+    docs.set(path, { fields, version: versionOf(path) + 1 });
+  };
+
+  const exchangeToken = async (raw: unknown, headers: Headers): Promise<Response> => {
+    const invalid = () => json(400, { error: "invalid_grant" });
+    if (typeof raw !== "string") return invalid();
+    if (!(headers.get("content-type") ?? "").startsWith("application/x-www-form-urlencoded")) {
+      return invalid();
+    }
+    const form = new URLSearchParams(raw);
+    if (form.get("grant_type") !== "urn:ietf:params:oauth:grant-type:jwt-bearer") return invalid();
+    const parts = (form.get("assertion") ?? "").split(".");
+    if (parts.length !== 3) return invalid();
+    try {
+      const header = decodeJson(parts[0]);
+      const claims = decodeJson(parts[1]);
+      if (header.alg !== "RS256") return invalid();
+      const verified = await crypto.subtle.verify(
+        "RSASSA-PKCS1-v1_5",
+        publicKey,
+        fromBase64Url(parts[2]),
+        new TextEncoder().encode(`${parts[0]}.${parts[1]}`),
+      );
+      if (!verified) return invalid();
+      if (claims.aud !== tokenUri) return invalid();
+      const scopes = String(claims.scope ?? "").split(" ");
+      if (!REQUIRED_SCOPES.every((scope) => scopes.includes(scope))) return invalid();
+    } catch {
+      return invalid();
+    }
+    tokenCounter += 1;
+    const token = `access-${tokenCounter}`;
+    issuedTokens.add(token);
+    return json(200, { access_token: token, expires_in: 3600, token_type: "Bearer" });
+  };
+
+  const commit = (body: { writes: Record<string, unknown>[]; transaction?: string }): Response => {
+    if (state.commit) return json(state.commit.status, state.commit.body);
+    const { writes, transaction } = body;
+    if (transaction !== undefined) {
+      const reads = transactions.get(transaction);
+      if (!reads) return failure(400, "INVALID_ARGUMENT");
+      transactions.delete(transaction);
+      for (const [path, version] of reads) {
+        if (versionOf(path) !== version) return failure(409, "ABORTED");
+      }
+    }
+    for (const write of writes) {
+      const update = write.update as { name: string } | undefined;
+      const precondition = write.currentDocument as { exists?: boolean } | undefined;
+      if (update && precondition?.exists === false && docs.has(relative(update.name))) {
+        return failure(409, "ALREADY_EXISTS");
+      }
+    }
+    commitWrites.push(writes);
+    for (const write of writes) {
+      const update = write.update as { name: string; fields: Fields } | undefined;
+      const transform = write.transform as TransformWrite | undefined;
+      if (update) {
+        const path = relative(update.name);
+        const mask = (write.updateMask as { fieldPaths: string[] } | undefined)?.fieldPaths;
+        if (mask) {
+          const next = { ...(docs.get(path)?.fields ?? {}) };
+          for (const key of mask) next[key] = update.fields[key];
+          store(path, next);
+        } else {
+          store(path, update.fields);
+        }
+      }
+      if (transform) {
+        const path = relative(transform.document);
+        const next = { ...(docs.get(path)?.fields ?? {}) };
+        for (const item of transform.fieldTransforms) {
+          const current = Number(
+            (next[item.fieldPath] as { integerValue?: string } | undefined)?.integerValue ?? 0,
+          );
+          next[item.fieldPath] = {
+            integerValue: String(current + Number(item.increment.integerValue)),
+          };
+        }
+        store(path, next);
+      }
+    }
+    return json(200, { writeResults: writes.map(() => ({})), commitTime: "2026-11-08T12:00:00Z" });
+  };
+
+  const readDocument = (url: string): Response => {
+    const parsed = new URL(url);
+    const path = decodeURIComponent(parsed.pathname.slice(`/v1/${docRoot}/`.length));
+    const transaction = parsed.searchParams.get("transaction");
+    if (state.read && (!state.read.transactionalOnly || transaction !== null)) {
+      return json(state.read.status, state.read.body);
+    }
+    if (transaction !== null) {
+      const reads = transactions.get(transaction);
+      if (!reads) return failure(400, "INVALID_ARGUMENT");
+      if (!reads.has(path)) reads.set(path, versionOf(path));
+    }
+    const stored = docs.get(path);
+    if (!stored) return failure(404, "NOT_FOUND");
+    return json(200, { name: `${docRoot}/${path}`, fields: stored.fields });
+  };
+
+  const lookup = (body: { email?: string[] }): Response => {
+    const matches = users.get(String(body.email?.[0] ?? "")) ?? [];
+    if (matches.length === 0) {
+      return state.lookupMissAs400 ? failure(400, "USER_NOT_FOUND") : json(200, {});
+    }
+    return json(200, {
+      users: matches.map((user) => ({
+        localId: user.uid,
+        emailVerified: user.emailVerified,
+        disabled: user.disabled,
+      })),
+    });
+  };
 
   const fetchImpl = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
     const method = init?.method ?? "GET";
+    const headers = new Headers(init?.headers);
     const raw = init?.body;
     const body = typeof raw === "string" && raw.startsWith("{") ? JSON.parse(raw) : raw;
-    calls.push({ method, url, body });
+    calls.push({ method, url, body, authorization: headers.get("authorization") });
 
-    if (url === "https://oauth2.googleapis.com/token") {
-      tokenCounter += 1;
-      return json(200, {
-        access_token: `access-${tokenCounter}`,
-        expires_in: 3600,
-        token_type: "Bearer",
-      });
+    if (url === tokenUri && method === "POST") return exchangeToken(raw, headers);
+
+    const authorization = headers.get("authorization") ?? "";
+    const bearer = authorization.startsWith("Bearer ") ? authorization.slice("Bearer ".length) : "";
+    if (!issuedTokens.has(bearer)) return failure(401, "UNAUTHENTICATED");
+
+    if (url === lookupUrl && method === "POST") return lookup(body as { email?: string[] });
+
+    if (url === `${fsBase}:beginTransaction` && method === "POST") {
+      transactionCounter += 1;
+      const id = btoa(`txn-${transactionCounter}`);
+      transactions.set(id, new Map());
+      return json(200, { transaction: id });
     }
 
-    if (url === `https://identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts:lookup`) {
-      const email = String((body as { email?: string[] }).email?.[0] ?? "").toLowerCase();
-      const uid = users.get(email);
-      return json(200, uid ? { users: [{ localId: uid }] } : {});
+    if (url === `${fsBase}:rollback` && method === "POST") {
+      const id = (body as { transaction?: string }).transaction ?? "";
+      if (state.rollback) return json(state.rollback.status, state.rollback.body);
+      if (!transactions.has(id)) return failure(400, "INVALID_ARGUMENT");
+      transactions.delete(id);
+      rollbacks.push(id);
+      return json(200, {});
     }
 
-    if (url === `${fsBase}:beginTransaction`) {
-      return json(200, { transaction: "dHhuLTE=" });
+    if (url.startsWith(`${fsBase}/`) && method === "GET") return readDocument(url);
+
+    if (url === `${fsBase}:commit` && method === "POST") {
+      return commit(body as { writes: Record<string, unknown>[]; transaction?: string });
     }
 
-    if (url.startsWith(`${fsBase}/`) && method === "GET") {
-      const path = decodeURIComponent(url.slice(fsBase.length + 1).split("?")[0]);
-      const fields = docs.get(path);
-      if (!fields) return json(404, { error: { code: 404, status: "NOT_FOUND" } });
-      return json(200, { name: `${docRoot}/${path}`, fields });
-    }
-
-    if (url === `${fsBase}:commit`) {
-      if (state.commitStatus) {
-        return json(
-          state.commitStatus,
-          state.commitBody ?? { error: { code: state.commitStatus, status: "INTERNAL" } },
-        );
-      }
-      const writes = (body as { writes: Record<string, unknown>[] }).writes;
-      for (const write of writes) {
-        const update = write.update as { name: string } | undefined;
-        const precondition = write.currentDocument as { exists?: boolean } | undefined;
-        if (update && precondition?.exists === false && docs.has(relative(update.name))) {
-          return json(409, { error: { code: 409, status: "ALREADY_EXISTS" } });
-        }
-      }
-      commitWrites.push(writes);
-      for (const write of writes) {
-        const update = write.update as { name: string; fields: Fields } | undefined;
-        const transform = write.transform as TransformWrite | undefined;
-        if (update) {
-          const path = relative(update.name);
-          const mask = (write.updateMask as { fieldPaths: string[] } | undefined)?.fieldPaths;
-          if (mask) {
-            const next = { ...(docs.get(path) ?? {}) };
-            for (const key of mask) next[key] = update.fields[key];
-            docs.set(path, next);
-          } else {
-            docs.set(path, update.fields);
-          }
-        }
-        if (transform) {
-          const path = relative(transform.document);
-          const next = { ...(docs.get(path) ?? {}) };
-          for (const item of transform.fieldTransforms) {
-            const current = Number(
-              (next[item.fieldPath] as { integerValue?: string } | undefined)?.integerValue ?? 0,
-            );
-            next[item.fieldPath] = {
-              integerValue: String(current + Number(item.increment.integerValue)),
-            };
-          }
-          docs.set(path, next);
-        }
-      }
-      return json(200, { writeResults: writes.map(() => ({})), commitTime: "2026-11-08T12:00:00Z" });
-    }
-
-    return json(404, { error: { message: "unexpected request" } });
+    return failure(400, "INVALID_ARGUMENT");
   };
 
   const seed = (path: string, values: Record<string, unknown>) => {
@@ -126,14 +254,14 @@ export const createFakeGoogle = (projectId = "demo-project") => {
       else if (typeof value === "number") fields[key] = { integerValue: String(value) };
       else if (value instanceof Date) fields[key] = { timestampValue: value.toISOString() };
     }
-    docs.set(path, fields);
+    store(path, fields);
   };
 
   const read = (path: string): Record<string, unknown> | undefined => {
-    const fields = docs.get(path);
-    if (!fields) return undefined;
+    const stored = docs.get(path);
+    if (!stored) return undefined;
     return Object.fromEntries(
-      Object.entries(fields).map(([key, value]) => [key, decodeValue(value)]),
+      Object.entries(stored.fields).map(([key, value]) => [key, decodeValue(value)]),
     );
   };
 
@@ -141,13 +269,40 @@ export const createFakeGoogle = (projectId = "demo-project") => {
     fetch: fetchImpl as typeof fetch,
     calls,
     commitWrites,
+    rollbacks,
     seed,
     read,
-    addUser: (email: string, uid: string) => users.set(email.toLowerCase(), uid),
-    failCommits: (status: number | undefined, body?: unknown) => {
-      state.commitStatus = status;
-      state.commitBody = body;
+    addUser: (
+      email: string,
+      uid: string,
+      flags: { emailVerified?: boolean; disabled?: boolean } = {},
+    ) => {
+      const key = email.toLowerCase();
+      users.set(key, [
+        ...(users.get(key) ?? []),
+        { uid, emailVerified: flags.emailVerified ?? true, disabled: flags.disabled ?? false },
+      ]);
     },
+    failCommits: (status: number | undefined, body?: unknown) => {
+      state.commit =
+        status === undefined
+          ? undefined
+          : { status, body: body ?? { error: { code: status, status: "INTERNAL" } } };
+    },
+    failReads: (status: number, body?: unknown, transactionalOnly = false) => {
+      state.read = {
+        status,
+        body: body ?? { error: { code: status, status: "INTERNAL" } },
+        transactionalOnly,
+      };
+    },
+    failRollbacks: (status: number) => {
+      state.rollback = { status, body: { error: { code: status, status: "INTERNAL" } } };
+    },
+    lookupMissAs400: (enabled: boolean) => {
+      state.lookupMissAs400 = enabled;
+    },
+    openTransactions: () => transactions.size,
     docPaths: () => [...docs.keys()],
   };
 };

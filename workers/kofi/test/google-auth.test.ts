@@ -101,6 +101,14 @@ describe("createTokenProvider", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
+  it("still reuses the token 150 seconds before expiry", async () => {
+    const { provider, fetchMock, advance } = setup();
+    expect(await provider()).toBe("token-1");
+    advance(3450 * 1000);
+    expect(await provider()).toBe("token-1");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it("refreshes shortly before expiry", async () => {
     const { provider, fetchMock, advance } = setup();
     expect(await provider()).toBe("token-1");

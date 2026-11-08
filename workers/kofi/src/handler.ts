@@ -27,6 +27,40 @@ interface Match {
 }
 
 const PREMIUM_TYPES = new Set(["Donation", "Subscription"]);
+const MAX_BODY_BYTES = 16384;
+const MAX_TIMESTAMP_SKEW_MS = 2 * 24 * 60 * 60 * 1000;
+const SAFE_UID = /^[A-Za-z0-9]{1,128}$/;
+
+const truncate = (value: string, limit: number): string => {
+  const characters = Array.from(value);
+  return characters.length > limit ? characters.slice(0, limit).join("") : value;
+};
+
+const readBody = async (request: Request): Promise<string | null> => {
+  const declared = request.headers.get("content-length");
+  if (declared !== null && Number(declared) > MAX_BODY_BYTES) return null;
+  if (!request.body) return "";
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > MAX_BODY_BYTES) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(bytes);
+};
 
 const reply = (status: number, body: string): Response =>
   new Response(body, { status, headers: { "content-type": "text/plain; charset=utf-8" } });
@@ -44,15 +78,22 @@ const findMatch = async (client: FirestoreClient, payment: KofiPayment): Promise
   const code = extractCode(payment.message);
   if (code) {
     const document = await client.getDocument(`premiumCodes/${code}`);
-    if (document && typeof document.uid === "string" && document.uid) {
+    if (document && typeof document.uid === "string" && SAFE_UID.test(document.uid)) {
       return { uid: document.uid, matchedBy: "code" };
     }
   }
-  if (payment.email) {
-    const uid = await client.lookupUidByEmail(payment.email);
+  const email = payment.email.trim().toLowerCase();
+  if (email) {
+    const uid = await client.lookupUidByEmail(email);
     if (uid) return { uid, matchedBy: "email" };
   }
   return null;
+};
+
+const paymentDateFor = (timestamp: string, now: Date): Date => {
+  const reported = new Date(timestamp);
+  const skew = Math.abs(reported.getTime() - now.getTime());
+  return Number.isNaN(skew) || skew > MAX_TIMESTAMP_SKEW_MS ? now : reported;
 };
 
 const processPayment = async (
@@ -60,76 +101,84 @@ const processPayment = async (
   payment: KofiPayment,
   now: Date,
 ): Promise<{ status: PaymentStatus; duplicate: boolean }> => {
-  const months = PREMIUM_TYPES.has(payment.type)
-    ? monthsForPayment(payment.amountPence, payment.currency)
-    : 0;
-  const kofiDate = new Date(payment.timestamp);
-  const paymentDate = Number.isNaN(kofiDate.getTime()) ? now : kofiDate;
+  const countsAsTip =
+    PREMIUM_TYPES.has(payment.type) && payment.currency.toUpperCase() === "GBP";
+  const months = countsAsTip ? monthsForPayment(payment.amountPence, payment.currency) : 0;
+  const paymentDate = paymentDateFor(payment.timestamp, now);
 
   let status: PaymentStatus = "needs-review";
   let match: Match | null = null;
   let transaction: string | undefined;
   let entitlementWrite: DocumentWrite | null = null;
 
-  if (months > 0) {
-    match = await findMatch(client, payment);
-    if (!match) {
-      status = "unmatched";
-    } else {
-      transaction = await client.beginTransaction();
-      const existing = toEntitlement(
-        await client.getDocument(`entitlements/${match.uid}`, transaction),
-      );
-      const decision = decideGrant({ months, existing, now });
-      if (decision.status === "granted") {
-        status = "granted";
-        entitlementWrite = {
-          kind: "merge",
-          path: `entitlements/${match.uid}`,
-          fields: {
-            premium: true,
-            source: "kofi",
-            expiresAt: decision.expiresAt,
-            updatedAt: now,
-          },
-        };
+  try {
+    if (months > 0) {
+      match = await findMatch(client, payment);
+      if (!match) {
+        status = "unmatched";
       } else {
-        status = "already-lifetime";
+        transaction = await client.beginTransaction();
+        const existing = toEntitlement(
+          await client.getDocument(`entitlements/${match.uid}`, transaction),
+        );
+        const decision = decideGrant({ months, existing, now });
+        if (decision.status === "granted") {
+          status = "granted";
+          entitlementWrite = {
+            kind: "merge",
+            path: `entitlements/${match.uid}`,
+            fields: {
+              premium: true,
+              source: "kofi",
+              expiresAt: decision.expiresAt,
+              updatedAt: now,
+            },
+          };
+        } else {
+          status = "already-lifetime";
+        }
       }
     }
-  }
 
-  const fields: Record<string, FieldValue> = {
-    type: payment.type,
-    amountPence: payment.amountPence,
-    currency: payment.currency.toUpperCase(),
-    months,
-    status,
-    receivedAt: now,
-    kofiTimestamp: payment.timestamp,
-    isSubscriptionPayment: payment.isSubscriptionPayment,
-  };
-  if (match) {
-    fields.uid = match.uid;
-    fields.matchedBy = match.matchedBy;
-  }
-  if (status !== "granted") {
-    fields.email = payment.email;
-    fields.fromName = payment.fromName;
-  }
+    const fields: Record<string, FieldValue> = {
+      type: truncate(payment.type, 32),
+      amountPence: payment.amountPence,
+      currency: payment.currency.toUpperCase(),
+      months,
+      status,
+      receivedAt: now,
+      kofiTimestamp: truncate(payment.timestamp, 64),
+      isSubscriptionPayment: payment.isSubscriptionPayment,
+    };
+    if (match) {
+      fields.uid = match.uid;
+      fields.matchedBy = match.matchedBy;
+    }
+    if (status !== "granted") {
+      fields.email = truncate(payment.email, 320);
+      fields.fromName = truncate(payment.fromName, 200);
+    }
 
-  const writes: DocumentWrite[] = [
-    { kind: "create", path: `kofiPayments/${payment.id}`, fields },
-  ];
-  if (entitlementWrite) writes.push(entitlementWrite);
-  writes.push({
-    kind: "increment",
-    path: `tipTotals/${monthKey(paymentDate)}`,
-    increments: { amountPence: payment.amountPence, count: 1 },
-  });
+    const writes: DocumentWrite[] = [
+      { kind: "create", path: `kofiPayments/${payment.id}`, fields },
+    ];
+    if (entitlementWrite) writes.push(entitlementWrite);
+    if (countsAsTip) {
+      writes.push({
+        kind: "increment",
+        path: `tipTotals/${monthKey(paymentDate)}`,
+        increments: { amountPence: payment.amountPence, count: 1 },
+      });
+    }
 
-  const result = await client.commit(writes, transaction);
-  return { status, duplicate: result === "duplicate" };
+    const result = await client.commit(writes, transaction);
+    return { status, duplicate: result === "duplicate" };
+  } catch (error) {
+    if (transaction !== undefined) {
+      await client.rollback(transaction).catch(() => undefined);
+    }
+    throw error;
+  }
 };
 
 export const createReceiver = (deps: ReceiverDeps) => {
@@ -155,7 +204,10 @@ export const createReceiver = (deps: ReceiverDeps) => {
     const url = new URL(request.url);
     if (request.method !== "POST" || url.pathname !== "/kofi") return reply(404, "Not found");
 
-    const payment = parseKofiPayload(await request.text());
+    const body = await readBody(request);
+    if (body === null) return reply(413, "Payload too large");
+
+    const payment = parseKofiPayload(body);
     if (!payment) return reply(400, "Malformed request");
 
     if (!tokensMatch(env.KOFI_VERIFICATION_TOKEN ?? "", payment.verificationToken)) {

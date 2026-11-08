@@ -15,6 +15,7 @@ export interface KofiPayment {
 }
 
 const SAFE_ID = /^[A-Za-z0-9_-]{1,128}$/;
+const RESERVED_ID = /^__.*__$/;
 
 const text = (value: unknown): string | null => (typeof value === "string" ? value : null);
 
@@ -36,7 +37,7 @@ export const parseKofiPayload = (body: string): KofiPayment | null => {
   const currency = text(record.currency);
   const id = text(record.kofi_transaction_id) || text(record.message_id);
   if (!verificationToken || !amount || !currency || !id) return null;
-  if (!SAFE_ID.test(id)) return null;
+  if (!SAFE_ID.test(id) || RESERVED_ID.test(id)) return null;
 
   const amountPence = parseAmountPence(amount);
   if (amountPence === null) return null;

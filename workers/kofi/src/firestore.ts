@@ -13,6 +13,7 @@ export interface FirestoreClient {
   beginTransaction(): Promise<string>;
   getDocument(path: string, transaction?: string): Promise<Record<string, unknown> | null>;
   commit(writes: DocumentWrite[], transaction?: string): Promise<CommitResult>;
+  rollback(transaction: string): Promise<void>;
   lookupUidByEmail(email: string): Promise<string | null>;
 }
 
@@ -105,7 +106,7 @@ export const createFirestoreClient = (options: {
     async getDocument(path, transaction) {
       const query = transaction ? `?transaction=${encodeURIComponent(transaction)}` : "";
       const response = await send(`${base}/${path}${query}`);
-      if (response.status === 404) return null;
+      if (response.status === 404 && (await errorStatus(response)) === "NOT_FOUND") return null;
       if (!response.ok) throw new UpstreamError(`getDocument failed: ${response.status}`);
       const body = (await response.json()) as {
         fields?: Record<string, Record<string, unknown>>;
@@ -122,9 +123,16 @@ export const createFirestoreClient = (options: {
       });
       if (response.ok) return "committed";
       const status = await errorStatus(response);
-      if (status === "ALREADY_EXISTS" || status === "FAILED_PRECONDITION") return "duplicate";
-      if (response.status === 409 && status !== "ABORTED") return "duplicate";
+      if (status === "ALREADY_EXISTS") return "duplicate";
       throw new UpstreamError(`commit failed: ${response.status}`);
+    },
+
+    async rollback(transaction) {
+      const response = await send(`${base}:rollback`, {
+        method: "POST",
+        body: JSON.stringify({ transaction }),
+      });
+      if (!response.ok) throw new UpstreamError(`rollback failed: ${response.status}`);
     },
 
     async lookupUidByEmail(email) {
@@ -132,14 +140,15 @@ export const createFirestoreClient = (options: {
         `https://identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts:lookup`,
         { method: "POST", body: JSON.stringify({ email: [email] }) },
       );
-      if (!response.ok) {
-        const text = await response.text();
-        if (response.status === 400 && text.includes("USER_NOT_FOUND")) return null;
-        throw new UpstreamError(`accounts:lookup failed: ${response.status}`);
-      }
-      const body = (await response.json()) as { users?: { localId?: unknown }[] };
-      const uid = body.users?.[0]?.localId;
-      return typeof uid === "string" ? uid : null;
+      if (response.status === 400) return null;
+      if (!response.ok) throw new UpstreamError(`accounts:lookup failed: ${response.status}`);
+      const body = (await response.json()) as {
+        users?: { localId?: unknown; emailVerified?: unknown; disabled?: unknown }[];
+      };
+      if (body.users?.length !== 1) return null;
+      const [user] = body.users;
+      if (user.emailVerified !== true || user.disabled === true) return null;
+      return typeof user.localId === "string" ? user.localId : null;
     },
   };
 };

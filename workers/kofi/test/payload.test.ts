@@ -73,6 +73,13 @@ describe("parseKofiPayload", () => {
     expect(parseKofiPayload(form({ ...base, kofi_transaction_id: "a/b" }))).toBeNull();
   });
 
+  it("rejects an id Firestore reserves", () => {
+    expect(parseKofiPayload(form({ ...base, kofi_transaction_id: "__abc__" }))).toBeNull();
+    expect(parseKofiPayload(form({ ...base, kofi_transaction_id: "____" }))).toBeNull();
+    expect(parseKofiPayload(form({ ...base, kofi_transaction_id: "__abc" }))?.id).toBe("__abc");
+    expect(parseKofiPayload(form({ ...base, kofi_transaction_id: "abc__" }))?.id).toBe("abc__");
+  });
+
   it("defaults optional text fields to empty strings", () => {
     const { email: _email, message: _message, from_name: _name, ...rest } = base;
     const parsed = parseKofiPayload(form(rest));

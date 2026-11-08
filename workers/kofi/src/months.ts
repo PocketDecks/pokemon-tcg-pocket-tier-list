@@ -8,9 +8,12 @@ export const parseAmountPence = (amount: string): number | null => {
   return pounds * 100 + pence;
 };
 
+export const MAX_MONTHS = 120;
+
 export const monthsForPayment = (amountPence: number, currency: string): number => {
   if (currency.toUpperCase() !== "GBP") return 0;
-  return Math.floor(amountPence / 100);
+  const months = Math.floor(amountPence / 100);
+  return months > MAX_MONTHS ? 0 : months;
 };
 
 const daysInMonth = (year: number, monthIndex: number): number =>

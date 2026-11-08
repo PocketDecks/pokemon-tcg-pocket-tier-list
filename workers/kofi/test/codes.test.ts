@@ -19,6 +19,21 @@ describe("extractCode", () => {
     expect(extractCode("pd-abc123")).toBeNull();
   });
 
+  it("ignores a code glued to a preceding letter or digit", () => {
+    expect(extractCode("XPD-ABC123")).toBeNull();
+    expect(extractCode("9PD-ABC123")).toBeNull();
+  });
+
+  it("accepts a code after punctuation or at the start", () => {
+    expect(extractCode("(PD-ABC123)")).toBe("PD-ABC123");
+    expect(extractCode("PD-ABC123")).toBe("PD-ABC123");
+    expect(extractCode("code:PD-ABC123")).toBe("PD-ABC123");
+  });
+
+  it("skips a glued code and finds a later clean one", () => {
+    expect(extractCode("XPD-AAAAAA PD-BBBBBB")).toBe("PD-BBBBBB");
+  });
+
   it("returns the first code when several appear", () => {
     expect(extractCode("PD-AAAAAA and PD-BBBBBB")).toBe("PD-AAAAAA");
   });

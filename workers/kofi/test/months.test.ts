@@ -31,6 +31,12 @@ describe("monthsForPayment", () => {
     expect(monthsForPayment(500, "USD")).toBe(0);
   });
 
+  it("grants up to 120 months and nothing above", () => {
+    expect(monthsForPayment(12000, "GBP")).toBe(120);
+    expect(monthsForPayment(12099, "GBP")).toBe(120);
+    expect(monthsForPayment(12100, "GBP")).toBe(0);
+  });
+
   it("accepts lower-case GBP", () => {
     expect(monthsForPayment(200, "gbp")).toBe(2);
   });

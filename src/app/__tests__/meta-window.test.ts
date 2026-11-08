@@ -5,6 +5,7 @@ import {
   META_WINDOWS,
   isPremiumMetaWindow,
   metaWindowDataPath,
+  parseMetaWindow,
 } from "../meta-window";
 
 describe("meta windows", () => {
@@ -36,5 +37,20 @@ describe("meta windows", () => {
     for (const metaWindow of META_WINDOWS) {
       expect(META_WINDOW_LABEL_KEYS[metaWindow]).toBe(`window.${metaWindow}`);
     }
+  });
+
+  it("parses a window id from a query value", () => {
+    expect(parseMetaWindow("10d")).toBe("10d");
+    expect(parseMetaWindow("20d")).toBe("20d");
+    expect(parseMetaWindow("30d")).toBe("30d");
+    expect(parseMetaWindow("all")).toBe("all");
+  });
+
+  it("rejects anything that is not a window id", () => {
+    expect(parseMetaWindow(null)).toBeNull();
+    expect(parseMetaWindow("")).toBeNull();
+    expect(parseMetaWindow("40d")).toBeNull();
+    expect(parseMetaWindow("ALL")).toBeNull();
+    expect(parseMetaWindow("toString")).toBeNull();
   });
 });

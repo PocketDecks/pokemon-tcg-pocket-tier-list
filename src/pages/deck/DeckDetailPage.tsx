@@ -13,6 +13,7 @@ import DeckCard from "../../components/DeckCard";
 import { MIN_MATCHUP_GAMES, WINRATE_THRESHOLD } from "../../app/config";
 import useIsPremium from "../../app/use-is-premium";
 import { useMetaWindow } from "../../app/use-meta-window";
+import useWindowSearchParam from "../../app/use-window-search-param";
 import ShareDeckCode from "../../components/ShareDeckCode";
 import Tooltip from "../../components/Tooltip";
 import type { MetaShareEntry } from "../../types/pipeline-data";
@@ -94,6 +95,7 @@ const DeckDetailPage = () => {
   const tierListHref = useLocaleHref("/tier-list");
   const isPremium = useIsPremium();
   const { window: metaWindow } = useMetaWindow();
+  useWindowSearchParam();
 
   const missingCounts = useMemo(() => {
     const counts: Record<string, number> = {};

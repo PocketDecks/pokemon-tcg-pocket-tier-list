@@ -44,11 +44,11 @@ const decks = [
 const jsonResponse = (body: unknown) =>
   Promise.resolve({ ok: true, json: () => Promise.resolve(body) } as unknown as Response);
 
-const renderPage = (metaShareDecks: unknown[]) => {
+const renderPage = (metaShareDecks: unknown[], initialWindow?: "10d") => {
   vi.spyOn(global, "fetch").mockImplementation((input) => {
     const url = String(input);
-    if (url.endsWith("best-decks.json")) return jsonResponse(decks);
-    if (url.endsWith("meta-share.json"))
+    if (/best-decks(-10d)?\.json$/.test(url)) return jsonResponse(decks);
+    if (/meta-share(-10d)?\.json$/.test(url))
       return jsonResponse({ generatedAt: "2026-08-24T00:00:00Z", windowDays: 20, decks: metaShareDecks });
     return jsonResponse({});
   });
@@ -56,7 +56,7 @@ const renderPage = (metaShareDecks: unknown[]) => {
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
       <ThemeProvider>
         <ContentReadyProvider>
-          <MetaWindowProvider>
+          <MetaWindowProvider initialWindow={initialWindow}>
             <MemoryRouter>
               <DecksProvider>
                 <StatisticsPage />
@@ -108,6 +108,28 @@ describe("StatisticsPage movement tabs", () => {
     fireEvent.click(movementTab("New decks"));
     expect(await screen.findByRole("row", { name: /missingno|Missingno/i })).toBeTruthy();
     expect(screen.queryByText(NO_MOVEMENT)).toBeNull();
+  });
+});
+
+describe("StatisticsPage movement links", () => {
+  const mixed = [
+    { name: GOOD_DECK, share: 0.12, sharePrev: 0.1, delta: 0.02, windowGames: 100, firstSeen: "2026-01-01", isNew: false },
+  ];
+
+  it("links a movement row to the plain deck page in the default window", async () => {
+    renderPage(mixed);
+    fireEvent.click(await waitForTab("Rising"));
+
+    const link = await screen.findByRole("link", { name: /Venusaur|venusaur/i });
+    expect(link).toHaveAttribute("href", `/deck/${GOOD_DECK}`);
+  });
+
+  it("carries the selected window on a movement row link", async () => {
+    renderPage(mixed, "10d");
+    fireEvent.click(await waitForTab("Rising"));
+
+    const link = await screen.findByRole("link", { name: /Venusaur|venusaur/i });
+    expect(link).toHaveAttribute("href", `/deck/${GOOD_DECK}?window=10d`);
   });
 });
 

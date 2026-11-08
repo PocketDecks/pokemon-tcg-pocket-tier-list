@@ -55,6 +55,7 @@ interface DecksContextType {
   metaShareBySlug: Record<string, MetaShareEntry> | null;
   loading: boolean;
   error: Error | null;
+  isPremium: boolean | null;
 }
 
 const DecksContext = createContext<DecksContextType | undefined>(undefined);
@@ -375,6 +376,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
       metaShareBySlug,
       loading: cardsLoading || decksLoading || awaitingPremium,
       error: decksError ?? null,
+      isPremium,
     }),
     [
       decks,
@@ -386,6 +388,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
       decksLoading,
       awaitingPremium,
       decksError,
+      isPremium,
     ]
   );
 

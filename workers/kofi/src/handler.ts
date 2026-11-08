@@ -1,5 +1,6 @@
 import { extractCode } from "./codes";
-import { decideGrant, type ExistingEntitlement, type PaymentStatus } from "./decision";
+import { decideGrant, type PaymentStatus } from "./decision";
+import { SAFE_UID, toEntitlement } from "./entitlement";
 import { UpstreamError } from "./errors";
 import {
   createFirestoreClient,
@@ -30,7 +31,6 @@ interface Match {
 const PREMIUM_TYPES = new Set(["Donation", "Subscription"]);
 const MAX_BODY_BYTES = 16384;
 const MAX_TIMESTAMP_SKEW_MS = 2 * 24 * 60 * 60 * 1000;
-const SAFE_UID = /^[A-Za-z0-9]{1,128}$/;
 
 const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
 
@@ -68,19 +68,6 @@ const readBody = async (request: Request): Promise<string | null> => {
 
 const reply = (status: number, body: string): Response =>
   new Response(body, { status, headers: { "content-type": "text/plain; charset=utf-8" } });
-
-const EXPIRED_MS = 0;
-
-const expiryOf = (value: unknown): number | null => {
-  if (value === undefined || value === null) return null;
-  if (value instanceof Date && !Number.isNaN(value.getTime())) return value.getTime();
-  return EXPIRED_MS;
-};
-
-const toEntitlement = (document: Record<string, unknown> | null): ExistingEntitlement | null => {
-  if (!document) return null;
-  return { premium: document.premium === true, expiresAtMs: expiryOf(document.expiresAt) };
-};
 
 const findMatch = async (client: FirestoreClient, payment: KofiPayment): Promise<Match | null> => {
   const code = extractCode(payment.message);

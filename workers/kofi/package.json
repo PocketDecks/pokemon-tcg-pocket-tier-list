@@ -11,10 +11,13 @@
     "test": "vitest",
     "test:ci": "vitest run",
     "typecheck": "tsc --noEmit",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "grant": "tsx scripts/grant.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20261107.1",
+    "@types/node": "24.19.2",
+    "tsx": "4.23.15",
     "typescript": "5.9.3",
     "vitest": "4.1.12",
     "wrangler": "4.158.0"

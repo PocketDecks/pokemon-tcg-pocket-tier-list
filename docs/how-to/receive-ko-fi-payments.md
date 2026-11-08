@@ -10,7 +10,8 @@ Premium from `entitlements`
 ## What the Worker does
 
 Ko-fi sends a `POST` whose form body has one field, `data`, holding JSON. The
-Worker answers `POST /kofi` and returns 404 for any other method or path
+Worker answers `POST /kofi` and, once you set the admin token,
+`POST /admin/grant`. It returns 404 for any other method or path
 
 For each delivery it works through these steps:
 
@@ -105,10 +106,20 @@ admin credentials
    - `KOFI_VERIFICATION_TOKEN`, copied from ko-fi.com/manage/webhooks
    - `FIREBASE_SERVICE_ACCOUNT`, holding the whole JSON key
 4. Delete the downloaded key file
-5. On ko-fi.com/manage/webhooks, set the webhook URL to
+5. Add the third secret, `KOFI_ADMIN_TOKEN`, which switches on the grant
+   endpoint described under "Granting a payment by hand". Generate it into
+   a file in `private/`, which Git ignores, then send the file to
+   Cloudflare. Neither command prints the token:
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))" > private/kofi-admin-token
+   yarn --cwd workers/kofi wrangler secret put KOFI_ADMIN_TOKEN < private/kofi-admin-token
+   ```
+   Without this secret, or with one shorter than 32 characters, the
+   endpoint answers 404 as if it did not exist
+6. On ko-fi.com/manage/webhooks, set the webhook URL to
    `https://pocketdecks-kofi.<account subdomain>.workers.dev/kofi`, using the
    subdomain shown under Workers & Pages, and send a test
-6. Once the DNS zone moves to the new Cloudflare account, the URL can change
+7. Once the DNS zone moves to the new Cloudflare account, the URL can change
    to `api.pocketdecks.top/kofi`. That needs a route in `wrangler.toml` and
    a redeploy. Put the `routes` line near the top of the file, above the
    first `[observability]` table, because TOML would otherwise read it as
@@ -120,7 +131,8 @@ admin credentials
 ## Running it locally
 
 Copy `workers/kofi/.dev.vars.example` to `workers/kofi/.dev.vars`, fill in
-both values and run `yarn --cwd workers/kofi dev`. Git ignores `.dev.vars`,
+the values (leave `KOFI_ADMIN_TOKEN` empty to keep the grant endpoint off)
+and run `yarn --cwd workers/kofi dev`. Git ignores `.dev.vars`,
 so the key stays out of commits
 
 The file reads one variable per line, so the service account JSON must sit
@@ -153,40 +165,136 @@ did not grant, so a code or account email written there is still to hand
 
 ## Granting a payment by hand
 
-The `grant` script credits an `unmatched` or `needs-review` payment to a
-user you pick. It reuses the Worker's own code, so it stacks months, leaves
-lifetime access alone and applies the 2100 rule the same way. It runs in
-one Firestore transaction: it reads the payment and the entitlement, then
-commits both writes together. If the Worker touches the entitlement in the
-meantime, Firestore aborts the commit and nothing changes
+A tip needs a person when the Worker marks it `unmatched` (no account for
+the tipper's email) or `needs-review` (not a GBP tip, or over GBP 120). The
+`grant` command credits such a payment to the user you pick. It reuses the
+Worker's own code, so it stacks months, leaves lifetime access alone and
+applies the 2100 rule the same way. It runs in one Firestore transaction:
+it reads the payment and the entitlement, then commits both writes
+together. If the Worker touches the entitlement in the meantime, Firestore
+aborts the commit and nothing changes
 
-1. Find the user's uid under Firebase Authentication
-2. In Google Cloud, create a JSON key for the `kofi-receiver` service
-   account, or reuse one you stored safely. Save it outside the repository
-3. Run a dry run from the repository root. It reads and reports, then rolls
-   back without writing:
+The command sends the request to the live Worker, so you need no Google
+key. It proves who you are with the admin token from the secrets step,
+which sits in `private/kofi-admin-token`
+
+### Step by step
+
+1. Find the payment. Open the Firebase console, choose Firestore Database
+   and open the `kofiPayments` collection. Click the document for the tip.
+   Its id is the document's name, for example `txn123-msg456`. Then read
+   four fields:
+   - `status` must say `unmatched` or `needs-review`
+   - `email` and `message` show who sent the tip
+   - `months` shows how many months it earns. A `months` of 0 means you
+     pick the number yourself in step 4
+2. Find the account. The simplest way is the account email, because the
+   command looks the account up for you. It must be the email the person
+   signed up with, which can differ from the one Ko-fi sent. The message
+   often names it. The email must belong to exactly one account that is
+   verified and not disabled. To use a uid instead, open Authentication in
+   the Firebase console, find the user and copy the User UID column
+3. Run a dry run from the repository root. Replace the two placeholders
+   and keep the rest. A dry run reads and reports, then writes nothing:
    ```bash
-   yarn --cwd workers/kofi grant --payment <kofiPayments id> --uid <uid> --key <path to key> --dry-run
+   yarn --cwd workers/kofi grant --payment <payment id> --email <account email> --token-file private/kofi-admin-token --dry-run
    ```
-   The output names the payment, the uid, the months, the old expiry and the
-   new one
-4. Run the same command without `--dry-run` to write the grant
-5. Delete the key file
+   To use a uid, swap `--email <account email>` for `--uid <uid>`. Give
+   exactly one of the two
+4. Read the summary. It looks like this:
+   ```
+   Dry run: nothing was written
+   payment: txn123-msg456
+   uid: <the account's uid>
+   months: 5
+   result: granted
+   old expiry: none
+   new expiry: 2027-04-08T12:00:00.000Z
+   ```
+   Check three things. The uid must belong to the person you meant. The
+   months must match what they paid for. The new expiry must sit that many
+   months after the old expiry, or after today when the old expiry is
+   `none` or already past. A result of `already-lifetime` means the user
+   has lifetime access, so the real run marks the payment and leaves the
+   entitlement alone. When the payment stores no months, the command
+   refuses and asks for `--months <n>`, a whole number from 1 to 120. Add
+   it to the command and run the dry run again. When the payment does
+   store months, `--months` must match them or the command refuses
+5. Run the same command without `--dry-run`. The first line of the output
+   then reads `Grant written`
+6. Check the result in the Firebase console. `kofiPayments/<id>` now shows
+   `status` as `granted` (or `already-lifetime`), with `uid`, `matchedBy`
+   set to `manual`, `months` and `grantedAt`. `entitlements/<uid>` shows
+   `premium` as true, `source` as `kofi` and an `expiresAt` equal to the
+   new expiry from the summary
 
-The payment id is the document id under `kofiPayments`. The script takes the
-months from the payment. When the payment holds none, as with a
-`needs-review` payment in another currency or over GBP 120, add
-`--months <n>` with a whole number from 1 to 120. When the payment does
-hold months, `--months` must match them or the script refuses
+The command leaves `tipTotals` alone, because the Worker counted the tip
+when it arrived
 
-The script refuses a payment that reads `granted` or `already-lifetime`, a
-missing payment, and a uid that is unsafe, missing or disabled. Each
-refusal writes nothing. A rerun after a stop, an abort or a success is
-therefore safe, because every run checks the payment's status again inside a
-fresh transaction
+### Fixing problems
 
-On success the payment gets `status` set to `granted` (or `already-lifetime`
-when the user already has lifetime access), plus `uid`, `matchedBy` set to
-`manual`, `months` and `grantedAt`. The script leaves `tipTotals` alone,
-because the Worker counted the tip when it arrived. It never prints the key,
-the access token or the signed assertion
+A usage error exits with code 2 and every other failure exits with 1. None
+of them writes anything. A rerun is always safe, because each run checks
+the payment's status again inside a fresh transaction
+
+- Exit code 2 with the usage text means a mistyped command. The line above
+  the usage names the problem. Common causes are giving both `--uid` and
+  `--email`, giving neither, and leaving out `--token-file`
+- "The token file could not be read" or "is empty" means the path is wrong.
+  Run the command from the repository root, where `private/kofi-admin-token`
+  exists
+- "The Worker rejected the token (401)" means the file does not match the
+  `KOFI_ADMIN_TOKEN` secret. Generate a new token and set the secret again,
+  as in the last secrets step
+- "The Worker has no admin endpoint (404)" means the Worker does not know
+  the route. Check that the secret is set and holds at least 32
+  characters, that you deployed the Worker after this feature landed and
+  that `--url` points at the right Worker
+- "Refused: no single verified, enabled account for that email" means the
+  email matched no account, several accounts, an unverified account or a
+  disabled one. Find the uid in Authentication and use `--uid`
+- "Refused: Payment ... has status granted" (or `already-lifetime`) means
+  someone already granted it. Check the two documents from step 6. There
+  is nothing left to do
+- "Refused: Payment ... does not exist" means the payment id has a typo.
+  Copy it again from the console
+- "Refused: ... so pass --months" means the payment stores no months. Add
+  `--months <n>`
+- "Refused: No active account exists for uid ..." means the uid is wrong
+  or the account is disabled
+- "The Worker answered 500" or "Grant failed" with a cause means Google
+  failed. The Worker's log line in the Cloudflare dashboard names the
+  failing call and its status. Wait a minute and run the command again
+
+### Without the Worker
+
+The command can also write to Firestore directly with a service account
+key. In Google Cloud, create a JSON key for `kofi-receiver` and save it
+outside the repository. Replace `--token-file private/kofi-admin-token`
+with `--key <path to key>`. This mode accepts `--email` too, and resolves
+it before the transaction. Delete the key file afterwards
+
+### How the endpoint behaves
+
+The command posts JSON to `/admin/grant` with the header
+`Authorization: Bearer <token>`. The body holds `payment`, exactly one of
+`uid` or `email`, and optionally `months` and `dryRun`. The Worker
+compares the token in constant time before it reads the body or calls
+Google. It trims and lower-cases the email, then asks Identity Toolkit
+for exactly one verified, enabled account
+
+The Worker answers with one of these statuses:
+
+- 200 carries JSON with `payment`, `uid`, `months`, `status`,
+  `previousExpiry`, `newExpiry` and `dryRun`
+- 400 means the body is not valid JSON or has bad fields
+- 401 means the token is missing or wrong
+- 404 means no admin token is set, or no single account matches the email
+- 409 means the Worker refused the grant, for example because the payment
+  is already granted
+- 413 means the body passes 16 KiB
+- 500 means Google failed
+
+The Worker writes one log line per call, holding the payment id and the
+result. It never logs the token, the email or the key. The `/kofi` route
+behaves as before

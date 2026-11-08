@@ -14,19 +14,26 @@ Worker answers `POST /kofi` and returns 404 for any other method or path
 
 For each delivery it works through these steps:
 
-1. It parses the body and returns 400 when the body is unreadable or lacks
-   the token, the amount, the currency or an id
+1. It reads the body, stopping with 413 once it passes 16 KB. It then
+   returns 400 when the body is unreadable or lacks the token, the amount,
+   the currency or a usable id. Ids of the form `__name__` are unusable,
+   because Firestore reserves them
 2. It compares `verification_token` with the `KOFI_VERIFICATION_TOKEN`
    secret in constant time. On a mismatch it returns 401 and writes nothing
 3. It counts the months. One-off tips (`Donation`) and monthly tips
-   (`Subscription`) in GBP earn one month per whole pound. The Worker marks
-   a shop order, a commission, another currency or anything under GBP 1 as
-   `needs-review` and grants nothing
+   (`Subscription`) in GBP earn one month per whole pound, up to 120
+   months. The Worker marks a shop order, a commission, another currency,
+   anything under GBP 1 and anything over GBP 120 as `needs-review` and
+   grants nothing
 4. It looks for the user. A code such as `PD-ABC123` in the message points at
-   `premiumCodes/{code}`, which holds `{ uid }`. The site issues no codes yet,
-   so for now the Worker falls back to the Ko-fi email and asks the Identity
-   Toolkit admin endpoint for the matching account. With no match it marks
-   the payment `unmatched`
+   `premiumCodes/{code}`, which holds `{ uid }`. The code must stand alone,
+   with no letter or digit directly before or after it, and the uid must be
+   up to 128 letters and digits. The site issues no codes yet, so for now
+   the Worker falls back to the Ko-fi email, trimmed and in lower case, and
+   asks the Identity Toolkit admin endpoint for the matching account. It
+   accepts exactly one account that has a verified email and is not
+   disabled. With no match, or with any other result, it marks the payment
+   `unmatched`
 5. It grants the months. Inside a Firestore transaction it reads
    `entitlements/{uid}`. A premium entitlement without `expiresAt` is a
    lifetime grant, which the Worker leaves alone and marks
@@ -34,7 +41,10 @@ For each delivery it works through these steps:
    in UTC calendar months from the later of now and an active expiry. One
    month from 31 January ends on the last day of February
 6. It commits once. A single Firestore commit creates `kofiPayments/{id}`,
-   writes the entitlement and adds the amount to `tipTotals/{YYYY-MM}`
+   writes the entitlement and, for a GBP `Donation` or `Subscription`, adds
+   the amount to `tipTotals/{YYYY-MM}`. The month comes from the Ko-fi
+   timestamp when that lies within two days of now, and from now otherwise.
+   Other payments are recorded without a totals write
 
 The entitlement keeps the fields the site reads: `premium`, `source` (always
 `kofi`), `expiresAt` and `updatedAt`
@@ -42,17 +52,22 @@ The entitlement keeps the fields the site reads: `premium`, `source` (always
 The Worker names each payment document after `kofi_transaction_id`, or
 `message_id` when Ko-fi sends no transaction id, and creates it only if it
 does not exist yet. When Ko-fi delivers the same payment twice, Firestore
-rejects the second create and the Worker returns 200 without changing
-anything. Ko-fi retries every response other than 200, so the Worker answers
-500 when Google fails
+rejects the second create with `ALREADY_EXISTS` and the Worker returns 200
+without changing anything. Every other Firestore error, including an
+aborted transaction from two payments racing for one user, makes the Worker
+roll the transaction back and answer 500. Ko-fi retries every response other
+than 200, so the delivery arrives again and the Worker handles it afresh
 
 The Worker keeps the tipper's email and name only on payments it did not
 grant, because you need them to match an `unmatched` or `needs-review`
 payment by hand. Responses never carry the token, an email or the service
-account, and each log line holds just the payment id and its status
+account, and each log line holds just the payment id and its status. The
+Worker cuts stored text to 320 characters for the email, 200 for the name,
+64 for the Ko-fi timestamp and 32 for the type
 
-`firestore.rules` needs no change. The rules deny clients every collection
-they do not list, and the Worker signs in with admin credentials
+The Firestore rules live in the Firebase console and need no change. They
+deny clients every collection they do not list, and the Worker signs in with
+admin credentials
 
 ## Switching it on
 
@@ -79,7 +94,11 @@ they do not list, and the Worker signs in with admin credentials
    `https://pocketdecks-kofi.<account subdomain>.workers.dev/kofi`, using the
    subdomain shown under Workers & Pages, and send a test
 6. Once the DNS zone moves to the new Cloudflare account, the URL can change
-   to `api.pocketdecks.top/kofi`
+   to `api.pocketdecks.top/kofi`. That needs a route in `wrangler.toml` and
+   a redeploy:
+   ```toml
+   routes = [{ pattern = "api.pocketdecks.top/kofi", zone_name = "pocketdecks.top" }]
+   ```
 
 ## Checking a delivery
 

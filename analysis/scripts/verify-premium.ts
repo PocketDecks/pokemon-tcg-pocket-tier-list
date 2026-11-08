@@ -35,7 +35,6 @@ export const verifyPremium = async (
   log: (line: string) => void = console.log,
   fail: (line: string) => void = (line) => {
     console.error(line);
-    process.exit(1);
   }
 ): Promise<void> => {
   const repoRoot = path.resolve(__dirname, "../..");

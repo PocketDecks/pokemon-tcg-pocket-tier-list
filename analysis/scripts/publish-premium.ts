@@ -19,7 +19,7 @@ import {
 
 export interface PremiumDb {
   collection(name: string): { get(): Promise<{ docs: { id: string; get(field: string): unknown }[] }> };
-  doc(path: string): { set(data: unknown): Promise<void> };
+  doc(path: string): { ref: unknown; set(data: unknown): Promise<void> };
   recursiveDelete(ref: unknown): Promise<void>;
 }
 
@@ -41,9 +41,13 @@ export const readLiveVersion = (repoRoot: string): string | undefined => {
 const adapt = (firestore: Firestore): PremiumDb => ({
   collection: (name) =>
     firestore.collection(name) as unknown as { get(): Promise<{ docs: { id: string; get(field: string): unknown }[] }> },
-  doc: (path) => ({
-    set: (data) => firestore.doc(path).set(data as Record<string, unknown>).then(() => {}),
-  }),
+  doc: (path) => {
+    const ref = firestore.doc(path);
+    return {
+      ref,
+      set: (data: unknown) => ref.set(data as Record<string, unknown>).then(() => {}),
+    };
+  },
   recursiveDelete: (ref) => firestore.recursiveDelete(ref as never),
 });
 
@@ -116,7 +120,7 @@ export const publishPremium = async (
   log(`wrote ${plan.versionWrite.path}`);
 
   for (const old of plan.deleteVersions) {
-    await db.recursiveDelete(db.doc(`${PREMIUM_COLLECTION}/${old}`));
+    await db.recursiveDelete(db.doc(`${PREMIUM_COLLECTION}/${old}`).ref);
     log(`deleted ${PREMIUM_COLLECTION}/${old}`);
   }
 };

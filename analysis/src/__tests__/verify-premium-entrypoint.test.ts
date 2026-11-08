@@ -44,12 +44,47 @@ describe("verify-premium entry point", () => {
   });
 
   it("lists every problem before failing", async () => {
-    const db = { doc: () => ({ get: async () => ({ exists: false, get: () => null }) }) };
-    const failures: string[] = [];
+    const payloads = Object.fromEntries(
+      PREMIUM_ARTEFACT_NAMES.map((name) => [name, `{"name":"${name}"}`])
+    );
+    const version = premiumVersion(payloads);
+    const missing = PREMIUM_ARTEFACT_NAMES[0];
+    const corrupt = PREMIUM_ARTEFACT_NAMES[1];
+    const db = {
+      doc: (path: string) => ({
+        get: async () => {
+          if (path.endsWith(version)) {
+            return {
+              exists: true,
+              get: (field: string) =>
+                field === "artefacts"
+                  ? Object.fromEntries(
+                      PREMIUM_ARTEFACT_NAMES.map((name) => [
+                        name,
+                        name === corrupt ? "wrong-hash" : sha256Hex(payloads[name]),
+                      ])
+                    )
+                  : null,
+            };
+          }
+          const name = path.split("/").pop() ?? "";
+          return {
+            exists: name !== missing,
+            get: (field: string) =>
+              field === "payload" ? (name === corrupt ? "broken" : payloads[name]) :
+                sha256Hex(name === corrupt ? "broken" : payloads[name] ?? ""),
+          };
+        },
+      }),
+    };
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
     await expect(
-      verifyPremium({ db }, () => {}, (line) => failures.push(line))
+      verifyPremium({ db, version }, () => {})
     ).rejects.toThrow(/is not complete/);
-    expect(failures).toHaveLength(1);
-    expect(failures[0]).toMatch(/version .+ is missing/);
+    expect(error.mock.calls.map(([line]) => line)).toEqual([
+      `artefact ${missing} is missing`,
+      `artefact ${corrupt} hash mismatch`,
+    ]);
+    error.mockRestore();
   });
 });

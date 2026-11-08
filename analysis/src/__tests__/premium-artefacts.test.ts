@@ -254,6 +254,17 @@ describe("snapshotPremiumPrevious", () => {
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
+  it("copies a meta-share snapshot object for the movement check", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "premium-meta-share-"));
+    const premium = path.join(dir, "premium");
+    fs.mkdirSync(premium);
+    const contents = JSON.stringify({ generatedAt: "2026-11-07T00:00:00.000Z", decks: [] });
+    fs.writeFileSync(path.join(premium, "meta-share-30d.json"), contents);
+    snapshotPremiumPrevious(premium);
+    expect(fs.readFileSync(path.join(previousPremiumDir(premium), "meta-share-30d.json"), "utf8")).toBe(contents);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
   it("copies nothing when the premium directory does not exist", () => {
     snapshotPremiumPrevious(path.join(os.tmpdir(), "premium-missing-12345"));
     expect(fs.existsSync(previousPremiumDir(path.join(os.tmpdir(), "premium-missing-12345")))).toBe(false);

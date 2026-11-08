@@ -44,7 +44,7 @@ export const snapshotPremiumPrevious = (dir: string = PREMIUM_DIR): void => {
     const contents = fs.readFileSync(source, "utf8");
     try {
       const parsed: unknown = JSON.parse(contents);
-      if (!Array.isArray(parsed)) continue;
+      if (!isSnapshotValue(parsed)) continue;
     } catch {
       continue;
     }
@@ -71,6 +71,13 @@ const dataNameOf = (file: string): string | null => {
 const TRIMMED_NAME = new RegExp(
   `^(${TRIMMED_BASES.join("|")})(?:-(${TRIMMED_WINDOWS.join("|")}))?$`
 );
+
+const isSnapshotValue = (value: unknown): boolean =>
+  Array.isArray(value) ||
+  (value !== null &&
+    typeof value === "object" &&
+    typeof (value as { generatedAt?: unknown }).generatedAt === "string" &&
+    Array.isArray((value as { decks?: unknown }).decks));
 
 const render = (value: unknown): string => JSON.stringify(value, null, 2);
 

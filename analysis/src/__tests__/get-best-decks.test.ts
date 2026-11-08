@@ -2,9 +2,10 @@ import path from "node:path";
 import { vi } from "vitest";
 import { Deck } from "../utils/types";
 
-const { writeArtefacts, stageOgImages, getDecks, commit, discard, mkdirSync, PREMIUM_TEST_DIR } = vi.hoisted(() => ({
+const { writeArtefacts, stageOgImages, getDecks, commit, discard, mkdirSync, PREMIUM_TEST_DIR, DECKS_TEST_DIR } = vi.hoisted(() => ({
   mkdirSync: vi.fn(),
   PREMIUM_TEST_DIR: `${require("node:os").tmpdir()}/no-such-premium-directory`,
+  DECKS_TEST_DIR: `${require("node:os").tmpdir()}/get-best-decks-store`,
   writeArtefacts: vi.fn(),
   stageOgImages: vi.fn(),
   getDecks: vi.fn(),
@@ -15,6 +16,9 @@ const { writeArtefacts, stageOgImages, getDecks, commit, discard, mkdirSync, PRE
 vi.mock("../load-env-side-effect", () => ({}));
 vi.mock("node:fs", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:fs")>();
+  mkdirSync.mockImplementation((...args: Parameters<typeof actual.mkdirSync>) =>
+    actual.mkdirSync(...args)
+  );
   return { ...actual, default: { ...actual, mkdirSync }, mkdirSync };
 });
 vi.mock("../utils/premium-artefacts", async (importOriginal) => {
@@ -28,7 +32,7 @@ vi.mock("../utils/premium-artefacts", async (importOriginal) => {
   };
 });
 vi.mock("../utils/write-artifacts", () => ({ writeArtefacts }));
-vi.mock("../utils/data-paths", () => ({ decksDir: () => "/mocked/decks" }));
+vi.mock("../utils/data-paths", () => ({ decksDir: () => DECKS_TEST_DIR }));
 vi.mock("../utils/store-lock", () => ({
   withStoreLock: (_dir: string, fn: () => unknown) => fn(),
 }));
@@ -335,10 +339,20 @@ describe("run", () => {
     const actual = await vi.importActual<typeof import("../utils/assert-publishable")>(
       "../utils/assert-publishable"
     );
+    const emptyPrevious = path.join(path.dirname(PREMIUM_TEST_DIR), "premium-empty");
+    const fs = await vi.importActual<typeof import("node:fs")>("node:fs");
+    fs.rmSync(emptyPrevious, { recursive: true, force: true });
+    fs.mkdirSync(emptyPrevious, { recursive: true });
     const reader = vi.mocked(readPreviousArchetypeCount);
     for (let call = 0; call < 4; call += 1) {
       reader.mockImplementationOnce((best, meta, release) =>
-        best.startsWith(PREMIUM_TEST_DIR) ? actual.readPreviousArchetypeCount(best, meta, release) : null
+        best.startsWith(PREMIUM_TEST_DIR)
+          ? actual.readPreviousArchetypeCount(
+              path.join(emptyPrevious, path.basename(best)),
+              path.join(emptyPrevious, path.basename(meta)),
+              release
+            )
+          : null
       );
     }
 
@@ -346,6 +360,7 @@ describe("run", () => {
 
     expect(reader.mock.results.map((result) => result.value)).toEqual([null, null, null, null]);
     expect(writeArtefacts).toHaveBeenCalledTimes(1);
+    fs.rmSync(emptyPrevious, { recursive: true, force: true });
   });
 
   it("passes the days of data since the release to the gate", async () => {

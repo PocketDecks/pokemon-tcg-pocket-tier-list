@@ -912,6 +912,27 @@ describe("idempotency and failures", () => {
     for (const call of later.slice(1)) expect(call.authorization).toBe("Bearer access-2");
   });
 
+  it("fetches a fresh token after Google rejects the cached one", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const { post, google } = setup();
+    google.addUser("ash@example.com", "uid-ash");
+    expect((await post(payment({ message_id: "msg-a" }))).status).toBe(200);
+    google.revokeTokens();
+    expect((await post(payment({ message_id: "msg-b" }))).status).toBe(500);
+    expect((await post(payment({ message_id: "msg-b" }))).status).toBe(200);
+    error.mockRestore();
+    expect(google.read("kofiPayments/txn-1-msg-b")).toMatchObject({ status: "granted" });
+  });
+
+  it("stores the currency upper-cased, well-formed and cut to eight characters", async () => {
+    const { post, google } = setup();
+    await post(payment({ currency: `us\uD800${"d".repeat(40)}` }));
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
+      status: "needs-review",
+      currency: "US�DDDDD",
+    });
+  });
+
   it("logs the payment id and the cause of an upstream failure", async () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const { post, google } = setup();

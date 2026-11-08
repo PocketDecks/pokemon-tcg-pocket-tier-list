@@ -331,6 +331,9 @@ export const createFakeGoogle = (options: FakeGoogleOptions) => {
     lookupMissAs400: (enabled: boolean) => {
       state.lookupMissAs400 = enabled;
     },
+    revokeTokens: () => {
+      issuedTokens.clear();
+    },
     openTransactions: () => transactions.size,
     docPaths: () => [...docs.keys()],
   };

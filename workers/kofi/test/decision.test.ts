@@ -64,6 +64,41 @@ describe("decideGrant", () => {
     ).toEqual({ status: "already-lifetime" });
   });
 
+  it("treats an expiry in 2150 as lifetime", () => {
+    expect(
+      decideGrant({
+        months: 1,
+        existing: { premium: true, expiresAtMs: Date.parse("2150-01-01T00:00:00.000Z") },
+        now,
+      }),
+    ).toEqual({ status: "already-lifetime" });
+  });
+
+  it("still stacks onto an expiry of exactly 2100-01-01", () => {
+    const decision = decideGrant({
+      months: 1,
+      existing: { premium: true, expiresAtMs: Date.parse("2100-01-01T00:00:00.000Z") },
+      now,
+    });
+    expect(decision.status).toBe("granted");
+    if (decision.status === "granted") {
+      expect(decision.expiresAt.toISOString()).toBe("2100-02-01T00:00:00.000Z");
+    }
+  });
+
+  it("grants from now when the clock is past 2100 and the expiry has passed", () => {
+    const later = new Date("2101-01-01T00:00:00.000Z");
+    const decision = decideGrant({
+      months: 1,
+      existing: { premium: true, expiresAtMs: Date.parse("2100-06-01T00:00:00.000Z") },
+      now: later,
+    });
+    expect(decision.status).toBe("granted");
+    if (decision.status === "granted") {
+      expect(decision.expiresAt.toISOString()).toBe("2101-02-01T00:00:00.000Z");
+    }
+  });
+
   it("still stacks onto an expiry just before 2100", () => {
     const decision = decideGrant({
       months: 1,

@@ -57,9 +57,10 @@ const errorStatus = async (response: Response): Promise<string | null> => {
 export const createFirestoreClient = (options: {
   projectId: string;
   getToken: () => Promise<string>;
+  onUnauthorised?: () => void;
   fetch: typeof fetch;
 }): FirestoreClient => {
-  const { projectId, getToken, fetch: fetchImpl } = options;
+  const { projectId, getToken, onUnauthorised, fetch: fetchImpl } = options;
   const documentsRoot = `projects/${projectId}/databases/(default)/documents`;
   const base = `https://firestore.googleapis.com/v1/${documentsRoot}`;
 
@@ -67,7 +68,9 @@ export const createFirestoreClient = (options: {
     const token = await getToken();
     const headers: Record<string, string> = { authorization: `Bearer ${token}` };
     if (init.body) headers["content-type"] = "application/json";
-    return fetchImpl(url, { ...init, headers });
+    const response = await fetchImpl(url, { ...init, headers });
+    if (response.status === 401) onUnauthorised?.();
+    return response;
   };
 
   const toWrite = (write: DocumentWrite): Record<string, unknown> => {

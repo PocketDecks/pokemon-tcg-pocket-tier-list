@@ -153,7 +153,7 @@ const processPayment = async (
     const fields: Record<string, FieldValue> = {
       type: truncate(payment.type, 32),
       amountPence: payment.amountPence,
-      currency: payment.currency.toUpperCase(),
+      currency: truncate(payment.currency.toUpperCase(), 8),
       months,
       status,
       receivedAt: now,
@@ -200,13 +200,15 @@ export const createReceiver = (deps: ReceiverDeps) => {
   const clientFor = (secret: string): FirestoreClient => {
     if (cache && cache.secret === secret) return cache.client;
     const serviceAccount = parseServiceAccount(secret);
+    const getToken = createTokenProvider({
+      serviceAccount,
+      fetch: deps.fetch,
+      now: () => deps.now().getTime(),
+    });
     const client = createFirestoreClient({
       projectId: serviceAccount.projectId,
-      getToken: createTokenProvider({
-        serviceAccount,
-        fetch: deps.fetch,
-        now: () => deps.now().getTime(),
-      }),
+      getToken,
+      onUnauthorised: getToken.invalidate,
       fetch: deps.fetch,
     });
     cache = { secret, client };

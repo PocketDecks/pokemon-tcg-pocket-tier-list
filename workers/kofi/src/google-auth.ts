@@ -87,11 +87,13 @@ export const signJwt = async (
   return `${signingInput}.${base64Url(new Uint8Array(signature))}`;
 };
 
+export type TokenProvider = (() => Promise<string>) & { invalidate: () => void };
+
 export const createTokenProvider = (options: {
   serviceAccount: ServiceAccount;
   fetch: typeof fetch;
   now?: () => number;
-}): (() => Promise<string>) => {
+}): TokenProvider => {
   const { serviceAccount, fetch: fetchImpl } = options;
   const now = options.now ?? Date.now;
   let cached: { token: string; expiresAtMs: number } | null = null;
@@ -117,8 +119,13 @@ export const createTokenProvider = (options: {
     return body.access_token;
   };
 
-  return async () => {
+  const getToken = async () => {
     if (cached && now() < cached.expiresAtMs - REFRESH_MARGIN_MS) return cached.token;
     return refresh();
   };
+  return Object.assign(getToken, {
+    invalidate: () => {
+      cached = null;
+    },
+  });
 };

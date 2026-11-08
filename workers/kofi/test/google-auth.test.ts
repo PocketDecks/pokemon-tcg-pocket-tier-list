@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
+import { UpstreamError } from "../src/errors";
 import { createTokenProvider, parseServiceAccount, signJwt } from "../src/google-auth";
 import { generateTestKeys, serviceAccountJson, type TestKeys } from "./keys";
 
@@ -127,6 +128,29 @@ describe("createTokenProvider", () => {
     const later = await provider();
     expect(["token-1", "token-2"]).toContain(later);
     expect(fetchMock).toHaveBeenCalledTimes(requests);
+  });
+
+  it("drops the cached token when told it was rejected", async () => {
+    const { provider, fetchMock } = setup();
+    expect(await provider()).toBe("token-1");
+    provider.invalidate();
+    expect(await provider()).toBe("token-2");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("throws an upstream error when a 200 response carries no token", async () => {
+    const provider = createTokenProvider({
+      serviceAccount: parseServiceAccount(serviceAccountJson(keys.privateKeyPem)),
+      fetch: (async () =>
+        new Response(JSON.stringify({ expires_in: 3600 }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        })) as unknown as typeof fetch,
+      now: () => 1_800_000_000_000,
+    });
+    const failure = await provider().catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(UpstreamError);
+    expect((failure as Error).message).toBe("token exchange returned no token");
   });
 
   it("throws when the token endpoint fails", async () => {

@@ -1,3 +1,5 @@
+import { handleAdminGrant } from "./admin-grant";
+import { readBody } from "./body";
 import { extractCode } from "./codes";
 import { decideGrant, type PaymentStatus } from "./decision";
 import { SAFE_UID, toEntitlement } from "./entitlement";
@@ -16,6 +18,7 @@ import { tokensMatch } from "./token";
 export interface Env {
   KOFI_VERIFICATION_TOKEN: string;
   FIREBASE_SERVICE_ACCOUNT: string;
+  KOFI_ADMIN_TOKEN?: string;
 }
 
 export interface ReceiverDeps {
@@ -29,7 +32,7 @@ interface Match {
 }
 
 const PREMIUM_TYPES = new Set(["Donation", "Subscription"]);
-const MAX_BODY_BYTES = 16384;
+const MIN_ADMIN_TOKEN_LENGTH = 32;
 const MAX_TIMESTAMP_SKEW_MS = 2 * 24 * 60 * 60 * 1000;
 
 const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
@@ -38,32 +41,6 @@ const truncate = (value: string, limit: number): string => {
   const wellFormed = value.replace(LONE_SURROGATE, "\uFFFD");
   const characters = Array.from(wellFormed);
   return characters.length > limit ? characters.slice(0, limit).join("") : wellFormed;
-};
-
-const readBody = async (request: Request): Promise<string | null> => {
-  const declared = request.headers.get("content-length");
-  if (declared !== null && Number(declared) > MAX_BODY_BYTES) return null;
-  if (!request.body) return "";
-  const reader = request.body.getReader();
-  const chunks: Uint8Array[] = [];
-  let total = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    total += value.byteLength;
-    if (total > MAX_BODY_BYTES) {
-      await reader.cancel();
-      return null;
-    }
-    chunks.push(value);
-  }
-  const bytes = new Uint8Array(total);
-  let offset = 0;
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  return new TextDecoder().decode(bytes);
 };
 
 const reply = (status: number, body: string): Response =>
@@ -205,6 +182,15 @@ export const createReceiver = (deps: ReceiverDeps) => {
 
   return async (request: Request, env: Env): Promise<Response> => {
     const url = new URL(request.url);
+    if (request.method === "POST" && url.pathname === "/admin/grant") {
+      const adminToken = env.KOFI_ADMIN_TOKEN ?? "";
+      if (adminToken.length < MIN_ADMIN_TOKEN_LENGTH) return reply(404, "Not found");
+      return handleAdminGrant(request, {
+        adminToken,
+        client: () => clientFor(env.FIREBASE_SERVICE_ACCOUNT),
+        now: deps.now(),
+      });
+    }
     if (request.method !== "POST" || url.pathname !== "/kofi") return reply(404, "Not found");
 
     const body = await readBody(request);

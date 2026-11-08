@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { parseGrantArgs, UsageError } from "../scripts/grant-args";
+import { DEFAULT_URL, parseGrantArgs, UsageError } from "../scripts/grant-args";
 
 const base = ["--payment", "txn-1-msg-1", "--uid", "uid123", "--key", "key.json"];
+const remote = ["--payment", "p1", "--uid", "u1", "--token-file", "t.txt"];
 
 describe("parseGrantArgs", () => {
   it("parses the required flags", () => {
@@ -10,6 +11,7 @@ describe("parseGrantArgs", () => {
       paymentId: "txn-1-msg-1",
       uid: "uid123",
       keyPath: "key.json",
+      url: DEFAULT_URL,
       months: undefined,
       dryRun: false,
     });
@@ -47,5 +49,59 @@ describe("parseGrantArgs", () => {
 
   it("rejects a flag with no value", () => {
     expect(() => parseGrantArgs(["--payment", "p", "--uid", "u", "--key"])).toThrow(UsageError);
+  });
+
+  it("parses the remote mode with an email", () => {
+    expect(
+      parseGrantArgs(["--payment", "p1", "--email", "a@b.co", "--token-file", "t.txt"]),
+    ).toEqual({
+      help: false,
+      paymentId: "p1",
+      email: "a@b.co",
+      tokenFile: "t.txt",
+      url: DEFAULT_URL,
+      months: undefined,
+      dryRun: false,
+    });
+  });
+
+  it("defaults the url to the live Worker", () => {
+    expect(DEFAULT_URL).toBe("https://pocketdecks-kofi.pocketdecks.workers.dev");
+  });
+
+  it("accepts a custom url and strips a trailing slash", () => {
+    expect(parseGrantArgs([...remote, "--url", "https://example.test/"]).url).toBe(
+      "https://example.test",
+    );
+    expect(parseGrantArgs([...remote, "--url", "http://localhost:8787"]).url).toBe(
+      "http://localhost:8787",
+    );
+  });
+
+  it.each(["http://example.test", "ftp://example.test", "not a url", "https://"])(
+    "rejects --url %j",
+    (value) => {
+      expect(() => parseGrantArgs([...remote, "--url", value])).toThrow(UsageError);
+    },
+  );
+
+  it("accepts --email in key mode", () => {
+    expect(
+      parseGrantArgs(["--payment", "p1", "--email", "a@b.co", "--key", "key.json"]),
+    ).toMatchObject({ email: "a@b.co", keyPath: "key.json" });
+  });
+
+  it("rejects both or neither of --uid and --email", () => {
+    expect(() => parseGrantArgs([...base, "--email", "a@b.co"])).toThrow(UsageError);
+    expect(() => parseGrantArgs(["--payment", "p1", "--key", "key.json"])).toThrow(UsageError);
+  });
+
+  it("rejects both or neither of --key and --token-file", () => {
+    expect(() => parseGrantArgs([...base, "--token-file", "t.txt"])).toThrow(UsageError);
+    expect(() => parseGrantArgs(["--payment", "p1", "--uid", "u1"])).toThrow(UsageError);
+  });
+
+  it("rejects --url in key mode", () => {
+    expect(() => parseGrantArgs([...base, "--url", "https://example.test"])).toThrow(UsageError);
   });
 });

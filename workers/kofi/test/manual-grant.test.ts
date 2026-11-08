@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createFirestoreClient } from "../src/firestore";
 import { createTokenProvider, parseServiceAccount } from "../src/google-auth";
-import { grantManually, ManualGrantRefusal } from "../src/manual-grant";
+import { grantManually, ManualGrantRefusal, resolveGrantUid } from "../src/manual-grant";
 import { createFakeGoogle } from "./fake-google";
 import { keys, NOW, serviceAccount } from "./handler-fixtures";
 
@@ -39,6 +39,7 @@ const setup = (beforeCommit?: (google: Fake) => void) => {
     currency: "GBP",
     email: "ash@example.com",
   });
+  const lookup = (target: { uid?: string; email?: string }) => resolveGrantUid(client, target);
   const run = (overrides: Partial<Parameters<typeof grantManually>[0]> = {}) =>
     grantManually({
       client,
@@ -48,7 +49,7 @@ const setup = (beforeCommit?: (google: Fake) => void) => {
       now: NOW,
       ...overrides,
     });
-  return { google, run };
+  return { google, run, lookup };
 };
 
 const seedNeedsReview = (google: Fake, months = 0) => {
@@ -276,5 +277,34 @@ describe("grantManually", () => {
     await run({ dryRun: true });
     const outcome = await run();
     expect(outcome.status).toBe("granted");
+  });
+});
+
+describe("resolveGrantUid", () => {
+  it("returns a uid unchanged", async () => {
+    const { lookup } = setup();
+    expect(await lookup({ uid: UID })).toBe(UID);
+  });
+
+  it("resolves a trimmed, lower-cased email", async () => {
+    const { lookup } = setup();
+    expect(await lookup({ email: "  ASH@Example.com " })).toBe(UID);
+  });
+
+  it("returns null when no single verified, enabled account matches", async () => {
+    const { google, lookup } = setup();
+    google.addUser("dup@example.com", "uidA");
+    google.addUser("dup@example.com", "uidB");
+    google.addUser("off@example.com", "uidC", { disabled: true });
+    google.addUser("unv@example.com", "uidD", { emailVerified: false });
+    const emails = ["nobody@example.com", "dup@example.com", "off@example.com", "unv@example.com"];
+    for (const email of emails) {
+      expect(await lookup({ email })).toBeNull();
+    }
+  });
+
+  it("returns null when neither is given", async () => {
+    const { lookup } = setup();
+    expect(await lookup({})).toBeNull();
   });
 });

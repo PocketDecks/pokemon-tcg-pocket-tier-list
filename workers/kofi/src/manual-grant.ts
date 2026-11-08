@@ -123,3 +123,13 @@ export const grantManually = async (input: ManualGrantInput): Promise<ManualGran
     throw error;
   }
 };
+
+export const resolveGrantUid = async (
+  client: FirestoreClient,
+  target: { uid?: string; email?: string },
+): Promise<string | null> => {
+  if (target.uid !== undefined) return target.uid;
+  if (target.email === undefined) return null;
+  const uid = await client.lookupUidByEmail(target.email.trim().toLowerCase());
+  return uid && uid.length <= 128 && !uid.includes("/") ? uid : null;
+};

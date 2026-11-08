@@ -76,7 +76,11 @@ export const publishPremium = async (
 
   if (dryRun || db === null) {
     const plan = planPremiumUpload({ files, version, existing: [] });
-    log(`Dry run for project ${projectId}, version ${version}`);
+    log(
+      dryRun
+        ? `Dry run for project ${projectId}, version ${version}`
+        : `No database configured, so nothing writes for project ${projectId}, version ${version}`
+    );
     for (const write of plan.artefactWrites) {
       log(`  write ${write.path} (${Buffer.byteLength(write.data.payload, "utf8")} bytes)`);
     }

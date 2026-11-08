@@ -70,10 +70,6 @@ const buildCardScores = (qualifiedDecks: Deck[], weights: ScoringWeights) => {
 };
 
 export const run = async (): Promise<void> => {
-  // The deck store is read under the same lock `download` uses, so a start
-  // run cannot race a running download. `stageOgImages` awaits, so the lock
-  // is taken around the read here and around the write later, not around the
-  // whole run.
   snapshotPremiumPrevious();
   const allDecks = withStoreLock(decksDir(), () => getDecks());
   const today = new Date();

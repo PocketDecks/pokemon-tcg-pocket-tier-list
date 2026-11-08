@@ -10,8 +10,10 @@ import {
   PREMIUM_WINDOWS,
   premiumFilePath,
   premiumVersion,
+  previousPremiumDir,
   renderDataVersion,
   splitArtefactFiles,
+  snapshotPremiumPrevious,
 } from "../utils/premium-artefacts";
 
 const DECKS = Array.from({ length: 12 }, (_, index) => `deck-${index}`);
@@ -240,8 +242,6 @@ describe("renderDataVersion", () => {
   });
 });
 
-import { previousPremiumDir, snapshotPremiumPrevious } from "../utils/premium-artefacts";
-
 describe("snapshotPremiumPrevious", () => {
   it("copies the premium files aside so the next run can compare with them", () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "premium-previous-"));
@@ -256,6 +256,7 @@ describe("snapshotPremiumPrevious", () => {
 
   it("copies nothing when the premium directory does not exist", () => {
     snapshotPremiumPrevious(path.join(os.tmpdir(), "premium-missing-12345"));
+    expect(fs.existsSync(previousPremiumDir(path.join(os.tmpdir(), "premium-missing-12345")))).toBe(false);
   });
 });
 

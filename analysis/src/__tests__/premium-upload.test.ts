@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   PREMIUM_ARTEFACT_NAMES,
+  premiumVersion,
   sha256Hex,
 } from "../utils/premium-artefacts";
 import { checkPremiumVersion, type PremiumSnapshot } from "../utils/premium-verify";
@@ -138,8 +139,6 @@ describe("checkPremiumVersion", () => {
     expect(checkPremiumVersion(snapshot)).toEqual(["artefact best-decks-30d hash mismatch"]);
   });
 });
-
-import { premiumVersion } from "../utils/premium-artefacts";
 
 describe("checkPremiumVersion version recompute", () => {
   it("fails when the version does not match the payloads", () => {

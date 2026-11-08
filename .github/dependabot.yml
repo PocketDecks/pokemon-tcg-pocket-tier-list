@@ -26,6 +26,10 @@ updates:
       kofi-receiver:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "@types/node"
+        update-types:
+          - "version-update:semver-major"
     commit-message:
       prefix: "build(deps)"
     labels:

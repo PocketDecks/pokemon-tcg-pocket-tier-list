@@ -149,25 +149,44 @@ secret or its roles, an exhausted Firestore quota, a Google outage, and a
 payment racing another for the same user, which Ko-fi's retry then settles
 
 The payment document keeps the tipper's message on every payment the Worker
-did not grant, so a code or account email written there is still to hand.
-To grant Premium for an `unmatched` payment:
+did not grant, so a code or account email written there is still to hand
+
+## Granting a payment by hand
+
+The `grant` script credits an `unmatched` or `needs-review` payment to a
+user you pick. It reuses the Worker's own code, so it stacks months, leaves
+lifetime access alone and applies the 2100 rule the same way. It runs in
+one Firestore transaction: it reads the payment and the entitlement, then
+commits both writes together. If the Worker touches the entitlement in the
+meantime, Firestore aborts the commit and nothing changes
 
 1. Find the user's uid under Firebase Authentication
-2. Claim the payment first. Check its `status` still reads `unmatched`,
-   then set it to `granting` and add `uid` and `matchedBy: "manual"`. A
-   payment that already reads `granting` or `granted` belongs to someone
-   else's grant, so leave it
-3. Open `entitlements/{uid}`. If it has `premium: true` and no `expiresAt`,
-   the user already has lifetime access and needs nothing. If its
-   `expiresAt` is still in the future, add the paid months to that date.
-   Otherwise add them to today
-4. Write `premium: true`, `source: "kofi"`, the new `expiresAt` timestamp,
-   `updatedAt` and `manualPayment` set to the payment's document id
-5. Set the payment's `status` to `granted`
+2. In Google Cloud, create a JSON key for the `kofi-receiver` service
+   account, or reuse one you stored safely. Save it outside the repository
+3. Run a dry run from the repository root. It reads and reports, then rolls
+   back without writing:
+   ```bash
+   yarn --cwd workers/kofi grant --payment <kofiPayments id> --uid <uid> --key <path to key> --dry-run
+   ```
+   The output names the payment, the uid, the months, the old expiry and the
+   new one
+4. Run the same command without `--dry-run` to write the grant
+5. Delete the key file
 
-Only one maintainer runs manual grants, so two people never claim the same
-payment at once. A payment left on `granting` means a grant stopped part
-way. If the entitlement's `manualPayment` already holds that payment's id,
-the months are on and only step 5 remains; otherwise carry on from step 3.
-The Firebase console cannot run a transaction, so the grant script planned
-as a follow-up will do steps 2 to 5 in one
+The payment id is the document id under `kofiPayments`. The script takes the
+months from the payment. When the payment holds none, as with a
+`needs-review` payment in another currency or over GBP 120, add
+`--months <n>` with a whole number from 1 to 120. When the payment does
+hold months, `--months` must match them or the script refuses
+
+The script refuses a payment that reads `granted` or `already-lifetime`, a
+missing payment, and a uid that is unsafe, missing or disabled. Each
+refusal writes nothing. A rerun after a stop, an abort or a success is
+therefore safe, because every run checks the payment's status again inside a
+fresh transaction
+
+On success the payment gets `status` set to `granted` (or `already-lifetime`
+when the user already has lifetime access), plus `uid`, `matchedBy` set to
+`manual`, `months` and `grantedAt`. The script leaves `tipTotals` alone,
+because the Worker counted the tip when it arrived. It never prints the key,
+the access token or the signed assertion

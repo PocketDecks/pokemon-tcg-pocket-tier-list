@@ -41,6 +41,7 @@ vi.mock("../settings", async (importOriginal) => {
 });
 
 import { run } from "../get-best-decks";
+import { freeDeckNames } from "../../../src/app/free-tier";
 import { UNMATCHED_DECK } from "../utils/get-deck-name";
 import { assertPublishable, daysOfDataSince, readPreviousArchetypeCount } from "../utils/assert-publishable";
 import { EXPANSION_RELEASE_DATE } from "../settings";
@@ -107,7 +108,7 @@ describe("run", () => {
 
     expect(writeArtefacts).toHaveBeenCalledTimes(1);
     const files = writeArtefacts.mock.calls[0][0] as Record<string, string>;
-    expect(Object.keys(files)).toHaveLength(20);
+    expect(Object.keys(files)).toHaveLength(24);
     for (const name of [
       "../public/data/best-decks.json",
       "../public/data/best-decks-10d.json",
@@ -127,13 +128,55 @@ describe("run", () => {
     expect(discard).not.toHaveBeenCalled();
   });
 
-  it("keeps the six premium artefacts out of the public data directory", async () => {
+  it("keeps the 30d and all-time artefacts out of the public data directory", async () => {
     await run();
 
     const files = writeArtefacts.mock.calls[0][0] as Record<string, string>;
     const publicKeys = Object.keys(files).filter((key) => key.startsWith("../public/data/"));
     expect(publicKeys.filter((key) => /-(30d|all).json$/.test(key))).toEqual([]);
     expect(publicKeys).toHaveLength(12);
+  });
+
+  it("publishes matchup rows and movement only for the ten free decks of each window", async () => {
+    await run();
+
+    const files = writeArtefacts.mock.calls[0][0] as Record<string, string>;
+    for (const [suffix, window] of [["", "20d"], ["-10d", "10d"], ["-20d", "20d"]]) {
+      const ranked = JSON.parse(files[`../public/data/best-decks-${window}.json`]);
+      const free = freeDeckNames(ranked);
+      const matchups = JSON.parse(files[`../public/data/matchup-data${suffix}.json`]);
+      const share = JSON.parse(files[`../public/data/meta-share${suffix}.json`]);
+
+      expect(free.size).toBe(10);
+      expect(Object.keys(matchups)).toHaveLength(ARCHETYPES);
+      for (const [name, rows] of Object.entries(matchups) as [string, { name: string }[]][]) {
+        if (free.has(name)) expect(rows.length).toBeGreaterThan(1);
+        else expect(rows.map((row) => row.name)).toEqual(["Total"]);
+      }
+      expect(share.decks).toHaveLength(ARCHETYPES);
+      for (const entry of share.decks as { name: string }[]) {
+        const keys = Object.keys(entry);
+        if (free.has(entry.name)) expect(keys).toContain("delta");
+        else expect(keys).toEqual(["name", "share", "windowGames"]);
+      }
+    }
+  });
+
+  it("keeps the full 10d and 20d matchups and meta share in the premium directory", async () => {
+    await run();
+
+    const files = writeArtefacts.mock.calls[0][0] as Record<string, string>;
+    for (const window of ["10d", "20d"]) {
+      const matchups = JSON.parse(files[path.join(PREMIUM_TEST_DIR, `matchup-data-${window}.json`)]);
+      const share = JSON.parse(files[path.join(PREMIUM_TEST_DIR, `meta-share-${window}.json`)]);
+
+      for (const rows of Object.values(matchups) as unknown[][]) {
+        expect(rows.length).toBeGreaterThan(1);
+      }
+      for (const entry of share.decks as object[]) {
+        expect(Object.keys(entry)).toContain("delta");
+      }
+    }
   });
 
   it("writes the premium artefacts to the premium directory", async () => {

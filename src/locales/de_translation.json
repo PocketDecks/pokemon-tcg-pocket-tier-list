@@ -47,7 +47,7 @@
       "matchups": {
         "title": "Deck-Stärken und -Schwächen",
         "description": "Sieh, gegen welche Decks dein Build gewinnt und verliert, einschließlich der Gewinnquoten in Prozent.",
-        "free": "🚫",
+        "free": "Top 10",
         "premium": "✅"
       },
       "filters": {
@@ -144,7 +144,8 @@
     "shareQrDownload": "QR herunterladen",
     "premiumGateTitle": "Dieses Deck gibt es nur in einem Premium-Zeitfenster",
     "premiumGateBody": "Es steht in den Ansichten 30 Tage und Gesamtzeit, die zu Premium gehören.",
-    "premiumGateAction": "Premium ansehen"
+    "premiumGateAction": "Premium ansehen",
+    "matchupsPremium": "Die Matchups dieses Decks gehören zu Premium. Kostenlose Konten sehen sie für die zehn besten Decks."
   },
   "energyDropdown": {
     "all": "Alle Energietypen",
@@ -196,6 +197,7 @@
     "deltaColumn": "Veränderung",
     "noTrends": "Trenddaten sind derzeit nicht verfügbar.",
     "noMovement": "Keine Deck-Bewegung in diesem Zeitraum.",
+    "movementPremium": "Die Bewegung wird für die zehn besten Decks angezeigt. Premium zeigt sie für jedes Deck.",
     "introGeneric": "Analysieren Sie die aktuelle Pokémon-TCG-Pocket-Metagame mit Live-Verlaufsdaten und Matchup-Heatmaps der Archetypen. Diese Daten zeigen, wie sich Deck-Beliebtheit und Siegquoten im Laufe der Zeit verändern."
   },
   "bestDeckFinder": {

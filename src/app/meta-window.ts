@@ -1,4 +1,4 @@
-import { loadPremiumArtefact } from "./premium-data";
+import { PremiumAccessError, loadPremiumArtefact } from "./premium-data";
 
 // The 20-day window is also written under the un-suffixed artefact filenames.
 
@@ -57,4 +57,22 @@ export const loadWindowArtefact = async (
     throw new Error(`Failed to fetch ${file}: ${response.status} ${response.statusText}`);
   }
   return response.json();
+};
+
+export type ArtefactTier = "full" | "public";
+
+export const loadTieredArtefact = async (
+  base: string,
+  window: MetaWindow,
+  tier: ArtefactTier
+): Promise<unknown> => {
+  if (tier === "public" || isPremiumMetaWindow(window)) {
+    return loadWindowArtefact(base, window);
+  }
+  try {
+    return await loadPremiumArtefact(`${base}-${window}`);
+  } catch (error) {
+    if (error instanceof PremiumAccessError) return loadWindowArtefact(base, window);
+    throw error;
+  }
 };

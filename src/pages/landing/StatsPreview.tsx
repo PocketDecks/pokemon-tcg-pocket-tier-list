@@ -140,6 +140,7 @@ const StatsPreview = () => {
     (decks ?? []).filter((deck) => deck.powerScore !== null).map((deck) => deck.id)
   );
   const rising = (metaShare?.decks ?? [])
+    .flatMap((entry) => (typeof entry.delta === "number" ? [{ ...entry, delta: entry.delta }] : []))
     .filter((entry) => entry.delta > 0.001 && rankedIds.has(entry.name))
     .sort((a, b) => b.delta - a.delta)
     .slice(0, PREVIEW_ROWS);

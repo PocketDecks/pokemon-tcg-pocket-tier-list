@@ -47,7 +47,7 @@
       "matchups": {
         "title": "Punti di Forza e Debolezza del Mazzo",
         "description": "Guarda contro quali mazzi il tuo vince o perde, incluse le percentuali di vittoria.",
-        "free": "🚫",
+        "free": "Top 10",
         "premium": "✅"
       },
       "filters": {
@@ -144,7 +144,8 @@
     "shareQrDownload": "Scarica QR",
     "premiumGateTitle": "Questo mazzo compare solo in un periodo Premium",
     "premiumGateBody": "È presente nelle viste di 30 giorni e di tutto il periodo, che fanno parte di Premium.",
-    "premiumGateAction": "Scopri Premium"
+    "premiumGateAction": "Scopri Premium",
+    "matchupsPremium": "I matchup di questo mazzo fanno parte di Premium. Gli account gratuiti li vedono per i 10 mazzi migliori."
   },
   "energyDropdown": {
     "all": "Tutti i Tipi di Energia",
@@ -196,6 +197,7 @@
     "deltaColumn": "Cambiamento",
     "noTrends": "I dati sulle tendenze non sono disponibili al momento.",
     "noMovement": "Nessun movimento di mazzi in questo periodo.",
+    "movementPremium": "Il movimento è mostrato per i 10 mazzi migliori. Premium lo mostra per ogni mazzo.",
     "introGeneric": "Analizza il metagioco attuale di Pokémon TCG Pocket con dati storici in tempo reale e mappe di calore degli scontri tra archetipi. Questi dati mostrano come cambiano nel tempo la popolarità dei mazzi e i tassi di vittoria."
   },
   "bestDeckFinder": {

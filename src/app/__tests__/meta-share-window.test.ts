@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { settleAllNewShares } from "../meta-share-window";
+import { hasMovement, settleAllNewShares } from "../meta-share-window";
 import type { MetaShareEntry } from "../../types/pipeline-data";
 
 const entry = (name: string, overrides: Partial<MetaShareEntry> = {}): MetaShareEntry => ({
@@ -33,5 +33,39 @@ describe("settleAllNewShares", () => {
 
   it("treats a single new deck as an all-new window", () => {
     expect(settleAllNewShares([entry("a")])).toEqual([{ ...entry("a"), isNew: false, delta: 0 }]);
+  });
+  it("settles the entries that carry movement and leaves the others as they are", () => {
+    const trimmed: MetaShareEntry = { name: "c", share: 0.05, windowGames: 40 };
+
+    expect(settleAllNewShares([entry("a"), trimmed])).toEqual([
+      { ...entry("a"), isNew: false, delta: 0 },
+      trimmed,
+    ]);
+  });
+
+  it("leaves entries that carry no movement unchanged", () => {
+    const trimmed: MetaShareEntry[] = [{ name: "c", share: 0.05, windowGames: 40 }];
+
+    expect(settleAllNewShares(trimmed)).toBe(trimmed);
+  });
+
+  it("does not settle when a deck with movement is not new", () => {
+    const mixed = [entry("a"), { name: "c", share: 0.05, windowGames: 40 }, entry("b", { isNew: false })];
+
+    expect(settleAllNewShares(mixed)).toEqual(mixed);
+  });
+});
+
+describe("hasMovement", () => {
+  it("is true when every movement field is present", () => {
+    expect(hasMovement(entry("a"))).toBe(true);
+  });
+
+  it("is false for a trimmed entry", () => {
+    expect(hasMovement({ name: "c", share: 0.05, windowGames: 40 })).toBe(false);
+  });
+
+  it("is false when any movement field is missing", () => {
+    expect(hasMovement({ ...entry("a"), firstSeen: undefined })).toBe(false);
   });
 });

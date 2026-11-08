@@ -13,7 +13,7 @@ import rawCards from "../../../app/__fixtures__/cards.json";
 
 vi.mock("../../../app/use-is-premium", () => ({
   __esModule: true,
-  default: () => true,
+  default: () => false,
 }));
 
 vi.mock("../../../app/use-expansions", () => ({
@@ -159,6 +159,22 @@ describe("DeckFinderPage", () => {
 
     expect(await screen.findAllByText("Matchup data didn't load. Refresh the page to try again.", {}, { timeout: 3000 })).toHaveLength(1);
     expect(screen.getByRole("button", { name: /Venusaur ex/ })).toBeInTheDocument();
+  });
+
+  it("shows the overall win rate when a deck has only its Total row", async () => {
+    vi.spyOn(global, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("best-decks.json")) return jsonResponse(DECKS_JSON);
+      if (url.endsWith("matchup-data.json"))
+        return jsonResponse({ [DECK_ID]: [{ name: "Total", winRate: 0.56, totalGames: 400 }] });
+      if (url.endsWith("meta-share.json"))
+        return jsonResponse({ generatedAt: "2026-08-24T00:00:00Z", windowDays: 7, decks: [] });
+      return jsonResponse(rawCards);
+    });
+    renderFinder();
+
+    expect(await screen.findByText("56%")).toBeInTheDocument();
+    expect(screen.queryByText("Matchup data didn't load. Refresh the page to try again.")).not.toBeInTheDocument();
   });
 
   it("uses the tier-list leader as the relative-strength baseline", async () => {

@@ -164,6 +164,10 @@ the `name` values in best-decks.json, and only ranked archetypes have keys.
 | `winRate` | number | Wins divided by games against that opponent, 0 when no games were recorded. |
 | `totalGames` | number | Games recorded against that opponent. |
 
+In the public 10d and 20d files and the un-suffixed file, only the ten decks
+that `freeDeckNames` selects keep every row; every other key holds just its
+`Total` row. The full file is the premium artefact of the same name.
+
 `DecksContext` attaches each archetype's rows to its deck as `matchups`.
 Consumers read aggregate numbers from the `Total` row: `sorting-helper.ts`'s
 `getSortValue` uses its `winRate`, and `DeckDetailPage` reads it for the
@@ -186,6 +190,11 @@ Top-level shape: `PipelineMetaShare`.
 | `generatedAt` | string | Run time as an ISO timestamp. |
 | `windowDays` | number \| null | Length of the ranking window the artefact scores, 10, 20 or 30; `null` for the all-time view. The share comparison windows use the same length. |
 | `decks` | `MetaShareEntry[]` | One entry per tracked archetype, sorted by `share` descending. |
+
+In the public 10d and 20d files and the un-suffixed file, only the ten free decks
+keep the full entry; every other entry is `{ name, share, windowGames }`, so
+`sharePrev`, `delta`, `firstSeen` and `isNew` are optional on the client. The
+full file is the premium artefact of the same name.
 
 Each `MetaShareEntry` carries:
 

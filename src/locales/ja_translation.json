@@ -47,7 +47,7 @@
       "matchups": {
         "title": "デッキの強みと弱み",
         "description": "あなたの構築したデッキがどのデッキに勝ち、どのデッキに負けるかを、勝率のパーセンテージを含めて確認できます。",
-        "free": "🚫",
+        "free": "上位10",
         "premium": "✅"
       },
       "filters": {
@@ -144,7 +144,8 @@
     "shareQrDownload": "QRをダウンロード",
     "premiumGateTitle": "このデッキはPremium限定の集計期間にのみ表示されます",
     "premiumGateBody": "30日間と全期間の表示に載っており、これらはPremiumに含まれます。",
-    "premiumGateAction": "Premiumを見る"
+    "premiumGateAction": "Premiumを見る",
+    "matchupsPremium": "このデッキのマッチアップはPremiumに含まれます。無料アカウントでは上位10デッキのみ表示されます。"
   },
   "energyDropdown": {
     "all": "すべてのエネルギータイプ",
@@ -196,6 +197,7 @@
     "deltaColumn": "変化",
     "noTrends": "トレンドデータは現在利用できません。",
     "noMovement": "この期間にデッキの動きはありません。",
+    "movementPremium": "動向は上位10デッキのみ表示されます。Premiumではすべてのデッキで表示されます。",
     "introGeneric": "最新の履歴データとアーキタイプ別の相性ヒートマップを使って、ポケモンカードゲーム ポケットの現在の環境を分析できます。デッキの人気度と勝率が時間とともにどう動くかを正確に追跡できます。"
   },
   "bestDeckFinder": {

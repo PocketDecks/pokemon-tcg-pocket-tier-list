@@ -274,6 +274,21 @@ describe("DeckHubPage content", () => {
     expect(screen.queryByText(/Zoroark/)).toBeNull();
   });
 
+  it("hides the matchups section when the strongest deck has only its Total row", async () => {
+    decksState.value = { decks: [liveGreninja], metaShareBySlug: {}, loading: false, error: null };
+    matchupsState.value = {
+      matchupsByName: { [GRENINJA]: [{ name: "Total", winRate: 0.55, totalGames: 400 }] },
+      loading: false,
+      error: null,
+    };
+    renderAt("/deck/mega-greninja-ex");
+
+    expect(await screen.findByText("Core cards")).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Matchups" })).toBeNull();
+    expect(screen.queryByText(/Not enough games against other decks/)).toBeNull();
+    expect(screen.queryByText("Best matchups")).toBeNull();
+  });
+
   it("links up to three similar current decks from other hubs with their shared card counts", async () => {
     decksState.value = {
       decks: [

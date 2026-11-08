@@ -47,7 +47,7 @@
       "matchups": {
         "title": "牌組優勢與劣勢",
         "description": "查看你的牌組能擊敗或輸給哪些牌組，包含勝率百分比。",
-        "free": "🚫",
+        "free": "前10名",
         "premium": "✅"
       },
       "filters": {
@@ -144,7 +144,8 @@
     "shareQrDownload": "下載 QR 碼",
     "premiumGateTitle": "此牌組僅出現在 Premium 時間範圍內",
     "premiumGateBody": "它列在 30 天與全部時間的檢視中，這些檢視屬於 Premium。",
-    "premiumGateAction": "了解 Premium"
+    "premiumGateAction": "了解 Premium",
+    "matchupsPremium": "此牌組的對戰組合屬於 Premium。免費帳號僅能查看前 10 名牌組。"
   },
   "energyDropdown": {
     "all": "所有能量屬性",
@@ -196,6 +197,7 @@
     "deltaColumn": "變化",
     "noTrends": "暫時無法取得趨勢資料。",
     "noMovement": "此時間範圍內沒有卡組變動。",
+    "movementPremium": "變動僅顯示前 10 名牌組。Premium 可查看所有牌組。",
     "introGeneric": "借助即時歷史資料與原型對戰熱力圖，分析目前的寶可夢卡牌 Pocket 環境。這些追蹤資料呈現卡組人氣與勝率如何隨時間變化。"
   },
   "bestDeckFinder": {

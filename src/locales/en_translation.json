@@ -47,7 +47,7 @@
       "matchups": {
         "title": "Deck Strengths and Weaknesses",
         "description": "See which decks your build beats and loses to, including win rate percentages.",
-        "free": "🚫",
+        "free": "Top 10",
         "premium": "✅"
       },
       "filters": {
@@ -144,7 +144,8 @@
     "shareQrDownload": "Download QR",
     "premiumGateTitle": "This deck only appears in a Premium window",
     "premiumGateBody": "It is listed in the 30 day and all time views, which are part of Premium.",
-    "premiumGateAction": "See Premium"
+    "premiumGateAction": "See Premium",
+    "matchupsPremium": "Matchups for this deck are part of Premium. Free accounts see them for the top 10 decks."
   },
   "energyDropdown": {
     "all": "All Energy Types",
@@ -196,6 +197,7 @@
     "deltaColumn": "Change",
     "noTrends": "Trend data is unavailable right now.",
     "noMovement": "No deck movement in this window.",
+    "movementPremium": "Movement is shown for the top 10 decks. Premium shows it for every deck.",
     "introGeneric": "Analyse the current Pokémon TCG Pocket metagame using live historical data and archetype matchup heatmaps. This tracking data maps exactly how deck popularity and win rates shift over time, and it draws on results from recent competitive events."
   },
   "bestDeckFinder": {

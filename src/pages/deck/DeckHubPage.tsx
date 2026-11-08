@@ -221,6 +221,7 @@ const HubPage = () => {
   const matchups = strongestDeck
     ? pickMatchups(matchupsByName?.[strongestDeck.name], strongestDeck.name, liveNames, MIN_MATCHUP_GAMES, 3)
     : { best: [], worst: [] };
+  const hasMatchups = matchups.best.length + matchups.worst.length > 0;
   const similar = similarDecks(decks ?? [], coreIds, hubSlug, 3);
   const peak = hubPeak(records);
   const topCards = mostIncluded(namedCore, 3).map((card) => card.name);
@@ -333,23 +334,19 @@ const HubPage = () => {
               </CardGrid>
             )}
           </Section>
-          {strongestDeck && (
+          {strongestDeck && hasMatchups && (
             <Section>
               <SectionTitle>{t("deckHub.matchups")}</SectionTitle>
-              {matchups.best.length + matchups.worst.length === 0 ? (
-                <Muted>{t("deckHub.noMatchups")}</Muted>
-              ) : (
-                <Columns>
-                  <div>
-                    <SubTitle>{t("deckHub.bestMatchups")}</SubTitle>
-                    <Rows>{renderMatchups(matchups.best)}</Rows>
-                  </div>
-                  <div>
-                    <SubTitle>{t("deckHub.worstMatchups")}</SubTitle>
-                    <Rows>{renderMatchups(matchups.worst)}</Rows>
-                  </div>
-                </Columns>
-              )}
+              <Columns>
+                <div>
+                  <SubTitle>{t("deckHub.bestMatchups")}</SubTitle>
+                  <Rows>{renderMatchups(matchups.best)}</Rows>
+                </div>
+                <div>
+                  <SubTitle>{t("deckHub.worstMatchups")}</SubTitle>
+                  <Rows>{renderMatchups(matchups.worst)}</Rows>
+                </div>
+              </Columns>
             </Section>
           )}
           <Section>

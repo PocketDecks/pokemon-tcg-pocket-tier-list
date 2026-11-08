@@ -56,22 +56,27 @@ export interface PipelineMatchupEntry {
 /** matchup-data.json's full shape: deck name maps to its matchup rows. */
 export type PipelineMatchupData = Record<string, PipelineMatchupEntry[]>;
 
-/** One archetype's entry in meta-share.json. */
-export interface MetaShareEntry {
-  name: string;
-  /** 0..1 share of qualified games in the artefact's comparison window. */
-  share: number;
+export interface MetaShareMovement {
   /** Same measure for the equal-length window ending just before it. */
   sharePrev: number;
   /** share - sharePrev; may be negative. */
   delta: number;
-  /** Qualified games captured in the artefact's window. */
-  windowGames: number;
   /** ISO date of earliest appearance in the qualified pool. */
   firstSeen: string;
   /** True when firstSeen falls inside the artefact's comparison window. */
   isNew: boolean;
 }
+
+/** One archetype's entry in meta-share.json. */
+export interface MetaShareEntry extends Partial<MetaShareMovement> {
+  name: string;
+  /** 0..1 share of qualified games in the artefact's comparison window. */
+  share: number;
+  /** Qualified games captured in the artefact's window. */
+  windowGames: number;
+}
+
+export type MovingMetaShareEntry = MetaShareEntry & MetaShareMovement;
 
 /** meta-share.json's full shape, written by get-best-decks.ts each run. */
 export interface PipelineMetaShare {

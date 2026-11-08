@@ -3,6 +3,10 @@ import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 import StatsPreview from "../StatsPreview";
 
+const movement = vi.hoisted(() => ({
+  entries: [{ name: "miraidon-ex", delta: 0.02, share: 0.1 }] as Record<string, unknown>[],
+}));
+
 const deck = {
   id: "miraidon-ex",
   name: "miraidon-ex",
@@ -13,7 +17,7 @@ const deck = {
 vi.mock("../../../app/use-decks", () => ({
   useDecks: () => ({
     decks: [deck],
-    metaShare: { decks: [{ name: "miraidon-ex", delta: 0.02, share: 0.1 }] },
+    metaShare: { decks: movement.entries },
   }),
 }));
 
@@ -41,5 +45,20 @@ describe("StatsPreview", () => {
       "href",
       "/statistics"
     );
+  });
+
+  it("lists only the decks that carry movement", () => {
+    movement.entries = [
+      { name: "miraidon-ex", sharePrev: 0.08, delta: 0.02, share: 0.1, firstSeen: "2026-01-01", isNew: false },
+      { name: "gardevoir-ex", share: 0.2, windowGames: 40 },
+    ];
+    render(
+      <MemoryRouter>
+        <StatsPreview />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("+2.0 pp")).toBeInTheDocument();
+    expect(screen.queryByText(/NaN/)).not.toBeInTheDocument();
   });
 });

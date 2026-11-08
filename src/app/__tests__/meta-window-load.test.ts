@@ -15,7 +15,8 @@ vi.mock("../premium-data", async (importOriginal) => {
   return { ...actual, loadPremiumArtefact: spies.loadPremiumArtefact };
 });
 
-import { loadWindowArtefact } from "../meta-window";
+import { loadTieredArtefact, loadWindowArtefact } from "../meta-window";
+import { PremiumAccessError } from "../premium-data";
 
 const okResponse = (body: unknown) =>
   ({ ok: true, json: () => Promise.resolve(body) }) as unknown as Response;
@@ -67,4 +68,58 @@ describe("loadWindowArtefact", () => {
       "Failed to fetch matchup-data.json: 500 Internal Server Error"
     );
   });
+});
+
+describe("loadTieredArtefact", () => {
+  it("reads the public file for the public tier in a default window", async () => {
+    await expect(loadTieredArtefact("matchup-data", "20d", "public")).resolves.toEqual([
+      { name: "public" },
+    ]);
+
+    expect(fetchSpy).toHaveBeenCalledWith("/data/matchup-data.json");
+    expect(spies.loadPremiumArtefact).not.toHaveBeenCalled();
+  });
+
+  it.each(["10d", "20d"] as const)(
+    "reads the full %s artefact through the premium loader for the full tier",
+    async (window) => {
+      await expect(loadTieredArtefact("meta-share", window, "full")).resolves.toEqual([
+        { name: "premium" },
+      ]);
+
+      expect(spies.loadPremiumArtefact).toHaveBeenCalledWith(`meta-share-${window}`);
+      expect(fetchSpy).not.toHaveBeenCalled();
+    }
+  );
+
+  it("falls back to the public file when the full artefact of a default window is denied", async () => {
+    spies.loadPremiumArtefact.mockRejectedValue(new PremiumAccessError("matchup-data-10d"));
+
+    await expect(loadTieredArtefact("matchup-data", "10d", "full")).resolves.toEqual([
+      { name: "public" },
+    ]);
+
+    expect(fetchSpy).toHaveBeenCalledWith("/data/matchup-data-10d.json");
+  });
+
+  it("does not hide other failures behind the public file", async () => {
+    const failure = new Error("offline");
+    spies.loadPremiumArtefact.mockRejectedValue(failure);
+
+    await expect(loadTieredArtefact("matchup-data", "20d", "full")).rejects.toBe(failure);
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it.each(["30d", "all"] as const)(
+    "keeps the denial of a premium window, which has no public file",
+    async (window) => {
+      const denied = new PremiumAccessError(`meta-share-${window}`);
+      spies.loadPremiumArtefact.mockRejectedValue(denied);
+
+      await expect(loadTieredArtefact("meta-share", window, "full")).rejects.toBe(denied);
+
+      expect(fetchSpy).not.toHaveBeenCalled();
+    }
+  );
 });

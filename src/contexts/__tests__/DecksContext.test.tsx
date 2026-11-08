@@ -7,7 +7,7 @@ import rawCards from "../../app/__fixtures__/cards.json";
 // The only dependency that reaches for Firebase.
 vi.mock("../../app/use-is-premium", () => ({
   __esModule: true,
-  default: () => true,
+  default: () => false,
 }));
 
 vi.mock("../../app/use-expansions", () => ({

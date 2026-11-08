@@ -66,6 +66,19 @@ describe("DeckCard", () => {
     expect(share).not.toHaveTextContent("▼");
   });
 
+  it("shows the share without an arrow or a new badge when the entry has no movement", () => {
+    const trimmed: MetaShareEntry = { name: "Test Deck", share: 0.1, windowGames: 100 };
+    const { container } = render(
+      <MemoryRouter>
+        <DeckCard deck={deck} metaShare={trimmed} />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("10.0%")).toBeInTheDocument();
+    expect(screen.queryByText("NEW")).not.toBeInTheDocument();
+    expect(container.querySelector("svg")).toBeNull();
+  });
+
   const pairDeck: FullDeckType = {
     ...deck,
     iconPrimary: { ...card, id: "card-2", name: "Mega Blaziken ex" },

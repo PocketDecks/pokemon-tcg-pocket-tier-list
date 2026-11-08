@@ -44,7 +44,7 @@ For each delivery it works through these steps:
    writes the entitlement and, for a GBP `Donation` or `Subscription`, adds
    the amount to `tipTotals/{YYYY-MM}`. The month comes from the Ko-fi
    timestamp when that lies within two days of now, and from now otherwise.
-   Other payments are recorded without a totals write
+   The Worker still records other payments but leaves the totals alone
 
 The entitlement keeps the fields the site reads: `premium`, `source` (always
 `kofi`), `expiresAt` and `updatedAt`

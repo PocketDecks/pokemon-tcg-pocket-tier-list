@@ -161,11 +161,13 @@ To grant Premium for an `unmatched` payment:
    the user already has lifetime access and needs nothing. If its
    `expiresAt` is still in the future, add the paid months to that date.
    Otherwise add them to today
-4. Write `premium: true`, `source: "kofi"`, the new `expiresAt` timestamp
-   and `updatedAt`
+4. Write `premium: true`, `source: "kofi"`, the new `expiresAt` timestamp,
+   `updatedAt` and `manualPayment` set to the payment's document id
 5. Set the payment's `status` to `granted`
 
-A payment left on `granting` means a grant stopped part way. Compare the
-entitlement's `updatedAt` with the payment before finishing it, so the
-months go on once. The Firebase console cannot run a transaction, so the
-grant script planned as a follow-up will do steps 2 to 5 in one
+Only one maintainer runs manual grants, so two people never claim the same
+payment at once. A payment left on `granting` means a grant stopped part
+way. If the entitlement's `manualPayment` already holds that payment's id,
+the months are on and only step 5 remains; otherwise carry on from step 3.
+The Firebase console cannot run a transaction, so the grant script planned
+as a follow-up will do steps 2 to 5 in one

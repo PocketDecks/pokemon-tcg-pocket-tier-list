@@ -2,7 +2,7 @@ import path from "node:path";
 import { vi } from "vitest";
 import { Deck } from "../utils/types";
 
-const { writeArtefacts, stageOgImages, getDecks, commit, discard, mkdirSync, PREMIUM_TEST_DIR, PREVIOUS_TEST_DIR, DECKS_TEST_DIR } = vi.hoisted(() => ({
+const { writeArtefacts, stageOgImages, getDecks, withStoreLock, commit, discard, mkdirSync, PREMIUM_TEST_DIR, PREVIOUS_TEST_DIR, DECKS_TEST_DIR } = vi.hoisted(() => ({
   mkdirSync: vi.fn(),
   PREMIUM_TEST_DIR: `${require("node:os").tmpdir()}/no-such-premium-directory`,
   PREVIOUS_TEST_DIR: require("node:path").join(require("node:os").tmpdir(), "get-best-decks-premium-previous"),
@@ -10,6 +10,7 @@ const { writeArtefacts, stageOgImages, getDecks, commit, discard, mkdirSync, PRE
   writeArtefacts: vi.fn(),
   stageOgImages: vi.fn(),
   getDecks: vi.fn(),
+  withStoreLock: vi.fn((_dir: string, fn: () => unknown) => fn()),
   commit: vi.fn(),
   discard: vi.fn(),
 }));
@@ -33,9 +34,7 @@ vi.mock("../utils/premium-artefacts", async (importOriginal) => {
 });
 vi.mock("../utils/write-artifacts", () => ({ writeArtefacts }));
 vi.mock("../utils/data-paths", () => ({ decksDir: () => DECKS_TEST_DIR }));
-vi.mock("../utils/store-lock", () => ({
-  withStoreLock: (_dir: string, fn: () => unknown) => fn(),
-}));
+vi.mock("../utils/store-lock", () => ({ withStoreLock }));
 vi.mock("../utils/generate-og-images", () => ({ stageOgImages }));
 vi.mock("../utils/get-decks", () => ({ default: getDecks }));
 vi.mock("../utils/assert-publishable", async (importOriginal) => {
@@ -101,6 +100,7 @@ const makeDecks = (date = DECK_DATE): Deck[] =>
 describe("run", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(withStoreLock).mockImplementation((_dir, fn) => fn());
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
     vi.spyOn(console, "log").mockImplementation(() => undefined);
@@ -299,6 +299,20 @@ describe("run", () => {
 
     expect(commit).not.toHaveBeenCalled();
     expect(discard).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps published images when releasing the store lock fails", async () => {
+    vi.mocked(withStoreLock).mockImplementationOnce((_dir, fn) => fn());
+    vi.mocked(withStoreLock).mockImplementationOnce((_dir, fn) => {
+      fn();
+      throw new Error("lock release failed");
+    });
+
+    await expect(run()).rejects.toThrow("lock release failed");
+
+    expect(writeArtefacts).toHaveBeenCalledTimes(1);
+    expect(commit).toHaveBeenCalledTimes(1);
+    expect(discard).not.toHaveBeenCalled();
   });
 
   it("stops before staging when a list names a card the card database lacks", async () => {

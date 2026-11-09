@@ -136,6 +136,7 @@ export const run = async (): Promise<void> => {
     })
   );
 
+  let imagesCommitted = false;
   try {
     withStoreLock(decksDir(), () => {
       snapshotPremiumPrevious();
@@ -181,16 +182,17 @@ export const run = async (): Promise<void> => {
         premiumDir: PREMIUM_DIR,
       });
       writeArtefacts(files);
+      try {
+        staged.commit();
+        imagesCommitted = true;
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : String(error);
+        throw new Error(`The JSON artefacts are published but the OG images are not: ${reason}`);
+      }
     });
   } catch (error) {
-    staged.discard();
+    if (!imagesCommitted) staged.discard();
     throw error;
-  }
-  try {
-    staged.commit();
-  } catch (error) {
-    const reason = error instanceof Error ? error.message : String(error);
-    throw new Error(`The JSON artefacts are published but the OG images are not: ${reason}`);
   }
 };
 

@@ -4,6 +4,19 @@ import { runVerifyPremium, verifyPremium } from "../../scripts/verify-premium";
 import { PREMIUM_ARTEFACT_NAMES, premiumVersion, sha256Hex } from "../utils/premium-artefacts";
 
 describe("verify-premium entry point", () => {
+  it("reports missing artefacts when the version document is absent", async () => {
+    const version = "0123456789abcdef";
+    const reads: string[] = [];
+    const db = { doc: (path: string) => ({ get: async () => { reads.push(path); return { exists: false, get: () => null }; } }) };
+    const failures: string[] = [];
+    await expect(verifyPremium({ db, version }, () => {}, (line) => failures.push(line))).rejects.toThrow();
+    expect(reads).toHaveLength(PREMIUM_ARTEFACT_NAMES.length + 1);
+    expect(failures).toEqual([
+      `version ${version} is missing`,
+      ...PREMIUM_ARTEFACT_NAMES.map((name) => `artefact ${name} is missing`),
+    ]);
+  });
+
   it("verifies a complete uploaded set", async () => {
     const payloads = Object.fromEntries(
       PREMIUM_ARTEFACT_NAMES.map((name) => [name, `{"name":"${name}"}`])

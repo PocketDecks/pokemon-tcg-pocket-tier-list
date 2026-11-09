@@ -10,11 +10,7 @@ export const checkPremiumVersion = (
   snapshot: PremiumSnapshot,
   expectedNames: readonly string[] = PREMIUM_ARTEFACT_NAMES
 ): string[] => {
-  if (snapshot.versionDocument === null) {
-    return [`version ${snapshot.version} is missing`];
-  }
-
-  const problems: string[] = [];
+  const problems: string[] = snapshot.versionDocument === null ? [`version ${snapshot.version} is missing`] : [];
 
   const payloads: Record<string, string> = {};
   for (const name of expectedNames) {
@@ -34,7 +30,7 @@ export const checkPremiumVersion = (
       continue;
     }
     const actual = sha256Hex(stored.payload);
-    if (actual !== stored.sha256 || actual !== snapshot.versionDocument.artefacts[name]) {
+    if (actual !== stored.sha256 || (snapshot.versionDocument !== null && actual !== snapshot.versionDocument.artefacts[name])) {
       problems.push(`artefact ${name} hash mismatch`);
     }
   }

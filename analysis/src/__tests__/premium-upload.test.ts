@@ -106,10 +106,10 @@ describe("checkPremiumVersion", () => {
 
   it("fails on a missing version document", () => {
     const snapshot = { ...completeSnapshot(), versionDocument: null };
+    snapshot.artefacts["meta-share-all"] = null;
 
-    expect(checkPremiumVersion(snapshot)).toEqual([
-      `version ${completeSnapshot().version} is missing`,
-    ]);
+    expect(checkPremiumVersion(snapshot)).toContain(`version ${completeSnapshot().version} is missing`);
+    expect(checkPremiumVersion(snapshot)).toContain("artefact meta-share-all is missing");
   });
 
   it("fails on a missing artefact", () => {

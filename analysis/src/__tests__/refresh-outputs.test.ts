@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { beginRefresh, checkpointRefresh, classifyRefresh, recoverRefresh, stageRefresh } from "../../scripts/refresh-outputs";
+import { beginRefresh, checkpointRefresh, classifyRefresh, recoverRefresh, REFRESH_OUTPUT_FILES, stageRefresh } from "../../scripts/refresh-outputs";
 
 const roots: string[] = [];
 const externalPaths: string[] = [];
@@ -133,6 +133,18 @@ describe("refresh output journal", () => {
     expect(fs.readFileSync(premium, "utf8")).toBe("old premium");
   });
 
+  it("excludes premium outputs from git staging", () => {
+    const root = fixture();
+    const premium = path.join(root, "analysis/out/premium/best-decks-all.json");
+    fs.mkdirSync(path.dirname(premium), { recursive: true });
+    fs.writeFileSync(premium, "old premium");
+    beginRefresh(root);
+    fs.writeFileSync(premium, "new premium");
+    checkpointRefresh(root);
+    expect(stageRefresh(root)).not.toContain("analysis/out/premium/best-decks-all.json");
+    expect(execFileSync("git", ["diff", "--cached", "--name-only"], { cwd: root, encoding: "utf8" })).toBe("");
+  });
+
   it("classifies a timestamp-only run as silent and restores the old timestamp", () => {
     const root = fixture();
     beginRefresh(root);
@@ -161,6 +173,76 @@ describe("refresh output journal", () => {
     fs.writeFileSync(path.join(root, "notes.txt"), "human");
     expect(() => recoverRefresh(root)).toThrow(/unrelated worktree changes/);
     expect(fs.readFileSync(path.join(root, "notes.txt"), "utf8")).toBe("human");
+  });
+
+  it("checks for dirty files even when no recovery journal exists", () => {
+    const root = fixture();
+    fs.writeFileSync(path.join(root, "analysis/src/data/limitless-decks.json"), "human edit");
+    expect(() => recoverRefresh(root)).toThrow(/worktree changes/i);
+    expect(fs.readFileSync(path.join(root, "analysis/src/data/limitless-decks.json"), "utf8")).toBe("human edit");
+  });
+
+  it("refuses to replace an existing refresh journal", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const journal = fs.readFileSync(path.join(root, ".git/refresh-outputs.json"), "utf8");
+    fs.writeFileSync(path.join(root, "analysis/src/data/limitless-decks.json"), "generated");
+    expect(() => beginRefresh(root)).toThrow(/journal already exists/i);
+    expect(fs.readFileSync(path.join(root, ".git/refresh-outputs.json"), "utf8")).toBe(journal);
+  });
+
+  it("accepts only the root atomic writer's sidecar name for known outputs", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    const temporary = `${target}.1234.12345678-1234-4234-9234-123456789abc.tmp`;
+    fs.writeFileSync(temporary, "partial");
+    recoverRefresh(root);
+    expect(fs.readFileSync(target, "utf8")).toBe("base");
+    expect(fs.existsSync(temporary)).toBe(false);
+  });
+
+  it("does not treat an arbitrary PID-like temporary file as owned", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    const temporary = `${target}.1234.not-a-uuid.tmp`;
+    fs.writeFileSync(temporary, "human");
+    expect(() => recoverRefresh(root)).toThrow(/unrelated worktree changes/i);
+    expect(fs.readFileSync(temporary, "utf8")).toBe("human");
+  });
+
+  it("keeps firebase.json in the fixed output allowlist", () => {
+    expect(REFRESH_OUTPUT_FILES).toContain("firebase.json");
+    const root = fixture();
+    beginRefresh(root);
+    fs.writeFileSync(path.join(root, "firebase.json"), "generated");
+    checkpointRefresh(root);
+    expect(stageRefresh(root)).toEqual(["firebase.json"]);
+  });
+
+  it("rejects a changed output that was not checkpointed before staging", () => {
+    const root = fixture();
+    beginRefresh(root);
+    fs.writeFileSync(path.join(root, "firebase.json"), "generated");
+    expect(() => stageRefresh(root)).toThrow(/unrecorded file changes/i);
+  });
+
+  it("rejects a changed output that was not checkpointed before classification", () => {
+    const root = fixture();
+    beginRefresh(root);
+    fs.writeFileSync(path.join(root, "analysis/src/data/limitless-decks.json"), "generated");
+    expect(() => classifyRefresh(root)).toThrow(/uncheckpointed file changes/i);
+  });
+
+  it("rejects paths that escape the worktree", () => {
+    const root = fixture();
+    const link = path.join(root, "analysis/src/data");
+    fs.rmSync(link, { recursive: true, force: true });
+    const external = outside(root, "escape");
+    fs.mkdirSync(external, { recursive: true });
+    fs.symlinkSync(external, link, linkType);
+    expect(() => beginRefresh(root)).toThrow(/symlink|junction|escapes worktree/i);
   });
 
   it("repairs a recognised interrupted atomic write from its verified backup", () => {

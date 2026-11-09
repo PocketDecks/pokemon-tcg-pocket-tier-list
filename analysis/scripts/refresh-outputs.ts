@@ -76,9 +76,18 @@ const stateTreeHash = (prefix: string, state: Record<string, string>): string =>
 };
 const outputNames = (root: string): Set<string> => new Set([...REFRESH_OUTPUT_FILES, ...Object.keys(contents(root)), ...(fs.existsSync(journalPath(root)) ? Object.keys(read(root).baseline) : [])]);
 const changedPaths = (root: string): string[] => execFileSync("git", ["status", "--porcelain=v1", "-z", "--untracked-files=all"], { cwd: root, encoding: "utf8" }).split("\0").filter(Boolean).map((line) => line.slice(3));
+const ownedAtomicTemporary = (name: string, known: Set<string>): string | undefined => {
+  for (const target of known) {
+    if (name.startsWith(`${target}.`)) {
+      const suffix = name.slice(target.length + 1);
+      if (/^\d+\.[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.tmp$/i.test(suffix)) return target;
+    }
+  }
+  return undefined;
+};
 const assertKnownChanges = (root: string): void => {
   const known = outputNames(root);
-  const bad = changedPaths(root).filter((name) => !known.has(name.replace("/deck.previous/", "/deck/").replace(/\.(tmp|bak|created)$/, "")));
+  const bad = changedPaths(root).filter((name) => !known.has(name.replace("/deck.previous/", "/deck/").replace(/\.(tmp|bak|created)$/, "")) && !ownedAtomicTemporary(name, known));
   if (bad.length) throw new Error(`refresh recovery stopped: unrelated worktree changes: ${bad.join(", ")}`);
 };
 const read = (root: string): Journal => JSON.parse(fs.readFileSync(journalPath(root), "utf8")) as Journal;
@@ -86,6 +95,7 @@ const baselineHashes = (baseline: Record<string, string>): Record<string, string
 const write = (root: string, journal: Journal): void => fs.writeFileSync(journalPath(root), JSON.stringify(journal));
 
 export const beginRefresh = (root: string): void => {
+  if (fs.existsSync(journalPath(root))) throw new Error("refresh begin stopped: journal already exists; recover it first");
   write(root, { head: git(root, "rev-parse", "HEAD"), baseline: contents(root), checkpoint: currentHashes(root) });
 };
 export const checkpointRefresh = (root: string): void => {
@@ -96,13 +106,20 @@ export const checkpointRefresh = (root: string): void => {
 export const classifyRefresh = (root: string): string[] => {
   assertKnownChanges(root);
   const journal = read(root);
+  const now = currentHashes(root);
+  const uncheckpointed = [...new Set([...Object.keys(journal.checkpoint), ...Object.keys(now)])].filter((name) => journal.checkpoint[name] !== now[name]);
+  if (uncheckpointed.length) throw new Error(`refresh classification stopped: uncheckpointed file changes: ${uncheckpointed.join(", ")}`);
   const baseline = baselineHashes(journal.baseline);
   return [...new Set([...Object.keys(baseline), ...Object.keys(journal.checkpoint)])].filter((name) =>
     baseline[name] !== journal.checkpoint[name] && name !== "src/app/last-updated.ts"
   );
 };
 export const recoverRefresh = (root: string): void => {
-  if (!fs.existsSync(journalPath(root))) return;
+  if (!fs.existsSync(journalPath(root))) {
+    const changed = changedPaths(root);
+    if (changed.length) throw new Error(`refresh recovery stopped: worktree changes without a journal: ${changed.join(", ")}`);
+    return;
+  }
   const journal = read(root);
   const head = git(root, "rev-parse", "HEAD");
   if (head !== journal.head) {
@@ -166,6 +183,9 @@ export const recoverRefresh = (root: string): void => {
       }
       fs.rmSync(marker, { force: true });
     }
+  }
+  for (const name of changedPaths(root)) {
+    if (ownedAtomicTemporary(name, new Set(outputNames(root)))) fs.rmSync(safePath(root, name), { force: true });
   }
   const now = currentHashes(root);
   const names = new Set([...Object.keys(journal.baseline), ...Object.keys(now), ...Object.keys(journal.checkpoint)]);

@@ -15,6 +15,10 @@ vi.mock("../load-env-side-effect", () => ({}));
 vi.mock("../utils/data-paths", () => ({ decksDir: () => DECKS_DIR }));
 vi.mock("../utils/get-decks", () => ({ default: getDecks }));
 vi.mock("../utils/write-artifacts", () => ({ writeArtefacts }));
+vi.mock("../utils/premium-artefacts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../utils/premium-artefacts")>();
+  return { ...actual, snapshotPremiumPrevious: vi.fn() };
+});
 vi.mock("../utils/calculate-card-scores", () => ({ calculateCardScores: () => ({}) }));
 vi.mock("../utils/generate-og-images", () => ({
   stageOgImages: async () => ({ commit: vi.fn(), discard: vi.fn() }),
@@ -29,8 +33,28 @@ vi.mock("../utils/assert-publishable", async (importOriginal) => {
 });
 
 import { run } from "../get-best-decks";
+import { readPreviousArchetypeCount } from "../utils/assert-publishable";
+import { snapshotPremiumPrevious } from "../utils/premium-artefacts";
 
 describe("store lock around get-best-decks", () => {
+  it("holds the lock while the previous snapshot is taken and compared", async () => {
+    const lockFile = lockFileFor(DECKS_DIR);
+    vi.mocked(snapshotPremiumPrevious).mockImplementationOnce(() => {
+      expect(fs.existsSync(lockFile)).toBe(true);
+    });
+    vi.mocked(readPreviousArchetypeCount).mockImplementation(() => {
+      expect(fs.existsSync(lockFile)).toBe(true);
+      return null;
+    });
+    try {
+      await run();
+    } finally {
+      vi.mocked(readPreviousArchetypeCount).mockImplementation(() => null);
+    }
+    expect(snapshotPremiumPrevious).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(lockFile)).toBe(false);
+  });
+
   it("holds the lock during the deck read and artefact write", async () => {
     const lockFile = lockFileFor(DECKS_DIR);
     getDecks.mockImplementationOnce(() => {

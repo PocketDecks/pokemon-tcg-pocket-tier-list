@@ -5,7 +5,6 @@ import { calculateCardScores } from "./utils/calculate-card-scores";
 import { buildTrends, pickTrendNames } from "./utils/build-trends";
 import { modalCopies, tallyCards } from "./utils/tally-cards";
 import {
-  buildArtefactFiles,
   buildWindowArtefacts,
   DEFAULT_WINDOW,
   qualifiedDecksInWindow,
@@ -14,6 +13,7 @@ import {
   WindowArtefacts,
   WindowId,
 } from "./utils/build-window-artefacts";
+import { buildRunFiles } from "./utils/build-run-files";
 import { stageOgImages } from "./utils/generate-og-images";
 import { assertPublishable, daysOfDataSince, newestDeckDate, readPreviousArchetypeCount, windowsWithoutComparison } from "./utils/assert-publishable";
 import { DeckListingStore } from "./utils/deck-listing-store";
@@ -25,17 +25,9 @@ import {
   PREMIUM_DIR,
   PREMIUM_WINDOWS,
   premiumFilePath,
-  premiumVersion,
   previousPremiumDir,
-  renderDataVersion,
   snapshotPremiumPrevious,
-  splitArtefactFiles,
 } from "./utils/premium-artefacts";
-import {
-  buildPremiumDeckSlugs,
-  PREMIUM_DECK_SLUGS_FILE,
-  renderPremiumDeckSlugs,
-} from "./utils/premium-deck-slugs";
 import { writeArtefacts } from "./utils/write-artifacts";
 import { decksDir } from "./utils/data-paths";
 import { withStoreLock } from "./utils/store-lock";
@@ -70,8 +62,10 @@ const buildCardScores = (qualifiedDecks: Deck[], weights: ScoringWeights) => {
 };
 
 export const run = async (): Promise<void> => {
-  snapshotPremiumPrevious();
-  const allDecks = withStoreLock(decksDir(), () => getDecks());
+  const allDecks = withStoreLock(decksDir(), () => {
+    snapshotPremiumPrevious();
+    return getDecks();
+  });
   const today = new Date();
 
   const artefacts = Object.fromEntries(
@@ -142,15 +136,17 @@ export const run = async (): Promise<void> => {
   );
 
   try {
-    const windowSnapshots = WINDOW_IDS.map((window) => ({
-      id: window,
-      bestDecks: artefacts[window].bestDecks,
-      previousArchetypeCount: readPreviousArchetypeCount(
-        previousBestDecks(window),
-        previousMetaShare(window),
-        EXPANSION_RELEASE_DATE
-      ),
-    }));
+    const windowSnapshots = withStoreLock(decksDir(), () =>
+      WINDOW_IDS.map((window) => ({
+        id: window,
+        bestDecks: artefacts[window].bestDecks,
+        previousArchetypeCount: readPreviousArchetypeCount(
+          previousBestDecks(window),
+          previousMetaShare(window),
+          EXPANSION_RELEASE_DATE
+        ),
+      }))
+    );
     const uncompared = windowsWithoutComparison(windowSnapshots);
     if (uncompared.length > 0) {
       console.log(
@@ -174,29 +170,15 @@ export const run = async (): Promise<void> => {
       },
     });
 
-    const { publicFiles, premiumFiles } = splitArtefactFiles(buildArtefactFiles(artefacts));
     fs.mkdirSync(PREMIUM_DIR, { recursive: true });
 
-    const files = {
-      ...publicFiles,
-      ...Object.fromEntries(
-        Object.entries(premiumFiles).map(([name, content]) => [
-          premiumFilePath(name, PREMIUM_DIR),
-          content,
-        ])
-      ),
-      "../public/data/data-version.json": renderDataVersion(premiumVersion(premiumFiles)),
-      [PREMIUM_DECK_SLUGS_FILE]: renderPremiumDeckSlugs(
-        buildPremiumDeckSlugs(
-          Object.fromEntries(WINDOW_IDS.map((window) => [window, artefacts[window].bestDecks])),
-          DEFAULT_WINDOW,
-          PREMIUM_WINDOWS
-        )
-      ),
-      "../public/data/historical-trends.json": JSON.stringify(trends, null, 2),
-      "../public/data/card-scores.json": JSON.stringify(cardScoresList, null, 2),
-      "../src/app/last-updated.ts": `export const LAST_UPDATED = new Date("${today.toISOString()}");`,
-    };
+    const files = buildRunFiles({
+      artefacts,
+      trends,
+      cardScoresList,
+      today,
+      premiumDir: PREMIUM_DIR,
+    });
     withStoreLock(decksDir(), () => writeArtefacts(files));
   } catch (error) {
     staged.discard();

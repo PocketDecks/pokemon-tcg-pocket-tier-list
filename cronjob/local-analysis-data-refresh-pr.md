@@ -32,7 +32,7 @@ Repository: the checked-out `pokemon-tcg-pocket-tier-list` repository.
 
 ## Freshness
 
-Windows anchor on the newest data date, so stale raw data still fills every window and ranks archetypes normally. The run clock reaches further than `generatedAt`: it sets the score weights in `scoringWeights(today)`, drops the run day from the trend series, and writes `LAST_UPDATED`. `assertPublishable` also compares the newest qualified deck's date against that same clock and refuses a run past `MAX_DATA_AGE_DAYS`, so the freshness guard lives in code and needs no measurement here.
+Windows anchor on the newest data date, so stale raw data still fills each window and ranks archetypes. Score weights use that same data anchor. The run clock still excludes its day from the trend series and sets `LAST_UPDATED`. `assertPublishable` compares the newest qualified deck date with the run clock and refuses data older than `MAX_DATA_AGE_DAYS`; this freshness guard is implemented in code
 
 ## Failure rules
 

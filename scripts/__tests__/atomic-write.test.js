@@ -23,3 +23,10 @@ test("a failed rename throws and removes its temporary file", () => {
   assert.throws(() => writeFileAtomic(destination, "payload"));
   assert.deepStrictEqual(fs.readdirSync(dir), ["out.json"]);
 });
+
+test("refresh proof stays disabled without an active journal", () => {
+  const dir = makeDir();
+  const destination = path.join(dir, "out.json");
+  writeFileAtomic(destination, "payload", { refreshRecovery: true });
+  assert.deepStrictEqual(fs.readdirSync(dir), ["out.json"]);
+});

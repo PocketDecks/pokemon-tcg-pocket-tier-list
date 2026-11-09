@@ -1,7 +1,8 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 import { beginRefresh, checkpointRefresh, classifyRefresh, recoverRefresh, REFRESH_OUTPUT_FILES, stageRefresh } from "../../scripts/refresh-outputs";
 
@@ -13,6 +14,21 @@ const outside = (root: string, name: string): string => {
   return target;
 };
 const linkType = process.platform === "win32" ? "junction" : "dir";
+const startPausedWriter = async (destination: string) => {
+  const writerUrl = pathToFileURL(path.resolve(process.cwd(), "../scripts/atomic-write.mjs")).href;
+  const script = `import fs from "node:fs"; const { writeFileAtomic } = await import(process.argv[1]); const rename = fs.renameSync; fs.renameSync = (from, to) => { process.stdout.write(from + "\\n"); const byte = Buffer.alloc(1); fs.readSync(0, byte, 0, 1); return rename(from, to); }; writeFileAtomic(process.argv[2], "generated", { refreshRecovery: true });`;
+  const child = spawn(process.execPath, ["--input-type=module", "-e", script, writerUrl, destination], { stdio: ["pipe", "pipe", "inherit"] });
+  const temporary = await new Promise<string>((resolve, reject) => {
+    let output = "";
+    child.once("error", reject);
+    child.stdout.on("data", (chunk: Buffer) => {
+      output += chunk.toString();
+      const newline = output.indexOf("\n");
+      if (newline >= 0) resolve(output.slice(0, newline));
+    });
+  });
+  return { child, temporary };
+};
 const fixture = (): string => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "refresh-outputs-"));
   roots.push(root);
@@ -194,15 +210,77 @@ describe("refresh output journal", () => {
     expect(fs.readFileSync(path.join(root, ".git/refresh-outputs.json"), "utf8")).toBe(journal);
   });
 
-  it("accepts only the root atomic writer's sidecar name for known outputs", () => {
+  it("preserves a human-created sidecar with the writer's filename shape", () => {
     const root = fixture();
     beginRefresh(root);
     const target = path.join(root, "analysis/src/data/limitless-decks.json");
     const temporary = `${target}.1234.12345678-1234-4234-9234-123456789abc.tmp`;
-    fs.writeFileSync(temporary, "partial");
+    fs.writeFileSync(temporary, "human data");
+    expect(() => recoverRefresh(root)).toThrow(/unproven atomic temporary/i);
+    expect(fs.readFileSync(target, "utf8")).toBe("base");
+    expect(fs.readFileSync(temporary, "utf8")).toBe("human data");
+  });
+
+  it("refuses a live temporary from the root atomic writer", async () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    const { child, temporary } = await startPausedWriter(target);
+    try {
+      expect(fs.existsSync(`${temporary}.owner`)).toBe(true);
+      expect(() => recoverRefresh(root)).toThrow(/writer is still active/i);
+      expect(fs.existsSync(temporary)).toBe(true);
+      expect(fs.existsSync(`${temporary}.owner`)).toBe(true);
+    } finally {
+      child.stdin.write("x");
+      await new Promise<void>((resolve) => child.once("exit", () => resolve()));
+    }
+    checkpointRefresh(root);
+    recoverRefresh(root);
+    expect(fs.readFileSync(target, "utf8")).toBe("base");
+  });
+
+  it("recovers a genuine abandoned root-writer temporary", async () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    const { child, temporary } = await startPausedWriter(target);
+    child.kill();
+    await new Promise<void>((resolve) => child.once("exit", () => resolve()));
+    expect(fs.existsSync(`${temporary}.owner`)).toBe(true);
     recoverRefresh(root);
     expect(fs.readFileSync(target, "utf8")).toBe("base");
     expect(fs.existsSync(temporary)).toBe(false);
+    expect(fs.existsSync(`${temporary}.owner`)).toBe(false);
+  });
+
+  it("recovers a new hub-tree target from the root writer", async () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "public/data/hubs/new.json");
+    const { child, temporary } = await startPausedWriter(target);
+    child.kill();
+    await new Promise<void>((resolve) => child.once("exit", () => resolve()));
+    recoverRefresh(root);
+    expect(fs.existsSync(target)).toBe(false);
+    expect(fs.existsSync(temporary)).toBe(false);
+    expect(fs.existsSync(`${temporary}.owner`)).toBe(false);
+  });
+
+  it("preserves a temporary with a tampered writer proof", async () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    const { child, temporary } = await startPausedWriter(target);
+    child.kill();
+    await new Promise<void>((resolve) => child.once("exit", () => resolve()));
+    const owner = `${temporary}.owner`;
+    const proof = JSON.parse(fs.readFileSync(owner, "utf8"));
+    proof.sha256 = "0".repeat(64);
+    fs.writeFileSync(owner, JSON.stringify(proof));
+    expect(() => recoverRefresh(root)).toThrow(/invalid atomic temporary proof/i);
+    expect(fs.existsSync(temporary)).toBe(true);
+    expect(fs.existsSync(owner)).toBe(true);
   });
 
   it("does not treat an arbitrary PID-like temporary file as owned", () => {

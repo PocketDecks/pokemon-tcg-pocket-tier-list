@@ -76,18 +76,17 @@ const stateTreeHash = (prefix: string, state: Record<string, string>): string =>
 };
 const outputNames = (root: string): Set<string> => new Set([...REFRESH_OUTPUT_FILES, ...Object.keys(contents(root)), ...(fs.existsSync(journalPath(root)) ? Object.keys(read(root).baseline) : [])]);
 const changedPaths = (root: string): string[] => execFileSync("git", ["status", "--porcelain=v1", "-z", "--untracked-files=all"], { cwd: root, encoding: "utf8" }).split("\0").filter(Boolean).map((line) => line.slice(3));
-const ownedAtomicTemporary = (name: string, known: Set<string>): string | undefined => {
-  for (const target of known) {
-    if (name.startsWith(`${target}.`)) {
-      const suffix = name.slice(target.length + 1);
-      if (/^\d+\.[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.tmp$/i.test(suffix)) return target;
-    }
-  }
-  return undefined;
+const atomicTemporary = (name: string, known: Set<string>): { target: string; temporary: string; pid: number } | undefined => {
+  const match = name.match(/^(.*)\.(\d+)\.([0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})\.tmp(?:\.owner)?$/i);
+  if (!match) return undefined;
+  const target = match[1];
+  if (!known.has(target) && !REFRESH_OUTPUT_TREES.some((tree) => target.startsWith(`${tree}/`))) return undefined;
+  const temporary = `${target}.${match[2]}.${match[3]}.tmp`;
+  return { target, temporary, pid: Number(match[2]) };
 };
 const assertKnownChanges = (root: string): void => {
   const known = outputNames(root);
-  const bad = changedPaths(root).filter((name) => !known.has(name.replace("/deck.previous/", "/deck/").replace(/\.(tmp|bak|created)$/, "")) && !ownedAtomicTemporary(name, known));
+  const bad = changedPaths(root).filter((name) => !known.has(name.replace("/deck.previous/", "/deck/").replace(/\.(tmp|bak|created)$/, "")) && !atomicTemporary(name, known));
   if (bad.length) throw new Error(`refresh recovery stopped: unrelated worktree changes: ${bad.join(", ")}`);
 };
 const read = (root: string): Journal => JSON.parse(fs.readFileSync(journalPath(root), "utf8")) as Journal;
@@ -184,8 +183,32 @@ export const recoverRefresh = (root: string): void => {
       fs.rmSync(marker, { force: true });
     }
   }
+  const atomicTemps = new Map<string, { target: string; pid: number }>();
+  const known = outputNames(root);
   for (const name of changedPaths(root)) {
-    if (ownedAtomicTemporary(name, new Set(outputNames(root)))) fs.rmSync(safePath(root, name), { force: true });
+    const parsed = atomicTemporary(name, known);
+    if (parsed) atomicTemps.set(parsed.temporary, { target: parsed.target, pid: parsed.pid });
+  }
+  const abandoned: string[] = [];
+  for (const [name, parsed] of atomicTemps) {
+    const temporary = safePath(root, name);
+    const owner = safePath(root, `${name}.owner`);
+    if (!fs.existsSync(temporary) || !fs.existsSync(owner)) throw new Error(`refresh recovery stopped: unproven atomic temporary ${name}`);
+    const proof = JSON.parse(fs.readFileSync(owner, "utf8")) as { version?: number; pid?: number; target?: string; temporary?: string; sha256?: string };
+    if (proof.version !== 1 || proof.pid !== parsed.pid || proof.target !== safePath(root, parsed.target) || proof.temporary !== path.basename(name) || !/^[0-9a-f]{64}$/.test(proof.sha256 ?? "") || hash(fs.readFileSync(temporary)) !== proof.sha256) {
+      throw new Error(`refresh recovery stopped: invalid atomic temporary proof ${name}`);
+    }
+    try {
+      process.kill(parsed.pid, 0);
+      throw new Error(`refresh recovery stopped: atomic writer is still active for ${name}`);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ESRCH") throw error;
+      abandoned.push(name);
+    }
+  }
+  for (const name of abandoned) {
+    fs.rmSync(safePath(root, name), { force: true });
+    fs.rmSync(safePath(root, `${name}.owner`), { force: true });
   }
   const now = currentHashes(root);
   const names = new Set([...Object.keys(journal.baseline), ...Object.keys(now), ...Object.keys(journal.checkpoint)]);

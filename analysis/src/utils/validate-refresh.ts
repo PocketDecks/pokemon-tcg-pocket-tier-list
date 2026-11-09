@@ -16,7 +16,6 @@ import { PREMIUM_WINDOWS } from "./premium-artefacts";
 export const REFRESH_WINDOWS = ["10d", "20d", "30d", "all"] as const;
 export type RefreshWindow = (typeof REFRESH_WINDOWS)[number];
 
-
 export interface WindowReport {
   window: RefreshWindow;
   archetypes: number;

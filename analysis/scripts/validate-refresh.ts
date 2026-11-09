@@ -68,7 +68,6 @@ const readPrevious = (): string | null => {
           stdio: ["ignore", "pipe", "pipe"],
         });
       } catch {
-        if ((PREMIUM_WINDOWS as readonly string[]).includes(window)) continue;
         throw new Error(
           `cannot read ${ref}:${file}; fetch ${ref} or pass --previous <dir> or --no-previous`
         );

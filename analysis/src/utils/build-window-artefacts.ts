@@ -57,7 +57,7 @@ const decksInWindow = (decks: Deck[], window: WindowId, anchor: Date): Deck[] =>
   });
 };
 
-const latestAnchor = (decks: Deck[], fallback: Date): Date => {
+export const latestAnchor = (decks: Deck[], fallback: Date): Date => {
   const newestKey = decks.reduce((newest, deck) => {
     const key = dayKey(deck.date);
     return key > newest ? key : newest;
@@ -181,7 +181,7 @@ export const buildWindowArtefacts = (
   const qualifiedDecks = qualifiedDecksInWindow(decks, window, today);
   const { bestDecks: rankedDecks, rankedNames } = rankDecks(
     qualifiedDecks,
-    scoringWeights(today)
+    scoringWeights(anchor)
   );
 
   const shareDays = WINDOW_LENGTH_DAYS[window];

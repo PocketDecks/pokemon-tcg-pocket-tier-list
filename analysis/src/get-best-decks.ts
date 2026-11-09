@@ -7,6 +7,7 @@ import { modalCopies, tallyCards } from "./utils/tally-cards";
 import {
   buildWindowArtefacts,
   DEFAULT_WINDOW,
+  latestAnchor,
   qualifiedDecksInWindow,
   unmatchedDecksInWindow,
   WINDOW_IDS,
@@ -64,6 +65,7 @@ const buildCardScores = (qualifiedDecks: Deck[], weights: ScoringWeights) => {
 export const run = async (): Promise<void> => {
   const allDecks = withStoreLock(decksDir(), () => getDecks());
   const today = new Date();
+  const dataAnchor = latestAnchor(allDecks, today);
 
   const artefacts = Object.fromEntries(
     WINDOW_IDS.map((window) => [window, buildWindowArtefacts(allDecks, window, today)])
@@ -94,7 +96,7 @@ export const run = async (): Promise<void> => {
   // history and card table as before the selector landed.
   const allQualified = qualifiedDecksInWindow(allDecks, "all", today);
   const trends = buildTrends(allQualified, pickTrendNames(artefacts.all.bestDecks), today);
-  const cardScoresList = buildCardScores(allQualified, scoringWeights(today));
+  const cardScoresList = buildCardScores(allQualified, scoringWeights(dataAnchor));
 
   const cardsById = new Map(cards.map((card: any) => [card.id, card] as [string, any]));
   for (const deck of artefacts[DEFAULT_WINDOW].bestDecks) {

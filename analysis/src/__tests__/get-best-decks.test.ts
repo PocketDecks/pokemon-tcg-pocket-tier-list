@@ -142,6 +142,30 @@ describe("run", () => {
     expect(discard).not.toHaveBeenCalled();
   });
 
+  it("keeps scores and the premium version stable when only the run date changes", async () => {
+    const settings = await vi.importActual<typeof import("../settings")>("../settings");
+    const firstRun = new Date(settings.EXPANSION_RELEASE_DATE.getTime() + 24 * 60 * 60 * 1000);
+    const secondRun = new Date(firstRun.getTime() + 6 * 24 * 60 * 60 * 1000);
+    getDecks.mockReturnValue(makeDecks(firstRun.toISOString()));
+    vi.setSystemTime(firstRun);
+
+    await run();
+    const first = writeArtefacts.mock.calls[0][0] as Record<string, string>;
+    vi.setSystemTime(secondRun);
+    await run();
+    const second = writeArtefacts.mock.calls[1][0] as Record<string, string>;
+
+    expect(second["../public/data/best-decks-20d.json"]).toBe(
+      first["../public/data/best-decks-20d.json"]
+    );
+    expect(second["../public/data/card-scores.json"]).toBe(
+      first["../public/data/card-scores.json"]
+    );
+    expect(second["../public/data/data-version.json"]).toBe(
+      first["../public/data/data-version.json"]
+    );
+  });
+
   it("keeps the 30d and all-time artefacts out of the public data directory", async () => {
     await run();
 

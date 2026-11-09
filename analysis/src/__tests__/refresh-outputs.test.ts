@@ -135,6 +135,9 @@ describe("refresh output journal", () => {
 
   it("excludes premium outputs from git staging", () => {
     const root = fixture();
+    fs.writeFileSync(path.join(root, ".gitignore"), "analysis/data/\nanalysis/out/premium-previous/\n");
+    execFileSync("git", ["add", ".gitignore"], { cwd: root });
+    execFileSync("git", ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-m", "fixture ignore rules"], { cwd: root, stdio: "ignore" });
     const premium = path.join(root, "analysis/out/premium/best-decks-all.json");
     fs.mkdirSync(path.dirname(premium), { recursive: true });
     fs.writeFileSync(premium, "old premium");

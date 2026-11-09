@@ -8,7 +8,7 @@ import {
   PREMIUM_DIR,
   PREMIUM_WINDOWS,
 } from "../src/utils/premium-artefacts";
-import { readPremiumVersionAtRef } from "../src/utils/premium-files";
+import { readPremiumVersionAtRef, resolveCanonicalMainRef } from "../src/utils/premium-files";
 import {
   REFRESH_WINDOWS,
   validateRefresh,
@@ -36,7 +36,8 @@ const readPrevious = (): string | null => {
   if (explicit) return explicit;
   if (args.includes("--no-previous")) return null;
 
-  const ref = flag("--previous-ref") ?? "origin/main";
+  const ref = flag("--previous-ref") ?? resolveCanonicalMainRef(repoRoot);
+  if (!ref) throw new Error("cannot resolve the canonical main remote; pass --previous-ref <ref>");
   const liveVersion = readPremiumVersionAtRef(repoRoot, ref);
   const premiumSnapshot = liveVersion ? loadPremiumSnapshotForVersion(liveVersion, premiumDir) : undefined;
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "refresh-previous-"));

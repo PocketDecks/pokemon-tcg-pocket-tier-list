@@ -14,9 +14,9 @@ import {
   previousPremiumDir,
   renderDataVersion,
   splitArtefactFiles,
-  snapshotPremiumPrevious,
   snapshotPremiumVersion,
 } from "../utils/premium-artefacts";
+import * as premiumArtefacts from "../utils/premium-artefacts";
 
 const DECKS = Array.from({ length: 12 }, (_, index) => `deck-${index}`);
 
@@ -236,6 +236,17 @@ describe("premiumVersion", () => {
   it("does not confuse a boundary shift between a name and its content", () => {
     expect(premiumVersion({ a: "b\nc" })).not.toBe(premiumVersion({ "a\nb": "c" }));
   });
+
+  it("frames names and payloads independently", () => {
+    expect(premiumVersion({ a: "b\n1:c" })).not.toBe(premiumVersion({ "a\n5:b": "c" }));
+    expect(premiumVersion({ a: "x\n1:b\ny" })).not.toBe(
+      premiumVersion({ a: "x", b: "y" })
+    );
+  });
+
+  it("counts UTF-8 bytes when framing names and payloads", () => {
+    expect(premiumVersion({ "é": "🐛" })).toBe("35f719d53af5daef");
+  });
 });
 
 describe("versioned premium snapshots", () => {
@@ -245,109 +256,75 @@ describe("versioned premium snapshots", () => {
     const version = premiumVersion(files);
     snapshotPremiumVersion(files, version, dir);
     expect(loadPremiumSnapshotForVersion(version, dir)).toEqual(files);
+    fs.writeFileSync(path.join(dir, "..", "premium-previous", version, `${PREMIUM_ARTEFACT_NAMES[0]}.json`), "tampered");
+    expect(loadPremiumSnapshotForVersion(version, dir)).toBeUndefined();
     expect(loadPremiumSnapshotForVersion("0000000000000000", dir)).toBeUndefined();
+  });
+
+  it("prunes only unprotected version directories inside the snapshot cache", () => {
+    const prune = (premiumArtefacts as unknown as {
+      prunePremiumSnapshots?: (versions: readonly string[], dir: string) => void;
+    }).prunePremiumSnapshots;
+    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-cleanup-"));
+    const dir = path.join(temp, "premium");
+    const cache = previousPremiumDir(dir);
+    const retained = ["aaaaaaaaaaaaaaaa", "bbbbbbbbbbbbbbbb", "cccccccccccccccc", "dddddddddddddddd"];
+    const old = "eeeeeeeeeeeeeeee";
+    fs.mkdirSync(cache, { recursive: true });
+    for (const version of [...retained, old]) fs.mkdirSync(path.join(cache, version));
+    fs.mkdirSync(path.join(cache, "unknown-entry"));
+    fs.writeFileSync(path.join(cache, "legacy-file.json"), "[]");
+    const outside = path.join(temp, "outside");
+    fs.mkdirSync(outside);
+    fs.writeFileSync(path.join(outside, "keep.json"), "[]");
+    fs.symlinkSync(outside, path.join(cache, "ffffffffffffffff"), "junction");
+
+    try {
+      if (typeof prune !== "function") {
+        expect(prune).toBeTypeOf("function");
+        return;
+      }
+      prune(retained, dir);
+      expect(retained.every((version) => fs.existsSync(path.join(cache, version)))).toBe(true);
+      expect(fs.existsSync(path.join(cache, old))).toBe(false);
+      expect(fs.existsSync(path.join(cache, "unknown-entry"))).toBe(true);
+      expect(fs.readFileSync(path.join(cache, "legacy-file.json"), "utf8")).toBe("[]");
+      expect(fs.existsSync(path.join(cache, "ffffffffffffffff"))).toBe(true);
+      expect(fs.existsSync(path.join(outside, "keep.json"))).toBe(true);
+    } finally {
+      fs.rmSync(temp, { recursive: true, force: true });
+    }
+  });
+
+  it("does not follow a linked snapshot cache root", () => {
+    const prune = (premiumArtefacts as unknown as {
+      prunePremiumSnapshots?: (versions: readonly string[], dir: string) => void;
+    }).prunePremiumSnapshots;
+    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-root-link-"));
+    const externalCache = path.join(temp, "external");
+    const linkedDir = path.join(temp, "analysis", "premium");
+    const linkedCache = previousPremiumDir(linkedDir);
+    const protectedData = path.join(externalCache, "eeeeeeeeeeeeeeee");
+    fs.mkdirSync(protectedData, { recursive: true });
+    fs.writeFileSync(path.join(protectedData, "keep.json"), "[]");
+    fs.mkdirSync(path.dirname(linkedCache), { recursive: true });
+    fs.symlinkSync(externalCache, linkedCache, "junction");
+
+    try {
+      if (typeof prune !== "function") {
+        expect(prune).toBeTypeOf("function");
+        return;
+      }
+      prune([], linkedDir);
+      expect(fs.existsSync(path.join(protectedData, "keep.json"))).toBe(true);
+    } finally {
+      fs.rmSync(temp, { recursive: true, force: true });
+    }
   });
 });
 
 describe("renderDataVersion", () => {
   it("renders the premium version with a trailing newline", () => {
     expect(renderDataVersion("0123456789abcdef")).toBe('{ "premium": "0123456789abcdef" }\n');
-  });
-});
-
-const SNAPSHOT_META = JSON.stringify({ generatedAt: "2026-11-07T00:00:00.000Z", decks: [] });
-
-const premiumWith = (files: Record<string, string>) => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "premium-pairs-"));
-  const premium = path.join(dir, "premium");
-  fs.mkdirSync(premium);
-  for (const [name, contents] of Object.entries(files)) {
-    fs.writeFileSync(path.join(premium, name), contents);
-  }
-  return { dir, premium, previous: previousPremiumDir(premium) };
-};
-
-describe("snapshotPremiumPrevious", () => {
-  it("copies the premium files aside so the next run can compare with them", () => {
-    const { dir, premium, previous } = premiumWith({
-      "best-decks-30d.json": "[1]",
-      "meta-share-30d.json": SNAPSHOT_META,
-    });
-    snapshotPremiumPrevious(premium);
-    expect(fs.readFileSync(path.join(previous, "best-decks-30d.json"), "utf8")).toBe("[1]");
-    fs.rmSync(dir, { recursive: true, force: true });
-  });
-
-  it("copies a meta-share snapshot object for the movement check", () => {
-    const { dir, premium, previous } = premiumWith({
-      "best-decks-all.json": "[1]",
-      "meta-share-all.json": SNAPSHOT_META,
-    });
-    snapshotPremiumPrevious(premium);
-    expect(fs.readFileSync(path.join(previous, "meta-share-all.json"), "utf8")).toBe(SNAPSHOT_META);
-    fs.rmSync(dir, { recursive: true, force: true });
-  });
-
-  it("copies a window only as a complete pair of ranking and meta share", () => {
-    const { dir, premium, previous } = premiumWith({
-      "best-decks-30d.json": "[1]",
-      "meta-share-30d.json": "{ not json",
-    });
-    snapshotPremiumPrevious(premium);
-    expect(fs.existsSync(path.join(previous, "best-decks-30d.json"))).toBe(false);
-    expect(fs.existsSync(path.join(previous, "meta-share-30d.json"))).toBe(false);
-    fs.rmSync(dir, { recursive: true, force: true });
-  });
-
-  it("clears a stale previous pair when the new source for that window is incomplete", () => {
-    const { dir, premium, previous } = premiumWith({
-      "best-decks-30d.json": "[2]",
-      "meta-share-30d.json": SNAPSHOT_META,
-    });
-    snapshotPremiumPrevious(premium);
-    fs.rmSync(path.join(premium, "meta-share-30d.json"));
-    snapshotPremiumPrevious(premium);
-    expect(fs.existsSync(path.join(previous, "best-decks-30d.json"))).toBe(false);
-    expect(fs.existsSync(path.join(previous, "meta-share-30d.json"))).toBe(false);
-    fs.rmSync(dir, { recursive: true, force: true });
-  });
-
-  it("removes stale snapshot temporary files before copying", () => {
-    const { dir, premium, previous } = premiumWith({
-      "best-decks-30d.json": "[1]",
-      "meta-share-30d.json": SNAPSHOT_META,
-    });
-    fs.mkdirSync(previous, { recursive: true });
-    fs.writeFileSync(path.join(previous, "best-decks-30d.json.snapshot-tmp-old"), "stale");
-    snapshotPremiumPrevious(premium);
-    expect(fs.readdirSync(previous).some((name) => name.includes("snapshot-tmp"))).toBe(false);
-    fs.rmSync(dir, { recursive: true, force: true });
-  });
-
-  it("copies nothing when the premium directory does not exist", () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "premium-missing-"));
-    const premium = path.join(dir, "premium");
-    snapshotPremiumPrevious(premium);
-    expect(fs.existsSync(previousPremiumDir(premium))).toBe(false);
-    fs.rmSync(dir, { recursive: true, force: true });
-  });
-});
-
-describe("snapshotPremiumPrevious truncation guard", () => {
-  it("skips files that do not parse as JSON arrays", () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "premium-truncated-"));
-    const premium = path.join(dir, "premium");
-    fs.mkdirSync(premium);
-    fs.writeFileSync(path.join(premium, "good.json"), "[1]");
-    fs.writeFileSync(path.join(premium, "truncated.json"), "[1,2");
-    fs.writeFileSync(path.join(premium, "object.json"), "{}");
-    snapshotPremiumPrevious(premium);
-    const previous = previousPremiumDir(premium);
-    expect(fs.existsSync(path.join(previous, "good.json"))).toBe(true);
-    expect(fs.existsSync(path.join(previous, "truncated.json"))).toBe(false);
-    expect(fs.existsSync(path.join(previous, "object.json"))).toBe(false);
-    const leftovers = fs.readdirSync(previous).filter((name) => name.includes("tmp"));
-    expect(leftovers).toEqual([]);
-    fs.rmSync(dir, { recursive: true, force: true });
   });
 });

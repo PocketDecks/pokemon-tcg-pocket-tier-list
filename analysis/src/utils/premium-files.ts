@@ -7,6 +7,52 @@ import {
   premiumVersion,
 } from "./premium-artefacts";
 
+export const CANONICAL_PREMIUM_REPOSITORY = "PocketDecks/pokemon-tcg-pocket-tier-list";
+
+export type PremiumGitRunner = (args: string[], cwd: string) => string;
+
+const runGit: PremiumGitRunner = (args, cwd) => execFileSync("git", args, {
+  cwd,
+  encoding: "utf8",
+  stdio: ["ignore", "pipe", "pipe"],
+});
+
+const repositoryOf = (remoteUrl: string): string | undefined => {
+  const value = remoteUrl.trim();
+  const scp = /^git@github\.com:(.+)$/i.exec(value);
+  let pathname: string;
+  if (scp) {
+    pathname = scp[1];
+  } else {
+    try {
+      const url = new URL(value);
+      if (url.hostname.toLowerCase() !== "github.com" || !["https:", "ssh:", "git:"].includes(url.protocol)) {
+        return undefined;
+      }
+      pathname = url.pathname;
+    } catch {
+      return undefined;
+    }
+  }
+  return pathname.replace(/^\/+|\/+$/g, "").replace(/\.git$/i, "").toLowerCase();
+};
+
+export const resolveCanonicalMainRef = (
+  repoRoot: string,
+  git: PremiumGitRunner = runGit
+): string | undefined => {
+  try {
+    const remotes = git(["remote"], repoRoot).split(/\r?\n/).filter(Boolean);
+    const matches = remotes.filter((remote) => {
+      const urls = git(["remote", "get-url", remote], repoRoot).trim().split(/\r?\n/);
+      return urls.length === 1 && repositoryOf(urls[0]) === CANONICAL_PREMIUM_REPOSITORY.toLowerCase();
+    });
+    return matches.length === 1 ? `${matches[0]}/main` : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 export const loadPremiumFiles = (dir: string): Record<string, string> => {
   const files: Record<string, string> = {};
   for (const name of PREMIUM_ARTEFACT_NAMES) {
@@ -26,13 +72,15 @@ export const readCommittedVersion = (file: string): string => {
   return value;
 };
 
-export const readPremiumVersionAtRef = (repoRoot: string, ref = "origin/main"): string | undefined => {
+export const readPremiumVersionAtRef = (
+  repoRoot: string,
+  ref?: string,
+  git: PremiumGitRunner = runGit
+): string | undefined => {
+  const targetRef = ref ?? resolveCanonicalMainRef(repoRoot, git);
+  if (!targetRef) return undefined;
   try {
-    const output = execFileSync("git", ["show", `${ref}:public/data/data-version.json`], {
-      cwd: repoRoot,
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    const output = git(["show", `${targetRef}:public/data/data-version.json`], repoRoot);
     const parsed: unknown = JSON.parse(output);
     const value = (parsed as { premium?: unknown } | null)?.premium;
     return typeof value === "string" && /^[0-9a-f]{16}$/.test(value) ? value : undefined;

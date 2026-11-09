@@ -57,6 +57,12 @@ const PERMITTED_CROSSINGS: Record<string, { specifier: string; reason: string }>
       "entry-point test must call it with an injected database. The script " +
       "is a script by convention, not by dependency direction.",
   },
+  "src/__tests__/premium-retention.test.ts": {
+    specifier: "../../scripts/publish-premium",
+    reason:
+      "retention discovery feeds the publisher, so HTTP and Git fakes must " +
+      "exercise that script boundary.",
+  },
   "src/__tests__/verify-premium-entrypoint.test.ts": {
     specifier: "../../scripts/verify-premium",
     reason:

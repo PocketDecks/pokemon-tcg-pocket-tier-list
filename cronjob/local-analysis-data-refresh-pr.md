@@ -1,22 +1,26 @@
 # Local analysis refresh job
 
-This is the self-contained prompt used by the scheduled local tier-list refresh. The job runs on the maintainer's analysis machine and publishes only reviewed generated outputs.
+This is the self-contained prompt used by the scheduled local tier-list refresh. The job runs on the maintainer's analysis machine and publishes only reviewed generated outputs
 
 ## Schedule
 
-Run on Sunday, Tuesday, Thursday, and Saturday at 21:00 UTC.
+Run on Sunday, Tuesday, Thursday, and Saturday at 21:00 UTC
 
 ## Prerequisite
 
-This job publishes premium data to Firestore, so the analysis machine needs Application Default Credentials for the project before step 10 runs. If the publish or the verify step fails, report the exact refusal and stop; the published version document is written last, so readers never see a half-written version. Publishing before the merge is safe: the live site still points at the older version, and the upload keeps the newest five versions and never deletes the one `origin/main` serves. When `origin/main` cannot be read, it deletes nothing
+This job publishes premium data to Firestore, so the analysis machine needs Application Default Credentials for the project before step 10 runs. The publisher identifies the canonical Git remote by its GitHub repository URL (`PocketDecks/pokemon-tcg-pocket-tier-list`) and uses that remote's `main` as the comparison baseline. Its local alias can vary between checkouts
+
+If the publish or verify step fails, report the exact refusal and stop. The published version document is written last, so readers never see a half-written version. Publishing before the merge is safe: cleanup keeps the newest five versions and protects the versions referenced by canonical `main`, the deployed version document on the site, and every open pull request targeting canonical `main`, including pull requests from forks. If any retention source cannot be read, publishing may proceed but deletes nothing
+
+The premium publication lock uses a Firestore transaction before listing existing versions. A competing run refuses and must stop with the lock details. A crash leaves the lock in place without automatic expiry. Before a person removes it, they must confirm the lock owner at the recorded host and process ID is gone; otherwise stop and report the lock
 
 ## Prompt
 
-Run the Pokemon Pocket tier-list refresh and publish a review branch only when the result passes every check.
+Run the Pokemon Pocket tier-list refresh and publish a review branch only when the result passes every check
 
-Repository: the checked-out `pokemon-tcg-pocket-tier-list` repository.
+Repository: the checked-out `pokemon-tcg-pocket-tier-list` repository
 
-1. From `analysis/`, run `yarn.cmd refresh:outputs recover`. It restores checkpointed generated files and repairs recognised atomic-write sidecars only when their backups match the recorded baseline. It does not recover `analysis/data/`. If recovery reports an error, leaves `public/og/deck-stage-*` or `public/og/deck.previous`, or the worktree is still dirty, stop and report the exact paths. Then fetch and update `main`, stopping if either command fails
+1. From `analysis/`, run `yarn.cmd refresh:outputs recover`. It restores checkpointed generated files and repairs recognised atomic-write sidecars only when their backups match the recorded baseline. It does not recover `analysis/data/`. If recovery reports an error, leaves `public/og/deck-stage-*` or `public/og/deck.previous`, or the worktree is still dirty, stop and report the exact paths. Then fetch and update `main` from the remote whose GitHub URL resolves to the canonical repository above; the remote alias can vary between checkouts. Stop if either command fails
 2. Create a dated branch named `automated/pipeline-update-YYYY-MM-DD` from the current `main` branch. Reuse the dated branch only when it contains no human commits. Stop if branch creation or checkout fails
 3. From `analysis/`, run `yarn.cmd refresh:outputs begin`. Stop if it fails. Then run `yarn.cmd sync-pairings`. Run `yarn.cmd refresh:outputs checkpoint` even on failure, then stop on a non-zero exit
 4. From `analysis/`, run `yarn.cmd golden:generate`, checkpoint its outputs even on failure, then stop on a non-zero exit.

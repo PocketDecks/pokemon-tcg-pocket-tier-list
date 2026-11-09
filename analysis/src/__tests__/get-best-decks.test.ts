@@ -33,7 +33,6 @@ vi.mock("../utils/premium-artefacts", async (importOriginal) => {
     ...actual,
     PREMIUM_DIR: PREMIUM_TEST_DIR,
     previousPremiumDir: () => PREVIOUS_TEST_DIR,
-    snapshotPremiumPrevious: () => undefined,
   };
 });
 vi.mock("../utils/premium-files", async (importOriginal) => {

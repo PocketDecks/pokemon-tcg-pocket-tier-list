@@ -9,7 +9,6 @@ import {
   PipelinePartialDeck,
 } from "../../../src/types/pipeline-data";
 import { trimMatchupData, trimMetaShare } from "./trim-free-window";
-import { renameWithRetry } from "./rename-with-retry";
 
 export const PREMIUM_WINDOWS = ["30d", "all"] as const;
 export type PremiumWindow = (typeof PREMIUM_WINDOWS)[number];
@@ -35,60 +34,6 @@ export const PREMIUM_DIR = path.resolve(__dirname, "../../out/premium");
 export const previousPremiumDir = (dir: string = PREMIUM_DIR): string =>
   path.join(path.dirname(dir), "premium-previous");
 
-const readSnapshot = (file: string): string | undefined => {
-  if (!fs.existsSync(file)) return undefined;
-  const contents = fs.readFileSync(file, "utf8");
-  try {
-    return isSnapshotValue(JSON.parse(contents)) ? contents : undefined;
-  } catch {
-    return undefined;
-  }
-};
-
-const writeAside = (previous: string, file: string, contents: string): void => {
-  const temporary = path.join(previous, `${file}.snapshot-tmp-${process.pid}`);
-  fs.writeFileSync(temporary, contents);
-  renameWithRetry(temporary, path.join(previous, file));
-};
-
-const removeSnapshotTemps = (previous: string): void => {
-  for (const file of fs.readdirSync(previous)) {
-    if (file.includes(".snapshot-tmp-")) fs.rmSync(path.join(previous, file), { force: true });
-  }
-};
-
-const pairedFilesOf = (window: PremiumWindow): string[] =>
-  ["best-decks", "meta-share"].map((base) => `${base}-${window}.json`);
-
-export const snapshotPremiumPrevious = (dir: string = PREMIUM_DIR): void => {
-  if (!fs.existsSync(dir)) return;
-  const previous = previousPremiumDir(dir);
-  fs.mkdirSync(previous, { recursive: true });
-  removeSnapshotTemps(previous);
-  const paired = new Set<string>();
-  for (const window of PREMIUM_WINDOWS) {
-    const files = pairedFilesOf(window);
-    for (const file of files) paired.add(file);
-    const contents = Object.fromEntries(
-      files.map((file) => [file, readSnapshot(path.join(dir, file))])
-    );
-    const complete = files.every((file) => contents[file] !== undefined);
-    for (const file of files) {
-      const body = contents[file];
-      if (complete && body !== undefined) {
-        writeAside(previous, file, body);
-      } else {
-        fs.rmSync(path.join(previous, file), { force: true });
-      }
-    }
-  }
-  for (const file of fs.readdirSync(dir)) {
-    if (!file.endsWith(".json") || paired.has(file)) continue;
-    const contents = readSnapshot(path.join(dir, file));
-    if (contents !== undefined) writeAside(previous, file, contents);
-  }
-};
-
 export const PUBLIC_DATA_PREFIX = "../public/data/";
 
 export const premiumFilePath = (name: string, dir: string = PREMIUM_DIR): string =>
@@ -106,13 +51,6 @@ const dataNameOf = (file: string): string | null => {
 const TRIMMED_NAME = new RegExp(
   `^(${TRIMMED_BASES.join("|")})(?:-(${TRIMMED_WINDOWS.join("|")}))?$`
 );
-
-const isSnapshotValue = (value: unknown): boolean =>
-  Array.isArray(value) ||
-  (value !== null &&
-    typeof value === "object" &&
-    typeof (value as { generatedAt?: unknown }).generatedAt === "string" &&
-    Array.isArray((value as { decks?: unknown }).decks));
 
 const render = (value: unknown): string => JSON.stringify(value, null, 2);
 
@@ -215,6 +153,39 @@ export const loadPremiumSnapshotForVersion = (
     return legacy;
   } catch {
     return undefined;
+  }
+};
+
+export const prunePremiumSnapshots = (
+  protectedVersions: readonly string[],
+  dir: string = PREMIUM_DIR
+): void => {
+  const cache = previousPremiumDir(dir);
+  let entries: fs.Dirent[];
+  try {
+    const root = fs.lstatSync(cache);
+    if (!root.isDirectory() || root.isSymbolicLink()) return;
+    entries = fs.readdirSync(cache, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  const rootPath = path.resolve(cache);
+  const protectedSet = new Set(protectedVersions);
+  for (const entry of entries) {
+    if (!entry.isDirectory() || entry.isSymbolicLink() || !/^[0-9a-f]{16}$/.test(entry.name) || protectedSet.has(entry.name)) {
+      continue;
+    }
+    const target = path.resolve(rootPath, entry.name);
+    const relative = path.relative(rootPath, target);
+    if (relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) continue;
+    try {
+      const details = fs.lstatSync(target);
+      if (details.isDirectory() && !details.isSymbolicLink()) {
+        fs.rmSync(target, { recursive: true, force: true });
+      }
+    } catch {
+      continue;
+    }
   }
 };
 

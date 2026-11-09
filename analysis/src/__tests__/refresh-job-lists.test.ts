@@ -92,6 +92,16 @@ describe("refresh job file lists", () => {
     expect(publish).toMatch(/non-zero exit[\s\S]*?refusal/i);
   });
 
+  it("uses canonical premium retention and documents publication lock recovery", () => {
+    const prerequisite = step("## Prerequisite", "## Prompt");
+    const checkout = step("1. From", "2. Create");
+    expect(prerequisite).toMatch(/GitHub repository URL[\s\S]*?canonical `main`/i);
+    expect(prerequisite).toMatch(/deployed version[\s\S]*?open pull requests?/i);
+    expect(prerequisite).toMatch(/publication lock[\s\S]*?crash[\s\S]*?confirm[\s\S]*?owner/i);
+    expect(checkout).toMatch(/GitHub URL resolves to the canonical repository[\s\S]*?alias can vary/i);
+    expect(job).not.toContain("origin/main");
+  });
+
   it("matches the premium publication guide to step 10 and the separate image commit", () => {
     expect(job).toContain("before step 10 runs");
     expect(premiumGuide).toContain("step 10");
@@ -111,7 +121,7 @@ describe("refresh job file lists", () => {
   });
 
   it("stops on failed recovery, fetch, branch, and root generator commands", () => {
-    expect(step("1. From", "2. Create")).toMatch(/recover[\s\S]*?stop[\s\S]*?fetch[\s\S]*?stopping if either command fails/i);
+    expect(step("1. From", "2. Create")).toMatch(/recover[\s\S]*?stop[\s\S]*?fetch[\s\S]*?(?:stop|stopping) if either command fails/i);
     expect(step("2. Create", "3. From")).toMatch(/branch[\s\S]*?stop if branch creation or checkout fails/i);
     const generation = step("7. From", "8. Run");
     for (const command of ["build-deck-archive.mjs", "generate-deck-hub-slugs.mjs", "generate-deck-redirects.mjs"]) {

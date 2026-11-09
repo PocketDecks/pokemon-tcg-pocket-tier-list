@@ -39,7 +39,7 @@ The scheduled refresh job (`cronjob/local-analysis-data-refresh-pr.md`) runs the
 2. Run `yarn validate:refresh`. It reads the 10d and 20d rankings from `public/data/` and the 30d and all rankings from `analysis/out/premium/`.
 3. Authenticate once per machine with `gcloud auth application-default login`. The upload uses Application Default Credentials. Never put a key file in the repository and never put credentials in `.env`.
 4. Run `yarn publish:premium --dry-run` in `analysis` to see what would be written. The dry run does not contact Firebase.
-5. Run `yarn publish:premium`. It refuses to start when the premium files do not hash to the committed `data-version.json`. It writes the artefact documents first and the version document last, so a half-finished upload is never visible to the app, then deletes versions beyond the newest five.
+5. Run `yarn publish:premium`. It refuses to start when the premium files do not hash to the committed `data-version.json`. It writes the artefact documents first and the version document last, so a half-finished upload is never visible to the app, then deletes versions beyond the newest five, never the one `origin/main` serves. If it cannot read `origin/main`, it deletes nothing
 6. Run `yarn verify:premium`. It exits non-zero unless the version document and all ten artefacts exist and every stored hash matches its payload.
 7. Commit and merge. The merge workflow runs `yarn verify:premium` again before it deploys, so a version that was never uploaded cannot go live.
 
@@ -139,7 +139,7 @@ The handler never needs to touch the rules, the client code or the premium data.
 
 ## Rollback
 
-Each upload is a new version, and the newest five stay in Firestore. To go back, restore the earlier commit version of `data-version.json`. If that version is still in Firestore, `yarn verify:premium` passes and the site serves it once deployed. If it has been pruned, restore its files into `analysis/out/premium/` and publish again; the version is a hash of the contents, so the same files give the same version.
+Each upload is a new version, the newest five stay in Firestore, and so does the version `origin/main` serves. To go back, restore the earlier commit version of `data-version.json`. If that version is still in Firestore, `yarn verify:premium` passes and the site serves it once deployed. If it has been pruned, restore its files into `analysis/out/premium/` and publish again; the version is a hash of the contents, so the same files give the same version.
 
 ## Troubleshooting
 

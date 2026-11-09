@@ -1,7 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { MIN_PUBLISHED_ARCHETYPES } from "../settings";
+import {
+  EXPANSION_RELEASE_DATE,
+  FLOOR_RAMP_DAYS,
+  MIN_PUBLISHED_ARCHETYPES,
+} from "../settings";
+import { daysOfDataSince } from "./assert-publishable";
 import { PREMIUM_WINDOWS } from "./premium-artefacts";
 
 export const REFRESH_WINDOWS = ["10d", "20d", "30d", "all"] as const;
@@ -47,6 +52,22 @@ const readPreviousCount = (
   return readDecks(previousDir, window).length;
 };
 
+const readDaysOfData = (dataDir: string): number | null => {
+  const file = path.join(dataDir, "historical-trends.json");
+  if (!fs.existsSync(file)) return null;
+  try {
+    const rows = JSON.parse(fs.readFileSync(file, "utf8")) as { date?: unknown }[];
+    const dates = rows
+      .map((row) => (typeof row.date === "string" ? row.date : null))
+      .filter((date): date is string => date !== null)
+      .sort();
+    const newest = dates.length > 0 ? dates[dates.length - 1] : undefined;
+    return newest === undefined ? null : daysOfDataSince(newest, EXPANSION_RELEASE_DATE);
+  } catch {
+    return null;
+  }
+};
+
 export const validateRefresh = (
   dataDir: string,
   imagesDir: string,
@@ -56,6 +77,7 @@ export const validateRefresh = (
   const failures: string[] = [];
   const windows: WindowReport[] = [];
   const union = new Set<string>();
+  const daysOfData = readDaysOfData(dataDir);
 
   for (const window of REFRESH_WINDOWS) {
     const decks = readDecks(isPremiumWindow(window) ? premiumDir : dataDir, window);
@@ -63,10 +85,15 @@ export const validateRefresh = (
 
     const previous = readPreviousCount(previousDir, window);
 
-    const floor = Math.max(
-      MIN_PUBLISHED_ARCHETYPES[window],
-      previous === null ? 0 : Math.ceil(previous / 2)
-    );
+    const configuredFloor =
+      daysOfData === null
+        ? MIN_PUBLISHED_ARCHETYPES[window]
+        : Math.ceil(
+            (MIN_PUBLISHED_ARCHETYPES[window] *
+              Math.min(daysOfData, FLOOR_RAMP_DAYS[window])) /
+              FLOOR_RAMP_DAYS[window]
+          );
+    const floor = Math.max(configuredFloor, previous === null ? 0 : Math.ceil(previous / 2));
     windows.push({ window, archetypes: decks.length, floor, previous });
     if (decks.length < floor) {
       failures.push(

@@ -70,9 +70,16 @@ describe("refresh job file lists", () => {
     expect(namedPaths(step("11. Commit only", "12. Push"))).toContain("src/app/last-updated.ts");
   });
 
+  it("names generated hub files in the commit and silent-day instructions", () => {
+    expect(step("11. Commit only", "12. Push")).toContain("public/data/hubs/");
+    expect(step("9. Inspect", "10. From")).toContain("public/data/hubs/");
+  });
+
   it("excludes the always-changed timestamp from the silent-day check", () => {
-    const check = step("10. Inspect", "11. Commit only");
+    const check = step("9. Inspect", "10. From");
     expect(check).toContain("other than `src/app/last-updated.ts`");
+    expect(check).toContain("src/data/premium-deck-slugs.json");
+    expect(check).toContain("public/data/hubs/");
     expect(check).toContain("not output");
   });
 });

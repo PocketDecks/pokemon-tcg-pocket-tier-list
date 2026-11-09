@@ -44,6 +44,7 @@ const readPrevious = (): string | null => {
     if ((PREMIUM_WINDOWS as readonly string[]).includes(window)) {
       const local = path.join(previousPremiumDir, `best-decks-${window}.json`);
       if (fs.existsSync(local)) contents = fs.readFileSync(local, "utf8");
+      if (contents === undefined) continue;
     }
     if (contents === undefined) {
       try {

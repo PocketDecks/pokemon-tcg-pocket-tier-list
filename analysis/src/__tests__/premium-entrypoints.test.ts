@@ -106,6 +106,15 @@ describe("premium entry points", () => {
     );
   });
 
+  it("reports no database writes when the database is not configured", async () => {
+    const lines: string[] = [];
+    await publishPremium(
+      { db: null, dryRun: false, files: premiumPayloads(), version: premiumVersion(premiumPayloads()) },
+      (line) => lines.push(line)
+    );
+    expect(lines[0]).toMatch(/No database configured/);
+  });
+
   it("reads the live version from origin/main rather than the checked-out commit", () => {
     const repo = fs.mkdtempSync(path.join(os.tmpdir(), "live-version-"));
     const git = (...args: string[]) =>

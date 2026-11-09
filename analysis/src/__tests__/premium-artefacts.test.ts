@@ -299,6 +299,18 @@ describe("snapshotPremiumPrevious", () => {
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
+  it("removes stale snapshot temporary files before copying", () => {
+    const { dir, premium, previous } = premiumWith({
+      "best-decks-30d.json": "[1]",
+      "meta-share-30d.json": SNAPSHOT_META,
+    });
+    fs.mkdirSync(previous, { recursive: true });
+    fs.writeFileSync(path.join(previous, "best-decks-30d.json.snapshot-tmp-old"), "stale");
+    snapshotPremiumPrevious(premium);
+    expect(fs.readdirSync(previous).some((name) => name.includes("snapshot-tmp"))).toBe(false);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
   it("copies nothing when the premium directory does not exist", () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "premium-missing-"));
     const premium = path.join(dir, "premium");

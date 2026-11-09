@@ -13,7 +13,7 @@ The 30-day and All Time artefacts, and the full matchup and movement depth of th
 | `data-version.json` | `public/data/`, committed | Everyone |
 | `entitlements/{uid}` | Firestore, written with the Admin SDK | Only the signed-in user it belongs to |
 
-`data-version.json` holds `{ "premium": "<16 hex characters>" }`, the first 16 characters of a SHA-256 over the names and contents of the ten premium artefacts. The refresh rewrites it whenever the premium files change. The app reads it to find the matching documents, and CI uses it to confirm that the upload happened.
+`data-version.json` holds `{ "premium": "<16 hex characters>" }`, the first 16 characters of a SHA-256 over the length-prefixed names and contents of the ten premium artefacts. The publisher recomputes that value before uploading and refuses a mismatch. The refresh rewrites it whenever the premium files change. The app reads it to find the matching documents, and CI uses it to confirm that the upload happened.
 
 Firestore holds one document per version at `premiumData/{version}`, with `createdAt` and the SHA-256 of every artefact, and one document per artefact at `premiumData/{version}/artefacts/{name}` with the JSON text as `payload` and its `sha256`. The client checks the hash before it parses anything.
 
@@ -73,7 +73,7 @@ yarn grant:premium --uid <uid> --revoke
 - `--revoke` writes `premium: false` and drops any expiry. It cannot be combined with `--until`.
 - `--dry-run` prints the document that would be written without contacting Firebase.
 
-A grant replaces the whole document, so running it again for the same uid changes the expiry or source instead of adding to it. Run it with `--dry-run` first when you are unsure of the uid.
+A grant replaces the whole document, so running it again for the same uid updates the expiry or source. Run it with `--dry-run` first when you are unsure of the uid.
 
 ## First-time set-up
 
@@ -143,14 +143,14 @@ Each upload is a new version, the newest five stay in Firestore, and so does the
 
 ## Troubleshooting
 
-- `the premium files hash to X but data-version.json says Y`: the premium files and the committed version are out of step. Rerun the refresh instead of editing either file.
+- `the premium files hash to X but data-version.json says Y`: the premium files and the committed version differ. Rerun the refresh; keep both files unchanged.
 - `... is N bytes, the limit is 900000`: an artefact is approaching the Firestore document cap of 1 MiB. The largest files today are the four `matchup-data-*` artefacts at about 268 KB each. Trim the artefact or split it before raising the limit.
 - A premium user sees the trimmed matchups and movement on the 10-day or 20-day window: the read of the full artefact was denied twice, even after a forced token refresh, and the app fell back to the public file. The cause below applies here too.
 - A premium user sees the 20-day window after choosing 30d: the read was denied twice, even after a forced token refresh. Check that `entitlements/{uid}` exists for that uid with `premium: true` and an `expiresAt` that has not passed, or that the Stripe claim is present, and check the console rules.
 - `yarn grant:premium` fails with a message about default credentials: run `gcloud auth application-default login` and try again.
 - A user who was granted access still sees the free interface: the entitlement is cached in the browser for up to an hour. Ask them to reload the page.
 - The build fails with `Premium window data shipped in the build output`: a 30-day or All Time file has been put back under `public/data/`. Remove it.
-- `scripts/__tests__/free-tier-data.test.js` fails: a public 10d or 20d file carries depth for a deck outside the free ten. Rerun the refresh instead of editing the file.
+- `scripts/__tests__/free-tier-data.test.js` fails: a public 10d or 20d file carries depth for a deck outside the free ten. Rerun the refresh; keep the generated file under pipeline control.
 
 ## Related
 

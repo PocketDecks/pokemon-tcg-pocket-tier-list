@@ -53,6 +53,10 @@ const writeImages = (dir: string, names: string[]): void => {
   for (const name of names) fs.writeFileSync(path.join(dir, `${name}.png`), "");
 };
 
+const writeTrendDate = (dir: string, date: string): void => {
+  fs.writeFileSync(path.join(dir, "historical-trends.json"), JSON.stringify([{ date }]));
+};
+
 const healthy = { "10d": 12, "20d": 25, "30d": 32, all: 32 } as const;
 
 describe("validateRefresh", () => {
@@ -131,6 +135,20 @@ describe("validateRefresh", () => {
 
     expect(report.windows[0]).toEqual({ window: "10d", archetypes: 5, floor: 12, previous: null });
     expect(report.failures).toEqual(["10d: 5 archetypes, floor 12"]);
+  });
+
+  it("ramps the floor from the expansion release date", () => {
+    const data = tmp();
+    const premium = tmp();
+    const images = tmp();
+    const names = writeWindows(data, { ...healthy, "10d": 1 }, {}, premium);
+    writeTrendDate(data, "2026-10-29T00:00:00.000Z");
+    writeImages(images, names);
+
+    const report = validateRefresh(data, images, null, premium);
+
+    expect(report.windows.find((row) => row.window === "10d")?.floor).toBe(2);
+    expect(report.failures).toContain("10d: 1 archetypes, floor 2");
   });
 
   it("fails when the default file is not the 20d copy", () => {

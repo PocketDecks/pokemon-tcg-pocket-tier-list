@@ -38,6 +38,13 @@ export const readLiveVersion = (repoRoot: string): string | undefined => {
   }
 };
 
+export const fetchLiveVersion = (repoRoot: string): void => {
+  execFileSync("git", ["fetch", "origin", "main"], {
+    cwd: repoRoot,
+    stdio: "ignore",
+  });
+};
+
 const adapt = (firestore: Firestore): PremiumDb => ({
   collection: (name) =>
     firestore.collection(name) as unknown as { get(): Promise<{ docs: { id: string; get(field: string): unknown }[] }> },
@@ -140,7 +147,13 @@ if (require.main === module) {
           initializeApp({ projectId, credential: applicationDefault() })
         )
       );
-  const liveVersion = readLiveVersion(repoRoot);
+  let liveVersion: string | undefined;
+  try {
+    fetchLiveVersion(repoRoot);
+    liveVersion = readLiveVersion(repoRoot);
+  } catch {
+    liveVersion = undefined;
+  }
   publishPremium({ db, dryRun, liveVersion }).catch((error) => {
     console.error(error instanceof Error ? error.message : error);
     process.exit(1);

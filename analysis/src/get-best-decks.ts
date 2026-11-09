@@ -62,10 +62,7 @@ const buildCardScores = (qualifiedDecks: Deck[], weights: ScoringWeights) => {
 };
 
 export const run = async (): Promise<void> => {
-  const allDecks = withStoreLock(decksDir(), () => {
-    snapshotPremiumPrevious();
-    return getDecks();
-  });
+  const allDecks = withStoreLock(decksDir(), () => getDecks());
   const today = new Date();
 
   const artefacts = Object.fromEntries(
@@ -136,8 +133,9 @@ export const run = async (): Promise<void> => {
   );
 
   try {
-    const windowSnapshots = withStoreLock(decksDir(), () =>
-      WINDOW_IDS.map((window) => ({
+    withStoreLock(decksDir(), () => {
+      snapshotPremiumPrevious();
+      const windowSnapshots = WINDOW_IDS.map((window) => ({
         id: window,
         bestDecks: artefacts[window].bestDecks,
         previousArchetypeCount: readPreviousArchetypeCount(
@@ -145,41 +143,41 @@ export const run = async (): Promise<void> => {
           previousMetaShare(window),
           EXPANSION_RELEASE_DATE
         ),
-      }))
-    );
-    const uncompared = windowsWithoutComparison(windowSnapshots);
-    if (uncompared.length > 0) {
-      console.log(
-        `No previous publish for ${uncompared.join(", ")}, so their thinner-than-last-time floors were skipped`
-      );
-    }
-    assertPublishable({
-      windows: windowSnapshots,
-      defaultWindow: DEFAULT_WINDOW,
-      deckSlugs: [...ogSlugs].map(slugOf),
-      newestDeckDate: newestDeckDate(allQualified),
-      daysOfData: daysOfDataSince(newestDeckDate(allQualified), EXPANSION_RELEASE_DATE),
-      now: today,
-      currentSet: listingStore.currentSet,
-      newestSet,
-      currentSetListingCount: listingStore.sets[newestSet]?.decks.length ?? 0,
-      unmatchedDecks: {
-        decks: unmatched.decks,
-        games: unmatched.games,
-        qualifiedGames: defaultQualifiedGames,
-      },
-    });
+      }));
+      const uncompared = windowsWithoutComparison(windowSnapshots);
+      if (uncompared.length > 0) {
+        console.log(
+          `No previous publish for ${uncompared.join(", ")}, so their thinner-than-last-time floors were skipped`
+        );
+      }
+      assertPublishable({
+        windows: windowSnapshots,
+        defaultWindow: DEFAULT_WINDOW,
+        deckSlugs: [...ogSlugs].map(slugOf),
+        newestDeckDate: newestDeckDate(allQualified),
+        daysOfData: daysOfDataSince(newestDeckDate(allQualified), EXPANSION_RELEASE_DATE),
+        now: today,
+        currentSet: listingStore.currentSet,
+        newestSet,
+        currentSetListingCount: listingStore.sets[newestSet]?.decks.length ?? 0,
+        unmatchedDecks: {
+          decks: unmatched.decks,
+          games: unmatched.games,
+          qualifiedGames: defaultQualifiedGames,
+        },
+      });
 
-    fs.mkdirSync(PREMIUM_DIR, { recursive: true });
+      fs.mkdirSync(PREMIUM_DIR, { recursive: true });
 
-    const files = buildRunFiles({
-      artefacts,
-      trends,
-      cardScoresList,
-      today,
-      premiumDir: PREMIUM_DIR,
+      const files = buildRunFiles({
+        artefacts,
+        trends,
+        cardScoresList,
+        today,
+        premiumDir: PREMIUM_DIR,
+      });
+      writeArtefacts(files);
     });
-    withStoreLock(decksDir(), () => writeArtefacts(files));
   } catch (error) {
     staged.discard();
     throw error;

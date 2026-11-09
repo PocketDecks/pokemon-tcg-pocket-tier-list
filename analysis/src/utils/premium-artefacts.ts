@@ -9,6 +9,7 @@ import {
   PipelinePartialDeck,
 } from "../../../src/types/pipeline-data";
 import { trimMatchupData, trimMetaShare } from "./trim-free-window";
+import { renameWithRetry } from "./rename-with-retry";
 
 export const PREMIUM_WINDOWS = ["30d", "all"] as const;
 export type PremiumWindow = (typeof PREMIUM_WINDOWS)[number];
@@ -47,7 +48,13 @@ const readSnapshot = (file: string): string | undefined => {
 const writeAside = (previous: string, file: string, contents: string): void => {
   const temporary = path.join(previous, `${file}.snapshot-tmp-${process.pid}`);
   fs.writeFileSync(temporary, contents);
-  fs.renameSync(temporary, path.join(previous, file));
+  renameWithRetry(temporary, path.join(previous, file));
+};
+
+const removeSnapshotTemps = (previous: string): void => {
+  for (const file of fs.readdirSync(previous)) {
+    if (file.includes(".snapshot-tmp-")) fs.rmSync(path.join(previous, file), { force: true });
+  }
 };
 
 const pairedFilesOf = (window: PremiumWindow): string[] =>
@@ -57,20 +64,21 @@ export const snapshotPremiumPrevious = (dir: string = PREMIUM_DIR): void => {
   if (!fs.existsSync(dir)) return;
   const previous = previousPremiumDir(dir);
   fs.mkdirSync(previous, { recursive: true });
+  removeSnapshotTemps(previous);
   const paired = new Set<string>();
   for (const window of PREMIUM_WINDOWS) {
     const files = pairedFilesOf(window);
     for (const file of files) paired.add(file);
     const contents = files.map((file) => readSnapshot(path.join(dir, file)));
     const complete = contents.every((body): body is string => body !== undefined);
-    files.forEach((file, index) => {
-      const body = contents[index];
+    for (const file of files) {
+      const body = readSnapshot(path.join(dir, file));
       if (complete && body !== undefined) {
         writeAside(previous, file, body);
       } else {
         fs.rmSync(path.join(previous, file), { force: true });
       }
-    });
+    }
   }
   for (const file of fs.readdirSync(dir)) {
     if (!file.endsWith(".json") || paired.has(file)) continue;

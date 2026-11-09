@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { buildRunFiles } from "../utils/build-run-files";
 import { WINDOW_IDS } from "../utils/build-window-artefacts";
 import { PREMIUM_ARTEFACT_NAMES, PREMIUM_DIR } from "../utils/premium-artefacts";
+import { REFRESH_OUTPUT_FILES, REFRESH_OUTPUT_TREES } from "../../scripts/refresh-outputs";
 
 const job = fs.readFileSync(
   path.join(__dirname, "../../../cronjob/local-analysis-data-refresh-pr.md"),
@@ -40,9 +41,6 @@ const writeArtefactKeys = (): string[] => {
 const step = (start: string, end: string): string =>
   job.split(start)[1].split(end)[0];
 
-const namedPaths = (section: string): string[] =>
-  [...section.matchAll(/`([^`]+)`/g)].map((match) => match[1]);
-
 describe("refresh job file lists", () => {
   it("uses step 10 and describes the separate image commit", () => {
     expect(job).toContain("before step 10 runs");
@@ -56,43 +54,35 @@ describe("refresh job file lists", () => {
     expect(job.indexOf("generate-deck-hub-slugs.mjs")).toBeLessThan(job.indexOf("check:generated"));
   });
 
-  it("names every file writeArtefacts stages in step 5's recovery list", () => {
-    const recovery = namedPaths(step("5. Restore interrupted writes", "\n6. "));
+  it("allows every file writeArtefacts stages in recovery and staging", () => {
     for (const target of writeArtefactKeys()) {
-      expect(recovery).toContain(target);
+      expect(REFRESH_OUTPUT_FILES).toContain(target);
     }
   });
 
-  it("names every committed file in the step 11 commit list", () => {
-    const commit = step("11. Commit only", "12. Push");
-    const named = namedPaths(commit);
-    expect(commit).toContain("every public data file from step 5 including each window suffix");
-    expect(named).toContain("src/data/premium-deck-slugs.json");
-    expect(named).toContain("public/data/data-version.json");
-    for (const target of writeArtefactKeys().filter(
-      (target) => !PREMIUM_ARTEFACT_NAMES.some((name) => `analysis/out/premium/${name}.json` === target)
-    )) {
-      if (target.startsWith("public/data/")) continue;
-      expect(named).toContain(target);
-    }
+  it("stages the shared generated-output allowlist", () => {
+    const commit = step("11. Run", "12. Push");
+    expect(commit).toContain("refresh:outputs stage");
+    expect(REFRESH_OUTPUT_FILES).toContain("src/data/premium-deck-slugs.json");
+    expect(REFRESH_OUTPUT_FILES).toContain("public/data/data-version.json");
+    expect(REFRESH_OUTPUT_FILES).toContain("public/data/deck-archive.json");
+    expect(REFRESH_OUTPUT_TREES).toContain("public/data/hubs");
+    expect(REFRESH_OUTPUT_TREES).toContain("public/og/deck");
+    for (const name of PREMIUM_ARTEFACT_NAMES) expect(REFRESH_OUTPUT_FILES).toContain(`analysis/out/premium/${name}.json`);
   });
 
-  it("names the update timestamp at its repository path in steps 5, 10 and 11", () => {
+  it("keeps the update timestamp in the generated-output allowlist", () => {
     expect(writeArtefactKeys()).toContain("src/app/last-updated.ts");
-    expect(namedPaths(step("5. Restore interrupted writes", "\n6. "))).toContain("src/app/last-updated.ts");
-    expect(namedPaths(step("11. Commit only", "12. Push"))).toContain("src/app/last-updated.ts");
+    expect(REFRESH_OUTPUT_FILES).toContain("src/app/last-updated.ts");
   });
 
   it("names generated hub files in the commit and silent-day instructions", () => {
-    expect(step("11. Commit only", "12. Push")).toContain("public/data/hubs/");
-    expect(step("9. Inspect", "10. From")).toContain("public/data/hubs/");
+    expect(REFRESH_OUTPUT_TREES).toContain("public/data/hubs");
+    expect(step("9. Inspect", "10. From")).toContain("hub files count as output");
   });
 
   it("excludes the always-changed timestamp from the silent-day check", () => {
     const check = step("9. Inspect", "10. From");
-    expect(check).toContain("other than `src/app/last-updated.ts`");
-    expect(check).toContain("src/data/premium-deck-slugs.json");
-    expect(check).toContain("public/data/hubs/");
-    expect(check).toContain("not output");
+    expect(check).toContain("only `src/app/last-updated.ts` changed");
   });
 });

@@ -5,10 +5,19 @@ const os = require("node:os");
 const path = require("node:path");
 const childProcess = require("node:child_process");
 const { execFileSync } = childProcess;
+const { after } = require("node:test");
 const { syncBuiltinESMExports } = require("node:module");
 const { writeFileAtomic } = require("../atomic-write.mjs");
 
-const makeDir = () => fs.mkdtempSync(path.join(os.tmpdir(), "atomic-write-"));
+const created = [];
+const makeDir = () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "atomic-write-"));
+  created.push(dir);
+  return dir;
+};
+after(() => {
+  for (const dir of created.splice(0)) fs.rmSync(dir, { recursive: true, force: true });
+});
 
 test("writes the contents to the destination and leaves no temporary file", () => {
   const dir = makeDir();
@@ -120,6 +129,28 @@ test("uses one Git subprocess to validate each opt-in write", () => {
   }
   assert.strictEqual(commands.length, 2);
   for (const command of commands) assert.deepStrictEqual(command, ["rev-parse", "--show-toplevel", "--path-format=absolute", "--git-path", "refresh-outputs.json", "HEAD"]);
+});
+
+test("creates the owner proof before the temporary", () => {
+  const dir = makeDir();
+  execFileSync("git", ["init", "-q"], { cwd: dir });
+  execFileSync("git", ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--allow-empty", "-m", "base"], { cwd: dir, stdio: "ignore" });
+  const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: dir, encoding: "utf8" }).trim();
+  const journalPath = execFileSync("git", ["rev-parse", "--git-path", "refresh-outputs.json"], { cwd: dir, encoding: "utf8" }).trim();
+  fs.writeFileSync(path.resolve(dir, journalPath), JSON.stringify({ head, baseline: {}, checkpoint: {} }));
+  const open = fs.openSync;
+  const order = [];
+  fs.openSync = (file, ...rest) => {
+    if (typeof file === "string" && file.endsWith(".tmp")) order.push("temporary");
+    else if (typeof file === "string" && file.endsWith(".tmp.owner")) order.push("owner");
+    return open(file, ...rest);
+  };
+  try {
+    writeFileAtomic(path.join(dir, "out.json"), "payload", { refreshRecovery: true });
+  } finally {
+    fs.openSync = open;
+  }
+  assert.deepStrictEqual(order, ["owner", "temporary"]);
 });
 
 test("refresh proof stays disabled without an active journal", () => {

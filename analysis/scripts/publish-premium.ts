@@ -145,8 +145,6 @@ export const publishPremium = async (
   let sources = injectedRetentionSources;
   const owner = await acquirePublishLock(db);
   try {
-    // Discover inside the lock: a competing run publishing between discovery
-    // and locking would otherwise leave the protection set stale.
     if (!sources) {
       try {
         sources = await (injectedDiscoverRetentionSources ?? (() => discoverPremiumRetentionSources({ repoRoot })))();
@@ -156,7 +154,7 @@ export const publishPremium = async (
       }
     }
     const protectedVersions = sources
-      ? [sources.canonicalMainVersion, sources.deployedVersion, ...sources.pendingPullRequestVersions]
+      ? [sources.canonicalMainVersion, sources.deployedVersion, ...sources.pendingPullRequestVersions, ...(sources.automatedBranchVersions ?? [])]
       : [];
     const documents = await db.collection(PREMIUM_COLLECTION).listDocuments();
     const existing: ExistingVersion[] = await Promise.all(documents.map(async (doc) => {

@@ -118,8 +118,6 @@ describe("refresh job file lists", () => {
     const bulk = rules.findIndex((rule) => rule.source === "/data/**");
     const version = rules.findIndex((rule) => rule.source === "/data/data-version.json");
     expect(bulk).toBeGreaterThanOrEqual(0);
-    // Hosting applies the last matching header rule, so the specific rule
-    // must come after the /data/** rule to take effect.
     expect(version).toBeGreaterThan(bulk);
     expect(rules[version].headers.find((header) => header.key === "Cache-Control")?.value).toMatch(/no-store/);
   });

@@ -268,6 +268,36 @@ describe("writeArtefacts", () => {
     expect(fs.readdirSync(directory).sort()).toEqual(["target.json", "target.json.tmp"]);
   });
 
+  it("writes an owner proof before the temporary and removes it after a successful write", () => {
+    const directory = makeTempDirectory();
+    const target = path.join(directory, "target.json");
+    fs.writeFileSync(target, "old");
+    const realRenameSync = fs.renameSync;
+    const proofAtRename: boolean[] = [];
+    vi.spyOn(fs, "renameSync").mockImplementation((source, destination) => {
+      if (source === `${target}.tmp` && destination === target) {
+        proofAtRename.push(fs.existsSync(`${target}.tmp.owner`));
+      }
+      return realRenameSync(source, destination);
+    });
+
+    writeArtefacts({ [target]: "new" });
+
+    expect(proofAtRename).toEqual([true]);
+    expect(fs.readdirSync(directory).sort()).toEqual(["target.json"]);
+  });
+
+  it("refuses a stale owner proof without changing the target", () => {
+    const directory = makeTempDirectory();
+    const target = path.join(directory, "target.json");
+    fs.writeFileSync(target, "old");
+    fs.writeFileSync(`${target}.tmp.owner`, "{}");
+
+    expect(() => writeArtefacts({ [target]: "new" })).toThrow(/stale staging/i);
+    expect(fs.readFileSync(target, "utf8")).toBe("old");
+    expect(fs.existsSync(`${target}.tmp.owner`)).toBe(true);
+  });
+
   it("marks a new target while it stages and clears the mark after a successful write", () => {
     const directory = makeTempDirectory();
     const target = path.join(directory, "target.json");

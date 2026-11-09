@@ -162,7 +162,7 @@ it("prunes an orphan parent returned by the Firestore SDK adapter", async () => 
     }),
   };
   const files = premiumPayloads();
-  await publishPremium({ db: adaptPremiumDb(firestore as never), dryRun: false, files, version: premiumVersion(files), liveVersion: "live", retentionSources: retentionSources("live"), snapshotDir } as Parameters<typeof publishPremium>[0], () => {});
+  await publishPremium({ db: adaptPremiumDb(firestore as never), dryRun: false, files, version: premiumVersion(files), retentionSources: retentionSources("live"), snapshotDir } as Parameters<typeof publishPremium>[0], () => {});
   expect(deletes).toContainEqual(expect.objectContaining({ path: "premiumData/orphan" }));
   expect(deletes).toContainEqual(expect.objectContaining({ path: "premiumData/old-0" }));
 });
@@ -308,7 +308,7 @@ describe("premium entry points", () => {
     fs.mkdirSync(staleSnapshot, { recursive: true });
     const db = fakeFilesDb(writes, deletes);
     await publishPremium(
-      { db, dryRun: false, files, version, liveVersion: "old-5", retentionSources: retentionSources("old-5"), snapshotDir } as Parameters<typeof publishPremium>[0],
+      { db, dryRun: false, files, version, retentionSources: retentionSources("old-5"), snapshotDir } as Parameters<typeof publishPremium>[0],
       () => {}
     );
     expect(writes.length).toBe(PREMIUM_ARTEFACT_NAMES.length + 1);
@@ -374,7 +374,6 @@ describe("premium entry points", () => {
       dryRun: false,
       files,
       version: premiumVersion(files),
-      liveVersion: "canonical",
       retentionSources: {
         canonicalMainVersion: "canonical",
         deployedVersion: "deployed",
@@ -448,7 +447,6 @@ describe("premium entry points", () => {
         dryRun: false,
         files,
         version: premiumVersion(files),
-        liveVersion: "old-0",
         retentionSources: {
           canonicalMainVersion: "old-0",
           deployedVersion: "deployed",
@@ -507,7 +505,6 @@ describe("premium entry points", () => {
       dryRun: false,
       files,
       version,
-      liveVersion: "main",
       retentionSources: {
         canonicalMainVersion: "main",
         deployedVersion: "deployed",
@@ -586,7 +583,6 @@ describe("premium entry points", () => {
       dryRun: false,
       files,
       version: premiumVersion(files),
-      liveVersion: "main",
       retentionSources: {
         canonicalMainVersion: "main",
         deployedVersion: "deployed",

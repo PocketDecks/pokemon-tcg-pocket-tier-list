@@ -15,6 +15,12 @@ const outside = (root: string, name: string): string => {
   return target;
 };
 const linkType = process.platform === "win32" ? "junction" : "dir";
+const writeProof = (temporary: string, content: string): void => {
+  fs.writeFileSync(`${temporary}.owner`, JSON.stringify({
+    version: 1,
+    sha256: createHash("sha256").update(content).digest("hex"),
+  }));
+};
 const startPausedWriter = async (destination: string) => {
   const writerUrl = pathToFileURL(path.resolve(process.cwd(), "../scripts/atomic-write.mjs")).href;
   const script = `import fs from "node:fs"; const { writeFileAtomic } = await import(process.argv[1]); const rename = fs.renameSync; fs.renameSync = (from, to) => { process.stdout.write(from + "\\n"); const byte = Buffer.alloc(1); fs.readSync(0, byte, 0, 1); return rename(from, to); }; writeFileAtomic(process.argv[2], "generated", { refreshRecovery: true });`;
@@ -438,6 +444,7 @@ describe("refresh output journal", () => {
     const temporary = `${target}.tmp`;
     fs.rmSync(target);
     fs.writeFileSync(temporary, "partial");
+    writeProof(temporary, "partial");
     expect(() => recoverRefresh(root)).toThrow(/unproven target/);
     expect(fs.existsSync(temporary)).toBe(true);
   });
@@ -449,6 +456,7 @@ describe("refresh output journal", () => {
     const temporary = `${target}.tmp`;
     const marker = `${target}.created`;
     fs.writeFileSync(temporary, "partial");
+    writeProof(temporary, "partial");
     fs.writeFileSync(marker, "not a writer marker");
     expect(() => recoverRefresh(root)).toThrow(/unproven created marker/);
     expect(fs.existsSync(temporary)).toBe(true);
@@ -496,6 +504,7 @@ describe("refresh output journal", () => {
     const target = path.join(root, "analysis/src/data/limitless-decks.json");
     fs.writeFileSync(target, "changed by someone");
     fs.writeFileSync(`${target}.tmp`, "partial");
+    writeProof(`${target}.tmp`, "partial");
     expect(() => recoverRefresh(root)).toThrow(/unproven target/);
     expect(fs.existsSync(`${target}.tmp`)).toBe(true);
   });
@@ -580,5 +589,68 @@ describe("refresh output journal", () => {
     const root = fixture();
     fs.writeFileSync(path.join(root, "public/data/hubs/notes.txt"), "human");
     expect(() => beginRefresh(root)).toThrow(/unexpected file in public\/data\/hubs/);
+  });
+
+  it("rejects a generator-shaped file with an unknown suffix", () => {
+    const root = fixture();
+    fs.writeFileSync(path.join(root, "public/data/hubs/x.json.txt"), "human");
+    expect(() => beginRefresh(root)).toThrow(/unexpected file in public\/data\/hubs/);
+  });
+
+  it("refuses a bare temporary with no owner proof", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    const temporary = `${target}.tmp`;
+    fs.writeFileSync(temporary, "partial");
+    expect(() => recoverRefresh(root)).toThrow(/unproven sidecar state/);
+    expect(fs.existsSync(temporary)).toBe(true);
+    expect(fs.readFileSync(target, "utf8")).toBe("base");
+  });
+
+  it("recovers a bare temporary whose owner proof matches its bytes", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    const temporary = `${target}.tmp`;
+    fs.writeFileSync(temporary, "partial");
+    writeProof(temporary, "partial");
+    recoverRefresh(root);
+    expect(fs.readFileSync(target, "utf8")).toBe("base");
+    expect(fs.existsSync(temporary)).toBe(false);
+    expect(fs.existsSync(`${temporary}.owner`)).toBe(false);
+  });
+
+  it("cleans a stale journal temporary at the start of a run", () => {
+    const root = fixture();
+    const journal = path.join(root, ".git/refresh-outputs.json");
+    const stale = `${journal}.1234.stale.tmp`;
+    fs.writeFileSync(stale, "{");
+    beginRefresh(root);
+    expect(fs.existsSync(stale)).toBe(false);
+    expect(fs.existsSync(journal)).toBe(true);
+  });
+
+  it("refuses an OG backup when the live tree differs from both states", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const deck = path.join(root, "public/og/deck");
+    fs.renameSync(deck, `${deck}.previous`);
+    fs.mkdirSync(deck, { recursive: true });
+    fs.writeFileSync(path.join(deck, "image.png"), "unexpected");
+    expect(() => recoverRefresh(root)).toThrow(/OG target differs from its checkpoint/);
+  });
+
+  it("accepts a writer sidecar proof inside a generated tree", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "public/data/hubs/old.json");
+    const temporary = `${target}.tmp`;
+    fs.writeFileSync(temporary, "partial");
+    writeProof(temporary, "partial");
+    recoverRefresh(root);
+    expect(fs.readFileSync(target, "utf8")).toBe("old hub");
+    expect(fs.existsSync(temporary)).toBe(false);
+    expect(fs.existsSync(`${temporary}.owner`)).toBe(false);
   });
 });

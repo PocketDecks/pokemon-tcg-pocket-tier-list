@@ -63,4 +63,13 @@ const main = () => {
   console.log(`Wrote ${rules.length} archived deck redirects to ${CONFIG_FILE}`);
 };
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) main();
+const runAsMain = () => {
+  if (!process.argv[1]) return false;
+  const modulePath = fileURLToPath(import.meta.url);
+  try {
+    return fs.realpathSync.native(process.argv[1]) === fs.realpathSync.native(modulePath);
+  } catch {
+    return path.resolve(process.argv[1]) === path.resolve(modulePath);
+  }
+};
+if (runAsMain()) main();

@@ -15,6 +15,7 @@ const runGit: PremiumGitRunner = (args, cwd) => execFileSync("git", args, {
   cwd,
   encoding: "utf8",
   stdio: ["ignore", "pipe", "pipe"],
+  timeout: 60_000,
 });
 
 const repositoryOf = (remoteUrl: string): string | undefined => {

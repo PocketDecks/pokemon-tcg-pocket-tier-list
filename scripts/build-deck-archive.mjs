@@ -285,6 +285,15 @@ const main = () => {
   console.log(`Wrote ${archive.length} archived deck variants and ${hubs.size} hub files to ${HUBS_DIR}`);
 };
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) main();
+const runAsMain = () => {
+  if (!process.argv[1]) return false;
+  const modulePath = fileURLToPath(import.meta.url);
+  try {
+    return fs.realpathSync.native(process.argv[1]) === fs.realpathSync.native(modulePath);
+  } catch {
+    return path.resolve(process.argv[1]) === path.resolve(modulePath);
+  }
+};
+if (runAsMain()) main();
 
 export { mergeCurrent, seedArchive };

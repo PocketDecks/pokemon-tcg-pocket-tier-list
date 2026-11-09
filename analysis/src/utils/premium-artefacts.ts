@@ -171,8 +171,6 @@ export const prunePremiumSnapshots = (
     if (!entry.isDirectory() || entry.isSymbolicLink() || !/^[0-9a-f]{16}$/.test(entry.name) || protectedSet.has(entry.name)) {
       continue;
     }
-    // entry.name is a validated 16-hex directory name, so the resolved target
-    // cannot escape rootPath; the old path-escape check was unreachable.
     const target = path.resolve(rootPath, entry.name);
     try {
       const details = fs.lstatSync(target);

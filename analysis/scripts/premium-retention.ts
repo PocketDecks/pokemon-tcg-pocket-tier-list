@@ -11,6 +11,7 @@ export interface PremiumRetentionSources {
   canonicalMainVersion: string;
   deployedVersion: string;
   pendingPullRequestVersions: string[];
+  automatedBranchVersions?: string[];
 }
 
 const versionOf = (value: unknown): string | undefined => {
@@ -44,9 +45,6 @@ const nextPageOf = (link: string | null, current: URL): URL | undefined => {
       !/^\d+$/.test(linked.searchParams.get("page") ?? "")) {
     throw new Error("pagination destination is not the canonical pull request list");
   }
-  // Use the validated Link destination itself. Rebuilding page=N from the
-  // current URL discarded GitHub's own pagination fields (for example a
-  // /repositories/<id> route) and could drift away from the real next page.
   return linked;
 };
 
@@ -70,8 +68,9 @@ const readVersionFile = async (
   fetcher: typeof fetch,
   url: URL,
   headers: Record<string, string>
-): Promise<string> => {
+): Promise<string | undefined> => {
   const response = await timedFetch(fetcher, url, { headers, cache: "no-store", redirect: "manual" });
+  if (response.status === 404) return undefined;
   if (!response.ok) throw new Error("pull request version request failed");
   const value = await response.json() as { encoding?: unknown; content?: unknown };
   if (value.encoding !== "base64" || typeof value.content !== "string") {
@@ -117,23 +116,27 @@ const readPullRequestVersion = async (
   const sha = pull.head?.sha;
   const shaLabel = typeof sha === "string" && /^[0-9a-f]{40,64}$/i.test(sha) ? sha : undefined;
   const canonical = repositoryParts(CANONICAL_PREMIUM_REPOSITORY)!;
-  // A deleted fork leaves head.repo null. GitHub still serves the PR head from
-  // the canonical repository's refs/pull/<number>/head, so pruning can still
-  // protect that version instead of silently skipping every deletion.
   const candidates: URL[] = [];
   if (fork && shaLabel) candidates.push(versionFileUrl(fork, shaLabel));
   if (number !== undefined) candidates.push(versionFileUrl(canonical, `refs/pull/${number}/head`));
   if (!candidates.length) throw new Error("open pull request head is unavailable");
 
-  let lastReason = "no readable head";
+  let hardFailure: string | null = null;
+  let missing = false;
   for (const url of candidates) {
     try {
-      return await readVersionFile(fetcher, url, headers);
+      const version = await readVersionFile(fetcher, url, headers);
+      if (version !== undefined) return version;
+      missing = true;
     } catch (error) {
-      lastReason = error instanceof Error ? error.message : String(error);
+      hardFailure = error instanceof Error ? error.message : String(error);
     }
   }
-  throw new Error(`open pull request #${number ?? "?"} version could not be read: ${lastReason}`);
+  if (missing && hardFailure === null) {
+    console.warn(`open pull request #${number ?? "?"} has no premium version file; nothing to protect`);
+    return undefined;
+  }
+  throw new Error(`open pull request #${number ?? "?"} version could not be read: ${hardFailure ?? "no readable head"}`);
 };
 
 export const discoverPremiumRetentionSources = async ({
@@ -159,6 +162,21 @@ export const discoverPremiumRetentionSources = async ({
     git(["fetch", remote, "refs/heads/main:refs/remotes/" + remote + "/main"], repoRoot);
     const canonicalMainVersion = readPremiumVersionAtRef(repoRoot, ref, git);
     if (!canonicalMainVersion) return undefined;
+
+    const automatedBranchVersions = (() => {
+      try {
+        const refs = git(["for-each-ref", "--format=%(refname)", "refs/heads/automated/", "refs/remotes/*/automated/"], repoRoot)
+          .split(/\r?\n/).filter(Boolean);
+        const versions: string[] = [];
+        for (const branchRef of refs) {
+          try {
+            const version = versionOf(JSON.parse(git(["show", `${branchRef}:public/data/data-version.json`], repoRoot)));
+            if (version) versions.push(version);
+          } catch { continue; }
+        }
+        return [...new Set(versions)];
+      } catch { return []; }
+    })();
 
     const deployed = await timedFetch(fetcher, new URL("https://pocketdecks.top/data/data-version.json"), {
       headers: { accept: "application/json", "cache-control": "no-cache" },
@@ -198,9 +216,6 @@ export const discoverPremiumRetentionSources = async ({
       page = nextPageOf(response.headers.get("link"), page);
     }
 
-    // Offset pagination can skip a pull request when one is opened or closed
-    // mid-scan. Re-read EVERY visited page and fail closed if any membership
-    // moved, so an incomplete protection set never reaches the pruning step.
     if (pageNumbers.some(({ numbers }) => numbers.size > 0)) {
       for (const { url, numbers } of pageNumbers) {
         const repeat = await timedFetch(fetcher, url, { headers, cache: "no-store", redirect: "manual" });
@@ -224,6 +239,7 @@ export const discoverPremiumRetentionSources = async ({
       canonicalMainVersion,
       deployedVersion,
       pendingPullRequestVersions: [...new Set(pendingVersions)],
+      automatedBranchVersions,
     };
   } catch (error) {
     console.warn(

@@ -212,10 +212,6 @@ export const stageOgImages = async (decks: OgDeckInput[]): Promise<StagedOgImage
     console.log(`Published ${slugs.length} OG images in ${target}`);
   };
 
-  // When the JSON artefacts are already published, a failed swap must keep
-  // the rendered set: discarding it would leave the published rankings
-  // pointing at images that no longer exist anywhere. Callers that publish
-  // JSON afterwards can still use the default tearing-down behaviour.
   const commit = (options: { retainOnFailure?: boolean } = {}) => {
     try {
       swap();

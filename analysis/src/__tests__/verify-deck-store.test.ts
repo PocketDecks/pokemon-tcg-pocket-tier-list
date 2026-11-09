@@ -99,6 +99,25 @@ describe("verify-deck-store", () => {
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining("duplicate processed tournament"));
   });
 
+  it("fails on a processed-tournaments staging sidecar", () => {
+    healthyStore();
+    const processed = path.join(dir, "processed-tournaments.json");
+    fs.writeFileSync(processed, JSON.stringify([{ id: "t1", date: "2026-09-01" }]));
+    fs.writeFileSync(`${processed}.bak`, "[]");
+    fs.writeFileSync(`${processed}.created`, "");
+
+    expect(runVerify({ dir, processedFile: processed })).toBe(1);
+  });
+
+  it("fails on an invalid processed-tournaments entry", () => {
+    healthyStore();
+    const processed = path.join(dir, "processed-tournaments.json");
+    fs.writeFileSync(processed, JSON.stringify([{ id: "t1" }]));
+
+    expect(runVerify({ dir, processedFile: processed })).toBe(1);
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("invalid entry"));
+  });
+
   it("passes when the processed list is intact", () => {
     healthyStore();
     const processed = path.join(dir, "processed-tournaments.json");

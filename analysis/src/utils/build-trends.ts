@@ -27,19 +27,12 @@ export const pickTrendNames = (
 
 export const buildTrends = (
   qualifiedDecks: Deck[],
-  trendNames: readonly string[],
-  now: Date
+  trendNames: readonly string[]
 ): PipelineTrendRow[] => {
-  // Day accumulators keep date/totalGames separate from per-archetype tallies, which a single Record<string, number> view would mistype.
   const trendData: Record<string, { date: string; totalGames: number; counts: Record<string, number> }> = {};
-  const currentDate = now.toISOString().slice(0, 10);
 
   for (const deck of qualifiedDecks) {
     const dateStr = deck.date.split("T")[0];
-    // Every data day belongs in the series, including the run's own UTC day.
-    // Dropping that day made it appear only on the NEXT run, producing a
-    // published change with no new data. Only future-dated rows are skipped.
-    if (dateStr > currentDate) continue;
 
     if (!trendData[dateStr]) {
       trendData[dateStr] = { date: dateStr, totalGames: 0, counts: {} };

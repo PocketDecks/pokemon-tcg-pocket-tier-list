@@ -37,7 +37,7 @@ vi.mock("../utils/premium-artefacts", async (importOriginal) => {
 });
 vi.mock("../utils/premium-files", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../utils/premium-files")>();
-  return { ...actual, readPremiumVersionAtRef: mainVersion };
+  return { ...actual, readPremiumVersionAtRef: mainVersion, resolveCanonicalMainRef: vi.fn(() => "refs/remotes/pocketdecks/main") };
 });
 vi.mock("../utils/write-artifacts", () => ({ writeArtefacts }));
 vi.mock("../utils/data-paths", () => ({ decksDir: () => DECKS_TEST_DIR }));
@@ -72,7 +72,7 @@ import {
   renderDataVersion,
   snapshotPremiumVersion,
 } from "../utils/premium-artefacts";
-import { readPremiumVersionAtRef } from "../utils/premium-files";
+import { readPremiumVersionAtRef, resolveCanonicalMainRef } from "../utils/premium-files";
 
 const { MOCKED_RELEASE_DATE } = vi.hoisted(() => ({
   MOCKED_RELEASE_DATE: new Date("2026-08-20T00:00:00.000Z"),
@@ -93,8 +93,6 @@ const premiumGeneration = (count30d: number, countAll: number, label: string) =>
   return files;
 };
 
-// The gate now refuses a missing premium baseline, so every ordinary run
-// needs a resolvable canonical version and its snapshot.
 const DEFAULT_BASELINE = premiumGeneration(30, 35, "default-baseline");
 const DEFAULT_VERSION = premiumVersion(DEFAULT_BASELINE);
 
@@ -508,15 +506,24 @@ describe("run", () => {
     expect(writeArtefacts).toHaveBeenCalledTimes(1);
   });
 
-  it("refuses when the canonical main premium version cannot be resolved", async () => {
-    vi.mocked(readPremiumVersionAtRef).mockReturnValue(undefined);
+  it("refuses when the canonical main remote cannot be resolved", async () => {
+    vi.mocked(resolveCanonicalMainRef).mockReturnValueOnce(undefined);
 
     const failure = (await run().catch((error: Error) => error)) as Error;
     expect(failure).toBeInstanceOf(Error);
-    expect(failure.message).toMatch(/cannot resolve the premium version on canonical main/);
+    expect(failure.message).toMatch(/cannot resolve the canonical main remote/);
     expect(failure.message).not.toMatch(/--previous-ref/);
     expect(writeArtefacts).not.toHaveBeenCalled();
     expect(discard).toHaveBeenCalledTimes(1);
+  });
+
+  it("treats an unreadable main version file as a first publish", async () => {
+    vi.mocked(readPremiumVersionAtRef).mockReturnValue(undefined);
+
+    await expect(run()).resolves.toBeUndefined();
+    const windows = vi.mocked(assertPublishable).mock.calls[0][0].windows;
+    expect(windows.filter((window) => ["30d", "all"].includes(window.id)).map((window) => window.previousArchetypeCount)).toEqual([null, null]);
+    expect(writeArtefacts).toHaveBeenCalledTimes(1);
   });
 
   it("passes the days of data since the release to the gate", async () => {

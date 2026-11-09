@@ -23,7 +23,7 @@ vi.mock("../utils/premium-artefacts", async (importOriginal) => {
 });
 vi.mock("../utils/premium-files", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../utils/premium-files")>();
-  return { ...actual, readPremiumVersionAtRef: readMainVersion };
+  return { ...actual, readPremiumVersionAtRef: readMainVersion, resolveCanonicalMainRef: vi.fn(() => "refs/remotes/pocketdecks/main") };
 });
 vi.mock("../utils/calculate-card-scores", () => ({ calculateCardScores: () => ({}) }));
 vi.mock("../utils/generate-og-images", () => ({

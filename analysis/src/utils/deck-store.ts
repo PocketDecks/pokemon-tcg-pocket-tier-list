@@ -194,6 +194,7 @@ export const verifyStore = (dir: string, options: { placement?: boolean; process
         problems.push({ shard: name.slice(0, -".ndjson".length), message: `untracked shard file ${name}` });
       } else if (
         name.endsWith(".tmp") ||
+        name.endsWith(".tmp.owner") ||
         name.endsWith(".bak") ||
         name.endsWith(".created")
       ) {
@@ -202,10 +203,6 @@ export const verifyStore = (dir: string, options: { placement?: boolean; process
       }
     }
   }
-  // The downloader writes the shards, manifest and processed-tournaments.json
-  // in one batch. A kill between the manifest and processed renames used to
-  // pass verification and then refuse every later download with "already
-  // exists in shard". Check the processed file and its sidecars too.
   if (options.processedFile) {
     const processed = options.processedFile;
     const base = path.basename(processed);

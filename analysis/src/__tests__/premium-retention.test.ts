@@ -14,6 +14,7 @@ type RetentionSources = {
   canonicalMainVersion: string;
   deployedVersion: string;
   pendingPullRequestVersions: string[];
+  automatedBranchVersions?: string[];
 };
 type DiscoveryOptions = {
   repoRoot: string;
@@ -66,7 +67,7 @@ const apiVersionFile = (version: string): unknown => ({
 
 const fakeGit = (
   canonicalVersion = versions.canonical,
-  { ambiguous = false, failFetch = false, noCanonical = false }: { ambiguous?: boolean; failFetch?: boolean; noCanonical?: boolean } = {}
+  { ambiguous = false, failFetch = false, noCanonical = false, automatedBranch = undefined as string | undefined }: { ambiguous?: boolean; failFetch?: boolean; noCanonical?: boolean; automatedBranch?: string } = {}
 ): GitRunner => (args) => {
   if (args[0] === "remote" && args.length === 1) {
     if (noCanonical) return "origin\n";
@@ -81,8 +82,14 @@ const fakeGit = (
     if (failFetch) throw new Error("fetch failed");
     return "";
   }
+  if (args[0] === "for-each-ref") {
+    return automatedBranch ? "refs/remotes/pocketdecks/automated/pipeline-update-2026-11-09\n" : "";
+  }
   if (args[0] === "show" && args[1] === "refs/remotes/pocketdecks/main:public/data/data-version.json") {
     return `{ "premium": "${canonicalVersion}" }\n`;
+  }
+  if (args[0] === "show" && args[1]?.includes("automated/") && args[1].endsWith(":public/data/data-version.json")) {
+    return `{ "premium": "${automatedBranch}" }\n`;
   }
   throw new Error(`unexpected git call: ${args.join(" ")}`);
 };
@@ -186,6 +193,7 @@ describe("premium retention discovery", () => {
       canonicalMainVersion: versions.canonical,
       deployedVersion: versions.deployed,
       pendingPullRequestVersions: [versions.firstHead, versions.secondHead],
+      automatedBranchVersions: [],
     });
     expect(calls.some(({ url }) => url === nextPage)).toBe(true);
     expect(gitCalls).toContainEqual(["fetch", "pocketdecks", "refs/heads/main:refs/remotes/pocketdecks/main"]);
@@ -226,6 +234,45 @@ describe("premium retention discovery", () => {
 
     expect(result?.pendingPullRequestVersions).toEqual([versions.firstHead]);
     expect(calls.some((url) => new URL(url).searchParams.get("ref") === "refs/pull/42/head")).toBe(true);
+  });
+
+  it("skips a pull request whose head has no premium version file", async () => {
+    if (typeof discover !== "function") {
+      expect(discover).toBeTypeOf("function");
+      return;
+    }
+    const fetcher = (async (input, init) => {
+      const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
+      if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
+      if (url.pathname === `/repos/${canonicalRepository}/pulls`) {
+        return response([{
+          number: 12,
+          state: "open",
+          base: { ref: "main", repo: { full_name: canonicalRepository } },
+          head: { sha: "1".repeat(40), repo: { full_name: "contributor/old-branch" } },
+        }]);
+      }
+      if (url.pathname.endsWith("/contents/public/data/data-version.json")) return response({}, 404);
+      throw new Error("unexpected API path");
+    }) as typeof fetch;
+
+    const result = await discover({ repoRoot: "fake-repo", runGit: fakeGit(), fetcher });
+    expect(result?.pendingPullRequestVersions).toEqual([]);
+    expect(result?.canonicalMainVersion).toBe(versions.canonical);
+  });
+
+  it("protects a pushed refresh branch that has no pull request", async () => {
+    if (typeof discover !== "function") {
+      expect(discover).toBeTypeOf("function");
+      return;
+    }
+    const calls: { url: string; auth: string | null; cacheControl: string | null }[] = [];
+    const result = await discover({
+      repoRoot: "fake-repo",
+      runGit: fakeGit(versions.canonical, { automatedBranch: versions.secondHead }),
+      fetcher: successfulFetch(calls),
+    });
+    expect(result?.automatedBranchVersions).toEqual([versions.secondHead]);
   });
 
   it("falls back to the canonical PR ref when the fork version file is unreadable", async () => {
@@ -377,7 +424,7 @@ describe("premium retention discovery", () => {
       }
       if (url.searchParams.get("page") === "2") return response([], failure.laterPageFailure ? 503 : 200);
       if (url.pathname.endsWith("/contents/public/data/data-version.json")) {
-        return response(apiVersionFile(versions.firstHead), failure.headFailure ? 404 : 200);
+        return response(apiVersionFile(versions.firstHead), failure.headFailure ? 503 : 200);
       }
       return response(pullPages(), failure.listingFailure ? 503 : 200, `<${pageTwo}>; rel="next"`);
     }) as typeof fetch;
@@ -400,7 +447,6 @@ describe("premium retention discovery", () => {
       dryRun: false,
       files,
       version: premiumVersion(files),
-      liveVersion: versions.canonical,
       snapshotDir,
       discoverRetentionSources: async () => result,
     } as Parameters<typeof publisher.publishPremium>[0], () => {});

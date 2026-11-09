@@ -5,7 +5,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { EXPANSION_RELEASE_DATE } from "../settings";
-import { readPreviousArchetypeCount } from "../utils/assert-publishable";
+import { publishFailures, readPreviousArchetypeCount } from "../utils/assert-publishable";
 import { REFRESH_WINDOWS, validateRefresh } from "../utils/validate-refresh";
 
 const created: string[] = [];
@@ -445,5 +445,42 @@ describe("gate and validate baseline parity", () => {
       )).toBeNull();
     }
     expect(report.failures).toEqual([]);
+  });
+
+  it("gate and validate both refuse a window that is thin against the same baseline", () => {
+    const data = tmp();
+    const premium = tmp();
+    const images = tmp();
+    const previous = tmp();
+    const current = { "10d": 3, "20d": 25, "30d": 32, all: 32 } as const;
+    const before = { "10d": 40, "20d": 25, "30d": 32, all: 32 } as const;
+    const names = writeWindows(data, current, {}, premium);
+    writeImages(images, names);
+    writeWindows(previous, before, {}, previous);
+    writePreviousDates(previous);
+
+    const report = validateRefresh(data, images, previous, premium);
+    const validateThin = report.failures.some((failure) => failure.startsWith("10d:") && failure.includes("% of"));
+    const gate = publishFailures({
+      windows: [{
+        id: "10d",
+        bestDecks: Array.from({ length: current["10d"] }, (_, index) => ({ name: `deck-10d-${index}`, powerScore: 1, score: 1 })) as never,
+        previousArchetypeCount: before["10d"],
+      }],
+      defaultWindow: "10d",
+      deckSlugs: [],
+      newestDeckDate: releaseDay(30),
+      daysOfData: 30,
+      now: new Date(releaseDay(30)),
+      currentSet: "A1",
+      newestSet: "A1",
+      currentSetListingCount: 1,
+      unmatchedDecks: { decks: 0, games: 0, qualifiedGames: 1 },
+    });
+    const gateThin = gate.some((failure) => failure.startsWith("10d:") && failure.includes("previous"));
+
+    expect(report.windows.find((row) => row.window === "10d")?.previous).toBe(before["10d"]);
+    expect(validateThin).toBe(true);
+    expect(gateThin).toBe(true);
   });
 });

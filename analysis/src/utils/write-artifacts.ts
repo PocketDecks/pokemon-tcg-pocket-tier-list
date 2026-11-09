@@ -1,9 +1,11 @@
 import fs from "fs";
+import { createHash } from "node:crypto";
 import { renameWithRetry } from "./rename-with-retry";
 
 type Artefact = {
   target: string;
   temporary: string;
+  proof: string;
   backup: string;
   marker: string;
   content: string;
@@ -19,6 +21,7 @@ export const writeArtefacts = (files: Record<string, string>): void => {
     return {
       target,
       temporary: `${target}.tmp`,
+      proof: `${target}.tmp.owner`,
       backup: `${target}.bak`,
       marker: `${target}.created`,
       content: files[target],
@@ -32,6 +35,7 @@ export const writeArtefacts = (files: Record<string, string>): void => {
   for (const artefact of artefacts) {
     if (
       fs.existsSync(artefact.temporary) ||
+      fs.existsSync(artefact.proof) ||
       fs.existsSync(artefact.backup) ||
       fs.existsSync(artefact.marker)
     ) {
@@ -41,6 +45,10 @@ export const writeArtefacts = (files: Record<string, string>): void => {
 
   try {
     for (const artefact of artefacts) {
+      fs.writeFileSync(artefact.proof, JSON.stringify({
+        version: 1,
+        sha256: createHash("sha256").update(artefact.content).digest("hex"),
+      }));
       fs.writeFileSync(artefact.temporary, artefact.content);
       // A target this write creates leaves a marker, so an interrupted run
       // leaves evidence that the target is new.
@@ -105,6 +113,14 @@ export const writeArtefacts = (files: Record<string, string>): void => {
         console.warn(`Could not remove artefact staging file ${artefact.temporary}:`, cleanupError);
       }
     }
+    for (const artefact of artefacts) {
+      if (fs.existsSync(artefact.temporary)) continue;
+      try {
+        fs.rmSync(artefact.proof, { force: true });
+      } catch (cleanupError) {
+        console.warn(`Could not remove artefact proof ${artefact.proof}:`, cleanupError);
+      }
+    }
     throw error;
   }
 
@@ -129,6 +145,18 @@ export const writeArtefacts = (files: Record<string, string>): void => {
       console.warn(
         `Could not remove artefact marker ${artefact.marker}. The committed ` +
           `target remains active. Verify it and remove the marker before rerunning:`,
+        cleanupError
+      );
+    }
+  }
+
+  for (const artefact of artefacts) {
+    try {
+      fs.rmSync(artefact.proof, { force: true });
+    } catch (cleanupError) {
+      console.warn(
+        `Could not remove artefact proof ${artefact.proof}. The committed ` +
+          `target remains active. Verify it and remove the proof before rerunning:`,
         cleanupError
       );
     }

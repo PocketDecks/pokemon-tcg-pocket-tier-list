@@ -30,7 +30,7 @@ import {
   premiumFilePath,
   premiumVersionSnapshotDir,
 } from "./utils/premium-artefacts";
-import { readPremiumVersionAtRef } from "./utils/premium-files";
+import { readPremiumVersionAtRef, resolveCanonicalMainRef } from "./utils/premium-files";
 import { writeArtefacts } from "./utils/write-artifacts";
 import { decksDir } from "./utils/data-paths";
 import { withStoreLock } from "./utils/store-lock";
@@ -103,7 +103,7 @@ export const run = async (): Promise<void> => {
   const allQualified = qualifiedDecksInWindow(allDecks, "all", today);
   const latestDataDate = newestDeckDate(allDecks);
   const newestQualifiedDate = newestDeckDate(allQualified);
-  const trends = buildTrends(allQualified, pickTrendNames(artefacts.all.bestDecks), today);
+  const trends = buildTrends(allQualified, pickTrendNames(artefacts.all.bestDecks));
   const cardScoresList = buildCardScores(allQualified, scoringWeights(dataAnchor));
 
   const cardsById = new Map(cards.map((card: any) => [card.id, card] as [string, any]));
@@ -146,29 +146,25 @@ export const run = async (): Promise<void> => {
   let jsonPublished = false;
   try {
     withStoreLock(decksDir(), () => {
-      // Gate and validate must agree. A checkout whose canonical remote is
-      // unresolvable is a misconfiguration and stops the run. A checkout with
-      // a resolvable version but no local snapshot is normal after a fresh
-      // clone or a merge: it is a first publish, so only the previous-count
-      // ratio is skipped. publish:premium writes the versioned snapshot after
-      // this run succeeds, so no manual restore is needed.
       const repoRoot = path.resolve(__dirname, "../..");
-      const mainVersion = readPremiumVersionAtRef(repoRoot);
-      if (!mainVersion) {
+      const mainRef = resolveCanonicalMainRef(repoRoot);
+      if (!mainRef) {
         throw new Error(
-          "cannot resolve the premium version on canonical main; fetch the canonical main branch " +
-          "and confirm a remote points at PocketDecks/pokemon-tcg-pocket-tier-list"
+          "cannot resolve the canonical main remote; confirm a remote points at " +
+          "PocketDecks/pokemon-tcg-pocket-tier-list"
         );
       }
-      const mainSnapshot = loadPremiumSnapshotForVersion(mainVersion, PREMIUM_DIR);
-      const premiumBaselineDir = mainSnapshot
+      const mainVersion = readPremiumVersionAtRef(repoRoot, mainRef);
+      const mainSnapshot = mainVersion
+        ? loadPremiumSnapshotForVersion(mainVersion, PREMIUM_DIR)
+        : undefined;
+      const premiumBaselineDir = mainVersion && mainSnapshot
         ? premiumVersionSnapshotDir(mainVersion, PREMIUM_DIR)
         : null;
       if (!mainSnapshot) {
         console.log(
-          `No local premium snapshot for canonical main version ${mainVersion} in ` +
-          `${premiumVersionSnapshotDir(mainVersion, PREMIUM_DIR)}; first publish, ` +
-          "so their thinner-than-last-time floors are skipped"
+          `No premium baseline for canonical main (${mainVersion ?? "unreadable version"}) at ` +
+          `${mainRef}; first publish, so their thinner-than-last-time floors are skipped`
         );
       }
       const windowSnapshots = WINDOW_IDS.map((window) => ({
@@ -224,12 +220,10 @@ export const run = async (): Promise<void> => {
         const location = staged.staging
           ? ` The rendered set is kept at ${staged.staging}; the previous set is ${staged.backup}.`
           : "";
-        throw new Error(`The JSON artefacts are published but the OG images are not: ${reason}.${location} Finish the image swap before rerunning.`);
+        throw new Error(`The JSON artefacts are published but the OG images are not: ${reason}.${location} Finish the image swap by hand before rerunning; step 1 will stop on the retained staging directory until then.`);
       }
     });
   } catch (error) {
-    // Once the JSON is live the rendered images are the only way to finish
-    // the swap, so never discard them on that failure path.
     if (!jsonPublished && !imagesCommitted) staged.discard();
     throw error;
   }

@@ -58,6 +58,16 @@ const writeTrendDate = (dir: string, date: string): void => {
   fs.writeFileSync(path.join(dir, "historical-trends.json"), JSON.stringify([{ date }]));
 };
 
+const writeMetaShareDate = (dir: string, window: string, generatedAt: string): void => {
+  fs.writeFileSync(
+    path.join(dir, `meta-share-${window}.json`),
+    JSON.stringify({ generatedAt, decks: [] })
+  );
+};
+
+const releaseDay = (days: number): string =>
+  new Date(EXPANSION_RELEASE_DATE.getTime() + (days - 1) * 24 * 60 * 60 * 1000).toISOString();
+
 const writePreviousDates = (dir: string): void => {
   for (const window of REFRESH_WINDOWS) {
     fs.writeFileSync(
@@ -184,6 +194,22 @@ describe("validateRefresh", () => {
 
     expect(report.windows.find((row) => row.window === "10d")?.floor).toBe(3);
     expect(report.failures).toContain("10d: 1 archetypes, floor 3");
+  });
+
+  it("uses the latest meta-share generatedAt date for the floor ramp", () => {
+    const data = tmp();
+    const premium = tmp();
+    const images = tmp();
+    const names = writeWindows(data, { ...healthy, "10d": 1 }, {}, premium);
+    writeMetaShareDate(data, "10d", releaseDay(4));
+    writeMetaShareDate(premium, "30d", releaseDay(2));
+    writeMetaShareDate(premium, "all", releaseDay(3));
+    writeImages(images, names);
+
+    const report = validateRefresh(data, images, null, premium);
+
+    expect(report.windows.find((row) => row.window === "10d")?.floor).toBe(5);
+    expect(report.failures).toContain("10d: 1 archetypes, floor 5");
   });
 
   it("fails when the default file is not the 20d copy", () => {

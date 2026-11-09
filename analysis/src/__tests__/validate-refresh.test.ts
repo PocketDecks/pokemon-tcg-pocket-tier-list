@@ -226,6 +226,25 @@ describe("validateRefresh", () => {
     expect(report.failures).toContain("10d: 1 archetypes, floor 5");
   });
 
+  it("caps missing-previous floors at each published minimum after the ramp", () => {
+    const data = tmp(); const premium = tmp(); const images = tmp();
+    const names = writeWindows(data, healthy, {}, premium);
+    writeMetaShareDate(data, "10d", releaseDay(120));
+    writeImages(images, names);
+    const report = validateRefresh(data, images, null, premium);
+    expect(report.windows.map(({ floor }) => floor)).toEqual([12, 25, 32, 32]);
+  });
+
+  it("uses metadata generatedAt ahead of a later legacy trend date", () => {
+    const data = tmp(); const premium = tmp(); const images = tmp();
+    const names = writeWindows(data, { ...healthy, "10d": 1 }, {}, premium);
+    writeMetaShareDate(data, "10d", releaseDay(4));
+    writeTrendDate(data, releaseDay(120));
+    writeImages(images, names);
+    const report = validateRefresh(data, images, null, premium);
+    expect(report.windows.find((row) => row.window === "10d")?.floor).toBe(5);
+  });
+
   it("fails when the default file is not the 20d copy", () => {
     const data = tmp();
     const premium = tmp();

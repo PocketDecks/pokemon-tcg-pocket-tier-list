@@ -49,6 +49,7 @@ describe("buildMetaShare", () => {
     const sum = ms.decks.reduce((acc, d) => acc + d.share, 0);
     expect(sum).toBeCloseTo(1.0, 6);
     expect(ms.windowDays).toBe(WINDOW_DAYS);
+    expect(ms.generatedAt).toBe(TODAY.toISOString());
   });
 
   it("a deck played only in the previous window has negative delta and share 0", () => {
@@ -65,6 +66,17 @@ describe("buildMetaShare", () => {
     expect(old.share).toBe(0);
     expect(old.sharePrev).toBeGreaterThan(0);
     expect(old.delta).toBeLessThan(0);
+  });
+
+  it("uses the window anchor for the snapshot timestamp", () => {
+    const anchor = new Date("2026-09-01T00:00:00.000Z");
+    const ms = buildMetaShare(
+      [makeDeck({ name: "Deck A", date: "2026-09-01T00:00:00.000Z", totalGames: 10 })],
+      [makePartial("Deck A")],
+      TODAY,
+      { shareDays: 10, gamesDays: 10, anchor }
+    );
+    expect(ms.generatedAt).toBe(anchor.toISOString());
   });
 
   it("a brand-new deck is flagged isNew with zero previous share", () => {

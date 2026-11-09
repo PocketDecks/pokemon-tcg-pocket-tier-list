@@ -12,6 +12,8 @@ import { PREMIUM_WINDOWS } from "./premium-artefacts";
 export const REFRESH_WINDOWS = ["10d", "20d", "30d", "all"] as const;
 export type RefreshWindow = (typeof REFRESH_WINDOWS)[number];
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 export interface WindowReport {
   window: RefreshWindow;
   archetypes: number;
@@ -52,20 +54,18 @@ const readPreviousCount = (
   return readDecks(previousDir, window).length;
 };
 
-const readDaysOfData = (dataDir: string): number | null => {
+const readNewestDeckDate = (dataDir: string): string | null => {
   const file = path.join(dataDir, "historical-trends.json");
   if (!fs.existsSync(file)) return null;
-  try {
-    const rows = JSON.parse(fs.readFileSync(file, "utf8")) as { date?: unknown }[];
-    const dates = rows
-      .map((row) => (typeof row.date === "string" ? row.date : null))
-      .filter((date): date is string => date !== null)
-      .sort();
-    const newest = dates.length > 0 ? dates[dates.length - 1] : undefined;
-    return newest === undefined ? null : daysOfDataSince(newest, EXPANSION_RELEASE_DATE);
-  } catch {
-    return null;
-  }
+  const rows = JSON.parse(fs.readFileSync(file, "utf8")) as { date?: unknown }[];
+  const dates = rows
+    .map((row) => (typeof row.date === "string" ? row.date : null))
+    .filter((date): date is string => date !== null)
+    .sort();
+  if (dates.length === 0) return null;
+  return new Date(Date.parse(`${dates[dates.length - 1].slice(0, 10)}T00:00:00Z`) + DAY_MS)
+    .toISOString()
+    .slice(0, 10);
 };
 
 export const validateRefresh = (
@@ -77,7 +77,8 @@ export const validateRefresh = (
   const failures: string[] = [];
   const windows: WindowReport[] = [];
   const union = new Set<string>();
-  const daysOfData = readDaysOfData(dataDir);
+  const newestDeckDate = readNewestDeckDate(dataDir);
+  const daysOfData = newestDeckDate === null ? null : daysOfDataSince(newestDeckDate, EXPANSION_RELEASE_DATE);
 
   for (const window of REFRESH_WINDOWS) {
     const decks = readDecks(isPremiumWindow(window) ? premiumDir : dataDir, window);

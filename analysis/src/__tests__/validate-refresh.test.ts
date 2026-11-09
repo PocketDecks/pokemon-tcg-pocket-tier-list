@@ -142,13 +142,13 @@ describe("validateRefresh", () => {
     const premium = tmp();
     const images = tmp();
     const names = writeWindows(data, { ...healthy, "10d": 1 }, {}, premium);
-    writeTrendDate(data, "2026-10-29T00:00:00.000Z");
+    writeTrendDate(data, "2026-10-30T00:00:00.000Z");
     writeImages(images, names);
 
     const report = validateRefresh(data, images, null, premium);
 
-    expect(report.windows.find((row) => row.window === "10d")?.floor).toBe(2);
-    expect(report.failures).toContain("10d: 1 archetypes, floor 2");
+    expect(report.windows.find((row) => row.window === "10d")?.floor).toBe(4);
+    expect(report.failures).toContain("10d: 1 archetypes, floor 4");
   });
 
   it("fails when the default file is not the 20d copy", () => {

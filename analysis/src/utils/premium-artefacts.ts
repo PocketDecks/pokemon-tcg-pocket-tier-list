@@ -69,10 +69,12 @@ export const snapshotPremiumPrevious = (dir: string = PREMIUM_DIR): void => {
   for (const window of PREMIUM_WINDOWS) {
     const files = pairedFilesOf(window);
     for (const file of files) paired.add(file);
-    const contents = files.map((file) => readSnapshot(path.join(dir, file)));
-    const complete = contents.every((body): body is string => body !== undefined);
+    const contents = Object.fromEntries(
+      files.map((file) => [file, readSnapshot(path.join(dir, file))])
+    );
+    const complete = files.every((file) => contents[file] !== undefined);
     for (const file of files) {
-      const body = readSnapshot(path.join(dir, file));
+      const body = contents[file];
       if (complete && body !== undefined) {
         writeAside(previous, file, body);
       } else {

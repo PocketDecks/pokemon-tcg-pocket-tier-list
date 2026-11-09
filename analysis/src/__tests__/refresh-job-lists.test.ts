@@ -10,6 +10,7 @@ const job = fs.readFileSync(
   path.join(__dirname, "../../../cronjob/local-analysis-data-refresh-pr.md"),
   "utf8"
 );
+const premiumGuide = fs.readFileSync(path.join(__dirname, "../../../docs/how-to/publish-premium-data.md"), "utf8");
 
 const writeArtefactKeys = (): string[] => {
   const artefacts = Object.fromEntries(
@@ -43,6 +44,13 @@ const namedPaths = (section: string): string[] =>
   [...section.matchAll(/`([^`]+)`/g)].map((match) => match[1]);
 
 describe("refresh job file lists", () => {
+  it("uses step 10 and describes the separate image commit", () => {
+    expect(job).toContain("before step 10 runs");
+    expect(premiumGuide).toContain("at step 10");
+    expect(premiumGuide).not.toContain("at step 9");
+    expect(premiumGuide).toContain("can fail after JSON publication");
+  });
+
   it("names every file writeArtefacts stages in step 5's recovery list", () => {
     const recovery = namedPaths(step("5. Restore interrupted writes", "\n6. "));
     for (const target of writeArtefactKeys()) {

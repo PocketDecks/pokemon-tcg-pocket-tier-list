@@ -1,6 +1,6 @@
 # How-to guide: Publishing premium window data
 
-The 30-day and All Time artefacts, and the full matchup and movement depth of the 10-day and 20-day artefacts, are the paid part of the site. They are not committed to the repository and they are not served from Hosting. The refresh writes them to `analysis/out/premium/`, the refresh job uploads them to Firestore at step 9, and the app reads them back only for signed-in users who hold an entitlement. Access does not depend on a payment provider: an entitlement is a Firestore document written by an administrator, and an existing Stripe subscription keeps working alongside it. This guide covers the order of work, the one-off set-up, granting access, and rollback. The manual commands below remain for recovery when the job has already run.
+The 30-day and All Time artefacts, and the full matchup and movement depth of the 10-day and 20-day artefacts, are the paid part of the site. They are not committed to the repository and they are not served from Hosting. The refresh writes them to `analysis/out/premium/`, the refresh job uploads them to Firestore at step 10, and the app reads them back only for signed-in users who hold an entitlement. Access does not depend on a payment provider: an entitlement is a Firestore document written by an administrator, and an existing Stripe subscription keeps working alongside it. This guide covers the order of work, the one-off set-up, granting access, and rollback. The manual commands below remain for recovery when the job has already run.
 
 ## What lives where
 
@@ -35,7 +35,7 @@ The untrimmed versions of those four files become the premium artefacts `matchup
 
 The scheduled refresh job (`cronjob/local-analysis-data-refresh-pr.md`) runs these steps for you: starting the refresh, validating it, then `yarn publish:premium --dry-run`, `yarn publish:premium` and `yarn verify:premium`, and it reports the published version in the pull request body. The manual order below is the recovery path: if the job is interrupted, run the steps yourself.
 
-1. Run the refresh in `analysis` (`yarn start`). It writes the public files, the premium files and `data-version.json` together or not at all.
+1. Run the refresh in `analysis` (`yarn start`). It writes the JSON files atomically, then commits OG images separately. The image commit can fail after JSON publication.
 2. Run `yarn validate:refresh`. It reads the 10d and 20d rankings from `public/data/` and the 30d and all rankings from `analysis/out/premium/`.
 3. Authenticate once per machine with `gcloud auth application-default login`. The upload uses Application Default Credentials. Never put a key file in the repository and never put credentials in `.env`.
 4. Run `yarn publish:premium --dry-run` in `analysis` to see what would be written. The dry run does not contact Firebase.

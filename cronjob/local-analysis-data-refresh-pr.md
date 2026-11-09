@@ -8,7 +8,7 @@ Run on Sunday, Tuesday, Thursday, and Saturday at 21:00 UTC.
 
 ## Prerequisite
 
-This job publishes premium data to Firestore, so the analysis machine needs Application Default Credentials for the project before step 9 runs. If the publish or the verify step fails, report the exact refusal and stop; the published version document is written last, so readers never see a half-written version. Publishing before the merge is safe: the live site still points at the older version, and the upload keeps the newest five versions and never deletes the one `origin/main` serves. When `origin/main` cannot be read, it deletes nothing
+This job publishes premium data to Firestore, so the analysis machine needs Application Default Credentials for the project before step 10 runs. If the publish or the verify step fails, report the exact refusal and stop; the published version document is written last, so readers never see a half-written version. Publishing before the merge is safe: the live site still points at the older version, and the upload keeps the newest five versions and never deletes the one `origin/main` serves. When `origin/main` cannot be read, it deletes nothing
 
 ## Prompt
 

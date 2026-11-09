@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   PREMIUM_ARTEFACT_NAMES,
@@ -318,6 +318,39 @@ describe("versioned premium snapshots", () => {
       prune([], linkedDir);
       expect(fs.existsSync(path.join(protectedData, "keep.json"))).toBe(true);
     } finally {
+      fs.rmSync(temp, { recursive: true, force: true });
+    }
+  });
+
+  it("does not follow a linked ancestor of the snapshot cache", () => {
+    const prune = (premiumArtefacts as unknown as { prunePremiumSnapshots?: (versions: readonly string[], dir: string) => void }).prunePremiumSnapshots;
+    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-ancestor-link-"));
+    const outside = path.join(temp, "external");
+    const version = path.join(outside, "premium-previous", "eeeeeeeeeeeeeeee");
+    const linkedOut = path.join(temp, "analysis", "out");
+    fs.mkdirSync(version, { recursive: true });
+    fs.writeFileSync(path.join(version, "keep.json"), "[]");
+    fs.mkdirSync(path.dirname(linkedOut), { recursive: true });
+    fs.symlinkSync(outside, linkedOut, "junction");
+    try {
+      if (typeof prune !== "function") { expect(prune).toBeTypeOf("function"); return; }
+      expect(() => prune([], path.join(linkedOut, "premium"))).not.toThrow();
+      expect(fs.existsSync(path.join(version, "keep.json"))).toBe(true);
+    } finally { fs.rmSync(temp, { recursive: true, force: true }); }
+  });
+
+  it("reports snapshot listing failures with the cache path", () => {
+    const prune = (premiumArtefacts as unknown as { prunePremiumSnapshots?: (versions: readonly string[], dir: string) => void }).prunePremiumSnapshots;
+    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-list-failure-"));
+    const dir = path.join(temp, "premium");
+    fs.mkdirSync(previousPremiumDir(dir), { recursive: true });
+    const cache = previousPremiumDir(dir);
+    const error = Object.assign(new Error("denied"), { code: "EACCES" });
+    const spy = vi.spyOn(fs, "readdirSync").mockImplementationOnce(() => { throw error; });
+    try {
+      expect(() => prune!([], dir)).toThrow(cache);
+    } finally {
+      spy.mockRestore();
       fs.rmSync(temp, { recursive: true, force: true });
     }
   });

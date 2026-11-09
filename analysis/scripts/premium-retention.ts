@@ -26,22 +26,21 @@ const repositoryParts = (value: unknown): [string, string] | undefined => {
 
 const nextPageOf = (link: string | null, current: URL): URL | undefined => {
   if (!link) return undefined;
-  const match = /<([^>]+)>\s*;\s*rel="?next"?/i.exec(link);
+  const match = /<([^>]+)>\s*;\s*rel\s*=\s*"?next"?/i.exec(link);
   if (!match) {
-    if (/rel="?next"?/i.test(link)) throw new Error("invalid pagination link");
+    if (/rel\s*=\s*"?next"?/i.test(link)) throw new Error("invalid pagination link");
     return undefined;
   }
-  const next = new URL(match[1], current);
+  const linked = new URL(match[1], current);
   const expectedPath = `/repos/${CANONICAL_PREMIUM_REPOSITORY}/pulls`;
-  if (
-    next.origin !== "https://api.github.com" ||
-    next.pathname.toLowerCase() !== expectedPath.toLowerCase() ||
-    next.searchParams.get("state") !== "open" ||
-    next.searchParams.get("base") !== "main" ||
-    next.searchParams.get("per_page") !== "100"
-  ) {
+  if (linked.origin !== "https://api.github.com" ||
+      (linked.pathname.toLowerCase() !== expectedPath.toLowerCase() && !/^\/repositories\/\d+\/pulls$/i.test(linked.pathname)) ||
+      linked.searchParams.get("state") !== "open" || linked.searchParams.get("base") !== "main" || linked.searchParams.get("per_page") !== "100") {
     throw new Error("pagination destination is not the canonical pull request list");
   }
+  const next = new URL(current);
+  const nextPage = Number(current.searchParams.get("page") ?? "1") + 1;
+  next.searchParams.set("page", String(nextPage));
   return next;
 };
 
@@ -112,13 +111,14 @@ export const discoverPremiumRetentionSources = async ({
   try {
     const ref = resolveCanonicalMainRef(repoRoot, runGit);
     if (!ref) return undefined;
-    const remote = ref.slice(0, -"/main".length);
+    const remote = ref.match(/^refs\/remotes\/([^/]+)\/main$/)?.[1];
+    if (!remote) return undefined;
     const git = runGit ?? ((args: string[], cwd: string) => execFileSync("git", args, {
       cwd,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
     }));
-    git(["fetch", remote, "main"], repoRoot);
+    git(["fetch", remote, "refs/heads/main:refs/remotes/" + remote + "/main"], repoRoot);
     const canonicalMainVersion = readPremiumVersionAtRef(repoRoot, ref, git);
     if (!canonicalMainVersion) return undefined;
 

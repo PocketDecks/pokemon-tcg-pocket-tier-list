@@ -47,7 +47,7 @@ export const resolveCanonicalMainRef = (
       const urls = git(["remote", "get-url", remote], repoRoot).trim().split(/\r?\n/);
       return urls.length === 1 && repositoryOf(urls[0]) === CANONICAL_PREMIUM_REPOSITORY.toLowerCase();
     });
-    return matches.length === 1 ? `${matches[0]}/main` : undefined;
+    return matches.length === 1 ? `refs/remotes/${matches[0]}/main` : undefined;
   } catch {
     return undefined;
   }

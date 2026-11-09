@@ -80,7 +80,7 @@ const fakeGit = (
     if (failFetch) throw new Error("fetch failed");
     return "";
   }
-  if (args[0] === "show" && args[1] === "pocketdecks/main:public/data/data-version.json") {
+  if (args[0] === "show" && args[1] === "refs/remotes/pocketdecks/main:public/data/data-version.json") {
     return `{ "premium": "${canonicalVersion}" }\n`;
   }
   throw new Error(`unexpected git call: ${args.join(" ")}`);
@@ -106,7 +106,7 @@ const successfulFetch = (calls: { url: string; auth: string | null; cacheControl
     if (url.searchParams.get("page") === "2") return response([
       pull("another/fork", "5".repeat(40)),
     ]);
-    return response(pullPages(), 200, `<${pageTwo}>; rel="next"`);
+    return response(pullPages(), 200, `<${pageTwo}>; rel = "next"`);
   }
   if (url.pathname.endsWith("/contents/public/data/data-version.json")) {
     const repo = url.pathname.split("/").slice(2, 4).join("/");
@@ -174,9 +174,10 @@ describe("premium retention discovery", () => {
       return;
     }
     const calls: { url: string; auth: string | null; cacheControl: string | null }[] = [];
+    const gitCalls: string[][] = [];
     const result = await discover({
       repoRoot: "fake-repo",
-      runGit: fakeGit(),
+      runGit: (args, cwd) => { gitCalls.push(args); return fakeGit()(args, cwd); },
       fetcher: successfulFetch(calls),
     });
 
@@ -186,6 +187,7 @@ describe("premium retention discovery", () => {
       pendingPullRequestVersions: [versions.firstHead, versions.secondHead],
     });
     expect(calls.some(({ url }) => url === pageTwo)).toBe(true);
+    expect(gitCalls).toContainEqual(["fetch", "pocketdecks", "refs/heads/main:refs/remotes/pocketdecks/main"]);
     expect(calls.filter(({ auth }) => auth === "Bearer dummy-test-token")).toHaveLength(4);
     expect(calls.find(({ url }) => url === "https://pocketdecks.top/data/data-version.json")).toEqual({
       url: "https://pocketdecks.top/data/data-version.json",

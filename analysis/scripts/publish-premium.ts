@@ -222,7 +222,7 @@ export const runPublishPremiumCli = async ({
 } = {}): Promise<number> => {
   try {
     const unknownArgument = args.find((argument) => argument !== "--dry-run");
-    if (unknownArgument) throw new Error(`unknown argument: ${unknownArgument}`);
+    if (unknownArgument !== undefined) throw new Error(`unknown argument: ${unknownArgument}`);
     const dryRun = args.includes("--dry-run");
     const projectId = injectedProjectId ?? readProjectId(path.join(repoRoot, ".firebaserc"));
     const files = injectedFiles ?? loadPremiumFiles(PREMIUM_DIR);

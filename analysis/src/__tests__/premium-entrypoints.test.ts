@@ -167,6 +167,22 @@ it("prunes an orphan parent returned by the Firestore SDK adapter", async () => 
 });
 
 describe("premium entry points", () => {
+  it.each([[""], ["", "--unknown"]])("rejects empty CLI arguments before credentials: %j", async (...values) => {
+    const args = values as string[];
+    let initialized = false;
+    const failures: string[] = [];
+    const result = await runCli!({
+      args, projectId: "test-project", files: premiumPayloads(), version: "aaaaaaaaaaaaaaaa",
+      initializeDatabase: () => { initialized = true; throw new Error("unexpected credentials"); },
+      discoverRetentionSources: async () => undefined,
+      publish: async () => {},
+      reportError: (message) => { failures.push(message); }, log: () => {},
+    });
+    expect(result).toBe(1);
+    expect(initialized).toBe(false);
+    expect(failures[0]).toContain("unknown argument");
+  });
+
   it("runs the CLI main block and rejects unsupported arguments", () => {
     const script = path.resolve(__dirname, "../../scripts/publish-premium.ts");
     const result = spawnSync(process.execPath, ["-r", "ts-node/register", script, "--unknown"], {
@@ -287,6 +303,8 @@ describe("premium entry points", () => {
     const files = premiumPayloads();
     const version = premiumVersion(files);
     const snapshotDir = testSnapshotDir();
+    const staleSnapshot = path.join(snapshotDir, "..", "premium-previous", "eeeeeeeeeeeeeeee");
+    fs.mkdirSync(staleSnapshot, { recursive: true });
     const db = fakeFilesDb(writes, deletes);
     await publishPremium(
       { db, dryRun: false, files, version, liveVersion: "old-5", retentionSources: retentionSources("old-5"), snapshotDir } as Parameters<typeof publishPremium>[0],
@@ -315,6 +333,7 @@ describe("premium entry points", () => {
     expect(deletes).toEqual([{ path: "premiumData/old-4", documentReference: true }]);
     expect(writes[writes.length - 1]?.path).toBe(`premiumData/${version}`);
     expect(fs.existsSync(path.join(snapshotDir, "..", "premium-previous", version, `${PREMIUM_ARTEFACT_NAMES[0]}.json`))).toBe(true);
+    expect(fs.existsSync(staleSnapshot)).toBe(false);
   });
 
   it("deletes no older version when the live version cannot be read", async () => {

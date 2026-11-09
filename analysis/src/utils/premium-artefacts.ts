@@ -162,14 +162,25 @@ export const prunePremiumSnapshots = (
 ): void => {
   const cache = previousPremiumDir(dir);
   let entries: fs.Dirent[];
+  const rootPath = path.resolve(cache);
+  for (let current = rootPath; ; current = path.dirname(current)) {
+    try {
+      const detail = fs.lstatSync(current);
+      if (detail.isSymbolicLink()) return;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+      throw new Error(`cannot inspect snapshot cache path ${current}: ${String(error)}`);
+    }
+    if (path.dirname(current) === current) break;
+  }
   try {
     const root = fs.lstatSync(cache);
-    if (!root.isDirectory() || root.isSymbolicLink()) return;
+    if (!root.isDirectory()) throw new Error(`snapshot cache is not a directory: ${cache}`);
     entries = fs.readdirSync(cache, { withFileTypes: true });
-  } catch {
-    return;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+    throw new Error(`cannot list snapshot cache ${cache}: ${String(error)}`);
   }
-  const rootPath = path.resolve(cache);
   const protectedSet = new Set(protectedVersions);
   for (const entry of entries) {
     if (!entry.isDirectory() || entry.isSymbolicLink() || !/^[0-9a-f]{16}$/.test(entry.name) || protectedSet.has(entry.name)) {
@@ -183,8 +194,9 @@ export const prunePremiumSnapshots = (
       if (details.isDirectory() && !details.isSymbolicLink()) {
         fs.rmSync(target, { recursive: true, force: true });
       }
-    } catch {
-      continue;
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code !== "ENOENT") throw new Error(`cannot remove snapshot ${target}: ${String(error)}`);
     }
   }
 };

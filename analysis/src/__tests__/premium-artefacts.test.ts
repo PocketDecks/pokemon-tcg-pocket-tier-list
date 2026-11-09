@@ -8,12 +8,14 @@ import {
   PREMIUM_ARTEFACT_NAMES,
   PREMIUM_DIR,
   PREMIUM_WINDOWS,
+  loadPremiumSnapshotForVersion,
   premiumFilePath,
   premiumVersion,
   previousPremiumDir,
   renderDataVersion,
   splitArtefactFiles,
   snapshotPremiumPrevious,
+  snapshotPremiumVersion,
 } from "../utils/premium-artefacts";
 
 const DECKS = Array.from({ length: 12 }, (_, index) => `deck-${index}`);
@@ -232,7 +234,18 @@ describe("premiumVersion", () => {
   });
 
   it("does not confuse a boundary shift between a name and its content", () => {
-    expect(premiumVersion({ ab: "c" })).not.toBe(premiumVersion({ a: "bc" }));
+    expect(premiumVersion({ a: "b\nc" })).not.toBe(premiumVersion({ "a\nb": "c" }));
+  });
+});
+
+describe("versioned premium snapshots", () => {
+  it("reads only a snapshot whose files hash to the referenced version", () => {
+    const dir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "premium-version-snapshot-")), "premium");
+    const files = Object.fromEntries(PREMIUM_ARTEFACT_NAMES.map((name) => [name, `payload:${name}`]));
+    const version = premiumVersion(files);
+    snapshotPremiumVersion(files, version, dir);
+    expect(loadPremiumSnapshotForVersion(version, dir)).toEqual(files);
+    expect(loadPremiumSnapshotForVersion("0000000000000000", dir)).toBeUndefined();
   });
 });
 

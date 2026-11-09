@@ -24,6 +24,25 @@ test("a failed rename throws and removes its temporary file", () => {
   assert.deepStrictEqual(fs.readdirSync(dir), ["out.json"]);
 });
 
+test("a partial temporary write removes the file created by the writer", () => {
+  const dir = makeDir();
+  const destination = path.join(dir, "out.json");
+  const write = fs.writeFileSync;
+  fs.writeFileSync = (file, contents, ...options) => {
+    if (typeof file === "number") {
+      write(file, "partial");
+      throw new Error("disk full");
+    }
+    return write(file, contents, ...options);
+  };
+  try {
+    assert.throws(() => writeFileAtomic(destination, "payload"), /disk full/);
+  } finally {
+    fs.writeFileSync = write;
+  }
+  assert.deepStrictEqual(fs.readdirSync(dir), []);
+});
+
 test("refresh proof stays disabled without an active journal", () => {
   const dir = makeDir();
   const destination = path.join(dir, "out.json");

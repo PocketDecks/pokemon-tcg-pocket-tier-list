@@ -29,11 +29,14 @@ export const writeFileAtomic = (destination, contents, { refreshRecovery = false
   let temporaryCreated = false;
   let ownerCreated = false;
   try {
-    fs.writeFileSync(temporary, contents, { flag: "wx" });
+    const temporaryFd = fs.openSync(temporary, "wx");
     temporaryCreated = true;
+    try { fs.writeFileSync(temporaryFd, contents); } finally { fs.closeSync(temporaryFd); }
     if (owner) {
-      fs.writeFileSync(owner, JSON.stringify({ version: 1, pid: process.pid, target: path.resolve(destination), temporary: path.basename(temporary), sha256: createHash("sha256").update(contents).digest("hex") }), { flag: "wx" });
+      const ownerFd = fs.openSync(owner, "wx");
       ownerCreated = true;
+      const proof = JSON.stringify({ version: 1, pid: process.pid, target: path.resolve(destination), temporary: path.basename(temporary), sha256: createHash("sha256").update(contents).digest("hex") });
+      try { fs.writeFileSync(ownerFd, proof); } finally { fs.closeSync(ownerFd); }
     }
     fs.renameSync(temporary, destination);
     if (owner) fs.rmSync(owner, { force: true });

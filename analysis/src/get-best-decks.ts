@@ -95,6 +95,8 @@ export const run = async (): Promise<void> => {
   // through the all-time window and the published page keeps the same
   // history and card table as before the selector landed.
   const allQualified = qualifiedDecksInWindow(allDecks, "all", today);
+  const latestDataDate = newestDeckDate(allDecks);
+  const newestQualifiedDate = newestDeckDate(allQualified);
   const trends = buildTrends(allQualified, pickTrendNames(artefacts.all.bestDecks), today);
   const cardScoresList = buildCardScores(allQualified, scoringWeights(dataAnchor));
 
@@ -156,8 +158,8 @@ export const run = async (): Promise<void> => {
         windows: windowSnapshots,
         defaultWindow: DEFAULT_WINDOW,
         deckSlugs: [...ogSlugs].map(slugOf),
-        newestDeckDate: newestDeckDate(allQualified),
-        daysOfData: daysOfDataSince(newestDeckDate(allQualified), EXPANSION_RELEASE_DATE),
+        newestDeckDate: newestQualifiedDate,
+        daysOfData: daysOfDataSince(latestDataDate, EXPANSION_RELEASE_DATE),
         now: today,
         currentSet: listingStore.currentSet,
         newestSet,

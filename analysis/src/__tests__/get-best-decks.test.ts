@@ -426,4 +426,25 @@ describe("run", () => {
       daysOfDataSince(DECK_DATE, MOCKED_RELEASE_DATE)
     );
   });
+
+  it("uses the newest deck for the ramp and the newest qualified deck for freshness", async () => {
+    const newestUnqualified = {
+      ...makeDecks()[0],
+      id: "newest-unqualified",
+      date: "2026-09-24T00:00:00.000Z",
+      winCount: 0,
+      lossCount: 30,
+      wins: [],
+      losses: [],
+    };
+    getDecks.mockReturnValue([...makeDecks(), newestUnqualified]);
+
+    await run();
+
+    const input = vi.mocked(assertPublishable).mock.calls[0][0];
+    expect(input.daysOfData).toBe(
+      daysOfDataSince(newestUnqualified.date, MOCKED_RELEASE_DATE)
+    );
+    expect(input.newestDeckDate).toBe(DECK_DATE);
+  });
 });

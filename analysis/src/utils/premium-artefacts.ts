@@ -34,23 +34,48 @@ export const PREMIUM_DIR = path.resolve(__dirname, "../../out/premium");
 export const previousPremiumDir = (dir: string = PREMIUM_DIR): string =>
   path.join(path.dirname(dir), "premium-previous");
 
+const readSnapshot = (file: string): string | undefined => {
+  if (!fs.existsSync(file)) return undefined;
+  const contents = fs.readFileSync(file, "utf8");
+  try {
+    return isSnapshotValue(JSON.parse(contents)) ? contents : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+const writeAside = (previous: string, file: string, contents: string): void => {
+  const temporary = path.join(previous, `${file}.snapshot-tmp-${process.pid}`);
+  fs.writeFileSync(temporary, contents);
+  fs.renameSync(temporary, path.join(previous, file));
+};
+
+const pairedFilesOf = (window: PremiumWindow): string[] =>
+  ["best-decks", "meta-share"].map((base) => `${base}-${window}.json`);
+
 export const snapshotPremiumPrevious = (dir: string = PREMIUM_DIR): void => {
   if (!fs.existsSync(dir)) return;
   const previous = previousPremiumDir(dir);
   fs.mkdirSync(previous, { recursive: true });
+  const paired = new Set<string>();
+  for (const window of PREMIUM_WINDOWS) {
+    const files = pairedFilesOf(window);
+    for (const file of files) paired.add(file);
+    const contents = files.map((file) => readSnapshot(path.join(dir, file)));
+    const complete = contents.every((body): body is string => body !== undefined);
+    files.forEach((file, index) => {
+      const body = contents[index];
+      if (complete && body !== undefined) {
+        writeAside(previous, file, body);
+      } else {
+        fs.rmSync(path.join(previous, file), { force: true });
+      }
+    });
+  }
   for (const file of fs.readdirSync(dir)) {
-    if (!file.endsWith(".json")) continue;
-    const source = path.join(dir, file);
-    const contents = fs.readFileSync(source, "utf8");
-    try {
-      const parsed: unknown = JSON.parse(contents);
-      if (!isSnapshotValue(parsed)) continue;
-    } catch {
-      continue;
-    }
-    const temporary = path.join(previous, `${file}.snapshot-tmp-${process.pid}`);
-    fs.writeFileSync(temporary, contents);
-    fs.renameSync(temporary, path.join(previous, file));
+    if (!file.endsWith(".json") || paired.has(file)) continue;
+    const contents = readSnapshot(path.join(dir, file));
+    if (contents !== undefined) writeAside(previous, file, contents);
   }
 };
 

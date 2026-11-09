@@ -242,32 +242,69 @@ describe("renderDataVersion", () => {
   });
 });
 
+const SNAPSHOT_META = JSON.stringify({ generatedAt: "2026-11-07T00:00:00.000Z", decks: [] });
+
+const premiumWith = (files: Record<string, string>) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "premium-pairs-"));
+  const premium = path.join(dir, "premium");
+  fs.mkdirSync(premium);
+  for (const [name, contents] of Object.entries(files)) {
+    fs.writeFileSync(path.join(premium, name), contents);
+  }
+  return { dir, premium, previous: previousPremiumDir(premium) };
+};
+
 describe("snapshotPremiumPrevious", () => {
   it("copies the premium files aside so the next run can compare with them", () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "premium-previous-"));
-    const premium = path.join(dir, "premium");
-    fs.mkdirSync(premium);
-    fs.writeFileSync(path.join(premium, "best-decks-30d.json"), "[1]");
+    const { dir, premium, previous } = premiumWith({
+      "best-decks-30d.json": "[1]",
+      "meta-share-30d.json": SNAPSHOT_META,
+    });
     snapshotPremiumPrevious(premium);
-    const previous = previousPremiumDir(premium);
     expect(fs.readFileSync(path.join(previous, "best-decks-30d.json"), "utf8")).toBe("[1]");
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
   it("copies a meta-share snapshot object for the movement check", () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "premium-meta-share-"));
-    const premium = path.join(dir, "premium");
-    fs.mkdirSync(premium);
-    const contents = JSON.stringify({ generatedAt: "2026-11-07T00:00:00.000Z", decks: [] });
-    fs.writeFileSync(path.join(premium, "meta-share-30d.json"), contents);
+    const { dir, premium, previous } = premiumWith({
+      "best-decks-all.json": "[1]",
+      "meta-share-all.json": SNAPSHOT_META,
+    });
     snapshotPremiumPrevious(premium);
-    expect(fs.readFileSync(path.join(previousPremiumDir(premium), "meta-share-30d.json"), "utf8")).toBe(contents);
+    expect(fs.readFileSync(path.join(previous, "meta-share-all.json"), "utf8")).toBe(SNAPSHOT_META);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("copies a window only as a complete pair of ranking and meta share", () => {
+    const { dir, premium, previous } = premiumWith({
+      "best-decks-30d.json": "[1]",
+      "meta-share-30d.json": "{ not json",
+    });
+    snapshotPremiumPrevious(premium);
+    expect(fs.existsSync(path.join(previous, "best-decks-30d.json"))).toBe(false);
+    expect(fs.existsSync(path.join(previous, "meta-share-30d.json"))).toBe(false);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("clears a stale previous pair when the new source for that window is incomplete", () => {
+    const { dir, premium, previous } = premiumWith({
+      "best-decks-30d.json": "[2]",
+      "meta-share-30d.json": SNAPSHOT_META,
+    });
+    snapshotPremiumPrevious(premium);
+    fs.rmSync(path.join(premium, "meta-share-30d.json"));
+    snapshotPremiumPrevious(premium);
+    expect(fs.existsSync(path.join(previous, "best-decks-30d.json"))).toBe(false);
+    expect(fs.existsSync(path.join(previous, "meta-share-30d.json"))).toBe(false);
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
   it("copies nothing when the premium directory does not exist", () => {
-    snapshotPremiumPrevious(path.join(os.tmpdir(), "premium-missing-12345"));
-    expect(fs.existsSync(previousPremiumDir(path.join(os.tmpdir(), "premium-missing-12345")))).toBe(false);
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "premium-missing-"));
+    const premium = path.join(dir, "premium");
+    snapshotPremiumPrevious(premium);
+    expect(fs.existsSync(previousPremiumDir(premium))).toBe(false);
+    fs.rmSync(dir, { recursive: true, force: true });
   });
 });
 

@@ -70,6 +70,7 @@ describe("refresh job file lists", () => {
 
   it("runs recovery before mutations and stops after pairing or golden failures", () => {
     expect(job.indexOf("refresh:outputs recover")).toBeLessThan(job.indexOf("sync-pairings"));
+    expect(step("3. From", "4. From")).toMatch(/refresh:outputs begin[\s\S]*?stop if it fails/i);
     expect(step("3. From", "4. From")).toMatch(/sync-pairings[\s\S]*?checkpoint[\s\S]*?stop[\s\S]*?non-zero/i);
     expect(step("4. From", "5. Run")).toMatch(/golden:generate[\s\S]*?checkpoint[\s\S]*?stop[\s\S]*?non-zero/i);
     expect(job).toContain("A killed run needs the recovery in step 1");
@@ -77,8 +78,10 @@ describe("refresh job file lists", () => {
   });
 
   it("generates hub slugs before checking generated files", () => {
-    expect(job.indexOf("generate-deck-hub-slugs.mjs")).toBeGreaterThanOrEqual(0);
-    expect(job.indexOf("generate-deck-hub-slugs.mjs")).toBeLessThan(job.indexOf("check:generated"));
+    const generation = step("7. From", "8. Run");
+    expect(generation.indexOf("build-deck-archive.mjs")).toBeLessThan(generation.indexOf("generate-deck-hub-slugs.mjs"));
+    expect(generation.indexOf("generate-deck-hub-slugs.mjs")).toBeLessThan(generation.indexOf("generate-deck-redirects.mjs"));
+    expect(generation.indexOf("generate-deck-redirects.mjs")).toBeLessThan(job.indexOf("validate:refresh"));
   });
 
   it("publishes premium in step 10 in dry-run, publish, verify order", () => {
@@ -105,6 +108,23 @@ describe("refresh job file lists", () => {
   it("names generated hub files in the commit and silent-day instructions", () => {
     expect(REFRESH_OUTPUT_TREES).toContain("public/data/hubs");
     expect(step("9. Inspect", "10. From")).toContain("hub");
+  });
+
+  it("stops on failed recovery, fetch, branch, and root generator commands", () => {
+    expect(step("1. From", "2. Create")).toMatch(/recover[\s\S]*?stop[\s\S]*?fetch[\s\S]*?stopping if either command fails/i);
+    expect(step("2. Create", "3. From")).toMatch(/branch[\s\S]*?stop if branch creation or checkout fails/i);
+    const generation = step("7. From", "8. Run");
+    for (const command of ["build-deck-archive.mjs", "generate-deck-hub-slugs.mjs", "generate-deck-redirects.mjs"]) {
+      expect(generation.indexOf(command)).toBeGreaterThanOrEqual(0);
+    }
+    expect(generation).toMatch(/checkpointing each command and stopping on its failure/i);
+  });
+
+  it("preserves the raw-store backup and human-review stop rule", () => {
+    const verify = step("5. Run", "6. From");
+    expect(verify).toContain("analysis/data-backup/YYYY-MM-DD/");
+    expect(verify).toContain("Never delete or restore raw-store files automatically");
+    expect(verify).toContain("processed-tournaments.json");
   });
 
   it("defines silence by the classifier, excluding timestamps and counting premium output", () => {

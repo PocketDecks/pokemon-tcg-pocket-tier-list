@@ -1,13 +1,14 @@
 import fs from "fs";
 import { readManifest, verifyStore } from "../src/utils/deck-store";
-import { decksDir } from "../src/utils/data-paths";
+import { decksDir, processedFile } from "../src/utils/data-paths";
 
 export interface VerifyOptions {
   dir: string;
   allowEmpty?: boolean;
+  processedFile?: string;
 }
 
-export const runVerify = ({ dir, allowEmpty = false }: VerifyOptions): number => {
+export const runVerify = ({ dir, allowEmpty = false, processedFile: processed = undefined }: VerifyOptions): number => {
   if (!fs.existsSync(dir)) {
     console.error(`Deck store not found: ${dir}`);
     return 1;
@@ -21,7 +22,7 @@ export const runVerify = ({ dir, allowEmpty = false }: VerifyOptions): number =>
   }
 
   const total = shards.reduce((sum, id) => sum + manifest.shards[id].count, 0);
-  const problems = verifyStore(dir, { placement: true });
+  const problems = verifyStore(dir, { placement: true, processedFile: processed });
 
   console.log(`${shards.length} shards, ${total} decks in ${dir}`);
   for (const problem of problems.slice(0, 20)) {
@@ -38,5 +39,6 @@ if (process.argv[1]?.endsWith("verify-deck-store.ts")) {
   process.exitCode = runVerify({
     dir: decksDir(),
     allowEmpty: process.argv.includes("--allow-empty"),
+    processedFile: processedFile(),
   });
 }

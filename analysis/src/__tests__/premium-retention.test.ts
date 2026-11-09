@@ -228,6 +228,61 @@ describe("premium retention discovery", () => {
     expect(calls.some((url) => new URL(url).searchParams.get("ref") === "refs/pull/42/head")).toBe(true);
   });
 
+  it("falls back to the canonical PR ref when the fork version file is unreadable", async () => {
+    if (typeof discover !== "function") {
+      expect(discover).toBeTypeOf("function");
+      return;
+    }
+    const fetcher = (async (input, init) => {
+      const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
+      if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
+      if (url.pathname === `/repos/${canonicalRepository}/pulls`) {
+        return response([{
+          number: 9,
+          state: "open",
+          base: { ref: "main", repo: { full_name: canonicalRepository } },
+          head: { sha: "1".repeat(40), repo: { full_name: "contributor/deleted-fork" } },
+        }]);
+      }
+      if (url.pathname.endsWith("/contents/public/data/data-version.json")) {
+        if (url.searchParams.get("ref") === "refs/pull/9/head") return response(apiVersionFile(versions.firstHead));
+        return response({}, 404);
+      }
+      throw new Error("unexpected API path");
+    }) as typeof fetch;
+
+    const result = await discover({ repoRoot: "fake-repo", runGit: fakeGit(), fetcher });
+    expect(result?.pendingPullRequestVersions).toEqual([versions.firstHead]);
+  });
+
+  it("refuses to prune when a later page changes during pagination", async () => {
+    if (typeof discover !== "function") {
+      expect(discover).toBeTypeOf("function");
+      return;
+    }
+    const numbered = (number: number) => ({
+      ...pull("contributor/refresh", "1".repeat(40)),
+      number,
+    });
+    let pageTwoReads = 0;
+    const fetcher = (async (input, init) => {
+      const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
+      if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
+      if (url.pathname.endsWith("/contents/public/data/data-version.json")) return response(apiVersionFile(versions.firstHead));
+      if (url.pathname === `/repos/${canonicalRepository}/pulls`) {
+        if (url.searchParams.get("page") === "2") {
+          pageTwoReads += 1;
+          return response(pageTwoReads === 1 ? [numbered(2)] : [numbered(3)]);
+        }
+        return response([numbered(1)], 200, `<${pageTwo}>; rel="next"`);
+      }
+      throw new Error("unexpected API path");
+    }) as typeof fetch;
+
+    expect(await discover({ repoRoot: "fake-repo", runGit: fakeGit(), fetcher })).toBeUndefined();
+    expect(pageTwoReads).toBe(2);
+  });
+
   it("bounds every discovery request with an abort signal", async () => {
     if (typeof discover !== "function") {
       expect(discover).toBeTypeOf("function");
@@ -269,6 +324,26 @@ describe("premium retention discovery", () => {
     const result = await discover({ repoRoot: "fake-repo", runGit: fakeGit(), fetcher });
     expect(result).toBeUndefined();
     expect(pageOneReads).toBe(2);
+  });
+
+  it.each([
+    ["per_page is not 100", `${apiRoot}?state=open&base=main&per_page=50&page=2`],
+    ["page is missing", `${apiRoot}?state=open&base=main&per_page=100`],
+    ["page is not numeric", `${apiRoot}?state=open&base=main&per_page=100&page=next`],
+    ["base is not main", `${apiRoot}?state=open&base=release&per_page=100&page=2`],
+  ])("rejects a pagination link whose %s", async (_name, link) => {
+    if (typeof discover !== "function") {
+      expect(discover).toBeTypeOf("function");
+      return;
+    }
+    const fetcher = (async (input, init) => {
+      const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
+      if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
+      if (url.pathname === `/repos/${canonicalRepository}/pulls`) return response([], 200, `<${link}>; rel="next"`);
+      throw new Error("unexpected API path");
+    }) as typeof fetch;
+
+    expect(await discover({ repoRoot: "fake-repo", runGit: fakeGit(), fetcher })).toBeUndefined();
   });
 
   it("rejects pagination to another host without sending the token there", async () => {

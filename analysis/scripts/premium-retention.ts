@@ -25,6 +25,7 @@ const repositoryParts = (value: unknown): [string, string] | undefined => {
 };
 
 const FETCH_TIMEOUT_MS = 15_000;
+const GIT_TIMEOUT_MS = 60_000;
 const timedFetch = (fetcher: typeof fetch, url: URL, init: RequestInit): Promise<Response> =>
   fetcher(url, { ...init, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
 
@@ -153,6 +154,7 @@ export const discoverPremiumRetentionSources = async ({
       cwd,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
+      timeout: GIT_TIMEOUT_MS,
     }));
     git(["fetch", remote, "refs/heads/main:refs/remotes/" + remote + "/main"], repoRoot);
     const canonicalMainVersion = readPremiumVersionAtRef(repoRoot, ref, git);
@@ -174,7 +176,7 @@ export const discoverPremiumRetentionSources = async ({
     firstPage.search = new URLSearchParams({ state: "open", base: "main", per_page: "100" }).toString();
     const visited = new Set<string>();
     const pendingVersions: string[] = [];
-    const firstPageNumbers = new Set<number>();
+    const pageNumbers: { url: URL; numbers: Set<number> }[] = [];
     let page: URL | undefined = firstPage;
     while (page) {
       if (visited.has(page.toString())) throw new Error("pull request pagination repeated a page");
@@ -183,32 +185,38 @@ export const discoverPremiumRetentionSources = async ({
       if (!response.ok) throw new Error("pull request listing failed");
       const pullRequests = await response.json();
       if (!Array.isArray(pullRequests)) throw new Error("pull request listing is not an array");
+      const numbers = new Set<number>();
       for (const pullRequest of pullRequests) {
-        if (page === firstPage && typeof pullRequest === "object" && pullRequest !== null) {
+        if (typeof pullRequest === "object" && pullRequest !== null) {
           const number = (pullRequest as { number?: unknown }).number;
-          if (typeof number === "number" && Number.isInteger(number)) firstPageNumbers.add(number);
+          if (typeof number === "number" && Number.isInteger(number)) numbers.add(number);
         }
         const version = await readPullRequestVersion(pullRequest, fetcher, headers);
         if (version) pendingVersions.push(version);
       }
+      pageNumbers.push({ url: page, numbers });
       page = nextPageOf(response.headers.get("link"), page);
     }
 
     // Offset pagination can skip a pull request when one is opened or closed
-    // mid-scan. Re-read the first page and fail closed if its membership moved,
-    // so an incomplete protection set never reaches the pruning step.
-    if (firstPageNumbers.size > 0) {
-      const repeat = await timedFetch(fetcher, firstPage, { headers, cache: "no-store", redirect: "manual" });
-      if (!repeat.ok) throw new Error("pull request pagination stability check failed");
-      const current = await repeat.json();
-      if (!Array.isArray(current)) throw new Error("pull request listing is not an array");
-      const numbers = new Set<number>();
-      for (const entry of current) {
-        const number = (entry as { number?: unknown } | null)?.number;
-        if (typeof number === "number" && Number.isInteger(number)) numbers.add(number);
-      }
-      if (numbers.size !== firstPageNumbers.size || [...numbers].some((number) => !firstPageNumbers.has(number))) {
-        throw new Error("pull request list changed during pagination; refusing to prune");
+    // mid-scan. Re-read EVERY visited page and fail closed if any membership
+    // moved, so an incomplete protection set never reaches the pruning step.
+    if (pageNumbers.some(({ numbers }) => numbers.size > 0)) {
+      for (const { url, numbers } of pageNumbers) {
+        const repeat = await timedFetch(fetcher, url, { headers, cache: "no-store", redirect: "manual" });
+        if (!repeat.ok) throw new Error("pull request pagination stability check failed");
+        const current = await repeat.json();
+        if (!Array.isArray(current)) throw new Error("pull request listing is not an array");
+        const seen = new Set<number>();
+        for (const entry of current) {
+          const number = (entry as { number?: unknown } | null)?.number;
+          if (typeof number === "number" && Number.isInteger(number)) seen.add(number);
+        }
+        if (seen.size !== numbers.size || [...seen].some((number) => !numbers.has(number))) {
+          throw new Error(
+            `pull request list changed during pagination on page ${url.searchParams.get("page") ?? "1"}; refusing to prune`
+          );
+        }
       }
     }
 

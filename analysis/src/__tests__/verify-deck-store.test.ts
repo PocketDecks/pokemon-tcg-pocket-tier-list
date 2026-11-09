@@ -66,4 +66,44 @@ describe("verify-deck-store", () => {
     expect(runVerify({ dir })).toBe(0);
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining("1 shards, 1 decks"));
   });
+
+  const healthyStore = (): void => {
+    commit(planDeckWrites(dir, [makeDeck("a", "2026-09-01T10:00:00.000Z")]));
+  };
+
+  it("fails when the processed-tournaments batch was interrupted", () => {
+    healthyStore();
+    const processed = path.join(dir, "processed-tournaments.json");
+    fs.writeFileSync(`${processed}.tmp`, "[{}]");
+
+    expect(runVerify({ dir, processedFile: processed })).toBe(1);
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("interrupted processed-tournaments write"));
+  });
+
+  it("fails when the store holds shards but the processed list is missing", () => {
+    healthyStore();
+
+    expect(runVerify({ dir, processedFile: path.join(dir, "processed-tournaments.json") })).toBe(1);
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("processed-tournaments.json is missing"));
+  });
+
+  it("fails on a duplicate processed tournament id", () => {
+    healthyStore();
+    const processed = path.join(dir, "processed-tournaments.json");
+    fs.writeFileSync(processed, JSON.stringify([
+      { id: "t1", date: "2026-09-01" },
+      { id: "t1", date: "2026-09-01" },
+    ]));
+
+    expect(runVerify({ dir, processedFile: processed })).toBe(1);
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("duplicate processed tournament"));
+  });
+
+  it("passes when the processed list is intact", () => {
+    healthyStore();
+    const processed = path.join(dir, "processed-tournaments.json");
+    fs.writeFileSync(processed, JSON.stringify([{ id: "t1", date: "2026-09-01" }]));
+
+    expect(runVerify({ dir, processedFile: processed })).toBe(0);
+  });
 });

@@ -146,33 +146,41 @@ export const run = async (): Promise<void> => {
   let jsonPublished = false;
   try {
     withStoreLock(decksDir(), () => {
-      // Gate and validate must agree: an unresolvable canonical version or a
-      // missing premium baseline is a refusal, not a silent floor exemption.
+      // Gate and validate must agree. A checkout whose canonical remote is
+      // unresolvable is a misconfiguration and stops the run. A checkout with
+      // a resolvable version but no local snapshot is normal after a fresh
+      // clone or a merge: it is a first publish, so only the previous-count
+      // ratio is skipped. publish:premium writes the versioned snapshot after
+      // this run succeeds, so no manual restore is needed.
       const repoRoot = path.resolve(__dirname, "../..");
       const mainVersion = readPremiumVersionAtRef(repoRoot);
       if (!mainVersion) {
         throw new Error(
           "cannot resolve the premium version on canonical main; fetch the canonical main branch " +
-          "or pass --previous-ref <ref> to validate:refresh"
+          "and confirm a remote points at PocketDecks/pokemon-tcg-pocket-tier-list"
         );
       }
       const mainSnapshot = loadPremiumSnapshotForVersion(mainVersion, PREMIUM_DIR);
+      const premiumBaselineDir = mainSnapshot
+        ? premiumVersionSnapshotDir(mainVersion, PREMIUM_DIR)
+        : null;
       if (!mainSnapshot) {
-        throw new Error(
-          `missing premium baseline snapshot for version ${mainVersion} in ` +
-          `${premiumVersionSnapshotDir(mainVersion, PREMIUM_DIR)}; restore the snapshot for the deployed ` +
-          "version before running the refresh"
+        console.log(
+          `No local premium snapshot for canonical main version ${mainVersion} in ` +
+          `${premiumVersionSnapshotDir(mainVersion, PREMIUM_DIR)}; first publish, ` +
+          "so their thinner-than-last-time floors are skipped"
         );
       }
-      const premiumBaselineDir = premiumVersionSnapshotDir(mainVersion, PREMIUM_DIR);
       const windowSnapshots = WINDOW_IDS.map((window) => ({
         id: window,
         bestDecks: artefacts[window].bestDecks,
-        previousArchetypeCount: readPreviousArchetypeCount(
-          previousBestDecks(window, premiumBaselineDir),
-          previousMetaShare(window, premiumBaselineDir),
-          EXPANSION_RELEASE_DATE
-        ),
+        previousArchetypeCount: isPremiumWindow(window) && premiumBaselineDir === null
+          ? null
+          : readPreviousArchetypeCount(
+              previousBestDecks(window, premiumBaselineDir),
+              previousMetaShare(window, premiumBaselineDir),
+              EXPANSION_RELEASE_DATE
+            ),
       }));
       const uncompared = windowsWithoutComparison(windowSnapshots);
       if (uncompared.length > 0) {

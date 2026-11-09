@@ -5,6 +5,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { EXPANSION_RELEASE_DATE } from "../settings";
+import { readPreviousArchetypeCount } from "../utils/assert-publishable";
 import { REFRESH_WINDOWS, validateRefresh } from "../utils/validate-refresh";
 
 const created: string[] = [];
@@ -395,5 +396,54 @@ describe("notCompared", () => {
     }
     const report = validateRefresh(data, images, previous, previous);
     expect(report.notCompared).toEqual([]);
+  });
+});
+
+describe("gate and validate baseline parity", () => {
+  it("reads the same previous archetype count from the same baseline files", () => {
+    const data = tmp();
+    const premium = tmp();
+    const images = tmp();
+    const previous = tmp();
+    const names = writeWindows(data, healthy, {}, premium);
+    writeImages(images, names);
+    writeWindows(previous, healthy, {}, previous);
+    writePreviousDates(previous);
+
+    const report = validateRefresh(data, images, previous, premium);
+    for (const row of report.windows) {
+      const gatePrevious = readPreviousArchetypeCount(
+        path.join(previous, `best-decks-${row.window}.json`),
+        path.join(previous, `meta-share-${row.window}.json`),
+        EXPANSION_RELEASE_DATE
+      );
+      expect(gatePrevious).toBe(row.previous);
+    }
+  });
+
+  it("treats a missing premium baseline as no comparison in both readers", () => {
+    const data = tmp();
+    const premium = tmp();
+    const images = tmp();
+    const previous = tmp();
+    const names = writeWindows(data, healthy, {}, premium);
+    writeImages(images, names);
+    for (const window of ["10d", "20d"]) {
+      fs.writeFileSync(path.join(previous, `best-decks-${window}.json`), JSON.stringify([{ name: `old-${window}` }]));
+      writeMetaShareDate(previous, window, EXPANSION_RELEASE_DATE.toISOString());
+    }
+
+    const report = validateRefresh(data, images, previous, premium);
+    expect(report.notCompared).toContain("30d");
+    expect(report.notCompared).toContain("all");
+    for (const window of PREMIUM) {
+      expect(report.windows.find((row) => row.window === window)?.previous).toBeNull();
+      expect(readPreviousArchetypeCount(
+        path.join(previous, `best-decks-${window}.json`),
+        path.join(previous, `meta-share-${window}.json`),
+        EXPANSION_RELEASE_DATE
+      )).toBeNull();
+    }
+    expect(report.failures).toEqual([]);
   });
 });

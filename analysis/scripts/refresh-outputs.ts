@@ -1,7 +1,9 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+
+import { renameWithRetry } from "../src/utils/rename-with-retry";
 
 export const REFRESH_OUTPUT_FILES = [
   "analysis/src/data/limitless-decks.json", "analysis/src/__fixtures__/deck-name-golden.json",
@@ -49,9 +51,24 @@ const safeFiles = (root: string, directory: string): string[] => {
   visit(directory);
   return result;
 };
+// Only generator-shaped files belong in an output tree. A stray file placed
+// there during a run used to be enumerated as a generated output, checkpointed
+// and staged. Writer sidecars (.tmp, .bak, .created, .owner and the atomic
+// writer's pid/uuid form) are allowed because recovery owns them.
+const TREE_FILE_PATTERNS: Record<string, RegExp> = {
+  "public/data/hubs": /^[a-z0-9]+(?:-[a-z0-9]+)*\.json(?:\..*)?$/,
+  "public/og/deck": /^[a-z0-9]+(?:-[a-z0-9]+)*(?:&[a-z0-9]+(?:-[a-z0-9]+)*)*\.png(?:\..*)?$/,
+};
 const enumerate = (root: string): string[] => {
   const result = [...REFRESH_OUTPUT_FILES];
-  for (const tree of REFRESH_OUTPUT_TREES) result.push(...safeFiles(root, tree));
+  for (const tree of REFRESH_OUTPUT_TREES) {
+    const pattern = TREE_FILE_PATTERNS[tree];
+    for (const name of safeFiles(root, tree)) {
+      const leaf = name.slice(tree.length + 1);
+      if (pattern && !pattern.test(leaf)) throw new Error(`refresh stopped: unexpected file in ${tree}: ${leaf}`);
+      result.push(name);
+    }
+  }
   for (const name of result) safePath(root, name);
   return [...new Set(result)].sort();
 };
@@ -121,10 +138,31 @@ const assertKnownChanges = (root: string): void => {
 };
 const read = (root: string): Journal => JSON.parse(fs.readFileSync(journalPath(root), "utf8")) as Journal;
 const baselineHashes = (baseline: Record<string, string>): Record<string, string> => Object.fromEntries(Object.entries(baseline).map(([name, value]) => [name, hash(Buffer.from(value, "base64"))]));
-const write = (root: string, journal: Journal): void => fs.writeFileSync(journalPath(root), JSON.stringify(journal));
+// The journal is the only record of the run's baseline. A plain write can be
+// truncated by a kill and leave an unreadable journal, so write a unique
+// temporary first and rename it into place atomically.
+const write = (root: string, journal: Journal): void => {
+  const target = journalPath(root);
+  const temporary = `${target}.${process.pid}.${randomUUID()}.tmp`;
+  fs.writeFileSync(temporary, JSON.stringify(journal), { flag: "wx" });
+  try {
+    renameWithRetry(temporary, target);
+  } catch (error) {
+    fs.rmSync(temporary, { force: true });
+    throw error;
+  }
+};
 
 export const beginRefresh = (root: string): void => {
-  if (fs.existsSync(journalPath(root))) throw new Error("refresh begin stopped: journal already exists; recover it first");
+  const target = journalPath(root);
+  if (fs.existsSync(target)) throw new Error("refresh begin stopped: journal already exists; recover it first");
+  // A killed journal write leaves a unique temporary in the git directory.
+  // It is not part of the worktree, so clean it up at the start of a new run.
+  const parent = path.dirname(target);
+  const prefix = `${path.basename(target)}.`;
+  for (const name of fs.readdirSync(parent)) {
+    if (name.startsWith(prefix) && name.endsWith(".tmp")) fs.rmSync(path.join(parent, name), { force: true });
+  }
   write(root, { head: git(root, "rev-parse", "HEAD"), baseline: contents(root), checkpoint: currentHashes(root) });
 };
 export const checkpointRefresh = (root: string): void => {
@@ -184,11 +222,19 @@ export const recoverRefresh = (root: string): void => {
   const parent = path.dirname(deck);
   const orphanStages = fs.existsSync(parent) ? fs.readdirSync(parent).filter((name) => name.startsWith("deck-stage-")) : [];
   if (orphanStages.length) throw new Error(`refresh recovery stopped: unowned OG staging directories: ${orphanStages.join(", ")}`);
+  // Phase 1: validate every sidecar state without touching the filesystem.
+  // Nothing is deleted until every check (including the final checkpoint
+  // comparison) has passed, so a refusal leaves the evidence intact.
+  type SidecarPlan = { name: string; restore: boolean; removals: string[] };
+  const sidecarPlans: SidecarPlan[] = [];
   for (const name of outputNames(root)) {
     const full = safePath(root, name);
-    const temporary = safePath(root, `${name}.tmp`);
-    const backup = safePath(root, `${name}.bak`);
-    const marker = safePath(root, `${name}.created`);
+    const temporaryName = `${name}.tmp`;
+    const backupName = `${name}.bak`;
+    const markerName = `${name}.created`;
+    const temporary = safePath(root, temporaryName);
+    const backup = safePath(root, backupName);
+    const marker = safePath(root, markerName);
     const hasTemporary = fs.existsSync(temporary);
     const hasBackup = fs.existsSync(backup);
     const hasMarker = fs.existsSync(marker);
@@ -197,29 +243,25 @@ export const recoverRefresh = (root: string): void => {
         if (fs.existsSync(full)) throw new Error(`refresh recovery stopped: unexpected target beside backup ${name}`);
         const saved = journal.baseline[name];
         if (saved === undefined || hash(fs.readFileSync(backup)) !== hash(Buffer.from(saved, "base64"))) throw new Error(`refresh recovery stopped: unowned backup ${backup}`);
-        fs.renameSync(backup, full);
       } else {
         const saved = journal.baseline[name];
         // A writer that created the target leaves an empty `.created` marker;
         // a writer that replaced it leaves the target byte-identical to the
-        // baseline. Anything else is not provably this run's sidecar, so
-        // refuse instead of deleting a stranger's files.
+        // baseline. Anything else is not provably this run's sidecar.
         if (hasMarker !== (saved === undefined)) throw new Error(`refresh recovery stopped: unproven sidecar state ${name}`);
         if (hasMarker && fs.statSync(marker).size !== 0) throw new Error(`refresh recovery stopped: unproven created marker ${marker}`);
         if (saved === undefined && fs.existsSync(full)) throw new Error(`refresh recovery stopped: unexpected target beside temporary write ${name}`);
         if (saved !== undefined && (!fs.existsSync(full) || hash(fs.readFileSync(full)) !== hash(Buffer.from(saved, "base64")))) throw new Error(`refresh recovery stopped: unproven target ${name}`);
       }
-      fs.rmSync(temporary, { force: true });
-      fs.rmSync(marker, { force: true });
+      sidecarPlans.push({ name, restore: hasBackup, removals: [temporaryName, markerName] });
     } else if (hasBackup || hasMarker) {
       const expected = journal.checkpoint[name];
       if (expected === undefined || !fs.existsSync(full) || hash(fs.readFileSync(full)) !== expected) throw new Error(`refresh recovery stopped: unverified completed write ${name}`);
       if (hasBackup) {
         const saved = journal.baseline[name];
         if (saved === undefined || hash(fs.readFileSync(backup)) !== hash(Buffer.from(saved, "base64"))) throw new Error(`refresh recovery stopped: unowned backup ${backup}`);
-        fs.rmSync(backup, { force: true });
       }
-      fs.rmSync(marker, { force: true });
+      sidecarPlans.push({ name, restore: false, removals: hasBackup ? [backupName, markerName] : [markerName] });
     }
   }
   const atomicTemps = new Map<string, { target: string; pid: number }>();
@@ -252,15 +294,35 @@ export const recoverRefresh = (root: string): void => {
       (hasTemporary ? abandoned : orphanProofs).push(name);
     }
   }
+  // Project the post-recovery state and verify it against the checkpoint
+  // before a single deletion. A refusal here now leaves every sidecar in
+  // place, so the operator can inspect it and rerun recovery.
+  const projected = currentHashes(root);
+  for (const plan of sidecarPlans) {
+    for (const removal of plan.removals) delete projected[removal];
+    if (plan.restore) {
+      const saved = journal.baseline[plan.name];
+      if (saved !== undefined) projected[plan.name] = hash(Buffer.from(saved, "base64"));
+    }
+  }
+  for (const name of [...abandoned, ...orphanProofs]) {
+    delete projected[name];
+    delete projected[`${name}.owner`];
+  }
+  const names = new Set([...Object.keys(journal.baseline), ...Object.keys(projected), ...Object.keys(journal.checkpoint)]);
+  const unexpected = [...names].filter((name) => projected[name] !== journal.checkpoint[name]);
+  if (unexpected.length) throw new Error(`refresh recovery stopped: unrecorded file changes: ${unexpected.join(", ")}`);
+
+  // Phase 2: apply the verified plan.
+  for (const plan of sidecarPlans) {
+    if (plan.restore) fs.renameSync(safePath(root, `${plan.name}.bak`), safePath(root, plan.name));
+    for (const removal of plan.removals) fs.rmSync(safePath(root, removal), { force: true });
+  }
   for (const name of abandoned) {
     fs.rmSync(safePath(root, name), { force: true });
     fs.rmSync(safePath(root, `${name}.owner`), { force: true });
   }
   for (const name of orphanProofs) fs.rmSync(safePath(root, `${name}.owner`), { force: true });
-  const now = currentHashes(root);
-  const names = new Set([...Object.keys(journal.baseline), ...Object.keys(now), ...Object.keys(journal.checkpoint)]);
-  const unexpected = [...names].filter((name) => now[name] !== journal.checkpoint[name]);
-  if (unexpected.length) throw new Error(`refresh recovery stopped: unrecorded file changes: ${unexpected.join(", ")}`);
   for (const name of names) {
     const saved = journal.baseline[name];
     const full = safePath(root, name);

@@ -1,4 +1,5 @@
 import { execFileSync, spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -487,5 +488,97 @@ describe("refresh output journal", () => {
     expect(() => stageRefresh(root)).toThrow();
     const journal = JSON.parse(fs.readFileSync(path.join(root, ".git/refresh-outputs.json"), "utf8"));
     expect(journal.staged).toEqual(["analysis/src/data/limitless-decks.json"]);
+  });
+
+  it("refuses a sidecar whose target no longer matches its baseline", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    fs.writeFileSync(target, "changed by someone");
+    fs.writeFileSync(`${target}.tmp`, "partial");
+    expect(() => recoverRefresh(root)).toThrow(/unproven target/);
+    expect(fs.existsSync(`${target}.tmp`)).toBe(true);
+  });
+
+  it("refuses a completed write whose target bytes differ from the checkpoint", () => {
+    const root = fixture();
+    beginRefresh(root);
+    checkpointRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    fs.writeFileSync(`${target}.created`, "");
+    fs.writeFileSync(target, "tampered");
+    expect(() => recoverRefresh(root)).toThrow(/unverified completed write/);
+    expect(fs.existsSync(`${target}.created`)).toBe(true);
+  });
+
+  it("refuses a staged list that does not match the journal", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    fs.writeFileSync(target, "generated");
+    checkpointRefresh(root);
+    stageRefresh(root);
+    fs.writeFileSync(path.join(root, "public/data/data-version.json"), "extra");
+    execFileSync("git", ["add", "public/data/data-version.json"], { cwd: root });
+    expect(() => recoverRefresh(root)).toThrow(/staged paths do not match/);
+  });
+
+  it("refuses staged bytes that differ from the checkpoint", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    fs.writeFileSync(target, "generated");
+    checkpointRefresh(root);
+    stageRefresh(root);
+    fs.writeFileSync(target, "tampered");
+    execFileSync("git", ["add", "analysis/src/data/limitless-decks.json"], { cwd: root });
+    expect(() => recoverRefresh(root)).toThrow(/staged bytes differ from checkpoint/);
+  });
+
+  it("refuses a tampered OG backup directory", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const deck = path.join(root, "public/og/deck");
+    fs.renameSync(deck, `${deck}.previous`);
+    fs.writeFileSync(path.join(`${deck}.previous`, "image.png"), "tampered");
+    expect(() => recoverRefresh(root)).toThrow(/unverified OG backup/);
+  });
+
+  it("refuses an owner proof whose target does not match its temporary", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    const temporary = `${target}.999999.12345678-1234-4234-9234-123456789abc.tmp`;
+    fs.writeFileSync(temporary, "generated");
+    fs.writeFileSync(`${temporary}.owner`, JSON.stringify({
+      version: 1,
+      pid: 999999,
+      target: path.join(root, "somewhere", "else.json"),
+      temporary: path.basename(temporary),
+      sha256: createHash("sha256").update("generated").digest("hex"),
+    }));
+    expect(() => recoverRefresh(root)).toThrow(/invalid atomic temporary proof/);
+    expect(fs.existsSync(temporary)).toBe(true);
+  });
+
+  it("refuses HEAD movement when the worktree is still dirty", () => {
+    const root = fixture();
+    fs.writeFileSync(path.join(root, "README.md"), "second commit");
+    execFileSync("git", ["add", "README.md"], { cwd: root });
+    execFileSync("git", ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-m", "second"], { cwd: root, stdio: "ignore" });
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    fs.writeFileSync(target, "generated");
+    checkpointRefresh(root);
+    execFileSync("git", ["add", "analysis/src/data/limitless-decks.json"], { cwd: root });
+    execFileSync("git", ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-m", "generated"], { cwd: root, stdio: "ignore" });
+    fs.writeFileSync(path.join(root, "notes.txt"), "human");
+    expect(() => recoverRefresh(root)).toThrow(/HEAD changed/);
+  });
+
+  it("rejects a stray file with an unexpected name in a generated tree", () => {
+    const root = fixture();
+    fs.writeFileSync(path.join(root, "public/data/hubs/notes.txt"), "human");
+    expect(() => beginRefresh(root)).toThrow(/unexpected file in public\/data\/hubs/);
   });
 });

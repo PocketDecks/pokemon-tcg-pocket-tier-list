@@ -104,6 +104,12 @@ describe("refresh job file lists", () => {
     for (const line of lines) expect(line.endsWith(".")).toBe(true);
   });
 
+  it("keeps the silent-day stop and the finish step in the job text", () => {
+    expect(step("9. Inspect", "10. From")).toContain("report a silent day and stop");
+    expect(step("11. Run", "12. Push")).toContain("refresh:outputs finish");
+    expect(job).toContain("Recovery refusals");
+  });
+
   it("serves the deployed version document without the 300 s CDN cache", () => {
     const hosting = JSON.parse(fs.readFileSync(path.join(__dirname, "../../../firebase.json"), "utf8")) as {
       hosting: { headers: { source: string; headers: { key: string; value: string }[] }[] };

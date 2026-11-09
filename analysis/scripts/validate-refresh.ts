@@ -7,6 +7,7 @@ import {
   loadPremiumSnapshotForVersion,
   PREMIUM_DIR,
   PREMIUM_WINDOWS,
+  premiumVersionSnapshotDir,
 } from "../src/utils/premium-artefacts";
 import { readPremiumVersionAtRef, resolveCanonicalMainRef } from "../src/utils/premium-files";
 import {
@@ -40,6 +41,16 @@ const readPrevious = (): string | null => {
   if (!ref) throw new Error("cannot resolve the canonical main remote; pass --previous-ref <ref>");
   const liveVersion = readPremiumVersionAtRef(repoRoot, ref);
   const premiumSnapshot = liveVersion ? loadPremiumSnapshotForVersion(liveVersion, premiumDir) : undefined;
+  // Same first-publish rule as the gate: a fresh checkout has no local
+  // snapshot for the version canonical main serves, so only the
+  // previous-count ratio is skipped. Nothing has to be restored.
+  if (liveVersion && !premiumSnapshot) {
+    console.log(
+      `No local premium snapshot for canonical main version ${liveVersion} in ` +
+      `${premiumVersionSnapshotDir(liveVersion, premiumDir)}; first publish, ` +
+      "so their thinner-than-last-time floors are skipped"
+    );
+  }
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "refresh-previous-"));
   for (const window of REFRESH_WINDOWS) {
     const file = `public/data/best-decks-${window}.json`;

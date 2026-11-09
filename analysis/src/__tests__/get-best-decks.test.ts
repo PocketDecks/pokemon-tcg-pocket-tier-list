@@ -363,6 +363,12 @@ describe("run", () => {
     expect(stageOgImages).not.toHaveBeenCalled();
   });
 
+  it("asks the OG writer to retain the rendered set on a failed swap", async () => {
+    await run();
+
+    expect(commit).toHaveBeenCalledWith({ retainOnFailure: true });
+  });
+
   it("says the JSON is published when the image swap fails after the write", async () => {
     commit.mockImplementationOnce(() => {
       throw new Error("rename failed");
@@ -481,7 +487,7 @@ describe("run", () => {
     expect(windows.filter((window) => ["10d", "20d"].includes(window.id)).map((window) => window.previousArchetypeCount)).toEqual([17, 17]);
   });
 
-  it("refuses instead of skipping floors when the fetched main snapshot is unavailable", async () => {
+  it("treats a missing local snapshot as a first publish instead of refusing", async () => {
     const fs = await vi.importActual<typeof import("node:fs")>("node:fs");
     fs.rmSync(PREVIOUS_TEST_DIR, { recursive: true, force: true });
     fs.rmSync(PREMIUM_TEST_DIR, { recursive: true, force: true });
@@ -491,20 +497,24 @@ describe("run", () => {
     vi.mocked(readPremiumVersionAtRef).mockReturnValue("0123456789abcdef");
 
     try {
-      await expect(run()).rejects.toThrow(/missing premium baseline snapshot for version 0123456789abcdef/);
+      await expect(run()).resolves.toBeUndefined();
     } finally {
       fs.rmSync(PREVIOUS_TEST_DIR, { recursive: true, force: true });
       fs.rmSync(PREMIUM_TEST_DIR, { recursive: true, force: true });
     }
 
-    expect(writeArtefacts).not.toHaveBeenCalled();
-    expect(discard).toHaveBeenCalledTimes(1);
+    const windows = vi.mocked(assertPublishable).mock.calls[0][0].windows;
+    expect(windows.filter((window) => ["30d", "all"].includes(window.id)).map((window) => window.previousArchetypeCount)).toEqual([null, null]);
+    expect(writeArtefacts).toHaveBeenCalledTimes(1);
   });
 
   it("refuses when the canonical main premium version cannot be resolved", async () => {
     vi.mocked(readPremiumVersionAtRef).mockReturnValue(undefined);
 
-    await expect(run()).rejects.toThrow(/cannot resolve the premium version on canonical main/);
+    const failure = (await run().catch((error: Error) => error)) as Error;
+    expect(failure).toBeInstanceOf(Error);
+    expect(failure.message).toMatch(/cannot resolve the premium version on canonical main/);
+    expect(failure.message).not.toMatch(/--previous-ref/);
     expect(writeArtefacts).not.toHaveBeenCalled();
     expect(discard).toHaveBeenCalledTimes(1);
   });

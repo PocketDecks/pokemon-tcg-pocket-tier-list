@@ -143,16 +143,18 @@ export const publishPremium = async (
   }
 
   let sources = injectedRetentionSources;
-  if (!sources) {
-    try {
-      sources = await (injectedDiscoverRetentionSources ?? (() => discoverPremiumRetentionSources({ repoRoot })))();
-    } catch {
-      sources = undefined;
-    }
-  }
-
   const owner = await acquirePublishLock(db);
   try {
+    // Discover inside the lock: a competing run publishing between discovery
+    // and locking would otherwise leave the protection set stale.
+    if (!sources) {
+      try {
+        sources = await (injectedDiscoverRetentionSources ?? (() => discoverPremiumRetentionSources({ repoRoot })))();
+      } catch (error) {
+        console.warn(`premium retention discovery failed: ${error instanceof Error ? error.message : String(error)}`);
+        sources = undefined;
+      }
+    }
     const protectedVersions = sources
       ? [sources.canonicalMainVersion, sources.deployedVersion, ...sources.pendingPullRequestVersions]
       : [];

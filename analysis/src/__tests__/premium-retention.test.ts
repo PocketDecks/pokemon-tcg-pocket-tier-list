@@ -28,6 +28,7 @@ const discover = (publisher as unknown as {
 const canonicalRepository = "PocketDecks/pokemon-tcg-pocket-tier-list";
 const apiRoot = `https://api.github.com/repos/${canonicalRepository}/pulls`;
 const pageTwo = `${apiRoot}?state=open&base=main&per_page=100&page=2`;
+const numericPageTwo = `https://api.github.com/repositories/12345/pulls?state=open&base=main&per_page=100&page=2`;
 const versions = {
   canonical: "aaaaaaaaaaaaaaaa",
   deployed: "bbbbbbbbbbbbbbbb",
@@ -93,7 +94,7 @@ const pullPages = () => [
   pull("contributor/wrong-base", "4".repeat(40), "someone/fork", "main"),
 ];
 
-const successfulFetch = (calls: { url: string; auth: string | null; cacheControl: string | null }[]): typeof fetch => (async (input, init) => {
+const successfulFetch = (calls: { url: string; auth: string | null; cacheControl: string | null }[], nextPage = pageTwo): typeof fetch => (async (input, init) => {
   const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
   calls.push({
     url: url.toString(),
@@ -106,7 +107,7 @@ const successfulFetch = (calls: { url: string; auth: string | null; cacheControl
     if (url.searchParams.get("page") === "2") return response([
       pull("another/fork", "5".repeat(40)),
     ]);
-    return response(pullPages(), 200, `<${pageTwo}>; rel = "next"`);
+    return response(pullPages(), 200, `<${nextPage}>; rel = "next"`);
   }
   if (url.pathname.endsWith("/contents/public/data/data-version.json")) {
     const repo = url.pathname.split("/").slice(2, 4).join("/");
@@ -168,7 +169,7 @@ const discoveryFailures: [string, DiscoveryFailure][] = [
 ];
 
 describe("premium retention discovery", () => {
-  it("uses canonical main, deployed data and every open main pull request across pages", async () => {
+  it.each([["canonical route", pageTwo], ["numeric repository route", numericPageTwo]])("uses canonical main and discovers pull requests across the %s", async (_name, nextPage) => {
     if (typeof discover !== "function") {
       expect(discover).toBeTypeOf("function");
       return;
@@ -178,7 +179,7 @@ describe("premium retention discovery", () => {
     const result = await discover({
       repoRoot: "fake-repo",
       runGit: (args, cwd) => { gitCalls.push(args); return fakeGit()(args, cwd); },
-      fetcher: successfulFetch(calls),
+      fetcher: successfulFetch(calls, nextPage),
     });
 
     expect(result).toEqual({

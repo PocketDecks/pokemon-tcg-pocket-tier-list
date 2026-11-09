@@ -113,6 +113,17 @@ describe("readPremiumVersionAtRef", () => {
     expect(readPremiumVersionAtRef(dir, "origin/main")).toBe("aaaaaaaaaaaaaaaa");
   });
 
+  it("uses the canonical tracking ref when a local tag shadows main", () => {
+    const { dir, git } = makeRepo();
+    commitVersion(dir, git, "aaaaaaaaaaaaaaaa");
+    git("update-ref", "refs/remotes/pocketdecks/main", "HEAD");
+    commitVersion(dir, git, "bbbbbbbbbbbbbbbb");
+    git("branch", "pocketdecks/main");
+
+    expect(readPremiumVersionAtRef(dir)).toBe("aaaaaaaaaaaaaaaa");
+    expect(readPremiumVersionAtRef(dir, "pocketdecks/main")).toBe("bbbbbbbbbbbbbbbb");
+  });
+
   it("does not choose a canonical baseline when matching remote URLs are ambiguous", () => {
     const { dir, git } = makeRepo();
     commitVersion(dir, git, "aaaaaaaaaaaaaaaa");

@@ -66,6 +66,14 @@ describe("refresh job file lists", () => {
     expect(generation.indexOf("yarn.cmd start")).toBeLessThan(generation.indexOf("assertPublishable"));
   });
 
+  it("checks premium dry-run, publish and verify in step 10 and stops on failure", () => {
+    const publish = step("10. From", "11. Run");
+    expect(publish).toContain("publish:premium --dry-run");
+    expect(publish.indexOf("publish:premium --dry-run")).toBeLessThan(publish.indexOf("publish:premium`"));
+    expect(publish.indexOf("publish:premium`")).toBeLessThan(publish.indexOf("verify:premium"));
+    expect(publish).toMatch(/stop[\s\S]*?non-zero exit/i);
+  });
+
   it("allows every file writeArtefacts stages in recovery and staging", () => {
     for (const target of writeArtefactKeys()) {
       expect(REFRESH_OUTPUT_FILES).toContain(target);

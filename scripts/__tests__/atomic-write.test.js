@@ -3,6 +3,7 @@ const assert = require("node:assert");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
+const { execFileSync } = require("node:child_process");
 const { writeFileAtomic } = require("../atomic-write.mjs");
 
 const makeDir = () => fs.mkdtempSync(path.join(os.tmpdir(), "atomic-write-"));
@@ -41,6 +42,31 @@ test("a partial temporary write removes the file created by the writer", () => {
     fs.writeFileSync = write;
   }
   assert.deepStrictEqual(fs.readdirSync(dir), []);
+});
+
+test("a partial proof write removes the temporary and proof created by the writer", () => {
+  const dir = makeDir();
+  execFileSync("git", ["init", "-q"], { cwd: dir });
+  execFileSync("git", ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--allow-empty", "-m", "base"], { cwd: dir, stdio: "ignore" });
+  const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: dir, encoding: "utf8" }).trim();
+  const journalPath = execFileSync("git", ["rev-parse", "--git-path", "refresh-outputs.json"], { cwd: dir, encoding: "utf8" }).trim();
+  fs.writeFileSync(path.resolve(dir, journalPath), JSON.stringify({ head, baseline: {}, checkpoint: {} }));
+  const destination = path.join(dir, "out.json");
+  const write = fs.writeFileSync;
+  let fdWrites = 0;
+  fs.writeFileSync = (file, contents, ...options) => {
+    if (typeof file === "number" && ++fdWrites === 2) {
+      write(file, "partial");
+      throw new Error("disk full");
+    }
+    return write(file, contents, ...options);
+  };
+  try {
+    assert.throws(() => writeFileAtomic(destination, "payload", { refreshRecovery: true }), /disk full/);
+  } finally {
+    fs.writeFileSync = write;
+  }
+  assert.deepStrictEqual(fs.readdirSync(dir), [".git"]);
 });
 
 test("refresh proof stays disabled without an active journal", () => {

@@ -4,6 +4,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
+import { EXPANSION_RELEASE_DATE } from "../settings";
 import { REFRESH_WINDOWS, validateRefresh } from "../utils/validate-refresh";
 
 const created: string[] = [];
@@ -55,6 +56,15 @@ const writeImages = (dir: string, names: string[]): void => {
 
 const writeTrendDate = (dir: string, date: string): void => {
   fs.writeFileSync(path.join(dir, "historical-trends.json"), JSON.stringify([{ date }]));
+};
+
+const writePreviousDates = (dir: string): void => {
+  for (const window of REFRESH_WINDOWS) {
+    fs.writeFileSync(
+      path.join(dir, `meta-share-${window}.json`),
+      JSON.stringify({ generatedAt: EXPANSION_RELEASE_DATE.toISOString(), decks: [] })
+    );
+  }
 };
 
 const healthy = { "10d": 12, "20d": 25, "30d": 32, all: 32 } as const;
@@ -118,11 +128,36 @@ describe("validateRefresh", () => {
     const previous = tmp();
     writeImages(images, writeWindows(data, healthy, {}, premium));
     writeWindows(previous, { ...healthy, "10d": 40 });
+    fs.writeFileSync(
+      path.join(previous, "meta-share-10d.json"),
+      JSON.stringify({ generatedAt: EXPANSION_RELEASE_DATE.toISOString(), decks: [] })
+    );
 
     const report = validateRefresh(data, images, previous, premium);
 
     expect(report.windows[0]).toEqual({ window: "10d", archetypes: 12, floor: 20, previous: 40 });
     expect(report.failures).toEqual(["10d: 12 archetypes, floor 20 (half of 40)"]);
+  });
+
+  it("ignores a previous publish from before the current expansion", () => {
+    const data = tmp();
+    const premium = tmp();
+    const images = tmp();
+    const previous = tmp();
+    writeImages(images, writeWindows(data, healthy, {}, premium));
+    writeWindows(previous, { ...healthy, "10d": 40 });
+    fs.writeFileSync(
+      path.join(previous, "meta-share-10d.json"),
+      JSON.stringify({
+        generatedAt: new Date(EXPANSION_RELEASE_DATE.getTime() - 24 * 60 * 60 * 1000).toISOString(),
+        decks: [],
+      })
+    );
+
+    const report = validateRefresh(data, images, previous, premium);
+
+    expect(report.windows[0]).toEqual({ window: "10d", archetypes: 12, floor: 12, previous: null });
+    expect(report.failures).toEqual([]);
   });
 
   it("keeps the code floor when no previous snapshot exists", () => {
@@ -176,6 +211,7 @@ describe("validateRefresh", () => {
       const previous = tmp();
       writeImages(images, writeWindows(data, healthy, {}, premium));
       writeWindows(previous, { ...healthy, [window]: previousCount });
+      writePreviousDates(previous);
 
       const report = validateRefresh(data, images, previous, premium);
 
@@ -294,6 +330,7 @@ describe("notCompared", () => {
     const counts = { "10d": 1, "20d": 1, "30d": 1, all: 1 } as const;
     const names = writeWindows(data, counts, {}, premium);
     writeWindows(previous, counts, {}, previous);
+    writePreviousDates(previous);
     for (const name of names) {
       fs.writeFileSync(path.join(images, `${name}.png`), "");
     }

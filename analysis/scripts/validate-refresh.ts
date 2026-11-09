@@ -40,11 +40,25 @@ const readPrevious = (): string | null => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "refresh-previous-"));
   for (const window of REFRESH_WINDOWS) {
     const file = `public/data/best-decks-${window}.json`;
+    const metaFile = `public/data/meta-share-${window}.json`;
     let contents: string | undefined;
+    let metaContents: string | undefined;
     if ((PREMIUM_WINDOWS as readonly string[]).includes(window)) {
       const local = path.join(previousPremiumDir, `best-decks-${window}.json`);
       if (fs.existsSync(local)) contents = fs.readFileSync(local, "utf8");
       if (contents === undefined) continue;
+      const localMeta = path.join(previousPremiumDir, `meta-share-${window}.json`);
+      if (fs.existsSync(localMeta)) metaContents = fs.readFileSync(localMeta, "utf8");
+    } else {
+      try {
+        metaContents = execFileSync("git", ["show", `${ref}:${metaFile}`], {
+          cwd: repoRoot,
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "pipe"],
+        });
+      } catch {
+        metaContents = undefined;
+      }
     }
     if (contents === undefined) {
       try {
@@ -61,6 +75,9 @@ const readPrevious = (): string | null => {
       }
     }
     fs.writeFileSync(path.join(dir, `best-decks-${window}.json`), contents);
+    if (metaContents !== undefined) {
+      fs.writeFileSync(path.join(dir, `meta-share-${window}.json`), metaContents);
+    }
   }
   return dir;
 };

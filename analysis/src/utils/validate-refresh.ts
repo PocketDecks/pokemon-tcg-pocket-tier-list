@@ -6,7 +6,10 @@ import {
   FLOOR_RAMP_DAYS,
   MIN_PUBLISHED_ARCHETYPES,
 } from "../settings";
-import { daysOfDataSince } from "./assert-publishable";
+import {
+  daysOfDataSince,
+  readPreviousArchetypeCount,
+} from "./assert-publishable";
 import { PREMIUM_WINDOWS } from "./premium-artefacts";
 
 export const REFRESH_WINDOWS = ["10d", "20d", "30d", "all"] as const;
@@ -50,7 +53,13 @@ const readPreviousCount = (
   ) {
     return null;
   }
-  return readDecks(previousDir, window).length;
+  const bestDecksFile = path.join(previousDir, `best-decks-${window}.json`);
+  if (!fs.existsSync(bestDecksFile)) return readDecks(previousDir, window).length;
+  return readPreviousArchetypeCount(
+    bestDecksFile,
+    path.join(previousDir, `meta-share-${window}.json`),
+    EXPANSION_RELEASE_DATE
+  );
 };
 
 const readNewestDeckDate = (dataDir: string, premiumDir: string): string | null => {

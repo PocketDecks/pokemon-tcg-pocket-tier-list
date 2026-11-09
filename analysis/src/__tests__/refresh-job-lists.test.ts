@@ -51,6 +51,11 @@ describe("refresh job file lists", () => {
     expect(premiumGuide).toContain("can fail after JSON publication");
   });
 
+  it("generates hub slugs before the generated-file check", () => {
+    expect(job.indexOf("generate-deck-hub-slugs.mjs")).toBeGreaterThanOrEqual(0);
+    expect(job.indexOf("generate-deck-hub-slugs.mjs")).toBeLessThan(job.indexOf("check:generated"));
+  });
+
   it("names every file writeArtefacts stages in step 5's recovery list", () => {
     const recovery = namedPaths(step("5. Restore interrupted writes", "\n6. "));
     for (const target of writeArtefactKeys()) {

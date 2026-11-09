@@ -7,10 +7,11 @@ import { execFileSync } from "node:child_process";
 const hasRefreshJournal = (destination) => {
   try {
     const gitOptions = { stdio: ["ignore", "pipe", "ignore"], encoding: "utf8" };
-    const root = execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd: path.dirname(destination), ...gitOptions }).trim();
-    const journalName = execFileSync("git", ["rev-parse", "--git-path", "refresh-outputs.json"], { cwd: root, ...gitOptions }).trim();
-    const journal = JSON.parse(fs.readFileSync(path.resolve(root, journalName), "utf8"));
-    return journal.head === execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, ...gitOptions }).trim()
+    const [root, journalPath, head] = execFileSync("git", ["rev-parse", "--show-toplevel", "--path-format=absolute", "--git-path", "refresh-outputs.json", "HEAD"], { cwd: path.dirname(destination), ...gitOptions }).trim().split(/\r?\n/);
+    const relative = path.relative(root, path.resolve(destination));
+    if (!root || !journalPath || !head || !relative || relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) return false;
+    const journal = JSON.parse(fs.readFileSync(journalPath, "utf8"));
+    return journal.head === head
       && journal.baseline && typeof journal.baseline === "object"
       && !Array.isArray(journal.baseline)
       && journal.checkpoint && typeof journal.checkpoint === "object" && !Array.isArray(journal.checkpoint);

@@ -5,10 +5,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import { lockFileFor, withStoreLock } from "../utils/store-lock";
 
-const { getDecks, writeArtefacts, DECKS_DIR } = vi.hoisted(() => ({
+const { getDecks, writeArtefacts, DECKS_DIR, readMainVersion } = vi.hoisted(() => ({
   getDecks: vi.fn(() => []),
   writeArtefacts: vi.fn(),
   DECKS_DIR: `${require("node:os").tmpdir()}/store-lock-run-store`,
+  readMainVersion: vi.fn(() => undefined as string | undefined),
 }));
 
 vi.mock("../load-env-side-effect", () => ({}));
@@ -17,7 +18,11 @@ vi.mock("../utils/get-decks", () => ({ default: getDecks }));
 vi.mock("../utils/write-artifacts", () => ({ writeArtefacts }));
 vi.mock("../utils/premium-artefacts", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../utils/premium-artefacts")>();
-  return { ...actual, snapshotPremiumPrevious: vi.fn() };
+  return { ...actual };
+});
+vi.mock("../utils/premium-files", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../utils/premium-files")>();
+  return { ...actual, readPremiumVersionAtRef: readMainVersion };
 });
 vi.mock("../utils/calculate-card-scores", () => ({ calculateCardScores: () => ({}) }));
 vi.mock("../utils/generate-og-images", () => ({
@@ -34,13 +39,14 @@ vi.mock("../utils/assert-publishable", async (importOriginal) => {
 
 import { run } from "../get-best-decks";
 import { readPreviousArchetypeCount } from "../utils/assert-publishable";
-import { snapshotPremiumPrevious } from "../utils/premium-artefacts";
+import { readPremiumVersionAtRef } from "../utils/premium-files";
 
 describe("store lock around get-best-decks", () => {
-  it("holds the lock while the previous snapshot is taken and compared", async () => {
+  it("holds the lock while the main baseline version is read and compared", async () => {
     const lockFile = lockFileFor(DECKS_DIR);
-    vi.mocked(snapshotPremiumPrevious).mockImplementationOnce(() => {
+    vi.mocked(readPremiumVersionAtRef).mockImplementationOnce(() => {
       expect(fs.existsSync(lockFile)).toBe(true);
+      return undefined;
     });
     vi.mocked(readPreviousArchetypeCount).mockImplementation(() => {
       expect(fs.existsSync(lockFile)).toBe(true);
@@ -51,7 +57,7 @@ describe("store lock around get-best-decks", () => {
     } finally {
       vi.mocked(readPreviousArchetypeCount).mockImplementation(() => null);
     }
-    expect(snapshotPremiumPrevious).toHaveBeenCalledTimes(1);
+    expect(readPremiumVersionAtRef).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(lockFile)).toBe(false);
   });
 

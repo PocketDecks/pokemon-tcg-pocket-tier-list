@@ -1,5 +1,6 @@
 import "./load-env-side-effect";
 import fs from "node:fs";
+import path from "node:path";
 import getDecks from "./utils/get-decks";
 import { calculateCardScores } from "./utils/calculate-card-scores";
 import { buildTrends, pickTrendNames } from "./utils/build-trends";
@@ -23,12 +24,13 @@ import listings from "./data/limitless-decks.json";
 import { EXPANSION_RELEASE_DATE, scoringWeights, ScoringWeights } from "./settings";
 import { Deck } from "./utils/types";
 import {
+  loadPremiumSnapshotForVersion,
   PREMIUM_DIR,
   PREMIUM_WINDOWS,
   premiumFilePath,
-  previousPremiumDir,
-  snapshotPremiumPrevious,
+  premiumVersionSnapshotDir,
 } from "./utils/premium-artefacts";
+import { readPremiumVersionAtRef } from "./utils/premium-files";
 import { writeArtefacts } from "./utils/write-artifacts";
 import { decksDir } from "./utils/data-paths";
 import { withStoreLock } from "./utils/store-lock";
@@ -37,12 +39,16 @@ import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
 const isPremiumWindow = (window: WindowId): boolean =>
   (PREMIUM_WINDOWS as readonly string[]).includes(window);
-const previousArtefact = (base: string, window: WindowId): string =>
+const previousArtefact = (base: string, window: WindowId, premiumDir: string | null): string =>
   isPremiumWindow(window)
-    ? premiumFilePath(`${base}-${window}`, previousPremiumDir())
+    ? premiumDir === null
+      ? ""
+      : premiumFilePath(`${base}-${window}`, premiumDir)
     : `../public/data/${base}-${window}.json`;
-const previousBestDecks = (window: WindowId): string => previousArtefact("best-decks", window);
-const previousMetaShare = (window: WindowId): string => previousArtefact("meta-share", window);
+const previousBestDecks = (window: WindowId, premiumDir: string | null): string =>
+  previousArtefact("best-decks", window, premiumDir);
+const previousMetaShare = (window: WindowId, premiumDir: string | null): string =>
+  previousArtefact("meta-share", window, premiumDir);
 const listingStore = listings as DeckListingStore;
 const newestSet = STANDARD_SET_CODES[STANDARD_SET_CODES.length - 1];
 const slugOf = (name: string): string => name.toLowerCase().replace(/\s/g, "-");
@@ -139,15 +145,23 @@ export const run = async (): Promise<void> => {
   let imagesCommitted = false;
   try {
     withStoreLock(decksDir(), () => {
-      snapshotPremiumPrevious();
+      const mainVersion = readPremiumVersionAtRef(path.resolve(__dirname, "../.."));
+      const mainSnapshot = mainVersion
+        ? loadPremiumSnapshotForVersion(mainVersion, PREMIUM_DIR)
+        : undefined;
+      const premiumBaselineDir = mainVersion && mainSnapshot
+        ? premiumVersionSnapshotDir(mainVersion, PREMIUM_DIR)
+        : null;
       const windowSnapshots = WINDOW_IDS.map((window) => ({
         id: window,
         bestDecks: artefacts[window].bestDecks,
-        previousArchetypeCount: readPreviousArchetypeCount(
-          previousBestDecks(window),
-          previousMetaShare(window),
-          EXPANSION_RELEASE_DATE
-        ),
+        previousArchetypeCount: isPremiumWindow(window) && premiumBaselineDir === null
+          ? null
+          : readPreviousArchetypeCount(
+              previousBestDecks(window, premiumBaselineDir),
+              previousMetaShare(window, premiumBaselineDir),
+              EXPANSION_RELEASE_DATE
+            ),
       }));
       const uncompared = windowsWithoutComparison(windowSnapshots);
       if (uncompared.length > 0) {

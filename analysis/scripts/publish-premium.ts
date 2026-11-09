@@ -9,6 +9,7 @@ import {
   assertVersionMatches,
   loadPremiumFiles,
   readCommittedVersion,
+  readPremiumVersionAtRef,
   readProjectId,
 } from "../src/utils/premium-files";
 import { snapshotPremiumVersion } from "../src/utils/premium-artefacts";
@@ -24,20 +25,7 @@ export interface PremiumDb {
   recursiveDelete(ref: unknown): Promise<void>;
 }
 
-export const readLiveVersion = (repoRoot: string, ref = "origin/main"): string | undefined => {
-  try {
-    const output = execFileSync(
-      "git",
-      ["show", `${ref}:public/data/data-version.json`],
-      { cwd: repoRoot, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }
-    );
-    const parsed: unknown = JSON.parse(output);
-    const value = (parsed as { premium?: unknown } | null)?.premium;
-    return typeof value === "string" && /^[0-9a-f]{16}$/.test(value) ? value : undefined;
-  } catch {
-    return undefined;
-  }
-};
+export const readLiveVersion = readPremiumVersionAtRef;
 
 export const fetchLiveVersion = (repoRoot: string): void => {
   execFileSync("git", ["fetch", "origin", "main"], {

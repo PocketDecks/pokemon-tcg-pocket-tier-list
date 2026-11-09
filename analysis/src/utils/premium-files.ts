@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 
 import {
@@ -23,6 +24,21 @@ export const readCommittedVersion = (file: string): string => {
     throw new Error(`${file} has no valid premium version`);
   }
   return value;
+};
+
+export const readPremiumVersionAtRef = (repoRoot: string, ref = "origin/main"): string | undefined => {
+  try {
+    const output = execFileSync("git", ["show", `${ref}:public/data/data-version.json`], {
+      cwd: repoRoot,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    const parsed: unknown = JSON.parse(output);
+    const value = (parsed as { premium?: unknown } | null)?.premium;
+    return typeof value === "string" && /^[0-9a-f]{16}$/.test(value) ? value : undefined;
+  } catch {
+    return undefined;
+  }
 };
 
 export const assertVersionMatches = (

@@ -8,7 +8,7 @@ import {
   PREMIUM_DIR,
   PREMIUM_WINDOWS,
 } from "../src/utils/premium-artefacts";
-import { readLiveVersion } from "./publish-premium";
+import { readPremiumVersionAtRef } from "../src/utils/premium-files";
 import {
   REFRESH_WINDOWS,
   validateRefresh,
@@ -37,7 +37,7 @@ const readPrevious = (): string | null => {
   if (args.includes("--no-previous")) return null;
 
   const ref = flag("--previous-ref") ?? "origin/main";
-  const liveVersion = readLiveVersion(repoRoot, ref);
+  const liveVersion = readPremiumVersionAtRef(repoRoot, ref);
   const premiumSnapshot = liveVersion ? loadPremiumSnapshotForVersion(liveVersion, premiumDir) : undefined;
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "refresh-previous-"));
   for (const window of REFRESH_WINDOWS) {

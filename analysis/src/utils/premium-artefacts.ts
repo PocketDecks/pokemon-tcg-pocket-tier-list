@@ -166,13 +166,16 @@ export const premiumVersion = (premiumFiles: Record<string, string>): string => 
   return hash.digest("hex").slice(0, 16);
 };
 
+export const premiumVersionSnapshotDir = (version: string, dir: string = PREMIUM_DIR): string =>
+  path.join(previousPremiumDir(dir), version);
+
 export const snapshotPremiumVersion = (
   premiumFiles: Record<string, string>,
   version: string,
   dir: string = PREMIUM_DIR
 ): void => {
   if (premiumVersion(premiumFiles) !== version) throw new Error("premium snapshot version does not match its files");
-  const target = path.join(previousPremiumDir(dir), version);
+  const target = premiumVersionSnapshotDir(version, dir);
   fs.mkdirSync(target, { recursive: true });
   for (const name of PREMIUM_ARTEFACT_NAMES) {
     fs.writeFileSync(path.join(target, `${name}.json`), premiumFiles[name]);
@@ -183,7 +186,7 @@ export const readPremiumVersionSnapshot = (
   version: string,
   dir: string = PREMIUM_DIR
 ): Record<string, string> | undefined => {
-  const target = path.join(previousPremiumDir(dir), version);
+  const target = premiumVersionSnapshotDir(version, dir);
   try {
     const files = Object.fromEntries(PREMIUM_ARTEFACT_NAMES.map((name) => [
       name,

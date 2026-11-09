@@ -146,7 +146,21 @@ describe("validateRefresh", () => {
     const report = validateRefresh(data, images, previous, premium);
 
     expect(report.windows[0]).toEqual({ window: "10d", archetypes: 12, floor: 20, previous: 40 });
-    expect(report.failures).toEqual(["10d: 12 archetypes, floor 20 (half of 40)"]);
+    expect(report.failures).toEqual(["10d: 12 archetypes, floor 20 (50% of 40)"]);
+  });
+
+  it("uses the configured ratio for the previous-publish floor", () => {
+    const data = tmp();
+    const premium = tmp();
+    const images = tmp();
+    const previous = tmp();
+    writeImages(images, writeWindows(data, healthy, {}, premium));
+    writeWindows(previous, { ...healthy, "10d": 41 });
+    writePreviousDates(previous);
+
+    const report = validateRefresh(data, images, previous, premium, 0.75);
+
+    expect(report.windows[0]).toEqual({ window: "10d", archetypes: 12, floor: 31, previous: 41 });
   });
 
   it("ignores a previous publish from before the current expansion", () => {
@@ -245,7 +259,7 @@ describe("validateRefresh", () => {
       expect(row?.floor).toBe(floor);
       expect(row?.archetypes).toBe(current);
       expect(report.failures).toEqual([
-        `${window}: ${current} archetypes, floor ${floor} (half of ${previousCount})`,
+        `${window}: ${current} archetypes, floor ${floor} (50% of ${previousCount})`,
       ]);
     }
   );

@@ -5,6 +5,7 @@ import {
   EXPANSION_RELEASE_DATE,
   FLOOR_RAMP_DAYS,
   MIN_PUBLISHED_ARCHETYPES,
+  MIN_PREVIOUS_ARCHETYPE_RATIO,
 } from "../settings";
 import {
   daysOfDataSince,
@@ -95,7 +96,8 @@ export const validateRefresh = (
   dataDir: string,
   imagesDir: string,
   previousDir: string | null,
-  premiumDir: string
+  premiumDir: string,
+  previousRatio: number = MIN_PREVIOUS_ARCHETYPE_RATIO
 ): RefreshReport => {
   const failures: string[] = [];
   const windows: WindowReport[] = [];
@@ -117,12 +119,13 @@ export const validateRefresh = (
               Math.min(daysOfData, FLOOR_RAMP_DAYS[window])) /
               FLOOR_RAMP_DAYS[window]
           );
-    const floor = Math.max(configuredFloor, previous === null ? 0 : Math.ceil(previous / 2));
+    const previousFloor = previous === null ? 0 : Math.ceil(previous * previousRatio);
+    const floor = Math.max(configuredFloor, previousFloor);
     windows.push({ window, archetypes: decks.length, floor, previous });
     if (decks.length < floor) {
       failures.push(
         `${window}: ${decks.length} archetypes, floor ${floor}` +
-          (previous === null ? "" : ` (half of ${previous})`)
+          (previous === null ? "" : ` (${previousRatio * 100}% of ${previous})`)
       );
     }
   }

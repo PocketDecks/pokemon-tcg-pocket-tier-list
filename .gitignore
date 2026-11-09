@@ -38,6 +38,8 @@ firebase-debug.log*
 .vscode/
 .idea/
 .cursor/
+.claude/
+.codex/
 .aider*
 .hermes/
 skills-lock.json

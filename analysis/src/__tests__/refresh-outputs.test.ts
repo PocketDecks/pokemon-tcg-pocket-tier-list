@@ -391,4 +391,101 @@ describe("refresh output journal", () => {
     expect(execFileSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" })).toBe("");
     expect(fs.readFileSync(path.join(root, "analysis/src/data/limitless-decks.json"), "utf8")).toBe("base");
   });
+
+  it("ignores untracked tool directories but still stops on other untracked files", () => {
+    const root = fixture();
+    fs.mkdirSync(path.join(root, ".claude"), { recursive: true });
+    fs.writeFileSync(path.join(root, ".claude/settings.json"), "{}");
+    fs.mkdirSync(path.join(root, ".codex"), { recursive: true });
+    fs.writeFileSync(path.join(root, ".codex/config.toml"), "");
+    expect(() => recoverRefresh(root)).not.toThrow();
+    fs.writeFileSync(path.join(root, "notes.txt"), "human");
+    expect(() => recoverRefresh(root)).toThrow(/worktree changes/i);
+  });
+
+  it("reports the full source path of a renamed tracked output", () => {
+    const root = fixture();
+    execFileSync("git", ["mv", "public/data/hubs/old.json", "public/data/hubs/renamed.json"], { cwd: root });
+    let error = "";
+    try { recoverRefresh(root); } catch (caught) { error = String(caught); }
+    expect(error).toContain("public/data/hubs/old.json");
+    expect(error).not.toMatch(/(?:^|[, ])lic\/data\//);
+  });
+
+  it("removes an orphan owner proof left before its temporary was created", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    const temporary = `${target}.999999.12345678-1234-4234-9234-123456789abc.tmp`;
+    const owner = `${temporary}.owner`;
+    fs.writeFileSync(owner, JSON.stringify({
+      version: 1,
+      pid: 999999,
+      target,
+      temporary: path.basename(temporary),
+      sha256: "0".repeat(64),
+    }));
+    recoverRefresh(root);
+    expect(fs.existsSync(owner)).toBe(false);
+    expect(fs.readFileSync(target, "utf8")).toBe("base");
+  });
+
+  it("refuses an unproven sidecar beside a missing target", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    const temporary = `${target}.tmp`;
+    fs.rmSync(target);
+    fs.writeFileSync(temporary, "partial");
+    expect(() => recoverRefresh(root)).toThrow(/unproven target/);
+    expect(fs.existsSync(temporary)).toBe(true);
+  });
+
+  it("refuses a non-empty created marker for a new output", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "public/data/best-decks.json");
+    const temporary = `${target}.tmp`;
+    const marker = `${target}.created`;
+    fs.writeFileSync(temporary, "partial");
+    fs.writeFileSync(marker, "not a writer marker");
+    expect(() => recoverRefresh(root)).toThrow(/unproven created marker/);
+    expect(fs.existsSync(temporary)).toBe(true);
+    expect(fs.existsSync(marker)).toBe(true);
+  });
+
+  it("refuses a backup whose bytes do not match the baseline", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    fs.renameSync(target, `${target}.bak`);
+    fs.writeFileSync(`${target}.bak`, "someone else's bytes");
+    fs.writeFileSync(`${target}.tmp`, "partial");
+    expect(() => recoverRefresh(root)).toThrow(/unowned backup/);
+    expect(fs.existsSync(`${target}.bak`)).toBe(true);
+  });
+
+  it("refuses a journal whose head no longer matches HEAD", () => {
+    const root = fixture();
+    fs.writeFileSync(path.join(root, "README.md"), "second commit");
+    execFileSync("git", ["add", "README.md"], { cwd: root });
+    execFileSync("git", ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-m", "second"], { cwd: root, stdio: "ignore" });
+    beginRefresh(root);
+    const journalPath = path.join(root, ".git/refresh-outputs.json");
+    const journal = JSON.parse(fs.readFileSync(journalPath, "utf8"));
+    journal.head = "0".repeat(40);
+    fs.writeFileSync(journalPath, JSON.stringify(journal));
+    expect(() => recoverRefresh(root)).toThrow(/HEAD changed/);
+  });
+
+  it("records the staging plan in the journal even when git add fails", () => {
+    const root = fixture();
+    beginRefresh(root);
+    fs.writeFileSync(path.join(root, "analysis/src/data/limitless-decks.json"), "generated");
+    checkpointRefresh(root);
+    fs.writeFileSync(path.join(root, ".git/index.lock"), "");
+    expect(() => stageRefresh(root)).toThrow();
+    const journal = JSON.parse(fs.readFileSync(path.join(root, ".git/refresh-outputs.json"), "utf8"));
+    expect(journal.staged).toEqual(["analysis/src/data/limitless-decks.json"]);
+  });
 });

@@ -139,22 +139,7 @@ export const readPremiumVersionSnapshot = (
 export const loadPremiumSnapshotForVersion = (
   version: string,
   dir: string = PREMIUM_DIR
-): Record<string, string> | undefined => {
-  const stored = readPremiumVersionSnapshot(version, dir);
-  if (stored) return stored;
-  const previous = previousPremiumDir(dir);
-  try {
-    const legacy = Object.fromEntries(PREMIUM_ARTEFACT_NAMES.map((name) => [
-      name,
-      fs.readFileSync(path.join(previous, `${name}.json`), "utf8"),
-    ]));
-    if (premiumVersion(legacy) !== version) return undefined;
-    snapshotPremiumVersion(legacy, version, dir);
-    return legacy;
-  } catch {
-    return undefined;
-  }
-};
+): Record<string, string> | undefined => readPremiumVersionSnapshot(version, dir);
 
 export const prunePremiumSnapshots = (
   protectedVersions: readonly string[],
@@ -186,9 +171,9 @@ export const prunePremiumSnapshots = (
     if (!entry.isDirectory() || entry.isSymbolicLink() || !/^[0-9a-f]{16}$/.test(entry.name) || protectedSet.has(entry.name)) {
       continue;
     }
+    // entry.name is a validated 16-hex directory name, so the resolved target
+    // cannot escape rootPath; the old path-escape check was unreachable.
     const target = path.resolve(rootPath, entry.name);
-    const relative = path.relative(rootPath, target);
-    if (relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) continue;
     try {
       const details = fs.lstatSync(target);
       if (details.isDirectory() && !details.isSymbolicLink()) {

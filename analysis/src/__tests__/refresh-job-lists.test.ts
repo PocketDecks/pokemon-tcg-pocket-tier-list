@@ -77,6 +77,47 @@ describe("refresh job file lists", () => {
     expect(job).not.toContain("A killed run needs the recovery in step 5");
   });
 
+  it("runs validate:refresh from analysis and stops on every late step", () => {
+    const generation = step("7. From", "8. Run");
+    expect(generation).toMatch(/From `analysis\/`, run `yarn\.cmd validate:refresh`/);
+    expect(generation).toContain("analysis/package.json");
+    for (const [start, end] of [
+      ["9. Inspect", "10. From"],
+      ["11. Run", "12. Push"],
+      ["12. Push", "13. Read"],
+    ] as const) {
+      expect(step(start, end)).toMatch(/stop on any non-zero exit/i);
+    }
+  });
+
+  it("refuses a download rerun after recovery inside the same run", () => {
+    const download = step("6. From", "7. From");
+    expect(download).toContain("Do not rerun inside the same run after recovery");
+    expect(download).toContain("recovery removes the refresh journal");
+    expect(download).toMatch(/refresh:outputs begin[\s\S]*?step 3/);
+    expect(job).toContain("never rerun after recovery inside the same run");
+  });
+
+  it("ends every numbered step with a full stop", () => {
+    const lines = job.split("\n").filter((line) => /^\d+\. /.test(line));
+    expect(lines).toHaveLength(13);
+    for (const line of lines) expect(line.endsWith(".")).toBe(true);
+  });
+
+  it("serves the deployed version document without the 300 s CDN cache", () => {
+    const hosting = JSON.parse(fs.readFileSync(path.join(__dirname, "../../../firebase.json"), "utf8")) as {
+      hosting: { headers: { source: string; headers: { key: string; value: string }[] }[] };
+    };
+    const rules = hosting.hosting.headers;
+    const bulk = rules.findIndex((rule) => rule.source === "/data/**");
+    const version = rules.findIndex((rule) => rule.source === "/data/data-version.json");
+    expect(bulk).toBeGreaterThanOrEqual(0);
+    // Hosting applies the last matching header rule, so the specific rule
+    // must come after the /data/** rule to take effect.
+    expect(version).toBeGreaterThan(bulk);
+    expect(rules[version].headers.find((header) => header.key === "Cache-Control")?.value).toMatch(/no-store/);
+  });
+
   it("generates hub slugs before checking generated files", () => {
     const generation = step("7. From", "8. Run");
     expect(generation.indexOf("build-deck-archive.mjs")).toBeLessThan(generation.indexOf("generate-deck-hub-slugs.mjs"));

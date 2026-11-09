@@ -8,7 +8,6 @@ import { Firestore, getFirestore, Timestamp } from "firebase-admin/firestore";
 import {
   loadPremiumFiles,
   readCommittedVersion,
-  readPremiumVersionAtRef,
   readProjectId,
   assertVersionMatches,
 } from "../src/utils/premium-files";
@@ -44,8 +43,6 @@ export interface PremiumDb {
 }
 
 const PUBLISH_LOCK = "premiumPublishLocks/global";
-
-export const readLiveVersion = readPremiumVersionAtRef;
 
 const acquirePublishLock = async (db: PremiumDb): Promise<string> => {
   const owner = randomUUID();

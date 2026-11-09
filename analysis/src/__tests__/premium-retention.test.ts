@@ -103,8 +103,8 @@ const successfulFetch = (calls: { url: string; auth: string | null; cacheControl
   });
   if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
   if (url.origin !== "https://api.github.com") throw new Error("unexpected host");
-  if (url.pathname === `/repos/${canonicalRepository}/pulls`) {
-    if (url.searchParams.get("page") === "2") return response([
+  if (url.pathname === `/repos/${canonicalRepository}/pulls` || /^\/repositories\/\d+\/pulls$/.test(url.pathname)) {
+    if (url.searchParams.get("page") === "2" || url.pathname.startsWith("/repositories/")) return response([
       pull("another/fork", "5".repeat(40)),
     ]);
     return response(pullPages(), 200, `<${nextPage}>; rel = "next"`);
@@ -187,7 +187,7 @@ describe("premium retention discovery", () => {
       deployedVersion: versions.deployed,
       pendingPullRequestVersions: [versions.firstHead, versions.secondHead],
     });
-    expect(calls.some(({ url }) => url === pageTwo)).toBe(true);
+    expect(calls.some(({ url }) => url === nextPage)).toBe(true);
     expect(gitCalls).toContainEqual(["fetch", "pocketdecks", "refs/heads/main:refs/remotes/pocketdecks/main"]);
     expect(calls.filter(({ auth }) => auth === "Bearer dummy-test-token")).toHaveLength(4);
     expect(calls.find(({ url }) => url === "https://pocketdecks.top/data/data-version.json")).toEqual({
@@ -195,6 +195,80 @@ describe("premium retention discovery", () => {
       auth: null,
       cacheControl: "no-cache",
     });
+  });
+
+  it("protects a pull request whose fork was deleted via the canonical PR ref", async () => {
+    if (typeof discover !== "function") {
+      expect(discover).toBeTypeOf("function");
+      return;
+    }
+    const calls: string[] = [];
+    const fetcher = (async (input, init) => {
+      const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
+      calls.push(url.toString());
+      if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
+      if (url.pathname === `/repos/${canonicalRepository}/pulls`) {
+        return response([{
+          number: 42,
+          state: "open",
+          base: { ref: "main", repo: { full_name: canonicalRepository } },
+          head: { sha: "1".repeat(40), repo: null },
+        }]);
+      }
+      if (url.pathname.endsWith("/contents/public/data/data-version.json")) {
+        if (url.searchParams.get("ref") === "refs/pull/42/head") return response(apiVersionFile(versions.firstHead));
+        throw new Error("unexpected ref");
+      }
+      throw new Error("unexpected API path");
+    }) as typeof fetch;
+
+    const result = await discover({ repoRoot: "fake-repo", runGit: fakeGit(), fetcher });
+
+    expect(result?.pendingPullRequestVersions).toEqual([versions.firstHead]);
+    expect(calls.some((url) => new URL(url).searchParams.get("ref") === "refs/pull/42/head")).toBe(true);
+  });
+
+  it("bounds every discovery request with an abort signal", async () => {
+    if (typeof discover !== "function") {
+      expect(discover).toBeTypeOf("function");
+      return;
+    }
+    const signals: unknown[] = [];
+    const fetcher = (async (input, init) => {
+      const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
+      signals.push(init?.signal);
+      if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
+      if (url.pathname === `/repos/${canonicalRepository}/pulls`) return response([]);
+      throw new Error("unexpected API path");
+    }) as typeof fetch;
+
+    expect(await discover({ repoRoot: "fake-repo", runGit: fakeGit(), fetcher })).toBeDefined();
+    expect(signals.length).toBeGreaterThan(1);
+    expect(signals.every((signal) => signal instanceof AbortSignal)).toBe(true);
+  });
+
+  it("refuses to prune when the pull request list changes during pagination", async () => {
+    if (typeof discover !== "function") {
+      expect(discover).toBeTypeOf("function");
+      return;
+    }
+    const numbered = { ...pull("contributor/refresh", "1".repeat(40)), number: 7 };
+    let pageOneReads = 0;
+    const fetcher = (async (input, init) => {
+      const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
+      if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
+      if (url.pathname.endsWith("/contents/public/data/data-version.json")) return response(apiVersionFile(versions.firstHead));
+      if (url.pathname === `/repos/${canonicalRepository}/pulls`) {
+        if (url.searchParams.get("page") === "2") return response([]);
+        pageOneReads += 1;
+        return response(pageOneReads === 1 ? [numbered] : []);
+      }
+      throw new Error("unexpected API path");
+    }) as typeof fetch;
+
+    const result = await discover({ repoRoot: "fake-repo", runGit: fakeGit(), fetcher });
+    expect(result).toBeUndefined();
+    expect(pageOneReads).toBe(2);
   });
 
   it("rejects pagination to another host without sending the token there", async () => {

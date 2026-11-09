@@ -5,11 +5,12 @@ import { describe, expect, it, vi } from "vitest";
 
 import { lockFileFor, withStoreLock } from "../utils/store-lock";
 
-const { getDecks, writeArtefacts, DECKS_DIR, readMainVersion } = vi.hoisted(() => ({
+const { getDecks, writeArtefacts, DECKS_DIR, MAIN_VERSION, readMainVersion } = vi.hoisted(() => ({
   getDecks: vi.fn(() => []),
   writeArtefacts: vi.fn(),
   DECKS_DIR: `${require("node:os").tmpdir()}/store-lock-run-store`,
-  readMainVersion: vi.fn(() => undefined as string | undefined),
+  MAIN_VERSION: "0123456789abcdef",
+  readMainVersion: vi.fn(() => "0123456789abcdef" as string | undefined),
 }));
 
 vi.mock("../load-env-side-effect", () => ({}));
@@ -18,7 +19,7 @@ vi.mock("../utils/get-decks", () => ({ default: getDecks }));
 vi.mock("../utils/write-artifacts", () => ({ writeArtefacts }));
 vi.mock("../utils/premium-artefacts", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../utils/premium-artefacts")>();
-  return { ...actual };
+  return { ...actual, loadPremiumSnapshotForVersion: vi.fn(() => ({})) };
 });
 vi.mock("../utils/premium-files", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../utils/premium-files")>();
@@ -46,7 +47,7 @@ describe("store lock around get-best-decks", () => {
     const lockFile = lockFileFor(DECKS_DIR);
     vi.mocked(readPremiumVersionAtRef).mockImplementationOnce(() => {
       expect(fs.existsSync(lockFile)).toBe(true);
-      return undefined;
+      return MAIN_VERSION;
     });
     vi.mocked(readPreviousArchetypeCount).mockImplementation(() => {
       expect(fs.existsSync(lockFile)).toBe(true);

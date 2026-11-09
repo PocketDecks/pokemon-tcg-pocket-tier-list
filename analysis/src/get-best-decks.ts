@@ -143,25 +143,36 @@ export const run = async (): Promise<void> => {
   );
 
   let imagesCommitted = false;
+  let jsonPublished = false;
   try {
     withStoreLock(decksDir(), () => {
-      const mainVersion = readPremiumVersionAtRef(path.resolve(__dirname, "../.."));
-      const mainSnapshot = mainVersion
-        ? loadPremiumSnapshotForVersion(mainVersion, PREMIUM_DIR)
-        : undefined;
-      const premiumBaselineDir = mainVersion && mainSnapshot
-        ? premiumVersionSnapshotDir(mainVersion, PREMIUM_DIR)
-        : null;
+      // Gate and validate must agree: an unresolvable canonical version or a
+      // missing premium baseline is a refusal, not a silent floor exemption.
+      const repoRoot = path.resolve(__dirname, "../..");
+      const mainVersion = readPremiumVersionAtRef(repoRoot);
+      if (!mainVersion) {
+        throw new Error(
+          "cannot resolve the premium version on canonical main; fetch the canonical main branch " +
+          "or pass --previous-ref <ref> to validate:refresh"
+        );
+      }
+      const mainSnapshot = loadPremiumSnapshotForVersion(mainVersion, PREMIUM_DIR);
+      if (!mainSnapshot) {
+        throw new Error(
+          `missing premium baseline snapshot for version ${mainVersion} in ` +
+          `${premiumVersionSnapshotDir(mainVersion, PREMIUM_DIR)}; restore the snapshot for the deployed ` +
+          "version before running the refresh"
+        );
+      }
+      const premiumBaselineDir = premiumVersionSnapshotDir(mainVersion, PREMIUM_DIR);
       const windowSnapshots = WINDOW_IDS.map((window) => ({
         id: window,
         bestDecks: artefacts[window].bestDecks,
-        previousArchetypeCount: isPremiumWindow(window) && premiumBaselineDir === null
-          ? null
-          : readPreviousArchetypeCount(
-              previousBestDecks(window, premiumBaselineDir),
-              previousMetaShare(window, premiumBaselineDir),
-              EXPANSION_RELEASE_DATE
-            ),
+        previousArchetypeCount: readPreviousArchetypeCount(
+          previousBestDecks(window, premiumBaselineDir),
+          previousMetaShare(window, premiumBaselineDir),
+          EXPANSION_RELEASE_DATE
+        ),
       }));
       const uncompared = windowsWithoutComparison(windowSnapshots);
       if (uncompared.length > 0) {
@@ -196,16 +207,22 @@ export const run = async (): Promise<void> => {
         premiumDir: PREMIUM_DIR,
       });
       writeArtefacts(files);
+      jsonPublished = true;
       try {
-        staged.commit();
+        staged.commit({ retainOnFailure: true });
         imagesCommitted = true;
       } catch (error) {
         const reason = error instanceof Error ? error.message : String(error);
-        throw new Error(`The JSON artefacts are published but the OG images are not: ${reason}`);
+        const location = staged.staging
+          ? ` The rendered set is kept at ${staged.staging}; the previous set is ${staged.backup}.`
+          : "";
+        throw new Error(`The JSON artefacts are published but the OG images are not: ${reason}.${location} Finish the image swap before rerunning.`);
       }
     });
   } catch (error) {
-    if (!imagesCommitted) staged.discard();
+    // Once the JSON is live the rendered images are the only way to finish
+    // the swap, so never discard them on that failure path.
+    if (!jsonPublished && !imagesCommitted) staged.discard();
     throw error;
   }
 };

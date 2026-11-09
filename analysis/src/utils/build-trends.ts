@@ -36,7 +36,10 @@ export const buildTrends = (
 
   for (const deck of qualifiedDecks) {
     const dateStr = deck.date.split("T")[0];
-    if (dateStr === currentDate) continue;
+    // Every data day belongs in the series, including the run's own UTC day.
+    // Dropping that day made it appear only on the NEXT run, producing a
+    // published change with no new data. Only future-dated rows are skipped.
+    if (dateStr > currentDate) continue;
 
     if (!trendData[dateStr]) {
       trendData[dateStr] = { date: dateStr, totalGames: 0, counts: {} };

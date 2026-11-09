@@ -57,10 +57,24 @@ describe("buildTrends", () => {
     expect(trends.map((t) => t.date)).toEqual(["2024-05-01", "2024-05-02"]);
   });
 
-  it("excludes the current UTC date", () => {
+  it("includes the run's own UTC data day so the next run can stay silent", () => {
     const trends = buildTrends(
       [
         makeDeck({ name: "Deck A", date: "2026-10-12T00:00:00.000Z", totalGames: 10 }),
+        makeDeck({ name: "Deck A", date: "2024-01-01T00:00:00.000Z", totalGames: 10 }),
+      ],
+      ["Deck A"],
+      NOW
+    );
+
+    expect(trends.map((trend) => trend.date)).toEqual(["2024-01-01", "2026-10-12"]);
+    expect(trends[1]["Deck A"]).toBeCloseTo(100);
+  });
+
+  it("still ignores future-dated decks", () => {
+    const trends = buildTrends(
+      [
+        makeDeck({ name: "Deck A", date: "2026-10-13T00:00:00.000Z", totalGames: 10 }),
         makeDeck({ name: "Deck A", date: "2024-01-01T00:00:00.000Z", totalGames: 10 }),
       ],
       ["Deck A"],

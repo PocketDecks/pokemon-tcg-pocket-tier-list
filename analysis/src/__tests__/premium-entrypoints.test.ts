@@ -6,7 +6,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { Timestamp } from "firebase-admin/firestore";
 
-import { adaptPremiumDb, publishPremium, readLiveVersion } from "../../scripts/publish-premium";
+import { adaptPremiumDb, publishPremium } from "../../scripts/publish-premium";
 import * as publisher from "../../scripts/publish-premium";
 import {
   loadPremiumSnapshotForVersion,
@@ -15,6 +15,7 @@ import {
   sha256Hex,
   snapshotPremiumVersion,
 } from "../utils/premium-artefacts";
+import { readPremiumVersionAtRef } from "../utils/premium-files";
 
 const premiumPayloads = (): Record<string, string> =>
   Object.fromEntries(PREMIUM_ARTEFACT_NAMES.map((name) => [name, `{"name":"${name}"}`]));
@@ -642,7 +643,7 @@ describe("premium entry points", () => {
       commitVersion(publishedVersion);
       git("update-ref", "refs/remotes/pocketdecks/main", "HEAD");
       commitVersion(unmergedVersion);
-      const liveVersion = readLiveVersion(repo);
+      const liveVersion = readPremiumVersionAtRef(repo);
       expect(liveVersion).toBe(publishedVersion);
       const snapshotDir = path.join(repo, "analysis", "out", "premium");
       snapshotPremiumVersion(unmerged, unmergedVersion, snapshotDir);
@@ -658,7 +659,7 @@ describe("premium entry points", () => {
     const repo = fs.mkdtempSync(path.join(os.tmpdir(), "live-version-none-"));
     try {
       execFileSync("git", ["init", "-q"], { cwd: repo, stdio: "ignore" });
-      expect(readLiveVersion(repo)).toBeUndefined();
+      expect(readPremiumVersionAtRef(repo)).toBeUndefined();
     } finally {
       fs.rmSync(repo, { recursive: true, force: true });
     }
@@ -673,7 +674,7 @@ describe("premium entry points", () => {
       fs.mkdirSync(path.join(repo, "public/data"), { recursive: true });
       fs.writeFileSync(path.join(repo, "public/data/data-version.json"), contents);
       git("add", "-A"); git("commit", "-q", "-m", "invalid"); git("update-ref", "refs/remotes/pocketdecks/main", "HEAD");
-      expect(readLiveVersion(repo)).toBeUndefined();
+      expect(readPremiumVersionAtRef(repo)).toBeUndefined();
     } finally { fs.rmSync(repo, { recursive: true, force: true }); }
   });
 });

@@ -24,6 +24,10 @@ const repositoryParts = (value: unknown): [string, string] | undefined => {
   return value.split("/") as [string, string];
 };
 
+const FETCH_TIMEOUT_MS = 15_000;
+const timedFetch = (fetcher: typeof fetch, url: URL, init: RequestInit): Promise<Response> =>
+  fetcher(url, { ...init, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+
 const nextPageOf = (link: string | null, current: URL): URL | undefined => {
   if (!link) return undefined;
   const match = /<([^>]+)>\s*;\s*rel\s*=\s*"?next"?/i.exec(link);
@@ -35,13 +39,14 @@ const nextPageOf = (link: string | null, current: URL): URL | undefined => {
   const expectedPath = `/repos/${CANONICAL_PREMIUM_REPOSITORY}/pulls`;
   if (linked.origin !== "https://api.github.com" ||
       (linked.pathname.toLowerCase() !== expectedPath.toLowerCase() && !/^\/repositories\/\d+\/pulls$/i.test(linked.pathname)) ||
-      linked.searchParams.get("state") !== "open" || linked.searchParams.get("base") !== "main" || linked.searchParams.get("per_page") !== "100") {
+      linked.searchParams.get("state") !== "open" || linked.searchParams.get("base") !== "main" || linked.searchParams.get("per_page") !== "100" ||
+      !/^\d+$/.test(linked.searchParams.get("page") ?? "")) {
     throw new Error("pagination destination is not the canonical pull request list");
   }
-  const next = new URL(current);
-  const nextPage = Number(current.searchParams.get("page") ?? "1") + 1;
-  next.searchParams.set("page", String(nextPage));
-  return next;
+  // Use the validated Link destination itself. Rebuilding page=N from the
+  // current URL discarded GitHub's own pagination fields (for example a
+  // /repositories/<id> route) and could drift away from the real next page.
+  return linked;
 };
 
 const contentVersion = async (response: Response): Promise<string> => {
@@ -52,6 +57,35 @@ const contentVersion = async (response: Response): Promise<string> => {
   return version;
 };
 
+const versionFileUrl = (repository: [string, string], ref: string): URL => {
+  const url = new URL(
+    `https://api.github.com/repos/${repository[0]}/${repository[1]}/contents/public/data/data-version.json`
+  );
+  url.searchParams.set("ref", ref);
+  return url;
+};
+
+const readVersionFile = async (
+  fetcher: typeof fetch,
+  url: URL,
+  headers: Record<string, string>
+): Promise<string> => {
+  const response = await timedFetch(fetcher, url, { headers, cache: "no-store", redirect: "manual" });
+  if (!response.ok) throw new Error("pull request version request failed");
+  const value = await response.json() as { encoding?: unknown; content?: unknown };
+  if (value.encoding !== "base64" || typeof value.content !== "string") {
+    throw new Error("pull request version file is not base64 content");
+  }
+  const encoded = value.content.replace(/\s/g, "");
+  if (!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(encoded)) {
+    throw new Error("pull request version file has invalid base64 content");
+  }
+  const text = Buffer.from(encoded, "base64").toString("utf8");
+  const version = versionOf(JSON.parse(text));
+  if (!version) throw new Error("pull request version file has no valid premium value");
+  return version;
+};
+
 const readPullRequestVersion = async (
   pullRequest: unknown,
   fetcher: typeof fetch,
@@ -59,6 +93,7 @@ const readPullRequestVersion = async (
 ): Promise<string | undefined> => {
   if (pullRequest === null || typeof pullRequest !== "object") throw new Error("pull request entry is invalid");
   const pull = pullRequest as {
+    number?: unknown;
     state?: unknown;
     base?: { ref?: unknown; repo?: { full_name?: unknown } | null };
     head?: { sha?: unknown; repo?: { full_name?: unknown } | null };
@@ -74,29 +109,30 @@ const readPullRequestVersion = async (
     baseRepository.toLowerCase() !== CANONICAL_PREMIUM_REPOSITORY.toLowerCase()
   ) return undefined;
 
-  const repository = repositoryParts(pull.head?.repo?.full_name);
+  const number = typeof pull.number === "number" && Number.isInteger(pull.number) && pull.number > 0
+    ? pull.number
+    : undefined;
+  const fork = repositoryParts(pull.head?.repo?.full_name);
   const sha = pull.head?.sha;
-  if (!repository || typeof sha !== "string" || !/^[0-9a-f]{40,64}$/i.test(sha)) {
-    throw new Error("open pull request head is unavailable");
+  const shaLabel = typeof sha === "string" && /^[0-9a-f]{40,64}$/i.test(sha) ? sha : undefined;
+  const canonical = repositoryParts(CANONICAL_PREMIUM_REPOSITORY)!;
+  // A deleted fork leaves head.repo null. GitHub still serves the PR head from
+  // the canonical repository's refs/pull/<number>/head, so pruning can still
+  // protect that version instead of silently skipping every deletion.
+  const candidates: URL[] = [];
+  if (fork && shaLabel) candidates.push(versionFileUrl(fork, shaLabel));
+  if (number !== undefined) candidates.push(versionFileUrl(canonical, `refs/pull/${number}/head`));
+  if (!candidates.length) throw new Error("open pull request head is unavailable");
+
+  let lastReason = "no readable head";
+  for (const url of candidates) {
+    try {
+      return await readVersionFile(fetcher, url, headers);
+    } catch (error) {
+      lastReason = error instanceof Error ? error.message : String(error);
+    }
   }
-  const url = new URL(
-    `https://api.github.com/repos/${repository[0]}/${repository[1]}/contents/public/data/data-version.json`
-  );
-  url.searchParams.set("ref", sha);
-  const response = await fetcher(url, { headers, cache: "no-store", redirect: "manual" });
-  if (!response.ok) throw new Error("pull request version request failed");
-  const value = await response.json() as { encoding?: unknown; content?: unknown };
-  if (value.encoding !== "base64" || typeof value.content !== "string") {
-    throw new Error("pull request version file is not base64 content");
-  }
-  const encoded = value.content.replace(/\s/g, "");
-  if (!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(encoded)) {
-    throw new Error("pull request version file has invalid base64 content");
-  }
-  const text = Buffer.from(encoded, "base64").toString("utf8");
-  const version = versionOf(JSON.parse(text));
-  if (!version) throw new Error("pull request version file has no valid premium value");
-  return version;
+  throw new Error(`open pull request #${number ?? "?"} version could not be read: ${lastReason}`);
 };
 
 export const discoverPremiumRetentionSources = async ({
@@ -122,7 +158,7 @@ export const discoverPremiumRetentionSources = async ({
     const canonicalMainVersion = readPremiumVersionAtRef(repoRoot, ref, git);
     if (!canonicalMainVersion) return undefined;
 
-    const deployed = await fetcher("https://pocketdecks.top/data/data-version.json", {
+    const deployed = await timedFetch(fetcher, new URL("https://pocketdecks.top/data/data-version.json"), {
       headers: { accept: "application/json", "cache-control": "no-cache" },
       cache: "no-store",
       redirect: "manual",
@@ -138,19 +174,42 @@ export const discoverPremiumRetentionSources = async ({
     firstPage.search = new URLSearchParams({ state: "open", base: "main", per_page: "100" }).toString();
     const visited = new Set<string>();
     const pendingVersions: string[] = [];
+    const firstPageNumbers = new Set<number>();
     let page: URL | undefined = firstPage;
     while (page) {
       if (visited.has(page.toString())) throw new Error("pull request pagination repeated a page");
       visited.add(page.toString());
-      const response = await fetcher(page, { headers, cache: "no-store", redirect: "manual" });
+      const response = await timedFetch(fetcher, page, { headers, cache: "no-store", redirect: "manual" });
       if (!response.ok) throw new Error("pull request listing failed");
       const pullRequests = await response.json();
       if (!Array.isArray(pullRequests)) throw new Error("pull request listing is not an array");
       for (const pullRequest of pullRequests) {
+        if (page === firstPage && typeof pullRequest === "object" && pullRequest !== null) {
+          const number = (pullRequest as { number?: unknown }).number;
+          if (typeof number === "number" && Number.isInteger(number)) firstPageNumbers.add(number);
+        }
         const version = await readPullRequestVersion(pullRequest, fetcher, headers);
         if (version) pendingVersions.push(version);
       }
       page = nextPageOf(response.headers.get("link"), page);
+    }
+
+    // Offset pagination can skip a pull request when one is opened or closed
+    // mid-scan. Re-read the first page and fail closed if its membership moved,
+    // so an incomplete protection set never reaches the pruning step.
+    if (firstPageNumbers.size > 0) {
+      const repeat = await timedFetch(fetcher, firstPage, { headers, cache: "no-store", redirect: "manual" });
+      if (!repeat.ok) throw new Error("pull request pagination stability check failed");
+      const current = await repeat.json();
+      if (!Array.isArray(current)) throw new Error("pull request listing is not an array");
+      const numbers = new Set<number>();
+      for (const entry of current) {
+        const number = (entry as { number?: unknown } | null)?.number;
+        if (typeof number === "number" && Number.isInteger(number)) numbers.add(number);
+      }
+      if (numbers.size !== firstPageNumbers.size || [...numbers].some((number) => !firstPageNumbers.has(number))) {
+        throw new Error("pull request list changed during pagination; refusing to prune");
+      }
     }
 
     return {
@@ -158,7 +217,11 @@ export const discoverPremiumRetentionSources = async ({
       deployedVersion,
       pendingPullRequestVersions: [...new Set(pendingVersions)],
     };
-  } catch {
+  } catch (error) {
+    console.warn(
+      `premium retention discovery could not read every source (${error instanceof Error ? error.message : String(error)}); ` +
+      "no older version is deleted"
+    );
     return undefined;
   }
 };

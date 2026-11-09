@@ -75,7 +75,6 @@ const stateTreeHash = (prefix: string, state: Record<string, string>): string =>
   return hash(Buffer.from(JSON.stringify(entries)));
 };
 const outputNames = (root: string): Set<string> => new Set([...REFRESH_OUTPUT_FILES, ...Object.keys(contents(root)), ...(fs.existsSync(journalPath(root)) ? Object.keys(read(root).baseline) : [])]);
-const changedPaths = (root: string): string[] => execFileSync("git", ["status", "--porcelain=v1", "-z", "--untracked-files=all"], { cwd: root, encoding: "utf8" }).split("\0").filter(Boolean).map((line) => line.slice(3));
 const atomicTemporary = (name: string, known: Set<string>): { target: string; temporary: string; pid: number } | undefined => {
   const match = name.match(/^(.*)\.(\d+)\.([0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})\.tmp(?:\.owner)?$/i);
   if (!match) return undefined;
@@ -84,10 +83,41 @@ const atomicTemporary = (name: string, known: Set<string>): { target: string; te
   const temporary = `${target}.${match[2]}.${match[3]}.tmp`;
   return { target, temporary, pid: Number(match[2]) };
 };
+type StatusEntry = { name: string; status: string; untracked: boolean };
+// With -z, a rename or copy emits "XY new\0old\0": the source path has no
+// status prefix. Splitting on NUL and slicing three characters off every
+// record used to mangle that source path into a bogus filename.
+const statusEntries = (root: string): StatusEntry[] => {
+  const tokens = execFileSync("git", ["status", "--porcelain=v1", "-z", "--untracked-files=all"], { cwd: root, encoding: "utf8" }).split("\0").filter(Boolean);
+  const entries: StatusEntry[] = [];
+  let expectSource = false;
+  let sourceStatus = "";
+  for (const token of tokens) {
+    if (expectSource) {
+      entries.push({ name: token, status: sourceStatus, untracked: false });
+      expectSource = false;
+      continue;
+    }
+    const status = token.slice(0, 2);
+    entries.push({ name: token.slice(3), status, untracked: status === "??" });
+    if (status.includes("R") || status.includes("C")) {
+      expectSource = true;
+      sourceStatus = status;
+    }
+  }
+  return entries;
+};
+const changedPaths = (root: string): string[] => statusEntries(root).map((entry) => entry.name);
+// The analysis machine carries untracked agent/editor directories. They are
+// not generated outputs and must not stop step 1, but every other untracked
+// file and every change to a tracked file still does.
+const UNRELATED_UNTRACKED_PREFIXES = [".claude/", ".codex/"];
+const relevantChanges = (root: string): StatusEntry[] =>
+  statusEntries(root).filter((entry) => !(entry.untracked && UNRELATED_UNTRACKED_PREFIXES.some((prefix) => entry.name.startsWith(prefix))));
 const assertKnownChanges = (root: string): void => {
   const known = outputNames(root);
-  const bad = changedPaths(root).filter((name) => !known.has(name.replace("/deck.previous/", "/deck/").replace(/\.(tmp|bak|created)$/, "")) && !atomicTemporary(name, known));
-  if (bad.length) throw new Error(`refresh recovery stopped: unrelated worktree changes: ${bad.join(", ")}`);
+  const bad = relevantChanges(root).filter((entry) => !known.has(entry.name.replace("/deck.previous/", "/deck/").replace(/\.(tmp|bak|created)$/, "")) && !atomicTemporary(entry.name, known));
+  if (bad.length) throw new Error(`refresh recovery stopped: unrelated worktree changes: ${bad.map((entry) => entry.name).join(", ")}`);
 };
 const read = (root: string): Journal => JSON.parse(fs.readFileSync(journalPath(root), "utf8")) as Journal;
 const baselineHashes = (baseline: Record<string, string>): Record<string, string> => Object.fromEntries(Object.entries(baseline).map(([name, value]) => [name, hash(Buffer.from(value, "base64"))]));
@@ -115,14 +145,14 @@ export const classifyRefresh = (root: string): string[] => {
 };
 export const recoverRefresh = (root: string): void => {
   if (!fs.existsSync(journalPath(root))) {
-    const changed = changedPaths(root);
-    if (changed.length) throw new Error(`refresh recovery stopped: worktree changes without a journal: ${changed.join(", ")}`);
+    const changed = relevantChanges(root);
+    if (changed.length) throw new Error(`refresh recovery stopped: worktree changes without a journal: ${changed.map((entry) => entry.name).join(", ")}`);
     return;
   }
   const journal = read(root);
   const head = git(root, "rev-parse", "HEAD");
   if (head !== journal.head) {
-    if (git(root, "rev-parse", "HEAD^") !== journal.head || changedPaths(root).length) throw new Error("refresh recovery stopped: HEAD changed");
+    if (git(root, "rev-parse", "HEAD^") !== journal.head || relevantChanges(root).length) throw new Error("refresh recovery stopped: HEAD changed");
     const committed = git(root, "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD").split("\n").filter(Boolean);
     const known = outputNames(root);
     const hashes = currentHashes(root);
@@ -168,8 +198,17 @@ export const recoverRefresh = (root: string): void => {
         const saved = journal.baseline[name];
         if (saved === undefined || hash(fs.readFileSync(backup)) !== hash(Buffer.from(saved, "base64"))) throw new Error(`refresh recovery stopped: unowned backup ${backup}`);
         fs.renameSync(backup, full);
-      } else if ((hasMarker || journal.baseline[name] === undefined) && fs.existsSync(full)) throw new Error(`refresh recovery stopped: unexpected target beside temporary write ${name}`);
-      else if (journal.baseline[name] !== undefined && fs.existsSync(full) && hash(fs.readFileSync(full)) !== hash(Buffer.from(journal.baseline[name], "base64"))) throw new Error(`refresh recovery stopped: unowned target ${name}`);
+      } else {
+        const saved = journal.baseline[name];
+        // A writer that created the target leaves an empty `.created` marker;
+        // a writer that replaced it leaves the target byte-identical to the
+        // baseline. Anything else is not provably this run's sidecar, so
+        // refuse instead of deleting a stranger's files.
+        if (hasMarker !== (saved === undefined)) throw new Error(`refresh recovery stopped: unproven sidecar state ${name}`);
+        if (hasMarker && fs.statSync(marker).size !== 0) throw new Error(`refresh recovery stopped: unproven created marker ${marker}`);
+        if (saved === undefined && fs.existsSync(full)) throw new Error(`refresh recovery stopped: unexpected target beside temporary write ${name}`);
+        if (saved !== undefined && (!fs.existsSync(full) || hash(fs.readFileSync(full)) !== hash(Buffer.from(saved, "base64")))) throw new Error(`refresh recovery stopped: unproven target ${name}`);
+      }
       fs.rmSync(temporary, { force: true });
       fs.rmSync(marker, { force: true });
     } else if (hasBackup || hasMarker) {
@@ -190,12 +229,19 @@ export const recoverRefresh = (root: string): void => {
     if (parsed) atomicTemps.set(parsed.temporary, { target: parsed.target, pid: parsed.pid });
   }
   const abandoned: string[] = [];
+  const orphanProofs: string[] = [];
   for (const [name, parsed] of atomicTemps) {
     const temporary = safePath(root, name);
     const owner = safePath(root, `${name}.owner`);
-    if (!fs.existsSync(temporary) || !fs.existsSync(owner)) throw new Error(`refresh recovery stopped: unproven atomic temporary ${name}`);
-    const proof = JSON.parse(fs.readFileSync(owner, "utf8")) as { version?: number; pid?: number; target?: string; temporary?: string; sha256?: string };
-    if (proof.version !== 1 || proof.pid !== parsed.pid || proof.target !== safePath(root, parsed.target) || proof.temporary !== path.basename(name) || !/^[0-9a-f]{64}$/.test(proof.sha256 ?? "") || hash(fs.readFileSync(temporary)) !== proof.sha256) {
+    const hasTemporary = fs.existsSync(temporary);
+    // The owner proof is written before the temporary. A crash in between, or
+    // just after a successful rename, leaves only the proof behind.
+    if (!fs.existsSync(owner)) throw new Error(`refresh recovery stopped: unproven atomic temporary ${name}`);
+    const proof = (() => {
+      try { return JSON.parse(fs.readFileSync(owner, "utf8")) as { version?: number; pid?: number; target?: string; temporary?: string; sha256?: string }; }
+      catch { throw new Error(`refresh recovery stopped: invalid atomic temporary proof ${name}`); }
+    })();
+    if (proof.version !== 1 || proof.pid !== parsed.pid || proof.target !== safePath(root, parsed.target) || proof.temporary !== path.basename(name) || !/^[0-9a-f]{64}$/.test(proof.sha256 ?? "") || (hasTemporary && hash(fs.readFileSync(temporary)) !== proof.sha256)) {
       throw new Error(`refresh recovery stopped: invalid atomic temporary proof ${name}`);
     }
     try {
@@ -203,13 +249,14 @@ export const recoverRefresh = (root: string): void => {
       throw new Error(`refresh recovery stopped: atomic writer is still active for ${name}`);
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "ESRCH") throw error;
-      abandoned.push(name);
+      (hasTemporary ? abandoned : orphanProofs).push(name);
     }
   }
   for (const name of abandoned) {
     fs.rmSync(safePath(root, name), { force: true });
     fs.rmSync(safePath(root, `${name}.owner`), { force: true });
   }
+  for (const name of orphanProofs) fs.rmSync(safePath(root, `${name}.owner`), { force: true });
   const now = currentHashes(root);
   const names = new Set([...Object.keys(journal.baseline), ...Object.keys(now), ...Object.keys(journal.checkpoint)]);
   const unexpected = [...names].filter((name) => now[name] !== journal.checkpoint[name]);
@@ -231,9 +278,11 @@ export const stageRefresh = (root: string): string[] => {
   const unexpected = changed.filter((name) => now[name] !== journal.checkpoint[name]);
   if (unexpected.length) throw new Error(`refresh staging stopped: unrecorded file changes: ${unexpected.join(", ")}`);
   const staged = changed.filter((name) => !name.startsWith("analysis/out/premium/"));
-  if (staged.length) execFileSync("git", ["add", "--", ...staged], { cwd: root });
+  // Record the staging plan before `git add`: a crash between the two used to
+  // leave staged paths the journal could not account for.
   journal.staged = staged;
   write(root, journal);
+  if (staged.length) execFileSync("git", ["add", "--", ...staged], { cwd: root });
   return staged;
 };
 export const finishRefresh = (root: string): void => { fs.rmSync(journalPath(root), { force: true }); };

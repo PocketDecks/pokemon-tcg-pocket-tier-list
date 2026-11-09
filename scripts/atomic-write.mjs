@@ -4,21 +4,16 @@ import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 
-let refreshJournalState;
-
 const hasRefreshJournal = (destination) => {
   try {
     const gitOptions = { stdio: ["ignore", "pipe", "ignore"], encoding: "utf8" };
     const root = execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd: path.dirname(destination), ...gitOptions }).trim();
-    if (refreshJournalState?.root === root) return refreshJournalState.active;
     const journalName = execFileSync("git", ["rev-parse", "--git-path", "refresh-outputs.json"], { cwd: root, ...gitOptions }).trim();
     const journal = JSON.parse(fs.readFileSync(path.resolve(root, journalName), "utf8"));
-    const active = journal.head === execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, ...gitOptions }).trim()
+    return journal.head === execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, ...gitOptions }).trim()
       && journal.baseline && typeof journal.baseline === "object"
       && !Array.isArray(journal.baseline)
       && journal.checkpoint && typeof journal.checkpoint === "object" && !Array.isArray(journal.checkpoint);
-    refreshJournalState = { root, active };
-    return active;
   } catch {
     return false;
   }

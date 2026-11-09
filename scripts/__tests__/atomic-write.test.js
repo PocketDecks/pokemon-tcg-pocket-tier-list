@@ -69,6 +69,32 @@ test("a partial proof write removes the temporary and proof created by the write
   assert.deepStrictEqual(fs.readdirSync(dir), [".git"]);
 });
 
+test("rechecks the refresh journal before each opt-in write", () => {
+  const dir = makeDir();
+  execFileSync("git", ["init", "-q"], { cwd: dir });
+  execFileSync("git", ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--allow-empty", "-m", "base"], { cwd: dir, stdio: "ignore" });
+  const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: dir, encoding: "utf8" }).trim();
+  const journalPath = path.resolve(dir, execFileSync("git", ["rev-parse", "--git-path", "refresh-outputs.json"], { cwd: dir, encoding: "utf8" }).trim());
+  fs.writeFileSync(journalPath, JSON.stringify({ head, baseline: {}, checkpoint: {} }));
+  const first = path.join(dir, "first.json");
+  const second = path.join(dir, "second.json");
+  const rename = fs.renameSync;
+  const proofAtRename = new Map();
+  fs.renameSync = (temporary, target) => {
+    proofAtRename.set(target, fs.existsSync(`${temporary}.owner`));
+    return rename(temporary, target);
+  };
+  try {
+    writeFileAtomic(first, "first", { refreshRecovery: true });
+    fs.rmSync(journalPath);
+    writeFileAtomic(second, "second", { refreshRecovery: true });
+  } finally {
+    fs.renameSync = rename;
+  }
+  assert.strictEqual(proofAtRename.get(first), true);
+  assert.strictEqual(proofAtRename.get(second), false);
+});
+
 test("refresh proof stays disabled without an active journal", () => {
   const dir = makeDir();
   const destination = path.join(dir, "out.json");

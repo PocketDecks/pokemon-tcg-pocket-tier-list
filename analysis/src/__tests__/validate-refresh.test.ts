@@ -147,8 +147,8 @@ describe("validateRefresh", () => {
 
     const report = validateRefresh(data, images, null, premium);
 
-    expect(report.windows.find((row) => row.window === "10d")?.floor).toBe(4);
-    expect(report.failures).toContain("10d: 1 archetypes, floor 4");
+    expect(report.windows.find((row) => row.window === "10d")?.floor).toBe(3);
+    expect(report.failures).toContain("10d: 1 archetypes, floor 3");
   });
 
   it("fails when the default file is not the 20d copy", () => {

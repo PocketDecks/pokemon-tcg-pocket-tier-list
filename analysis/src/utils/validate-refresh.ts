@@ -12,7 +12,6 @@ import { PREMIUM_WINDOWS } from "./premium-artefacts";
 export const REFRESH_WINDOWS = ["10d", "20d", "30d", "all"] as const;
 export type RefreshWindow = (typeof REFRESH_WINDOWS)[number];
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 export interface WindowReport {
   window: RefreshWindow;
@@ -54,7 +53,24 @@ const readPreviousCount = (
   return readDecks(previousDir, window).length;
 };
 
-const readNewestDeckDate = (dataDir: string): string | null => {
+const readNewestDeckDate = (dataDir: string, premiumDir: string): string | null => {
+  const metaFiles = [
+    path.join(dataDir, "meta-share-10d.json"),
+    path.join(premiumDir, "meta-share-30d.json"),
+    path.join(premiumDir, "meta-share-all.json"),
+  ];
+  const dates = metaFiles
+    .filter((file) => fs.existsSync(file))
+    .map((file) => {
+      const value = (JSON.parse(fs.readFileSync(file, "utf8")) as { generatedAt?: unknown }).generatedAt;
+      if (typeof value !== "string") throw new Error(`missing generatedAt in ${file}`);
+      return value;
+    })
+    .sort();
+  return dates.length > 0 ? dates[dates.length - 1].slice(0, 10) : null;
+};
+
+const readLegacyTrendDate = (dataDir: string): string | null => {
   const file = path.join(dataDir, "historical-trends.json");
   if (!fs.existsSync(file)) return null;
   const rows = JSON.parse(fs.readFileSync(file, "utf8")) as { date?: unknown }[];
@@ -63,9 +79,7 @@ const readNewestDeckDate = (dataDir: string): string | null => {
     .filter((date): date is string => date !== null)
     .sort();
   if (dates.length === 0) return null;
-  return new Date(Date.parse(`${dates[dates.length - 1].slice(0, 10)}T00:00:00Z`) + DAY_MS)
-    .toISOString()
-    .slice(0, 10);
+  return dates[dates.length - 1].slice(0, 10);
 };
 
 export const validateRefresh = (
@@ -77,7 +91,7 @@ export const validateRefresh = (
   const failures: string[] = [];
   const windows: WindowReport[] = [];
   const union = new Set<string>();
-  const newestDeckDate = readNewestDeckDate(dataDir);
+  const newestDeckDate = readNewestDeckDate(dataDir, premiumDir) ?? readLegacyTrendDate(dataDir);
   const daysOfData = newestDeckDate === null ? null : daysOfDataSince(newestDeckDate, EXPANSION_RELEASE_DATE);
 
   for (const window of REFRESH_WINDOWS) {

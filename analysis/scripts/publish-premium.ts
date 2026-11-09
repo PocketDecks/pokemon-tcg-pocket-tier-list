@@ -11,6 +11,7 @@ import {
   readCommittedVersion,
   readProjectId,
 } from "../src/utils/premium-files";
+import { snapshotPremiumVersion } from "../src/utils/premium-artefacts";
 import {
   ExistingVersion,
   planPremiumUpload,
@@ -23,11 +24,11 @@ export interface PremiumDb {
   recursiveDelete(ref: unknown): Promise<void>;
 }
 
-export const readLiveVersion = (repoRoot: string): string | undefined => {
+export const readLiveVersion = (repoRoot: string, ref = "origin/main"): string | undefined => {
   try {
     const output = execFileSync(
       "git",
-      ["show", "origin/main:public/data/data-version.json"],
+      ["show", `${ref}:public/data/data-version.json`],
       { cwd: repoRoot, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }
     );
     const parsed: unknown = JSON.parse(output);
@@ -45,9 +46,9 @@ export const fetchLiveVersion = (repoRoot: string): void => {
   });
 };
 
-const adapt = (firestore: Firestore): PremiumDb => ({
+export const adaptPremiumDb = (firestore: Firestore): PremiumDb => ({
   collection: (name) =>
-    firestore.collection(name) as unknown as { get(): Promise<{ docs: { id: string; get(field: string): unknown }[] }> },
+    firestore.collection(name) as unknown as PremiumDb["collection"] extends (name: string) => infer T ? T : never,
   doc: (path) => {
     const ref = firestore.doc(path);
     return {
@@ -66,6 +67,7 @@ export const publishPremium = async (
     version: injectedVersion,
     projectId: injectedProjectId,
     liveVersion,
+    snapshotDir,
   }: {
     db: PremiumDb | null;
     dryRun: boolean;
@@ -73,6 +75,7 @@ export const publishPremium = async (
     version?: string;
     projectId?: string;
     liveVersion?: string;
+    snapshotDir?: string;
   },
   log: (line: string) => void = console.log
 ): Promise<void> => {
@@ -134,6 +137,7 @@ export const publishPremium = async (
     await db.recursiveDelete(db.doc(`${PREMIUM_COLLECTION}/${old}`).ref);
     log(`deleted ${PREMIUM_COLLECTION}/${old}`);
   }
+  snapshotPremiumVersion(files, version, snapshotDir);
 };
 
 if (require.main === module) {
@@ -142,7 +146,7 @@ if (require.main === module) {
   const projectId = readProjectId(path.join(repoRoot, ".firebaserc"));
   const db = dryRun
     ? null
-    : adapt(
+    : adaptPremiumDb(
         getFirestore(
           initializeApp({ projectId, credential: applicationDefault() })
         )

@@ -3,7 +3,12 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { PREMIUM_DIR, PREMIUM_WINDOWS } from "../src/utils/premium-artefacts";
+import {
+  loadPremiumSnapshotForVersion,
+  PREMIUM_DIR,
+  PREMIUM_WINDOWS,
+} from "../src/utils/premium-artefacts";
+import { readLiveVersion } from "./publish-premium";
 import {
   REFRESH_WINDOWS,
   validateRefresh,
@@ -31,12 +36,9 @@ const readPrevious = (): string | null => {
   if (explicit) return explicit;
   if (args.includes("--no-previous")) return null;
 
-  const previousPremiumDir = path.join(
-    path.dirname(premiumDir),
-    "premium-previous"
-  );
-
   const ref = flag("--previous-ref") ?? "origin/main";
+  const liveVersion = readLiveVersion(repoRoot, ref);
+  const premiumSnapshot = liveVersion ? loadPremiumSnapshotForVersion(liveVersion, premiumDir) : undefined;
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "refresh-previous-"));
   for (const window of REFRESH_WINDOWS) {
     const file = `public/data/best-decks-${window}.json`;
@@ -44,11 +46,9 @@ const readPrevious = (): string | null => {
     let contents: string | undefined;
     let metaContents: string | undefined;
     if ((PREMIUM_WINDOWS as readonly string[]).includes(window)) {
-      const local = path.join(previousPremiumDir, `best-decks-${window}.json`);
-      if (fs.existsSync(local)) contents = fs.readFileSync(local, "utf8");
+      contents = premiumSnapshot?.[`best-decks-${window}`];
+      metaContents = premiumSnapshot?.[`meta-share-${window}`];
       if (contents === undefined) continue;
-      const localMeta = path.join(previousPremiumDir, `meta-share-${window}.json`);
-      if (fs.existsSync(localMeta)) metaContents = fs.readFileSync(localMeta, "utf8");
     } else {
       try {
         metaContents = execFileSync("git", ["show", `${ref}:${metaFile}`], {

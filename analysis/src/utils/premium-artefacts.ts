@@ -166,5 +166,54 @@ export const premiumVersion = (premiumFiles: Record<string, string>): string => 
   return hash.digest("hex").slice(0, 16);
 };
 
+export const snapshotPremiumVersion = (
+  premiumFiles: Record<string, string>,
+  version: string,
+  dir: string = PREMIUM_DIR
+): void => {
+  if (premiumVersion(premiumFiles) !== version) throw new Error("premium snapshot version does not match its files");
+  const target = path.join(previousPremiumDir(dir), version);
+  fs.mkdirSync(target, { recursive: true });
+  for (const name of PREMIUM_ARTEFACT_NAMES) {
+    fs.writeFileSync(path.join(target, `${name}.json`), premiumFiles[name]);
+  }
+};
+
+export const readPremiumVersionSnapshot = (
+  version: string,
+  dir: string = PREMIUM_DIR
+): Record<string, string> | undefined => {
+  const target = path.join(previousPremiumDir(dir), version);
+  try {
+    const files = Object.fromEntries(PREMIUM_ARTEFACT_NAMES.map((name) => [
+      name,
+      fs.readFileSync(path.join(target, `${name}.json`), "utf8"),
+    ]));
+    return premiumVersion(files) === version ? files : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+export const loadPremiumSnapshotForVersion = (
+  version: string,
+  dir: string = PREMIUM_DIR
+): Record<string, string> | undefined => {
+  const stored = readPremiumVersionSnapshot(version, dir);
+  if (stored) return stored;
+  const previous = previousPremiumDir(dir);
+  try {
+    const legacy = Object.fromEntries(PREMIUM_ARTEFACT_NAMES.map((name) => [
+      name,
+      fs.readFileSync(path.join(previous, `${name}.json`), "utf8"),
+    ]));
+    if (premiumVersion(legacy) !== version) return undefined;
+    snapshotPremiumVersion(legacy, version, dir);
+    return legacy;
+  } catch {
+    return undefined;
+  }
+};
+
 export const renderDataVersion = (version: string): string =>
   `{ "premium": "${version}" }\n`;

@@ -19,7 +19,7 @@ import {
 } from "../src/utils/premium-upload";
 
 export interface PremiumDb {
-  collection(name: string): { get(): Promise<{ docs: { id: string; get(field: string): unknown }[] }> };
+  collection(name: string): { listDocuments(): Promise<{ id: string; get(): Promise<{ exists: boolean; get(field: string): unknown }> }[]> };
   doc(path: string): { ref: unknown; set(data: unknown): Promise<void> };
   recursiveDelete(ref: unknown): Promise<void>;
 }
@@ -103,14 +103,15 @@ export const publishPremium = async (
     return;
   }
 
-  const snapshot = await db.collection(PREMIUM_COLLECTION).get();
-  const existing: ExistingVersion[] = snapshot.docs.map((doc) => {
-    const createdAt = doc.get("createdAt");
+  const documents = await db.collection(PREMIUM_COLLECTION).listDocuments();
+  const existing: ExistingVersion[] = await Promise.all(documents.map(async (doc) => {
+    const snapshot = await doc.get();
+    const createdAt = snapshot.exists ? snapshot.get("createdAt") : undefined;
     return {
       version: doc.id,
       createdAt: createdAt instanceof Timestamp ? createdAt.toMillis() : 0,
     };
-  });
+  }));
 
   const plan = planPremiumUpload({
     files,

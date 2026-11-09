@@ -17,12 +17,10 @@ interface Write {
 
 const fakeFilesDb = (writes: Write[], deletes: unknown[] = []) => ({
   collection: () => ({
-    get: async () => ({
-      docs: Array.from({ length: 6 }, (_, index) => ({
-        id: `old-${index}`,
-        get: () => 1,
-      })),
-    }),
+    listDocuments: async () => Array.from({ length: 6 }, (_, index) => ({
+      id: `old-${index}`,
+      get: async () => ({ exists: true, get: () => 1 }),
+    })),
   }),
   doc: (path: string) => ({
     ref: { path, documentReference: true },

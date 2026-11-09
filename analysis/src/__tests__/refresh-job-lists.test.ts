@@ -54,6 +54,18 @@ describe("refresh job file lists", () => {
     expect(job.indexOf("generate-deck-hub-slugs.mjs")).toBeLessThan(job.indexOf("check:generated"));
   });
 
+  it("recovers before mutations and stops after pairing or golden failures", () => {
+    expect(job.indexOf("refresh:outputs recover")).toBeLessThan(job.indexOf("sync-pairings"));
+    expect(step("3. From", "4. From")).toMatch(/sync-pairings[\s\S]*?checkpoint[\s\S]*?non-zero[\s\S]*?stop/i);
+    expect(step("4. From", "5. Run")).toMatch(/golden:generate[\s\S]*?checkpoint[\s\S]*?non-zero[\s\S]*?stop/i);
+  });
+
+  it("names start as the command guarded by assertPublishable", () => {
+    const generation = step("7. From", "8. Run");
+    expect(generation).toContain("yarn.cmd start");
+    expect(generation.indexOf("yarn.cmd start")).toBeLessThan(generation.indexOf("assertPublishable"));
+  });
+
   it("allows every file writeArtefacts stages in recovery and staging", () => {
     for (const target of writeArtefactKeys()) {
       expect(REFRESH_OUTPUT_FILES).toContain(target);

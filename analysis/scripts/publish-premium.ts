@@ -27,7 +27,7 @@ export const readLiveVersion = (repoRoot: string): string | undefined => {
   try {
     const output = execFileSync(
       "git",
-      ["show", "HEAD:public/data/data-version.json"],
+      ["show", "origin/main:public/data/data-version.json"],
       { cwd: repoRoot, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }
     );
     const parsed: unknown = JSON.parse(output);
@@ -119,7 +119,11 @@ export const publishPremium = async (
   });
   log(`wrote ${plan.versionWrite.path}`);
 
-  for (const old of plan.deleteVersions) {
+  if (liveVersion === undefined) {
+    log("the live version could not be read from origin/main, so no older version is deleted");
+  }
+  const deletions = liveVersion === undefined ? [] : plan.deleteVersions;
+  for (const old of deletions) {
     await db.recursiveDelete(db.doc(`${PREMIUM_COLLECTION}/${old}`).ref);
     log(`deleted ${PREMIUM_COLLECTION}/${old}`);
   }

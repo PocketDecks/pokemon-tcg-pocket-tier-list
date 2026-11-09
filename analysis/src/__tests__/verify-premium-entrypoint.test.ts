@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { verifyPremium } from "../../scripts/verify-premium";
+import { runVerifyPremium, verifyPremium } from "../../scripts/verify-premium";
 import { PREMIUM_ARTEFACT_NAMES, premiumVersion, sha256Hex } from "../utils/premium-artefacts";
 
 describe("verify-premium entry point", () => {
@@ -48,8 +48,8 @@ describe("verify-premium entry point", () => {
       PREMIUM_ARTEFACT_NAMES.map((name) => [name, `{"name":"${name}"}`])
     );
     const version = premiumVersion(payloads);
-    const missing = PREMIUM_ARTEFACT_NAMES[0];
-    const corrupt = PREMIUM_ARTEFACT_NAMES[1];
+    const missing = [PREMIUM_ARTEFACT_NAMES[0], PREMIUM_ARTEFACT_NAMES[2]];
+    const corrupt = [PREMIUM_ARTEFACT_NAMES[1], PREMIUM_ARTEFACT_NAMES[3]];
     const db = {
       doc: (path: string) => ({
         get: async () => {
@@ -61,7 +61,7 @@ describe("verify-premium entry point", () => {
                   ? Object.fromEntries(
                       PREMIUM_ARTEFACT_NAMES.map((name) => [
                         name,
-                        name === corrupt ? "wrong-hash" : sha256Hex(payloads[name]),
+                        corrupt.includes(name) ? "wrong-hash" : sha256Hex(payloads[name]),
                       ])
                     )
                   : null,
@@ -69,22 +69,29 @@ describe("verify-premium entry point", () => {
           }
           const name = path.split("/").pop() ?? "";
           return {
-            exists: name !== missing,
+            exists: !missing.includes(name),
             get: (field: string) =>
-              field === "payload" ? (name === corrupt ? "broken" : payloads[name]) :
-                sha256Hex(name === corrupt ? "broken" : payloads[name] ?? ""),
+              field === "payload"
+                ? (corrupt.includes(name) ? "broken" : payloads[name])
+                : sha256Hex(corrupt.includes(name) ? "broken" : payloads[name] ?? ""),
           };
         },
       }),
     };
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
-    await expect(
-      verifyPremium({ db, version }, () => {})
-    ).rejects.toThrow(/is not complete/);
-    expect(error.mock.calls.map(([line]) => line)).toEqual([
-      `artefact ${missing} is missing`,
-      `artefact ${corrupt} hash mismatch`,
-    ]);
-    error.mockRestore();
+    const exit = vi.fn();
+    try {
+      await runVerifyPremium({ db, version, projectId: "demo-project" }, exit);
+      expect(exit).toHaveBeenCalledExactlyOnceWith(1);
+      expect(error.mock.calls.map(([line]) => line)).toEqual([
+        `artefact ${missing[0]} is missing`,
+        `artefact ${corrupt[0]} hash mismatch`,
+        `artefact ${missing[1]} is missing`,
+        `artefact ${corrupt[1]} hash mismatch`,
+        `premium version ${version} is not complete in demo-project`,
+      ]);
+    } finally {
+      error.mockRestore();
+    }
   });
 });

@@ -72,13 +72,19 @@ export const verifyPremium = async (
   log(`premium version ${version} is complete in ${projectId}`);
 };
 
+export const runVerifyPremium = (
+  options: { db: VerifyDb; version?: string; projectId?: string },
+  exit: (code: number) => void = process.exit
+): Promise<void> =>
+  verifyPremium(options).catch((error) => {
+    console.error(error instanceof Error ? error.message : error);
+    exit(1);
+  });
+
 if (require.main === module) {
   const repoRoot = path.resolve(__dirname, "../..");
   const projectId = readProjectId(path.join(repoRoot, ".firebaserc"));
   initializeApp({ projectId, credential: applicationDefault() });
   const db = adapt(getFirestore());
-  verifyPremium({ db }).catch((error) => {
-    console.error(error instanceof Error ? error.message : error);
-    process.exit(1);
-  });
+  void runVerifyPremium({ db });
 }

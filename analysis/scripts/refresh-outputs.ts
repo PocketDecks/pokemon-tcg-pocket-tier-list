@@ -19,28 +19,51 @@ type Journal = { head: string; baseline: Record<string, string>; checkpoint: Rec
 const hash = (value: Buffer): string => createHash("sha256").update(value).digest("hex");
 const git = (root: string, ...args: string[]): string => execFileSync("git", args, { cwd: root, encoding: "utf8" }).trim();
 const journalPath = (root: string): string => path.resolve(root, git(root, "rev-parse", "--git-path", "refresh-outputs.json"));
-const enumerate = (root: string): string[] => {
-  const result = [...REFRESH_OUTPUT_FILES];
-  for (const tree of REFRESH_OUTPUT_TREES) {
-    const dir = path.join(root, tree);
-    if (fs.existsSync(dir)) for (const name of fs.readdirSync(dir, { recursive: true })) {
-      const full = path.join(dir, String(name));
-      if (fs.statSync(full).isFile()) result.push(path.relative(root, full).split(path.sep).join("/"));
+const safePath = (root: string, name: string): string => {
+  const base = fs.realpathSync(root);
+  const full = path.resolve(base, name);
+  const relative = path.relative(base, full);
+  if (!relative || relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) throw new Error(`refresh recovery stopped: output path escapes worktree: ${name}`);
+  let current = base;
+  for (const part of relative.split(path.sep)) {
+    current = path.join(current, part);
+    try {
+      const stat = fs.lstatSync(current);
+      if (stat.isSymbolicLink()) throw new Error(`refresh recovery stopped: symlink or junction in output path: ${name}`);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") break;
+      throw error;
     }
   }
+  return full;
+};
+const safeFiles = (root: string, directory: string): string[] => {
+  const result: string[] = [];
+  const visit = (name: string): void => {
+    const full = safePath(root, name);
+    let stat: fs.Stats;
+    try { stat = fs.lstatSync(full); } catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return; throw error; }
+    if (stat.isDirectory()) for (const child of fs.readdirSync(full)) visit(`${name}/${child}`);
+    else if (stat.isFile()) result.push(name);
+  };
+  visit(directory);
+  return result;
+};
+const enumerate = (root: string): string[] => {
+  const result = [...REFRESH_OUTPUT_FILES];
+  for (const tree of REFRESH_OUTPUT_TREES) result.push(...safeFiles(root, tree));
+  for (const name of result) safePath(root, name);
   return [...new Set(result)].sort();
 };
 const contents = (root: string): Record<string, string> => Object.fromEntries(enumerate(root).flatMap((name) => {
-  const full = path.join(root, name);
-  return fs.existsSync(full) ? [[name, fs.readFileSync(full).toString("base64")]] : [];
+  const full = safePath(root, name);
+  try { return fs.lstatSync(full).isFile() ? [[name, fs.readFileSync(full).toString("base64")]] : []; }
+  catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return []; throw error; }
 }));
 const currentHashes = (root: string): Record<string, string> => Object.fromEntries(Object.entries(contents(root)).map(([name, value]) => [name, hash(Buffer.from(value, "base64"))]));
-const treeHash = (dir: string): string => {
+const treeHash = (root: string, directory: string): string => {
   const entries: [string, string][] = [];
-  if (fs.existsSync(dir)) for (const name of fs.readdirSync(dir, { recursive: true })) {
-    const full = path.join(dir, String(name));
-    if (fs.statSync(full).isFile()) entries.push([String(name).replace(/\\/g, "/"), hash(fs.readFileSync(full))]);
-  }
+  for (const name of safeFiles(root, directory)) entries.push([name.slice(directory.length + 1), hash(fs.readFileSync(safePath(root, name)))]);
   return hash(Buffer.from(JSON.stringify(entries.sort(([a], [b]) => a.localeCompare(b)))));
 };
 const baselineTreeHash = (prefix: string, baseline: Record<string, string>): string => {
@@ -105,20 +128,21 @@ export const recoverRefresh = (root: string): void => {
   const deck = path.join(root, "public/og/deck");
   const previous = `${deck}.previous`;
   const expectedDeck = baselineTreeHash("public/og/deck", journal.baseline);
-  if (fs.existsSync(previous)) {
-    if (treeHash(previous) !== expectedDeck) throw new Error("refresh recovery stopped: unverified OG backup directory");
-    if (!fs.existsSync(deck)) fs.renameSync(previous, deck);
-    else if (treeHash(deck) === stateTreeHash("public/og/deck", journal.checkpoint) || treeHash(deck) === expectedDeck) fs.rmSync(previous, { recursive: true, force: true });
+  const previousExists = fs.existsSync(safePath(root, "public/og/deck.previous"));
+  if (previousExists) {
+    if (treeHash(root, "public/og/deck.previous") !== expectedDeck) throw new Error("refresh recovery stopped: unverified OG backup directory");
+    if (!fs.existsSync(safePath(root, "public/og/deck"))) fs.renameSync(safePath(root, "public/og/deck.previous"), safePath(root, "public/og/deck"));
+    else if (treeHash(root, "public/og/deck") === stateTreeHash("public/og/deck", journal.checkpoint) || treeHash(root, "public/og/deck") === expectedDeck) fs.rmSync(safePath(root, "public/og/deck.previous"), { recursive: true, force: true });
     else throw new Error("refresh recovery stopped: OG target differs from its checkpoint");
   }
   const parent = path.dirname(deck);
   const orphanStages = fs.existsSync(parent) ? fs.readdirSync(parent).filter((name) => name.startsWith("deck-stage-")) : [];
   if (orphanStages.length) throw new Error(`refresh recovery stopped: unowned OG staging directories: ${orphanStages.join(", ")}`);
   for (const name of outputNames(root)) {
-    const full = path.join(root, name);
-    const temporary = `${full}.tmp`;
-    const backup = `${full}.bak`;
-    const marker = `${full}.created`;
+    const full = safePath(root, name);
+    const temporary = safePath(root, `${name}.tmp`);
+    const backup = safePath(root, `${name}.bak`);
+    const marker = safePath(root, `${name}.created`);
     const hasTemporary = fs.existsSync(temporary);
     const hasBackup = fs.existsSync(backup);
     const hasMarker = fs.existsSync(marker);
@@ -149,9 +173,9 @@ export const recoverRefresh = (root: string): void => {
   if (unexpected.length) throw new Error(`refresh recovery stopped: unrecorded file changes: ${unexpected.join(", ")}`);
   for (const name of names) {
     const saved = journal.baseline[name];
-    const full = path.join(root, name);
-    if (saved === undefined) fs.rmSync(full, { force: true });
-    else { fs.mkdirSync(path.dirname(full), { recursive: true }); fs.writeFileSync(full, Buffer.from(saved, "base64")); }
+    const full = safePath(root, name);
+    if (saved === undefined) fs.rmSync(safePath(root, name), { force: true });
+    else { fs.mkdirSync(path.dirname(full), { recursive: true }); fs.writeFileSync(safePath(root, name), Buffer.from(saved, "base64")); }
   }
   fs.rmSync(journalPath(root), { force: true });
 };

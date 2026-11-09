@@ -72,6 +72,8 @@ describe("refresh job file lists", () => {
     expect(job.indexOf("refresh:outputs recover")).toBeLessThan(job.indexOf("sync-pairings"));
     expect(step("3. From", "4. From")).toMatch(/sync-pairings[\s\S]*?checkpoint[\s\S]*?stop[\s\S]*?non-zero/i);
     expect(step("4. From", "5. Run")).toMatch(/golden:generate[\s\S]*?checkpoint[\s\S]*?stop[\s\S]*?non-zero/i);
+    expect(job).toContain("A killed run needs the recovery in step 1");
+    expect(job).not.toContain("A killed run needs the recovery in step 5");
   });
 
   it("generates hub slugs before checking generated files", () => {
@@ -105,9 +107,13 @@ describe("refresh job file lists", () => {
     expect(step("9. Inspect", "10. From")).toContain("hub");
   });
 
-  it("excludes the always-changed timestamp from the silent-day check", () => {
+  it("defines silence by the classifier, excluding timestamps and counting premium output", () => {
     const check = step("9. Inspect", "10. From");
-    expect(check).toContain("apart from `src/app/last-updated.ts`");
+    expect(check).toContain("classifier prints no paths");
+    expect(check).toContain("excludes `src/app/last-updated.ts`");
+    expect(check).toContain("includes ignored premium outputs");
     expect(check).toContain("hub files count as output");
+    expect(job).not.toContain("A run with no tracked output changes is silent");
+    expect(job).toContain("A run is silent only when `yarn.cmd refresh:outputs classify` prints no paths");
   });
 });

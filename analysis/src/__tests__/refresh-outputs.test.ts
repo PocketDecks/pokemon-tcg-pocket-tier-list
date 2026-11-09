@@ -6,17 +6,26 @@ import { afterEach, describe, expect, it } from "vitest";
 import { beginRefresh, checkpointRefresh, classifyRefresh, recoverRefresh, stageRefresh } from "../../scripts/refresh-outputs";
 
 const roots: string[] = [];
+const externalPaths: string[] = [];
+const outside = (root: string, name: string): string => {
+  const target = path.join(path.dirname(root), `${path.basename(root)}-${name}`);
+  externalPaths.push(target);
+  return target;
+};
+const linkType = process.platform === "win32" ? "junction" : "dir";
 const fixture = (): string => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "refresh-outputs-"));
   roots.push(root);
   execFileSync("git", ["init", "-q"], { cwd: root });
   fs.mkdirSync(path.join(root, "analysis/src/data"), { recursive: true });
   fs.writeFileSync(path.join(root, "analysis/src/data/limitless-decks.json"), "base");
-  fs.writeFileSync(path.join(root, ".gitignore"), "analysis/data/\nanalysis/out/premium-previous/\n");
+  fs.writeFileSync(path.join(root, ".gitignore"), "analysis/data/\nanalysis/out/premium-previous/\nanalysis/out/premium/\n");
   fs.mkdirSync(path.join(root, "public/og/deck"), { recursive: true });
   fs.writeFileSync(path.join(root, "public/og/deck/image.png"), "old image");
   fs.mkdirSync(path.join(root, "public/data/hubs"), { recursive: true });
   fs.writeFileSync(path.join(root, "public/data/hubs/old.json"), "old hub");
+  fs.mkdirSync(path.join(root, "public/data"), { recursive: true });
+  fs.writeFileSync(path.join(root, "public/data/data-version.json"), "old version");
   fs.mkdirSync(path.join(root, "analysis/out/premium-previous/0123456789abcdef"), { recursive: true });
   fs.writeFileSync(path.join(root, "analysis/out/premium-previous/0123456789abcdef/canary"), "snapshot");
   fs.mkdirSync(path.join(root, "src/app"), { recursive: true });
@@ -28,7 +37,10 @@ const fixture = (): string => {
   return root;
 };
 
-afterEach(() => roots.splice(0).forEach((root) => fs.rmSync(root, { recursive: true, force: true })));
+afterEach(() => {
+  roots.splice(0).forEach((root) => fs.rmSync(root, { recursive: true, force: true }));
+  externalPaths.splice(0).forEach((target) => fs.rmSync(target, { recursive: true, force: true }));
+});
 
 describe("refresh output journal", () => {
   it("recovers checkpointed generated changes while preserving raw stores", () => {
@@ -51,6 +63,74 @@ describe("refresh output journal", () => {
     fs.writeFileSync(path.join(root, "analysis/src/data/limitless-decks.json"), "human");
     expect(() => recoverRefresh(root)).toThrow(/unrecorded file changes/);
     expect(fs.readFileSync(path.join(root, "analysis/src/data/limitless-decks.json"), "utf8")).toBe("human");
+  });
+
+  it.skipIf(process.platform === "win32")("rejects a symlink in the generated tree at baseline", () => {
+    const root = fixture();
+    const external = outside(root, "baseline-link.json");
+    fs.writeFileSync(external, "outside canary");
+    const target = path.join(root, "public/data/hubs/old.json");
+    fs.rmSync(target);
+    fs.symlinkSync(external, target, "file");
+    expect(() => beginRefresh(root)).toThrow(/symlink|junction/i);
+    expect(fs.readFileSync(external, "utf8")).toBe("outside canary");
+  });
+
+  it("rejects a junction ancestor at baseline", () => {
+    const root = fixture();
+    const external = outside(root, "baseline-junction");
+    fs.mkdirSync(external);
+    fs.writeFileSync(path.join(external, "old.json"), "outside canary");
+    const hubs = path.join(root, "public/data/hubs");
+    fs.rmSync(hubs, { recursive: true, force: true });
+    fs.symlinkSync(external, hubs, linkType);
+    expect(() => beginRefresh(root)).toThrow(/symlink|junction/i);
+    expect(fs.readFileSync(path.join(external, "old.json"), "utf8")).toBe("outside canary");
+  });
+
+  it.skipIf(process.platform === "win32")("rejects an output replaced by a symlink after its checkpoint", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "public/data/hubs/old.json");
+    fs.writeFileSync(target, "generated hub");
+    checkpointRefresh(root);
+    const external = outside(root, "replacement-link.json");
+    fs.writeFileSync(external, "generated hub");
+    fs.rmSync(target);
+    fs.symlinkSync(external, target, "file");
+    expect(() => recoverRefresh(root)).toThrow(/symlink|junction/i);
+    expect(fs.readFileSync(external, "utf8")).toBe("generated hub");
+  });
+
+  it("rejects an output tree replaced by a junction after its checkpoint", () => {
+    const root = fixture();
+    beginRefresh(root);
+    fs.writeFileSync(path.join(root, "public/data/data-version.json"), "generated version");
+    checkpointRefresh(root);
+    const external = outside(root, "replacement-junction");
+    fs.mkdirSync(external);
+    fs.writeFileSync(path.join(external, "data-version.json"), "generated version");
+    fs.mkdirSync(path.join(external, "hubs"));
+    fs.writeFileSync(path.join(external, "hubs/old.json"), "old hub");
+    fs.rmSync(path.join(root, "public/data"), { recursive: true, force: true });
+    fs.symlinkSync(external, path.join(root, "public/data"), linkType);
+    let recoveryError = "";
+    try { recoverRefresh(root); } catch (error) { recoveryError = String(error); }
+    expect(fs.readFileSync(path.join(external, "data-version.json"), "utf8")).toBe("generated version");
+    expect(recoveryError).toMatch(/symlink|junction|unrecorded file changes/i);
+  });
+
+  it("classifies changed ignored premium outputs as activity", () => {
+    const root = fixture();
+    const premium = path.join(root, "analysis/out/premium/best-decks-all.json");
+    fs.mkdirSync(path.dirname(premium), { recursive: true });
+    fs.writeFileSync(premium, "old premium");
+    beginRefresh(root);
+    fs.writeFileSync(premium, "new premium");
+    checkpointRefresh(root);
+    expect(classifyRefresh(root)).toContain("analysis/out/premium/best-decks-all.json");
+    recoverRefresh(root);
+    expect(fs.readFileSync(premium, "utf8")).toBe("old premium");
   });
 
   it("classifies a timestamp-only run as silent and restores the old timestamp", () => {

@@ -216,6 +216,7 @@
     "bestExpansions": "おすすめの拡張パック",
     "statistics": "統計",
     "deckFinderHeading": "ポケポケ 最強デッキ診断",
+    "cardsListHeading": "ポケポケ 最強カード ティアリスト",
     "tierListHeading": "ポケポケ ティアリスト：{{name}}（{{id}}）",
     "tierListGeneric": "ポケポケ ティアリスト"
   },

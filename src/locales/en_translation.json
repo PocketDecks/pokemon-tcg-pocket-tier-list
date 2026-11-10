@@ -216,6 +216,7 @@
     "bestExpansions": "Best Expansions",
     "statistics": "Statistics",
     "deckFinderHeading": "Pokémon TCG Pocket Best Deck Finder",
+    "cardsListHeading": "Pokémon TCG Pocket Best Cards and Card Tier List",
     "tierListHeading": "Pokémon TCG Pocket Tier List: {{name}} ({{id}})",
     "tierListGeneric": "Pokemon TCG Pocket Tier List"
   },

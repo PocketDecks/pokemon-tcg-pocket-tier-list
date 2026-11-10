@@ -2,26 +2,49 @@ import path from "node:path";
 import { vi } from "vitest";
 import { Deck } from "../utils/types";
 
-const { writeArtefacts, stageOgImages, getDecks, commit, discard, mkdirSync, PREMIUM_TEST_DIR } = vi.hoisted(() => ({
+const { writeArtefacts, stageOgImages, getDecks, withStoreLock, commit, discard, mkdirSync, PREMIUM_TEST_DIR, PREVIOUS_TEST_DIR, DECKS_TEST_DIR } = vi.hoisted(() => {
+  const base = require("node:path").join(require("node:os").tmpdir(), "get-best-decks-premium");
+  return ({
   mkdirSync: vi.fn(),
-  PREMIUM_TEST_DIR: `${require("node:os").tmpdir()}/no-such-premium-directory`,
+  PREMIUM_TEST_DIR: require("node:path").join(base, "out"),
+  PREVIOUS_TEST_DIR: require("node:path").join(base, "premium-previous"),
+  DECKS_TEST_DIR: `${require("node:os").tmpdir()}/get-best-decks-store`,
   writeArtefacts: vi.fn(),
   stageOgImages: vi.fn(),
   getDecks: vi.fn(),
+  withStoreLock: vi.fn((_dir: string, fn: () => unknown) => fn()),
   commit: vi.fn(),
   discard: vi.fn(),
-}));
+  });
+});
 
 vi.mock("../load-env-side-effect", () => ({}));
 vi.mock("node:fs", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:fs")>();
+  mkdirSync.mockImplementation((...args: Parameters<typeof actual.mkdirSync>) =>
+    actual.mkdirSync(...args)
+  );
   return { ...actual, default: { ...actual, mkdirSync }, mkdirSync };
 });
 vi.mock("../utils/premium-artefacts", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../utils/premium-artefacts")>();
-  return { ...actual, PREMIUM_DIR: PREMIUM_TEST_DIR };
+  return {
+    ...actual,
+    PREMIUM_DIR: PREMIUM_TEST_DIR,
+    previousPremiumDir: () => PREVIOUS_TEST_DIR,
+  };
+});
+vi.mock("../utils/premium-files", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../utils/premium-files")>();
+  return {
+    ...actual,
+    inspectMainPremiumVersion: vi.fn<() => MainPremiumVersionStatus>(() => ({ status: "absent" })),
+    resolveCanonicalMainRef: vi.fn(() => "refs/remotes/pocketdecks/main"),
+  };
 });
 vi.mock("../utils/write-artifacts", () => ({ writeArtefacts }));
+vi.mock("../utils/data-paths", () => ({ decksDir: () => DECKS_TEST_DIR }));
+vi.mock("../utils/store-lock", () => ({ withStoreLock }));
 vi.mock("../utils/generate-og-images", () => ({ stageOgImages }));
 vi.mock("../utils/get-decks", () => ({ default: getDecks }));
 vi.mock("../utils/assert-publishable", async (importOriginal) => {
@@ -46,10 +69,17 @@ import { UNMATCHED_DECK } from "../utils/get-deck-name";
 import { assertPublishable, daysOfDataSince, readPreviousArchetypeCount } from "../utils/assert-publishable";
 import { EXPANSION_RELEASE_DATE } from "../settings";
 import {
+  loadPremiumSnapshotForVersion,
   PREMIUM_ARTEFACT_NAMES,
   premiumVersion,
   renderDataVersion,
+  snapshotPremiumVersion,
 } from "../utils/premium-artefacts";
+import {
+  inspectMainPremiumVersion,
+  resolveCanonicalMainRef,
+  type MainPremiumVersionStatus,
+} from "../utils/premium-files";
 
 const { MOCKED_RELEASE_DATE } = vi.hoisted(() => ({
   MOCKED_RELEASE_DATE: new Date("2026-08-20T00:00:00.000Z"),
@@ -60,6 +90,26 @@ const DECK_DATE = "2026-09-23T02:00:00.000Z";
 const ARCHETYPES = 40;
 const OPPONENTS = 30;
 const names = Array.from({ length: ARCHETYPES }, (_, index) => `arch-${index}`);
+
+const premiumGeneration = (count30d: number, countAll: number, label: string) => {
+  const files = Object.fromEntries(PREMIUM_ARTEFACT_NAMES.map((name) => [name, "[]"]));
+  files["best-decks-30d"] = JSON.stringify(Array.from({ length: count30d }, (_, index) => ({ name: `${label}-30d-${index}` })));
+  files["best-decks-all"] = JSON.stringify(Array.from({ length: countAll }, (_, index) => ({ name: `${label}-all-${index}` })));
+  files["meta-share-30d"] = JSON.stringify({ generatedAt: DECK_DATE, decks: [] });
+  files["meta-share-all"] = JSON.stringify({ generatedAt: DECK_DATE, decks: [] });
+  return files;
+};
+
+const DEFAULT_BASELINE = premiumGeneration(30, 35, "default-baseline");
+const DEFAULT_VERSION = premiumVersion(DEFAULT_BASELINE);
+
+const writePremiumGeneration = (dir: string, files: Record<string, string>): void => {
+  const fs = require("node:fs") as typeof import("node:fs");
+  fs.mkdirSync(dir, { recursive: true });
+  for (const [name, content] of Object.entries(files)) {
+    fs.writeFileSync(path.join(dir, `${name}.json`), content);
+  }
+};
 
 const makeDecks = (date = DECK_DATE): Deck[] =>
   names.map((name, index) => {
@@ -87,9 +137,15 @@ const makeDecks = (date = DECK_DATE): Deck[] =>
 describe("run", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    const fs = require("node:fs") as typeof import("node:fs");
+    fs.rmSync(PREVIOUS_TEST_DIR, { recursive: true, force: true });
+    snapshotPremiumVersion(DEFAULT_BASELINE, DEFAULT_VERSION, PREMIUM_TEST_DIR);
+    vi.mocked(inspectMainPremiumVersion).mockReturnValue({ status: "found", version: DEFAULT_VERSION });
+    vi.mocked(withStoreLock).mockImplementation((_dir, fn) => fn());
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
     vi.spyOn(console, "log").mockImplementation(() => undefined);
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
     stageOgImages.mockImplementation(async (decks: { slug: string }[]) => ({
       slugs: decks.map((deck) => deck.slug),
       commit,
@@ -101,6 +157,8 @@ describe("run", () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
+    const fs = require("node:fs") as typeof import("node:fs");
+    fs.rmSync(PREVIOUS_TEST_DIR, { recursive: true, force: true });
   });
 
   it("writes every artefact together and then publishes the staged images", async () => {
@@ -126,6 +184,30 @@ describe("run", () => {
     expect(files["../src/app/last-updated.ts"]).toContain("2026-09-24T12:00:00.000Z");
     expect(commit).toHaveBeenCalledTimes(1);
     expect(discard).not.toHaveBeenCalled();
+  });
+
+  it("keeps scores and the premium version stable when only the run date changes", async () => {
+    const settings = await vi.importActual<typeof import("../settings")>("../settings");
+    const firstRun = new Date(settings.EXPANSION_RELEASE_DATE.getTime() + 24 * 60 * 60 * 1000);
+    const secondRun = new Date(firstRun.getTime() + 6 * 24 * 60 * 60 * 1000);
+    getDecks.mockReturnValue(makeDecks(firstRun.toISOString()));
+    vi.setSystemTime(firstRun);
+
+    await run();
+    const first = writeArtefacts.mock.calls[0][0] as Record<string, string>;
+    vi.setSystemTime(secondRun);
+    await run();
+    const second = writeArtefacts.mock.calls[1][0] as Record<string, string>;
+
+    expect(second["../public/data/best-decks-20d.json"]).toBe(
+      first["../public/data/best-decks-20d.json"]
+    );
+    expect(second["../public/data/card-scores.json"]).toBe(
+      first["../public/data/card-scores.json"]
+    );
+    expect(second["../public/data/data-version.json"]).toBe(
+      first["../public/data/data-version.json"]
+    );
   });
 
   it("keeps the 30d and all-time artefacts out of the public data directory", async () => {
@@ -263,6 +345,20 @@ describe("run", () => {
     expect(discard).toHaveBeenCalledTimes(1);
   });
 
+  it("keeps published images when releasing the store lock fails", async () => {
+    vi.mocked(withStoreLock).mockImplementationOnce((_dir, fn) => fn());
+    vi.mocked(withStoreLock).mockImplementationOnce((_dir, fn) => {
+      fn();
+      throw new Error("lock release failed");
+    });
+
+    await expect(run()).rejects.toThrow("lock release failed");
+
+    expect(writeArtefacts).toHaveBeenCalledTimes(1);
+    expect(commit).toHaveBeenCalledTimes(1);
+    expect(discard).not.toHaveBeenCalled();
+  });
+
   it("stops before staging when a list names a card the card database lacks", async () => {
     const decks = makeDecks();
     decks[0].cards = [{ name: "Ghost", count: 2, set: "A1", number: "9999" }];
@@ -271,6 +367,12 @@ describe("run", () => {
     await expect(run()).rejects.toThrow("Card not found in API: a1-9999");
 
     expect(stageOgImages).not.toHaveBeenCalled();
+  });
+
+  it("asks the OG writer to retain the rendered set on a failed swap", async () => {
+    await run();
+
+    expect(commit).toHaveBeenCalledWith({ retainOnFailure: true });
   });
 
   it("says the JSON is published when the image swap fails after the write", async () => {
@@ -282,6 +384,7 @@ describe("run", () => {
       "The JSON artefacts are published but the OG images are not: rename failed"
     );
     expect(writeArtefacts).toHaveBeenCalledTimes(1);
+    expect(discard).not.toHaveBeenCalled();
   });
 
   it("refuses a run whose unmatched bucket passes the share limit", async () => {
@@ -303,39 +406,135 @@ describe("run", () => {
     expect(discard).toHaveBeenCalledTimes(1);
   });
 
-  it("reads each window's previous count against the current release", async () => {
+  it("reads each window's previous count against the current release and the premium baseline", async () => {
     await run();
 
-    expect(vi.mocked(readPreviousArchetypeCount).mock.calls).toEqual(
-      ["10d", "20d", "30d", "all"].map((window) => {
-        const locate = (file: string) =>
-          ["30d", "all"].includes(window)
-            ? path.join(PREMIUM_TEST_DIR, file)
-            : `../public/data/${file}`;
-        return [
-          locate(`best-decks-${window}.json`),
-          locate(`meta-share-${window}.json`),
-          EXPANSION_RELEASE_DATE,
-        ];
-      })
-    );
+    const baseline = path.join(PREVIOUS_TEST_DIR, DEFAULT_VERSION);
+    expect(vi.mocked(readPreviousArchetypeCount).mock.calls).toEqual([
+      ...["10d", "20d"].map((window) => [
+        `../public/data/best-decks-${window}.json`,
+        `../public/data/meta-share-${window}.json`,
+        EXPANSION_RELEASE_DATE,
+      ]),
+      ...["30d", "all"].map((window) => [
+        path.join(baseline, `best-decks-${window}.json`),
+        path.join(baseline, `meta-share-${window}.json`),
+        EXPANSION_RELEASE_DATE,
+      ]),
+    ]);
   });
 
-  it("treats a premium window with no previous premium file as a first run", async () => {
+  it("treats a premium window with no previous archetype count as a first run", async () => {
+    await expect(run()).resolves.toBeUndefined();
+
+    const windows = vi.mocked(assertPublishable).mock.calls[0][0].windows;
+    expect(windows.filter((window) => ["30d", "all"].includes(window.id)).map((window) => window.previousArchetypeCount)).toEqual([null, null]);
+    expect(writeArtefacts).toHaveBeenCalledTimes(1);
+  });
+
+  it("compares premium windows against the complete main snapshot", async () => {
     const actual = await vi.importActual<typeof import("../utils/assert-publishable")>(
       "../utils/assert-publishable"
     );
+    const fs = await vi.importActual<typeof import("node:fs")>("node:fs");
+    fs.rmSync(PREVIOUS_TEST_DIR, { recursive: true, force: true });
+    const main = premiumGeneration(30, 35, "main");
+    const version = premiumVersion(main);
+    snapshotPremiumVersion(main, version, PREMIUM_TEST_DIR);
+    vi.mocked(inspectMainPremiumVersion).mockReturnValue({ status: "found", version });
     const reader = vi.mocked(readPreviousArchetypeCount);
-    for (let call = 0; call < 4; call += 1) {
-      reader.mockImplementationOnce((best, meta, release) =>
-        best.startsWith(PREMIUM_TEST_DIR) ? actual.readPreviousArchetypeCount(best, meta, release) : null
-      );
+    reader.mockImplementation((best, meta, release) =>
+      best.startsWith(PREVIOUS_TEST_DIR)
+        ? actual.readPreviousArchetypeCount(best, meta, release)
+        : null
+    );
+
+    try {
+      await expect(run()).resolves.toBeUndefined();
+    } finally {
+      reader.mockImplementation(() => null);
+      fs.rmSync(PREVIOUS_TEST_DIR, { recursive: true, force: true });
     }
 
-    await expect(run()).resolves.toBeUndefined();
+    const windows = vi.mocked(assertPublishable).mock.calls[0][0].windows;
+    expect(windows.find((window) => window.id === "30d")?.previousArchetypeCount).toBe(30);
+    expect(windows.find((window) => window.id === "all")?.previousArchetypeCount).toBe(35);
+  });
 
-    expect(reader.mock.results.map((result) => result.value)).toEqual([null, null, null, null]);
+  it("uses the fetched main snapshot instead of the divergent local premium generation", async () => {
+    const actual = await vi.importActual<typeof import("../utils/assert-publishable")>("../utils/assert-publishable");
+    const fs = await vi.importActual<typeof import("node:fs")>("node:fs");
+    fs.rmSync(PREVIOUS_TEST_DIR, { recursive: true, force: true });
+    fs.rmSync(PREMIUM_TEST_DIR, { recursive: true, force: true });
+    const main = premiumGeneration(31, 34, "main");
+    const local = premiumGeneration(8, 9, "local");
+    const mainVersion = premiumVersion(main);
+    const localVersion = premiumVersion(local);
+      expect(localVersion).not.toBe(mainVersion);
+    writePremiumGeneration(PREMIUM_TEST_DIR, local);
+    writePremiumGeneration(PREVIOUS_TEST_DIR, local);
+    snapshotPremiumVersion(main, mainVersion, PREMIUM_TEST_DIR);
+    vi.mocked(inspectMainPremiumVersion).mockReturnValue({ status: "found", version: mainVersion });
+    vi.mocked(readPreviousArchetypeCount).mockImplementation((best, meta, release) =>
+      best.startsWith(PREVIOUS_TEST_DIR) ? actual.readPreviousArchetypeCount(best, meta, release) : 17
+    );
+
+    try {
+      await expect(run()).resolves.toBeUndefined();
+    } finally {
+      vi.mocked(readPreviousArchetypeCount).mockImplementation(() => null);
+      fs.rmSync(PREVIOUS_TEST_DIR, { recursive: true, force: true });
+      fs.rmSync(PREMIUM_TEST_DIR, { recursive: true, force: true });
+    }
+
+    const windows = vi.mocked(assertPublishable).mock.calls[0][0].windows;
+    expect(windows.find((window) => window.id === "30d")?.previousArchetypeCount).toBe(31);
+    expect(windows.find((window) => window.id === "all")?.previousArchetypeCount).toBe(34);
+    expect(windows.filter((window) => ["10d", "20d"].includes(window.id)).map((window) => window.previousArchetypeCount)).toEqual([17, 17]);
+  });
+
+  it("treats a missing local snapshot as a first publish instead of refusing", async () => {
+    const fs = await vi.importActual<typeof import("node:fs")>("node:fs");
+    fs.rmSync(PREVIOUS_TEST_DIR, { recursive: true, force: true });
+    fs.rmSync(PREMIUM_TEST_DIR, { recursive: true, force: true });
+    const local = premiumGeneration(8, 9, "local");
+    writePremiumGeneration(PREMIUM_TEST_DIR, local);
+    writePremiumGeneration(PREVIOUS_TEST_DIR, local);
+    vi.mocked(inspectMainPremiumVersion).mockReturnValue({ status: "found", version: "0123456789abcdef" });
+
+    try {
+      await expect(run()).resolves.toBeUndefined();
+    } finally {
+      fs.rmSync(PREVIOUS_TEST_DIR, { recursive: true, force: true });
+      fs.rmSync(PREMIUM_TEST_DIR, { recursive: true, force: true });
+    }
+
+    const windows = vi.mocked(assertPublishable).mock.calls[0][0].windows;
+    expect(windows.filter((window) => ["30d", "all"].includes(window.id)).map((window) => window.previousArchetypeCount)).toEqual([null, null]);
     expect(writeArtefacts).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses when the canonical main remote cannot be resolved", async () => {
+    vi.mocked(resolveCanonicalMainRef).mockReturnValueOnce(undefined);
+
+    const failure = (await run().catch((error: Error) => error)) as Error;
+    expect(failure).toBeInstanceOf(Error);
+    expect(failure.message).toMatch(/cannot resolve the canonical main remote/);
+    expect(failure.message).not.toMatch(/--previous-ref/);
+    expect(writeArtefacts).not.toHaveBeenCalled();
+    expect(discard).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses an unreadable canonical main version", async () => {
+    vi.mocked(inspectMainPremiumVersion).mockReturnValue({
+      status: "unreadable",
+      reason: "exit status 128",
+    });
+
+    const failure = (await run().catch((error: Error) => error)) as Error;
+    expect(failure.message).toMatch(/refusing to publish against an unreadable baseline/);
+    expect(writeArtefacts).not.toHaveBeenCalled();
+    expect(discard).toHaveBeenCalledTimes(1);
   });
 
   it("passes the days of data since the release to the gate", async () => {
@@ -344,5 +543,26 @@ describe("run", () => {
     expect(vi.mocked(assertPublishable).mock.calls[0][0].daysOfData).toBe(
       daysOfDataSince(DECK_DATE, MOCKED_RELEASE_DATE)
     );
+  });
+
+  it("uses the newest deck for the ramp and the newest qualified deck for freshness", async () => {
+    const newestUnqualified = {
+      ...makeDecks()[0],
+      id: "newest-unqualified",
+      date: "2026-09-24T00:00:00.000Z",
+      winCount: 0,
+      lossCount: 30,
+      wins: [],
+      losses: [],
+    };
+    getDecks.mockReturnValue([...makeDecks(), newestUnqualified]);
+
+    await run();
+
+    const input = vi.mocked(assertPublishable).mock.calls[0][0];
+    expect(input.daysOfData).toBe(
+      daysOfDataSince(newestUnqualified.date, MOCKED_RELEASE_DATE)
+    );
+    expect(input.newestDeckDate).toBe(DECK_DATE);
   });
 });

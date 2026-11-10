@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -6,8 +7,12 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import {
   assertVersionMatches,
+  inspectMainPremiumVersion,
+  inspectPremiumVersionAtRef,
   loadPremiumFiles,
+  premiumVersionOf,
   readCommittedVersion,
+  readPremiumVersionAtRef,
   readProjectId,
 } from "../utils/premium-files";
 import {
@@ -76,6 +81,135 @@ describe("readCommittedVersion", () => {
     fs.writeFileSync(file, '{ "premium": "nope" }\n');
 
     expect(() => readCommittedVersion(file)).toThrow(/premium/);
+  });
+});
+
+describe("readPremiumVersionAtRef", () => {
+  const makeRepo = (): { dir: string; git: (...args: string[]) => string } => {
+    const dir = tmp();
+    const git = (...args: string[]) => execFileSync(
+      "git",
+      ["-c", "user.name=test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false", ...args],
+      { cwd: dir, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }
+    );
+    git("init", "-q");
+    git("remote", "add", "origin", "https://github.com/chase-mew/pokemon-tcg-pocket-tier-list.git");
+    git("remote", "add", "pocketdecks", "https://github.com/PocketDecks/pokemon-tcg-pocket-tier-list.git");
+    return { dir, git };
+  };
+
+  const commitVersion = (dir: string, git: (...args: string[]) => string, version: string): void => {
+    fs.mkdirSync(path.join(dir, "public", "data"), { recursive: true });
+    fs.writeFileSync(path.join(dir, "public", "data", "data-version.json"), renderDataVersion(version));
+    git("add", "-A");
+    git("commit", "-q", "-m", `version ${version}`);
+  };
+
+  it("uses the remote whose URL is the canonical repository", () => {
+    const { dir, git } = makeRepo();
+    commitVersion(dir, git, "aaaaaaaaaaaaaaaa");
+    git("update-ref", "refs/remotes/origin/main", "HEAD");
+    commitVersion(dir, git, "bbbbbbbbbbbbbbbb");
+    git("update-ref", "refs/remotes/pocketdecks/main", "HEAD");
+
+    expect(readPremiumVersionAtRef(dir)).toBe("bbbbbbbbbbbbbbbb");
+    expect(readPremiumVersionAtRef(dir, "origin/main")).toBe("aaaaaaaaaaaaaaaa");
+  });
+
+  it("uses the canonical tracking ref when a local tag shadows main", () => {
+    const { dir, git } = makeRepo();
+    commitVersion(dir, git, "aaaaaaaaaaaaaaaa");
+    git("update-ref", "refs/remotes/pocketdecks/main", "HEAD");
+    commitVersion(dir, git, "bbbbbbbbbbbbbbbb");
+    git("branch", "pocketdecks/main");
+
+    expect(readPremiumVersionAtRef(dir)).toBe("aaaaaaaaaaaaaaaa");
+    expect(readPremiumVersionAtRef(dir, "pocketdecks/main")).toBe("bbbbbbbbbbbbbbbb");
+  });
+
+  it("does not choose a canonical baseline when matching remote URLs are ambiguous", () => {
+    const { dir, git } = makeRepo();
+    commitVersion(dir, git, "aaaaaaaaaaaaaaaa");
+    git("update-ref", "refs/remotes/origin/main", "HEAD");
+    git("remote", "add", "upstream-copy", "https://github.com/PocketDecks/pokemon-tcg-pocket-tier-list.git");
+
+    expect(readPremiumVersionAtRef(dir)).toBeUndefined();
+  });
+});
+
+describe("inspectMainPremiumVersion", () => {
+  const showVersion = (version: string | null) => {
+    const content = version === null ? "{}" : renderDataVersion(version);
+    return (args: string[], _cwd: string): string => {
+      if (args[0] === "ls-tree") return "public/data/data-version.json\n";
+      return content;
+    };
+  };
+  const throwingGit = (): string => {
+    throw new Error("exit status 128");
+  };
+
+  it("reports the committed version as found", () => {
+    expect(
+      inspectMainPremiumVersion("/repo", "refs/remotes/pocketdecks/main", showVersion("0123456789abcdef"))
+    ).toEqual({ status: "found", version: "0123456789abcdef" });
+  });
+
+  it("reports an unreadable version when the committed file has no valid premium field", () => {
+    expect(
+      inspectMainPremiumVersion("/repo", "refs/remotes/pocketdecks/main", showVersion(null))
+    ).toEqual({ status: "unreadable", reason: "public/data/data-version.json has no valid premium version" });
+  });
+
+  it("reports absent when the committed version file is missing", () => {
+    const git = (args: string[]): string => args[0] === "ls-tree" ? "" : "{}";
+
+    expect(inspectMainPremiumVersion("/repo", "refs/remotes/pocketdecks/main", git)).toEqual({ status: "absent" });
+  });
+
+  it("reports unreadable when git fails", () => {
+    expect(
+      inspectMainPremiumVersion("/repo", "refs/remotes/pocketdecks/main", throwingGit)
+    ).toEqual({ status: "unreadable", reason: "exit status 128" });
+  });
+
+  it("reports absent when no canonical remote resolves", () => {
+    expect(
+      inspectMainPremiumVersion("/repo", undefined, showVersion("0123456789abcdef"))
+    ).toEqual({ status: "absent" });
+  });
+});
+
+describe("inspectPremiumVersionAtRef", () => {
+  it("throws when git cannot list the version file", () => {
+    expect(() => inspectPremiumVersionAtRef("/repo", "refs/remotes/pocketdecks/automated/a", () => {
+      throw new Error("exit status 128");
+    })).toThrow("exit status 128");
+  });
+
+  it("reports unreadable, not thrown, when the version file is not valid JSON", () => {
+    const git = (args: string[]): string => args[0] === "ls-tree" ? "public/data/data-version.json\n" : "{";
+
+    expect(inspectPremiumVersionAtRef("/repo", "refs/remotes/pocketdecks/automated/a", git)).toEqual({
+      status: "unreadable",
+      reason: expect.any(String),
+    });
+  });
+});
+
+describe("premiumVersionOf", () => {
+  it("returns a sixteen character lowercase hex version", () => {
+    expect(premiumVersionOf({ premium: "0123456789abcdef" })).toBe("0123456789abcdef");
+  });
+
+  it.each([
+    ["null", null],
+    ["a missing field", {}],
+    ["an uppercase version", { premium: "0123456789ABCDEF" }],
+    ["a short version", { premium: "0123" }],
+    ["a non-string version", { premium: 1234567890123456 }],
+  ])("rejects %s", (_name, value) => {
+    expect(premiumVersionOf(value)).toBeUndefined();
   });
 });
 

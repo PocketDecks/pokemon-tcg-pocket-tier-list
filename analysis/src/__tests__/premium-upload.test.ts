@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   PREMIUM_ARTEFACT_NAMES,
+  premiumVersion,
   sha256Hex,
 } from "../utils/premium-artefacts";
 import { checkPremiumVersion, type PremiumSnapshot } from "../utils/premium-verify";
@@ -83,7 +84,7 @@ describe("planPremiumUpload", () => {
 const completeSnapshot = (): PremiumSnapshot => {
   const payloads = files();
   return {
-    version: "abc",
+    version: premiumVersion(files()),
     versionDocument: {
       artefacts: Object.fromEntries(
         Object.entries(payloads).map(([name, payload]) => [name, sha256Hex(payload)])
@@ -105,8 +106,10 @@ describe("checkPremiumVersion", () => {
 
   it("fails on a missing version document", () => {
     const snapshot = { ...completeSnapshot(), versionDocument: null };
+    snapshot.artefacts["meta-share-all"] = null;
 
-    expect(checkPremiumVersion(snapshot)).toEqual(["version abc is missing"]);
+    expect(checkPremiumVersion(snapshot)).toContain(`version ${completeSnapshot().version} is missing`);
+    expect(checkPremiumVersion(snapshot)).toContain("artefact meta-share-all is missing");
   });
 
   it("fails on a missing artefact", () => {
@@ -123,7 +126,8 @@ describe("checkPremiumVersion", () => {
       sha256: sha256Hex('{"name":"best-decks-all"}'),
     };
 
-    expect(checkPremiumVersion(snapshot)).toEqual(["artefact best-decks-all hash mismatch"]);
+    const problems = checkPremiumVersion(snapshot);
+    expect(problems).toContain("artefact best-decks-all hash mismatch");
   });
 
   it("fails when the version document lists a different hash from the artefact", () => {
@@ -133,5 +137,36 @@ describe("checkPremiumVersion", () => {
     };
 
     expect(checkPremiumVersion(snapshot)).toEqual(["artefact best-decks-30d hash mismatch"]);
+  });
+});
+
+describe("checkPremiumVersion version recompute", () => {
+  it("fails when the version does not match the payloads", () => {
+    const snapshot = completeSnapshot();
+    const expected = premiumVersion(files());
+
+    expect(checkPremiumVersion(snapshot)).toEqual([]);
+    const renamed = { ...snapshot, version: expected };
+    expect(checkPremiumVersion(renamed)).toEqual([]);
+    const mislabelled = { ...snapshot, version: "0000000000000000" };
+    expect(checkPremiumVersion(mislabelled)).toContain(
+      "version 0000000000000000 does not match the artefacts"
+    );
+  });
+});
+
+describe("planPremiumUpload live-version protection", () => {
+  it("never deletes the version main already points at", () => {
+    const existing = [
+      ...versions(7),
+      { version: "live-not-newest", createdAt: 500 },
+    ].map((entry) => ({ ...entry }));
+    const plan = planPremiumUpload({
+      files: files(),
+      version: "new",
+      existing,
+      protectedVersions: ["live-not-newest"],
+    });
+    expect(plan.deleteVersions).not.toContain("live-not-newest");
   });
 });

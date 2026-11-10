@@ -50,6 +50,36 @@ const PERMITTED_CROSSINGS: Record<string, { specifier: string; reason: string }>
       "test calls the script against a fixture data directory. The script is " +
       "a script by convention, not by dependency direction.",
   },
+  "src/__tests__/premium-entrypoints.test.ts": {
+    specifier: "../../scripts/publish-premium",
+    reason:
+      "the publish script is the entry point the refresh job runs, so the " +
+      "entry-point test must call it with an injected database. The script " +
+      "is a script by convention, not by dependency direction.",
+  },
+  "src/__tests__/premium-retention.test.ts": {
+    specifier: "../../scripts/publish-premium",
+    reason:
+      "retention discovery feeds the publisher, so HTTP and Git fakes must " +
+      "exercise that script boundary.",
+  },
+  "src/__tests__/verify-premium-entrypoint.test.ts": {
+    specifier: "../../scripts/verify-premium",
+    reason:
+      "the verify script is the entry point the refresh job runs, so the " +
+      "entry-point test must call it with an injected database. The script " +
+      "is a script by convention, not by dependency direction.",
+  },
+  "src/__tests__/refresh-job-lists.test.ts": {
+    specifier: "../../scripts/refresh-outputs",
+    reason:
+      "the job contract must match the output allowlist used by recovery and staging. The script is a script by convention, not by dependency direction.",
+  },
+  "src/__tests__/refresh-outputs.test.ts": {
+    specifier: "../../scripts/refresh-outputs",
+    reason:
+      "the recovery and staging behaviour must be exercised against temporary Git repositories. The script is a script by convention, not by dependency direction.",
+  },
 };
 
 describe("analysis/src/ import layering", () => {

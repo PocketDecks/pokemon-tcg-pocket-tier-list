@@ -3,6 +3,7 @@ import path from "node:path";
 import { deckSlug } from "./deck-slug.mjs";
 import { loadPremiumDeckSlugs } from "./premium-deck-slugs.mjs";
 import { writeFileAtomic } from "./atomic-write.mjs";
+import { isMainModule } from "./is-main-module.mjs";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -59,8 +60,8 @@ const main = () => {
     }
     return;
   }
-  writeFileAtomic(CONFIG_FILE, output);
+  writeFileAtomic(CONFIG_FILE, output, { refreshRecovery: true });
   console.log(`Wrote ${rules.length} archived deck redirects to ${CONFIG_FILE}`);
 };
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) main();
+if (isMainModule(import.meta.url)) main();

@@ -18,15 +18,13 @@ const makeDeck = (overrides: Partial<Deck>): Deck => ({
   ...overrides,
 });
 
-const NOW = new Date("2026-10-12T12:00:00.000Z");
-
 describe("buildTrends", () => {
   it("percentages for a given day sum to <=100 and are 0 for absent decks", () => {
     const qualifiedDecks: Deck[] = [
       makeDeck({ name: "Deck A", date: "2024-01-01T00:00:00.000Z", totalGames: 30 }),
       makeDeck({ name: "Deck B", date: "2024-01-01T00:00:00.000Z", totalGames: 20 }),
     ];
-    const trends = buildTrends(qualifiedDecks, ["Deck A", "Deck B"], NOW);
+    const trends = buildTrends(qualifiedDecks, ["Deck A", "Deck B"]);
 
     expect(trends).toHaveLength(1);
     const day = trends[0];
@@ -40,7 +38,7 @@ describe("buildTrends", () => {
       makeDeck({ name: "Deck A", date: "2024-02-01T00:00:00.000Z", totalGames: 0 }),
     ];
 
-    const trends = buildTrends(qualifiedDecks, ["Deck A"], NOW);
+    const trends = buildTrends(qualifiedDecks, ["Deck A"]);
 
     expect(trends[0]["Deck A"]).toBe(0);
     expect(Number.isNaN(trends[0]["Deck A"])).toBe(false);
@@ -52,21 +50,33 @@ describe("buildTrends", () => {
       makeDeck({ name: "Deck A", date: "2024-05-01T00:00:00.000Z", totalGames: 10 }),
     ];
 
-    const trends = buildTrends(qualifiedDecks, ["Deck A"], NOW);
+    const trends = buildTrends(qualifiedDecks, ["Deck A"]);
 
     expect(trends.map((t) => t.date)).toEqual(["2024-05-01", "2024-05-02"]);
   });
 
-  it("excludes the current UTC date", () => {
+  it("includes the run's own UTC data day so the next run can stay silent", () => {
     const trends = buildTrends(
       [
         makeDeck({ name: "Deck A", date: "2026-10-12T00:00:00.000Z", totalGames: 10 }),
         makeDeck({ name: "Deck A", date: "2024-01-01T00:00:00.000Z", totalGames: 10 }),
       ],
-      ["Deck A"],
-      NOW
+      ["Deck A"]
     );
 
-    expect(trends.map((trend) => trend.date)).toEqual(["2024-01-01"]);
+    expect(trends.map((trend) => trend.date)).toEqual(["2024-01-01", "2026-10-12"]);
+    expect(trends[1]["Deck A"]).toBeCloseTo(100);
+  });
+
+  it("includes data days after the run clock", () => {
+    const trends = buildTrends(
+      [
+        makeDeck({ name: "Deck A", date: "2026-10-13T00:00:00.000Z", totalGames: 10 }),
+        makeDeck({ name: "Deck A", date: "2024-01-01T00:00:00.000Z", totalGames: 10 }),
+      ],
+      ["Deck A"]
+    );
+
+    expect(trends.map((trend) => trend.date)).toEqual(["2024-01-01", "2026-10-13"]);
   });
 });

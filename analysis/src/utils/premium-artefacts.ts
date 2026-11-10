@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import fs from "node:fs";
 import path from "node:path";
 
 import { freeDeckNames } from "../../../src/app/free-tier";
@@ -29,6 +30,9 @@ export const PREMIUM_ARTEFACT_NAMES: readonly string[] = [
 ];
 
 export const PREMIUM_DIR = path.resolve(__dirname, "../../out/premium");
+
+export const previousPremiumDir = (dir: string = PREMIUM_DIR): string =>
+  path.join(path.dirname(dir), "premium-previous");
 
 export const PUBLIC_DATA_PREFIX = "../public/data/";
 
@@ -98,6 +102,86 @@ export const premiumVersion = (premiumFiles: Record<string, string>): string => 
     hash.update("\n");
   }
   return hash.digest("hex").slice(0, 16);
+};
+
+export const premiumVersionSnapshotDir = (version: string, dir: string = PREMIUM_DIR): string =>
+  path.join(previousPremiumDir(dir), version);
+
+export const snapshotPremiumVersion = (
+  premiumFiles: Record<string, string>,
+  version: string,
+  dir: string = PREMIUM_DIR
+): void => {
+  if (premiumVersion(premiumFiles) !== version) throw new Error("premium snapshot version does not match its files");
+  const target = premiumVersionSnapshotDir(version, dir);
+  fs.mkdirSync(target, { recursive: true });
+  for (const name of PREMIUM_ARTEFACT_NAMES) {
+    fs.writeFileSync(path.join(target, `${name}.json`), premiumFiles[name]);
+  }
+};
+
+export const readPremiumVersionSnapshot = (
+  version: string,
+  dir: string = PREMIUM_DIR
+): Record<string, string> | undefined => {
+  const target = premiumVersionSnapshotDir(version, dir);
+  try {
+    const files = Object.fromEntries(PREMIUM_ARTEFACT_NAMES.map((name) => [
+      name,
+      fs.readFileSync(path.join(target, `${name}.json`), "utf8"),
+    ]));
+    return premiumVersion(files) === version ? files : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+export const loadPremiumSnapshotForVersion = (
+  version: string,
+  dir: string = PREMIUM_DIR
+): Record<string, string> | undefined => readPremiumVersionSnapshot(version, dir);
+
+export const prunePremiumSnapshots = (
+  protectedVersions: readonly string[],
+  dir: string = PREMIUM_DIR
+): void => {
+  const cache = previousPremiumDir(dir);
+  let entries: fs.Dirent[];
+  const rootPath = path.resolve(cache);
+  for (let current = rootPath; ; current = path.dirname(current)) {
+    try {
+      const detail = fs.lstatSync(current);
+      if (detail.isSymbolicLink()) return;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+      throw new Error(`cannot inspect snapshot cache path ${current}: ${String(error)}`);
+    }
+    if (path.dirname(current) === current) break;
+  }
+  try {
+    const root = fs.lstatSync(cache);
+    if (!root.isDirectory()) throw new Error(`snapshot cache is not a directory: ${cache}`);
+    entries = fs.readdirSync(cache, { withFileTypes: true });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+    throw new Error(`cannot list snapshot cache ${cache}: ${String(error)}`);
+  }
+  const protectedSet = new Set(protectedVersions);
+  for (const entry of entries) {
+    if (!entry.isDirectory() || entry.isSymbolicLink() || !/^[0-9a-f]{16}$/.test(entry.name) || protectedSet.has(entry.name)) {
+      continue;
+    }
+    const target = path.resolve(rootPath, entry.name);
+    try {
+      const details = fs.lstatSync(target);
+      if (details.isDirectory() && !details.isSymbolicLink()) {
+        fs.rmSync(target, { recursive: true, force: true });
+      }
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code !== "ENOENT") throw new Error(`cannot remove snapshot ${target}: ${String(error)}`);
+    }
+  }
 };
 
 export const renderDataVersion = (version: string): string =>

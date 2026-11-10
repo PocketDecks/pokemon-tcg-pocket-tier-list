@@ -1,7 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { MIN_PUBLISHED_ARCHETYPES } from "../settings";
+import {
+  EXPANSION_RELEASE_DATE,
+  FLOOR_RAMP_DAYS,
+  MIN_PUBLISHED_ARCHETYPES,
+  MIN_PREVIOUS_ARCHETYPE_RATIO,
+} from "../settings";
+import {
+  daysOfDataSince,
+  rampedFloor,
+  readPreviousArchetypeCount,
+} from "./assert-publishable";
 import { PREMIUM_WINDOWS } from "./premium-artefacts";
 
 export const REFRESH_WINDOWS = ["10d", "20d", "30d", "all"] as const;
@@ -16,6 +26,7 @@ export interface WindowReport {
 
 export interface RefreshReport {
   windows: WindowReport[];
+  notCompared: RefreshWindow[];
   union: number;
   images: number;
   missingImages: string[];
@@ -43,18 +54,56 @@ const readPreviousCount = (
   ) {
     return null;
   }
-  return readDecks(previousDir, window).length;
+  const bestDecksFile = path.join(previousDir, `best-decks-${window}.json`);
+  if (!fs.existsSync(bestDecksFile)) throw new Error(`missing ${bestDecksFile}`);
+  return readPreviousArchetypeCount(
+    bestDecksFile,
+    path.join(previousDir, `meta-share-${window}.json`),
+    EXPANSION_RELEASE_DATE
+  );
+};
+
+const readNewestDeckDate = (dataDir: string, premiumDir: string): string | null => {
+  const metaFiles = [
+    path.join(dataDir, "meta-share-10d.json"),
+    path.join(premiumDir, "meta-share-30d.json"),
+    path.join(premiumDir, "meta-share-all.json"),
+  ];
+  const dates = metaFiles
+    .filter((file) => fs.existsSync(file))
+    .map((file) => {
+      const value = (JSON.parse(fs.readFileSync(file, "utf8")) as { generatedAt?: unknown }).generatedAt;
+      if (typeof value !== "string") throw new Error(`missing generatedAt in ${file}`);
+      return value;
+    })
+    .sort();
+  return dates.length > 0 ? dates[dates.length - 1].slice(0, 10) : null;
+};
+
+const readLegacyTrendDate = (dataDir: string): string | null => {
+  const file = path.join(dataDir, "historical-trends.json");
+  if (!fs.existsSync(file)) return null;
+  const rows = JSON.parse(fs.readFileSync(file, "utf8")) as { date?: unknown }[];
+  const dates = rows
+    .map((row) => (typeof row.date === "string" ? row.date : null))
+    .filter((date): date is string => date !== null)
+    .sort();
+  if (dates.length === 0) return null;
+  return dates[dates.length - 1].slice(0, 10);
 };
 
 export const validateRefresh = (
   dataDir: string,
   imagesDir: string,
   previousDir: string | null,
-  premiumDir: string
+  premiumDir: string,
+  previousRatio: number = MIN_PREVIOUS_ARCHETYPE_RATIO
 ): RefreshReport => {
   const failures: string[] = [];
   const windows: WindowReport[] = [];
   const union = new Set<string>();
+  const newestDeckDate = readNewestDeckDate(dataDir, premiumDir) ?? readLegacyTrendDate(dataDir);
+  const daysOfData = newestDeckDate === null ? null : daysOfDataSince(newestDeckDate, EXPANSION_RELEASE_DATE);
 
   for (const window of REFRESH_WINDOWS) {
     const decks = readDecks(isPremiumWindow(window) ? premiumDir : dataDir, window);
@@ -62,15 +111,17 @@ export const validateRefresh = (
 
     const previous = readPreviousCount(previousDir, window);
 
-    const floor = Math.max(
-      MIN_PUBLISHED_ARCHETYPES[window],
-      previous === null ? 0 : Math.ceil(previous / 2)
-    );
+    const configuredFloor =
+      daysOfData === null
+        ? MIN_PUBLISHED_ARCHETYPES[window]
+        : rampedFloor(MIN_PUBLISHED_ARCHETYPES[window], daysOfData, FLOOR_RAMP_DAYS[window]);
+    const previousFloor = previous === null ? 0 : Math.ceil(previous * previousRatio);
+    const floor = Math.max(configuredFloor, previousFloor);
     windows.push({ window, archetypes: decks.length, floor, previous });
     if (decks.length < floor) {
       failures.push(
         `${window}: ${decks.length} archetypes, floor ${floor}` +
-          (previous === null ? "" : ` (half of ${previous})`)
+          (previous === null ? "" : ` (${previousRatio * 100}% of ${previous})`)
       );
     }
   }
@@ -104,6 +155,7 @@ export const validateRefresh = (
 
   return {
     windows,
+    notCompared: windows.filter((row) => row.previous === null).map((row) => row.window),
     union: union.size,
     images: images.length,
     missingImages,

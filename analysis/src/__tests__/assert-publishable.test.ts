@@ -11,6 +11,7 @@ import {
   readPreviousArchetypeCount,
   daysOfDataSince,
   WindowSnapshot,
+  windowsWithoutComparison,
 } from "../utils/assert-publishable";
 
 const makeArchetype = (name: string, powerScore: number | null): PipelinePartialDeck => ({
@@ -345,5 +346,21 @@ describe("daysOfDataSince", () => {
 
   it("is zero with no dated deck", () => {
     expect(daysOfDataSince(null, release)).toBe(0);
+  });
+});
+
+describe("windowsWithoutComparison", () => {
+  it("names every window whose previous count is missing", () => {
+    expect(
+      windowsWithoutComparison([
+        snapshot("20d", 49, 40, 48),
+        snapshot("30d", 60, 50, null),
+        snapshot("all", 60, 50, null),
+      ])
+    ).toEqual(["30d", "all"]);
+  });
+
+  it("stays empty when every window has a previous count", () => {
+    expect(windowsWithoutComparison([snapshot("20d", 49, 40, 48)])).toEqual([]);
   });
 });

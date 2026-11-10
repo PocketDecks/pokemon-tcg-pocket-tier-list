@@ -173,6 +173,20 @@ describe("stageOgImages", () => {
     expect(stagingDirs()).toEqual([]);
   });
 
+  it("keeps the rendered set when the caller retains it on a failed swap", async () => {
+    fs.mkdirSync(outputDir, { recursive: true });
+    const staged = await stageOgImages([
+      { slug: "deck-a", name: "Charizard ex", iconUrls: [fixtureUrl] },
+    ]);
+    fs.mkdirSync(`${outputDir}.previous`);
+
+    expect(() => staged.commit({ retainOnFailure: true })).toThrow("a previous image directory is still at");
+    expect(staged.staging).toContain(`${path.basename(outputDir)}-stage-`);
+    expect(stagingDirs()).toHaveLength(1);
+    staged.discard();
+    expect(stagingDirs()).toEqual([]);
+  });
+
   it("restores the previous image set when the staging rename fails", async () => {
     fs.mkdirSync(outputDir, { recursive: true });
     fs.writeFileSync(path.join(outputDir, "keep.png"), "old");

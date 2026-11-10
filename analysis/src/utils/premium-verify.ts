@@ -1,4 +1,4 @@
-import { PREMIUM_ARTEFACT_NAMES, sha256Hex } from "./premium-artefacts";
+import { PREMIUM_ARTEFACT_NAMES, premiumVersion, sha256Hex } from "./premium-artefacts";
 
 export interface PremiumSnapshot {
   version: string;
@@ -10,11 +10,19 @@ export const checkPremiumVersion = (
   snapshot: PremiumSnapshot,
   expectedNames: readonly string[] = PREMIUM_ARTEFACT_NAMES
 ): string[] => {
-  if (snapshot.versionDocument === null) {
-    return [`version ${snapshot.version} is missing`];
-  }
+  const problems: string[] = snapshot.versionDocument === null ? [`version ${snapshot.version} is missing`] : [];
 
-  const problems: string[] = [];
+  const payloads: Record<string, string> = {};
+  for (const name of expectedNames) {
+    const stored = snapshot.artefacts[name];
+    if (stored) payloads[name] = stored.payload;
+  }
+  if (Object.keys(payloads).length === expectedNames.length) {
+    const recomputed = premiumVersion(payloads);
+    if (recomputed !== snapshot.version) {
+      problems.push(`version ${snapshot.version} does not match the artefacts`);
+    }
+  }
   for (const name of expectedNames) {
     const stored = snapshot.artefacts[name];
     if (!stored) {
@@ -22,7 +30,7 @@ export const checkPremiumVersion = (
       continue;
     }
     const actual = sha256Hex(stored.payload);
-    if (actual !== stored.sha256 || actual !== snapshot.versionDocument.artefacts[name]) {
+    if (actual !== stored.sha256 || (snapshot.versionDocument !== null && actual !== snapshot.versionDocument.artefacts[name])) {
       problems.push(`artefact ${name} hash mismatch`);
     }
   }

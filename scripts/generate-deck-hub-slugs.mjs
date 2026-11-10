@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { isMainModule } from "./is-main-module.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const ARCHIVE_FILE = path.join(ROOT, "public", "data", "deck-archive.json");
@@ -25,4 +26,4 @@ const main = () => {
   console.log(`generate-deck-hub-slugs: wrote ${archive.length > 0 ? new Set(archive.map((entry) => entry.hub)).size : 0} hub slugs`);
 };
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) main();
+if (isMainModule(import.meta.url)) main();

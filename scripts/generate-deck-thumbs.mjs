@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
-import { pathToFileURL } from "url";
 import { randomUUID } from "crypto";
+import { isMainModule } from "./is-main-module.mjs";
 import sharp from "sharp";
 import { deckNameToIconIds } from "./deck-name.mjs";
 import {
@@ -164,7 +164,7 @@ const main = async () => {
   console.log(`generate-deck-thumbs: wrote ${generated.length} thumbnail sets to ${outDir}`);
 };
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (isMainModule(import.meta.url)) {
   main().catch((error) => {
     console.error(`generate-deck-thumbs: ${error.message}`);
     process.exit(1);

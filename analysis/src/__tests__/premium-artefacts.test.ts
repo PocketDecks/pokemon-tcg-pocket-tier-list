@@ -1,15 +1,21 @@
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   PREMIUM_ARTEFACT_NAMES,
   PREMIUM_DIR,
   PREMIUM_WINDOWS,
+  loadPremiumSnapshotForVersion,
   premiumFilePath,
   premiumVersion,
+  prunePremiumSnapshots,
+  previousPremiumDir,
   renderDataVersion,
   splitArtefactFiles,
+  snapshotPremiumVersion,
 } from "../utils/premium-artefacts";
 
 const DECKS = Array.from({ length: 12 }, (_, index) => `deck-${index}`);
@@ -228,7 +234,108 @@ describe("premiumVersion", () => {
   });
 
   it("does not confuse a boundary shift between a name and its content", () => {
-    expect(premiumVersion({ ab: "c" })).not.toBe(premiumVersion({ a: "bc" }));
+    expect(premiumVersion({ a: "b\nc" })).not.toBe(premiumVersion({ "a\nb": "c" }));
+  });
+
+  it("frames names and payloads independently", () => {
+    expect(premiumVersion({ a: "b\n1:c" })).not.toBe(premiumVersion({ "a\n5:b": "c" }));
+    expect(premiumVersion({ a: "x\n1:b\ny" })).not.toBe(
+      premiumVersion({ a: "x", b: "y" })
+    );
+  });
+
+  it("counts UTF-8 bytes when framing names and payloads", () => {
+    expect(premiumVersion({ "é": "🐛" })).toBe("35f719d53af5daef");
+  });
+});
+
+describe("versioned premium snapshots", () => {
+  it("reads only a snapshot whose files hash to the referenced version", () => {
+    const dir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "premium-version-snapshot-")), "premium");
+    const files = Object.fromEntries(PREMIUM_ARTEFACT_NAMES.map((name) => [name, `payload:${name}`]));
+    const version = premiumVersion(files);
+    snapshotPremiumVersion(files, version, dir);
+    expect(loadPremiumSnapshotForVersion(version, dir)).toEqual(files);
+    fs.writeFileSync(path.join(dir, "..", "premium-previous", version, `${PREMIUM_ARTEFACT_NAMES[0]}.json`), "tampered");
+    expect(loadPremiumSnapshotForVersion(version, dir)).toBeUndefined();
+    expect(loadPremiumSnapshotForVersion("0000000000000000", dir)).toBeUndefined();
+  });
+
+  it("prunes only unprotected version directories inside the snapshot cache", () => {
+    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-cleanup-"));
+    const dir = path.join(temp, "premium");
+    const cache = previousPremiumDir(dir);
+    const retained = ["aaaaaaaaaaaaaaaa", "bbbbbbbbbbbbbbbb", "cccccccccccccccc", "dddddddddddddddd"];
+    const old = "eeeeeeeeeeeeeeee";
+    fs.mkdirSync(cache, { recursive: true });
+    for (const version of [...retained, old]) fs.mkdirSync(path.join(cache, version));
+    fs.mkdirSync(path.join(cache, "unknown-entry"));
+    fs.writeFileSync(path.join(cache, "legacy-file.json"), "[]");
+    const outside = path.join(temp, "outside");
+    fs.mkdirSync(outside);
+    fs.writeFileSync(path.join(outside, "keep.json"), "[]");
+    fs.symlinkSync(outside, path.join(cache, "ffffffffffffffff"), "junction");
+
+    try {
+      prunePremiumSnapshots(retained, dir);
+      expect(retained.every((version) => fs.existsSync(path.join(cache, version)))).toBe(true);
+      expect(fs.existsSync(path.join(cache, old))).toBe(false);
+      expect(fs.existsSync(path.join(cache, "unknown-entry"))).toBe(true);
+      expect(fs.readFileSync(path.join(cache, "legacy-file.json"), "utf8")).toBe("[]");
+      expect(fs.existsSync(path.join(cache, "ffffffffffffffff"))).toBe(true);
+      expect(fs.existsSync(path.join(outside, "keep.json"))).toBe(true);
+    } finally {
+      fs.rmSync(temp, { recursive: true, force: true });
+    }
+  });
+
+  it("does not follow a linked snapshot cache root", () => {
+    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-root-link-"));
+    const externalCache = path.join(temp, "external");
+    const linkedDir = path.join(temp, "analysis", "premium");
+    const linkedCache = previousPremiumDir(linkedDir);
+    const protectedData = path.join(externalCache, "eeeeeeeeeeeeeeee");
+    fs.mkdirSync(protectedData, { recursive: true });
+    fs.writeFileSync(path.join(protectedData, "keep.json"), "[]");
+    fs.mkdirSync(path.dirname(linkedCache), { recursive: true });
+    fs.symlinkSync(externalCache, linkedCache, "junction");
+
+    try {
+      prunePremiumSnapshots([], linkedDir);
+      expect(fs.existsSync(path.join(protectedData, "keep.json"))).toBe(true);
+    } finally {
+      fs.rmSync(temp, { recursive: true, force: true });
+    }
+  });
+
+  it("does not follow a linked ancestor of the snapshot cache", () => {
+    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-ancestor-link-"));
+    const outside = path.join(temp, "external");
+    const version = path.join(outside, "premium-previous", "eeeeeeeeeeeeeeee");
+    const linkedOut = path.join(temp, "analysis", "out");
+    fs.mkdirSync(version, { recursive: true });
+    fs.writeFileSync(path.join(version, "keep.json"), "[]");
+    fs.mkdirSync(path.dirname(linkedOut), { recursive: true });
+    fs.symlinkSync(outside, linkedOut, "junction");
+    try {
+      expect(() => prunePremiumSnapshots([], path.join(linkedOut, "premium"))).not.toThrow();
+      expect(fs.existsSync(path.join(version, "keep.json"))).toBe(true);
+    } finally { fs.rmSync(temp, { recursive: true, force: true }); }
+  });
+
+  it("reports snapshot listing failures with the cache path", () => {
+    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-list-failure-"));
+    const dir = path.join(temp, "premium");
+    fs.mkdirSync(previousPremiumDir(dir), { recursive: true });
+    const cache = previousPremiumDir(dir);
+    const error = Object.assign(new Error("denied"), { code: "EACCES" });
+    const spy = vi.spyOn(fs, "readdirSync").mockImplementationOnce(() => { throw error; });
+    try {
+      expect(() => prunePremiumSnapshots([], dir)).toThrow(cache);
+    } finally {
+      spy.mockRestore();
+      fs.rmSync(temp, { recursive: true, force: true });
+    }
   });
 });
 

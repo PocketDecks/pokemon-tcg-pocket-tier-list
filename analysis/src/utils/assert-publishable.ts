@@ -22,6 +22,9 @@ export interface WindowSnapshot {
   previousArchetypeCount: number | null;
 }
 
+export const windowsWithoutComparison = (windows: readonly WindowSnapshot[]): string[] =>
+  windows.filter((window) => window.previousArchetypeCount === null).map((window) => window.id);
+
 export interface UnmatchedDeckSnapshot {
   decks: number;
   games: number;
@@ -91,7 +94,7 @@ export const readPreviousArchetypeCount = (
 const isWindowId = (id: string): id is WindowId =>
   Object.prototype.hasOwnProperty.call(MIN_PUBLISHED_ARCHETYPES, id);
 
-const rampedFloor = (floor: number, days: number, rampDays: number): number =>
+export const rampedFloor = (floor: number, days: number, rampDays: number): number =>
   Math.ceil((floor * Math.min(days, rampDays)) / rampDays);
 
 const windowFailures = (window: WindowSnapshot, defaultWindow: string, daysOfData: number): string[] => {

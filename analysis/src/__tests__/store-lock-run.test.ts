@@ -1,0 +1,110 @@
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { describe, expect, it, vi } from "vitest";
+
+import { lockFileFor, withStoreLock } from "../utils/store-lock";
+
+const { getDecks, writeArtefacts, DECKS_DIR, MAIN_VERSION, readMainVersion } = vi.hoisted(() => ({
+  getDecks: vi.fn(() => []),
+  writeArtefacts: vi.fn(),
+  DECKS_DIR: `${require("node:os").tmpdir()}/store-lock-run-store`,
+  MAIN_VERSION: "0123456789abcdef",
+  readMainVersion: vi.fn(() => "0123456789abcdef"),
+}));
+
+vi.mock("../load-env-side-effect", () => ({}));
+vi.mock("../utils/data-paths", () => ({ decksDir: () => DECKS_DIR }));
+vi.mock("../utils/get-decks", () => ({ default: getDecks }));
+vi.mock("../utils/write-artifacts", () => ({ writeArtefacts }));
+vi.mock("../utils/premium-artefacts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../utils/premium-artefacts")>();
+  return { ...actual, loadPremiumSnapshotForVersion: vi.fn(() => ({})) };
+});
+vi.mock("../utils/premium-files", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../utils/premium-files")>();
+  return {
+    ...actual,
+    inspectMainPremiumVersion: vi.fn<() => MainPremiumVersionStatus>(() => ({ status: "found", version: readMainVersion() })),
+    resolveCanonicalMainRef: vi.fn(() => "refs/remotes/pocketdecks/main"),
+  };
+});
+vi.mock("../utils/calculate-card-scores", () => ({ calculateCardScores: () => ({}) }));
+vi.mock("../utils/generate-og-images", () => ({
+  stageOgImages: async () => ({ commit: vi.fn(), discard: vi.fn() }),
+}));
+vi.mock("../utils/assert-publishable", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../utils/assert-publishable")>();
+  return {
+    ...actual,
+    assertPublishable: vi.fn(),
+    readPreviousArchetypeCount: vi.fn(() => null),
+  };
+});
+
+import { run } from "../get-best-decks";
+import { readPreviousArchetypeCount } from "../utils/assert-publishable";
+import {
+  inspectMainPremiumVersion,
+  type MainPremiumVersionStatus,
+} from "../utils/premium-files";
+
+describe("store lock around get-best-decks", () => {
+  it("holds the lock while the main baseline version is read and compared", async () => {
+    const lockFile = lockFileFor(DECKS_DIR);
+    vi.mocked(inspectMainPremiumVersion).mockImplementationOnce(() => {
+      expect(fs.existsSync(lockFile)).toBe(true);
+      return { status: "found", version: MAIN_VERSION };
+    });
+    vi.mocked(readPreviousArchetypeCount).mockImplementation(() => {
+      expect(fs.existsSync(lockFile)).toBe(true);
+      return null;
+    });
+    vi.mocked(readPreviousArchetypeCount).mockClear();
+    try {
+      await run();
+      expect(readPreviousArchetypeCount).toHaveBeenCalled();
+    } finally {
+      vi.mocked(readPreviousArchetypeCount).mockImplementation(() => null);
+    }
+    expect(inspectMainPremiumVersion).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(lockFile)).toBe(false);
+  });
+
+  it("holds the lock during the deck read and artefact write", async () => {
+    const lockFile = lockFileFor(DECKS_DIR);
+    getDecks.mockImplementationOnce(() => {
+      expect(fs.existsSync(lockFile)).toBe(true);
+      return [];
+    });
+    writeArtefacts.mockImplementationOnce(() => {
+      expect(fs.existsSync(lockFile)).toBe(true);
+    });
+    await run();
+    expect(getDecks).toHaveBeenCalledTimes(1);
+    expect(writeArtefacts).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(lockFile)).toBe(false);
+  });
+
+  it("refuses a second holder while a run holds the lock", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "store-lock-run-"));
+    const lockFile = lockFileFor(dir);
+    withStoreLock(dir, () => {
+      expect(fs.existsSync(lockFile)).toBe(true);
+      expect(() => withStoreLock(dir, () => {})).toThrow(/held by process/);
+    });
+    expect(fs.existsSync(lockFile)).toBe(false);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("releases the lock when the run throws", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "store-lock-throw-"));
+    expect(() =>
+      withStoreLock(dir, () => {
+        throw new Error("run failed");
+      })
+    ).toThrow("run failed");
+    expect(fs.existsSync(lockFileFor(dir))).toBe(false);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+});

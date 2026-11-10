@@ -3,7 +3,13 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { PREMIUM_DIR, PREMIUM_WINDOWS } from "../src/utils/premium-artefacts";
+import {
+  loadPremiumSnapshotForVersion,
+  PREMIUM_DIR,
+  PREMIUM_WINDOWS,
+  premiumVersionSnapshotDir,
+} from "../src/utils/premium-artefacts";
+import { inspectMainPremiumVersion, resolveCanonicalMainRef } from "../src/utils/premium-files";
 import {
   REFRESH_WINDOWS,
   validateRefresh,
@@ -31,24 +37,62 @@ const readPrevious = (): string | null => {
   if (explicit) return explicit;
   if (args.includes("--no-previous")) return null;
 
-  const ref = flag("--previous-ref") ?? "origin/main";
+  const ref = flag("--previous-ref") ?? resolveCanonicalMainRef(repoRoot);
+  if (!ref) throw new Error("cannot resolve the canonical main remote; pass --previous-ref <ref>");
+  const mainVersionStatus = inspectMainPremiumVersion(repoRoot, ref);
+  if (mainVersionStatus.status === "unreadable") {
+    throw new Error(
+      `Could not read the premium version committed at ${ref} ` +
+      `(${mainVersionStatus.reason}); refusing to validate against an unreadable baseline`
+    );
+  }
+  const liveVersion = mainVersionStatus.status === "found" ? mainVersionStatus.version : undefined;
+  const premiumSnapshot = liveVersion ? loadPremiumSnapshotForVersion(liveVersion, premiumDir) : undefined;
+  if (liveVersion && !premiumSnapshot) {
+    console.log(
+      `No local premium snapshot for canonical main version ${liveVersion} in ` +
+      `${premiumVersionSnapshotDir(liveVersion, premiumDir)}; first publish, ` +
+      "so their thinner-than-last-time floors are skipped"
+    );
+  }
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "refresh-previous-"));
   for (const window of REFRESH_WINDOWS) {
     const file = `public/data/best-decks-${window}.json`;
-    let contents: string;
-    try {
-      contents = execFileSync("git", ["show", `${ref}:${file}`], {
-        cwd: repoRoot,
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "pipe"],
-      });
-    } catch {
-      if ((PREMIUM_WINDOWS as readonly string[]).includes(window)) continue;
-      throw new Error(
-        `cannot read ${ref}:${file}; fetch ${ref} or pass --previous <dir> or --no-previous`
-      );
+    const metaFile = `public/data/meta-share-${window}.json`;
+    let contents: string | undefined;
+    let metaContents: string | undefined;
+    if ((PREMIUM_WINDOWS as readonly string[]).includes(window)) {
+      contents = premiumSnapshot?.[`best-decks-${window}`];
+      metaContents = premiumSnapshot?.[`meta-share-${window}`];
+      if (contents === undefined) continue;
+    } else {
+      try {
+        metaContents = execFileSync("git", ["show", `${ref}:${metaFile}`], {
+          cwd: repoRoot,
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "pipe"],
+        });
+      } catch {
+        metaContents = undefined;
+      }
+    }
+    if (contents === undefined) {
+      try {
+        contents = execFileSync("git", ["show", `${ref}:${file}`], {
+          cwd: repoRoot,
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "pipe"],
+        });
+      } catch {
+        throw new Error(
+          `cannot read ${ref}:${file}; fetch ${ref} or pass --previous <dir> or --no-previous`
+        );
+      }
     }
     fs.writeFileSync(path.join(dir, `best-decks-${window}.json`), contents);
+    if (metaContents !== undefined) {
+      fs.writeFileSync(path.join(dir, `meta-share-${window}.json`), metaContents);
+    }
   }
   return dir;
 };
@@ -73,8 +117,8 @@ console.log(
   `union: ${report.union} deck names, ${report.images} OG images, ` +
     `${report.missingImages.length} missing, ${report.orphanImages.length} orphan`
 );
-if (previousDir === null) {
-  console.log("previous snapshot not compared; ratio floors skipped");
+if (report.notCompared.length > 0) {
+  console.log(`no previous publish for ${report.notCompared.join(", ")}; their thinner-than-last-time floors were skipped`);
 }
 
 if (report.failures.length) {

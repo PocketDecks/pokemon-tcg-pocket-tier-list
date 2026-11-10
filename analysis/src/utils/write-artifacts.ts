@@ -1,9 +1,11 @@
 import fs from "fs";
+import { createHash } from "node:crypto";
 import { renameWithRetry } from "./rename-with-retry";
 
 type Artefact = {
   target: string;
   temporary: string;
+  proof: string;
   backup: string;
   marker: string;
   content: string;
@@ -19,6 +21,7 @@ export const writeArtefacts = (files: Record<string, string>): void => {
     return {
       target,
       temporary: `${target}.tmp`,
+      proof: `${target}.tmp.owner`,
       backup: `${target}.bak`,
       marker: `${target}.created`,
       content: files[target],
@@ -30,17 +33,36 @@ export const writeArtefacts = (files: Record<string, string>): void => {
   });
 
   for (const artefact of artefacts) {
-    if (
-      fs.existsSync(artefact.temporary) ||
-      fs.existsSync(artefact.backup) ||
-      fs.existsSync(artefact.marker)
-    ) {
+    const hasTemporary = fs.existsSync(artefact.temporary);
+    const hasBackup = fs.existsSync(artefact.backup);
+    const hasMarker = fs.existsSync(artefact.marker);
+    if (hasTemporary || hasBackup || hasMarker) {
       throw new Error(`Refusing stale staging files for ${artefact.target}`);
+    }
+    if (fs.existsSync(artefact.proof)) {
+      if (!artefact.hadTarget) throw new Error(`Refusing stale staging files for ${artefact.target}`);
+      try {
+        const proof = JSON.parse(fs.readFileSync(artefact.proof, "utf8")) as { version?: number; targetSha256?: string; sha256?: string };
+        const current = createHash("sha256").update(artefact.previous ?? "").digest("hex");
+        if (proof.version !== 1 || (proof.targetSha256 !== current && proof.sha256 !== current)) {
+          throw new Error("proof does not match target");
+        }
+      } catch {
+        throw new Error(`Refusing stale staging files for ${artefact.target}`);
+      }
+      fs.rmSync(artefact.proof, { force: true });
     }
   }
 
   try {
     for (const artefact of artefacts) {
+      fs.writeFileSync(artefact.proof, JSON.stringify({
+        version: 1,
+        targetSha256: artefact.hadTarget && artefact.previous !== null
+          ? createHash("sha256").update(artefact.previous).digest("hex")
+          : undefined,
+        sha256: createHash("sha256").update(artefact.content).digest("hex"),
+      }));
       fs.writeFileSync(artefact.temporary, artefact.content);
       // A target this write creates leaves a marker, so an interrupted run
       // leaves evidence that the target is new.
@@ -105,6 +127,14 @@ export const writeArtefacts = (files: Record<string, string>): void => {
         console.warn(`Could not remove artefact staging file ${artefact.temporary}:`, cleanupError);
       }
     }
+    for (const artefact of artefacts) {
+      if (fs.existsSync(artefact.temporary)) continue;
+      try {
+        fs.rmSync(artefact.proof, { force: true });
+      } catch (cleanupError) {
+        console.warn(`Could not remove artefact proof ${artefact.proof}:`, cleanupError);
+      }
+    }
     throw error;
   }
 
@@ -129,6 +159,18 @@ export const writeArtefacts = (files: Record<string, string>): void => {
       console.warn(
         `Could not remove artefact marker ${artefact.marker}. The committed ` +
           `target remains active. Verify it and remove the marker before rerunning:`,
+        cleanupError
+      );
+    }
+  }
+
+  for (const artefact of artefacts) {
+    try {
+      fs.rmSync(artefact.proof, { force: true });
+    } catch (cleanupError) {
+      console.warn(
+        `Could not remove artefact proof ${artefact.proof}. The committed ` +
+          `target remains active. Verify it and remove the proof before rerunning:`,
         cleanupError
       );
     }

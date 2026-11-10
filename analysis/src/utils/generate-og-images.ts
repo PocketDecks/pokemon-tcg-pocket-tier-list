@@ -11,7 +11,10 @@ interface OgDeckInput {
 
 export interface StagedOgImages {
   slugs: string[];
-  commit: () => void;
+  staging: string;
+  backup: string;
+  target: string;
+  commit: (options?: { retainOnFailure?: boolean }) => void;
   discard: () => void;
 }
 
@@ -209,14 +212,14 @@ export const stageOgImages = async (decks: OgDeckInput[]): Promise<StagedOgImage
     console.log(`Published ${slugs.length} OG images in ${target}`);
   };
 
-  const commit = () => {
+  const commit = (options: { retainOnFailure?: boolean } = {}) => {
     try {
       swap();
     } catch (error) {
-      discard();
+      if (!options.retainOnFailure) discard();
       throw error;
     }
   };
 
-  return { slugs, commit, discard };
+  return { slugs, staging, backup, target, commit, discard };
 };

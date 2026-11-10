@@ -11,6 +11,7 @@ node_modules/
 /dist/
 analysis/dist/
 analysis/data/
+analysis/data-backup/
 out/
 .cache/
 *.tsbuildinfo
@@ -37,6 +38,8 @@ firebase-debug.log*
 .vscode/
 .idea/
 .cursor/
+.claude/
+.codex/
 .aider*
 .hermes/
 skills-lock.json

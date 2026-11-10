@@ -1,4 +1,5 @@
 import fs from "fs";
+import crypto from "node:crypto";
 import path from "path";
 import { Deck } from "./types";
 import { shardIdForDate } from "./expansion-shards";
@@ -150,7 +151,47 @@ export interface StoreProblem {
   message: string;
 }
 
-export const verifyStore = (dir: string, options: { placement?: boolean } = {}): StoreProblem[] => {
+const verifyProcessedFile = (processed: string, hasShards: boolean): StoreProblem[] => {
+  const problems: StoreProblem[] = [];
+  const base = path.basename(processed);
+  const parent = path.dirname(processed);
+  for (const suffix of [".tmp", ".tmp.owner", ".bak", ".created"]) {
+    if (fs.existsSync(path.join(parent, `${base}${suffix}`))) {
+      problems.push({ shard: base, message: `interrupted processed-tournaments write: ${base}${suffix}` });
+    }
+  }
+  if (!fs.existsSync(processed)) {
+    if (hasShards) {
+      problems.push({ shard: base, message: "processed-tournaments.json is missing but the store holds shards" });
+    }
+  } else {
+    try {
+      const value = JSON.parse(fs.readFileSync(processed, "utf8")) as unknown;
+      if (!Array.isArray(value)) {
+        problems.push({ shard: base, message: "processed-tournaments.json is not an array" });
+      } else {
+        const ids = new Set<string>();
+        for (const entry of value) {
+          const record = entry as { id?: unknown; date?: unknown } | null;
+          if (!record || typeof record.id !== "string" || typeof record.date !== "string") {
+            problems.push({ shard: base, message: "processed-tournaments.json has an invalid entry" });
+            break;
+          }
+          if (ids.has(record.id)) {
+            problems.push({ shard: base, message: `duplicate processed tournament ${record.id}` });
+            break;
+          }
+          ids.add(record.id);
+        }
+      }
+    } catch {
+      problems.push({ shard: base, message: "processed-tournaments.json is not readable JSON" });
+    }
+  }
+  return problems;
+};
+
+export const verifyStore = (dir: string, options: { placement?: boolean; processedFile?: string } = {}): StoreProblem[] => {
   const manifest = readManifest(dir);
   const problems: StoreProblem[] = [];
   const seen = new Map<string, string>();
@@ -197,10 +238,24 @@ export const verifyStore = (dir: string, options: { placement?: boolean } = {}):
         name.endsWith(".bak") ||
         name.endsWith(".created")
       ) {
-        // writeArtefacts stages beside its target, so a leftover means a write stopped partway.
         problems.push({ shard: name, message: `stray staging file ${name}` });
+      } else if (name.endsWith(".tmp.owner")) {
+        const target = path.join(dir, name.slice(0, -".tmp.owner".length));
+        let completed = false;
+        try {
+          const proof = JSON.parse(fs.readFileSync(path.join(dir, name), "utf8")) as { version?: number; sha256?: string; targetSha256?: string };
+          const targetHash = crypto.createHash("sha256").update(fs.readFileSync(target)).digest("hex");
+          completed = proof.version === 1
+            && (proof.targetSha256 === targetHash || proof.sha256 === targetHash);
+        } catch {
+          completed = false;
+        }
+        if (!completed) problems.push({ shard: name, message: `unproven writer proof ${name}` });
       }
     }
+  }
+  if (options.processedFile) {
+    problems.push(...verifyProcessedFile(options.processedFile, Object.keys(manifest.shards).length > 0));
   }
   return problems;
 };

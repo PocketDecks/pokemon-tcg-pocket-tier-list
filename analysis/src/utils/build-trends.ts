@@ -27,16 +27,12 @@ export const pickTrendNames = (
 
 export const buildTrends = (
   qualifiedDecks: Deck[],
-  trendNames: readonly string[],
-  now: Date
+  trendNames: readonly string[]
 ): PipelineTrendRow[] => {
-  // Day accumulators keep date/totalGames separate from per-archetype tallies, which a single Record<string, number> view would mistype.
   const trendData: Record<string, { date: string; totalGames: number; counts: Record<string, number> }> = {};
-  const currentDate = now.toISOString().slice(0, 10);
 
   for (const deck of qualifiedDecks) {
     const dateStr = deck.date.split("T")[0];
-    if (dateStr === currentDate) continue;
 
     if (!trendData[dateStr]) {
       trendData[dateStr] = { date: dateStr, totalGames: 0, counts: {} };

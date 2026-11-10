@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deckSlug } from "./deck-slug.mjs";
+import { isMainModule } from "./is-main-module.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const PREMIUM_DECK_SLUGS_FILE = path.join(ROOT, "src", "data", "premium-deck-slugs.json");
@@ -51,6 +52,6 @@ const main = () => {
   console.log("premium-deck-slugs: current");
 };
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
+if (isMainModule(import.meta.url)) {
   if (process.argv.includes("--check")) main();
 }

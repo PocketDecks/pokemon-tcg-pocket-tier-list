@@ -120,7 +120,7 @@ export const buildMetaShare = (
   }
 
   return {
-    generatedAt: today.toISOString(),
+    generatedAt: (window.anchor ?? today).toISOString(),
     windowDays: window.shareDays,
     decks: entries.sort((a, b) => b.share - a.share),
   };

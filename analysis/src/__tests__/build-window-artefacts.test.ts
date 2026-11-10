@@ -7,6 +7,7 @@ import {
   WindowId,
 } from "../utils/build-window-artefacts";
 import { Deck } from "../utils/types";
+import { EXPANSION_RELEASE_DATE } from "../settings";
 
 const TODAY = new Date("2026-10-10T12:00:00Z");
 
@@ -108,6 +109,31 @@ describe("buildWindowArtefacts flat weighting", () => {
     expect(beta(buildWindowArtefacts(swapped, "10d", TODAY))).toEqual(
       beta(buildWindowArtefacts([older, newer], "10d", TODAY))
     );
+  });
+
+  it("keeps scores stable when the run date changes without new data", () => {
+    const earlierRun = new Date(EXPANSION_RELEASE_DATE.getTime() + 24 * 60 * 60 * 1000);
+    const laterRun = new Date(EXPANSION_RELEASE_DATE.getTime() + 8 * 24 * 60 * 60 * 1000);
+
+    expect(
+      buildWindowArtefacts([older, newer], "10d", laterRun).bestDecks
+    ).toEqual(buildWindowArtefacts([older, newer], "10d", earlierRun).bestDecks);
+  });
+
+  it("advances scores when the latest data date advances", () => {
+    const day = (days: number) =>
+      new Date(EXPANSION_RELEASE_DATE.getTime() + (days - 1) * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .slice(0, 10);
+    const runDate = new Date(EXPANSION_RELEASE_DATE.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const scoreAt = (days: number) =>
+      buildWindowArtefacts(
+        [older, newer].map((deck) => ({ ...deck, date: day(days) })),
+        "all",
+        runDate
+      ).bestDecks[0].score;
+
+    expect(scoreAt(8)).not.toBe(scoreAt(1));
   });
 });
 

@@ -68,7 +68,7 @@ const findSlashlessInternalLinks = (dir = DIST_DIR) =>
       const href = decodeXmlEntities(match[1]);
       if (!href.startsWith("/") && !href.startsWith(`https://${SITE_HOST}/`)) return [];
       const pathname = (href.startsWith("/") ? href : href.slice(`https://${SITE_HOST}`.length)).split(/[?#]/, 1)[0];
-      if (pathname.startsWith("//") || pathname.startsWith("/cdn-cgi/") || /\.[a-z0-9]{2,5}$/i.test(pathname.split("/").at(-1) ?? "")) return [];
+      if (pathname.startsWith("//") || /\.[a-z0-9]{2,5}$/i.test(pathname.split("/").at(-1) ?? "")) return [];
       return pathname.endsWith("/") ? [] : [`${entry}: ${href}`];
     });
   });

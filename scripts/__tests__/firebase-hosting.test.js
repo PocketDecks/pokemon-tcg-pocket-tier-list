@@ -85,6 +85,26 @@ const JAPANESE_404S = [
   "/ja/deck/zoroark-ex-b3-106/",
 ];
 
+const SEARCH_CONSOLE_404S_2026_11_09 = [
+  "/ja/deck/butterfree-b3b-003&mega-sceptile-ex-b3-008",
+  "/deck/zoroark-ex-b3-106&mega-absol-ex-b1-151",
+  "/ja/deck/team-rocket's-weezing-ex-b4a-043&zoroark-ex-b3-106",
+  "/deck/mega-altaria-ex-b1-102&chingling-b1-109",
+  "/ja/deck/mega-altaria-ex-b1-102&bonsly-b3-078",
+  "/ja/deck/indeedee-ex-b1-121&giratina-ex-a2b-035",
+  "/ja/deck/exeggutor-ex-a1-023&serperior-a1a-006",
+  "/deck/chandelure-b2-069&meloetta-b2-070",
+  "/deck/pikachu-ex-a1-096&zapdos-ex-a1-104",
+  "/deck/gyarados-ex-a1a-018&greninja-a1-089",
+  "/deck/farfetch'd-a1-198&hitmonlee-a1-154",
+  "/ja/deck/mega-altaria-ex-b1-102&happiny-b4a-063",
+  "/deck/golem-a1a-045",
+  "/deck/hoopa-ex-b4-103",
+  "/deck/butterfree-b3b-003",
+  "/deck/greninja-a1-089",
+  "/deck/future-booster-energy-capsule-b3a-070",
+];
+
 test("retired deck URLs and stray CRA paths get a real 404", () => {
   assert.deepStrictEqual(resolve("/deck/hydreigon-b1-157/"), {
     kind: "redirect",
@@ -211,12 +231,13 @@ test("prerendered routes resolve to their own files", () => {
 });
 
 test("search console 404 deck URLs in both locales resolve to a redirect or a page", () => {
-  for (const url of [...SEARCH_CONSOLE_404S, ...JAPANESE_404S]) {
+  for (const url of [...SEARCH_CONSOLE_404S, ...JAPANESE_404S, ...SEARCH_CONSOLE_404S_2026_11_09]) {
     const result = resolveDeck(url);
     assert.ok(
       result.kind === "file" || result.status === 301,
       `${url} resolved to ${result.kind} ${result.status}`
     );
+    if (result.status === 301) assert.equal(resolveDeck(result.location).status, 200, result.location);
   }
 });
 

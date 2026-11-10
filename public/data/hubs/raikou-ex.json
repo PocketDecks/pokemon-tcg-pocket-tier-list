@@ -143,6 +143,29 @@
       ]
     },
     {
+      "variant": "raikou-ex-a4a-025&pawmot-c1-050",
+      "name": "raikou-ex-a4a-025&pawmot-c1-050",
+      "firstSeen": "2026-11-09",
+      "lastSeen": "2026-11-09",
+      "peakShare": 0.0036613272311212816,
+      "peakDate": "2026-11-09",
+      "cards": [
+        "2:c1-048",
+        "2:c1-050",
+        "2:a3-066",
+        "1:a4a-025",
+        "1:b3a-019",
+        "2:pa-007",
+        "2:b1-225",
+        "1:c1-127",
+        "1:a2-150",
+        "2:a3-144",
+        "2:pa-005",
+        "1:b2-145",
+        "1:c1-123"
+      ]
+    },
+    {
       "variant": "raikou-ex-a4a-025&tapu-koko-ex-a3a-019",
       "name": "Raikou ex-A4a-025&Tapu Koko ex-A3a-019",
       "firstSeen": "2025-09-09",

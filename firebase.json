@@ -475,11 +475,6 @@
         "type": 301
       },
       {
-        "source": "/deck/butterfree-b3b-003&mega-sceptile-ex-b3-008{,/**}",
-        "destination": "/deck/butterfree/",
-        "type": 301
-      },
-      {
         "source": "/deck/buzzwole-ex-a3a-006{,/**}",
         "destination": "/deck/buzzwole-ex/",
         "type": 301
@@ -2535,11 +2530,6 @@
         "type": 301
       },
       {
-        "source": "/deck/magnezone-b1a-026&miraidon-ex-b3a-019{,/**}",
-        "destination": "/deck/magnezone/",
-        "type": 301
-      },
-      {
         "source": "/deck/magnezone-b1a-026&oricorio-a3-034{,/**}",
         "destination": "/deck/magnezone/",
         "type": 301
@@ -3511,6 +3501,11 @@
       },
       {
         "source": "/deck/miraidon-ex-b3a-019{,/**}",
+        "destination": "/deck/miraidon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/deck/miraidon-ex-b3a-019&magnezone-b1a-026{,/**}",
         "destination": "/deck/miraidon-ex/",
         "type": 301
       },
@@ -5201,11 +5196,6 @@
       },
       {
         "source": "/ja/deck/butterfree-b3b-003&decidueye-ex-a3-012{,/**}",
-        "destination": "/ja/deck/butterfree/",
-        "type": 301
-      },
-      {
-        "source": "/ja/deck/butterfree-b3b-003&mega-sceptile-ex-b3-008{,/**}",
         "destination": "/ja/deck/butterfree/",
         "type": 301
       },
@@ -7265,11 +7255,6 @@
         "type": 301
       },
       {
-        "source": "/ja/deck/magnezone-b1a-026&miraidon-ex-b3a-019{,/**}",
-        "destination": "/ja/deck/magnezone/",
-        "type": 301
-      },
-      {
         "source": "/ja/deck/magnezone-b1a-026&oricorio-a3-034{,/**}",
         "destination": "/ja/deck/magnezone/",
         "type": 301
@@ -8241,6 +8226,11 @@
       },
       {
         "source": "/ja/deck/miraidon-ex-b3a-019{,/**}",
+        "destination": "/ja/deck/miraidon-ex/",
+        "type": 301
+      },
+      {
+        "source": "/ja/deck/miraidon-ex-b3a-019&magnezone-b1a-026{,/**}",
         "destination": "/ja/deck/miraidon-ex/",
         "type": 301
       },

@@ -1,8 +1,9 @@
-import { execFileSync } from "node:child_process";
-
 import {
   CANONICAL_PREMIUM_REPOSITORY,
+  defaultGitRunner,
+  inspectPremiumVersionAtRef,
   PremiumGitRunner,
+  premiumVersionOf,
   readPremiumVersionAtRef,
   resolveCanonicalMainRef,
 } from "../src/utils/premium-files";
@@ -14,19 +15,12 @@ export interface PremiumRetentionSources {
   automatedBranchVersions?: string[];
 }
 
-const versionOf = (value: unknown): string | undefined => {
-  if (value === null || typeof value !== "object") return undefined;
-  const version = (value as { premium?: unknown }).premium;
-  return typeof version === "string" && /^[0-9a-f]{16}$/.test(version) ? version : undefined;
-};
-
 const repositoryParts = (value: unknown): [string, string] | undefined => {
   if (typeof value !== "string" || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(value)) return undefined;
   return value.split("/") as [string, string];
 };
 
 const FETCH_TIMEOUT_MS = 15_000;
-const GIT_TIMEOUT_MS = 60_000;
 const timedFetch = (fetcher: typeof fetch, url: URL, init: RequestInit): Promise<Response> =>
   fetcher(url, { ...init, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
 
@@ -50,8 +44,7 @@ const nextPageOf = (link: string | null, current: URL): URL | undefined => {
 
 const contentVersion = async (response: Response): Promise<string> => {
   if (!response.ok) throw new Error("version source request failed");
-  const value = await response.json();
-  const version = versionOf(value);
+  const version = premiumVersionOf(await response.json());
   if (!version) throw new Error("version source has no valid premium value");
   return version;
 };
@@ -81,7 +74,7 @@ const readVersionFile = async (
     throw new Error("pull request version file has invalid base64 content");
   }
   const text = Buffer.from(encoded, "base64").toString("utf8");
-  const version = versionOf(JSON.parse(text));
+  const version = premiumVersionOf(JSON.parse(text));
   if (!version) throw new Error("pull request version file has no valid premium value");
   return version;
 };
@@ -153,12 +146,7 @@ export const discoverPremiumRetentionSources = async ({
     if (!ref) return undefined;
     const remote = ref.match(/^refs\/remotes\/([^/]+)\/main$/)?.[1];
     if (!remote) return undefined;
-    const git = runGit ?? ((args: string[], cwd: string) => execFileSync("git", args, {
-      cwd,
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "pipe"],
-      timeout: GIT_TIMEOUT_MS,
-    }));
+    const git = runGit ?? defaultGitRunner;
     git(["fetch", remote, "refs/heads/main:refs/remotes/" + remote + "/main"], repoRoot);
     const canonicalMainVersion = readPremiumVersionAtRef(repoRoot, ref, git);
     if (!canonicalMainVersion) return undefined;
@@ -169,19 +157,11 @@ export const discoverPremiumRetentionSources = async ({
         .filter((ref) => /^refs\/(?:heads\/automated\/|remotes\/[^/]+\/automated\/)/.test(ref));
       const versions: string[] = [];
       for (const branchRef of refs) {
-        const versionPath = "public/data/data-version.json";
-        let paths: string[];
-        try {
-          paths = git(["ls-tree", "-r", "--name-only", branchRef, "--", versionPath], repoRoot)
-            .split(/\r?\n/)
-            .filter(Boolean);
-        } catch (error) {
-          throw new Error(`automated branch ${branchRef} version file could not be inspected: ${error instanceof Error ? error.message : String(error)}`);
+        const status = inspectPremiumVersionAtRef(repoRoot, branchRef, git);
+        if (status.status === "found") versions.push(status.version);
+        else if (status.status === "unreadable") {
+          console.warn(`skipping automated branch ${branchRef}: ${status.reason}`);
         }
-        if (!paths.includes(versionPath)) continue;
-        const version = versionOf(JSON.parse(git(["show", `${branchRef}:${versionPath}`], repoRoot)));
-        if (version) versions.push(version);
-        else throw new Error(`automated branch ${branchRef} has no valid premium version`);
       }
       return [...new Set(versions)];
     })();

@@ -6,8 +6,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { Timestamp } from "firebase-admin/firestore";
 
-import { adaptPremiumDb, publishPremium } from "../../scripts/publish-premium";
-import * as publisher from "../../scripts/publish-premium";
+import { adaptPremiumDb, publishPremium, runPublishPremiumCli } from "../../scripts/publish-premium";
 import {
   loadPremiumSnapshotForVersion,
   PREMIUM_ARTEFACT_NAMES,
@@ -112,26 +111,6 @@ const deferred = (): { promise: Promise<void>; resolve: () => void } => {
   return { promise, resolve };
 };
 
-type CliInput = {
-  args: string[];
-  projectId: string;
-  files: Record<string, string>;
-  version: string;
-  initializeDatabase: () => Parameters<typeof publishPremium>[0]["db"];
-  discoverRetentionSources: () => Promise<{
-    canonicalMainVersion: string;
-    deployedVersion: string;
-    pendingPullRequestVersions: string[];
-  } | undefined>;
-  publish: (input: Parameters<typeof publishPremium>[0]) => Promise<void>;
-  log: (line: string) => void;
-  reportError: (message: string) => void;
-};
-
-const runCli = (publisher as unknown as {
-  runPublishPremiumCli?: (input: CliInput) => Promise<number>;
-}).runPublishPremiumCli;
-
 it("prunes an orphan parent returned by the Firestore SDK adapter", async () => {
   const writes: Write[] = [];
   const deletes: unknown[] = [];
@@ -162,7 +141,15 @@ it("prunes an orphan parent returned by the Firestore SDK adapter", async () => 
     }),
   };
   const files = premiumPayloads();
-  await publishPremium({ db: adaptPremiumDb(firestore as never), dryRun: false, files, version: premiumVersion(files), retentionSources: retentionSources("live"), snapshotDir } as Parameters<typeof publishPremium>[0], () => {});
+  await publishPremium({
+    db: adaptPremiumDb(firestore as never),
+    dryRun: false,
+    projectId: "test-project",
+    files,
+    version: premiumVersion(files),
+    discoverRetentionSources: async () => retentionSources("live"),
+    snapshotDir,
+  }, () => {});
   expect(deletes).toContainEqual(expect.objectContaining({ path: "premiumData/orphan" }));
   expect(deletes).toContainEqual(expect.objectContaining({ path: "premiumData/old-0" }));
 });
@@ -170,17 +157,26 @@ it("prunes an orphan parent returned by the Firestore SDK adapter", async () => 
 describe("premium entry points", () => {
   it.each([[""], ["", "--unknown"]])("rejects empty CLI arguments before credentials: %j", async (...values) => {
     const args = values as string[];
-    let initialized = false;
+    let initialised = false;
     const failures: string[] = [];
-    const result = await runCli!({
-      args, projectId: "test-project", files: premiumPayloads(), version: "aaaaaaaaaaaaaaaa",
-      initializeDatabase: () => { initialized = true; throw new Error("unexpected credentials"); },
+    const result = await runPublishPremiumCli({
+      args,
+      projectId: "test-project",
+      files: premiumPayloads(),
+      version: "aaaaaaaaaaaaaaaa",
+      initializeDatabase: () => {
+        initialised = true;
+        throw new Error("unexpected credentials");
+      },
       discoverRetentionSources: async () => undefined,
       publish: async () => {},
-      reportError: (message) => { failures.push(message); }, log: () => {},
+      reportError: (message) => {
+        failures.push(message);
+      },
+      log: () => {},
     });
     expect(result).toBe(1);
-    expect(initialized).toBe(false);
+    expect(initialised).toBe(false);
     expect(failures[0]).toContain("unknown argument");
   });
 
@@ -196,21 +192,17 @@ describe("premium entry points", () => {
   });
 
   it("runs an injected dry-run CLI without initialising credentials", async () => {
-    if (typeof runCli !== "function") {
-      expect(runCli).toBeTypeOf("function");
-      return;
-    }
     const files = premiumPayloads();
-    let initialized = false;
+    let initialised = false;
     let discovered = false;
     let published: { dryRun: boolean; db: unknown } | undefined;
-    const exitCode = await runCli({
+    const exitCode = await runPublishPremiumCli({
       args: ["--dry-run"],
       projectId: "test-project",
       files,
       version: premiumVersion(files),
       initializeDatabase: () => {
-        initialized = true;
+        initialised = true;
         throw new Error("credentials accessed");
       },
       discoverRetentionSources: async () => {
@@ -225,19 +217,15 @@ describe("premium entry points", () => {
     });
 
     expect(exitCode).toBe(0);
-    expect(initialized).toBe(false);
+    expect(initialised).toBe(false);
     expect(discovered).toBe(false);
     expect(published).toEqual({ dryRun: true, db: null });
   });
 
   it("returns a non-zero CLI result when credential or publish setup fails", async () => {
-    if (typeof runCli !== "function") {
-      expect(runCli).toBeTypeOf("function");
-      return;
-    }
     const failures: string[] = [];
     const files = premiumPayloads();
-    const credentialExit = await runCli({
+    const credentialExit = await runPublishPremiumCli({
       args: [],
       projectId: "test-project",
       files,
@@ -252,12 +240,14 @@ describe("premium entry points", () => {
       log: () => {},
       reportError: (message) => failures.push(message),
     });
-    const publishExit = await runCli({
+    const publishExit = await runPublishPremiumCli({
       args: ["--dry-run"],
       projectId: "test-project",
       files,
       version: premiumVersion(files),
-      initializeDatabase: () => null,
+      initializeDatabase: () => {
+        throw new Error("database should not be initialised for a dry run");
+      },
       discoverRetentionSources: async () => undefined,
       publish: async () => {
         throw new Error("publish failed");
@@ -291,7 +281,7 @@ describe("premium entry points", () => {
       },
     };
     await publishPremium(
-      { db, dryRun: true, files, version, snapshotDir },
+      { db, dryRun: true, projectId: "test-project", files, version, discoverRetentionSources: async () => undefined, snapshotDir },
       (line) => lines.push(line)
     );
     expect(lines[0]).toMatch(/Dry run for project .+, version [0-9a-f]{16}/);
@@ -308,7 +298,7 @@ describe("premium entry points", () => {
     fs.mkdirSync(staleSnapshot, { recursive: true });
     const db = fakeFilesDb(writes, deletes);
     await publishPremium(
-      { db, dryRun: false, files, version, retentionSources: retentionSources("old-5"), snapshotDir } as Parameters<typeof publishPremium>[0],
+      { db, dryRun: false, projectId: "test-project", files, version, discoverRetentionSources: async () => retentionSources("old-5"), snapshotDir },
       () => {}
     );
     expect(writes.length).toBe(PREMIUM_ARTEFACT_NAMES.length + 1);
@@ -337,6 +327,28 @@ describe("premium entry points", () => {
     expect(fs.existsSync(staleSnapshot)).toBe(false);
   });
 
+  it("keeps the new version snapshot when pruning the cloud fails", async () => {
+    const writes: Write[] = [];
+    const deletes: unknown[] = [];
+    const files = premiumPayloads();
+    const version = premiumVersion(files);
+    const snapshotDir = testSnapshotDir();
+    const existing = ["old-0", "old-1", "old-2", "old-3", "old-4", "main"].map((id) => ({ version: id, createdAt: 0 }));
+    await expect(publishPremium(
+      {
+        db: fakeFilesDb(writes, deletes, existing, { failDelete: true }),
+        dryRun: false,
+        projectId: "test-project",
+        files,
+        version,
+        discoverRetentionSources: async () => retentionSources("main"),
+        snapshotDir,
+      },
+      () => {}
+    )).rejects.toThrow("delete failed");
+    expect(loadPremiumSnapshotForVersion(version, snapshotDir)).toEqual(files);
+  });
+
   it("deletes no older version when the live version cannot be read", async () => {
     const writes: Write[] = [];
     const deletes: unknown[] = [];
@@ -345,7 +357,7 @@ describe("premium entry points", () => {
     const version = premiumVersion(files);
     const snapshotDir = testSnapshotDir();
     await publishPremium(
-      { db: fakeFilesDb(writes, deletes), dryRun: false, files, version, snapshotDir, discoverRetentionSources: async () => undefined } as Parameters<typeof publishPremium>[0],
+      { db: fakeFilesDb(writes, deletes), dryRun: false, projectId: "test-project", files, version, snapshotDir, discoverRetentionSources: async () => undefined },
       (line) => lines.push(line)
     );
     expect(writes.length).toBe(PREMIUM_ARTEFACT_NAMES.length + 1);
@@ -369,20 +381,20 @@ describe("premium entry points", () => {
       { version: "pending", createdAt: 2 },
       { version: "orphan", createdAt: 1 },
     ];
-    const options = {
+
+    await publishPremium({
       db: fakeFilesDb(writes, deletes, existing),
       dryRun: false,
+      projectId: "test-project",
       files,
       version: premiumVersion(files),
-      retentionSources: {
+      discoverRetentionSources: async () => ({
         canonicalMainVersion: "canonical",
         deployedVersion: "deployed",
         pendingPullRequestVersions: ["pending"],
-      },
+      }),
       snapshotDir: testSnapshotDir(),
-    } as Parameters<typeof publishPremium>[0];
-
-    await publishPremium(options, () => {});
+    }, () => {});
 
     expect(deletes).toEqual([{ path: "premiumData/orphan", documentReference: true }]);
   });
@@ -445,15 +457,16 @@ describe("premium entry points", () => {
       return publishPremium({
         db,
         dryRun: false,
+        projectId: "test-project",
         files,
         version: premiumVersion(files),
-        retentionSources: {
+        discoverRetentionSources: async () => ({
           canonicalMainVersion: "old-0",
           deployedVersion: "deployed",
           pendingPullRequestVersions: [],
-        },
+        }),
         snapshotDir: testSnapshotDir(),
-      } as Parameters<typeof publishPremium>[0], () => {});
+      }, () => {});
     };
 
     const firstPublish = publish("first");
@@ -503,15 +516,16 @@ describe("premium entry points", () => {
     const publish = publishPremium({
       db,
       dryRun: false,
+      projectId: "test-project",
       files,
       version,
-      retentionSources: {
+      discoverRetentionSources: async () => ({
         canonicalMainVersion: "main",
         deployedVersion: "deployed",
         pendingPullRequestVersions: [],
-      },
+      }),
       snapshotDir: testSnapshotDir(),
-    } as Parameters<typeof publishPremium>[0], () => {});
+    }, () => {});
 
     await enteredArtefact.promise;
     expect(manifest).toEqual(originalManifest);
@@ -533,9 +547,10 @@ describe("premium entry points", () => {
     await expect(publishPremium({
       db,
       dryRun: false,
+      projectId: "test-project",
       files,
       version: premiumVersion(files),
-      retentionSources: retentionSources("main"),
+      discoverRetentionSources: async () => retentionSources("main"),
       snapshotDir: testSnapshotDir(),
     }, () => {})).rejects.toThrow(/lock/i);
 
@@ -557,9 +572,10 @@ describe("premium entry points", () => {
     await expect(publishPremium({
       db,
       dryRun: false,
+      projectId: "test-project",
       files,
       version: premiumVersion(files),
-      retentionSources: retentionSources("main"),
+      discoverRetentionSources: async () => retentionSources("main"),
       snapshotDir: testSnapshotDir(),
     }, () => {})).rejects.toThrow(/owner/i);
 
@@ -581,23 +597,25 @@ describe("premium entry points", () => {
     await expect(publishPremium({
       db,
       dryRun: false,
+      projectId: "test-project",
       files,
       version: premiumVersion(files),
-      retentionSources: {
+      discoverRetentionSources: async () => ({
         canonicalMainVersion: "main",
         deployedVersion: "deployed",
         pendingPullRequestVersions: [],
-      },
+      }),
       snapshotDir: testSnapshotDir(),
-    } as Parameters<typeof publishPremium>[0], () => {})).rejects.toThrow();
+    }, () => {})).rejects.toThrow();
 
     expect(db.lockOwner()).toBeUndefined();
   });
 
   it("reports no database writes when the database is not configured", async () => {
     const lines: string[] = [];
+    const files = premiumPayloads();
     await publishPremium(
-      { db: null, dryRun: false, files: premiumPayloads(), version: premiumVersion(premiumPayloads()) },
+      { db: null, dryRun: false, projectId: "test-project", files, version: premiumVersion(files), discoverRetentionSources: async () => undefined },
       (line) => lines.push(line)
     );
     expect(lines[0]).toMatch(/No database configured/);
@@ -608,7 +626,7 @@ describe("premium entry points", () => {
     const files = premiumPayloads();
     const writes: Write[] = [];
     const db = fakeFilesDb(writes, [], undefined, { failWrite: true });
-    await expect(publishPremium({ db, dryRun: false, files, version: premiumVersion(files), retentionSources: retentionSources("main"), snapshotDir: dir } as Parameters<typeof publishPremium>[0], () => {})).rejects.toThrow("write failed");
+    await expect(publishPremium({ db, dryRun: false, projectId: "test-project", files, version: premiumVersion(files), discoverRetentionSources: async () => retentionSources("main"), snapshotDir: dir }, () => {})).rejects.toThrow("write failed");
     expect(writes.some((write) => write.path === `premiumData/${premiumVersion(files)}`)).toBe(false);
     expect(fs.existsSync(path.join(dir, "..", "premium-previous", premiumVersion(files)))).toBe(false);
     expect(db.lockOwner()).toBeUndefined();

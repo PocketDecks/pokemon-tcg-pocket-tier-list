@@ -11,12 +11,12 @@ import {
   loadPremiumSnapshotForVersion,
   premiumFilePath,
   premiumVersion,
+  prunePremiumSnapshots,
   previousPremiumDir,
   renderDataVersion,
   splitArtefactFiles,
   snapshotPremiumVersion,
 } from "../utils/premium-artefacts";
-import * as premiumArtefacts from "../utils/premium-artefacts";
 
 const DECKS = Array.from({ length: 12 }, (_, index) => `deck-${index}`);
 
@@ -262,9 +262,6 @@ describe("versioned premium snapshots", () => {
   });
 
   it("prunes only unprotected version directories inside the snapshot cache", () => {
-    const prune = (premiumArtefacts as unknown as {
-      prunePremiumSnapshots?: (versions: readonly string[], dir: string) => void;
-    }).prunePremiumSnapshots;
     const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-cleanup-"));
     const dir = path.join(temp, "premium");
     const cache = previousPremiumDir(dir);
@@ -280,11 +277,7 @@ describe("versioned premium snapshots", () => {
     fs.symlinkSync(outside, path.join(cache, "ffffffffffffffff"), "junction");
 
     try {
-      if (typeof prune !== "function") {
-        expect(prune).toBeTypeOf("function");
-        return;
-      }
-      prune(retained, dir);
+      prunePremiumSnapshots(retained, dir);
       expect(retained.every((version) => fs.existsSync(path.join(cache, version)))).toBe(true);
       expect(fs.existsSync(path.join(cache, old))).toBe(false);
       expect(fs.existsSync(path.join(cache, "unknown-entry"))).toBe(true);
@@ -297,9 +290,6 @@ describe("versioned premium snapshots", () => {
   });
 
   it("does not follow a linked snapshot cache root", () => {
-    const prune = (premiumArtefacts as unknown as {
-      prunePremiumSnapshots?: (versions: readonly string[], dir: string) => void;
-    }).prunePremiumSnapshots;
     const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-root-link-"));
     const externalCache = path.join(temp, "external");
     const linkedDir = path.join(temp, "analysis", "premium");
@@ -311,11 +301,7 @@ describe("versioned premium snapshots", () => {
     fs.symlinkSync(externalCache, linkedCache, "junction");
 
     try {
-      if (typeof prune !== "function") {
-        expect(prune).toBeTypeOf("function");
-        return;
-      }
-      prune([], linkedDir);
+      prunePremiumSnapshots([], linkedDir);
       expect(fs.existsSync(path.join(protectedData, "keep.json"))).toBe(true);
     } finally {
       fs.rmSync(temp, { recursive: true, force: true });
@@ -323,7 +309,6 @@ describe("versioned premium snapshots", () => {
   });
 
   it("does not follow a linked ancestor of the snapshot cache", () => {
-    const prune = (premiumArtefacts as unknown as { prunePremiumSnapshots?: (versions: readonly string[], dir: string) => void }).prunePremiumSnapshots;
     const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-ancestor-link-"));
     const outside = path.join(temp, "external");
     const version = path.join(outside, "premium-previous", "eeeeeeeeeeeeeeee");
@@ -333,14 +318,12 @@ describe("versioned premium snapshots", () => {
     fs.mkdirSync(path.dirname(linkedOut), { recursive: true });
     fs.symlinkSync(outside, linkedOut, "junction");
     try {
-      if (typeof prune !== "function") { expect(prune).toBeTypeOf("function"); return; }
-      expect(() => prune([], path.join(linkedOut, "premium"))).not.toThrow();
+      expect(() => prunePremiumSnapshots([], path.join(linkedOut, "premium"))).not.toThrow();
       expect(fs.existsSync(path.join(version, "keep.json"))).toBe(true);
     } finally { fs.rmSync(temp, { recursive: true, force: true }); }
   });
 
   it("reports snapshot listing failures with the cache path", () => {
-    const prune = (premiumArtefacts as unknown as { prunePremiumSnapshots?: (versions: readonly string[], dir: string) => void }).prunePremiumSnapshots;
     const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-list-failure-"));
     const dir = path.join(temp, "premium");
     fs.mkdirSync(previousPremiumDir(dir), { recursive: true });
@@ -348,7 +331,7 @@ describe("versioned premium snapshots", () => {
     const error = Object.assign(new Error("denied"), { code: "EACCES" });
     const spy = vi.spyOn(fs, "readdirSync").mockImplementationOnce(() => { throw error; });
     try {
-      expect(() => prune!([], dir)).toThrow(cache);
+      expect(() => prunePremiumSnapshots([], dir)).toThrow(cache);
     } finally {
       spy.mockRestore();
       fs.rmSync(temp, { recursive: true, force: true });

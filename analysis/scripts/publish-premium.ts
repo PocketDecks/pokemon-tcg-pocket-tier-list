@@ -100,32 +100,23 @@ export const publishPremium = async (
   {
     db,
     dryRun,
-    files: injectedFiles,
-    version: injectedVersion,
-    projectId: injectedProjectId,
-    retentionSources: injectedRetentionSources,
-    discoverRetentionSources: injectedDiscoverRetentionSources,
+    files,
+    version,
+    projectId,
+    discoverRetentionSources,
     snapshotDir,
   }: {
     db: PremiumDb | null;
     dryRun: boolean;
-    files?: Record<string, string>;
-    version?: string;
-    projectId?: string;
-    retentionSources?: PremiumRetentionSources;
-    discoverRetentionSources?: () => Promise<PremiumRetentionSources | undefined>;
+    files: Record<string, string>;
+    version: string;
+    projectId: string;
+    discoverRetentionSources: () => Promise<PremiumRetentionSources | undefined>;
     snapshotDir?: string;
   },
   log: (line: string) => void = console.log
 ): Promise<void> => {
-  const repoRoot = path.resolve(__dirname, "../..");
-  const files = injectedFiles ?? loadPremiumFiles(PREMIUM_DIR);
-  const version =
-    injectedVersion ??
-    readCommittedVersion(path.join(repoRoot, "public/data/data-version.json"));
   assertVersionMatches(files, version);
-  const projectId =
-    injectedProjectId ?? readProjectId(path.join(repoRoot, ".firebaserc"));
 
   if (dryRun || db === null) {
     const plan = planPremiumUpload({ files, version, existing: [] });
@@ -142,16 +133,13 @@ export const publishPremium = async (
     return;
   }
 
-  let sources = injectedRetentionSources;
+  let sources: PremiumRetentionSources | undefined;
   const owner = await acquirePublishLock(db);
   try {
-    if (!sources) {
-      try {
-        sources = await (injectedDiscoverRetentionSources ?? (() => discoverPremiumRetentionSources({ repoRoot })))();
-      } catch (error) {
-        console.warn(`premium retention discovery failed: ${error instanceof Error ? error.message : String(error)}`);
-        sources = undefined;
-      }
+    try {
+      sources = await discoverRetentionSources();
+    } catch (error) {
+      console.warn(`premium retention discovery failed: ${error instanceof Error ? error.message : String(error)}`);
     }
     const protectedVersions = sources
       ? [sources.canonicalMainVersion, sources.deployedVersion, ...sources.pendingPullRequestVersions, ...(sources.automatedBranchVersions ?? [])]
@@ -176,6 +164,7 @@ export const publishPremium = async (
       artefacts: plan.versionWrite.data.artefacts,
     });
     log(`wrote ${plan.versionWrite.path}`);
+    snapshotPremiumVersion(files, version, snapshotDir);
 
     if (!sources) {
       log("retention sources could not be read, so no older version is deleted");
@@ -185,7 +174,6 @@ export const publishPremium = async (
         log(`deleted ${PREMIUM_COLLECTION}/${old}`);
       }
     }
-    snapshotPremiumVersion(files, version, snapshotDir);
     if (sources) prunePremiumSnapshots([...protectedVersions, version], snapshotDir);
   } finally {
     await releasePublishLock(db, owner);
@@ -229,9 +217,7 @@ export const runPublishPremiumCli = async ({
       : (initializeDatabase ?? ((id) => adaptPremiumDb(
           getFirestore(initializeApp({ projectId: id, credential: applicationDefault() }))
         )))(projectId);
-    const discoverRetentionSources = dryRun
-      ? undefined
-      : injectedDiscoverRetentionSources ?? (() => discoverPremiumRetentionSources({ repoRoot }));
+    const discoverRetentionSources = injectedDiscoverRetentionSources ?? (() => discoverPremiumRetentionSources({ repoRoot }));
     await publish({ db, dryRun, files, version, projectId, discoverRetentionSources, snapshotDir }, log);
     return 0;
   } catch (error) {

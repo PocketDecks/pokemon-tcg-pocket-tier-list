@@ -11,12 +11,14 @@ export const CANONICAL_PREMIUM_REPOSITORY = "PocketDecks/pokemon-tcg-pocket-tier
 
 export type PremiumGitRunner = (args: string[], cwd: string) => string;
 
-const runGit: PremiumGitRunner = (args, cwd) => execFileSync("git", args, {
+export const defaultGitRunner: PremiumGitRunner = (args, cwd) => execFileSync("git", args, {
   cwd,
   encoding: "utf8",
   stdio: ["ignore", "pipe", "pipe"],
   timeout: 60_000,
 });
+
+const VERSION_FILE = "public/data/data-version.json";
 
 const repositoryOf = (remoteUrl: string): string | undefined => {
   const value = remoteUrl.trim();
@@ -40,7 +42,7 @@ const repositoryOf = (remoteUrl: string): string | undefined => {
 
 export const resolveCanonicalMainRef = (
   repoRoot: string,
-  git: PremiumGitRunner = runGit
+  git: PremiumGitRunner = defaultGitRunner
 ): string | undefined => {
   try {
     const remotes = git(["remote"], repoRoot).split(/\r?\n/).filter(Boolean);
@@ -64,13 +66,15 @@ export const loadPremiumFiles = (dir: string): Record<string, string> => {
   return files;
 };
 
-export const readCommittedVersion = (file: string): string => {
-  const parsed: unknown = JSON.parse(fs.readFileSync(file, "utf8"));
+export const premiumVersionOf = (parsed: unknown): string | undefined => {
   const value = (parsed as { premium?: unknown } | null)?.premium;
-  if (typeof value !== "string" || !/^[0-9a-f]{16}$/.test(value)) {
-    throw new Error(`${file} has no valid premium version`);
-  }
-  return value;
+  return typeof value === "string" && /^[0-9a-f]{16}$/.test(value) ? value : undefined;
+};
+
+export const readCommittedVersion = (file: string): string => {
+  const version = premiumVersionOf(JSON.parse(fs.readFileSync(file, "utf8")));
+  if (version === undefined) throw new Error(`${file} has no valid premium version`);
+  return version;
 };
 
 export type MainPremiumVersionStatus =
@@ -78,36 +82,36 @@ export type MainPremiumVersionStatus =
   | { status: "absent" }
   | { status: "unreadable"; reason: string };
 
+export const inspectPremiumVersionAtRef = (
+  repoRoot: string,
+  ref: string,
+  git: PremiumGitRunner = defaultGitRunner
+): MainPremiumVersionStatus => {
+  const paths = git(["ls-tree", "-r", "--name-only", ref, "--", VERSION_FILE], repoRoot)
+    .split(/\r?\n/)
+    .filter(Boolean);
+  if (!paths.includes(VERSION_FILE)) return { status: "absent" };
+
+  const output = git(["show", `${ref}:${VERSION_FILE}`], repoRoot);
+  try {
+    const version = premiumVersionOf(JSON.parse(output));
+    return version
+      ? { status: "found", version }
+      : { status: "unreadable", reason: `${VERSION_FILE} has no valid premium version` };
+  } catch (error) {
+    return { status: "unreadable", reason: (error as Error).message };
+  }
+};
+
 export const inspectMainPremiumVersion = (
   repoRoot: string,
   ref?: string,
-  git: PremiumGitRunner = runGit
+  git: PremiumGitRunner = defaultGitRunner
 ): MainPremiumVersionStatus => {
   const targetRef = ref ?? resolveCanonicalMainRef(repoRoot, git);
   if (!targetRef) return { status: "absent" };
-  const versionPath = "public/data/data-version.json";
-  let paths: string[];
   try {
-    paths = git(["ls-tree", "-r", "--name-only", targetRef, "--", versionPath], repoRoot)
-      .split(/\r?\n/)
-      .filter(Boolean);
-  } catch (error) {
-    return { status: "unreadable", reason: (error as Error).message };
-  }
-  if (!paths.includes(versionPath)) return { status: "absent" };
-
-  let output: string;
-  try {
-    output = git(["show", `${targetRef}:${versionPath}`], repoRoot);
-  } catch (error) {
-    return { status: "unreadable", reason: (error as Error).message };
-  }
-  try {
-    const parsed: unknown = JSON.parse(output);
-    const value = (parsed as { premium?: unknown } | null)?.premium;
-    return typeof value === "string" && /^[0-9a-f]{16}$/.test(value)
-      ? { status: "found", version: value }
-      : { status: "unreadable", reason: `${versionPath} has no valid premium version` };
+    return inspectPremiumVersionAtRef(repoRoot, targetRef, git);
   } catch (error) {
     return { status: "unreadable", reason: (error as Error).message };
   }
@@ -116,7 +120,7 @@ export const inspectMainPremiumVersion = (
 export const readPremiumVersionAtRef = (
   repoRoot: string,
   ref?: string,
-  git: PremiumGitRunner = runGit
+  git: PremiumGitRunner = defaultGitRunner
 ): string | undefined => {
   const status = inspectMainPremiumVersion(repoRoot, ref, git);
   return status.status === "found" ? status.version : undefined;

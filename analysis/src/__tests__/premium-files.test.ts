@@ -8,7 +8,9 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   assertVersionMatches,
   inspectMainPremiumVersion,
+  inspectPremiumVersionAtRef,
   loadPremiumFiles,
+  premiumVersionOf,
   readCommittedVersion,
   readPremiumVersionAtRef,
   readProjectId,
@@ -175,6 +177,39 @@ describe("inspectMainPremiumVersion", () => {
     expect(
       inspectMainPremiumVersion("/repo", undefined, showVersion("0123456789abcdef"))
     ).toEqual({ status: "absent" });
+  });
+});
+
+describe("inspectPremiumVersionAtRef", () => {
+  it("throws when git cannot list the version file", () => {
+    expect(() => inspectPremiumVersionAtRef("/repo", "refs/remotes/pocketdecks/automated/a", () => {
+      throw new Error("exit status 128");
+    })).toThrow("exit status 128");
+  });
+
+  it("reports unreadable, not thrown, when the version file is not valid JSON", () => {
+    const git = (args: string[]): string => args[0] === "ls-tree" ? "public/data/data-version.json\n" : "{";
+
+    expect(inspectPremiumVersionAtRef("/repo", "refs/remotes/pocketdecks/automated/a", git)).toEqual({
+      status: "unreadable",
+      reason: expect.any(String),
+    });
+  });
+});
+
+describe("premiumVersionOf", () => {
+  it("returns a sixteen character lowercase hex version", () => {
+    expect(premiumVersionOf({ premium: "0123456789abcdef" })).toBe("0123456789abcdef");
+  });
+
+  it.each([
+    ["null", null],
+    ["a missing field", {}],
+    ["an uppercase version", { premium: "0123456789ABCDEF" }],
+    ["a short version", { premium: "0123" }],
+    ["a non-string version", { premium: 1234567890123456 }],
+  ])("rejects %s", (_name, value) => {
+    expect(premiumVersionOf(value)).toBeUndefined();
   });
 });
 

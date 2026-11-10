@@ -1,30 +1,14 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { Timestamp } from "firebase-admin/firestore";
 
-import * as publisher from "../../scripts/publish-premium";
+import { discoverPremiumRetentionSources as discover, publishPremium } from "../../scripts/publish-premium";
 import { PREMIUM_ARTEFACT_NAMES, premiumVersion } from "../utils/premium-artefacts";
+import type { PremiumGitRunner } from "../utils/premium-files";
 
 process.env.GITHUB_TOKEN = "dummy-test-token";
-
-type GitRunner = (args: string[], cwd: string) => string;
-type RetentionSources = {
-  canonicalMainVersion: string;
-  deployedVersion: string;
-  pendingPullRequestVersions: string[];
-  automatedBranchVersions?: string[];
-};
-type DiscoveryOptions = {
-  repoRoot: string;
-  fetcher?: typeof fetch;
-  runGit?: GitRunner;
-};
-
-const discover = (publisher as unknown as {
-  discoverPremiumRetentionSources?: (options: DiscoveryOptions) => Promise<RetentionSources | undefined>;
-}).discoverPremiumRetentionSources;
 
 const canonicalRepository = "PocketDecks/pokemon-tcg-pocket-tier-list";
 const apiRoot = `https://api.github.com/repos/${canonicalRepository}/pulls`;
@@ -68,7 +52,7 @@ const apiVersionFile = (version: string): unknown => ({
 const fakeGit = (
   canonicalVersion = versions.canonical,
   { ambiguous = false, failFetch = false, noCanonical = false, automatedBranch = undefined as string | undefined }: { ambiguous?: boolean; failFetch?: boolean; noCanonical?: boolean; automatedBranch?: string } = {}
-): GitRunner => (args) => {
+): PremiumGitRunner => (args) => {
   if (args[0] === "remote" && args.length === 1) {
     if (noCanonical) return "origin\n";
     return ambiguous ? "origin\npocketdecks\nupstream-copy\n" : "origin\npocketdecks\n";
@@ -97,6 +81,20 @@ const fakeGit = (
     return `{ "premium": "${automatedBranch}" }\n`;
   }
   throw new Error(`unexpected git call: ${args.join(" ")}`);
+};
+
+const automatedBranchesGit = (branches: Record<string, string>): PremiumGitRunner => {
+  const base = fakeGit();
+  const versionFile = ":public/data/data-version.json";
+  return (args, cwd) => {
+    if (args[0] === "for-each-ref") return Object.keys(branches).map((ref) => `${ref}\n`).join("");
+    if (args[0] === "ls-tree" && branches[args[3]] !== undefined) return "public/data/data-version.json\n";
+    if (args[0] === "show" && args[1].endsWith(versionFile)) {
+      const branch = branches[args[1].slice(0, -versionFile.length)];
+      if (branch !== undefined) return branch;
+    }
+    return base(args, cwd);
+  };
 };
 
 const pullPages = () => [
@@ -162,8 +160,18 @@ const noPruneDb = (writes: string[], deletes: string[]) => {
   };
 };
 
+const automatedBranchInspectionFailure = (): PremiumGitRunner => {
+  const git = automatedBranchesGit({
+    "refs/remotes/pocketdecks/automated/refresh": `{ "premium": "${versions.secondHead}" }\n`,
+  });
+  return (args, cwd) => {
+    if (args[0] === "ls-tree" && args[3].includes("/automated/")) throw new Error("exit status 128");
+    return git(args, cwd);
+  };
+};
+
 type DiscoveryFailure = {
-  git?: GitRunner;
+  git?: PremiumGitRunner;
   deployedFailure?: boolean;
   listingFailure?: boolean;
   laterPageFailure?: boolean;
@@ -174,6 +182,7 @@ const discoveryFailures: [string, DiscoveryFailure][] = [
   ["ambiguous canonical remote", { git: fakeGit(versions.canonical, { ambiguous: true }) }],
   ["missing canonical remote", { git: fakeGit(versions.canonical, { noCanonical: true }) }],
   ["canonical fetch failure", { git: fakeGit(versions.canonical, { failFetch: true }) }],
+  ["automated branch inspection failure", { git: automatedBranchInspectionFailure() }],
   ["deployed read failure", { deployedFailure: true }],
   ["pull request listing failure", { listingFailure: true }],
   ["later pull request page failure", { laterPageFailure: true }],
@@ -182,10 +191,6 @@ const discoveryFailures: [string, DiscoveryFailure][] = [
 
 describe("premium retention discovery", () => {
   it.each([["canonical route", pageTwo], ["numeric repository route", numericPageTwo]])("uses canonical main and discovers pull requests across the %s", async (_name, nextPage) => {
-    if (typeof discover !== "function") {
-      expect(discover).toBeTypeOf("function");
-      return;
-    }
     const calls: { url: string; auth: string | null; cacheControl: string | null }[] = [];
     const gitCalls: string[][] = [];
     const result = await discover({
@@ -211,10 +216,6 @@ describe("premium retention discovery", () => {
   });
 
   it("protects a pull request whose fork was deleted via the canonical PR ref", async () => {
-    if (typeof discover !== "function") {
-      expect(discover).toBeTypeOf("function");
-      return;
-    }
     const calls: string[] = [];
     const fetcher = (async (input, init) => {
       const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
@@ -242,10 +243,6 @@ describe("premium retention discovery", () => {
   });
 
   it("skips a pull request whose head has no premium version file", async () => {
-    if (typeof discover !== "function") {
-      expect(discover).toBeTypeOf("function");
-      return;
-    }
     const fetcher = (async (input, init) => {
       const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
       if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
@@ -267,10 +264,6 @@ describe("premium retention discovery", () => {
   });
 
   it("protects a pushed refresh branch that has no pull request", async () => {
-    if (typeof discover !== "function") {
-      expect(discover).toBeTypeOf("function");
-      return;
-    }
     const calls: { url: string; auth: string | null; cacheControl: string | null }[] = [];
     const result = await discover({
       repoRoot: "fake-repo",
@@ -281,10 +274,6 @@ describe("premium retention discovery", () => {
   });
 
   it("reads a nested automated branch ref", async () => {
-    if (typeof discover !== "function") {
-      expect(discover).toBeTypeOf("function");
-      return;
-    }
     const result = await discover({
       repoRoot: "fake-repo",
       runGit: fakeGit(versions.canonical, { automatedBranch: versions.secondHead }),
@@ -293,11 +282,30 @@ describe("premium retention discovery", () => {
     expect(result?.automatedBranchVersions).toEqual([versions.secondHead]);
   });
 
-  it("falls back to the canonical PR ref when the fork version file is unreadable", async () => {
-    if (typeof discover !== "function") {
-      expect(discover).toBeTypeOf("function");
-      return;
+  it("skips an automated branch whose version file is unreadable and keeps the others", async () => {
+    const warnings: string[] = [];
+    const warn = vi.spyOn(console, "warn").mockImplementation((message?: unknown) => {
+      warnings.push(String(message));
+    });
+    try {
+      const result = await discover({
+        repoRoot: "fake-repo",
+        runGit: automatedBranchesGit({
+          "refs/remotes/pocketdecks/automated/broken": "{",
+          "refs/remotes/pocketdecks/automated/refresh": `{ "premium": "${versions.secondHead}" }\n`,
+        }),
+        fetcher: successfulFetch([]),
+      });
+
+      expect(result?.automatedBranchVersions).toEqual([versions.secondHead]);
+      expect(warnings.join("\n")).toContain("refs/remotes/pocketdecks/automated/broken");
+      expect(warnings.join("\n")).not.toContain("refs/remotes/pocketdecks/automated/refresh");
+    } finally {
+      warn.mockRestore();
     }
+  });
+
+  it("falls back to the canonical PR ref when the fork version file is unreadable", async () => {
     const fetcher = (async (input, init) => {
       const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
       if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
@@ -321,10 +329,6 @@ describe("premium retention discovery", () => {
   });
 
   it("refuses to prune when a later page changes during pagination", async () => {
-    if (typeof discover !== "function") {
-      expect(discover).toBeTypeOf("function");
-      return;
-    }
     const numbered = (number: number) => ({
       ...pull("contributor/refresh", "1".repeat(40)),
       number,
@@ -349,10 +353,6 @@ describe("premium retention discovery", () => {
   });
 
   it("bounds every discovery request with an abort signal", async () => {
-    if (typeof discover !== "function") {
-      expect(discover).toBeTypeOf("function");
-      return;
-    }
     const signals: unknown[] = [];
     const fetcher = (async (input, init) => {
       const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
@@ -368,10 +368,6 @@ describe("premium retention discovery", () => {
   });
 
   it("refuses to prune when the pull request list changes during pagination", async () => {
-    if (typeof discover !== "function") {
-      expect(discover).toBeTypeOf("function");
-      return;
-    }
     const numbered = { ...pull("contributor/refresh", "1".repeat(40)), number: 7 };
     let pageOneReads = 0;
     const fetcher = (async (input, init) => {
@@ -397,10 +393,6 @@ describe("premium retention discovery", () => {
     ["page is not numeric", `${apiRoot}?state=open&base=main&per_page=100&page=next`],
     ["base is not main", `${apiRoot}?state=open&base=release&per_page=100&page=2`],
   ])("rejects a pagination link whose %s", async (_name, link) => {
-    if (typeof discover !== "function") {
-      expect(discover).toBeTypeOf("function");
-      return;
-    }
     const fetcher = (async (input, init) => {
       const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
       if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
@@ -412,10 +404,6 @@ describe("premium retention discovery", () => {
   });
 
   it("rejects pagination to another host without sending the token there", async () => {
-    if (typeof discover !== "function") {
-      expect(discover).toBeTypeOf("function");
-      return;
-    }
     const calls: { url: string; auth: string | null }[] = [];
     const fetcher = (async (input, init) => {
       const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
@@ -429,10 +417,6 @@ describe("premium retention discovery", () => {
   });
 
   it.each(discoveryFailures)("returns no pruning sources after a %s", async (_name, failure) => {
-    if (typeof discover !== "function") {
-      expect(discover).toBeTypeOf("function");
-      return;
-    }
     const calls: { url: string; auth: string | null }[] = [];
     const fetcher = (async (input, init) => {
       const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
@@ -460,14 +444,15 @@ describe("premium retention discovery", () => {
     const snapshotDir = path.join(tempDir, "premium");
     const oldSnapshot = path.join(tempDir, "premium-previous", "eeeeeeeeeeeeeeee");
     fs.mkdirSync(oldSnapshot, { recursive: true });
-    await publisher.publishPremium({
+    await publishPremium({
       db: noPruneDb(writes, deletes),
       dryRun: false,
+      projectId: "test-project",
       files,
       version: premiumVersion(files),
       snapshotDir,
       discoverRetentionSources: async () => result,
-    } as Parameters<typeof publisher.publishPremium>[0], () => {});
+    }, () => {});
     expect(writes).toHaveLength(PREMIUM_ARTEFACT_NAMES.length + 1);
     expect(deletes).toEqual([]);
     expect(fs.existsSync(oldSnapshot)).toBe(true);

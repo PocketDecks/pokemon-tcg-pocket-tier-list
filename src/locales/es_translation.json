@@ -136,6 +136,7 @@
     "matchupsUnavailable": "Los datos del mazo no se cargaron. Recarga la página para intentarlo de nuevo.",
     "matchupsLoading": "Cargando enfrentamientos",
     "loading": "Cargando mazo",
+    "shareQrPanel": "Código de mazo y código QR",
     "shareQrTitle": "compartir QR",
     "shareQrHeading": "Escanea para importar este mazo",
     "shareQrCopyTitle": "Toca para copiar el código del mazo",

@@ -136,6 +136,7 @@
     "matchupsUnavailable": "Os dados do deck não carregaram. Recarregue a página para tentar novamente.",
     "matchupsLoading": "A carregar confrontos",
     "loading": "A carregar deck",
+    "shareQrPanel": "Código do deck e código QR",
     "shareQrTitle": "partilhar QR",
     "shareQrHeading": "Digitalize para importar este deck",
     "shareQrCopyTitle": "Toque para copiar o código do deck",

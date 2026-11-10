@@ -119,7 +119,7 @@ const deckJob = (deck, archive = []) => {
     name,
     hub: hubFor(archive, slug),
     title: `${name} | Pokémon TCG Pocket Deck Stats and Matchups`,
-    description: `Pokémon TCG Pocket deck profile for ${name}: card list, matchups, and win rate.`,
+    description: `Pokémon TCG Pocket deck profile for ${name}: card list, deck code and QR code, matchups, and win rate.`,
     ogImage: `${SITE_URL}/og/deck/${slug}.png`,
     cardId: firstBestListCardId(deck),
   };

@@ -129,6 +129,7 @@ test("every live deck gets a prerender job, including one whose lists yield no c
   );
   assert.strictEqual(jobs[0].cardId, "b1-184");
   assert.strictEqual(jobs[1].cardId, null);
+  assert.match(jobs[0].description, /deck code and QR code/);
 });
 
 test("a deck without a card id renders in both locales with no lead-card image preload", () => {

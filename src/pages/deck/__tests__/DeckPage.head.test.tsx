@@ -113,6 +113,8 @@ describe("DeckPage head tags", () => {
 
     await waitFor(() => expect(document.title).toContain("Venusaur ex"));
 
+    expect(screen.getByRole("heading", { level: 2, name: "Deck Code and QR Code" })).toBeInTheDocument();
+
     expect(screen.getByRole("link", { name: /back to the tier list/i })).toHaveAttribute(
       "href",
       "/tier-list/"

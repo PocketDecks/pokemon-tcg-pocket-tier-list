@@ -136,6 +136,7 @@
     "matchupsUnavailable": "I dati del mazzo non sono stati caricati. Ricarica la pagina per riprovare.",
     "matchupsLoading": "Caricamento dei matchup",
     "loading": "Caricamento del mazzo",
+    "shareQrPanel": "Codice del mazzo e codice QR",
     "shareQrTitle": "condividi QR",
     "shareQrHeading": "Scansiona per importare questo mazzo",
     "shareQrCopyTitle": "Tocca per copiare il codice del mazzo",

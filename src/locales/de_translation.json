@@ -136,6 +136,7 @@
     "matchupsUnavailable": "Matchup-Daten konnten nicht geladen werden. Lade die Seite neu, um es erneut zu versuchen.",
     "matchupsLoading": "Matchups werden geladen",
     "loading": "Deck wird geladen",
+    "shareQrPanel": "Deck-Code und QR-Code",
     "shareQrTitle": "QR teilen",
     "shareQrHeading": "Scanne, um dieses Deck zu importieren",
     "shareQrCopyTitle": "Tippen, um den Deck-Code zu kopieren",

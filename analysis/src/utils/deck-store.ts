@@ -207,7 +207,7 @@ export const verifyStore = (dir: string, options: { placement?: boolean; process
     const processed = options.processedFile;
     const base = path.basename(processed);
     const parent = path.dirname(processed);
-    for (const suffix of [".tmp", ".bak", ".created"]) {
+    for (const suffix of [".tmp", ".tmp.owner", ".bak", ".created"]) {
       if (fs.existsSync(path.join(parent, `${base}${suffix}`))) {
         problems.push({ shard: base, message: `interrupted processed-tournaments write: ${base}${suffix}` });
       }

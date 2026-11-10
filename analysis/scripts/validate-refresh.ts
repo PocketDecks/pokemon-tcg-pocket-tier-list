@@ -9,7 +9,7 @@ import {
   PREMIUM_WINDOWS,
   premiumVersionSnapshotDir,
 } from "../src/utils/premium-artefacts";
-import { readPremiumVersionAtRef, resolveCanonicalMainRef } from "../src/utils/premium-files";
+import { inspectMainPremiumVersion, resolveCanonicalMainRef } from "../src/utils/premium-files";
 import {
   REFRESH_WINDOWS,
   validateRefresh,
@@ -39,9 +39,16 @@ const readPrevious = (): string | null => {
 
   const ref = flag("--previous-ref") ?? resolveCanonicalMainRef(repoRoot);
   if (!ref) throw new Error("cannot resolve the canonical main remote; pass --previous-ref <ref>");
-  const liveVersion = readPremiumVersionAtRef(repoRoot, ref);
+  const mainVersionStatus = inspectMainPremiumVersion(repoRoot, ref);
+  const liveVersion = mainVersionStatus.status === "found" ? mainVersionStatus.version : undefined;
   const premiumSnapshot = liveVersion ? loadPremiumSnapshotForVersion(liveVersion, premiumDir) : undefined;
-  if (liveVersion && !premiumSnapshot) {
+  if (mainVersionStatus.status === "unreadable") {
+    console.warn(
+      `Could not read the premium version committed at ${ref} ` +
+      `(${mainVersionStatus.reason}); treated as a first publish, so the ` +
+      `thinner-than-last-time floors for 30d and all are skipped`
+    );
+  } else if (liveVersion && !premiumSnapshot) {
     console.log(
       `No local premium snapshot for canonical main version ${liveVersion} in ` +
       `${premiumVersionSnapshotDir(liveVersion, premiumDir)}; first publish, ` +

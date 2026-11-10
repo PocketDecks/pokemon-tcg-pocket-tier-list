@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { writeFileAtomic } from "./atomic-write.mjs";
+import { isMainModule } from "./is-main-module.mjs";
 import { ALLOW_GROUP, NEVER_LISTED } from "./robots-policy.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -62,4 +63,4 @@ const main = () => {
   console.log(`Wrote ${ROBOTS_FILE}`);
 };
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) main();
+if (isMainModule(import.meta.url)) main();

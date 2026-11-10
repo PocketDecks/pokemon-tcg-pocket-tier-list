@@ -1,5 +1,6 @@
 import fs from "node:fs";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
+import { isMainModule } from "./is-main-module.mjs";
 import { policyPackPresets } from "c15t";
 import { EUROPE_OPT_IN_EXTRA_COUNTRIES } from "../src/consent/policy-countries.mjs";
 
@@ -121,4 +122,4 @@ const main = () => {
   console.log(`Wrote ${Object.keys(table).length} time zones to ${TARGET_PATH}`);
 };
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main();
+if (isMainModule(import.meta.url)) main();

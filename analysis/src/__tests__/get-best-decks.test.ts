@@ -2,7 +2,7 @@ import path from "node:path";
 import { vi } from "vitest";
 import { Deck } from "../utils/types";
 
-const { writeArtefacts, stageOgImages, getDecks, withStoreLock, commit, discard, mkdirSync, mainVersion, PREMIUM_TEST_DIR, PREVIOUS_TEST_DIR, DECKS_TEST_DIR } = vi.hoisted(() => {
+const { writeArtefacts, stageOgImages, getDecks, withStoreLock, commit, discard, mkdirSync, PREMIUM_TEST_DIR, PREVIOUS_TEST_DIR, DECKS_TEST_DIR } = vi.hoisted(() => {
   const base = require("node:path").join(require("node:os").tmpdir(), "get-best-decks-premium");
   return ({
   mkdirSync: vi.fn(),
@@ -15,7 +15,6 @@ const { writeArtefacts, stageOgImages, getDecks, withStoreLock, commit, discard,
   withStoreLock: vi.fn((_dir: string, fn: () => unknown) => fn()),
   commit: vi.fn(),
   discard: vi.fn(),
-  mainVersion: vi.fn(() => undefined as string | undefined),
   });
 });
 
@@ -37,7 +36,11 @@ vi.mock("../utils/premium-artefacts", async (importOriginal) => {
 });
 vi.mock("../utils/premium-files", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../utils/premium-files")>();
-  return { ...actual, readPremiumVersionAtRef: mainVersion, resolveCanonicalMainRef: vi.fn(() => "refs/remotes/pocketdecks/main") };
+  return {
+    ...actual,
+    inspectMainPremiumVersion: vi.fn<() => MainPremiumVersionStatus>(() => ({ status: "absent" })),
+    resolveCanonicalMainRef: vi.fn(() => "refs/remotes/pocketdecks/main"),
+  };
 });
 vi.mock("../utils/write-artifacts", () => ({ writeArtefacts }));
 vi.mock("../utils/data-paths", () => ({ decksDir: () => DECKS_TEST_DIR }));
@@ -72,7 +75,11 @@ import {
   renderDataVersion,
   snapshotPremiumVersion,
 } from "../utils/premium-artefacts";
-import { readPremiumVersionAtRef, resolveCanonicalMainRef } from "../utils/premium-files";
+import {
+  inspectMainPremiumVersion,
+  resolveCanonicalMainRef,
+  type MainPremiumVersionStatus,
+} from "../utils/premium-files";
 
 const { MOCKED_RELEASE_DATE } = vi.hoisted(() => ({
   MOCKED_RELEASE_DATE: new Date("2026-08-20T00:00:00.000Z"),
@@ -133,11 +140,12 @@ describe("run", () => {
     const fs = require("node:fs") as typeof import("node:fs");
     fs.rmSync(PREVIOUS_TEST_DIR, { recursive: true, force: true });
     snapshotPremiumVersion(DEFAULT_BASELINE, DEFAULT_VERSION, PREMIUM_TEST_DIR);
-    vi.mocked(readPremiumVersionAtRef).mockReturnValue(DEFAULT_VERSION);
+    vi.mocked(inspectMainPremiumVersion).mockReturnValue({ status: "found", version: DEFAULT_VERSION });
     vi.mocked(withStoreLock).mockImplementation((_dir, fn) => fn());
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
     vi.spyOn(console, "log").mockImplementation(() => undefined);
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
     stageOgImages.mockImplementation(async (decks: { slug: string }[]) => ({
       slugs: decks.map((deck) => deck.slug),
       commit,
@@ -433,7 +441,7 @@ describe("run", () => {
     const main = premiumGeneration(30, 35, "main");
     const version = premiumVersion(main);
     snapshotPremiumVersion(main, version, PREMIUM_TEST_DIR);
-    vi.mocked(readPremiumVersionAtRef).mockReturnValue(version);
+    vi.mocked(inspectMainPremiumVersion).mockReturnValue({ status: "found", version });
     const reader = vi.mocked(readPreviousArchetypeCount);
     reader.mockImplementation((best, meta, release) =>
       best.startsWith(PREVIOUS_TEST_DIR)
@@ -466,7 +474,7 @@ describe("run", () => {
     writePremiumGeneration(PREMIUM_TEST_DIR, local);
     writePremiumGeneration(PREVIOUS_TEST_DIR, local);
     snapshotPremiumVersion(main, mainVersion, PREMIUM_TEST_DIR);
-    vi.mocked(readPremiumVersionAtRef).mockReturnValue(mainVersion);
+    vi.mocked(inspectMainPremiumVersion).mockReturnValue({ status: "found", version: mainVersion });
     vi.mocked(readPreviousArchetypeCount).mockImplementation((best, meta, release) =>
       best.startsWith(PREVIOUS_TEST_DIR) ? actual.readPreviousArchetypeCount(best, meta, release) : 17
     );
@@ -492,7 +500,7 @@ describe("run", () => {
     const local = premiumGeneration(8, 9, "local");
     writePremiumGeneration(PREMIUM_TEST_DIR, local);
     writePremiumGeneration(PREVIOUS_TEST_DIR, local);
-    vi.mocked(readPremiumVersionAtRef).mockReturnValue("0123456789abcdef");
+    vi.mocked(inspectMainPremiumVersion).mockReturnValue({ status: "found", version: "0123456789abcdef" });
 
     try {
       await expect(run()).resolves.toBeUndefined();
@@ -517,13 +525,19 @@ describe("run", () => {
     expect(discard).toHaveBeenCalledTimes(1);
   });
 
-  it("treats an unreadable main version file as a first publish", async () => {
-    vi.mocked(readPremiumVersionAtRef).mockReturnValue(undefined);
+  it("warns and treats an unreadable main version as a first publish", async () => {
+    vi.mocked(inspectMainPremiumVersion).mockReturnValue({
+      status: "unreadable",
+      reason: "exit status 128",
+    });
 
     await expect(run()).resolves.toBeUndefined();
     const windows = vi.mocked(assertPublishable).mock.calls[0][0].windows;
     expect(windows.filter((window) => ["30d", "all"].includes(window.id)).map((window) => window.previousArchetypeCount)).toEqual([null, null]);
     expect(writeArtefacts).toHaveBeenCalledTimes(1);
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringMatching(/Could not read the premium version committed on canonical main/)
+    );
   });
 
   it("passes the days of data since the release to the gate", async () => {

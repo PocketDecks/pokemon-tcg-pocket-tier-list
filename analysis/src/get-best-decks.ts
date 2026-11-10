@@ -30,7 +30,10 @@ import {
   premiumFilePath,
   premiumVersionSnapshotDir,
 } from "./utils/premium-artefacts";
-import { readPremiumVersionAtRef, resolveCanonicalMainRef } from "./utils/premium-files";
+import {
+  inspectMainPremiumVersion,
+  resolveCanonicalMainRef,
+} from "./utils/premium-files";
 import { writeArtefacts } from "./utils/write-artifacts";
 import { decksDir } from "./utils/data-paths";
 import { withStoreLock } from "./utils/store-lock";
@@ -154,16 +157,23 @@ export const run = async (): Promise<void> => {
           "PocketDecks/pokemon-tcg-pocket-tier-list"
         );
       }
-      const mainVersion = readPremiumVersionAtRef(repoRoot, mainRef);
+      const mainVersionStatus = inspectMainPremiumVersion(repoRoot, mainRef);
+      const mainVersion = mainVersionStatus.status === "found" ? mainVersionStatus.version : undefined;
       const mainSnapshot = mainVersion
         ? loadPremiumSnapshotForVersion(mainVersion, PREMIUM_DIR)
         : undefined;
       const premiumBaselineDir = mainVersion && mainSnapshot
         ? premiumVersionSnapshotDir(mainVersion, PREMIUM_DIR)
         : null;
-      if (!mainSnapshot) {
+      if (mainVersionStatus.status === "unreadable") {
+        console.warn(
+          `Could not read the premium version committed on canonical main at ${mainRef} ` +
+          `(${mainVersionStatus.reason}); treated as a first publish, so the ` +
+          `thinner-than-last-time floors for 30d and all are skipped`
+        );
+      } else if (!mainSnapshot) {
         console.log(
-          `No premium baseline for canonical main (${mainVersion ?? "unreadable version"}) at ` +
+          `No premium baseline for canonical main (${mainVersion ?? "no committed version"}) at ` +
           `${mainRef}; first publish, so their thinner-than-last-time floors are skipped`
         );
       }

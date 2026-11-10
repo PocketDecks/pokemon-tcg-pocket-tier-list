@@ -33,13 +33,14 @@ export const writeArtefacts = (files: Record<string, string>): void => {
   });
 
   for (const artefact of artefacts) {
-    if (
-      fs.existsSync(artefact.temporary) ||
-      fs.existsSync(artefact.proof) ||
-      fs.existsSync(artefact.backup) ||
-      fs.existsSync(artefact.marker)
-    ) {
+    const hasTemporary = fs.existsSync(artefact.temporary);
+    const hasBackup = fs.existsSync(artefact.backup);
+    const hasMarker = fs.existsSync(artefact.marker);
+    if (hasTemporary || hasBackup || hasMarker) {
       throw new Error(`Refusing stale staging files for ${artefact.target}`);
+    }
+    if (fs.existsSync(artefact.proof)) {
+      fs.rmSync(artefact.proof, { force: true });
     }
   }
 

@@ -1,5 +1,5 @@
 import { execFileSync, spawn } from "node:child_process";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -641,16 +641,63 @@ describe("refresh output journal", () => {
     expect(() => recoverRefresh(root)).toThrow(/OG target differs from its checkpoint/);
   });
 
-  it("accepts a writer sidecar proof inside a generated tree", () => {
+  it("rejects a writer sidecar inside a generated tree as an unexpected file", () => {
     const root = fixture();
     beginRefresh(root);
     const target = path.join(root, "public/data/hubs/old.json");
     const temporary = `${target}.tmp`;
     fs.writeFileSync(temporary, "partial");
     writeProof(temporary, "partial");
-    recoverRefresh(root);
+    expect(() => recoverRefresh(root)).toThrow(/unexpected file in public\/data\/hubs: old\.json\.tmp/);
     expect(fs.readFileSync(target, "utf8")).toBe("old hub");
-    expect(fs.existsSync(temporary)).toBe(false);
-    expect(fs.existsSync(`${temporary}.owner`)).toBe(false);
+    expect(fs.existsSync(temporary)).toBe(true);
+  });
+
+  it("does not treat a legitimate OG atomic temporary as an unexpected tree file", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const deck = path.join(root, "public/og/deck");
+    const temporary = path.join(deck, `image.png.${process.pid}.${crypto.randomUUID()}.tmp`);
+    fs.writeFileSync(temporary, "partial");
+    writeProof(temporary, "partial");
+    expect(() => recoverRefresh(root)).not.toThrow(/unexpected file in public\/og\/deck/);
+  });
+
+  it("refuses a completed write whose created marker is not empty", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    fs.writeFileSync(`${target}.created`, "not a writer marker");
+    expect(() => recoverRefresh(root)).toThrow(/unproven created marker/);
+    expect(fs.readFileSync(target, "utf8")).toBe("base");
+  });
+
+  it("refuses a completed write whose writer proof does not match the target", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    fs.writeFileSync(`${target}.created`, "");
+    fs.writeFileSync(`${target}.tmp.owner`, JSON.stringify({
+      version: 1,
+      sha256: createHash("sha256").update("other content").digest("hex"),
+    }));
+    expect(() => recoverRefresh(root)).toThrow(/unproven writer proof/);
+    expect(fs.existsSync(target)).toBe(true);
+  });
+
+  it("cleans a leftover writer proof that matches the completed target", () => {
+    const root = fixture();
+    beginRefresh(root);
+    const target = path.join(root, "analysis/src/data/limitless-decks.json");
+    const content = fs.readFileSync(target, "utf8");
+    fs.writeFileSync(`${target}.created`, "");
+    fs.writeFileSync(`${target}.tmp.owner`, JSON.stringify({
+      version: 1,
+      sha256: createHash("sha256").update(content).digest("hex"),
+    }));
+    recoverRefresh(root);
+    expect(fs.existsSync(`${target}.created`)).toBe(false);
+    expect(fs.existsSync(`${target}.tmp.owner`)).toBe(false);
+    expect(fs.readFileSync(target, "utf8")).toBe("base");
   });
 });

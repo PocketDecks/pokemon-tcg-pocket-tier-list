@@ -164,18 +164,16 @@ export const discoverPremiumRetentionSources = async ({
     if (!canonicalMainVersion) return undefined;
 
     const automatedBranchVersions = (() => {
-      try {
-        const refs = git(["for-each-ref", "--format=%(refname)", "refs/heads/automated/", "refs/remotes/*/automated/"], repoRoot)
-          .split(/\r?\n/).filter(Boolean);
-        const versions: string[] = [];
-        for (const branchRef of refs) {
-          try {
-            const version = versionOf(JSON.parse(git(["show", `${branchRef}:public/data/data-version.json`], repoRoot)));
-            if (version) versions.push(version);
-          } catch { continue; }
-        }
-        return [...new Set(versions)];
-      } catch { return []; }
+      const refs = git(["for-each-ref", "--format=%(refname)", "refs/heads/automated/", "refs/remotes/*/automated/*"], repoRoot)
+        .split(/\r?\n/).filter(Boolean);
+      const versions: string[] = [];
+      for (const branchRef of refs) {
+        try {
+          const version = versionOf(JSON.parse(git(["show", `${branchRef}:public/data/data-version.json`], repoRoot)));
+          if (version) versions.push(version);
+        } catch { continue; }
+      }
+      return [...new Set(versions)];
     })();
 
     const deployed = await timedFetch(fetcher, new URL("https://pocketdecks.top/data/data-version.json"), {

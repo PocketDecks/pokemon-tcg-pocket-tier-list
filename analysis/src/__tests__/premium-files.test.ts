@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import {
   assertVersionMatches,
+  inspectMainPremiumVersion,
   loadPremiumFiles,
   readCommittedVersion,
   readPremiumVersionAtRef,
@@ -131,6 +132,40 @@ describe("readPremiumVersionAtRef", () => {
     git("remote", "add", "upstream-copy", "https://github.com/PocketDecks/pokemon-tcg-pocket-tier-list.git");
 
     expect(readPremiumVersionAtRef(dir)).toBeUndefined();
+  });
+});
+
+describe("inspectMainPremiumVersion", () => {
+  const showVersion = (version: string | null) => {
+    const content = version === null ? "{}" : renderDataVersion(version);
+    return (_args: string[], _cwd: string): string => content;
+  };
+  const throwingGit = (): string => {
+    throw new Error("exit status 128");
+  };
+
+  it("reports the committed version as found", () => {
+    expect(
+      inspectMainPremiumVersion("/repo", "refs/remotes/pocketdecks/main", showVersion("0123456789abcdef"))
+    ).toEqual({ status: "found", version: "0123456789abcdef" });
+  });
+
+  it("reports an absent version when the file has no valid premium field", () => {
+    expect(
+      inspectMainPremiumVersion("/repo", "refs/remotes/pocketdecks/main", showVersion(null))
+    ).toEqual({ status: "absent" });
+  });
+
+  it("reports unreadable when git fails", () => {
+    expect(
+      inspectMainPremiumVersion("/repo", "refs/remotes/pocketdecks/main", throwingGit)
+    ).toEqual({ status: "unreadable", reason: "exit status 128" });
+  });
+
+  it("reports absent when no canonical remote resolves", () => {
+    expect(
+      inspectMainPremiumVersion("/repo", undefined, showVersion("0123456789abcdef"))
+    ).toEqual({ status: "absent" });
   });
 });
 

@@ -73,21 +73,42 @@ export const readCommittedVersion = (file: string): string => {
   return value;
 };
 
+export type MainPremiumVersionStatus =
+  | { status: "found"; version: string }
+  | { status: "absent" }
+  | { status: "unreadable"; reason: string };
+
+export const inspectMainPremiumVersion = (
+  repoRoot: string,
+  ref?: string,
+  git: PremiumGitRunner = runGit
+): MainPremiumVersionStatus => {
+  const targetRef = ref ?? resolveCanonicalMainRef(repoRoot, git);
+  if (!targetRef) return { status: "absent" };
+  let output: string;
+  try {
+    output = git(["show", `${targetRef}:public/data/data-version.json`], repoRoot);
+  } catch (error) {
+    return { status: "unreadable", reason: (error as Error).message };
+  }
+  try {
+    const parsed: unknown = JSON.parse(output);
+    const value = (parsed as { premium?: unknown } | null)?.premium;
+    return typeof value === "string" && /^[0-9a-f]{16}$/.test(value)
+      ? { status: "found", version: value }
+      : { status: "absent" };
+  } catch (error) {
+    return { status: "unreadable", reason: (error as Error).message };
+  }
+};
+
 export const readPremiumVersionAtRef = (
   repoRoot: string,
   ref?: string,
   git: PremiumGitRunner = runGit
 ): string | undefined => {
-  const targetRef = ref ?? resolveCanonicalMainRef(repoRoot, git);
-  if (!targetRef) return undefined;
-  try {
-    const output = git(["show", `${targetRef}:public/data/data-version.json`], repoRoot);
-    const parsed: unknown = JSON.parse(output);
-    const value = (parsed as { premium?: unknown } | null)?.premium;
-    return typeof value === "string" && /^[0-9a-f]{16}$/.test(value) ? value : undefined;
-  } catch {
-    return undefined;
-  }
+  const status = inspectMainPremiumVersion(repoRoot, ref, git);
+  return status.status === "found" ? status.version : undefined;
 };
 
 export const assertVersionMatches = (

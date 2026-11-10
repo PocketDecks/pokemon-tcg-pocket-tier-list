@@ -10,7 +10,7 @@ const { getDecks, writeArtefacts, DECKS_DIR, MAIN_VERSION, readMainVersion } = v
   writeArtefacts: vi.fn(),
   DECKS_DIR: `${require("node:os").tmpdir()}/store-lock-run-store`,
   MAIN_VERSION: "0123456789abcdef",
-  readMainVersion: vi.fn(() => "0123456789abcdef" as string | undefined),
+  readMainVersion: vi.fn(() => "0123456789abcdef"),
 }));
 
 vi.mock("../load-env-side-effect", () => ({}));
@@ -23,7 +23,11 @@ vi.mock("../utils/premium-artefacts", async (importOriginal) => {
 });
 vi.mock("../utils/premium-files", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../utils/premium-files")>();
-  return { ...actual, readPremiumVersionAtRef: readMainVersion, resolveCanonicalMainRef: vi.fn(() => "refs/remotes/pocketdecks/main") };
+  return {
+    ...actual,
+    inspectMainPremiumVersion: vi.fn<() => MainPremiumVersionStatus>(() => ({ status: "found", version: readMainVersion() })),
+    resolveCanonicalMainRef: vi.fn(() => "refs/remotes/pocketdecks/main"),
+  };
 });
 vi.mock("../utils/calculate-card-scores", () => ({ calculateCardScores: () => ({}) }));
 vi.mock("../utils/generate-og-images", () => ({
@@ -40,14 +44,17 @@ vi.mock("../utils/assert-publishable", async (importOriginal) => {
 
 import { run } from "../get-best-decks";
 import { readPreviousArchetypeCount } from "../utils/assert-publishable";
-import { readPremiumVersionAtRef } from "../utils/premium-files";
+import {
+  inspectMainPremiumVersion,
+  type MainPremiumVersionStatus,
+} from "../utils/premium-files";
 
 describe("store lock around get-best-decks", () => {
   it("holds the lock while the main baseline version is read and compared", async () => {
     const lockFile = lockFileFor(DECKS_DIR);
-    vi.mocked(readPremiumVersionAtRef).mockImplementationOnce(() => {
+    vi.mocked(inspectMainPremiumVersion).mockImplementationOnce(() => {
       expect(fs.existsSync(lockFile)).toBe(true);
-      return MAIN_VERSION;
+      return { status: "found", version: MAIN_VERSION };
     });
     vi.mocked(readPreviousArchetypeCount).mockImplementation(() => {
       expect(fs.existsSync(lockFile)).toBe(true);
@@ -58,7 +65,7 @@ describe("store lock around get-best-decks", () => {
     } finally {
       vi.mocked(readPreviousArchetypeCount).mockImplementation(() => null);
     }
-    expect(readPremiumVersionAtRef).toHaveBeenCalledTimes(1);
+    expect(inspectMainPremiumVersion).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(lockFile)).toBe(false);
   });
 

@@ -51,7 +51,7 @@ const safeFiles = (root: string, directory: string): string[] => {
   visit(directory);
   return result;
 };
-const SIDECAR = String.raw`(?:\.tmp(?:\.owner)?|\.bak|\.created|\.\d+\.[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.tmp(?:\.owner)?)?`;
+const SIDECAR = String.raw`(?:\.\d+\.[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.tmp(?:\.owner)?)?`;
 const TREE_FILE_PATTERNS: Record<string, RegExp> = {
   "public/data/hubs": new RegExp(String.raw`^[a-z0-9]+(?:-[a-z0-9]+)*\.json` + SIDECAR + `$`),
   "public/og/deck": new RegExp(String.raw`^[a-z0-9]+(?:-[a-z0-9]+)*(?:&[a-z0-9]+(?:-[a-z0-9]+)*)*\.png` + SIDECAR + `$`),
@@ -230,6 +230,7 @@ export const recoverRefresh = (root: string): void => {
     const temporary = safePath(root, temporaryName);
     const backup = safePath(root, backupName);
     const marker = safePath(root, markerName);
+    const proof = safePath(root, proofName);
     const hasTemporary = fs.existsSync(temporary);
     const hasBackup = fs.existsSync(backup);
     const hasMarker = fs.existsSync(marker);
@@ -253,6 +254,16 @@ export const recoverRefresh = (root: string): void => {
       if (hasBackup) {
         const saved = journal.baseline[name];
         if (saved === undefined || hash(fs.readFileSync(backup)) !== hash(Buffer.from(saved, "base64"))) throw new Error(`refresh recovery stopped: unowned backup ${backup}`);
+      }
+      if (hasMarker && fs.statSync(marker).size !== 0) throw new Error(`refresh recovery stopped: unproven created marker ${marker}`);
+      if (fs.existsSync(proof)) {
+        const record = (() => {
+          try { return JSON.parse(fs.readFileSync(proof, "utf8")) as { version?: number; sha256?: string }; }
+          catch { return undefined; }
+        })();
+        if (!record || record.version !== 1 || typeof record.sha256 !== "string" || record.sha256 !== hash(fs.readFileSync(full))) {
+          throw new Error(`refresh recovery stopped: unproven writer proof ${proof}`);
+        }
       }
       sidecarPlans.push({ name, restore: false, removals: [backupName, proofName, markerName] });
     }

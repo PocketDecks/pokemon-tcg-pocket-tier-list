@@ -287,15 +287,17 @@ describe("writeArtefacts", () => {
     expect(fs.readdirSync(directory).sort()).toEqual(["target.json"]);
   });
 
-  it("refuses a stale owner proof without changing the target", () => {
+  it("clears an orphan owner proof and writes the new target", () => {
     const directory = makeTempDirectory();
     const target = path.join(directory, "target.json");
     fs.writeFileSync(target, "old");
     fs.writeFileSync(`${target}.tmp.owner`, "{}");
 
-    expect(() => writeArtefacts({ [target]: "new" })).toThrow(/stale staging/i);
-    expect(fs.readFileSync(target, "utf8")).toBe("old");
-    expect(fs.existsSync(`${target}.tmp.owner`)).toBe(true);
+    writeArtefacts({ [target]: "new" });
+
+    expect(fs.readFileSync(target, "utf8")).toBe("new");
+    expect(fs.existsSync(`${target}.tmp.owner`)).toBe(false);
+    expect(fs.readdirSync(directory).sort()).toEqual(["target.json"]);
   });
 
   it("marks a new target while it stages and clears the mark after a successful write", () => {

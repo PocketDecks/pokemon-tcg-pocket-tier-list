@@ -103,10 +103,23 @@ describe("verify-deck-store", () => {
     healthyStore();
     const processed = path.join(dir, "processed-tournaments.json");
     fs.writeFileSync(processed, JSON.stringify([{ id: "t1", date: "2026-09-01" }]));
+    fs.writeFileSync(`${processed}.tmp`, "[{}]");
+    fs.writeFileSync(`${processed}.tmp.owner`, JSON.stringify({ version: 1, sha256: "deadbeef" }));
     fs.writeFileSync(`${processed}.bak`, "[]");
     fs.writeFileSync(`${processed}.created`, "");
 
     expect(runVerify({ dir, processedFile: processed })).toBe(1);
+  });
+
+  it("fails on a stray shard staging sidecar", () => {
+    healthyStore();
+    fs.writeFileSync(
+      path.join(dir, "shard-2026-09.ndjson.tmp.owner"),
+      JSON.stringify({ version: 1, sha256: "deadbeef" })
+    );
+
+    expect(runVerify({ dir })).toBe(1);
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("stray staging file"));
   });
 
   it("fails on an invalid processed-tournaments entry", () => {

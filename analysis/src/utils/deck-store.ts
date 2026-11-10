@@ -151,6 +151,46 @@ export interface StoreProblem {
   message: string;
 }
 
+const verifyProcessedFile = (processed: string, hasShards: boolean): StoreProblem[] => {
+  const problems: StoreProblem[] = [];
+  const base = path.basename(processed);
+  const parent = path.dirname(processed);
+  for (const suffix of [".tmp", ".tmp.owner", ".bak", ".created"]) {
+    if (fs.existsSync(path.join(parent, `${base}${suffix}`))) {
+      problems.push({ shard: base, message: `interrupted processed-tournaments write: ${base}${suffix}` });
+    }
+  }
+  if (!fs.existsSync(processed)) {
+    if (hasShards) {
+      problems.push({ shard: base, message: "processed-tournaments.json is missing but the store holds shards" });
+    }
+  } else {
+    try {
+      const value = JSON.parse(fs.readFileSync(processed, "utf8")) as unknown;
+      if (!Array.isArray(value)) {
+        problems.push({ shard: base, message: "processed-tournaments.json is not an array" });
+      } else {
+        const ids = new Set<string>();
+        for (const entry of value) {
+          const record = entry as { id?: unknown; date?: unknown } | null;
+          if (!record || typeof record.id !== "string" || typeof record.date !== "string") {
+            problems.push({ shard: base, message: "processed-tournaments.json has an invalid entry" });
+            break;
+          }
+          if (ids.has(record.id)) {
+            problems.push({ shard: base, message: `duplicate processed tournament ${record.id}` });
+            break;
+          }
+          ids.add(record.id);
+        }
+      }
+    } catch {
+      problems.push({ shard: base, message: "processed-tournaments.json is not readable JSON" });
+    }
+  }
+  return problems;
+};
+
 export const verifyStore = (dir: string, options: { placement?: boolean; processedFile?: string } = {}): StoreProblem[] => {
   const manifest = readManifest(dir);
   const problems: StoreProblem[] = [];
@@ -215,42 +255,7 @@ export const verifyStore = (dir: string, options: { placement?: boolean; process
     }
   }
   if (options.processedFile) {
-    const processed = options.processedFile;
-    const base = path.basename(processed);
-    const parent = path.dirname(processed);
-    for (const suffix of [".tmp", ".tmp.owner", ".bak", ".created"]) {
-      if (fs.existsSync(path.join(parent, `${base}${suffix}`))) {
-        problems.push({ shard: base, message: `interrupted processed-tournaments write: ${base}${suffix}` });
-      }
-    }
-    if (!fs.existsSync(processed)) {
-      if (Object.keys(manifest.shards).length > 0) {
-        problems.push({ shard: base, message: "processed-tournaments.json is missing but the store holds shards" });
-      }
-    } else {
-      try {
-        const value = JSON.parse(fs.readFileSync(processed, "utf8")) as unknown;
-        if (!Array.isArray(value)) {
-          problems.push({ shard: base, message: "processed-tournaments.json is not an array" });
-        } else {
-          const ids = new Set<string>();
-          for (const entry of value) {
-            const record = entry as { id?: unknown; date?: unknown } | null;
-            if (!record || typeof record.id !== "string" || typeof record.date !== "string") {
-              problems.push({ shard: base, message: "processed-tournaments.json has an invalid entry" });
-              break;
-            }
-            if (ids.has(record.id)) {
-              problems.push({ shard: base, message: `duplicate processed tournament ${record.id}` });
-              break;
-            }
-            ids.add(record.id);
-          }
-        }
-      } catch {
-        problems.push({ shard: base, message: "processed-tournaments.json is not readable JSON" });
-      }
-    }
+    problems.push(...verifyProcessedFile(options.processedFile, Object.keys(manifest.shards).length > 0));
   }
   return problems;
 };

@@ -304,6 +304,39 @@ describe("writeArtefacts", () => {
     expect(fs.readdirSync(directory).sort()).toEqual(["target.json"]);
   });
 
+  it("clears an orphan owner proof whose new hash matches the target", () => {
+    const directory = makeTempDirectory();
+    const target = path.join(directory, "target.json");
+    fs.writeFileSync(target, "new");
+    fs.writeFileSync(`${target}.tmp.owner`, JSON.stringify({
+      version: 1,
+      targetSha256: createHash("sha256").update("old").digest("hex"),
+      sha256: createHash("sha256").update("new").digest("hex"),
+    }));
+
+    writeArtefacts({ [target]: "next" });
+
+    expect(fs.readFileSync(target, "utf8")).toBe("next");
+    expect(fs.existsSync(`${target}.tmp.owner`)).toBe(false);
+    expect(fs.readdirSync(directory).sort()).toEqual(["target.json"]);
+  });
+
+  it.each<[string, Record<string, unknown>]>([
+    ["a wrong version", { version: 2, targetSha256: createHash("sha256").update("old").digest("hex") }],
+    ["a target hash that does not match", { version: 1, targetSha256: createHash("sha256").update("other").digest("hex") }],
+    ["a new hash that does not match", { version: 1, sha256: createHash("sha256").update("other").digest("hex") }],
+  ])("refuses an orphan owner proof with %s without changing the target", (_label, proof) => {
+    const directory = makeTempDirectory();
+    const target = path.join(directory, "target.json");
+    fs.writeFileSync(target, "old");
+    fs.writeFileSync(`${target}.tmp.owner`, JSON.stringify(proof));
+
+    expect(() => writeArtefacts({ [target]: "new" })).toThrow(/stale staging/i);
+
+    expect(fs.readFileSync(target, "utf8")).toBe("old");
+    expect(fs.readdirSync(directory).sort()).toEqual(["target.json", "target.json.tmp.owner"]);
+  });
+
   it("marks a new target while it stages and clears the mark after a successful write", () => {
     const directory = makeTempDirectory();
     const target = path.join(directory, "target.json");

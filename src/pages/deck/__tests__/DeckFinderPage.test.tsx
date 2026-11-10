@@ -203,6 +203,21 @@ describe("DeckFinderPage", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Venusaur ex / Bulbasaur" })).toBeInTheDocument();
   });
 
+  it("keeps the recommended deck from replacing the finder page head tags", async () => {
+    renderFinder();
+
+    await screen.findByRole("button", { name: /Venusaur ex/ });
+
+    expect(
+      [...document.head.querySelectorAll<HTMLMetaElement>('meta[property="og:url"]')]
+        .some(({ content }) => content.endsWith(`/deck/${DECK_ID}/`)),
+    ).toBe(false);
+    expect(
+      [...document.head.querySelectorAll("title")]
+        .some(({ textContent }) => textContent?.includes("Pokémon TCG Pocket Deck Stats and Matchups")),
+    ).toBe(false);
+  });
+
   it("hides relative strength for an unranked recommendation", async () => {
     vi.spyOn(global, "fetch").mockImplementation((input) => {
       const url = String(input);

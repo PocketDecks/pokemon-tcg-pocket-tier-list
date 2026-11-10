@@ -6,7 +6,6 @@ import {
   sortByPowerScore,
 } from "../../app/score-baseline";
 import DeckCardGrid from "./DeckCardGrid";
-import DeckHeadTags from "./DeckHeadTags";
 import DeckHero, { type DeckHeroStat } from "./DeckHero";
 import DeckPageSkeleton from "./DeckPageSkeleton";
 import EnergyList from "./EnergyList";
@@ -121,7 +120,6 @@ const DeckFinderPage = () => {
 
   return (
     <>
-      <DeckHeadTags deck={deck} />
       <PageTitle>{t("header.deckFinderHeading")}</PageTitle>
       <DeckHero deck={deck} tier={tierForDeck(tiers, deck.id)} stats={heroStats} titleAs="h2">
         {relativeScore !== null && (

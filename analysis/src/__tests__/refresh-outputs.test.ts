@@ -42,7 +42,7 @@ const fixture = (): string => {
   execFileSync("git", ["init", "-q"], { cwd: root });
   fs.mkdirSync(path.join(root, "analysis/src/data"), { recursive: true });
   fs.writeFileSync(path.join(root, "analysis/src/data/limitless-decks.json"), "base");
-  fs.writeFileSync(path.join(root, ".gitignore"), "analysis/data/\nanalysis/out/premium-previous/\nanalysis/out/premium/\n");
+  fs.writeFileSync(path.join(root, ".gitignore"), "analysis/data/\nanalysis/out/premium-previous/\nanalysis/out/premium/\n.claude/\n.codex/\n");
   fs.mkdirSync(path.join(root, "public/og/deck"), { recursive: true });
   fs.writeFileSync(path.join(root, "public/og/deck/image.png"), "old image");
   fs.mkdirSync(path.join(root, "public/data/hubs"), { recursive: true });
@@ -386,6 +386,21 @@ describe("refresh output journal", () => {
     stageRefresh(root);
     execFileSync("git", ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-m", "generated"], { cwd: root });
     expect(() => recoverRefresh(root)).not.toThrow();
+    expect(fs.existsSync(path.join(root, ".git/refresh-outputs.json"))).toBe(false);
+    expect(() => beginRefresh(root)).not.toThrow();
+  });
+
+  it("completes recovery after a restored file already matches its baseline", () => {
+    const root = fixture();
+    beginRefresh(root);
+    fs.writeFileSync(path.join(root, "analysis/src/data/limitless-decks.json"), "generated");
+    fs.writeFileSync(path.join(root, "public/data/data-version.json"), "new version");
+    checkpointRefresh(root);
+    fs.writeFileSync(path.join(root, "analysis/src/data/limitless-decks.json"), "base");
+    expect(() => recoverRefresh(root)).not.toThrow();
+    expect(fs.readFileSync(path.join(root, "analysis/src/data/limitless-decks.json"), "utf8")).toBe("base");
+    expect(fs.readFileSync(path.join(root, "public/data/data-version.json"), "utf8")).toBe("old version");
+    expect(fs.existsSync(path.join(root, ".git/refresh-outputs.json"))).toBe(false);
   });
 
   it("unstages only journaled outputs after an interrupted pre-commit stage", () => {

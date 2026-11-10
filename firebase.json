@@ -96,6 +96,16 @@
         "type": 301
       },
       {
+        "source": "/feedback",
+        "destination": "/feedback/",
+        "type": 301
+      },
+      {
+        "source": "/ja/feedback",
+        "destination": "/ja/feedback/",
+        "type": 301
+      },
+      {
         "source": "/deck/abomasnow-a2a-021{,/**}",
         "destination": "/deck/abomasnow/",
         "type": 301

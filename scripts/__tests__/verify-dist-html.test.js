@@ -375,6 +375,23 @@ const HOSTING = {
   },
 };
 
+const HOSTING_WITH_FEEDBACK_REDIRECT = {
+  hosting: {
+    redirects: [
+      ...HOSTING.hosting.redirects,
+      { source: "/feedback", destination: "/feedback/", type: 301 },
+    ],
+    rewrites: HOSTING.hosting.rewrites,
+  },
+};
+
+const HOSTING_WITH_BARE_FEEDBACK_REWRITE = {
+  hosting: {
+    ...HOSTING.hosting,
+    rewrites: [{ source: "/feedback{,/**}", destination: "/app-shell.html" }],
+  },
+};
+
 test("flags app routes with no file, redirect, rewrite or deck page", () => {
   const dir = makeDist({
     "index.html": "",
@@ -384,6 +401,7 @@ test("flags app routes with no file, redirect, rewrite or deck page", () => {
   assert.deepStrictEqual(
     findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING }),
     [
+      "/feedback: no file, redirect or rewrite",
       "/about: no file, redirect or rewrite",
       "/deck: no file, redirect or rewrite",
       "/deck/:deckId: no prerendered page under /deck/",
@@ -401,7 +419,7 @@ test("passes app routes served by a file, a redirect or a built rewrite", () => 
     "app-shell.html": "",
   });
   assert.deepStrictEqual(
-    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING }),
+    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING_WITH_FEEDBACK_REDIRECT }),
     []
   );
 });
@@ -415,7 +433,7 @@ test("flags a rewrite whose target is not built", () => {
     "deck/x/index.html": "",
   });
   assert.deepStrictEqual(
-    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING }),
+    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING_WITH_BARE_FEEDBACK_REWRITE }),
     ["/feedback: rewrite target app-shell.html is not built"]
   );
 });

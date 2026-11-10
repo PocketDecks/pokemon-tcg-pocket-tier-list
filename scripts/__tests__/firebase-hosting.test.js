@@ -2,7 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert");
 const fs = require("node:fs");
 const path = require("node:path");
-const { resolveHosting } = require("../firebase-hosting");
+const { resolveHosting, sourceMatcher } = require("../firebase-hosting");
 const { deckSlug } = require("../deck-slug.mjs");
 const { redirectRules } = require("../generate-deck-redirects.mjs");
 
@@ -22,6 +22,17 @@ const FILES = new Set([
 ]);
 const resolve = (requestPath) => resolveHosting(config, FILES, requestPath);
 const NOT_FOUND = { kind: "not-found", status: 404, file: "404.html" };
+
+test("a double-star tail matches the slashed path and below, never the bare path", () => {
+  const feedback = sourceMatcher("/feedback/**");
+  assert.equal(feedback("/feedback"), false);
+  assert.equal(feedback("/feedback/"), true);
+  assert.equal(feedback("/feedback/x/y"), true);
+  const deck = sourceMatcher("/deck/x{,/**}");
+  assert.equal(deck("/deck/x"), true);
+  assert.equal(deck("/deck/x/"), true);
+  assert.equal(deck("/deck/x/y"), true);
+});
 
 const DATA_DIR = path.join(__dirname, "..", "..", "public", "data");
 const archive = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "deck-archive.json"), "utf8"));
@@ -150,10 +161,20 @@ test("legacy card and expansion paths permanently redirect", () => {
   });
 });
 
-test("feedback is served by the app shell with status 200", () => {
+test("feedback bare paths permanently redirect to the slashed page served by the app shell", () => {
   const rewrite = { kind: "rewrite", status: 200, file: "app-shell.html" };
-  assert.deepStrictEqual(resolve("/feedback"), rewrite);
+  assert.deepStrictEqual(resolve("/feedback"), {
+    kind: "redirect",
+    status: 301,
+    location: "/feedback/",
+  });
+  assert.deepStrictEqual(resolve("/ja/feedback"), {
+    kind: "redirect",
+    status: 301,
+    location: "/ja/feedback/",
+  });
   assert.deepStrictEqual(resolve("/feedback/"), rewrite);
+  assert.deepStrictEqual(resolve("/ja/feedback/"), rewrite);
 });
 
 test("crawler policy and security policy files resolve to their own static files", () => {

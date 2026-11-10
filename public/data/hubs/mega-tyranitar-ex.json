@@ -6,7 +6,7 @@
       "variant": "mega-tyranitar-ex-c1-085",
       "name": "mega-tyranitar-ex-c1-085",
       "firstSeen": "2026-11-05",
-      "lastSeen": "2026-11-05",
+      "lastSeen": "2026-11-09",
       "peakShare": 0.0043997485857950975,
       "peakDate": "2026-11-05",
       "cards": [
@@ -22,6 +22,28 @@
         "2:b2-145",
         "2:a2-146",
         "2:b1-219"
+      ]
+    },
+    {
+      "variant": "mega-tyranitar-ex-c1-085&chingling-b1-109",
+      "name": "mega-tyranitar-ex-c1-085&chingling-b1-109",
+      "firstSeen": "2026-11-09",
+      "lastSeen": "2026-11-09",
+      "peakShare": 0.005034324942791762,
+      "peakDate": "2026-11-09",
+      "cards": [
+        "2:c1-075",
+        "2:c1-076",
+        "2:c1-085",
+        "2:b1-109",
+        "2:pa-007",
+        "2:b1-225",
+        "1:a3-155",
+        "1:c1-127",
+        "2:pa-005",
+        "2:b2-145",
+        "1:b4-148",
+        "1:b1-219"
       ]
     }
   ]

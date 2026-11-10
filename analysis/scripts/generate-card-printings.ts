@@ -5,9 +5,10 @@
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
+import { decksDir } from "../src/utils/data-paths";
 import { canonSet } from "../src/utils/set-codes";
 
-const STORE = resolve(__dirname, "../data/decks");
+const STORE = resolve(decksDir());
 const OUT = resolve(__dirname, "../src/data/card-printings.json");
 
 interface StoredCard {

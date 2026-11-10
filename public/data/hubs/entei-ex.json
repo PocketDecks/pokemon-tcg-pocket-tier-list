@@ -26,6 +26,28 @@
       ]
     },
     {
+      "variant": "entei-ex-a4a-010&charizard-c1-018",
+      "name": "entei-ex-a4a-010&charizard-c1-018",
+      "firstSeen": "2026-11-09",
+      "lastSeen": "2026-11-09",
+      "peakShare": 0.0036613272311212816,
+      "peakDate": "2026-11-09",
+      "cards": [
+        "2:a2b-008",
+        "2:b2b-008",
+        "2:c1-018",
+        "2:a4a-010",
+        "2:c1-126",
+        "2:c1-127",
+        "1:b1-223",
+        "1:b1-225",
+        "2:b1-217",
+        "2:pa-005",
+        "1:c1-123",
+        "1:b4-155"
+      ]
+    },
+    {
       "variant": "entei-ex-a4a-010&magby-a4-032",
       "name": "entei-ex-a4a-010&magby-a4-032",
       "firstSeen": "2026-10-06",

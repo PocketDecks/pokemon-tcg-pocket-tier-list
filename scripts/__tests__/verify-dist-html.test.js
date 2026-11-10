@@ -27,6 +27,7 @@ const {
   loadDecks,
   findModulepreloadDrift,
 } = require("../verify-dist-html");
+const { resolveHosting } = require("../firebase-hosting");
 
 const makeDist = (files) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "dist-"));
@@ -454,6 +455,40 @@ test("flags a bare route that only a slashed rewrite serves", () => {
   );
 });
 
+test("flags a missing slashed route when its bare route resolves to a file", () => {
+  const dir = makeDist({ feedback: "" });
+  const firebase = { hosting: { redirects: [], rewrites: [] } };
+  assert.equal(resolveHosting(firebase, new Set(["feedback"]), "/feedback").kind, "file");
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, {
+      source: '<Routes><Route path="/feedback" element={<FeedbackPage />} /></Routes>',
+      firebase,
+    }),
+    ["/feedback/: no file, redirect or rewrite"]
+  );
+});
+
+test("flags a missing slashed rewrite target when its bare route resolves to a file", () => {
+  const dir = makeDist({ feedback: "" });
+  const firebase = {
+    hosting: { redirects: [], rewrites: [{ source: "/feedback/**", destination: "/app-shell.html" }] },
+  };
+  const files = new Set(["feedback"]);
+  assert.equal(resolveHosting(firebase, files, "/feedback").kind, "file");
+  assert.deepStrictEqual(resolveHosting(firebase, files, "/feedback/"), {
+    kind: "rewrite",
+    status: 200,
+    file: "app-shell.html",
+  });
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, {
+      source: '<Routes><Route path="/feedback" element={<FeedbackPage />} /></Routes>',
+      firebase,
+    }),
+    ["/feedback/: rewrite target app-shell.html is not built"]
+  );
+});
+
 test("flags a redirect whose destination does not resolve", () => {
   const dir = makeDist({
     "index.html": "",
@@ -511,6 +546,40 @@ const LOCALE_APP_ROUTES = `
     </Route>
   </Route>
 </Routes>`;
+
+const FEEDBACK_APP_ROUTES =
+  '<Routes><Route path="/ja/feedback" element={<FeedbackPage />} /></Routes>';
+
+const FEEDBACK_HOSTING = {
+  hosting: {
+    redirects: [
+      { regex: "^/feedback$", destination: "/feedback/", type: 301 },
+      { regex: "^/ja/feedback$", destination: "/ja/feedback/", type: 301 },
+    ],
+    rewrites: [
+      { source: "/feedback/**", destination: "/app-shell.html" },
+      { source: "/ja/feedback/**", destination: "/app-shell.html" },
+    ],
+  },
+};
+
+test("checks the Japanese feedback redirect, rewrite and destination", () => {
+  const dir = makeDist({ "app-shell.html": "" });
+  assert.deepStrictEqual(findUnresolvedAppRoutes(dir, { source: FEEDBACK_APP_ROUTES, firebase: FEEDBACK_HOSTING }), []);
+
+  const badDestination = {
+    hosting: {
+      ...FEEDBACK_HOSTING.hosting,
+      redirects: FEEDBACK_HOSTING.hosting.redirects.map((rule) =>
+        rule.regex === "^/ja/feedback$" ? { ...rule, destination: "/ja/missing/" } : rule
+      ),
+    },
+  };
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, { source: FEEDBACK_APP_ROUTES, firebase: badDestination }),
+    ["/ja/feedback: redirect to /ja/missing/ does not resolve"]
+  );
+});
 
 test("flags a locale dynamic route with no prerendered page under it", () => {
   const dir = makeDist({

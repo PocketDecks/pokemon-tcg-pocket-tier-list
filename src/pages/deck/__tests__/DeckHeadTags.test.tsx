@@ -59,9 +59,21 @@ describe("DeckHeadTags", () => {
     renderAt(`/deck/${DECKS[0].id}`, DECKS[0]);
     expect(document.title).toBe(job.title);
     expect(meta('meta[name="description"]')).toBe(job.description);
+    expect.soft(meta('meta[property="og:title"]')).toBe(job.title);
+    expect.soft(meta('meta[property="og:description"]')).toBe(job.description);
     expect(meta('meta[property="og:url"]')).toBe(
       `https://pocketdecks.top/deck/${DECKS[0].id}/`
     );
+  });
+
+  it("keeps the English finder head aligned with its recommended deck metadata", () => {
+    const job = deckJob({ name: DECKS[0].id });
+    renderAt("/deck/", DECKS[0]);
+
+    expect(document.title).toBe(job.title);
+    expect(meta('meta[name="description"]')).toBe(job.description);
+    expect.soft(meta('meta[property="og:title"]')).toBe(job.title);
+    expect.soft(meta('meta[property="og:description"]')).toBe(job.description);
   });
 
   it.each(DECKS)("stamps the prerendered Japanese head for $id", async (deck) => {

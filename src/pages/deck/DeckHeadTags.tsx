@@ -1,5 +1,4 @@
-import { useTranslation } from "react-i18next";
-import { deckDisplayName, type NamedDeck } from "../../app/deck-display";
+import type { NamedDeck } from "../../app/deck-display";
 import { englishDeckHead } from "../../app/deck-head-copy";
 import {
   friendlyName,
@@ -12,9 +11,7 @@ import { localizedUrl } from "../../app/locale-route";
 const SITE_URL = "https://pocketdecks.top";
 
 const DeckHeadTags = ({ deck }: { deck: NamedDeck & { id: string } }) => {
-  const { t } = useTranslation();
   const locale = useLocale();
-  const displayName = deckDisplayName(deck);
   const englishHead = englishDeckHead(friendlyName(deck.id));
   // Client navigation must repeat the prerendered strings, not English defaults.
   const jaName = friendlyName(deck.id);
@@ -30,17 +27,8 @@ const DeckHeadTags = ({ deck }: { deck: NamedDeck & { id: string } }) => {
             name="description"
             content={englishHead.description}
           />
-          <meta
-            property="og:title"
-            content={`${displayName} ${t("deckPage.ogBrand", "| Top Pocket Decks")}`}
-          />
-          <meta
-            property="og:description"
-            content={`${displayName} ${t(
-              "deckPage.ogDescriptionShort",
-              "deck list, matchups, and win rate for Pokémon TCG Pocket."
-            )}`}
-          />
+          <meta property="og:title" content={englishHead.title} />
+          <meta property="og:description" content={englishHead.description} />
         </>
       ) : (
         <>

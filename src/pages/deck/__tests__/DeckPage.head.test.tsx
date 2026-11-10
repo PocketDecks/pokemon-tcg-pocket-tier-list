@@ -124,7 +124,9 @@ describe("DeckPage head tags", () => {
 
     expect(document.title).not.toContain("a1-004");
 
-    expect(metaContent('meta[property="og:title"]')).toContain("Venusaur ex");
+    expect(metaContent('meta[property="og:title"]')).toBe(
+      "Venusaur & Bulbasaur | Pokémon TCG Pocket Deck Stats and Matchups"
+    );
     expect(metaContent('meta[property="og:url"]')).toBe(
       `https://pocketdecks.top/deck/${DECK_ID}/`
     );

@@ -9,6 +9,7 @@ import {
 } from "../settings";
 import {
   daysOfDataSince,
+  rampedFloor,
   readPreviousArchetypeCount,
 } from "./assert-publishable";
 import { PREMIUM_WINDOWS } from "./premium-artefacts";
@@ -54,7 +55,7 @@ const readPreviousCount = (
     return null;
   }
   const bestDecksFile = path.join(previousDir, `best-decks-${window}.json`);
-  if (!fs.existsSync(bestDecksFile)) return readDecks(previousDir, window).length;
+  if (!fs.existsSync(bestDecksFile)) throw new Error(`missing ${bestDecksFile}`);
   return readPreviousArchetypeCount(
     bestDecksFile,
     path.join(previousDir, `meta-share-${window}.json`),
@@ -113,11 +114,7 @@ export const validateRefresh = (
     const configuredFloor =
       daysOfData === null
         ? MIN_PUBLISHED_ARCHETYPES[window]
-        : Math.ceil(
-            (MIN_PUBLISHED_ARCHETYPES[window] *
-              Math.min(daysOfData, FLOOR_RAMP_DAYS[window])) /
-              FLOOR_RAMP_DAYS[window]
-          );
+        : rampedFloor(MIN_PUBLISHED_ARCHETYPES[window], daysOfData, FLOOR_RAMP_DAYS[window]);
     const previousFloor = previous === null ? 0 : Math.ceil(previous * previousRatio);
     const floor = Math.max(configuredFloor, previousFloor);
     windows.push({ window, archetypes: decks.length, floor, previous });

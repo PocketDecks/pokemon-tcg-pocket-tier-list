@@ -4,11 +4,8 @@ import path from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import {
-  EXPANSION_RELEASE_DATE,
-  MIN_PREVIOUS_ARCHETYPE_RATIO,
-  MIN_PUBLISHED_ARCHETYPES,
-} from "../settings";
+import type { PipelinePartialDeck } from "../../../src/types/pipeline-data";
+import { EXPANSION_RELEASE_DATE } from "../settings";
 import { publishFailures, readPreviousArchetypeCount } from "../utils/assert-publishable";
 import { REFRESH_WINDOWS, validateRefresh } from "../utils/validate-refresh";
 
@@ -206,7 +203,7 @@ describe("validateRefresh", () => {
     const premium = tmp();
     const images = tmp();
     const names = writeWindows(data, { ...healthy, "10d": 1 }, {}, premium);
-    writeTrendDate(data, "2026-10-30T00:00:00.000Z");
+    writeTrendDate(data, releaseDay(2));
     writeImages(images, names);
 
     const report = validateRefresh(data, images, null, premium);
@@ -404,25 +401,69 @@ describe("notCompared", () => {
 });
 
 describe("gate and validate baseline parity", () => {
-  it("computes the same previous-archetype floor the gate would", () => {
+  const pipelineDeck = (name: string): PipelinePartialDeck => ({
+    name,
+    lists: [],
+    popularity: 0,
+    percentOfGames: 0,
+    score: 1,
+    expectedWinRate: 0.5,
+    fieldCoverage: 1,
+    powerScore: 1,
+    freqScore: 0,
+    metaScore: 1,
+  });
+
+  const parityScenario = (current10d: number, previous10d: number) => {
     const data = tmp();
     const premium = tmp();
     const images = tmp();
     const previous = tmp();
-    const names = writeWindows(data, healthy, {}, premium);
-    writeImages(images, names);
-    writeWindows(previous, healthy, {}, previous);
+    const counts = { ...healthy, "10d": current10d };
+    writeImages(images, writeWindows(data, counts, {}, premium));
+    writeMetaShareDate(data, "10d", releaseDay(30));
+    writeWindows(previous, { ...healthy, "10d": previous10d }, {}, previous);
     writePreviousDates(previous);
 
     const report = validateRefresh(data, images, previous, premium);
-    for (const row of report.windows) {
-      const expectedPrevious = healthy[row.window];
-      const configuredFloor = MIN_PUBLISHED_ARCHETYPES[row.window];
-      const previousFloor = Math.ceil(expectedPrevious * MIN_PREVIOUS_ARCHETYPE_RATIO);
-      expect(row.previous).toBe(expectedPrevious);
-      expect(row.floor).toBe(Math.max(configuredFloor, previousFloor));
+    const gate = publishFailures({
+      windows: REFRESH_WINDOWS.map((window) => ({
+        id: window,
+        bestDecks: Array.from({ length: counts[window] }, (_, index) =>
+          pipelineDeck(`deck-${window}-${index}`)
+        ),
+        previousArchetypeCount: readPreviousArchetypeCount(
+          path.join(previous, `best-decks-${window}.json`),
+          path.join(previous, `meta-share-${window}.json`),
+          EXPANSION_RELEASE_DATE
+        ),
+      })),
+      defaultWindow: "10d",
+      deckSlugs: [],
+      newestDeckDate: releaseDay(30),
+      daysOfData: 30,
+      now: new Date(releaseDay(30)),
+      currentSet: "A1",
+      newestSet: "A1",
+      currentSetListingCount: 1,
+      unmatchedDecks: { decks: 0, games: 0, qualifiedGames: 1 },
+    });
+    return { report, gate };
+  };
+
+  it.each([
+    [20, true],
+    [21, false],
+  ] as const)(
+    "gate and validate agree on refusing %i archetypes against a previous 41",
+    (current, refused) => {
+      const { report, gate } = parityScenario(current, 41);
+
+      expect(report.windows.find((row) => row.window === "10d")?.floor).toBe(21);
+      expect(report.failures.some((failure) => failure.startsWith("10d:"))).toBe(refused);
+      expect(gate.some((failure) => failure.startsWith("10d:"))).toBe(refused);
     }
-  });
+  );
 
   it("treats a missing premium baseline as no comparison in both readers", () => {
     const data = tmp();
@@ -451,74 +492,20 @@ describe("gate and validate baseline parity", () => {
   });
 
   it("pins the ceil ratio at a fractional previous count", () => {
-    const data = tmp();
-    const premium = tmp();
-    const images = tmp();
-    const previous = tmp();
-    const current = { "10d": 21, "20d": 25, "30d": 32, all: 32 } as const;
-    const before = { "10d": 41, "20d": 25, "30d": 32, all: 32 } as const;
-    const names = writeWindows(data, current, {}, premium);
-    writeImages(images, names);
-    writeWindows(previous, before, {}, previous);
-    writePreviousDates(previous);
-
-    const report = validateRefresh(data, images, previous, premium);
+    const { report, gate } = parityScenario(21, 41);
     const validateRow = report.windows.find((row) => row.window === "10d");
-    const gateFailures = publishFailures({
-      windows: [{
-        id: "10d",
-        bestDecks: Array.from({ length: current["10d"] }, (_, index) => ({ name: `deck-10d-${index}`, powerScore: 1, score: 1 })) as never,
-        previousArchetypeCount: before["10d"],
-      }],
-      defaultWindow: "20d",
-      deckSlugs: [],
-      newestDeckDate: releaseDay(30),
-      daysOfData: 30,
-      now: new Date(releaseDay(30)),
-      currentSet: "A1",
-      newestSet: "A1",
-      currentSetListingCount: 1,
-      unmatchedDecks: { decks: 0, games: 0, qualifiedGames: 1 },
-    });
 
     expect(validateRow?.floor).toBe(21);
     expect(validateRow?.archetypes).toBe(21);
-    expect(gateFailures).not.toContain("10d: 21 archetypes is under 50% of the previous 41");
+    expect(gate.filter((failure) => failure.startsWith("10d:"))).toEqual([]);
   });
 
   it("gate and validate both refuse a window that is thin against the same baseline", () => {
-    const data = tmp();
-    const premium = tmp();
-    const images = tmp();
-    const previous = tmp();
-    const current = { "10d": 3, "20d": 25, "30d": 32, all: 32 } as const;
-    const before = { "10d": 40, "20d": 25, "30d": 32, all: 32 } as const;
-    const names = writeWindows(data, current, {}, premium);
-    writeImages(images, names);
-    writeWindows(previous, before, {}, previous);
-    writePreviousDates(previous);
-
-    const report = validateRefresh(data, images, previous, premium);
+    const { report, gate } = parityScenario(3, 40);
     const validateThin = report.failures.some((failure) => failure.startsWith("10d:") && failure.includes("% of"));
-    const gate = publishFailures({
-      windows: [{
-        id: "10d",
-        bestDecks: Array.from({ length: current["10d"] }, (_, index) => ({ name: `deck-10d-${index}`, powerScore: 1, score: 1 })) as never,
-        previousArchetypeCount: before["10d"],
-      }],
-      defaultWindow: "10d",
-      deckSlugs: [],
-      newestDeckDate: releaseDay(30),
-      daysOfData: 30,
-      now: new Date(releaseDay(30)),
-      currentSet: "A1",
-      newestSet: "A1",
-      currentSetListingCount: 1,
-      unmatchedDecks: { decks: 0, games: 0, qualifiedGames: 1 },
-    });
     const gateThin = gate.some((failure) => failure.startsWith("10d:") && failure.includes("previous"));
 
-    expect(report.windows.find((row) => row.window === "10d")?.previous).toBe(before["10d"]);
+    expect(report.windows.find((row) => row.window === "10d")?.previous).toBe(40);
     expect(validateThin).toBe(true);
     expect(gateThin).toBe(true);
   });

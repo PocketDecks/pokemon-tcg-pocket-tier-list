@@ -60,8 +60,10 @@ describe("store lock around get-best-decks", () => {
       expect(fs.existsSync(lockFile)).toBe(true);
       return null;
     });
+    vi.mocked(readPreviousArchetypeCount).mockClear();
     try {
       await run();
+      expect(readPreviousArchetypeCount).toHaveBeenCalled();
     } finally {
       vi.mocked(readPreviousArchetypeCount).mockImplementation(() => null);
     }

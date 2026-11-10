@@ -42,16 +42,49 @@ import cards from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 
 const isPremiumWindow = (window: WindowId): boolean =>
   (PREMIUM_WINDOWS as readonly string[]).includes(window);
-const previousArtefact = (base: string, window: WindowId, premiumDir: string | null): string =>
-  isPremiumWindow(window)
-    ? premiumDir === null
-      ? ""
-      : premiumFilePath(`${base}-${window}`, premiumDir)
-    : `../public/data/${base}-${window}.json`;
-const previousBestDecks = (window: WindowId, premiumDir: string | null): string =>
-  previousArtefact("best-decks", window, premiumDir);
-const previousMetaShare = (window: WindowId, premiumDir: string | null): string =>
-  previousArtefact("meta-share", window, premiumDir);
+const previousCount = (window: WindowId, baselineDir: string | null): number | null => {
+  if (!isPremiumWindow(window)) {
+    return readPreviousArchetypeCount(
+      `../public/data/best-decks-${window}.json`,
+      `../public/data/meta-share-${window}.json`,
+      EXPANSION_RELEASE_DATE
+    );
+  }
+  if (baselineDir === null) return null;
+  return readPreviousArchetypeCount(
+    premiumFilePath(`best-decks-${window}`, baselineDir),
+    premiumFilePath(`meta-share-${window}`, baselineDir),
+    EXPANSION_RELEASE_DATE
+  );
+};
+const resolvePremiumBaselineDir = (repoRoot: string): string | null => {
+  const mainRef = resolveCanonicalMainRef(repoRoot);
+  if (!mainRef) {
+    throw new Error(
+      "cannot resolve the canonical main remote; confirm a remote points at " +
+      "PocketDecks/pokemon-tcg-pocket-tier-list"
+    );
+  }
+  const mainVersionStatus = inspectMainPremiumVersion(repoRoot, mainRef);
+  if (mainVersionStatus.status === "unreadable") {
+    throw new Error(
+      `Could not read the premium version committed on canonical main at ${mainRef} ` +
+      `(${mainVersionStatus.reason}); refusing to publish against an unreadable baseline`
+    );
+  }
+  const mainVersion = mainVersionStatus.status === "found" ? mainVersionStatus.version : undefined;
+  const mainSnapshot = mainVersion
+    ? loadPremiumSnapshotForVersion(mainVersion, PREMIUM_DIR)
+    : undefined;
+  if (!mainVersion || !mainSnapshot) {
+    console.log(
+      `No premium baseline for canonical main (${mainVersion ?? "no committed version"}) at ` +
+      `${mainRef}; first publish, so their thinner-than-last-time floors are skipped`
+    );
+    return null;
+  }
+  return premiumVersionSnapshotDir(mainVersion, PREMIUM_DIR);
+};
 const listingStore = listings as DeckListingStore;
 const newestSet = STANDARD_SET_CODES[STANDARD_SET_CODES.length - 1];
 const slugOf = (name: string): string => name.toLowerCase().replace(/\s/g, "-");
@@ -149,43 +182,11 @@ export const run = async (): Promise<void> => {
   let jsonPublished = false;
   try {
     withStoreLock(decksDir(), () => {
-      const repoRoot = path.resolve(__dirname, "../..");
-      const mainRef = resolveCanonicalMainRef(repoRoot);
-      if (!mainRef) {
-        throw new Error(
-          "cannot resolve the canonical main remote; confirm a remote points at " +
-          "PocketDecks/pokemon-tcg-pocket-tier-list"
-        );
-      }
-      const mainVersionStatus = inspectMainPremiumVersion(repoRoot, mainRef);
-      const mainVersion = mainVersionStatus.status === "found" ? mainVersionStatus.version : undefined;
-      const mainSnapshot = mainVersion
-        ? loadPremiumSnapshotForVersion(mainVersion, PREMIUM_DIR)
-        : undefined;
-      const premiumBaselineDir = mainVersion && mainSnapshot
-        ? premiumVersionSnapshotDir(mainVersion, PREMIUM_DIR)
-        : null;
-      if (mainVersionStatus.status === "unreadable") {
-        throw new Error(
-          `Could not read the premium version committed on canonical main at ${mainRef} ` +
-          `(${mainVersionStatus.reason}); refusing to publish against an unreadable baseline`
-        );
-      } else if (!mainSnapshot) {
-        console.log(
-          `No premium baseline for canonical main (${mainVersion ?? "no committed version"}) at ` +
-          `${mainRef}; first publish, so their thinner-than-last-time floors are skipped`
-        );
-      }
+      const premiumBaselineDir = resolvePremiumBaselineDir(path.resolve(__dirname, "../.."));
       const windowSnapshots = WINDOW_IDS.map((window) => ({
         id: window,
         bestDecks: artefacts[window].bestDecks,
-        previousArchetypeCount: isPremiumWindow(window) && premiumBaselineDir === null
-          ? null
-          : readPreviousArchetypeCount(
-              previousBestDecks(window, premiumBaselineDir),
-              previousMetaShare(window, premiumBaselineDir),
-              EXPANSION_RELEASE_DATE
-            ),
+        previousArchetypeCount: previousCount(window, premiumBaselineDir),
       }));
       const uncompared = windowsWithoutComparison(windowSnapshots);
       if (uncompared.length > 0) {

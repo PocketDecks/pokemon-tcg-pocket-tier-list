@@ -6,6 +6,7 @@ const os = require("node:os");
 const path = require("node:path");
 const {
   findBakedAppState,
+  findSlashlessInternalLinks,
   findCanonicalIssues,
   findCspHashIssues,
   findCspBootstrapIssues,
@@ -35,6 +36,24 @@ const makeDist = (files) => {
   }
   return dir;
 };
+
+test("flags internal anchors without a trailing slash", () => {
+  const dir = makeDist({
+    "index.html": '<a href="/tier-list"><a href="/deck/x&amp;y?window=30d"><a href="https://pocketdecks.top/about"><a href="/tier-list/"><a href="/robots.txt"><a href="https://example.com/a"><a href="#main">',
+  });
+  assert.deepStrictEqual(findSlashlessInternalLinks(dir), [
+    "index.html: /tier-list",
+    "index.html: /deck/x&y?window=30d",
+    "index.html: https://pocketdecks.top/about",
+  ]);
+});
+
+test("passes slashed internal anchors", () => {
+  const dir = makeDist({
+    "index.html": '<a href="/tier-list/"><a href="/deck/x/?window=30d"><a href="https://pocketdecks.top/about/"><a href="/robots.txt"><a href="https://example.com/a"><a href="#main">',
+  });
+  assert.deepStrictEqual(findSlashlessInternalLinks(dir), []);
+});
 
 const PRELOAD = '<link rel="modulepreload" href="/assets/entry.js" />';
 

@@ -61,6 +61,18 @@ const findLoopbackRefs = (dir = DIST_DIR) =>
       return hits.map((hit) => `${entry}: ${hit}`);
     });
 
+const findSlashlessInternalLinks = (dir = DIST_DIR) =>
+  listHtmlFiles(dir).flatMap((entry) => {
+    const html = fs.readFileSync(path.join(dir, entry), "utf8");
+    return [...html.matchAll(/<a\b[^>]*\bhref=["']([^"']*)["']/gi)].flatMap((match) => {
+      const href = decodeXmlEntities(match[1]);
+      if (!href.startsWith("/") && !href.startsWith(`https://${SITE_HOST}/`)) return [];
+      const pathname = (href.startsWith("/") ? href : href.slice(`https://${SITE_HOST}`.length)).split(/[?#]/, 1)[0];
+      if (pathname.startsWith("//") || pathname.startsWith("/cdn-cgi/") || /\.[a-z0-9]{2,5}$/i.test(pathname.split("/").at(-1) ?? "")) return [];
+      return pathname.endsWith("/") ? [] : [`${entry}: ${href}`];
+    });
+  });
+
 const findEmptyStyledTags = (dir = DIST_DIR) =>
   fs
     .readdirSync(dir, { recursive: true })
@@ -628,6 +640,13 @@ const main = () => {
     );
     process.exit(1);
   }
+  const slashlessInternalLinks = findSlashlessInternalLinks();
+  if (slashlessInternalLinks.length > 0) {
+    console.error(
+      `Internal links without a trailing slash in built HTML:\n${slashlessInternalLinks.join("\n")}`
+    );
+    process.exit(1);
+  }
   const emptyStyledTags = findEmptyStyledTags();
   if (emptyStyledTags.length > 0) {
     console.error(
@@ -791,6 +810,7 @@ module.exports = {
   findExpansionListIssues,
   findExternalScripts,
   findLoopbackRefs,
+  findSlashlessInternalLinks,
   findMissingCardThumbs,
   findMissingLiveDeckPages,
   findMissingDeckThumbs,

@@ -277,8 +277,27 @@ const findUnresolvedAppRoutes = (
       }
       const resolved = resolveHosting(firebase, files, route);
       if (resolved.kind === "not-found") return [`${route}: no file, redirect or rewrite`];
+      if (resolved.kind === "redirect") {
+        const destination = resolveHosting(firebase, files, resolved.location);
+        if (destination.kind === "rewrite" && !files.has(destination.file)) {
+          return [`${resolved.location}: rewrite target ${destination.file} is not built`];
+        }
+        if (
+          destination.kind !== "file" &&
+          !(destination.kind === "rewrite" && files.has(destination.file))
+        ) {
+          return [`${route}: redirect to ${resolved.location} does not resolve`];
+        }
+      }
       if (resolved.kind === "rewrite" && !files.has(resolved.file)) {
         return [`${route}: rewrite target ${resolved.file} is not built`];
+      }
+      if (resolved.kind === "redirect") return [];
+      const slashedRoute = route === "/" ? "/" : `${route}/`;
+      const slashed = resolveHosting(firebase, files, slashedRoute);
+      if (slashed.kind === "not-found") return [`${slashedRoute}: no file, redirect or rewrite`];
+      if (slashed.kind === "rewrite" && !files.has(slashed.file)) {
+        return [`${slashedRoute}: rewrite target ${slashed.file} is not built`];
       }
       return [];
     });

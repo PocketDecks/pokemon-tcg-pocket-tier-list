@@ -385,17 +385,11 @@ const HOSTING_WITH_FEEDBACK_REDIRECT = {
   },
 };
 
-const HOSTING_WITH_BARE_FEEDBACK_REWRITE = {
-  hosting: {
-    ...HOSTING.hosting,
-    rewrites: [{ source: "/feedback{,/**}", destination: "/app-shell.html" }],
-  },
-};
-
 test("flags app routes with no file, redirect, rewrite or deck page", () => {
   const dir = makeDist({
     "index.html": "",
     "tier-list/index.html": "",
+    "statistics/index.html": "",
     "app-shell.html": "",
   });
   assert.deepStrictEqual(
@@ -413,6 +407,7 @@ test("passes app routes served by a file, a redirect or a built rewrite", () => 
   const dir = makeDist({
     "index.html": "",
     "tier-list/index.html": "",
+    "statistics/index.html": "",
     "about/index.html": "",
     "deck/index.html": "",
     "deck/x/index.html": "",
@@ -424,17 +419,59 @@ test("passes app routes served by a file, a redirect or a built rewrite", () => 
   );
 });
 
+test("flags a bare route that only a slashed rewrite serves", () => {
+  const dir = makeDist({
+    "index.html": "",
+    "tier-list/index.html": "",
+    "statistics/index.html": "",
+    "about/index.html": "",
+    "deck/index.html": "",
+    "deck/x/index.html": "",
+    "app-shell.html": "",
+  });
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING }),
+    ["/feedback: no file, redirect or rewrite"]
+  );
+});
+
+test("flags a redirect whose destination does not resolve", () => {
+  const dir = makeDist({
+    "index.html": "",
+    "tier-list/index.html": "",
+    "statistics/index.html": "",
+    "about/index.html": "",
+    "deck/index.html": "",
+    "deck/x/index.html": "",
+    "app-shell.html": "",
+  });
+  const firebase = {
+    hosting: {
+      ...HOSTING_WITH_FEEDBACK_REDIRECT.hosting,
+      redirects: [
+        { source: "/feedback", destination: "/nowhere/", type: 301 },
+        ...HOSTING.hosting.redirects,
+      ],
+    },
+  };
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase }),
+    ["/feedback: redirect to /nowhere/ does not resolve"]
+  );
+});
+
 test("flags a rewrite whose target is not built", () => {
   const dir = makeDist({
     "index.html": "",
     "tier-list/index.html": "",
+    "statistics/index.html": "",
     "about/index.html": "",
     "deck/index.html": "",
     "deck/x/index.html": "",
   });
   assert.deepStrictEqual(
-    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING_WITH_BARE_FEEDBACK_REWRITE }),
-    ["/feedback: rewrite target app-shell.html is not built"]
+    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING_WITH_FEEDBACK_REDIRECT }),
+    ["/feedback/: rewrite target app-shell.html is not built"]
   );
 });
 

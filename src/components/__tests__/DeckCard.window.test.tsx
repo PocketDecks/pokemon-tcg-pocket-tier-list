@@ -49,30 +49,30 @@ describe("DeckCard window link", () => {
   it("links to the plain deck page in the default window", () => {
     renderCard("20d");
 
-    expect(hrefs()).toEqual(["/deck/deck-1", "/deck/deck-1"]);
+    expect(hrefs()).toEqual(["/deck/deck-1/", "/deck/deck-1/"]);
   });
 
   it("carries a non-default window on both the tile and the secondary icon", () => {
     renderCard("30d");
 
-    expect(hrefs()).toEqual(["/deck/deck-1?window=30d", "/deck/deck-1?window=30d"]);
+    expect(hrefs()).toEqual(["/deck/deck-1/?window=30d", "/deck/deck-1/?window=30d"]);
   });
 
   it("carries the free 10-day window too", () => {
     renderCard("10d");
 
-    expect(hrefs()).toEqual(["/deck/deck-1?window=10d", "/deck/deck-1?window=10d"]);
+    expect(hrefs()).toEqual(["/deck/deck-1/?window=10d", "/deck/deck-1/?window=10d"]);
   });
 
   it("keeps the locale prefix ahead of the path", () => {
     renderCard("all", "/ja/tier-list");
 
-    expect(hrefs()).toEqual(["/ja/deck/deck-1?window=all", "/ja/deck/deck-1?window=all"]);
+    expect(hrefs()).toEqual(["/ja/deck/deck-1/?window=all", "/ja/deck/deck-1/?window=all"]);
   });
 
   it("leaves an explicit link target untouched", () => {
     renderCard("30d", "/tier-list", "/deck/some-hub");
 
-    expect(hrefs()).toEqual(["/deck/some-hub", "/deck/some-hub"]);
+    expect(hrefs()).toEqual(["/deck/some-hub/", "/deck/some-hub/"]);
   });
 });

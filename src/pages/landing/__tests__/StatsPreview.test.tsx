@@ -43,7 +43,7 @@ describe("StatsPreview", () => {
 
     expect(screen.getByRole("link", { name: /Rising Miraidon ex/i })).toHaveAttribute(
       "href",
-      "/statistics"
+      "/statistics/"
     );
   });
 

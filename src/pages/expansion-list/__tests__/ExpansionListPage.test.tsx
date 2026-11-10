@@ -86,8 +86,8 @@ describe("ExpansionListPage", () => {
     setFixture("c1", "Dual Fusion", "c1.webp");
     const { container } = renderPage();
 
-    expect(container.querySelector('a[href="/expansion-list/c1"]')).not.toBeNull();
-    expect(screen.getByRole("link", { name: "Dual Fusion" })).toHaveAttribute("href", "/expansion-list/c1");
+    expect(container.querySelector('a[href="/expansion-list/c1/"]')).not.toBeNull();
+    expect(screen.getByRole("link", { name: "Dual Fusion" })).toHaveAttribute("href", "/expansion-list/c1/");
   });
 
   it("stacks up to three pack images into a multi-pack expansion tile", () => {
@@ -135,8 +135,8 @@ describe("ExpansionListPage", () => {
     const packTwo = screen.getByRole("link", { name: "Dual Fusion: Pack 2" });
     expect(packTwo.querySelector("img")).toHaveAttribute("src", "c1-b.webp");
     expect(packTwo.querySelector("img")).toHaveAttribute("alt", "");
-    expect(screen.getByRole("link", { name: "Dual Fusion: Pack 1" })).toHaveAttribute("href", "/expansion-list/c1?pack=pack-1");
-    expect(screen.getByRole("link", { name: "Dual Fusion: Pack 2" })).toHaveAttribute("href", "/expansion-list/c1?pack=pack-2");
+    expect(screen.getByRole("link", { name: "Dual Fusion: Pack 1" })).toHaveAttribute("href", "/expansion-list/c1/?pack=pack-1");
+    expect(screen.getByRole("link", { name: "Dual Fusion: Pack 2" })).toHaveAttribute("href", "/expansion-list/c1/?pack=pack-2");
     expect(expansionLinks(container)).toHaveLength(2);
     expect(screen.getByRole("button", { name: "expansionList.viewPacks" })).toHaveAttribute(
       "aria-pressed",
@@ -155,12 +155,12 @@ describe("ExpansionListPage", () => {
 
     await user.click(screen.getByRole("button", { name: "expansionList.viewExpansions" }));
     expect(screen.getByTestId("search")).toHaveTextContent(/^$/);
-    expect(screen.getByRole("link", { name: "Team Rocket's Ambition" })).toHaveAttribute("href", "/expansion-list/b4a");
+    expect(screen.getByRole("link", { name: "Team Rocket's Ambition" })).toHaveAttribute("href", "/expansion-list/b4a/");
     expect(screen.queryByRole("link", { name: "Team Rocket's Ambition: Pack 1" })).toBeNull();
   });
   it("links a single-pack set in the packs view without a pack query", () => {
     renderPage("/expansion-list/?view=packs");
 
-    expect(screen.getByRole("link", { name: "Team Rocket's Ambition: Pack 1" })).toHaveAttribute("href", "/expansion-list/b4a");
+    expect(screen.getByRole("link", { name: "Team Rocket's Ambition: Pack 1" })).toHaveAttribute("href", "/expansion-list/b4a/");
   });
 });

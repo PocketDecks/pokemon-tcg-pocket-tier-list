@@ -133,7 +133,7 @@ describe("DeckDetailPage matchups by tier", () => {
     renderDetailPage(OTHER_DECK);
 
     expect(await screen.findByText(NOTICE)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "See Premium" })).toHaveAttribute("href", "/about#premium");
+    expect(screen.getByRole("link", { name: "See Premium" })).toHaveAttribute("href", "/about/#premium");
     expect(screen.queryByText("70%")).not.toBeInTheDocument();
     expect(screen.queryByText("30%")).not.toBeInTheDocument();
     expect(screen.queryByText("Strong Against")).not.toBeInTheDocument();

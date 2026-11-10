@@ -42,7 +42,7 @@ describe("BestDeckFinder", () => {
 
     expect(screen.getByRole("link", { name: "Miraidon ex" })).toHaveAttribute(
       "href",
-      "/deck"
+      "/deck/"
     );
   });
 

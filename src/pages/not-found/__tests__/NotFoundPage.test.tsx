@@ -18,7 +18,7 @@ describe("NotFoundPage", () => {
     );
     expect(
       await screen.findByRole("link", { name: "Back to the tier list" })
-    ).toHaveAttribute("href", "/tier-list");
+    ).toHaveAttribute("href", "/tier-list/");
     expect(screen.queryByRole("main")).not.toBeInTheDocument();
   });
 
@@ -33,7 +33,7 @@ describe("NotFoundPage", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Back to the tier list" })
-    ).toHaveAttribute("href", "/ja/tier-list");
+    ).toHaveAttribute("href", "/ja/tier-list/");
   });
 
   it("explains a retired deck URL and links to the tier list and deck finder", async () => {
@@ -47,9 +47,9 @@ describe("NotFoundPage", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Back to the tier list" })
-    ).toHaveAttribute("href", "/tier-list");
+    ).toHaveAttribute("href", "/tier-list/");
     expect(
       screen.getByRole("link", { name: "Browse all decks" })
-    ).toHaveAttribute("href", "/deck");
+    ).toHaveAttribute("href", "/deck/");
   });
 });

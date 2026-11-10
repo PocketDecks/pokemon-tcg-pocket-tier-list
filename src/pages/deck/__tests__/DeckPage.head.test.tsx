@@ -115,7 +115,7 @@ describe("DeckPage head tags", () => {
 
     expect(screen.getByRole("link", { name: /back to the tier list/i })).toHaveAttribute(
       "href",
-      "/tier-list"
+      "/tier-list/"
     );
 
     expect(document.title).not.toContain("a1-004");

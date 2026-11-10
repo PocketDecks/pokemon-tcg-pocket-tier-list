@@ -247,7 +247,7 @@ describe("DeckDetailPage with a cut card", () => {
     expect(screen.getByText("or")).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "try another deck" })
-    ).toHaveAttribute("href", "/tier-list");
+    ).toHaveAttribute("href", "/tier-list/");
 
     // Undo still restores the deck from the extinct state.
     fireEvent.click(screen.getByText("Undo"));
@@ -315,14 +315,14 @@ describe("DeckDetailPage with a cut card", () => {
 
     expect(await screen.findByRole("link", { name: /back to the tier list/i })).toHaveAttribute(
       "href",
-      "/ja/tier-list"
+      "/ja/tier-list/"
     );
 
     fireEvent.click(await screen.findByAltText("Venusaur ex"));
 
     expect(await screen.findByRole("link", { name: "try another deck" })).toHaveAttribute(
       "href",
-      "/ja/tier-list"
+      "/ja/tier-list/"
     );
     for (const link of document.querySelectorAll("a")) {
       expect(link.getAttribute("href")).not.toContain("/ja/ja/");

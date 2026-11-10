@@ -16,7 +16,7 @@ describe("DeckHubLink", () => {
       </MemoryRouter>
     );
     const link = screen.getByRole("link", { name: "All Umbreon ex variants" });
-    expect(link.getAttribute("href")).toBe("/deck/umbreon-ex");
+    expect(link.getAttribute("href")).toBe("/deck/umbreon-ex/");
   });
 
   it("translates the label into the active language", async () => {

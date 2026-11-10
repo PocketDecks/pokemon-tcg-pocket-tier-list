@@ -161,9 +161,9 @@ describe("DeckHubPage", () => {
       .map((link) => link.getAttribute("href") ?? "")
       .filter((href) => href.startsWith("/deck/mega-altaria-ex-b1-102"));
     expect(hrefs).toEqual([
-      "/deck/mega-altaria-ex-b1-102&greninja-a1-089",
-      "/deck/mega-altaria-ex-b1-102",
-      "/deck/mega-altaria-ex-b1-102&espeon-b3a-020",
+      "/deck/mega-altaria-ex-b1-102&greninja-a1-089/",
+      "/deck/mega-altaria-ex-b1-102/",
+      "/deck/mega-altaria-ex-b1-102&espeon-b3a-020/",
     ]);
   });
 
@@ -218,7 +218,7 @@ describe("DeckHubPage", () => {
       .getAllByRole("link")
       .map((link) => link.getAttribute("href") ?? "")
       .filter((href) => href.includes("mega-altaria-ex-b1-102"));
-    expect(hrefs).toEqual(["/ja/deck/mega-altaria-ex-b1-102"]);
+    expect(hrefs).toEqual(["/ja/deck/mega-altaria-ex-b1-102/"]);
   });
 
   it("renders not found for a slug outside the archive", () => {
@@ -303,7 +303,7 @@ describe("DeckHubPage content", () => {
     };
     renderAt("/deck/mega-greninja-ex");
     const venusaur = await screen.findByRole("link", { name: /Venusaur ex \/ Bulbasaur/ });
-    expect(venusaur.getAttribute("href")).toBe(`/deck/${VENUSAUR}`);
+    expect(venusaur.getAttribute("href")).toBe(`/deck/${VENUSAUR}/`);
     expect(screen.getByText("2 shared cards")).toBeTruthy();
     expect(screen.getByText("1 shared card")).toBeTruthy();
     expect(screen.queryByRole("link", { name: /Zoroark/ })).toBeNull();

@@ -215,7 +215,7 @@ describe("DeckFinderPage", () => {
     fireEvent.click(await screen.findByRole("button", { name: /Venusaur ex/ }));
 
     const link = await screen.findByRole("link", { name: "try another deck" });
-    expect(link).toHaveAttribute("href", "/ja/tier-list");
+    expect(link).toHaveAttribute("href", "/ja/tier-list/");
     expect(link.getAttribute("href")).not.toContain("/ja/ja/");
   });
 

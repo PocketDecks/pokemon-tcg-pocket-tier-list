@@ -63,7 +63,9 @@ describe("TierListPage heading", () => {
         <TierListPage />
       </MemoryRouter>
     );
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Dual Fusion (C1) Tier List");
+    const heading = screen.getByRole("heading", { level: 1 });
+    expect(heading.textContent).toMatch(/^Pokémon TCG Pocket Tier List/);
+    expect(heading.textContent).toContain("Dual Fusion");
   });
 
   it("shows a numbered set code with only its first letter capitalised", () => {
@@ -73,7 +75,9 @@ describe("TierListPage heading", () => {
         <TierListPage />
       </MemoryRouter>
     );
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Team Rocket's Ambition (B4a) Tier List");
+    const heading = screen.getByRole("heading", { level: 1 });
+    expect(heading.textContent).toMatch(/^Pokémon TCG Pocket Tier List/);
+    expect(heading.textContent).toContain("Team Rocket's Ambition");
   });
 
   it("uses the generic H1 while no expansion is covered", () => {

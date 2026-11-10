@@ -215,7 +215,7 @@
     "bestCards": "Melhores Cartas",
     "bestExpansions": "Melhores Expansões",
     "statistics": "Estatísticas",
-    "tierListHeading": "Lista de tiers de {{name}} ({{id}})",
+    "tierListHeading": "Lista de níveis de Pokémon TCG Pocket: {{name}} ({{id}})",
     "tierListGeneric": "Lista de tiers de Pokémon TCG Pocket"
   },
   "footer": {

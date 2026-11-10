@@ -215,7 +215,7 @@
     "bestCards": "최고의 카드",
     "bestExpansions": "최고의 확장팩",
     "statistics": "통계",
-    "tierListHeading": "{{name}} ({{id}}) 티어 리스트",
+    "tierListHeading": "포켓몬 TCG 포켓 티어 리스트: {{name}} ({{id}})",
     "tierListGeneric": "포켓몬 TCG 포켓 티어 리스트"
   },
   "footer": {

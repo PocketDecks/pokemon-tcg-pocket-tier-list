@@ -215,7 +215,7 @@
     "bestCards": "最佳卡牌",
     "bestExpansions": "最佳擴充包",
     "statistics": "數據統計",
-    "tierListHeading": "{{name}}（{{id}}）強度排行",
+    "tierListHeading": "寶可夢集換式卡牌遊戲 Pocket 強度排行：{{name}}（{{id}}）",
     "tierListGeneric": "Pokémon TCG Pocket 強度排行"
   },
   "footer": {

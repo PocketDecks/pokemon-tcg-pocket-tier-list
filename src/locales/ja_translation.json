@@ -215,7 +215,7 @@
     "bestCards": "ベストカード",
     "bestExpansions": "おすすめの拡張パック",
     "statistics": "統計",
-    "tierListHeading": "{{name}}（{{id}}）ティアリスト",
+    "tierListHeading": "ポケポケ ティアリスト：{{name}}（{{id}}）",
     "tierListGeneric": "ポケポケ ティアリスト"
   },
   "footer": {

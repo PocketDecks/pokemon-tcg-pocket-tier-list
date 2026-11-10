@@ -23,7 +23,7 @@ body:
     attributes:
       label: Where did it happen?
       description: The URL or route you were on.
-      placeholder: https://pocketdecks.top/tier-list
+      placeholder: https://pocketdecks.top/tier-list/
     validations:
       required: true
   - type: textarea

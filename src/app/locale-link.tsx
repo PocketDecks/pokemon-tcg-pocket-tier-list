@@ -1,9 +1,18 @@
 import { forwardRef, type ComponentProps, type ReactNode } from "react";
 import { Link, NavLink, useLocation } from "react-router";
-import { localeRoute, splitLocale } from "./locale-route";
+import { localeRoute, routePath, splitLocale } from "./locale-route";
+
+const withTrailingSlash = (to: string) => {
+  const delimiter = to.search(/[?#]/);
+  const path = delimiter === -1 ? to : to.slice(0, delimiter);
+  const rest = delimiter === -1 ? "" : to.slice(delimiter);
+  return /\.[a-z0-9]{2,5}$/i.test(path.split("/").at(-1) ?? "")
+    ? to
+    : `${routePath(path)}${rest}`;
+};
 
 const withLocale = (to: string, locale: string) =>
-  to.startsWith("/") ? localeRoute(locale, to) : to;
+  to.startsWith("/") ? withTrailingSlash(localeRoute(locale, to)) : to;
 
 export const useLocale = (): string => splitLocale(useLocation().pathname).locale;
 

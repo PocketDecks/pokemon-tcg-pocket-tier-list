@@ -45,6 +45,7 @@ test("renderDeckHtml injects per-deck title and OG tags, dropping the defaults",
   assert.ok(html.includes('name="twitter:card" content="summary_large_image"'));
   assert.ok(!html.includes("Old Title"));
   assert.ok(!html.includes('content="old default"'));
+  assert.strictEqual((html.match(/<meta name="description"/g) ?? []).length, 1);
   assert.ok(!html.includes('content="old og"'));
 });
 
@@ -129,6 +130,7 @@ test("every live deck gets a prerender job, including one whose lists yield no c
   );
   assert.strictEqual(jobs[0].cardId, "b1-184");
   assert.strictEqual(jobs[1].cardId, null);
+  assert.match(jobs[0].description, /deck code and QR code/);
 });
 
 test("a deck without a card id renders in both locales with no lead-card image preload", () => {

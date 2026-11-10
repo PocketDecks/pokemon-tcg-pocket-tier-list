@@ -326,7 +326,7 @@ const DeckDetailPage = () => {
 
             <MatchupSection>
               <SubHeader $backgroundColor="var(--c)">
-                {t("deckPage.shareQrPanel", "Deck Share")}
+                {t("deckPage.shareQrPanel", "Deck Code and QR Code")}
               </SubHeader>
               <ShareDeckCode
                 deckName={deck.name}

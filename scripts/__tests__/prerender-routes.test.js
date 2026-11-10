@@ -59,6 +59,15 @@ test("each locale canonical matches its own hreflang entry", () => {
   }
 });
 
+test("route social metadata uses its final title, canonical and absolute image", () => {
+  for (const [locale, route] of [["en", "/tier-list"], ["ja", "/cards-list"]]) {
+    const meta = localeMetaFor(locale, route);
+    assert.ok(meta.metas.some((tag) => tag.includes(`property="og:url" content="${meta.canonical}"`)));
+    assert.ok(meta.metas.some((tag) => tag.includes(`property="og:title" content="${meta.title}"`)));
+    assert.ok(meta.metas.some((tag) => /property="og:image" content="https:\/\//.test(tag)));
+  }
+});
+
 test("the Japanese home page carries a WebSite block of its own", () => {
   const en = localeMetaFor("en", "/").jsonLd;
   const ja = localeMetaFor("ja", "/").jsonLd;

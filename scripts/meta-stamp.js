@@ -42,6 +42,7 @@ const stampHead = (
   }
   if (metas) {
     for (const attr of [
+      "og:type",
       "og:title",
       "og:description",
       "og:image",

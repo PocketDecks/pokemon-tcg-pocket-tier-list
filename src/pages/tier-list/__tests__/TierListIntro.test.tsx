@@ -104,7 +104,7 @@ describe("tier list expansion sentence", () => {
     );
     expect(screen.getByRole("link", { name: "Dual Fusion cards and decks" })).toHaveAttribute(
       "href",
-      "/expansion-list/c1"
+      "/expansion-list/c1/"
     );
   });
 
@@ -124,10 +124,10 @@ describe("tier list expansion sentence", () => {
         <TierListPage />
       </MemoryRouter>
     );
-    expect(document.querySelector('a[href="/expansion-list/c1"]')).toBeNull();
+    expect(document.querySelector('a[href="/expansion-list/c1/"]')).toBeNull();
     expect(screen.getByRole("link", { name: "Genetic Apex cards and decks" })).toHaveAttribute(
       "href",
-      "/expansion-list/a1"
+      "/expansion-list/a1/"
     );
   });
 

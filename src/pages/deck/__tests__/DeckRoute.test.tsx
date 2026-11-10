@@ -57,7 +57,7 @@ describe("DeckRoute", () => {
     decksState.value = { decks: [{ name: "garchomp-a2-123" }], loading: false, error: null };
     renderAt("/deck/umbreon-ex-a4-112&greninja-a1-089");
     expect(screen.getByText("hub page")).toBeTruthy();
-    expect(screen.getByTestId("path").textContent).toBe("/deck/umbreon-ex");
+    expect(screen.getByTestId("path").textContent).toBe("/deck/umbreon-ex/");
   });
 
   it("renders the hub page for a known hub", () => {

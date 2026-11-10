@@ -61,6 +61,41 @@ const findLoopbackRefs = (dir = DIST_DIR) =>
       return hits.map((hit) => `${entry}: ${hit}`);
     });
 
+const findSlashlessInternalLinks = (dir = DIST_DIR) =>
+  listHtmlFiles(dir).flatMap((entry) => {
+    const html = fs.readFileSync(path.join(dir, entry), "utf8");
+    return [...html.matchAll(/<a\b[^>]*\bhref=["']([^"']*)["']/gi)].flatMap((match) => {
+      const href = decodeXmlEntities(match[1]);
+      if (!href.startsWith("/") && !href.startsWith(`https://${SITE_HOST}/`)) return [];
+      const pathname = (href.startsWith("/") ? href : href.slice(`https://${SITE_HOST}`.length)).split(/[?#]/, 1)[0];
+      if (pathname.startsWith("//") || /\.[a-z0-9]{2,5}$/i.test(pathname.split("/").at(-1) ?? "")) return [];
+      return pathname.endsWith("/") ? [] : [`${entry}: ${href}`];
+    });
+  });
+
+const findOpenGraphIssues = (dir = DIST_DIR) =>
+  listHtmlFiles(dir).flatMap((entry) => {
+    const html = fs.readFileSync(path.join(dir, entry), "utf8");
+    const head = html.match(HEAD_BLOCK)?.[0] ?? html;
+    const canonicals = head.match(CANONICAL_TAG) ?? [];
+    if (canonicals.length === 0) return [];
+    const metas = [...head.matchAll(/<meta\b[^>]*>/gi)].map((match) => match[0]);
+    const urls = metas
+      .filter((tag) => /\bproperty=["']og:url["']/i.test(tag))
+      .map((tag) => decodeXmlEntities(tag.match(/\bcontent=["']([^"']*)["']/i)?.[1] ?? ""));
+    const titles = metas.filter((tag) => /\bproperty=["']og:title["']/i.test(tag));
+    const issues = [];
+    if (urls.length > 1) issues.push(`${entry}: expected at most 1 og:url, found ${urls.length}`);
+    if (titles.length > 1) issues.push(`${entry}: expected at most 1 og:title, found ${titles.length}`);
+    if (urls.length === 1 && canonicals.length > 0) {
+      const canonical = decodeXmlEntities(canonicals[0].match(/\bhref=["']([^"']*)["']/i)?.[1] ?? "");
+      if (urls[0] !== canonical) {
+        issues.push(`${entry}: og:url ${urls[0]} differs from canonical ${canonical}`);
+      }
+    }
+    return issues;
+  });
+
 const findEmptyStyledTags = (dir = DIST_DIR) =>
   fs
     .readdirSync(dir, { recursive: true })
@@ -277,8 +312,27 @@ const findUnresolvedAppRoutes = (
       }
       const resolved = resolveHosting(firebase, files, route);
       if (resolved.kind === "not-found") return [`${route}: no file, redirect or rewrite`];
+      if (resolved.kind === "redirect") {
+        const destination = resolveHosting(firebase, files, resolved.location);
+        if (destination.kind === "rewrite" && !files.has(destination.file)) {
+          return [`${resolved.location}: rewrite target ${destination.file} is not built`];
+        }
+        if (
+          destination.kind !== "file" &&
+          !(destination.kind === "rewrite" && files.has(destination.file))
+        ) {
+          return [`${route}: redirect to ${resolved.location} does not resolve`];
+        }
+      }
       if (resolved.kind === "rewrite" && !files.has(resolved.file)) {
         return [`${route}: rewrite target ${resolved.file} is not built`];
+      }
+      if (resolved.kind === "redirect") return [];
+      const slashedRoute = route === "/" ? "/" : `${route}/`;
+      const slashed = resolveHosting(firebase, files, slashedRoute);
+      if (slashed.kind === "not-found") return [`${slashedRoute}: no file, redirect or rewrite`];
+      if (slashed.kind === "rewrite" && !files.has(slashed.file)) {
+        return [`${slashedRoute}: rewrite target ${slashed.file} is not built`];
       }
       return [];
     });
@@ -609,6 +663,18 @@ const main = () => {
     );
     process.exit(1);
   }
+  const slashlessInternalLinks = findSlashlessInternalLinks();
+  if (slashlessInternalLinks.length > 0) {
+    console.error(
+      `Internal links without a trailing slash in built HTML:\n${slashlessInternalLinks.join("\n")}`
+    );
+    process.exit(1);
+  }
+  const openGraphIssues = findOpenGraphIssues();
+  if (openGraphIssues.length > 0) {
+    console.error(`Duplicate or non-canonical Open Graph metadata in built HTML:\n${openGraphIssues.join("\n")}`);
+    process.exit(1);
+  }
   const emptyStyledTags = findEmptyStyledTags();
   if (emptyStyledTags.length > 0) {
     console.error(
@@ -772,6 +838,8 @@ module.exports = {
   findExpansionListIssues,
   findExternalScripts,
   findLoopbackRefs,
+  findSlashlessInternalLinks,
+  findOpenGraphIssues,
   findMissingCardThumbs,
   findMissingLiveDeckPages,
   findMissingDeckThumbs,

@@ -204,12 +204,12 @@ describe("ExpansionPage", () => {
 
   it("lists a raw deck the client dropped as a plain link to its hub", () => {
     renderPage();
-    expect(screen.getByRole("link", { name: "Alpha Deck C1 002" })).toHaveAttribute("href", "/deck/alpha-deck");
+    expect(screen.getByRole("link", { name: "Alpha Deck C1 002" })).toHaveAttribute("href", "/deck/alpha-deck/");
   });
 
   it("links a card with an archetype hub to that hub", () => {
     renderPage();
-    expect(screen.getByRole("link", { name: "Gengar ex" })).toHaveAttribute("href", "/deck/gengar-ex");
+    expect(screen.getByRole("link", { name: "Gengar ex" })).toHaveAttribute("href", "/deck/gengar-ex/");
   });
 
   it("leaves a card without an archetype hub as a plain image", () => {
@@ -287,7 +287,7 @@ describe("ExpansionPage pack filter", () => {
     await i18nReady;
     renderPage("/expansion-list/a1?pack=mewtwo");
     expect(screen.getByText("Showing the Mewtwo pack and shared cards.")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Show all packs" })).toHaveAttribute("href", "/expansion-list/a1");
+    expect(screen.getByRole("link", { name: "Show all packs" })).toHaveAttribute("href", "/expansion-list/a1/");
     expect(screen.getByText("Mewtwo Card")).toBeInTheDocument();
     expect(screen.getByText("Shared Card")).toBeInTheDocument();
     expect(screen.queryByText("Greninja")).toBeNull();

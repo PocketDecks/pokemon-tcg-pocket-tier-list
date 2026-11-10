@@ -189,7 +189,7 @@ describe("StatisticsPage free tier", () => {
     expect(within(section).getByText(NOTE)).toBeInTheDocument();
     expect(within(section).getByRole("link", { name: "See Premium" })).toHaveAttribute(
       "href",
-      "/about#premium"
+      "/about/#premium"
     );
   });
 

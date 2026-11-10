@@ -136,6 +136,7 @@
     "matchupsUnavailable": "牌組資料未能載入。請重新整理頁面再試一次。",
     "matchupsLoading": "正在載入對戰組合",
     "loading": "正在載入牌組",
+    "shareQrPanel": "牌組代碼和 QR 碼",
     "shareQrTitle": "分享 QR 碼",
     "shareQrHeading": "掃描以匯入此牌組",
     "shareQrCopyTitle": "點按複製牌組代碼",
@@ -214,7 +215,9 @@
     "bestCards": "最佳卡牌",
     "bestExpansions": "最佳擴充包",
     "statistics": "數據統計",
-    "tierListHeading": "{{name}}（{{id}}）強度排行",
+    "deckFinderHeading": "寶可夢集換式卡牌遊戲 Pocket 最佳牌組搜尋器",
+    "cardsListHeading": "寶可夢集換式卡牌遊戲 Pocket 最佳卡牌與卡牌強度排行",
+    "tierListHeading": "寶可夢集換式卡牌遊戲 Pocket 強度排行：{{name}}（{{id}}）",
     "tierListGeneric": "Pokémon TCG Pocket 強度排行"
   },
   "footer": {

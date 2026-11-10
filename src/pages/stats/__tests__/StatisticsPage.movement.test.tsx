@@ -121,7 +121,7 @@ describe("StatisticsPage movement links", () => {
     fireEvent.click(await waitForTab("Rising"));
 
     const link = await screen.findByRole("link", { name: /Venusaur|venusaur/i });
-    expect(link).toHaveAttribute("href", `/deck/${GOOD_DECK}`);
+    expect(link).toHaveAttribute("href", `/deck/${GOOD_DECK}/`);
   });
 
   it("carries the selected window on a movement row link", async () => {
@@ -129,7 +129,7 @@ describe("StatisticsPage movement links", () => {
     fireEvent.click(await waitForTab("Rising"));
 
     const link = await screen.findByRole("link", { name: /Venusaur|venusaur/i });
-    expect(link).toHaveAttribute("href", `/deck/${GOOD_DECK}?window=10d`);
+    expect(link).toHaveAttribute("href", `/deck/${GOOD_DECK}/?window=10d`);
   });
 });
 

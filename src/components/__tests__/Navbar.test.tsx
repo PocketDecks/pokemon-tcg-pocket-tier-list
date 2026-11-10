@@ -83,7 +83,7 @@ describe("Navbar", () => {
   });
 
   it("marks only the current route as the current page", () => {
-    renderNavbar({ path: "/tier-list" });
+    renderNavbar({ path: "/tier-list/" });
     expect(screen.getByRole("link", { name: /tier list/i })).toHaveAttribute(
       "aria-current",
       "page"

@@ -48,7 +48,7 @@ const CardsListPage = () => {
 
   return (
     <>
-      <PageTitle ref={heading} tabIndex={-1}>{t("header.bestCards")}</PageTitle>
+      <PageTitle ref={heading} tabIndex={-1}>{t("header.cardsListHeading")}</PageTitle>
       {error && cards && <QueryRetryLine onRetry={retryAndFocus} />}
       <TierGrid
         items={cards}

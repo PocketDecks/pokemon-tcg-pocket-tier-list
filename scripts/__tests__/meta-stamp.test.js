@@ -45,6 +45,30 @@ test("metas replace stale og/twitter tags and inject fresh ones", () => {
   assert.ok(out.includes('content="Fresh"'));
 });
 
+test("metas replace og:type once and preserve og:site_name", () => {
+  const withOg = TEMPLATE.replace(
+    "</head>",
+    '<meta property="og:type" content="article"><meta property="og:site_name" content="Top Pocket Decks"></head>'
+  );
+  const out = stampHead(withOg, {
+    metas: ['<meta property="og:type" content="website">'],
+  });
+  assert.equal((out.match(/property="og:type"/g) ?? []).length, 1);
+  assert.ok(out.includes('<meta property="og:type" content="website">'));
+  assert.equal((out.match(/property="og:site_name"/g) ?? []).length, 1);
+  assert.ok(out.includes('<meta property="og:site_name" content="Top Pocket Decks">'));
+});
+
+test("preserves OG tags when stamping a page without metas", () => {
+  const withOg = TEMPLATE.replace(
+    "</head>",
+    '<meta property="og:type" content="website"><meta property="og:site_name" content="Top Pocket Decks"></head>'
+  );
+  const out = stampHead(withOg, { robots: "noindex" });
+  assert.ok(out.includes('<meta property="og:type" content="website">'));
+  assert.ok(out.includes('<meta property="og:site_name" content="Top Pocket Decks">'));
+});
+
 test("JSON-LD values cannot close the script tag early", () => {
   const out = stampHead(TEMPLATE.replace(/<link[^>]*canonical[^>]*>/, ""), {
     canonical: "https://pocketdecks.top/",

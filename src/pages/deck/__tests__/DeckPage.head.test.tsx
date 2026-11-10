@@ -111,22 +111,28 @@ describe("DeckPage head tags", () => {
         </QueryClientProvider>
     );
 
-    await waitFor(() => expect(document.title).toContain("Venusaur ex"));
+    await waitFor(() => expect(document.title).toContain("Venusaur & Bulbasaur"));
+
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getByRole("heading", { level: 1, name: "Venusaur ex / Bulbasaur" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Deck Code and QR Code" })).toBeInTheDocument();
 
     expect(screen.getByRole("link", { name: /back to the tier list/i })).toHaveAttribute(
       "href",
-      "/tier-list"
+      "/tier-list/"
     );
 
     expect(document.title).not.toContain("a1-004");
 
-    expect(metaContent('meta[property="og:title"]')).toContain("Venusaur ex");
+    expect(metaContent('meta[property="og:title"]')).toBe(
+      "Venusaur & Bulbasaur | Pokémon TCG Pocket Deck Stats and Matchups"
+    );
     expect(metaContent('meta[property="og:url"]')).toBe(
       `https://pocketdecks.top/deck/${DECK_ID}/`
     );
     expect(metaContent('meta[property="og:image"]')).toBe(
       `https://pocketdecks.top/og/deck/${DECK_ID}.png`
     );
-    expect(metaContent('meta[name="description"]', "Venusaur ex")).toContain("Venusaur ex");
+    expect(metaContent('meta[name="description"]', "Venusaur & Bulbasaur")).toContain("Venusaur & Bulbasaur");
   });
 });

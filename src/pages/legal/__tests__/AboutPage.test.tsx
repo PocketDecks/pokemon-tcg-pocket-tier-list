@@ -29,11 +29,11 @@ describe("AboutPage", () => {
 
   it("sends the tier list link to the tier list", () => {
     renderAt("/about");
-    expect(tierListLink()).toHaveAttribute("href", "/tier-list");
+    expect(tierListLink()).toHaveAttribute("href", "/tier-list/");
   });
 
   it("keeps the tier list link inside the Japanese tree", () => {
     renderAt("/ja/about");
-    expect(tierListLink()).toHaveAttribute("href", "/ja/tier-list");
+    expect(tierListLink()).toHaveAttribute("href", "/ja/tier-list/");
   });
 });

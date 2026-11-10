@@ -136,6 +136,7 @@
     "matchupsUnavailable": "덱 데이터를 불러오지 못했습니다. 페이지를 새로고침하여 다시 시도하세요.",
     "matchupsLoading": "매치업 불러오는 중",
     "loading": "덱 불러오는 중",
+    "shareQrPanel": "덱 코드 및 QR 코드",
     "shareQrTitle": "QR 공유",
     "shareQrHeading": "이 덱을 가져오려면 스캔하세요",
     "shareQrCopyTitle": "탭하여 덱 코드 복사",
@@ -214,7 +215,9 @@
     "bestCards": "최고의 카드",
     "bestExpansions": "최고의 확장팩",
     "statistics": "통계",
-    "tierListHeading": "{{name}} ({{id}}) 티어 리스트",
+    "deckFinderHeading": "포켓몬 TCG 포켓 추천 덱 찾기",
+    "cardsListHeading": "포켓몬 TCG 포켓 최고의 카드 및 카드 티어 리스트",
+    "tierListHeading": "포켓몬 TCG 포켓 티어 리스트: {{name}} ({{id}})",
     "tierListGeneric": "포켓몬 TCG 포켓 티어 리스트"
   },
   "footer": {

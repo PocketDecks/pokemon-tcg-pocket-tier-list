@@ -80,8 +80,8 @@ describe("DeckHubPage window links", () => {
     renderHub("20d");
 
     expect(variantHrefs()).toEqual([
-      "/deck/mega-altaria-ex-b1-102&greninja-a1-089",
-      "/deck/mega-altaria-ex-b1-102",
+      "/deck/mega-altaria-ex-b1-102&greninja-a1-089/",
+      "/deck/mega-altaria-ex-b1-102/",
     ]);
   });
 
@@ -89,8 +89,8 @@ describe("DeckHubPage window links", () => {
     renderHub("30d");
 
     expect(variantHrefs()).toEqual([
-      "/deck/mega-altaria-ex-b1-102&greninja-a1-089?window=30d",
-      "/deck/mega-altaria-ex-b1-102?window=30d",
+      "/deck/mega-altaria-ex-b1-102&greninja-a1-089/?window=30d",
+      "/deck/mega-altaria-ex-b1-102/?window=30d",
     ]);
   });
 });

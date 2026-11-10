@@ -30,13 +30,13 @@ describe("DeckPremiumGate", () => {
   it("links to the Premium section of the about page", () => {
     renderGate();
 
-    expect(screen.getByRole("link", { name: "See Premium" })).toHaveAttribute("href", "/about#premium");
+    expect(screen.getByRole("link", { name: "See Premium" })).toHaveAttribute("href", "/about/#premium");
   });
 
   it("keeps the locale prefix on the link", () => {
     renderGate("/ja/deck/x-a1-001");
 
-    expect(screen.getByRole("link")).toHaveAttribute("href", "/ja/about#premium");
+    expect(screen.getByRole("link")).toHaveAttribute("href", "/ja/about/#premium");
   });
 
   it("shows no deck statistics", () => {

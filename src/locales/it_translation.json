@@ -136,6 +136,7 @@
     "matchupsUnavailable": "I dati del mazzo non sono stati caricati. Ricarica la pagina per riprovare.",
     "matchupsLoading": "Caricamento dei matchup",
     "loading": "Caricamento del mazzo",
+    "shareQrPanel": "Codice del mazzo e codice QR",
     "shareQrTitle": "condividi QR",
     "shareQrHeading": "Scansiona per importare questo mazzo",
     "shareQrCopyTitle": "Tocca per copiare il codice del mazzo",
@@ -214,7 +215,9 @@
     "bestCards": "Migliori Carte",
     "bestExpansions": "Migliori Espansioni",
     "statistics": "Statistiche",
-    "tierListHeading": "Classifica {{name}} ({{id}})",
+    "deckFinderHeading": "Trova i migliori mazzi di Pokémon TCG Pocket",
+    "cardsListHeading": "Migliori carte e classifica delle carte di Pokémon TCG Pocket",
+    "tierListHeading": "Classifica Pokémon TCG Pocket: {{name}} ({{id}})",
     "tierListGeneric": "Classifica Pokémon TCG Pocket"
   },
   "footer": {

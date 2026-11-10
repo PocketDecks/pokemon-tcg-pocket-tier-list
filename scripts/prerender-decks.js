@@ -32,6 +32,7 @@ const ARCHIVE_FILE = path.join(ROOT, "public", "data", "deck-archive.json");
 const DECK_CONCURRENCY = 8;
 
 const { deckSlug } = require("./deck-slug.mjs");
+const { englishDeckHead } = require("./deck-head-copy.mjs");
 const { loadPremiumDeckSlugs } = require("./premium-deck-slugs.mjs");
 const { hubDisplayName } = require("./deck-archetype.mjs");
 const { cardThumbSrcSet, DECK_CARD_SIZES, firstBestListCardId } = require("./deck-thumbs.mjs");
@@ -114,12 +115,13 @@ const hubFor = (archive, slug) => {
 const deckJob = (deck, archive = []) => {
   const slug = slugFor(deck.name);
   const name = friendlyName(deck.name);
+  const head = englishDeckHead(name);
   return {
     slug,
     name,
     hub: hubFor(archive, slug),
-    title: `${name} | Pokémon TCG Pocket Deck Stats and Matchups`,
-    description: `Pokémon TCG Pocket deck profile for ${name}: card list, matchups, and win rate.`,
+    title: head.title,
+    description: head.description,
     ogImage: `${SITE_URL}/og/deck/${slug}.png`,
     cardId: firstBestListCardId(deck),
   };

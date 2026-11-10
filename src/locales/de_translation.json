@@ -136,6 +136,7 @@
     "matchupsUnavailable": "Matchup-Daten konnten nicht geladen werden. Lade die Seite neu, um es erneut zu versuchen.",
     "matchupsLoading": "Matchups werden geladen",
     "loading": "Deck wird geladen",
+    "shareQrPanel": "Deck-Code und QR-Code",
     "shareQrTitle": "QR teilen",
     "shareQrHeading": "Scanne, um dieses Deck zu importieren",
     "shareQrCopyTitle": "Tippen, um den Deck-Code zu kopieren",
@@ -214,7 +215,9 @@
     "bestCards": "Beste Karten",
     "bestExpansions": "Beste Erweiterungen",
     "statistics": "Statistiken",
-    "tierListHeading": "{{name}} ({{id}}) Tierliste",
+    "deckFinderHeading": "Beste Decks für Pokémon TCG Pocket finden",
+    "cardsListHeading": "Beste Karten und Karten-Tierliste für Pokémon TCG Pocket",
+    "tierListHeading": "Tierliste für Pokémon TCG Pocket: {{name}} ({{id}})",
     "tierListGeneric": "Pokemon TCG Pocket Tierliste"
   },
   "footer": {

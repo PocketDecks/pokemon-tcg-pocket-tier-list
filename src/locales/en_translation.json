@@ -136,6 +136,7 @@
     "matchupsUnavailable": "Matchup data didn't load. Refresh the page to try again.",
     "matchupsLoading": "Loading matchups",
     "loading": "Loading deck",
+    "shareQrPanel": "Deck Code and QR Code",
     "shareQrTitle": "share QR",
     "shareQrHeading": "Scan to import this deck",
     "shareQrCopyTitle": "Tap to copy deck code",
@@ -214,7 +215,9 @@
     "bestCards": "Best Cards",
     "bestExpansions": "Best Expansions",
     "statistics": "Statistics",
-    "tierListHeading": "{{name}} ({{id}}) Tier List",
+    "deckFinderHeading": "Pokémon TCG Pocket Best Deck Finder",
+    "cardsListHeading": "Pokémon TCG Pocket Best Cards and Card Tier List",
+    "tierListHeading": "Pokémon TCG Pocket Tier List: {{name}} ({{id}})",
     "tierListGeneric": "Pokemon TCG Pocket Tier List"
   },
   "footer": {

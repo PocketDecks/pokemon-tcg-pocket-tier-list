@@ -2,7 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert");
 const fs = require("node:fs");
 const path = require("node:path");
-const { resolveHosting } = require("../firebase-hosting");
+const { resolveHosting, sourceMatcher } = require("../firebase-hosting");
 const { deckSlug } = require("../deck-slug.mjs");
 const { redirectRules } = require("../generate-deck-redirects.mjs");
 
@@ -22,6 +22,37 @@ const FILES = new Set([
 ]);
 const resolve = (requestPath) => resolveHosting(config, FILES, requestPath);
 const NOT_FOUND = { kind: "not-found", status: 404, file: "404.html" };
+
+test("a double-star tail matches the slashed path and below, never the bare path", () => {
+  const feedback = sourceMatcher("/feedback/**");
+  assert.equal(feedback("/feedback"), false);
+  assert.equal(feedback("/feedback/"), true);
+  assert.equal(feedback("/feedback/x/y"), true);
+  const deck = sourceMatcher("/deck/x{,/**}");
+  assert.equal(deck("/deck/x"), true);
+  assert.equal(deck("/deck/x/"), true);
+  assert.equal(deck("/deck/x/y"), true);
+});
+
+test("a plain Hosting source also matches a slash, but an anchored regex excludes it", () => {
+  assert.equal(sourceMatcher("/feedback")("/feedback/"), true);
+  const feedbackConfig = {
+    hosting: {
+      redirects: [{ regex: "^/feedback$", destination: "/feedback/", type: 301 }],
+      rewrites: [{ source: "/feedback/**", destination: "/app-shell.html" }],
+    },
+  };
+  assert.deepStrictEqual(resolveHosting(feedbackConfig, FILES, "/feedback"), {
+    kind: "redirect",
+    status: 301,
+    location: "/feedback/",
+  });
+  assert.deepStrictEqual(resolveHosting(feedbackConfig, FILES, "/feedback/"), {
+    kind: "rewrite",
+    status: 200,
+    file: "app-shell.html",
+  });
+});
 
 const DATA_DIR = path.join(__dirname, "..", "..", "public", "data");
 const archive = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "deck-archive.json"), "utf8"));
@@ -72,6 +103,26 @@ const JAPANESE_404S = [
   "/ja/deck/mega-garchomp-ex-pb-099&dragonair-b4-117",
   "/ja/deck/mega-gardevoir-ex-b2-066&gardevoir-b2-065/",
   "/ja/deck/zoroark-ex-b3-106/",
+];
+
+const SEARCH_CONSOLE_404S_2026_11_09 = [
+  "/ja/deck/butterfree-b3b-003&mega-sceptile-ex-b3-008",
+  "/deck/zoroark-ex-b3-106&mega-absol-ex-b1-151",
+  "/ja/deck/team-rocket's-weezing-ex-b4a-043&zoroark-ex-b3-106",
+  "/deck/mega-altaria-ex-b1-102&chingling-b1-109",
+  "/ja/deck/mega-altaria-ex-b1-102&bonsly-b3-078",
+  "/ja/deck/indeedee-ex-b1-121&giratina-ex-a2b-035",
+  "/ja/deck/exeggutor-ex-a1-023&serperior-a1a-006",
+  "/deck/chandelure-b2-069&meloetta-b2-070",
+  "/deck/pikachu-ex-a1-096&zapdos-ex-a1-104",
+  "/deck/gyarados-ex-a1a-018&greninja-a1-089",
+  "/deck/farfetch'd-a1-198&hitmonlee-a1-154",
+  "/ja/deck/mega-altaria-ex-b1-102&happiny-b4a-063",
+  "/deck/golem-a1a-045",
+  "/deck/hoopa-ex-b4-103",
+  "/deck/butterfree-b3b-003",
+  "/deck/greninja-a1-089",
+  "/deck/future-booster-energy-capsule-b3a-070",
 ];
 
 test("retired deck URLs and stray CRA paths get a real 404", () => {
@@ -150,10 +201,20 @@ test("legacy card and expansion paths permanently redirect", () => {
   });
 });
 
-test("feedback is served by the app shell with status 200", () => {
+test("feedback bare paths permanently redirect to the slashed page served by the app shell", () => {
   const rewrite = { kind: "rewrite", status: 200, file: "app-shell.html" };
-  assert.deepStrictEqual(resolve("/feedback"), rewrite);
+  assert.deepStrictEqual(resolve("/feedback"), {
+    kind: "redirect",
+    status: 301,
+    location: "/feedback/",
+  });
+  assert.deepStrictEqual(resolve("/ja/feedback"), {
+    kind: "redirect",
+    status: 301,
+    location: "/ja/feedback/",
+  });
   assert.deepStrictEqual(resolve("/feedback/"), rewrite);
+  assert.deepStrictEqual(resolve("/ja/feedback/"), rewrite);
 });
 
 test("crawler policy and security policy files resolve to their own static files", () => {
@@ -190,12 +251,13 @@ test("prerendered routes resolve to their own files", () => {
 });
 
 test("search console 404 deck URLs in both locales resolve to a redirect or a page", () => {
-  for (const url of [...SEARCH_CONSOLE_404S, ...JAPANESE_404S]) {
+  for (const url of [...SEARCH_CONSOLE_404S, ...JAPANESE_404S, ...SEARCH_CONSOLE_404S_2026_11_09]) {
     const result = resolveDeck(url);
     assert.ok(
       result.kind === "file" || result.status === 301,
       `${url} resolved to ${result.kind} ${result.status}`
     );
+    if (result.status === 301) assert.equal(resolveDeck(result.location).status, 200, result.location);
   }
 });
 
@@ -230,7 +292,7 @@ test("live variants and hubs serve pages in both locales", () => {
 
 test("generated deck redirects are never self-loops and always land on a page", () => {
   for (const rule of config.hosting.redirects) {
-    if (!rule.source.includes("/deck/") || !rule.source.endsWith("{,/**}")) continue;
+    if (!rule.source?.includes("/deck/") || !rule.source.endsWith("{,/**}")) continue;
     const base = rule.source.slice(0, -"{,/**}".length);
     assert.notEqual(rule.destination.replace(/\/$/, ""), base, rule.source);
     assert.equal(resolveDeck(rule.destination).status, 200, rule.destination);
@@ -239,7 +301,7 @@ test("generated deck redirects are never self-loops and always land on a page", 
 
 test("professor's research legacy URLs no longer need hand-kept rules", () => {
   assert.ok(
-    !config.hosting.redirects.some((rule) => rule.source.startsWith("/deck/professor's-research-pa-007") && !rule.source.endsWith("{,/**}")),
+    !config.hosting.redirects.some((rule) => rule.source?.startsWith("/deck/professor's-research-pa-007") && !rule.source.endsWith("{,/**}")),
     "hand-kept Professor's Research rules must be generated"
   );
 });

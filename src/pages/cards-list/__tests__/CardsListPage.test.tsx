@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import CardsListPage from "../CardsListPage";
+import i18n from "../../../i18n";
 
 vi.mock("../../../app/use-cards", () => ({
   __esModule: true,
@@ -43,6 +44,22 @@ vi.mock("../../../components/UserAccount", () => ({
 }));
 
 describe("CardsListPage", () => {
+  beforeAll(async () => {
+    await i18n.init();
+    await i18n.loadNamespaces("translation");
+    await i18n.changeLanguage("en");
+  });
+
+  it("names the game and card tier list in the H1", () => {
+    render(
+      <MemoryRouter>
+        <CardsListPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole("heading", { level: 1, name: "Pokémon TCG Pocket Best Cards and Card Tier List" })).toBeInTheDocument();
+  });
+
   it("renders the filter controls inside one absolute-positioned ancestor", () => {
     render(
       <MemoryRouter>

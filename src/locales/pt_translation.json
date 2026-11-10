@@ -136,6 +136,7 @@
     "matchupsUnavailable": "Os dados do deck não carregaram. Recarregue a página para tentar novamente.",
     "matchupsLoading": "A carregar confrontos",
     "loading": "A carregar deck",
+    "shareQrPanel": "Código do deck e código QR",
     "shareQrTitle": "partilhar QR",
     "shareQrHeading": "Digitalize para importar este deck",
     "shareQrCopyTitle": "Toque para copiar o código do deck",
@@ -214,7 +215,9 @@
     "bestCards": "Melhores Cartas",
     "bestExpansions": "Melhores Expansões",
     "statistics": "Estatísticas",
-    "tierListHeading": "Lista de tiers de {{name}} ({{id}})",
+    "deckFinderHeading": "Localizador dos melhores decks de Pokémon TCG Pocket",
+    "cardsListHeading": "Melhores cartas e lista de níveis de cartas de Pokémon TCG Pocket",
+    "tierListHeading": "Lista de níveis de Pokémon TCG Pocket: {{name}} ({{id}})",
     "tierListGeneric": "Lista de tiers de Pokémon TCG Pocket"
   },
   "footer": {

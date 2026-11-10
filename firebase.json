@@ -105,6 +105,16 @@
         "type": 301
       },
       {
+        "regex": "^/feedback$",
+        "destination": "/feedback/",
+        "type": 301
+      },
+      {
+        "regex": "^/ja/feedback$",
+        "destination": "/ja/feedback/",
+        "type": 301
+      },
+      {
         "source": "/deck/abomasnow-a2a-021{,/**}",
         "destination": "/deck/abomasnow/",
         "type": 301

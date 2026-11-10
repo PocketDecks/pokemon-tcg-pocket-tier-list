@@ -7,7 +7,7 @@
 // Deck detail pages are stamped separately by prerender-decks.js.
 const fs = require("fs");
 const path = require("path");
-const { stampHead } = require("./meta-stamp");
+const { stampHead, escapeXml } = require("./meta-stamp");
 const {
   captureDocument,
   createPrerenderPage,
@@ -239,14 +239,29 @@ const localeMetaFor = (locale, route) => {
   const robots = expansionMatch
     ? `${EXPANSION_INDEX.isIndexable(expansionMatch[1]) ? "index" : "noindex"}, follow`
     : undefined;
+  const title = translated?.title ?? base.title;
+  const description = translated?.description ?? base.description;
+  const canonical = urlFor(locale, route);
+  const image = `${SITE_URL}/og-image.webp`;
   return {
-    title: translated?.title ?? base.title,
-    description: translated?.description ?? base.description,
-    canonical: urlFor(locale, route),
+    title,
+    description,
+    canonical,
     robots,
     lang: locale,
     alternates: alternatesFor(route),
     jsonLd: localeJsonLd(locale, route),
+    metas: [
+      '<meta property="og:type" content="website" />',
+      `<meta property="og:title" content="${escapeXml(title)}" />`,
+      `<meta property="og:description" content="${escapeXml(description)}" />`,
+      `<meta property="og:image" content="${escapeXml(image)}" />`,
+      `<meta property="og:url" content="${escapeXml(canonical)}" />`,
+      '<meta name="twitter:card" content="summary_large_image" />',
+      `<meta name="twitter:title" content="${escapeXml(title)}" />`,
+      `<meta name="twitter:description" content="${escapeXml(description)}" />`,
+      `<meta name="twitter:image" content="${escapeXml(image)}" />`,
+    ],
   };
 };
 

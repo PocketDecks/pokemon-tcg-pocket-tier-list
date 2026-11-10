@@ -136,6 +136,7 @@
     "matchupsUnavailable": "Datele deck-ului nu s-au încărcat. Reîncarcă pagina pentru a încerca din nou.",
     "matchupsLoading": "Se încarcă matchup-urile",
     "loading": "Se încarcă decul",
+    "shareQrPanel": "Cod de pachet și cod QR",
     "shareQrTitle": "partajează QR",
     "shareQrHeading": "Scanează pentru a importa acest deck",
     "shareQrCopyTitle": "Atinge pentru a copia codul deck-ului",
@@ -214,7 +215,9 @@
     "bestCards": "Cele mai bune cărți",
     "bestExpansions": "Cele mai bune expansiuni",
     "statistics": "Statistici",
-    "tierListHeading": "Lista de niveluri {{name}} ({{id}})",
+    "deckFinderHeading": "Găsește cele mai bune pachete Pokémon TCG Pocket",
+    "cardsListHeading": "Cele mai bune cărți și lista de niveluri pentru Pokémon TCG Pocket",
+    "tierListHeading": "Lista de niveluri Pokémon TCG Pocket: {{name}} ({{id}})",
     "tierListGeneric": "Lista de niveluri Pokémon TCG Pocket"
   },
   "footer": {

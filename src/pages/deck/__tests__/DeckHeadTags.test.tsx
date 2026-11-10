@@ -1,8 +1,13 @@
+import { createRequire } from "node:module";
 import { render } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { beforeAll, describe, expect, it } from "vitest";
 import i18n from "../../../i18n";
 import DeckHeadTags from "../DeckHeadTags";
+
+const { deckJob } = createRequire(import.meta.url)("../../../../scripts/prerender-decks.js") as {
+  deckJob: (deck: { name: string }) => { title: string; description: string };
+};
 
 // Literal expectations on purpose: deriving them from the shared helpers would
 // make the test agree with the code by construction.
@@ -50,11 +55,25 @@ describe("DeckHeadTags", () => {
   });
 
   it("keeps the English tags on the English deck page", () => {
+    const job = deckJob({ name: DECKS[0].id });
     renderAt(`/deck/${DECKS[0].id}`, DECKS[0]);
-    expect(document.title).toContain("Top Pocket Decks");
+    expect(document.title).toBe(job.title);
+    expect(meta('meta[name="description"]')).toBe(job.description);
+    expect.soft(meta('meta[property="og:title"]')).toBe(job.title);
+    expect.soft(meta('meta[property="og:description"]')).toBe(job.description);
     expect(meta('meta[property="og:url"]')).toBe(
       `https://pocketdecks.top/deck/${DECKS[0].id}/`
     );
+  });
+
+  it("keeps the English finder head aligned with its recommended deck metadata", () => {
+    const job = deckJob({ name: DECKS[0].id });
+    renderAt("/deck/", DECKS[0]);
+
+    expect(document.title).toBe(job.title);
+    expect(meta('meta[name="description"]')).toBe(job.description);
+    expect.soft(meta('meta[property="og:title"]')).toBe(job.title);
+    expect.soft(meta('meta[property="og:description"]')).toBe(job.description);
   });
 
   it.each(DECKS)("stamps the prerendered Japanese head for $id", async (deck) => {

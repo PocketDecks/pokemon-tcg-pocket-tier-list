@@ -6,6 +6,8 @@ const os = require("node:os");
 const path = require("node:path");
 const {
   findBakedAppState,
+  findSlashlessInternalLinks,
+  findOpenGraphIssues,
   findCanonicalIssues,
   findCspHashIssues,
   findCspBootstrapIssues,
@@ -26,6 +28,9 @@ const {
   loadDecks,
   findModulepreloadDrift,
 } = require("../verify-dist-html");
+const { resolveHosting } = require("../firebase-hosting");
+const { localeMetaFor } = require("../prerender-routes");
+const { stampHead } = require("../meta-stamp");
 
 const makeDist = (files) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "dist-"));
@@ -35,6 +40,62 @@ const makeDist = (files) => {
   }
   return dir;
 };
+
+test("flags internal anchors without a trailing slash", () => {
+  const dir = makeDist({
+    "index.html": '<a href="/tier-list"><a href="/deck/x&amp;y?window=30d"><a href="https://pocketdecks.top/about"><a href="/tier-list/"><a href="/robots.txt"><a href="https://example.com/a"><a href="#main">',
+  });
+  assert.deepStrictEqual(findSlashlessInternalLinks(dir), [
+    "index.html: /tier-list",
+    "index.html: /deck/x&y?window=30d",
+    "index.html: https://pocketdecks.top/about",
+  ]);
+});
+
+test("passes slashed internal anchors", () => {
+  const dir = makeDist({
+    "index.html": '<a href="/tier-list/"><a href="/deck/x/?window=30d"><a href="https://pocketdecks.top/about/"><a href="/robots.txt"><a href="https://example.com/a"><a href="#main">',
+  });
+  assert.deepStrictEqual(findSlashlessInternalLinks(dir), []);
+});
+
+test("the route metadata producer passes the built HTML Open Graph gate", () => {
+  const template = '<!doctype html><html><head><title>Home</title><meta property="og:site_name" content="Top Pocket Decks"><meta property="og:type" content="article"><meta property="og:title" content="Home"><meta property="og:url" content="https://pocketdecks.top"><meta property="og:image" content="/og-image.webp"></head><body></body></html>';
+  const routeMeta = localeMetaFor("ja", "/cards-list");
+  const html = stampHead(template, routeMeta);
+  const dir = makeDist({ "ja/cards-list/index.html": html });
+  assert.equal((html.match(/property="og:type"/g) ?? []).length, 1);
+  assert.ok(html.includes('<meta property="og:type" content="website" />'));
+  assert.equal((html.match(/property="og:site_name"/g) ?? []).length, 1);
+  assert.deepStrictEqual(findOpenGraphIssues(dir), []);
+});
+
+test("flags duplicate Open Graph URLs and titles", () => {
+  const dir = makeDist({
+    "index.html": '<head><meta property="og:url" content="https://pocketdecks.top/"><meta property="og:url" content="https://pocketdecks.top/"><meta property="og:title" content="A"><meta property="og:title" content="B"><link rel="canonical" href="https://pocketdecks.top/"></head>',
+  });
+  assert.deepStrictEqual(findOpenGraphIssues(dir), [
+    "index.html: expected at most 1 og:url, found 2",
+    "index.html: expected at most 1 og:title, found 2",
+  ]);
+});
+
+test("flags an Open Graph URL that differs from the canonical", () => {
+  const dir = makeDist({
+    "index.html": '<head><meta property="og:url" content="https://pocketdecks.top/other/"><link rel="canonical" href="https://pocketdecks.top/"></head>',
+  });
+  assert.deepStrictEqual(findOpenGraphIssues(dir), [
+    "index.html: og:url https://pocketdecks.top/other/ differs from canonical https://pocketdecks.top/",
+  ]);
+});
+
+test("skips Open Graph URL checks on pages without a canonical", () => {
+  const dir = makeDist({
+    "app-shell.html": '<head><meta property="og:url" content="https://pocketdecks.top/"><meta property="og:url" content="https://pocketdecks.top/ja/"><meta property="og:title" content="A"><meta property="og:title" content="B"></head>',
+    "404.html": '<head><meta property="og:url" content="https://pocketdecks.top/"><meta property="og:url" content="https://pocketdecks.top/404/"><meta property="og:title" content="A"><meta property="og:title" content="B"></head>',
+  });
+  assert.deepStrictEqual(findOpenGraphIssues(dir), []);
+});
 
 const PRELOAD = '<link rel="modulepreload" href="/assets/entry.js" />';
 
@@ -375,15 +436,27 @@ const HOSTING = {
   },
 };
 
+const HOSTING_WITH_FEEDBACK_REDIRECT = {
+  hosting: {
+    redirects: [
+      ...HOSTING.hosting.redirects,
+      { regex: "^/feedback$", destination: "/feedback/", type: 301 },
+    ],
+    rewrites: HOSTING.hosting.rewrites,
+  },
+};
+
 test("flags app routes with no file, redirect, rewrite or deck page", () => {
   const dir = makeDist({
     "index.html": "",
     "tier-list/index.html": "",
+    "statistics/index.html": "",
     "app-shell.html": "",
   });
   assert.deepStrictEqual(
     findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING }),
     [
+      "/feedback: no file, redirect or rewrite",
       "/about: no file, redirect or rewrite",
       "/deck: no file, redirect or rewrite",
       "/deck/:deckId: no prerendered page under /deck/",
@@ -395,6 +468,23 @@ test("passes app routes served by a file, a redirect or a built rewrite", () => 
   const dir = makeDist({
     "index.html": "",
     "tier-list/index.html": "",
+    "statistics/index.html": "",
+    "about/index.html": "",
+    "deck/index.html": "",
+    "deck/x/index.html": "",
+    "app-shell.html": "",
+  });
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING_WITH_FEEDBACK_REDIRECT }),
+    []
+  );
+});
+
+test("flags a bare route that only a slashed rewrite serves", () => {
+  const dir = makeDist({
+    "index.html": "",
+    "tier-list/index.html": "",
+    "statistics/index.html": "",
     "about/index.html": "",
     "deck/index.html": "",
     "deck/x/index.html": "",
@@ -402,7 +492,66 @@ test("passes app routes served by a file, a redirect or a built rewrite", () => 
   });
   assert.deepStrictEqual(
     findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING }),
-    []
+    ["/feedback: no file, redirect or rewrite"]
+  );
+});
+
+test("flags a missing slashed route when its bare route resolves to a file", () => {
+  const dir = makeDist({ feedback: "" });
+  const firebase = { hosting: { redirects: [], rewrites: [] } };
+  assert.equal(resolveHosting(firebase, new Set(["feedback"]), "/feedback").kind, "file");
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, {
+      source: '<Routes><Route path="/feedback" element={<FeedbackPage />} /></Routes>',
+      firebase,
+    }),
+    ["/feedback/: no file, redirect or rewrite"]
+  );
+});
+
+test("flags a missing slashed rewrite target when its bare route resolves to a file", () => {
+  const dir = makeDist({ feedback: "" });
+  const firebase = {
+    hosting: { redirects: [], rewrites: [{ source: "/feedback/**", destination: "/app-shell.html" }] },
+  };
+  const files = new Set(["feedback"]);
+  assert.equal(resolveHosting(firebase, files, "/feedback").kind, "file");
+  assert.deepStrictEqual(resolveHosting(firebase, files, "/feedback/"), {
+    kind: "rewrite",
+    status: 200,
+    file: "app-shell.html",
+  });
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, {
+      source: '<Routes><Route path="/feedback" element={<FeedbackPage />} /></Routes>',
+      firebase,
+    }),
+    ["/feedback/: rewrite target app-shell.html is not built"]
+  );
+});
+
+test("flags a redirect whose destination does not resolve", () => {
+  const dir = makeDist({
+    "index.html": "",
+    "tier-list/index.html": "",
+    "statistics/index.html": "",
+    "about/index.html": "",
+    "deck/index.html": "",
+    "deck/x/index.html": "",
+    "app-shell.html": "",
+  });
+  const firebase = {
+    hosting: {
+      ...HOSTING_WITH_FEEDBACK_REDIRECT.hosting,
+      redirects: [
+        { source: "/feedback", destination: "/nowhere/", type: 301 },
+        ...HOSTING.hosting.redirects,
+      ],
+    },
+  };
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase }),
+    ["/feedback: redirect to /nowhere/ does not resolve"]
   );
 });
 
@@ -410,13 +559,14 @@ test("flags a rewrite whose target is not built", () => {
   const dir = makeDist({
     "index.html": "",
     "tier-list/index.html": "",
+    "statistics/index.html": "",
     "about/index.html": "",
     "deck/index.html": "",
     "deck/x/index.html": "",
   });
   assert.deepStrictEqual(
-    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING }),
-    ["/feedback: rewrite target app-shell.html is not built"]
+    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING_WITH_FEEDBACK_REDIRECT }),
+    ["/feedback/: rewrite target app-shell.html is not built"]
   );
 });
 
@@ -437,6 +587,40 @@ const LOCALE_APP_ROUTES = `
     </Route>
   </Route>
 </Routes>`;
+
+const FEEDBACK_APP_ROUTES =
+  '<Routes><Route path="/ja/feedback" element={<FeedbackPage />} /></Routes>';
+
+const FEEDBACK_HOSTING = {
+  hosting: {
+    redirects: [
+      { regex: "^/feedback$", destination: "/feedback/", type: 301 },
+      { regex: "^/ja/feedback$", destination: "/ja/feedback/", type: 301 },
+    ],
+    rewrites: [
+      { source: "/feedback/**", destination: "/app-shell.html" },
+      { source: "/ja/feedback/**", destination: "/app-shell.html" },
+    ],
+  },
+};
+
+test("checks the Japanese feedback redirect, rewrite and destination", () => {
+  const dir = makeDist({ "app-shell.html": "" });
+  assert.deepStrictEqual(findUnresolvedAppRoutes(dir, { source: FEEDBACK_APP_ROUTES, firebase: FEEDBACK_HOSTING }), []);
+
+  const badDestination = {
+    hosting: {
+      ...FEEDBACK_HOSTING.hosting,
+      redirects: FEEDBACK_HOSTING.hosting.redirects.map((rule) =>
+        rule.regex === "^/ja/feedback$" ? { ...rule, destination: "/ja/missing/" } : rule
+      ),
+    },
+  };
+  assert.deepStrictEqual(
+    findUnresolvedAppRoutes(dir, { source: FEEDBACK_APP_ROUTES, firebase: badDestination }),
+    ["/ja/feedback: redirect to /ja/missing/ does not resolve"]
+  );
+});
 
 test("flags a locale dynamic route with no prerendered page under it", () => {
   const dir = makeDist({

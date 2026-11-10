@@ -4,6 +4,7 @@ const { buildHubJobs, renderHubHtml } = require("../prerender-deck-hubs");
 
 const template =
   '<!doctype html><html><head><meta charset="utf-8" />' +
+  '<meta property="og:type" content="website" />' +
   '<meta name="description" content="old default" />' +
   "<title>Old Title</title></head><body></body></html>";
 
@@ -38,6 +39,14 @@ test("hub pages render a titled, described and breadcrumbed head with no undefin
   assert.match(html, /<title>Mega Altaria ex Deck \| Pokemon TCG Pocket<\/title>/);
   assert.match(html, /"name":"Mega Altaria ex"/);
   assert.doesNotMatch(html, /undefined/);
+});
+
+test("hub pages keep exactly one website Open Graph type", () => {
+  const jobs = buildHubJobs(archive, [{ name: "mega-altaria-ex-b1-102" }]);
+  const altaria = jobs.find((job) => job.hub === "mega-altaria-ex");
+  const html = renderHubHtml(altaria, template, "en");
+  assert.equal((html.match(/property="og:type"/g) ?? []).length, 1);
+  assert.ok(html.includes('<meta property="og:type" content="website" />'));
 });
 
 test("every English hub is indexable, retired ones included", () => {

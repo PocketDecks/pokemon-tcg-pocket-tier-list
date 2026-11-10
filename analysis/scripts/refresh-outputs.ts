@@ -74,7 +74,9 @@ const contents = (root: string): Record<string, string> => Object.fromEntries(en
   try { return fs.lstatSync(full).isFile() ? [[name, fs.readFileSync(full).toString("base64")]] : []; }
   catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return []; throw error; }
 }));
-const currentHashes = (root: string): Record<string, string> => Object.fromEntries(Object.entries(contents(root)).map(([name, value]) => [name, hash(Buffer.from(value, "base64"))]));
+const currentHashes = (root: string): Record<string, string> => Object.fromEntries(Object.entries(contents(root))
+  .filter(([name]) => !/\.(?:tmp\.owner|tmp|bak|created|owner)$/.test(name))
+  .map(([name, value]) => [name, hash(Buffer.from(value, "base64"))]));
 const treeHash = (root: string, directory: string): string => {
   const entries: [string, string][] = [];
   for (const name of safeFiles(root, directory)) entries.push([name.slice(directory.length + 1), hash(fs.readFileSync(safePath(root, name)))]);
@@ -88,7 +90,11 @@ const stateTreeHash = (prefix: string, state: Record<string, string>): string =>
   const entries = Object.entries(state).filter(([name]) => name.startsWith(`${prefix}/`)).map(([name, value]) => [name.slice(prefix.length + 1), value] as [string, string]).sort(([a], [b]) => a.localeCompare(b));
   return hash(Buffer.from(JSON.stringify(entries)));
 };
-const outputNames = (root: string): Set<string> => new Set([...REFRESH_OUTPUT_FILES, ...Object.keys(contents(root)), ...(fs.existsSync(journalPath(root)) ? Object.keys(read(root).baseline) : [])]);
+const outputNames = (root: string): Set<string> => new Set([
+  ...REFRESH_OUTPUT_FILES,
+  ...Object.keys(contents(root)).filter((name) => !/\.(?:tmp\.owner|tmp|bak|created|owner)$/.test(name)),
+  ...(fs.existsSync(journalPath(root)) ? Object.keys(read(root).baseline) : []),
+]);
 const atomicTemporary = (name: string, known: Set<string>): { target: string; temporary: string; pid: number } | undefined => {
   const match = name.match(/^(.*)\.(\d+)\.([0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})\.tmp(?:\.owner)?$/i);
   if (!match) return undefined;
@@ -130,6 +136,22 @@ const verifiedProof = (root: string, name: string): boolean => {
   try {
     const record = JSON.parse(fs.readFileSync(proof, "utf8")) as { version?: number; sha256?: string };
     return record.version === 1 && record.sha256 === hash(fs.readFileSync(safePath(root, `${name}.tmp`)));
+  } catch {
+    return false;
+  }
+};
+const proofRecord = (root: string, name: string): { version?: number; sha256?: string; targetSha256?: string } | undefined => {
+  const proof = safePath(root, `${name}.tmp.owner`);
+  if (!fs.existsSync(proof)) return undefined;
+  try { return JSON.parse(fs.readFileSync(proof, "utf8")) as { version?: number; sha256?: string; targetSha256?: string }; }
+  catch { return undefined; }
+};
+const verifiedCompletedProof = (root: string, name: string): boolean => {
+  const record = proofRecord(root, name);
+  if (!record) return false;
+  try {
+    const targetHash = hash(fs.readFileSync(safePath(root, name)));
+    return record.version === 1 && (record.targetSha256 === targetHash || record.sha256 === targetHash);
   } catch {
     return false;
   }
@@ -239,6 +261,9 @@ export const recoverRefresh = (root: string): void => {
         if (fs.existsSync(full)) throw new Error(`refresh recovery stopped: unexpected target beside backup ${name}`);
         const saved = journal.baseline[name];
         if (saved === undefined || hash(fs.readFileSync(backup)) !== hash(Buffer.from(saved, "base64"))) throw new Error(`refresh recovery stopped: unowned backup ${backup}`);
+        if (fs.existsSync(proof) && !verifiedProof(root, name)) throw new Error(`refresh recovery stopped: unproven writer proof ${proof}`);
+        if (hasMarker !== (saved === undefined)) throw new Error(`refresh recovery stopped: unproven sidecar state ${name}`);
+        if (hasMarker && fs.statSync(marker).size !== 0) throw new Error(`refresh recovery stopped: unproven created marker ${marker}`);
       } else {
         const saved = journal.baseline[name];
         if (!verifiedProof(root, name)) throw new Error(`refresh recovery stopped: unproven sidecar state ${name}`);
@@ -248,23 +273,31 @@ export const recoverRefresh = (root: string): void => {
         if (saved !== undefined && (!fs.existsSync(full) || hash(fs.readFileSync(full)) !== hash(Buffer.from(saved, "base64")))) throw new Error(`refresh recovery stopped: unproven target ${name}`);
       }
       sidecarPlans.push({ name, restore: hasBackup, removals: [temporaryName, proofName, markerName] });
-    } else if (hasBackup || hasMarker) {
+    } else if (hasBackup || hasMarker || fs.existsSync(proof)) {
       const expected = journal.checkpoint[name];
-      if (expected === undefined || !fs.existsSync(full) || hash(fs.readFileSync(full)) !== expected) throw new Error(`refresh recovery stopped: unverified completed write ${name}`);
+      if (expected === undefined) {
+        if (hasBackup || hasMarker || journal.baseline[name] !== undefined || fs.existsSync(full)) {
+          throw new Error(`refresh recovery stopped: unverified completed write ${name}`);
+        }
+        try {
+          const record = JSON.parse(fs.readFileSync(proof, "utf8")) as { version?: number; sha256?: string };
+          if (record.version !== 1 || !/^[0-9a-f]{64}$/.test(record.sha256 ?? "")) throw new Error("invalid proof");
+        } catch {
+          throw new Error(`refresh recovery stopped: unproven writer proof ${proof}`);
+        }
+        sidecarPlans.push({ name, restore: false, removals: [proofName] });
+        continue;
+      }
+      if (!fs.existsSync(full) || hash(fs.readFileSync(full)) !== expected) throw new Error(`refresh recovery stopped: unverified completed write ${name}`);
       if (hasBackup) {
         const saved = journal.baseline[name];
         if (saved === undefined || hash(fs.readFileSync(backup)) !== hash(Buffer.from(saved, "base64"))) throw new Error(`refresh recovery stopped: unowned backup ${backup}`);
       }
-      if (hasMarker && fs.statSync(marker).size !== 0) throw new Error(`refresh recovery stopped: unproven created marker ${marker}`);
-      if (fs.existsSync(proof)) {
-        const record = (() => {
-          try { return JSON.parse(fs.readFileSync(proof, "utf8")) as { version?: number; sha256?: string }; }
-          catch { return undefined; }
-        })();
-        if (!record || record.version !== 1 || typeof record.sha256 !== "string" || record.sha256 !== hash(fs.readFileSync(full))) {
-          throw new Error(`refresh recovery stopped: unproven writer proof ${proof}`);
-        }
+      if (fs.existsSync(proof) && !verifiedCompletedProof(root, name)) {
+        throw new Error(`refresh recovery stopped: unproven writer proof ${proof}`);
       }
+      if (hasMarker && fs.statSync(marker).size !== 0) throw new Error(`refresh recovery stopped: unproven created marker ${marker}`);
+      if (hasMarker && journal.baseline[name] !== undefined) throw new Error(`refresh recovery stopped: unproven sidecar state ${name}`);
       sidecarPlans.push({ name, restore: false, removals: [backupName, proofName, markerName] });
     }
   }

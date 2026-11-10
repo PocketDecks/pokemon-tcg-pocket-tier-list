@@ -661,7 +661,7 @@ describe("premium entry points", () => {
     }
   });
 
-  it.each(["{", '{ "premium": "deadbeef" }'])("rejects a malformed canonical main premium value", (contents) => {
+  it.each(["{", '{ "premium": "deadbeef" }'])("reports an unreadable canonical main premium value", (contents) => {
     const repo = fs.mkdtempSync(path.join(os.tmpdir(), "live-version-invalid-"));
     const git = (...args: string[]) => execFileSync("git", ["-c", "user.name=test", "-c", "user.email=test@example.com", ...args], { cwd: repo, stdio: "ignore" });
     try {

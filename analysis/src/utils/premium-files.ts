@@ -85,9 +85,20 @@ export const inspectMainPremiumVersion = (
 ): MainPremiumVersionStatus => {
   const targetRef = ref ?? resolveCanonicalMainRef(repoRoot, git);
   if (!targetRef) return { status: "absent" };
+  const versionPath = "public/data/data-version.json";
+  let paths: string[];
+  try {
+    paths = git(["ls-tree", "-r", "--name-only", targetRef, "--", versionPath], repoRoot)
+      .split(/\r?\n/)
+      .filter(Boolean);
+  } catch (error) {
+    return { status: "unreadable", reason: (error as Error).message };
+  }
+  if (!paths.includes(versionPath)) return { status: "absent" };
+
   let output: string;
   try {
-    output = git(["show", `${targetRef}:public/data/data-version.json`], repoRoot);
+    output = git(["show", `${targetRef}:${versionPath}`], repoRoot);
   } catch (error) {
     return { status: "unreadable", reason: (error as Error).message };
   }
@@ -96,7 +107,7 @@ export const inspectMainPremiumVersion = (
     const value = (parsed as { premium?: unknown } | null)?.premium;
     return typeof value === "string" && /^[0-9a-f]{16}$/.test(value)
       ? { status: "found", version: value }
-      : { status: "absent" };
+      : { status: "unreadable", reason: `${versionPath} has no valid premium version` };
   } catch (error) {
     return { status: "unreadable", reason: (error as Error).message };
   }

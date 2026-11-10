@@ -525,19 +525,16 @@ describe("run", () => {
     expect(discard).toHaveBeenCalledTimes(1);
   });
 
-  it("warns and treats an unreadable main version as a first publish", async () => {
+  it("refuses an unreadable canonical main version", async () => {
     vi.mocked(inspectMainPremiumVersion).mockReturnValue({
       status: "unreadable",
       reason: "exit status 128",
     });
 
-    await expect(run()).resolves.toBeUndefined();
-    const windows = vi.mocked(assertPublishable).mock.calls[0][0].windows;
-    expect(windows.filter((window) => ["30d", "all"].includes(window.id)).map((window) => window.previousArchetypeCount)).toEqual([null, null]);
-    expect(writeArtefacts).toHaveBeenCalledTimes(1);
-    expect(console.warn).toHaveBeenCalledWith(
-      expect.stringMatching(/Could not read the premium version committed on canonical main/)
-    );
+    const failure = (await run().catch((error: Error) => error)) as Error;
+    expect(failure.message).toMatch(/refusing to publish against an unreadable baseline/);
+    expect(writeArtefacts).not.toHaveBeenCalled();
+    expect(discard).toHaveBeenCalledTimes(1);
   });
 
   it("passes the days of data since the release to the gate", async () => {

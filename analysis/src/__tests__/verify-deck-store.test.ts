@@ -1,4 +1,5 @@
 import fs from "fs";
+import { createHash } from "node:crypto";
 import os from "os";
 import path from "path";
 import { vi } from "vitest";
@@ -119,7 +120,27 @@ describe("verify-deck-store", () => {
     );
 
     expect(runVerify({ dir })).toBe(1);
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("stray staging file"));
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("unproven writer proof"));
+  });
+
+  it("accepts a completed target with a matching owner proof", () => {
+    healthyStore();
+    const target = path.join(dir, "manifest.json");
+    fs.writeFileSync(`${target}.tmp.owner`, JSON.stringify({
+      version: 1,
+      sha256: createHash("sha256").update(fs.readFileSync(target)).digest("hex"),
+    }));
+
+    expect(runVerify({ dir })).toBe(0);
+  });
+
+  it("fails on an invalid owner proof beside a completed target", () => {
+    healthyStore();
+    const target = path.join(dir, "manifest.json");
+    fs.writeFileSync(`${target}.tmp.owner`, JSON.stringify({ version: 1, sha256: "deadbeef" }));
+
+    expect(runVerify({ dir })).toBe(1);
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("unproven writer proof"));
   });
 
   it("fails on an invalid processed-tournaments entry", () => {

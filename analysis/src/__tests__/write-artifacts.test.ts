@@ -1,4 +1,5 @@
 import fs from "fs";
+import { createHash } from "node:crypto";
 import os from "os";
 import path from "path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -291,7 +292,10 @@ describe("writeArtefacts", () => {
     const directory = makeTempDirectory();
     const target = path.join(directory, "target.json");
     fs.writeFileSync(target, "old");
-    fs.writeFileSync(`${target}.tmp.owner`, "{}");
+    fs.writeFileSync(`${target}.tmp.owner`, JSON.stringify({
+      version: 1,
+      targetSha256: createHash("sha256").update("old").digest("hex"),
+    }));
 
     writeArtefacts({ [target]: "new" });
 

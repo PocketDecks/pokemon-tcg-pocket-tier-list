@@ -138,7 +138,10 @@ describe("readPremiumVersionAtRef", () => {
 describe("inspectMainPremiumVersion", () => {
   const showVersion = (version: string | null) => {
     const content = version === null ? "{}" : renderDataVersion(version);
-    return (_args: string[], _cwd: string): string => content;
+    return (args: string[], _cwd: string): string => {
+      if (args[0] === "ls-tree") return "public/data/data-version.json\n";
+      return content;
+    };
   };
   const throwingGit = (): string => {
     throw new Error("exit status 128");
@@ -150,10 +153,16 @@ describe("inspectMainPremiumVersion", () => {
     ).toEqual({ status: "found", version: "0123456789abcdef" });
   });
 
-  it("reports an absent version when the file has no valid premium field", () => {
+  it("reports an unreadable version when the committed file has no valid premium field", () => {
     expect(
       inspectMainPremiumVersion("/repo", "refs/remotes/pocketdecks/main", showVersion(null))
-    ).toEqual({ status: "absent" });
+    ).toEqual({ status: "unreadable", reason: "public/data/data-version.json has no valid premium version" });
+  });
+
+  it("reports absent when the committed version file is missing", () => {
+    const git = (args: string[]): string => args[0] === "ls-tree" ? "" : "{}";
+
+    expect(inspectMainPremiumVersion("/repo", "refs/remotes/pocketdecks/main", git)).toEqual({ status: "absent" });
   });
 
   it("reports unreadable when git fails", () => {

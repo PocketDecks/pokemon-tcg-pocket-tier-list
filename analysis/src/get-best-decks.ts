@@ -166,10 +166,9 @@ export const run = async (): Promise<void> => {
         ? premiumVersionSnapshotDir(mainVersion, PREMIUM_DIR)
         : null;
       if (mainVersionStatus.status === "unreadable") {
-        console.warn(
+        throw new Error(
           `Could not read the premium version committed on canonical main at ${mainRef} ` +
-          `(${mainVersionStatus.reason}); treated as a first publish, so the ` +
-          `thinner-than-last-time floors for 30d and all are skipped`
+          `(${mainVersionStatus.reason}); refusing to publish against an unreadable baseline`
         );
       } else if (!mainSnapshot) {
         console.log(

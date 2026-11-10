@@ -40,6 +40,15 @@ export const writeArtefacts = (files: Record<string, string>): void => {
       throw new Error(`Refusing stale staging files for ${artefact.target}`);
     }
     if (fs.existsSync(artefact.proof)) {
+      if (!artefact.hadTarget) throw new Error(`Refusing stale staging files for ${artefact.target}`);
+      try {
+        const proof = JSON.parse(fs.readFileSync(artefact.proof, "utf8")) as { version?: number; targetSha256?: string };
+        if (proof.version !== 1 || proof.targetSha256 !== createHash("sha256").update(artefact.previous ?? "").digest("hex")) {
+          throw new Error("proof does not match target");
+        }
+      } catch {
+        throw new Error(`Refusing stale staging files for ${artefact.target}`);
+      }
       fs.rmSync(artefact.proof, { force: true });
     }
   }
@@ -48,6 +57,9 @@ export const writeArtefacts = (files: Record<string, string>): void => {
     for (const artefact of artefacts) {
       fs.writeFileSync(artefact.proof, JSON.stringify({
         version: 1,
+        targetSha256: artefact.hadTarget && artefact.previous !== null
+          ? createHash("sha256").update(artefact.previous).digest("hex")
+          : undefined,
         sha256: createHash("sha256").update(artefact.content).digest("hex"),
       }));
       fs.writeFileSync(artefact.temporary, artefact.content);

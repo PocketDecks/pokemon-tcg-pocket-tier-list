@@ -83,7 +83,12 @@ const fakeGit = (
     return "";
   }
   if (args[0] === "for-each-ref") {
-    return automatedBranch ? "refs/remotes/pocketdecks/automated/pipeline-update-2026-11-09\n" : "";
+    return automatedBranch ? "refs/remotes/pocketdecks/automated/a/b\n" : "";
+  }
+  if (args[0] === "ls-tree") {
+    return args.includes("refs/remotes/pocketdecks/main") || args.some((arg) => arg.includes("automated/"))
+      ? "public/data/data-version.json\n"
+      : "";
   }
   if (args[0] === "show" && args[1] === "refs/remotes/pocketdecks/main:public/data/data-version.json") {
     return `{ "premium": "${canonicalVersion}" }\n`;
@@ -271,6 +276,19 @@ describe("premium retention discovery", () => {
       repoRoot: "fake-repo",
       runGit: fakeGit(versions.canonical, { automatedBranch: versions.secondHead }),
       fetcher: successfulFetch(calls),
+    });
+    expect(result?.automatedBranchVersions).toEqual([versions.secondHead]);
+  });
+
+  it("reads a nested automated branch ref", async () => {
+    if (typeof discover !== "function") {
+      expect(discover).toBeTypeOf("function");
+      return;
+    }
+    const result = await discover({
+      repoRoot: "fake-repo",
+      runGit: fakeGit(versions.canonical, { automatedBranch: versions.secondHead }),
+      fetcher: successfulFetch([]),
     });
     expect(result?.automatedBranchVersions).toEqual([versions.secondHead]);
   });

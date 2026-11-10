@@ -450,6 +450,42 @@ describe("gate and validate baseline parity", () => {
     expect(report.failures).toEqual([]);
   });
 
+  it("pins the ceil ratio at a fractional previous count", () => {
+    const data = tmp();
+    const premium = tmp();
+    const images = tmp();
+    const previous = tmp();
+    const current = { "10d": 21, "20d": 25, "30d": 32, all: 32 } as const;
+    const before = { "10d": 41, "20d": 25, "30d": 32, all: 32 } as const;
+    const names = writeWindows(data, current, {}, premium);
+    writeImages(images, names);
+    writeWindows(previous, before, {}, previous);
+    writePreviousDates(previous);
+
+    const report = validateRefresh(data, images, previous, premium);
+    const validateRow = report.windows.find((row) => row.window === "10d");
+    const gateFailures = publishFailures({
+      windows: [{
+        id: "10d",
+        bestDecks: Array.from({ length: current["10d"] }, (_, index) => ({ name: `deck-10d-${index}`, powerScore: 1, score: 1 })) as never,
+        previousArchetypeCount: before["10d"],
+      }],
+      defaultWindow: "20d",
+      deckSlugs: [],
+      newestDeckDate: releaseDay(30),
+      daysOfData: 30,
+      now: new Date(releaseDay(30)),
+      currentSet: "A1",
+      newestSet: "A1",
+      currentSetListingCount: 1,
+      unmatchedDecks: { decks: 0, games: 0, qualifiedGames: 1 },
+    });
+
+    expect(validateRow?.floor).toBe(21);
+    expect(validateRow?.archetypes).toBe(21);
+    expect(gateFailures).not.toContain("10d: 21 archetypes is under 50% of the previous 41");
+  });
+
   it("gate and validate both refuse a window that is thin against the same baseline", () => {
     const data = tmp();
     const premium = tmp();

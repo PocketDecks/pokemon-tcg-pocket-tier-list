@@ -40,15 +40,15 @@ const readPrevious = (): string | null => {
   const ref = flag("--previous-ref") ?? resolveCanonicalMainRef(repoRoot);
   if (!ref) throw new Error("cannot resolve the canonical main remote; pass --previous-ref <ref>");
   const mainVersionStatus = inspectMainPremiumVersion(repoRoot, ref);
+  if (mainVersionStatus.status === "unreadable") {
+    throw new Error(
+      `Could not read the premium version committed at ${ref} ` +
+      `(${mainVersionStatus.reason}); refusing to validate against an unreadable baseline`
+    );
+  }
   const liveVersion = mainVersionStatus.status === "found" ? mainVersionStatus.version : undefined;
   const premiumSnapshot = liveVersion ? loadPremiumSnapshotForVersion(liveVersion, premiumDir) : undefined;
-  if (mainVersionStatus.status === "unreadable") {
-    console.warn(
-      `Could not read the premium version committed at ${ref} ` +
-      `(${mainVersionStatus.reason}); treated as a first publish, so the ` +
-      `thinner-than-last-time floors for 30d and all are skipped`
-    );
-  } else if (liveVersion && !premiumSnapshot) {
+  if (liveVersion && !premiumSnapshot) {
     console.log(
       `No local premium snapshot for canonical main version ${liveVersion} in ` +
       `${premiumVersionSnapshotDir(liveVersion, premiumDir)}; first publish, ` +

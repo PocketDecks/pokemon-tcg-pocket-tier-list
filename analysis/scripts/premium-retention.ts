@@ -164,14 +164,24 @@ export const discoverPremiumRetentionSources = async ({
     if (!canonicalMainVersion) return undefined;
 
     const automatedBranchVersions = (() => {
-      const refs = git(["for-each-ref", "--format=%(refname)", "refs/heads/automated/", "refs/remotes/*/automated/*"], repoRoot)
-        .split(/\r?\n/).filter(Boolean);
+      const refs = git(["for-each-ref", "--format=%(refname)", "refs/heads/automated/", "refs/remotes/"], repoRoot)
+        .split(/\r?\n/)
+        .filter((ref) => /^refs\/(?:heads\/automated\/|remotes\/[^/]+\/automated\/)/.test(ref));
       const versions: string[] = [];
       for (const branchRef of refs) {
+        const versionPath = "public/data/data-version.json";
+        let paths: string[];
         try {
-          const version = versionOf(JSON.parse(git(["show", `${branchRef}:public/data/data-version.json`], repoRoot)));
-          if (version) versions.push(version);
-        } catch { continue; }
+          paths = git(["ls-tree", "-r", "--name-only", branchRef, "--", versionPath], repoRoot)
+            .split(/\r?\n/)
+            .filter(Boolean);
+        } catch (error) {
+          throw new Error(`automated branch ${branchRef} version file could not be inspected: ${error instanceof Error ? error.message : String(error)}`);
+        }
+        if (!paths.includes(versionPath)) continue;
+        const version = versionOf(JSON.parse(git(["show", `${branchRef}:${versionPath}`], repoRoot)));
+        if (version) versions.push(version);
+        else throw new Error(`automated branch ${branchRef} has no valid premium version`);
       }
       return [...new Set(versions)];
     })();

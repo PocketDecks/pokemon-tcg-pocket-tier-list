@@ -339,7 +339,7 @@ describe("refresh output journal", () => {
     const target = path.join(root, "analysis/src/data/limitless-decks.json");
     fs.renameSync(target, `${target}.bak`);
     fs.writeFileSync(`${target}.tmp`, "partial");
-    fs.writeFileSync(`${target}.created`, "");
+    writeProof(`${target}.tmp`, "partial");
     recoverRefresh(root);
     expect(fs.readFileSync(target, "utf8")).toBe("base");
     expect(fs.existsSync(`${target}.tmp`)).toBe(false);
@@ -690,7 +690,6 @@ describe("refresh output journal", () => {
     beginRefresh(root);
     const target = path.join(root, "analysis/src/data/limitless-decks.json");
     const content = fs.readFileSync(target, "utf8");
-    fs.writeFileSync(`${target}.created`, "");
     fs.writeFileSync(`${target}.tmp.owner`, JSON.stringify({
       version: 1,
       sha256: createHash("sha256").update(content).digest("hex"),

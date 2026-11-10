@@ -1,3 +1,7 @@
+vi.mock("../data/limitless-decks.json", async () => ({
+  default: (await import("../__fixtures__/limitless-decks-naming.json")).default,
+}));
+
 import getDeckName, { compareRank, UNMATCHED_DECK } from "../utils/get-deck-name";
 import { Deck } from "../utils/types";
 

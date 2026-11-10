@@ -1,11 +1,19 @@
-import decks from "../data/limitless-decks.json";
+import { readFileSync } from "fs";
+import path from "path";
 import getDeckName from "../utils/get-deck-name";
 import { canonSet, cardKey, SET_CODES } from "../utils/set-codes";
 import { resolveSlug } from "../utils/slug-cards";
 import { DeckListingStore } from "../utils/deck-listing-store";
 import { Deck } from "../utils/types";
 
-const deckStore = (decks as unknown as DeckListingStore).sets;
+vi.mock("../data/limitless-decks.json", async () => ({
+  default: (await import("../__fixtures__/limitless-decks-naming.json")).default,
+}));
+
+const decks = JSON.parse(
+  readFileSync(path.resolve(__dirname, "../data/limitless-decks.json"), "utf8")
+) as DeckListingStore;
+const deckStore = decks.sets;
 
 const unresolved: string[] = [];
 const pairingKeys = new Set<string>();
@@ -74,7 +82,7 @@ describe("the shipped listing store", () => {
   });
 });
 
-describe("deck naming parity over the listing store", () => {
+describe("deck naming parity over the pinned listing fixture", () => {
   const cases: [string, [number, string, string, string][]][] = [
     ["lapras-ex-pa-014", [[2, "Lapras ex", "P-A", "14"]]],
     ["mega-pidgeot-ex-pb-006", [[2, "Mega Pidgeot ex", "P-B", "6"]]],

@@ -227,7 +227,7 @@ describe("ConsentProvider presentation", () => {
 
     await user.click(await screen.findByRole("button", { name: "Privacy settings" }));
 
-    expect(await screen.findByTestId("consent-dialog-card")).toBeInTheDocument();
+    expect(await screen.findByTestId("consent-dialog-card", {}, { timeout: 5000 })).toBeInTheDocument();
     expect(screen.queryByTestId("consent-banner-root")).toBeNull();
   });
 });

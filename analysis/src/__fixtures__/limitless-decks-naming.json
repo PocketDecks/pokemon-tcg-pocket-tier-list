@@ -1,0 +1,1215 @@
+{
+  "updatedAt": "2026-11-06T01:12:00.813Z",
+  "currentSet": "C1",
+  "sets": {
+    "A1": {
+      "decks": [
+        {
+          "name": "Lapras ex",
+          "slug": "lapras-ex-p-a",
+          "count": 11
+        },
+        {
+          "name": "Greninja",
+          "slug": "greninja-a1",
+          "count": 5
+        },
+        {
+          "name": "Dragonair",
+          "slug": "dragonair-a1",
+          "count": 4
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a1",
+          "count": 4
+        },
+        {
+          "name": "Greninja Charizard ex",
+          "slug": "greninja-charizard-ex-a1",
+          "count": 1
+        }
+      ]
+    },
+    "A1a": {
+      "decks": [
+        {
+          "name": "Greninja",
+          "slug": "greninja-a1",
+          "count": 5
+        },
+        {
+          "name": "Charizard ex Greninja",
+          "slug": "charizard-ex-greninja-a1",
+          "count": 1
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a1",
+          "count": 1
+        }
+      ]
+    },
+    "A2": {
+      "decks": [
+        {
+          "name": "Magnezone",
+          "slug": "magnezone-a2",
+          "count": 18
+        },
+        {
+          "name": "Greninja",
+          "slug": "greninja-a1",
+          "count": 1
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a1",
+          "count": 1
+        }
+      ]
+    },
+    "A2a": {
+      "decks": [
+        {
+          "name": "Magnezone",
+          "slug": "magnezone-a2",
+          "count": 5
+        },
+        {
+          "name": "Greninja",
+          "slug": "greninja-a1",
+          "count": 2
+        }
+      ]
+    },
+    "A2b": {
+      "decks": [
+        {
+          "name": "Giratina ex",
+          "slug": "giratina-ex-a2b",
+          "count": 46
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a2b",
+          "count": 8
+        },
+        {
+          "name": "Magnezone",
+          "slug": "magnezone-a2",
+          "count": 2
+        },
+        {
+          "name": "Lapras ex",
+          "slug": "lapras-ex-p-a",
+          "count": 1
+        },
+        {
+          "name": "Magnezone",
+          "slug": "magnezone-a2a",
+          "count": 1
+        }
+      ]
+    },
+    "A3": {
+      "decks": [
+        {
+          "name": "Greninja Oricorio",
+          "slug": "greninja-a1-oricorio-a3",
+          "count": 621
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a2b",
+          "count": 178
+        },
+        {
+          "name": "Giratina ex",
+          "slug": "giratina-ex-a2b",
+          "count": 5
+        },
+        {
+          "name": "Magnezone",
+          "slug": "magnezone-a2",
+          "count": 4
+        },
+        {
+          "name": "Charizard ex Greninja",
+          "slug": "charizard-ex-a2b-greninja-a1",
+          "count": 2
+        },
+        {
+          "name": "Oricorio",
+          "slug": "oricorio-a3",
+          "count": 2
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a1",
+          "count": 1
+        }
+      ]
+    },
+    "A3a": {
+      "decks": [
+        {
+          "name": "Greninja Oricorio",
+          "slug": "greninja-a1-oricorio-a3",
+          "count": 173
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a2b",
+          "count": 38
+        },
+        {
+          "name": "Oricorio",
+          "slug": "oricorio-a3",
+          "count": 10
+        },
+        {
+          "name": "Charizard ex Greninja",
+          "slug": "charizard-ex-a2b-greninja-a1",
+          "count": 3
+        },
+        {
+          "name": "Vaporeon Eevee ex",
+          "slug": "vaporeon-eevee-ex-a3b",
+          "count": 1
+        },
+        {
+          "name": "Giratina ex",
+          "slug": "giratina-ex-a2b",
+          "count": 1
+        },
+        {
+          "name": "Greninja",
+          "slug": "greninja-a1",
+          "count": 1
+        }
+      ]
+    },
+    "A3b": {
+      "decks": [
+        {
+          "name": "Greninja Oricorio",
+          "slug": "greninja-a1-oricorio-a3",
+          "count": 227
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a2b",
+          "count": 5
+        },
+        {
+          "name": "Greninja",
+          "slug": "greninja-a1",
+          "count": 2
+        },
+        {
+          "name": "Magnezone",
+          "slug": "magnezone-a2",
+          "count": 1
+        },
+        {
+          "name": "Vaporeon Eevee ex",
+          "slug": "vaporeon-eevee-ex-a3b",
+          "count": 1
+        }
+      ]
+    },
+    "A4": {
+      "decks": [
+        {
+          "name": "Greninja Oricorio",
+          "slug": "greninja-a1-oricorio-a3",
+          "count": 95
+        },
+        {
+          "name": "Giratina ex",
+          "slug": "giratina-ex-a2b",
+          "count": 2
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a2b",
+          "count": 2
+        }
+      ]
+    },
+    "A4a": {
+      "decks": [
+        {
+          "name": "Suicune ex Greninja",
+          "slug": "suicune-ex-a4a-greninja-a1",
+          "count": 2688
+        },
+        {
+          "name": "Greninja Oricorio",
+          "slug": "greninja-a1-oricorio-a3",
+          "count": 250
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a2b",
+          "count": 217
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a2b-entei-ex-a4a",
+          "count": 28
+        },
+        {
+          "name": "Suicune ex Greninja",
+          "slug": "suicune-ex-a4a-greninja-a4b",
+          "count": 28
+        },
+        {
+          "name": "Greninja Suicune ex",
+          "slug": "greninja-a1-suicune-ex-a4a",
+          "count": 16
+        },
+        {
+          "name": "Giratina ex",
+          "slug": "giratina-ex-a2b",
+          "count": 9
+        },
+        {
+          "name": "Entei ex Charizard ex",
+          "slug": "entei-ex-a4a-charizard-ex-a2b",
+          "count": 2
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a1-entei-ex-a4a",
+          "count": 1
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a1",
+          "count": 1
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a4b-entei-ex-a4a",
+          "count": 1
+        },
+        {
+          "name": "Oricorio",
+          "slug": "oricorio-a3",
+          "count": 1
+        },
+        {
+          "name": "Magnezone",
+          "slug": "magnezone-a2",
+          "count": 1
+        }
+      ]
+    },
+    "B1": {
+      "decks": [
+        {
+          "name": "Greninja Oricorio",
+          "slug": "greninja-a1-oricorio-a3",
+          "count": 340
+        },
+        {
+          "name": "Suicune ex Greninja",
+          "slug": "suicune-ex-a4a-greninja-a1",
+          "count": 245
+        },
+        {
+          "name": "Magnezone",
+          "slug": "magnezone-a2",
+          "count": 14
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a2b",
+          "count": 14
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a1-entei-ex-a4a",
+          "count": 6
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a2b-entei-ex-a4a",
+          "count": 3
+        },
+        {
+          "name": "Entei ex Charizard ex",
+          "slug": "entei-ex-a4a-charizard-ex-a1",
+          "count": 3
+        },
+        {
+          "name": "Mega Altaria ex",
+          "slug": "mega-altaria-ex-b1",
+          "count": 2
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a1",
+          "count": 2
+        },
+        {
+          "name": "Greninja",
+          "slug": "greninja-a1",
+          "count": 2
+        }
+      ]
+    },
+    "B1a": {
+      "decks": [
+        {
+          "name": "Greninja Oricorio",
+          "slug": "greninja-a1-oricorio-a3",
+          "count": 155
+        },
+        {
+          "name": "Magnezone",
+          "slug": "magnezone-b1a",
+          "count": 43
+        },
+        {
+          "name": "Suicune ex Greninja",
+          "slug": "suicune-ex-a4a-greninja-a1",
+          "count": 34
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a1-entei-ex-a4a",
+          "count": 26
+        },
+        {
+          "name": "Mega Altaria ex",
+          "slug": "mega-altaria-ex-b1",
+          "count": 12
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a2b",
+          "count": 8
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a2b-entei-ex-a4a",
+          "count": 6
+        },
+        {
+          "name": "Greninja Suicune ex",
+          "slug": "greninja-a1-suicune-ex-a4a",
+          "count": 3
+        },
+        {
+          "name": "Chandelure Oricorio",
+          "slug": "chandelure-b1-oricorio-a3",
+          "count": 3
+        },
+        {
+          "name": "Magnezone",
+          "slug": "magnezone-a2",
+          "count": 2
+        },
+        {
+          "name": "Giratina ex",
+          "slug": "giratina-ex-a2b",
+          "count": 1
+        },
+        {
+          "name": "Mega Pidgeot ex",
+          "slug": "mega-pidgeot-ex-p-b",
+          "count": 1
+        }
+      ]
+    },
+    "B2": {
+      "decks": [
+        {
+          "name": "Greninja Oricorio",
+          "slug": "greninja-a1-oricorio-a3",
+          "count": 589
+        },
+        {
+          "name": "Giratina ex Mimikyu ex",
+          "slug": "giratina-ex-a2b-mimikyu-ex-b2",
+          "count": 127
+        },
+        {
+          "name": "Mega Altaria ex",
+          "slug": "mega-altaria-ex-b1",
+          "count": 16
+        },
+        {
+          "name": "Suicune ex Greninja",
+          "slug": "suicune-ex-a4a-greninja-a1",
+          "count": 15
+        },
+        {
+          "name": "Chandelure",
+          "slug": "chandelure-b2",
+          "count": 14
+        },
+        {
+          "name": "Oricorio",
+          "slug": "oricorio-a3",
+          "count": 14
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a2b",
+          "count": 3
+        },
+        {
+          "name": "Mimikyu ex Giratina ex",
+          "slug": "mimikyu-ex-b2-giratina-ex-a2b",
+          "count": 3
+        },
+        {
+          "name": "Magnezone",
+          "slug": "magnezone-b1a",
+          "count": 2
+        },
+        {
+          "name": "Gigalith ex",
+          "slug": "gigalith-ex-b2",
+          "count": 1
+        },
+        {
+          "name": "Greninja Oricorio",
+          "slug": "greninja-a1-oricorio-b2",
+          "count": 1
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a1-entei-ex-a4a",
+          "count": 1
+        }
+      ]
+    },
+    "B2a": {
+      "decks": [
+        {
+          "name": "Mega Altaria ex",
+          "slug": "mega-altaria-ex-b1",
+          "count": 122
+        },
+        {
+          "name": "Greninja Oricorio",
+          "slug": "greninja-a1-oricorio-a3",
+          "count": 86
+        },
+        {
+          "name": "Oricorio",
+          "slug": "oricorio-a3",
+          "count": 25
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a1-entei-ex-a4a",
+          "count": 16
+        },
+        {
+          "name": "Suicune ex Greninja",
+          "slug": "suicune-ex-a4a-greninja-a1",
+          "count": 14
+        },
+        {
+          "name": "Suicune ex Chien-Pao ex",
+          "slug": "suicune-ex-a4a-chien-pao-ex-b2a",
+          "count": 13
+        },
+        {
+          "name": "Giratina ex Mimikyu ex",
+          "slug": "giratina-ex-a2b-mimikyu-ex-b2",
+          "count": 8
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a2b",
+          "count": 6
+        },
+        {
+          "name": "Gigalith ex",
+          "slug": "gigalith-ex-b2",
+          "count": 2
+        },
+        {
+          "name": "Chandelure",
+          "slug": "chandelure-b2",
+          "count": 1
+        },
+        {
+          "name": "Mega Pidgeot ex",
+          "slug": "mega-pidgeot-ex-p-b",
+          "count": 1
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a1",
+          "count": 1
+        }
+      ]
+    },
+    "B2b": {
+      "decks": [
+        {
+          "name": "Mega Altaria ex Igglybuff",
+          "slug": "mega-altaria-ex-b1-igglybuff-a4a",
+          "count": 947
+        },
+        {
+          "name": "Mega Altaria ex",
+          "slug": "mega-altaria-ex-b1",
+          "count": 56
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a1-entei-ex-a4a",
+          "count": 35
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a2b-entei-ex-a4a",
+          "count": 9
+        },
+        {
+          "name": "Chandelure",
+          "slug": "chandelure-b2",
+          "count": 8
+        },
+        {
+          "name": "Suicune ex Greninja",
+          "slug": "suicune-ex-a4a-greninja-a1",
+          "count": 7
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a2b",
+          "count": 3
+        },
+        {
+          "name": "Giratina ex Mimikyu ex",
+          "slug": "giratina-ex-a2b-mimikyu-ex-b2",
+          "count": 3
+        },
+        {
+          "name": "Magnezone",
+          "slug": "magnezone-b1a",
+          "count": 2
+        },
+        {
+          "name": "Suicune ex Chien-Pao ex",
+          "slug": "suicune-ex-a4a-chien-pao-ex-b2a",
+          "count": 2
+        },
+        {
+          "name": "Giratina ex",
+          "slug": "giratina-ex-a2b",
+          "count": 2
+        }
+      ]
+    },
+    "B3": {
+      "decks": [
+        {
+          "name": "Mega Altaria ex Igglybuff",
+          "slug": "mega-altaria-ex-b1-igglybuff-a4a",
+          "count": 414
+        },
+        {
+          "name": "Oricorio",
+          "slug": "oricorio-a3",
+          "count": 22
+        },
+        {
+          "name": "Vaporeon ex",
+          "slug": "vaporeon-ex-b3",
+          "count": 7
+        },
+        {
+          "name": "Mega Altaria ex",
+          "slug": "mega-altaria-ex-b1",
+          "count": 6
+        },
+        {
+          "name": "Chandelure",
+          "slug": "chandelure-b2",
+          "count": 5
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a2b",
+          "count": 5
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a1-entei-ex-a4a",
+          "count": 4
+        },
+        {
+          "name": "Eevee ex Vaporeon ex",
+          "slug": "eevee-ex-a3b-vaporeon-ex-b3",
+          "count": 3
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a2b-entei-ex-a4a",
+          "count": 2
+        },
+        {
+          "name": "Vaporeon ex Eevee ex",
+          "slug": "vaporeon-ex-b3-eevee-ex-a3b",
+          "count": 2
+        },
+        {
+          "name": "Suicune ex Greninja",
+          "slug": "suicune-ex-a4a-greninja-a1",
+          "count": 2
+        },
+        {
+          "name": "Greninja Suicune ex",
+          "slug": "greninja-a1-suicune-ex-a4a",
+          "count": 1
+        },
+        {
+          "name": "Suicune ex Chien-Pao ex",
+          "slug": "suicune-ex-a4a-chien-pao-ex-b2a",
+          "count": 1
+        },
+        {
+          "name": "Giratina ex Mimikyu ex",
+          "slug": "giratina-ex-a2b-mimikyu-ex-b2",
+          "count": 1
+        },
+        {
+          "name": "Vaporeon ex Vaporeon",
+          "slug": "vaporeon-ex-b3-vaporeon-a3b",
+          "count": 1
+        }
+      ]
+    },
+    "B3a": {
+      "decks": [
+        {
+          "name": "Mega Altaria ex Espeon",
+          "slug": "mega-altaria-ex-b1-espeon-b3a",
+          "count": 1095
+        },
+        {
+          "name": "Miraidon ex Magnezone",
+          "slug": "miraidon-ex-b3a-magnezone-b1a",
+          "count": 936
+        },
+        {
+          "name": "Magnezone Miraidon ex",
+          "slug": "magnezone-b1a-miraidon-ex-b3a",
+          "count": 595
+        },
+        {
+          "name": "Mega Altaria ex Igglybuff",
+          "slug": "mega-altaria-ex-b1-igglybuff-a4a",
+          "count": 109
+        },
+        {
+          "name": "Suicune ex Greninja",
+          "slug": "suicune-ex-a4a-greninja-a1",
+          "count": 9
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a2b-entei-ex-a4a",
+          "count": 8
+        },
+        {
+          "name": "Suicune ex Chien-Pao ex",
+          "slug": "suicune-ex-a4a-chien-pao-ex-b2a",
+          "count": 6
+        },
+        {
+          "name": "Entei ex Charizard ex",
+          "slug": "entei-ex-a4a-charizard-ex-a2b",
+          "count": 6
+        },
+        {
+          "name": "Miraidon ex Magnezone",
+          "slug": "miraidon-ex-b3a-magnezone-a2",
+          "count": 6
+        },
+        {
+          "name": "Magnezone Miraidon ex",
+          "slug": "magnezone-a2-miraidon-ex-b3a",
+          "count": 6
+        },
+        {
+          "name": "Mega Altaria ex",
+          "slug": "mega-altaria-ex-b1",
+          "count": 5
+        },
+        {
+          "name": "Espeon Igglybuff",
+          "slug": "espeon-b3a-igglybuff-a4a",
+          "count": 3
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a1-entei-ex-a4a",
+          "count": 3
+        },
+        {
+          "name": "Greninja Oricorio",
+          "slug": "greninja-a1-oricorio-a3",
+          "count": 3
+        },
+        {
+          "name": "Giratina ex Mimikyu ex",
+          "slug": "giratina-ex-a2b-mimikyu-ex-b2",
+          "count": 2
+        }
+      ]
+    },
+    "B3b": {
+      "decks": [
+        {
+          "name": "Miraidon ex Magnezone",
+          "slug": "miraidon-ex-b3a-magnezone-b1a",
+          "count": 888
+        },
+        {
+          "name": "Mega Altaria ex Espeon",
+          "slug": "mega-altaria-ex-b1-espeon-b3a",
+          "count": 221
+        },
+        {
+          "name": "Milotic ex Vaporeon ex",
+          "slug": "milotic-ex-b3b-vaporeon-ex-b3",
+          "count": 116
+        },
+        {
+          "name": "Magnezone Miraidon ex",
+          "slug": "magnezone-b1a-miraidon-ex-b3a",
+          "count": 69
+        },
+        {
+          "name": "Milotic ex Chien-Pao ex",
+          "slug": "milotic-ex-b3b-chien-pao-ex-b2a",
+          "count": 53
+        },
+        {
+          "name": "Milotic ex Eevee ex",
+          "slug": "milotic-ex-b3b-eevee-ex-a3b",
+          "count": 52
+        },
+        {
+          "name": "Milotic ex Suicune ex",
+          "slug": "milotic-ex-b3b-suicune-ex-a4a",
+          "count": 51
+        },
+        {
+          "name": "Mega Altaria ex Igglybuff",
+          "slug": "mega-altaria-ex-b1-igglybuff-a4a",
+          "count": 45
+        },
+        {
+          "name": "Milotic ex Vaporeon",
+          "slug": "milotic-ex-b3b-vaporeon-a1a",
+          "count": 25
+        },
+        {
+          "name": "Greninja Oricorio",
+          "slug": "greninja-a1-oricorio-a3",
+          "count": 11
+        },
+        {
+          "name": "Oricorio",
+          "slug": "oricorio-a3",
+          "count": 10
+        },
+        {
+          "name": "Suicune ex Greninja",
+          "slug": "suicune-ex-a4a-greninja-a1",
+          "count": 5
+        },
+        {
+          "name": "Giratina ex Mimikyu ex",
+          "slug": "giratina-ex-a2b-mimikyu-ex-b2",
+          "count": 4
+        },
+        {
+          "name": "Miraidon ex Magnezone",
+          "slug": "miraidon-ex-b3a-magnezone-a2",
+          "count": 3
+        },
+        {
+          "name": "Chien-Pao ex",
+          "slug": "chien-pao-ex-b2a",
+          "count": 2
+        },
+        {
+          "name": "Giratina ex",
+          "slug": "giratina-ex-a2b",
+          "count": 2
+        },
+        {
+          "name": "Mega Altaria ex",
+          "slug": "mega-altaria-ex-b1",
+          "count": 2
+        },
+        {
+          "name": "Suicune ex Milotic ex",
+          "slug": "suicune-ex-a4a-milotic-ex-b3b",
+          "count": 2
+        },
+        {
+          "name": "Vaporeon ex Milotic ex",
+          "slug": "vaporeon-ex-b3-milotic-ex-b3b",
+          "count": 1
+        },
+        {
+          "name": "Vaporeon ex Eevee ex",
+          "slug": "vaporeon-ex-b3-eevee-ex-a3b",
+          "count": 1
+        },
+        {
+          "name": "Chien-Pao ex Milotic ex",
+          "slug": "chien-pao-ex-b2a-milotic-ex-b3b",
+          "count": 1
+        }
+      ]
+    },
+    "B4": {
+      "decks": [
+        {
+          "name": "Dragonair Mega Rayquaza ex",
+          "slug": "dragonair-mega-rayquaza-ex-b4",
+          "count": 702
+        },
+        {
+          "name": "Mega Altaria ex Espeon",
+          "slug": "mega-altaria-ex-b1-espeon-b3a",
+          "count": 297
+        },
+        {
+          "name": "Magnezone Miraidon ex",
+          "slug": "magnezone-b1a-miraidon-ex-b3a",
+          "count": 156
+        },
+        {
+          "name": "Miraidon ex Magnezone",
+          "slug": "miraidon-ex-b3a-magnezone-b1a",
+          "count": 110
+        },
+        {
+          "name": "Mega Rayquaza ex Dragonair",
+          "slug": "mega-rayquaza-ex-dragonair-b4",
+          "count": 104
+        },
+        {
+          "name": "Chandelure Oricorio",
+          "slug": "chandelure-b2-oricorio-b4",
+          "count": 86
+        },
+        {
+          "name": "Mega Altaria ex Igglybuff",
+          "slug": "mega-altaria-ex-b1-igglybuff-a4a",
+          "count": 34
+        },
+        {
+          "name": "Oricorio",
+          "slug": "oricorio-a3",
+          "count": 15
+        },
+        {
+          "name": "Milotic ex Suicune ex",
+          "slug": "milotic-ex-b3b-suicune-ex-a4a",
+          "count": 13
+        },
+        {
+          "name": "Greninja Oricorio",
+          "slug": "greninja-a1-oricorio-a3",
+          "count": 12
+        },
+        {
+          "name": "Milotic ex Eevee ex",
+          "slug": "milotic-ex-b3b-eevee-ex-a3b",
+          "count": 10
+        },
+        {
+          "name": "Miraidon ex Magnezone",
+          "slug": "miraidon-ex-b3a-magnezone-a2",
+          "count": 8
+        },
+        {
+          "name": "Milotic ex Chien-Pao ex",
+          "slug": "milotic-ex-b3b-chien-pao-ex-b2a",
+          "count": 5
+        },
+        {
+          "name": "Suicune ex Greninja",
+          "slug": "suicune-ex-a4a-greninja-a1",
+          "count": 5
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a2b",
+          "count": 4
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a1-entei-ex-a4a",
+          "count": 4
+        },
+        {
+          "name": "Eevee ex Vaporeon ex",
+          "slug": "eevee-ex-a3b-vaporeon-ex-b3",
+          "count": 3
+        },
+        {
+          "name": "Milotic ex Vaporeon ex",
+          "slug": "milotic-ex-b3b-vaporeon-ex-b3",
+          "count": 3
+        },
+        {
+          "name": "Chandelure",
+          "slug": "chandelure-b2",
+          "count": 2
+        },
+        {
+          "name": "Dragonair",
+          "slug": "dragonair-b4",
+          "count": 2
+        },
+        {
+          "name": "Milotic ex Vaporeon",
+          "slug": "milotic-ex-b3b-vaporeon-a1a",
+          "count": 1
+        },
+        {
+          "name": "Suicune ex Milotic ex",
+          "slug": "suicune-ex-a4a-milotic-ex-b3b",
+          "count": 1
+        },
+        {
+          "name": "Chandelure",
+          "slug": "chandelure-b1",
+          "count": 1
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a1",
+          "count": 1
+        },
+        {
+          "name": "Espeon Mega Altaria ex",
+          "slug": "espeon-b3a-mega-altaria-ex-b1",
+          "count": 1
+        },
+        {
+          "name": "Entei ex",
+          "slug": "entei-ex-a4a",
+          "count": 1
+        }
+      ]
+    },
+    "B4a": {
+      "decks": [
+        {
+          "name": "Mega Altaria ex Espeon",
+          "slug": "mega-altaria-ex-b1-espeon-b3a",
+          "count": 1168
+        },
+        {
+          "name": "Dragonair Mega Rayquaza ex",
+          "slug": "dragonair-mega-rayquaza-ex-b4",
+          "count": 525
+        },
+        {
+          "name": "Magnezone Miraidon ex",
+          "slug": "magnezone-b1a-miraidon-ex-b3a",
+          "count": 483
+        },
+        {
+          "name": "Milotic ex Eevee ex",
+          "slug": "milotic-ex-b3b-eevee-ex-a3b",
+          "count": 139
+        },
+        {
+          "name": "Miraidon ex Magnezone",
+          "slug": "miraidon-ex-b3a-magnezone-b1a",
+          "count": 129
+        },
+        {
+          "name": "Mega Altaria ex",
+          "slug": "mega-altaria-ex-b1",
+          "count": 117
+        },
+        {
+          "name": "Mega Altaria ex Igglybuff",
+          "slug": "mega-altaria-ex-b1-igglybuff-a4a",
+          "count": 61
+        },
+        {
+          "name": "Chandelure Oricorio",
+          "slug": "chandelure-b2-oricorio-b4",
+          "count": 46
+        },
+        {
+          "name": "Greninja Oricorio",
+          "slug": "greninja-a1-oricorio-a3",
+          "count": 19
+        },
+        {
+          "name": "Entei ex",
+          "slug": "entei-ex-a4a",
+          "count": 18
+        },
+        {
+          "name": "Milotic ex Chien-Pao ex",
+          "slug": "milotic-ex-b3b-chien-pao-ex-b2a",
+          "count": 7
+        },
+        {
+          "name": "Milotic ex Vaporeon ex",
+          "slug": "milotic-ex-b3b-vaporeon-ex-b3",
+          "count": 7
+        },
+        {
+          "name": "Mega Rayquaza ex Dragonair",
+          "slug": "mega-rayquaza-ex-dragonair-b4",
+          "count": 7
+        },
+        {
+          "name": "Suicune ex Greninja",
+          "slug": "suicune-ex-a4a-greninja-a1",
+          "count": 5
+        },
+        {
+          "name": "Milotic ex Suicune ex",
+          "slug": "milotic-ex-b3b-suicune-ex-a4a",
+          "count": 5
+        },
+        {
+          "name": "Charizard ex Entei ex",
+          "slug": "charizard-ex-a1-entei-ex-a4a",
+          "count": 4
+        },
+        {
+          "name": "Chandelure",
+          "slug": "chandelure-b2",
+          "count": 4
+        },
+        {
+          "name": "Giratina ex Mimikyu ex",
+          "slug": "giratina-ex-a2b-mimikyu-ex-b2",
+          "count": 3
+        },
+        {
+          "name": "Magnezone Miraidon ex",
+          "slug": "magnezone-a2-miraidon-ex-b3a",
+          "count": 2
+        },
+        {
+          "name": "Vaporeon ex Milotic ex",
+          "slug": "vaporeon-ex-b3-milotic-ex-b3b",
+          "count": 2
+        },
+        {
+          "name": "Oricorio",
+          "slug": "oricorio-a3",
+          "count": 2
+        },
+        {
+          "name": "Eevee ex Vaporeon ex",
+          "slug": "eevee-ex-a3b-vaporeon-ex-b3",
+          "count": 2
+        },
+        {
+          "name": "Mega Altaria ex Espeon",
+          "slug": "mega-altaria-ex-b1-espeon-a3b",
+          "count": 1
+        },
+        {
+          "name": "Espeon Igglybuff",
+          "slug": "espeon-b3a-igglybuff-a4a",
+          "count": 1
+        },
+        {
+          "name": "Suicune ex Chien-Pao ex",
+          "slug": "suicune-ex-a4a-chien-pao-ex-b2a",
+          "count": 1
+        },
+        {
+          "name": "Charizard ex",
+          "slug": "charizard-ex-a2b",
+          "count": 1
+        },
+        {
+          "name": "Miraidon ex Magnezone",
+          "slug": "miraidon-ex-b3a-magnezone-a2",
+          "count": 1
+        },
+        {
+          "name": "Vaporeon ex Vaporeon",
+          "slug": "vaporeon-ex-b3-vaporeon-b3a",
+          "count": 1
+        }
+      ]
+    },
+    "C1": {
+      "decks": [
+        {
+          "name": "Mega Altaria ex Espeon",
+          "slug": "mega-altaria-ex-b1-espeon-b3a",
+          "count": 112
+        },
+        {
+          "name": "Miraidon ex Magnezone",
+          "slug": "miraidon-ex-b3a-magnezone-b1a",
+          "count": 60
+        },
+        {
+          "name": "Magnezone Miraidon ex",
+          "slug": "magnezone-b1a-miraidon-ex-b3a",
+          "count": 51
+        },
+        {
+          "name": "Dragonair Mega Rayquaza ex",
+          "slug": "dragonair-mega-rayquaza-ex-b4",
+          "count": 17
+        },
+        {
+          "name": "Mega Altaria ex Igglybuff",
+          "slug": "mega-altaria-ex-b1-igglybuff-a4a",
+          "count": 6
+        },
+        {
+          "name": "Mega Rayquaza ex Dragonair",
+          "slug": "mega-rayquaza-ex-dragonair-b4",
+          "count": 5
+        },
+        {
+          "name": "Mega Rayquaza ex Dragonair",
+          "slug": "mega-rayquaza-ex-b4-dragonair-c1",
+          "count": 1
+        },
+        {
+          "name": "Eevee ex Vaporeon ex",
+          "slug": "eevee-ex-a3b-vaporeon-ex-b3",
+          "count": 1
+        },
+        {
+          "name": "Oricorio",
+          "slug": "oricorio-a3",
+          "count": 1
+        },
+        {
+          "name": "Milotic ex Eevee ex",
+          "slug": "milotic-ex-b3b-eevee-ex-a3b",
+          "count": 1
+        }
+      ]
+    }
+  }
+}

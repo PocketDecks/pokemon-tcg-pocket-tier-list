@@ -23,7 +23,7 @@ test("returns true when invoked through the real module path", () => {
 });
 
 test("returns false when invoked through a different file", () => {
-  withArgv1(fileURLToPath(new URL("../package.json", import.meta.url)), () => {
+  withArgv1(fileURLToPath(new URL("../is-main-module.mjs", import.meta.url)), () => {
     assert.equal(isMainModule(import.meta.url), false);
   });
 });
@@ -55,5 +55,22 @@ if (symlinkSupported) {
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
+  });
+}
+
+test("returns true when invoked through a directory junction", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "is-main-dir-"));
+  const link = path.join(dir, "linked");
+  fs.symlinkSync(path.dirname(here), link, "junction");
+  try {
+    withArgv1(path.join(link, path.basename(here)), () => assert.equal(isMainModule(import.meta.url), true));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+if (process.platform === "win32") {
+  test("returns true when the entry path differs only in letter case", () => {
+    withArgv1(here.toUpperCase(), () => assert.equal(isMainModule(import.meta.url), true));
   });
 }

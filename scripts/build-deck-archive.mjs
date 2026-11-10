@@ -4,6 +4,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { deckArchetypeSlug, deckVariantSlug, hubDisplayName } from "./deck-archetype.mjs";
 import { writeFileAtomic } from "./atomic-write.mjs";
+import { isMainModule } from "./is-main-module.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_FILE = path.join(ROOT, "public", "data", "best-decks.json");
@@ -285,15 +286,6 @@ const main = () => {
   console.log(`Wrote ${archive.length} archived deck variants and ${hubs.size} hub files to ${HUBS_DIR}`);
 };
 
-const runAsMain = () => {
-  if (!process.argv[1]) return false;
-  const modulePath = fileURLToPath(import.meta.url);
-  try {
-    return fs.realpathSync.native(process.argv[1]) === fs.realpathSync.native(modulePath);
-  } catch {
-    return path.resolve(process.argv[1]) === path.resolve(modulePath);
-  }
-};
-if (runAsMain()) main();
+if (isMainModule(import.meta.url)) main();
 
 export { mergeCurrent, seedArchive };

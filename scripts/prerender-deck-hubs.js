@@ -68,6 +68,7 @@ const renderHubHtml = (job, html, locale) => {
       ],
     },
     metas: [
+      '<meta property="og:type" content="website" />',
       `<meta property="og:title" content="${escapeXml(title)}" />`,
       `<meta property="og:description" content="${escapeXml(description)}" />`,
       `<meta property="og:url" content="${escapeXml(canonical)}" />`,

@@ -398,7 +398,7 @@ const HOSTING_WITH_FEEDBACK_REDIRECT = {
   hosting: {
     redirects: [
       ...HOSTING.hosting.redirects,
-      { source: "/feedback", destination: "/feedback/", type: 301 },
+      { regex: "^/feedback$", destination: "/feedback/", type: 301 },
     ],
     rewrites: HOSTING.hosting.rewrites,
   },

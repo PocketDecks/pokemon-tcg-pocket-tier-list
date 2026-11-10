@@ -7,17 +7,21 @@ const expandBraces = (source) => {
 };
 
 const sourceMatcher = (source) => {
-  const patterns = expandBraces(source).map((expanded) => {
+  const exact = !/[{}*]/.test(source);
+  const exactSource = exact ? source.replace(/\/$/, "") : source;
+  const patterns = expandBraces(exactSource).map((expanded) => {
     const wildcardTail = expanded.endsWith("/**");
     const base = wildcardTail ? expanded.slice(0, -2) : expanded;
     const body = base.split("*").map(escapeRegExp).join("[^/]*");
-    return new RegExp(`^${body}${wildcardTail ? ".*" : ""}$`);
+    return new RegExp(`^${body}${wildcardTail ? ".*" : exact ? "/?" : ""}$`);
   });
   return (requestPath) => patterns.some((pattern) => pattern.test(requestPath));
 };
 
 const matchRule = (rules = [], requestPath) =>
-  rules.find((rule) => sourceMatcher(rule.source)(requestPath));
+  rules.find((rule) =>
+    rule.regex ? new RegExp(rule.regex).test(requestPath) : sourceMatcher(rule.source)(requestPath)
+  );
 
 const resolveStatic = (files, requestPath) => {
   const relative = requestPath.slice(1);

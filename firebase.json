@@ -96,12 +96,12 @@
         "type": 301
       },
       {
-        "source": "/feedback",
+        "regex": "^/feedback$",
         "destination": "/feedback/",
         "type": 301
       },
       {
-        "source": "/ja/feedback",
+        "regex": "^/ja/feedback$",
         "destination": "/ja/feedback/",
         "type": 301
       },

@@ -34,6 +34,26 @@ test("a double-star tail matches the slashed path and below, never the bare path
   assert.equal(deck("/deck/x/y"), true);
 });
 
+test("a plain Hosting source also matches a slash, but an anchored regex excludes it", () => {
+  assert.equal(sourceMatcher("/feedback")("/feedback/"), true);
+  const feedbackConfig = {
+    hosting: {
+      redirects: [{ regex: "^/feedback$", destination: "/feedback/", type: 301 }],
+      rewrites: [{ source: "/feedback/**", destination: "/app-shell.html" }],
+    },
+  };
+  assert.deepStrictEqual(resolveHosting(feedbackConfig, FILES, "/feedback"), {
+    kind: "redirect",
+    status: 301,
+    location: "/feedback/",
+  });
+  assert.deepStrictEqual(resolveHosting(feedbackConfig, FILES, "/feedback/"), {
+    kind: "rewrite",
+    status: 200,
+    file: "app-shell.html",
+  });
+});
+
 const DATA_DIR = path.join(__dirname, "..", "..", "public", "data");
 const archive = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "deck-archive.json"), "utf8"));
 const liveSlugs = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "best-decks.json"), "utf8")).map((deck) =>
@@ -272,7 +292,7 @@ test("live variants and hubs serve pages in both locales", () => {
 
 test("generated deck redirects are never self-loops and always land on a page", () => {
   for (const rule of config.hosting.redirects) {
-    if (!rule.source.includes("/deck/") || !rule.source.endsWith("{,/**}")) continue;
+    if (!rule.source?.includes("/deck/") || !rule.source.endsWith("{,/**}")) continue;
     const base = rule.source.slice(0, -"{,/**}".length);
     assert.notEqual(rule.destination.replace(/\/$/, ""), base, rule.source);
     assert.equal(resolveDeck(rule.destination).status, 200, rule.destination);
@@ -281,7 +301,7 @@ test("generated deck redirects are never self-loops and always land on a page", 
 
 test("professor's research legacy URLs no longer need hand-kept rules", () => {
   assert.ok(
-    !config.hosting.redirects.some((rule) => rule.source.startsWith("/deck/professor's-research-pa-007") && !rule.source.endsWith("{,/**}")),
+    !config.hosting.redirects.some((rule) => rule.source?.startsWith("/deck/professor's-research-pa-007") && !rule.source.endsWith("{,/**}")),
     "hand-kept Professor's Research rules must be generated"
   );
 });

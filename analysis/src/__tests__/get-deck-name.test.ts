@@ -41,7 +41,7 @@ describe("getDeckName", () => {
     // Magnezone A2 53 + Miraidon ex B3a 19 must match the B3a
     // "Magnezone Miraidon" row, keeping both cards, not a Magnezone-only row.
     const deck = mkDeck([2, "Magnezone", "A2", "53"], [2, "Miraidon ex", "B3a", "19"]);
-    expect(getDeckName(deck)).toBe("miraidon-ex-b3a-019&magnezone-b1a-026");
+    expect(getDeckName(deck)).toBe("magnezone-b1a-026&miraidon-ex-b3a-019");
   });
 
   it("keeps the partner in the name instead of folding it into the primary", () => {
@@ -176,7 +176,7 @@ describe("Milotic ex/Eevee ex naming: newer pairing wins over card count", () =>
       [2, "Poké Ball", "PA", "005"],
       [2, "Professor's Research", "PA", "007"]
     );
-    expect(getDeckName(deck)).toBe("eevee-ex-a3b-056&vaporeon-ex-b3-037");
+    expect(getDeckName(deck)).toBe("milotic-ex-b3b-015&eevee-ex-a3b-056");
   });
 
   it("names the current pairing for the second real list", () => {

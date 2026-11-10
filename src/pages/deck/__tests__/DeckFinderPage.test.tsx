@@ -193,6 +193,16 @@ describe("DeckFinderPage", () => {
     expect(await screen.findByText("Relative Strength 80%")).toBeInTheDocument();
   });
 
+  it("gives the finder page one game-specific H1 and keeps the deck name as an H2", async () => {
+    renderFinder();
+
+    await screen.findByRole("button", { name: /Venusaur ex/ });
+
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getByRole("heading", { level: 1, name: "Pokémon TCG Pocket Best Deck Finder" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Venusaur ex / Bulbasaur" })).toBeInTheDocument();
+  });
+
   it("hides relative strength for an unranked recommendation", async () => {
     vi.spyOn(global, "fetch").mockImplementation((input) => {
       const url = String(input);

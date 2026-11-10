@@ -107,17 +107,18 @@ interface Props {
   deck: NamedDeck;
   tier: { label: string; color: string } | null;
   stats: DeckHeroStat[];
+  titleAs?: "h1" | "h2";
   children?: ReactNode;
 }
 
-const DeckHero = ({ deck, tier, stats, children }: Props) => (
+const DeckHero = ({ deck, tier, stats, titleAs = "h1", children }: Props) => (
   <Hero>
     <ArtStack aria-hidden="true">
       <DeckArt size={7.2} src={deck.iconPrimary?.image} />
       {deck.iconSecondary && <DeckArt size={7.2} src={deck.iconSecondary.image} />}
     </ArtStack>
     <Body>
-      <Title>{deckDisplayName(deck)}</Title>
+      <Title as={titleAs}>{deckDisplayName(deck)}</Title>
       <Meta>
         {tier && (
           <TierChip $color={tier.color} title={`${tier.label} tier`}>

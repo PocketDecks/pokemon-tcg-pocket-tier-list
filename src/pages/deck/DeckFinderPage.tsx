@@ -12,6 +12,7 @@ import DeckPageSkeleton from "./DeckPageSkeleton";
 import EnergyList from "./EnergyList";
 import useDeckTiers, { tierForDeck } from "../../app/use-deck-tiers";
 import ShareDeckCode from "../../components/ShareDeckCode";
+import PageTitle from "../../components/PageTitle";
 import AdInContent from "../../ads/AdInContent";
 import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
@@ -121,7 +122,8 @@ const DeckFinderPage = () => {
   return (
     <>
       <DeckHeadTags deck={deck} />
-      <DeckHero deck={deck} tier={tierForDeck(tiers, deck.id)} stats={heroStats}>
+      <PageTitle>{t("header.deckFinderHeading")}</PageTitle>
+      <DeckHero deck={deck} tier={tierForDeck(tiers, deck.id)} stats={heroStats} titleAs="h2">
         {relativeScore !== null && (
           <Strength>
             <StrengthLabel>

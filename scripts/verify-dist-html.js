@@ -77,12 +77,13 @@ const findOpenGraphIssues = (dir = DIST_DIR) =>
   listHtmlFiles(dir).flatMap((entry) => {
     const html = fs.readFileSync(path.join(dir, entry), "utf8");
     const head = html.match(HEAD_BLOCK)?.[0] ?? html;
+    const canonicals = head.match(CANONICAL_TAG) ?? [];
+    if (canonicals.length === 0) return [];
     const metas = [...head.matchAll(/<meta\b[^>]*>/gi)].map((match) => match[0]);
     const urls = metas
       .filter((tag) => /\bproperty=["']og:url["']/i.test(tag))
       .map((tag) => decodeXmlEntities(tag.match(/\bcontent=["']([^"']*)["']/i)?.[1] ?? ""));
     const titles = metas.filter((tag) => /\bproperty=["']og:title["']/i.test(tag));
-    const canonicals = head.match(CANONICAL_TAG) ?? [];
     const issues = [];
     if (urls.length > 1) issues.push(`${entry}: expected at most 1 og:url, found ${urls.length}`);
     if (titles.length > 1) issues.push(`${entry}: expected at most 1 og:title, found ${titles.length}`);

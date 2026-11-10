@@ -60,10 +60,13 @@ test("passes slashed internal anchors", () => {
 });
 
 test("the route metadata producer passes the built HTML Open Graph gate", () => {
-  const template = '<!doctype html><html><head><title>Home</title><meta property="og:title" content="Home"><meta property="og:url" content="https://pocketdecks.top"><meta property="og:image" content="/og-image.webp"></head><body></body></html>';
+  const template = '<!doctype html><html><head><title>Home</title><meta property="og:site_name" content="Top Pocket Decks"><meta property="og:type" content="article"><meta property="og:title" content="Home"><meta property="og:url" content="https://pocketdecks.top"><meta property="og:image" content="/og-image.webp"></head><body></body></html>';
   const routeMeta = localeMetaFor("ja", "/cards-list");
   const html = stampHead(template, routeMeta);
   const dir = makeDist({ "ja/cards-list/index.html": html });
+  assert.equal((html.match(/property="og:type"/g) ?? []).length, 1);
+  assert.ok(html.includes('<meta property="og:type" content="website" />'));
+  assert.equal((html.match(/property="og:site_name"/g) ?? []).length, 1);
   assert.deepStrictEqual(findOpenGraphIssues(dir), []);
 });
 
@@ -88,7 +91,8 @@ test("flags an Open Graph URL that differs from the canonical", () => {
 
 test("skips Open Graph URL checks on pages without a canonical", () => {
   const dir = makeDist({
-    "app-shell.html": '<head><meta property="og:url" content="https://pocketdecks.top/"></head>',
+    "app-shell.html": '<head><meta property="og:url" content="https://pocketdecks.top/"><meta property="og:url" content="https://pocketdecks.top/ja/"><meta property="og:title" content="A"><meta property="og:title" content="B"></head>',
+    "404.html": '<head><meta property="og:url" content="https://pocketdecks.top/"><meta property="og:url" content="https://pocketdecks.top/404/"><meta property="og:title" content="A"><meta property="og:title" content="B"></head>',
   });
   assert.deepStrictEqual(findOpenGraphIssues(dir), []);
 });

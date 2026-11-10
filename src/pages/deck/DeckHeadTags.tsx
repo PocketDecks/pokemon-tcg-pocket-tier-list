@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { deckDisplayName, type NamedDeck } from "../../app/deck-display";
+import { englishDeckHead } from "../../app/deck-head-copy";
 import {
   friendlyName,
   JA_DECK_DESCRIPTION_SUFFIX,
@@ -14,6 +15,7 @@ const DeckHeadTags = ({ deck }: { deck: NamedDeck & { id: string } }) => {
   const { t } = useTranslation();
   const locale = useLocale();
   const displayName = deckDisplayName(deck);
+  const englishHead = englishDeckHead(friendlyName(deck.id));
   // Client navigation must repeat the prerendered strings, not English defaults.
   const jaName = friendlyName(deck.id);
   const jaTitle = `${jaName} ${JA_DECK_TITLE_SUFFIX}`;
@@ -23,13 +25,10 @@ const DeckHeadTags = ({ deck }: { deck: NamedDeck & { id: string } }) => {
     <>
       {locale === "en" ? (
         <>
-          <title>{`${displayName} ${t("deckPage.ogTitleSuffix", "Deck List | Top Pocket Decks")}`}</title>
+          <title>{englishHead.title}</title>
           <meta
             name="description"
-            content={`${displayName} ${t(
-              "deckPage.ogDescription",
-              "deck list, matchups, and win rate for Pokémon TCG Pocket. See the full card list and how it performs against the current meta."
-            )}`}
+            content={englishHead.description}
           />
           <meta
             property="og:title"

@@ -111,7 +111,7 @@ describe("DeckPage head tags", () => {
         </QueryClientProvider>
     );
 
-    await waitFor(() => expect(document.title).toContain("Venusaur ex"));
+    await waitFor(() => expect(document.title).toContain("Venusaur & Bulbasaur"));
 
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(screen.getByRole("heading", { level: 1, name: "Venusaur ex / Bulbasaur" })).toBeInTheDocument();
@@ -131,6 +131,6 @@ describe("DeckPage head tags", () => {
     expect(metaContent('meta[property="og:image"]')).toBe(
       `https://pocketdecks.top/og/deck/${DECK_ID}.png`
     );
-    expect(metaContent('meta[name="description"]', "Venusaur ex")).toContain("Venusaur ex");
+    expect(metaContent('meta[name="description"]', "Venusaur & Bulbasaur")).toContain("Venusaur & Bulbasaur");
   });
 });

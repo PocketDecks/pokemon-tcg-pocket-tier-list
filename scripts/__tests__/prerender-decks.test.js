@@ -45,6 +45,7 @@ test("renderDeckHtml injects per-deck title and OG tags, dropping the defaults",
   assert.ok(html.includes('name="twitter:card" content="summary_large_image"'));
   assert.ok(!html.includes("Old Title"));
   assert.ok(!html.includes('content="old default"'));
+  assert.strictEqual((html.match(/<meta name="description"/g) ?? []).length, 1);
   assert.ok(!html.includes('content="old og"'));
 });
 

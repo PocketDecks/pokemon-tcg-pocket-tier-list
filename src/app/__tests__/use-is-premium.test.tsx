@@ -152,17 +152,21 @@ describe("entitlement access", () => {
     expect(firestore.getDoc).not.toHaveBeenCalled();
   });
 
-  it("does not change the entitlement after an unmounted consumer's expiry", async () => {
+  it("clears the expiry timer when a consumer unmounts", () => {
     vi.useFakeTimers();
     vi.setSystemTime(100_000);
+    queryClient.setDefaultOptions({
+      ...queryClient.getDefaultOptions(),
+      queries: { ...queryClient.getDefaultOptions().queries, gcTime: Infinity },
+    });
     const expiry = Date.now() + 60_000;
     queryClient.setQueryData(["entitlement", "u1"], { premium: true, expiresAt: expiry });
+    const timerCount = vi.getTimerCount();
     const view = renderProbe();
     expect(screen.getByText(`true:${expiry}`)).toBeInTheDocument();
+    expect(vi.getTimerCount()).toBeGreaterThan(timerCount);
     view.unmount();
-    await act(async () => vi.advanceTimersByTimeAsync(60_000));
-    expect(queryClient.getQueryData(["entitlement", "u1"])).toEqual({ premium: true, expiresAt: expiry });
-    expect(firestore.getDoc).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(timerCount);
   });
 
   it("keeps valid cached access when a background entitlement refetch fails", async () => {

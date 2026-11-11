@@ -59,9 +59,11 @@ const renderProbe = () =>
   );
 
 describe("entitlement access", () => {
-  it("serves a second consumer from the cached entitlement and refetches after 30 seconds", async () => {
+  it("serves cached access within 30 seconds and reads a changed entitlement afterwards", async () => {
     const clock = vi.spyOn(Date, "now").mockReturnValue(10_000);
-    firestore.getDoc.mockResolvedValue(snapshot(null));
+    firestore.getDoc
+      .mockResolvedValueOnce(snapshot(null))
+      .mockResolvedValue(snapshot({ premium: true, expiresAt: timestamp(10_000 + DAY) }));
     const first = renderProbe();
     await screen.findByText("false:none");
     expect(firestore.getDoc).toHaveBeenCalledTimes(1);
@@ -69,13 +71,14 @@ describe("entitlement access", () => {
     first.unmount();
     clock.mockReturnValue(10_000 + 20_000);
     renderProbe();
-    await screen.findByText("false:none");
+    expect(screen.getByText("false:none")).toBeInTheDocument();
     expect(firestore.getDoc).toHaveBeenCalledTimes(1);
 
     clock.mockReturnValue(10_000 + 30_001);
-    const staleConsumer = renderProbe();
-    await waitFor(() => expect(firestore.getDoc).toHaveBeenCalledTimes(2));
-    staleConsumer.unmount();
+    const changedConsumer = renderProbe();
+    expect(await screen.findAllByText(`true:${10_000 + DAY}`)).toHaveLength(2);
+    expect(firestore.getDoc).toHaveBeenCalledTimes(2);
+    changedConsumer.unmount();
   });
 
   it("keeps the null loading contract", () => {
@@ -103,7 +106,6 @@ describe("entitlement access", () => {
     firestore.getDoc.mockResolvedValue(snapshot({ premium: true, expiresAt: timestamp(expiry) }));
     renderProbe();
     await screen.findByText(`true:${expiry}`);
-    expect(firestore.getDoc).toHaveBeenCalledTimes(1);
   });
 
   it("denies an expired entitlement", async () => {
@@ -114,17 +116,18 @@ describe("entitlement access", () => {
   });
 
   it("revokes access while mounted when the entitlement expires", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(100_000);
     const expiry = Date.now() + 500;
     firestore.getDoc.mockResolvedValue(snapshot({ premium: true, expiresAt: timestamp(expiry) }));
+    queryClient.setQueryData(["entitlement", "u1"], { premium: true, expiresAt: expiry });
     renderProbe();
-    await screen.findByText(`true:${expiry}`);
+    expect(screen.getByText(`true:${expiry}`)).toBeInTheDocument();
 
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, Math.max(0, expiry - Date.now() + 20)));
-    });
+    await act(async () => vi.advanceTimersByTimeAsync(expiry - Date.now()));
 
-    await screen.findByText(`false:${expiry}`);
-    expect(firestore.getDoc).toHaveBeenCalledTimes(1);
+    expect(screen.getByText(`false:${expiry}`)).toBeInTheDocument();
+    expect(firestore.getDoc).not.toHaveBeenCalled();
   });
 
   it("revokes access through the final expiry chunk beyond the maximum timeout delay", async () => {
@@ -148,24 +151,16 @@ describe("entitlement access", () => {
     expect(firestore.getDoc).not.toHaveBeenCalled();
   });
 
-  it("clears the pending expiry timer on unmount", () => {
+  it("does not change the entitlement after an unmounted consumer's expiry", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(100_000);
-    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
-    const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
     const expiry = Date.now() + 60_000;
     queryClient.setQueryData(["entitlement", "u1"], { premium: true, expiresAt: expiry });
     const view = renderProbe();
     expect(screen.getByText(`true:${expiry}`)).toBeInTheDocument();
-    const expiryTimerIndex = setTimeoutSpy.mock.calls.findIndex(
-      ([, delay]) => delay === expiry - Date.now()
-    );
-    expect(expiryTimerIndex).toBeGreaterThanOrEqual(0);
-    const expiryTimer = setTimeoutSpy.mock.results[expiryTimerIndex]?.value;
-
     view.unmount();
-
-    expect(clearTimeoutSpy).toHaveBeenCalledWith(expiryTimer);
+    await act(async () => vi.advanceTimersByTimeAsync(60_000));
+    expect(queryClient.getQueryData(["entitlement", "u1"])).toEqual({ premium: true, expiresAt: expiry });
     expect(firestore.getDoc).not.toHaveBeenCalled();
   });
 

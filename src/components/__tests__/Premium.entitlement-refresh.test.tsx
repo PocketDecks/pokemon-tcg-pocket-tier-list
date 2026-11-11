@@ -159,7 +159,7 @@ describe("Premium entitlement refresh", () => {
     expect(firestore.getDoc).toHaveBeenCalledTimes(3);
   });
 
-  it("preserves a pending attempt across close and removes its focus refresh while closed", async () => {
+  it("clears the pending attempt on close and does not refresh on focus while closed", async () => {
     const { user } = await openAndTip();
     await user.keyboard("{Escape}");
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -171,11 +171,12 @@ describe("Premium entitlement refresh", () => {
 
     await user.click(screen.getByRole("button", { name: "Remove ads" }));
     const reopened = screen.getByRole("dialog", { name: en.premium.title });
-    expect(within(reopened).getByText(en.premium.waiting)).toBeInTheDocument();
+    expect(within(reopened).queryByText(en.premium.waiting)).not.toBeInTheDocument();
     await act(async () => {
       window.dispatchEvent(new Event("focus"));
     });
-    await expectExpiryState(reopened);
+    expect(firestore.getDoc).toHaveBeenCalledTimes(1);
+    expect(within(reopened).queryByText(/Your Premium access ends on/)).not.toBeInTheDocument();
   });
 
   it("does not refresh on window focus before the call to action is clicked", async () => {

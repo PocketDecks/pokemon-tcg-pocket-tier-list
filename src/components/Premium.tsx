@@ -376,7 +376,10 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
           width="60rem"
           isOpen={isOpen}
           header="premium.title"
-          close={() => setIsOpen(false)}
+          close={() => {
+            setTipState(null);
+            setIsOpen(false);
+          }}
         >
           {premiumState === "free" && (
             <>

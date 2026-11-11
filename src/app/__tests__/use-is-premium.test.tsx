@@ -23,9 +23,10 @@ const snapshot = (data: Record<string, unknown> | null) => ({
 });
 const timestamp = (millis: number) => ({ toMillis: () => millis });
 
-const Probe = () => {
+const Probe = ({ observe }: { observe?: (value: boolean | null) => void }) => {
   const isPremium = useIsPremium();
   const expiry = usePremiumExpiry();
+  observe?.(isPremium);
   return <p>{`${isPremium === null ? "pending" : isPremium}:${expiry ?? "none"}`}</p>;
 };
 
@@ -47,6 +48,7 @@ afterEach(() => {
   queryClient.clear();
   vi.clearAllMocks();
   vi.restoreAllMocks();
+  vi.useRealTimers();
 });
 
 const renderProbe = () =>
@@ -107,20 +109,31 @@ describe("entitlement access", () => {
   });
 
   it("chunks expiry timers beyond the maximum timeout delay", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(100_000);
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
     const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
     const maxTimeout = 2_147_483_647;
     const expiry = Date.now() + maxTimeout + 5_000;
-    firestore.getDoc.mockResolvedValue(snapshot({ premium: true, expiresAt: timestamp(expiry) }));
+    queryClient.setQueryData(["entitlement", "u1"], { premium: true, expiresAt: expiry });
     const view = renderProbe();
-    await screen.findByText(`true:${expiry}`);
+    expect(screen.getByText(`true:${expiry}`)).toBeInTheDocument();
     const timerIndex = setTimeoutSpy.mock.calls.findIndex(([, delay]) => delay === maxTimeout);
     expect(timerIndex).not.toBe(-1);
-    const expiryTimer = setTimeoutSpy.mock.results[timerIndex].value;
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(maxTimeout);
+    });
+    const remainderIndex = setTimeoutSpy.mock.calls.findIndex(
+      ([, delay], index) => index > timerIndex && delay === 5_000
+    );
+    expect(remainderIndex).not.toBe(-1);
+    expect(screen.getByText(`true:${expiry}`)).toBeInTheDocument();
+    const remainderTimer = setTimeoutSpy.mock.results[remainderIndex].value;
 
     view.unmount();
 
-    expect(clearTimeoutSpy).toHaveBeenCalledWith(expiryTimer);
+    expect(clearTimeoutSpy).toHaveBeenCalledWith(remainderTimer);
+    expect(firestore.getDoc).not.toHaveBeenCalled();
   });
 
   it("denies cached access when a background entitlement refetch fails", async () => {
@@ -137,6 +150,34 @@ describe("entitlement access", () => {
     expect(firestore.getDoc).toHaveBeenCalledTimes(2);
     expect(queryClient.getQueryState(["entitlement", "u1"])?.error).toBeInstanceOf(Error);
     await screen.findByText(`false:${expiry}`);
+  });
+
+  it("does not briefly grant a refetched entitlement that is already expired", async () => {
+    const mountedAt = 10_000;
+    vi.spyOn(Date, "now").mockReturnValue(mountedAt);
+    firestore.getDoc.mockResolvedValue(
+      snapshot({ premium: true, expiresAt: timestamp(mountedAt + DAY) })
+    );
+    const observed: Array<boolean | null> = [];
+    render(
+      <QueryClientProvider client={queryClient}>
+        <Probe observe={(value) => observed.push(value)} />
+      </QueryClientProvider>
+    );
+    await screen.findByText(`true:${mountedAt + DAY}`);
+
+    observed.length = 0;
+    vi.mocked(Date.now).mockReturnValue(mountedAt + DAY + 1);
+    const alreadyExpiredAt = mountedAt + DAY - 1;
+    firestore.getDoc.mockResolvedValueOnce(
+      snapshot({ premium: true, expiresAt: timestamp(alreadyExpiredAt) })
+    );
+    await act(async () => {
+      await queryClient.refetchQueries({ queryKey: ["entitlement", "u1"] });
+    });
+
+    await screen.findByText(`false:${alreadyExpiredAt}`);
+    expect(observed).not.toContain(true);
   });
 
   it.each([undefined, null])("grants a lifetime entitlement with expiry %s", async (expiresAt) => {

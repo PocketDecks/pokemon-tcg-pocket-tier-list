@@ -41,9 +41,9 @@ const useEntitlement = () => {
   return { entitlement, user, loading };
 };
 
-const grantsAccess = (entitlement: EntitlementState | undefined, now: number | null): boolean =>
+const grantsAccess = (entitlement: EntitlementState | undefined): boolean =>
   !!entitlement?.premium &&
-  (entitlement.expiresAt === null || entitlement.expiresAt > (now ?? Date.now()));
+  (entitlement.expiresAt === null || entitlement.expiresAt > Date.now());
 
 const useIsPremium = () => {
   const { entitlement, user, loading } = useEntitlement();
@@ -72,7 +72,7 @@ const useIsPremium = () => {
   if (loading) return null;
   if (!user) return false;
   if (entitlement.error) return false;
-  if (entitlement.data) return grantsAccess(entitlement.data, now);
+  if (entitlement.data) return grantsAccess(entitlement.data);
   return entitlement.isPending ? null : false;
 };
 

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import useIsPremium, { usePremiumExpiry } from "../use-is-premium";
 import { useAuth } from "../../contexts/AuthContext";
@@ -89,6 +89,53 @@ describe("entitlement access", () => {
     const expiry = Date.now() - DAY;
     firestore.getDoc.mockResolvedValue(snapshot({ premium: true, expiresAt: timestamp(expiry) }));
     renderProbe();
+    await screen.findByText(`false:${expiry}`);
+  });
+
+  it("revokes access while mounted when the entitlement expires", async () => {
+    const expiry = Date.now() + 500;
+    firestore.getDoc.mockResolvedValue(snapshot({ premium: true, expiresAt: timestamp(expiry) }));
+    renderProbe();
+    await screen.findByText(`true:${expiry}`);
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, Math.max(0, expiry - Date.now() + 20)));
+    });
+
+    await screen.findByText(`false:${expiry}`);
+    expect(firestore.getDoc).toHaveBeenCalledTimes(1);
+  });
+
+  it("chunks expiry timers beyond the maximum timeout delay", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
+    const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
+    const maxTimeout = 2_147_483_647;
+    const expiry = Date.now() + maxTimeout + 5_000;
+    firestore.getDoc.mockResolvedValue(snapshot({ premium: true, expiresAt: timestamp(expiry) }));
+    const view = renderProbe();
+    await screen.findByText(`true:${expiry}`);
+    const timerIndex = setTimeoutSpy.mock.calls.findIndex(([, delay]) => delay === maxTimeout);
+    expect(timerIndex).not.toBe(-1);
+    const expiryTimer = setTimeoutSpy.mock.results[timerIndex].value;
+
+    view.unmount();
+
+    expect(clearTimeoutSpy).toHaveBeenCalledWith(expiryTimer);
+  });
+
+  it("denies cached access when a background entitlement refetch fails", async () => {
+    const expiry = Date.now() + DAY;
+    firestore.getDoc.mockResolvedValue(snapshot({ premium: true, expiresAt: timestamp(expiry) }));
+    renderProbe();
+    await screen.findByText(`true:${expiry}`);
+    firestore.getDoc.mockRejectedValueOnce(new Error("offline"));
+
+    await act(async () => {
+      await queryClient.refetchQueries({ queryKey: ["entitlement", "u1"] });
+    });
+
+    expect(firestore.getDoc).toHaveBeenCalledTimes(2);
+    expect(queryClient.getQueryState(["entitlement", "u1"])?.error).toBeInstanceOf(Error);
     await screen.findByText(`false:${expiry}`);
   });
 

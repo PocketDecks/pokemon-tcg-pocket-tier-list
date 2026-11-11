@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
 interface EntitlementState {
   premium: boolean;
   expiresAt: number | null;
 }
+
+const MAX_TIMEOUT = 2_147_483_647;
 
 const getEntitlement = async (uid: string): Promise<EntitlementState> => {
   const { doc, getDoc, getFirestore } = await import("firebase/firestore");
@@ -39,12 +41,29 @@ const useEntitlement = () => {
   return { entitlement, user, loading };
 };
 
-const grantsAccess = (entitlement: EntitlementState | undefined): boolean =>
+const grantsAccess = (entitlement: EntitlementState | undefined, now: number | null): boolean =>
   !!entitlement?.premium &&
-  (entitlement.expiresAt === null || entitlement.expiresAt > Date.now());
+  (entitlement.expiresAt === null || entitlement.expiresAt > (now ?? Date.now()));
 
 const useIsPremium = () => {
   const { entitlement, user, loading } = useEntitlement();
+  const [now, setNow] = useState<number | null>(null);
+  const expiresAt = entitlement.data?.premium ? entitlement.data.expiresAt : null;
+
+  useEffect(() => {
+    if (now === null) {
+      setNow(Date.now());
+      return;
+    }
+    if (expiresAt === null || expiresAt <= now) return;
+    const delay = expiresAt - Date.now();
+    if (delay <= 0) {
+      setNow(Date.now());
+      return;
+    }
+    const timer = setTimeout(() => setNow(Date.now()), Math.min(delay, MAX_TIMEOUT));
+    return () => clearTimeout(timer);
+  }, [expiresAt, now, user?.uid]);
 
   useEffect(() => {
     if (entitlement.error) console.error(entitlement.error);
@@ -52,7 +71,8 @@ const useIsPremium = () => {
 
   if (loading) return null;
   if (!user) return false;
-  if (entitlement.data) return grantsAccess(entitlement.data);
+  if (entitlement.error) return false;
+  if (entitlement.data) return grantsAccess(entitlement.data, now);
   return entitlement.isPending ? null : false;
 };
 

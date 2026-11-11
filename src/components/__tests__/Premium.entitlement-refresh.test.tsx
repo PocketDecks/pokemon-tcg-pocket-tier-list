@@ -160,7 +160,7 @@ describe("Premium entitlement refresh", () => {
   });
 
   it("preserves a pending attempt across close and removes its focus refresh while closed", async () => {
-    const { user, dialog } = await openAndTip();
+    const { user } = await openAndTip();
     await user.keyboard("{Escape}");
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 

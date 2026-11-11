@@ -11,7 +11,7 @@ The 30-day and All Time artefacts, and the full matchup and movement depth of th
 | The full `matchup-data-{10d,20d}` and `meta-share-{10d,20d}` | `analysis/out/premium/`, gitignored, then Firestore | Signed-in users with an active entitlement |
 | `best-decks-{30d,all}`, `matchup-data-{30d,all}`, `meta-share-{30d,all}` | `analysis/out/premium/`, gitignored, then Firestore | Signed-in users with an active entitlement |
 | `data-version.json` | `public/data/`, committed | Everyone |
-| `entitlements/{uid}` | Firestore, written with the Admin SDK | Only the signed-in user it belongs to |
+| `entitlements/{uid}` | Firestore, written by trusted server tools | Only the signed-in user it belongs to |
 | `premiumCodes/{code}` | Firestore, created by the signed-in user | Only the signed-in user it belongs to |
 
 `data-version.json` holds `{ "premium": "<16 hex characters>" }`, the first 16 characters of a SHA-256 over the length-prefixed names and contents of the ten premium artefacts. The publisher recomputes that value before uploading and refuses a mismatch. The refresh rewrites it whenever the premium files change. The app reads it to find the matching documents, and CI uses it to confirm that the upload happened

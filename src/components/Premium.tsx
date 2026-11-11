@@ -262,8 +262,9 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
   }, [expiresAt, isAltOpen, isOpen, isPremium, user?.uid]);
 
   useEffect(() => {
+    if (!tipState) return;
     if (
-      tipState?.uid === user?.uid &&
+      tipState.uid === user?.uid &&
       isPremium &&
       (!tipState.wasPremium || expiresAt !== tipState.expiry)
     ) {

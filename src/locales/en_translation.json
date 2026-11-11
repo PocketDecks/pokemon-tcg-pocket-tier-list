@@ -81,7 +81,7 @@
     "tipPrompt": "Paste this code into your Ko-fi message. Tipping from the email address on your Google account also works.",
     "copy": "Copy code",
     "copied": "Copied",
-    "codeError": "If the code is unavailable, use the email address on your Google account in your Ko-fi message.",
+    "codeError": "If the code is unavailable, use the verified email address on your Google account as the payer email at Ko-fi checkout. An email written in the Ko-fi message is not read. If you cannot use that email, contact us using the address below.",
     "expires": "Your Premium access ends on {{date}}.",
     "lifetime": "Your Premium access does not expire.",
     "tip": "Support Premium on Ko-fi",

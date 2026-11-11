@@ -81,7 +81,7 @@
     "tipPrompt": "請將此代碼貼到 Ko-fi 訊息中。使用 Google 帳戶電子郵件打賞也可以連結。",
     "copy": "複製代碼",
     "copied": "已複製",
-    "codeError": "如果無法使用代碼，請在 Ko-fi 訊息中填寫 Google 帳戶電子郵件。",
+    "codeError": "如果無法使用代碼，請將 Google 帳戶中已驗證的電子郵件用作 Ko-fi 結帳時的付款電子郵件。寫在 Ko-fi 訊息中的電子郵件不會被讀取。如果無法使用該電子郵件，請透過下方聯絡方式與我們聯繫。",
     "expires": "你的 Premium 權限於 {{date}} 到期。",
     "lifetime": "你的 Premium 權限不會到期。",
     "tip": "在 Ko-fi 支持 Premium",

@@ -81,7 +81,7 @@
     "tipPrompt": "Incolla questo codice nel messaggio Ko-fi. Va bene anche inviare la mancia dall’indirizzo e-mail del tuo account Google.",
     "copy": "Copia codice",
     "copied": "Copiato",
-    "codeError": "Se il codice non è disponibile, indica nel messaggio Ko-fi l’indirizzo e-mail del tuo account Google.",
+    "codeError": "Se il codice non è disponibile, usa l’indirizzo e-mail verificato del tuo account Google come indirizzo e-mail di pagamento su Ko-fi. Un indirizzo scritto nel messaggio Ko-fi non viene letto. Se non puoi usare quell’indirizzo, contattaci all’indirizzo qui sotto.",
     "expires": "Il tuo accesso Premium termina il {{date}}.",
     "lifetime": "Il tuo accesso Premium non ha scadenza.",
     "tip": "Sostieni Premium su Ko-fi",

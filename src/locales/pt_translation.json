@@ -81,7 +81,7 @@
     "tipPrompt": "Cole este código na mensagem do Ko-fi. Também pode enviar a gorjeta a partir do endereço de e-mail da sua conta Google.",
     "copy": "Copiar código",
     "copied": "Copiado",
-    "codeError": "Se o código não estiver disponível, indique na mensagem do Ko-fi o e-mail da sua conta Google.",
+    "codeError": "Se o código não estiver disponível, utilize o endereço de e-mail verificado da sua conta Google como e-mail de pagamento no Ko-fi. Um e-mail escrito na mensagem do Ko-fi não é lido. Se não puder utilizar esse endereço, contacte-nos através do endereço abaixo.",
     "expires": "O seu acesso Premium termina em {{date}}.",
     "lifetime": "O seu acesso Premium não expira.",
     "tip": "Apoiar o Premium no Ko-fi",

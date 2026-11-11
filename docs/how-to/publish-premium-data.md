@@ -60,7 +60,7 @@ An entitlement is the document `entitlements/{uid}`, keyed by the Firebase Authe
 | --- | --- | --- |
 | `premium` | boolean | `true` grants access, `false` withdraws it |
 | `source` | string | Free-form label for where the grant came from, such as `manual` |
-| `expiresAt` | timestamp, optional | Access ends at this instant; absent means no expiry |
+| `expiresAt` | timestamp, optional | Access ends at this instant; absent or null means no expiry |
 | `updatedAt` | timestamp | When the document was last written |
 
 Only the Admin SDK writes these documents. The security rules deny every client write, and a signed-in user may read only their own document. The app reads that document through `useIsPremium()` and grants access only when it is active. Ko-fi tips grant months through the Worker; an owner can grant or revoke access with `yarn grant:premium`.
@@ -86,7 +86,7 @@ A grant replaces the whole document, so running it again for the same uid update
 
 Do these once, in this order, before the first merge that carries this change
 
-1. Before release, the owner must confirm the existing Firestore rules in the Firebase console and merge the blocks below into them. Keep unrelated rules, including the existing `stripeRole` branch and any rules for `customers` and `products`, unchanged. The app grants Premium from entitlements only. The legacy `stripeRole` branch is retained in the console as-is and a claim alone does not enable the current Premium interface. No live rules were changed or verified for this task. The repository does not contain the live rules; do not deploy a rules file from this repository.
+1. Before release, the owner must confirm the existing Firestore rules in the Firebase console and merge the blocks below into them. Keep unrelated rules, including the existing `stripeRole` branch and any rules for `customers` and `products`, unchanged. The app grants Premium from entitlements only. The legacy `stripeRole` branch is retained in the console as-is and a claim alone does not enable the current Premium interface. The `hasEntitlement()` helper treats an absent or explicit-null `expiresAt` as lifetime access, matching the app and the Worker; an expired or malformed expiry is denied. No live rules were changed or verified for this task. The repository does not contain the live rules; do not deploy a rules file from this repository.
 
    ```
    function entitlementPath() {
@@ -97,7 +97,9 @@ Do these once, in this order, before the first merge that carries this change
        && exists(entitlementPath())
        && get(entitlementPath()).data.premium == true
        && (!("expiresAt" in get(entitlementPath()).data)
-           || get(entitlementPath()).data.expiresAt > request.time);
+           || get(entitlementPath()).data.expiresAt == null
+           || (get(entitlementPath()).data.expiresAt is timestamp
+               && get(entitlementPath()).data.expiresAt > request.time));
    }
    function isPremium() {
      return request.auth != null

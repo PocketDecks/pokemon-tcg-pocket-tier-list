@@ -6,6 +6,7 @@ import Premium from "../Premium";
 import useIsPremium, { usePremiumExpiry } from "../../app/use-is-premium";
 import { loadPremiumCode } from "../../app/premium-code";
 import { useAuth } from "../../contexts/AuthContext";
+import en from "../../locales/en_translation.json";
 
 const spies = vi.hoisted(() => ({ signInWithGoogle: vi.fn() }));
 const copy = vi.hoisted(
@@ -20,7 +21,6 @@ const copy = vi.hoisted(
     "premium.codeLoading": "Preparing your account code…",
     "premium.copy": "Copy code",
     "premium.copied": "Copied",
-    "premium.codeError": "Use the email address on your Google account in your Ko-fi message.",
     "premium.expires": "Your Premium access ends on {{date}}.",
     "premium.lifetime": "Your Premium access does not expire.",
     "premium.tip": "Support on Ko-fi",
@@ -52,6 +52,7 @@ const authValue = (user: { uid: string; email: string } | null) => ({
 }) as ReturnType<typeof useAuth>;
 
 beforeEach(() => {
+  copy["premium.codeError"] = en.premium.codeError;
   vi.clearAllMocks();
   vi.mocked(useIsPremium).mockReturnValue(false);
   vi.mocked(usePremiumExpiry).mockReturnValue(null);

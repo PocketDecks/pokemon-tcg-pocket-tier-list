@@ -81,7 +81,7 @@
     "tipPrompt": "이 코드를 Ko-fi 메시지에 붙여넣으세요. Google 계정 이메일 주소로 팁을 보내도 연결됩니다.",
     "copy": "코드 복사",
     "copied": "복사됨",
-    "codeError": "코드를 사용할 수 없다면 Ko-fi 메시지에 Google 계정 이메일 주소를 적어 주세요.",
+    "codeError": "코드를 사용할 수 없다면 Google 계정에서 인증된 이메일 주소를 Ko-fi 결제 시 이메일 주소로 사용하세요. Ko-fi 메시지에 적은 이메일 주소는 읽지 않습니다. 해당 이메일을 사용할 수 없다면 아래 연락처로 문의해 주세요.",
     "expires": "Premium 이용은 {{date}}에 종료됩니다.",
     "lifetime": "Premium 이용은 만료되지 않습니다.",
     "tip": "Ko-fi에서 Premium 후원하기",

@@ -81,7 +81,7 @@
     "tipPrompt": "Pega este código en tu mensaje de Ko-fi. También funciona enviar la propina desde el correo de tu cuenta de Google.",
     "copy": "Copiar código",
     "copied": "Copiado",
-    "codeError": "Si no tienes el código, incluye en tu mensaje de Ko-fi el correo de tu cuenta de Google.",
+    "codeError": "Si el código no está disponible, usa el correo verificado de tu cuenta de Google como correo de pago en Ko-fi. No leemos los correos escritos en el mensaje de Ko-fi. Si no puedes usar ese correo, escríbenos a la dirección que aparece abajo.",
     "expires": "Tu acceso Premium termina el {{date}}.",
     "lifetime": "Tu acceso Premium no caduca.",
     "tip": "Apoyar Premium en Ko-fi",

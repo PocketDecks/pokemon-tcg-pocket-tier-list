@@ -81,7 +81,7 @@
     "tipPrompt": "Collez ce code dans votre message Ko-fi. Un don envoyé depuis l’adresse e-mail de votre compte Google fonctionne aussi.",
     "copy": "Copier le code",
     "copied": "Copié",
-    "codeError": "Si le code est indisponible, indiquez l’adresse e-mail de votre compte Google dans votre message Ko-fi.",
+    "codeError": "Si le code est indisponible, utilisez l’adresse e-mail vérifiée de votre compte Google comme adresse e-mail de paiement lors du paiement sur Ko-fi. Une adresse e-mail écrite dans le message Ko-fi n’est pas lue. Si vous ne pouvez pas utiliser cette adresse, contactez-nous à l’adresse ci-dessous.",
     "expires": "Votre accès Premium prend fin le {{date}}.",
     "lifetime": "Votre accès Premium n’expire pas.",
     "tip": "Soutenir Premium sur Ko-fi",

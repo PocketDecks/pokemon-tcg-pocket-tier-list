@@ -81,7 +81,7 @@
     "tipPrompt": "请将此代码粘贴到 Ko-fi 留言中。使用 Google 账号邮箱打赏也可以关联。",
     "copy": "复制代码",
     "copied": "已复制",
-    "codeError": "如果无法使用代码，请在 Ko-fi 留言中填写 Google 账号邮箱。",
+    "codeError": "如果无法使用代码，请将 Google 账号中已验证的邮箱用作 Ko-fi 结账时的付款邮箱。写在 Ko-fi 留言中的邮箱不会被读取。如果无法使用该邮箱，请通过下方联系方式与我们联系。",
     "expires": "你的 Premium 权限于 {{date}} 到期。",
     "lifetime": "你的 Premium 权限不会到期。",
     "tip": "在 Ko-fi 支持 Premium",

@@ -81,7 +81,7 @@
     "tipPrompt": "Lipește acest cod în mesajul Ko-fi. Poți trimite bacșișul și de pe adresa de e-mail a contului Google.",
     "copy": "Copiază codul",
     "copied": "Copiat",
-    "codeError": "Dacă nu poți folosi codul, include adresa de e-mail a contului Google în mesajul Ko-fi.",
+    "codeError": "Dacă codul nu este disponibil, folosește adresa de e-mail verificată a contului tău Google ca adresă de e-mail pentru plată pe Ko-fi. O adresă de e-mail scrisă în mesajul Ko-fi nu este citită. Dacă nu poți folosi acea adresă, contactează-ne la adresa de mai jos.",
     "expires": "Accesul Premium se încheie la {{date}}.",
     "lifetime": "Accesul Premium nu expiră.",
     "tip": "Susține Premium pe Ko-fi",

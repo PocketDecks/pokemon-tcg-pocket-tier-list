@@ -8,7 +8,7 @@ The 30-day and All Time artefacts, and the full matchup and movement depth of th
 | --- | --- | --- |
 | `best-decks-{10d,20d}`, `card-scores.json`, `historical-trends.json` | `public/data/`, committed | Everyone |
 | `matchup-data-{10d,20d}` and `meta-share-{10d,20d}`, plus the un-suffixed `matchup-data.json` and `meta-share.json`, trimmed to the free tier | `public/data/`, committed | Everyone |
-| The full `matchup-data-{10d,20d}` and `meta-share-{10d,20d}` | `analysis/out/premium/`, gitignored, then Firestore | Signed-in users with an active entitlement |
+| The full `matchup-data-{10d,20d}` and `meta-share-{10d,20d}` | `analysis/out/premium/`, gitignored, then Firestore | Signed-in users with an active entitlement in the current frontend; the retained legacy `stripeRole` console rule also permits Firestore reads |
 | `best-decks-{30d,all}`, `matchup-data-{30d,all}`, `meta-share-{30d,all}` | `analysis/out/premium/`, gitignored, then Firestore | The same |
 | `data-version.json` | `public/data/`, committed | Everyone |
 | `entitlements/{uid}` | Firestore, written with the Admin SDK | Only the signed-in user it belongs to |

@@ -74,19 +74,25 @@
         "premium": "100"
       }
     },
-    "benefits": "Premium includes an ad-free site, detailed matchups, advanced filters, alternative rankings, more decks and faster updates.",
-    "price": "Each whole GBP 1 buys one calendar month. Later tips extend your existing expiry.",
+    "price": "£1 a month. Tip any whole amount; each £1 adds one month, and later tips extend your access.",
+    "cta": "Tip on Ko-fi",
+    "ctaExtend": "Extend on Ko-fi",
+    "emailHint": "Use the email address on your Google account ({{email}}) at Ko-fi checkout and Premium is added automatically.",
+    "emailHintNoEmail": "Use the email address on your Google account at Ko-fi checkout and Premium is added automatically.",
+    "altCodeToggle": "Paying from a different email?",
+    "altCodeHint": "Paste this code into the Ko-fi message.",
+    "codeUnavailable": "Codes are unavailable right now. Use your Google email, or contact us below.",
+    "waiting": "Waiting for your tip to arrive… this usually takes under a minute.",
+    "checkAgain": "Check again",
+    "copyFailed": "Could not copy the code. Select it and copy it manually.",
+    "codeLoading": "Preparing your code…",
     "signInFirst": "Sign in with Google first so we can match your tip to your account.",
     "signIn": "Sign in with Google",
-    "tipPrompt": "Paste this code into your Ko-fi message. Tipping from the email address on your Google account also works.",
     "copy": "Copy code",
     "copied": "Copied",
-    "codeError": "If the code is unavailable, use the verified email address on your Google account as the payer email at Ko-fi checkout. An email written in the Ko-fi message is not read. If you cannot use that email, contact us using the address below.",
     "expires": "Your Premium access ends on {{date}}.",
     "lifetime": "Your Premium access does not expire.",
-    "tip": "Support Premium on Ko-fi",
-    "refund": "For refunds or lost payments, contact us at <0/> with the email address on your Google account and the payment details.",
-    "codeLoading": "Preparing your account code…"
+    "refund": "For refunds or lost payments, contact us at <0/> with the email address on your Google account and the payment details."
   },
   "ads": {
     "advertisement": "Advertisement",

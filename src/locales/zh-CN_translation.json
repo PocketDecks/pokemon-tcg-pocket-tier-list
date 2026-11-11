@@ -74,19 +74,25 @@
         "premium": "100"
       }
     },
-    "benefits": "Premium 提供无广告体验、详细对局分析、高级筛选、替代排名、更多卡组和更快更新。",
-    "price": "每完整 1 英镑可获得一个自然月。之后的打赏会延长现有到期时间。",
+    "price": "每月 1 英镑。可打赏任意整数金额；每 1 英镑增加一个月，之后的打赏会延长你的使用期限。",
+    "cta": "在 Ko-fi 打赏",
+    "ctaExtend": "在 Ko-fi 续期",
+    "emailHint": "在 Ko-fi 结账时使用 Google 账号邮箱（{{email}}），Premium 会自动开通。",
+    "emailHintNoEmail": "在 Ko-fi 结账时使用 Google 账号邮箱，Premium 会自动开通。",
+    "altCodeToggle": "需要用其他邮箱付款？",
+    "altCodeHint": "请将此代码粘贴到 Ko-fi 留言中。",
+    "codeUnavailable": "代码暂时不可用。请使用 Google 邮箱，或通过下方联系方式联系我们。",
+    "waiting": "正在等待你的打赏到账…通常不到一分钟。",
+    "checkAgain": "再次检查",
+    "copyFailed": "无法复制代码。请手动选中并复制。",
+    "codeLoading": "正在准备代码…",
     "signInFirst": "请先使用 Google 登录，以便我们将打赏关联到你的账号。",
     "signIn": "使用 Google 登录",
-    "tipPrompt": "请将此代码粘贴到 Ko-fi 留言中。使用 Google 账号邮箱打赏也可以关联。",
     "copy": "复制代码",
     "copied": "已复制",
-    "codeError": "如果无法使用代码，请将 Google 账号中已验证的邮箱用作 Ko-fi 结账时的付款邮箱。写在 Ko-fi 留言中的邮箱不会被读取。如果无法使用该邮箱，请通过下方联系方式与我们联系。",
     "expires": "你的 Premium 权限于 {{date}} 到期。",
     "lifetime": "你的 Premium 权限不会到期。",
-    "tip": "在 Ko-fi 支持 Premium",
-    "refund": "如需退款或报告付款未到账，请发送邮件至 <0/>，并提供 Google 账号邮箱和付款信息。",
-    "codeLoading": "正在准备你的账号代码……"
+    "refund": "如需退款或报告付款未到账，请发送邮件至 <0/>，并提供 Google 账号邮箱和付款信息。"
   },
   "ads": {
     "advertisement": "广告",

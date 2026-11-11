@@ -12,6 +12,46 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
+const ActionButton = styled.button`
+  cursor: pointer;
+  align-self: flex-start;
+  padding: 0.8rem 1.4rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--main);
+  font: inherit;
+  font-size: 1.4rem;
+  font-weight: 600;
+
+  &:hover {
+    background: var(--fill-hover);
+  }
+`;
+
+const CtaLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  padding: 1.2rem 2.2rem;
+  border-radius: 8px;
+  background: var(--link);
+  color: var(--bg);
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-decoration: none;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+`;
+
 const RemoveAdsLink = styled.button`
   cursor: pointer;
   font-size: 1.1rem;
@@ -49,6 +89,89 @@ const Text = styled.p`
   }
 `;
 
+const Hint = styled.p`
+  margin: 0;
+  font-size: 1.4rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+`;
+
+const TableScroll = styled.div`
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+`;
+
+const Comparison = styled.table`
+  width: 100%;
+  min-width: 30rem;
+  border-collapse: collapse;
+  font-size: 1.3rem;
+  text-align: left;
+
+  th,
+  td {
+    padding: 0.7rem 0.8rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+
+  thead th {
+    color: var(--main);
+    font-weight: 700;
+  }
+
+  thead th:first-child {
+    width: 62%;
+  }
+
+  thead th:not(:first-child),
+  tbody td {
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  tbody th {
+    font-weight: 400;
+    text-align: left;
+  }
+`;
+
+const FeatureTitle = styled.div`
+  color: var(--main);
+  font-weight: 600;
+`;
+
+const FeatureDescription = styled.div`
+  margin-top: 0.2rem;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1.4;
+  white-space: normal;
+`;
+
+const AltToggle = styled.button`
+  cursor: pointer;
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  font-size: 1.4rem;
+  text-decoration: underline;
+`;
+
+const AltSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-sunk);
+`;
+
 const InlineLink = styled.a`
   color: var(--link);
   font-size: inherit;
@@ -58,6 +181,17 @@ const InlineLink = styled.a`
     opacity: 0.8;
   }
 `;
+
+const COMPARISON_FEATURES = [
+  "removeAds",
+  "bestDeckFinder",
+  "exclude",
+  "matchups",
+  "filters",
+  "sortBy",
+  "updated",
+  "decks",
+] as const;
 
 interface Props {
   variant?: "default" | "link";
@@ -82,12 +216,13 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
   const expiresAt = usePremiumExpiry();
   const { user, signInWithGoogle } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [isAltOpen, setIsAltOpen] = useState(false);
   const [codeResult, setCodeResult] = useState<CodeResult | null>(null);
   const [copyFeedback, setCopyFeedback] = useState<CopyFeedback | null>(null);
 
   useEffect(() => {
     const uid = user?.uid;
-    if (!isOpen || !uid || (isPremium && expiresAt === null)) return;
+    if (!isOpen || !isAltOpen || !uid || (isPremium && expiresAt === null)) return;
     let active = true;
     setCodeResult((current) => (current?.uid === uid ? current : null));
     void loadPremiumCode(uid).then(
@@ -101,7 +236,7 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
     return () => {
       active = false;
     };
-  }, [expiresAt, isOpen, isPremium, user?.uid]);
+  }, [expiresAt, isAltOpen, isOpen, isPremium, user?.uid]);
 
   if (isPremium === null) return null;
 
@@ -125,10 +260,35 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
       {CONTACT_EMAIL}
     </InlineLink>
   );
-  const kofiLink = (
-    <InlineLink href={KOFI_URL} target="_blank" rel="noopener noreferrer" key="kofi">
-      {t("premium.tip")}
-    </InlineLink>
+  const ctaLabel = t(premiumState === "expires" ? "premium.ctaExtend" : "premium.cta");
+  const emailHint = user?.email
+    ? t("premium.emailHint", { email: user.email })
+    : t("premium.emailHintNoEmail");
+
+  const comparison = (
+    <TableScroll>
+      <Comparison>
+        <thead>
+          <tr>
+            <th scope="col">{t("premium.features.title")}</th>
+            <th scope="col">{t("premium.features.free")}</th>
+            <th scope="col">{t("premium.features.premium")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {COMPARISON_FEATURES.map((key) => (
+            <tr key={key}>
+              <th scope="row">
+                <FeatureTitle>{t(`premium.features.${key}.title`)}</FeatureTitle>
+                <FeatureDescription>{t(`premium.features.${key}.description`)}</FeatureDescription>
+              </th>
+              <td>{t(`premium.features.${key}.free`)}</td>
+              <td>{t(`premium.features.${key}.premium`)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Comparison>
+    </TableScroll>
   );
 
   const copyCode = async () => {
@@ -170,40 +330,55 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
           header="premium.title"
           close={() => setIsOpen(false)}
         >
-          {premiumState !== "lifetime" && (
+          {premiumState === "free" && (
             <>
-              <Text>{t("premium.benefits")}</Text>
+              {comparison}
               <Text>{t("premium.price")}</Text>
-              {!user ? (
-                <>
-                  <Text>{t("premium.signInFirst")}</Text>
-                  <Button onClick={() => void signInWithGoogle()}>
-                    {t("premium.signIn")}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  {premiumState === "expires" && (
-                    <Text>{t("premium.expires", { date })}</Text>
+            </>
+          )}
+          {premiumState === "expires" && <Text>{t("premium.expires", { date })}</Text>}
+          {!user && premiumState === "free" && (
+            <>
+              <Text>{t("premium.signInFirst")}</Text>
+              <ActionButton onClick={() => void signInWithGoogle()}>
+                {t("premium.signIn")}
+              </ActionButton>
+            </>
+          )}
+          {user && premiumState !== "lifetime" && (
+            <>
+              <CtaLink href={KOFI_URL} target="_blank" rel="noopener noreferrer">
+                {ctaLabel}
+              </CtaLink>
+              <Hint>{emailHint}</Hint>
+              <AltToggle
+                type="button"
+                aria-expanded={isAltOpen}
+                onClick={() => setIsAltOpen((open) => !open)}
+              >
+                {t("premium.altCodeToggle")}
+              </AltToggle>
+              {isAltOpen && (
+                <AltSection>
+                  {currentCode?.failed ? (
+                    <Text role="status">{t("premium.codeUnavailable")}</Text>
+                  ) : currentCode?.code ? (
+                    <>
+                      <Text>
+                        <code>{currentCode.code}</code>{" "}
+                        <ActionButton aria-live="polite" onClick={() => void copyCode()}>
+                          {t(copyStatus === "copied" ? "premium.copied" : "premium.copy")}
+                        </ActionButton>
+                      </Text>
+                      <Text>{t("premium.altCodeHint")}</Text>
+                      {copyStatus === "failed" && (
+                        <Text role="status">{t("premium.copyFailed")}</Text>
+                      )}
+                    </>
+                  ) : (
+                    <Text role="status">{t("premium.codeLoading")}</Text>
                   )}
-                  <Text>{t("premium.tipPrompt")}</Text>
-                  {currentCode?.code && (
-                    <Text>
-                      <code>{currentCode.code}</code>{" "}
-                      <Button aria-live="polite" onClick={() => void copyCode()}>
-                        {t(copyStatus === "copied" ? "premium.copied" : "premium.copy")}
-                      </Button>
-                    </Text>
-                  )}
-                  {!currentCode && <Text role="status">{t("premium.codeLoading")}</Text>}
-                  {(currentCode?.failed || copyStatus === "failed") && (
-                    <Text role="status">{t("premium.codeError")}</Text>
-                  )}
-                  <Text>{kofiLink}</Text>
-                </>
-              )}
-              {!user && premiumState === "expires" && (
-                <Text>{t("premium.expires", { date })}</Text>
+                </AltSection>
               )}
             </>
           )}

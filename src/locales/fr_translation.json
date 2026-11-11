@@ -74,19 +74,25 @@
         "premium": "100"
       }
     },
-    "benefits": "Premium comprend un site sans publicité, des matchups détaillés, des filtres avancés, des classements alternatifs, plus de decks et des mises à jour plus rapides.",
-    "price": "Chaque livre sterling entière achète un mois calendaire. Les dons ultérieurs repoussent la date d’expiration actuelle.",
+    "price": "1 £ par mois. Donnez un montant entier ; chaque livre ajoute un mois et les dons suivants prolongent votre accès.",
+    "cta": "Donner un pourboire sur Ko-fi",
+    "ctaExtend": "Prolonger sur Ko-fi",
+    "emailHint": "Utilisez l’adresse e-mail de votre compte Google ({{email}}) lors du paiement sur Ko-fi et Premium sera activé automatiquement.",
+    "emailHintNoEmail": "Utilisez l’adresse e-mail de votre compte Google lors du paiement sur Ko-fi et Premium sera activé automatiquement.",
+    "altCodeToggle": "Vous payez depuis une autre adresse e-mail ?",
+    "altCodeHint": "Collez ce code dans le message Ko-fi.",
+    "codeUnavailable": "Les codes sont indisponibles pour le moment. Utilisez votre adresse Google ou contactez-nous ci-dessous.",
+    "waiting": "En attente de votre don… cela prend généralement moins d’une minute.",
+    "checkAgain": "Vérifier à nouveau",
+    "copyFailed": "Impossible de copier le code. Sélectionnez-le et copiez-le manuellement.",
+    "codeLoading": "Préparation de votre code…",
     "signInFirst": "Connectez-vous d’abord avec Google afin que nous puissions associer votre don à votre compte.",
     "signIn": "Se connecter avec Google",
-    "tipPrompt": "Collez ce code dans votre message Ko-fi. Un don envoyé depuis l’adresse e-mail de votre compte Google fonctionne aussi.",
     "copy": "Copier le code",
     "copied": "Copié",
-    "codeError": "Si le code est indisponible, utilisez l’adresse e-mail vérifiée de votre compte Google comme adresse e-mail de paiement lors du paiement sur Ko-fi. Une adresse e-mail écrite dans le message Ko-fi n’est pas lue. Si vous ne pouvez pas utiliser cette adresse, contactez-nous à l’adresse ci-dessous.",
     "expires": "Votre accès Premium prend fin le {{date}}.",
     "lifetime": "Votre accès Premium n’expire pas.",
-    "tip": "Soutenir Premium sur Ko-fi",
-    "refund": "Pour demander un remboursement ou signaler un paiement perdu, contactez-nous à <0/> en indiquant l’adresse e-mail de votre compte Google et les détails du paiement.",
-    "codeLoading": "Préparation du code de votre compte…"
+    "refund": "Pour demander un remboursement ou signaler un paiement perdu, contactez-nous à <0/> en indiquant l’adresse e-mail de votre compte Google et les détails du paiement."
   },
   "ads": {
     "advertisement": "Publicité",

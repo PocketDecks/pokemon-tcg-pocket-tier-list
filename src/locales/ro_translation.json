@@ -74,19 +74,25 @@
         "premium": "100"
       }
     },
-    "benefits": "Premium oferă un site fără reclame, confruntări detaliate, filtre avansate, clasamente alternative, mai multe pachete și actualizări mai rapide.",
-    "price": "Fiecare liră sterlină întreagă cumpără o lună calendaristică. Bacșișurile ulterioare prelungesc data de expirare existentă.",
+    "price": "1 £ pe lună. Donează o sumă întreagă; fiecare 1 £ adaugă o lună, iar bacșișurile ulterioare prelungesc accesul.",
+    "cta": "Lasă un bacșiș pe Ko-fi",
+    "ctaExtend": "Prelungește pe Ko-fi",
+    "emailHint": "Folosește adresa de e-mail a contului tău Google ({{email}}) la plata pe Ko-fi și Premium se activează automat.",
+    "emailHintNoEmail": "Folosește adresa de e-mail a contului tău Google la plata pe Ko-fi și Premium se activează automat.",
+    "altCodeToggle": "Plătești de pe altă adresă de e-mail?",
+    "altCodeHint": "Lipește acest cod în mesajul Ko-fi.",
+    "codeUnavailable": "Codurile nu sunt disponibile acum. Folosește e-mailul Google sau contactează-ne mai jos.",
+    "waiting": "Așteptăm bacșișul tău… de obicei durează sub un minut.",
+    "checkAgain": "Verifică din nou",
+    "copyFailed": "Codul nu a putut fi copiat. Selectează-l și copiază-l manual.",
+    "codeLoading": "Se pregătește codul…",
     "signInFirst": "Conectează-te mai întâi cu Google pentru a putea asocia bacșișul contului tău.",
     "signIn": "Conectare cu Google",
-    "tipPrompt": "Lipește acest cod în mesajul Ko-fi. Poți trimite bacșișul și de pe adresa de e-mail a contului Google.",
     "copy": "Copiază codul",
     "copied": "Copiat",
-    "codeError": "Dacă codul nu este disponibil, folosește adresa de e-mail verificată a contului tău Google ca adresă de e-mail pentru plată pe Ko-fi. O adresă de e-mail scrisă în mesajul Ko-fi nu este citită. Dacă nu poți folosi acea adresă, contactează-ne la adresa de mai jos.",
     "expires": "Accesul Premium se încheie la {{date}}.",
     "lifetime": "Accesul Premium nu expiră.",
-    "tip": "Susține Premium pe Ko-fi",
-    "refund": "Pentru rambursări sau plăți pierdute, contactează-ne la <0/> și include adresa de e-mail a contului Google și detaliile plății.",
-    "codeLoading": "Se pregătește codul contului…"
+    "refund": "Pentru rambursări sau plăți pierdute, contactează-ne la <0/> și include adresa de e-mail a contului Google și detaliile plății."
   },
   "ads": {
     "advertisement": "Reclamă",

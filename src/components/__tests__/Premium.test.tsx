@@ -7,33 +7,23 @@ import useIsPremium, { usePremiumExpiry } from "../../app/use-is-premium";
 import { loadPremiumCode } from "../../app/premium-code";
 import { useAuth } from "../../contexts/AuthContext";
 import en from "../../locales/en_translation.json";
+import { CONTACT_EMAIL, KOFI_URL } from "../../app/constants";
+import { withQueryClient } from "../../test-utils/with-query-client";
 
 const spies = vi.hoisted(() => ({ signInWithGoogle: vi.fn() }));
-const copy = vi.hoisted(
-  (): Record<string, string> => ({
-    "a11y.closePopup": "Close panel",
-    "premium.title": "Premium",
-    "premium.benefits": "No ads, detailed matchups and more deck data.",
-    "premium.price": "Each whole GBP 1 buys one calendar month. Later tips extend your expiry.",
-    "premium.signInFirst": "Sign in with Google first so we can match your tip to your account.",
-    "premium.signIn": "Sign in with Google",
-    "premium.tipPrompt": "Paste this code into your Ko-fi message. Tipping from your Google account email also works.",
-    "premium.codeLoading": "Preparing your account code…",
-    "premium.copy": "Copy code",
-    "premium.copied": "Copied",
-    "premium.expires": "Your Premium access ends on {{date}}.",
-    "premium.lifetime": "Your Premium access does not expire.",
-    "premium.tip": "Support on Ko-fi",
-  })
-);
+const copy = vi.hoisted(() => ({ values: {} as Record<string, string> }));
+const contact = vi.hoisted(() => "infoLeonid@protonMail.com");
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     i18n: { language: "en-GB" },
-    t: (key: string, options?: { date?: string }) =>
-      (copy[key] ?? key).replace("{{date}}", options?.date ?? ""),
+    t: (key: string, options?: { date?: string; email?: string }) =>
+      (copy.values[key] ?? key)
+        .replace("{{date}}", options?.date ?? "")
+        .replace("{{email}}", options?.email ?? ""),
   }),
-  Trans: ({ i18nKey }: { i18nKey: string; components?: ReactNode[] }) => copy[i18nKey] ?? i18nKey,
+  Trans: ({ i18nKey }: { i18nKey: string; components?: ReactNode[] }) =>
+    (copy.values[i18nKey] ?? i18nKey).replace("<0/>", contact),
 }));
 
 vi.mock("../../app/use-is-premium", () => ({
@@ -44,15 +34,30 @@ vi.mock("../../app/use-is-premium", () => ({
 vi.mock("../../app/premium-code", () => ({ loadPremiumCode: vi.fn() }));
 vi.mock("../../contexts/AuthContext", () => ({ useAuth: vi.fn() }));
 
-const authValue = (user: { uid: string; email: string } | null) => ({
+const collect = (value: unknown, prefix: string, out: Record<string, string>): void => {
+  if (typeof value === "string") {
+    out[prefix] = value;
+    return;
+  }
+  if (value && typeof value === "object") {
+    for (const [key, child] of Object.entries(value)) {
+      collect(child, prefix ? `${prefix}.${key}` : key, out);
+    }
+  }
+};
+collect(en, "", copy.values);
+
+const authValue = (user: { uid: string; email: string | null } | null) => ({
   user,
   loading: false,
   signInWithGoogle: spies.signInWithGoogle,
   signOut: vi.fn(),
 }) as ReturnType<typeof useAuth>;
 
+const signedIn = (email: string | null = "player@example.com") =>
+  authValue({ uid: "user-1", email });
+
 beforeEach(() => {
-  copy["premium.codeError"] = en.premium.codeError;
   vi.clearAllMocks();
   vi.mocked(useIsPremium).mockReturnValue(false);
   vi.mocked(usePremiumExpiry).mockReturnValue(null);
@@ -64,78 +69,129 @@ beforeEach(() => {
   });
 });
 
+const linkPopup = () => withQueryClient(<Premium variant="link" linkLabel="Remove ads" />);
+
 const openLinkPopup = async () => {
   const user = userEvent.setup();
-  render(<Premium variant="link" linkLabel="Remove ads" />);
+  const view = render(linkPopup());
   await user.click(screen.getByRole("button", { name: "Remove ads" }));
-  return { user, dialog: screen.getByRole("dialog", { name: "Premium" }) };
+  return { user, dialog: screen.getByRole("dialog", { name: en.premium.title }), view };
 };
 
+const openDefaultPopup = async () => {
+  const user = userEvent.setup();
+  render(withQueryClient(<Premium />));
+  await user.click(screen.getByRole("button", { name: en.premium.title }));
+  return { user, dialog: screen.getByRole("dialog", { name: en.premium.title }) };
+};
+
+const expandCodeSection = async (user: ReturnType<typeof userEvent.setup>) => {
+  await user.click(screen.getByRole("button", { name: en.premium.altCodeToggle }));
+};
+
+const emailHintFor = (email: string) => en.premium.emailHint.replace("{{email}}", email);
+
 describe("Premium", () => {
-  it("shows the sign-in prompt for signed-out visitors", async () => {
+  it("shows the comparison table, price and sign-in prompt for signed-out visitors", async () => {
     const { user, dialog } = await openLinkPopup();
-    expect(within(dialog).getByText(copy["premium.benefits"])).toBeInTheDocument();
-    expect(within(dialog).getByText(copy["premium.price"])).toBeInTheDocument();
-    expect(within(dialog).getByText(copy["premium.signInFirst"])).toBeInTheDocument();
-    await user.click(within(dialog).getByRole("button", { name: copy["premium.signIn"] }));
+    expect(within(dialog).getByRole("columnheader", { name: en.premium.features.free })).toBeInTheDocument();
+    expect(within(dialog).getByRole("columnheader", { name: en.premium.features.premium })).toBeInTheDocument();
+    expect(within(dialog).getByText(en.premium.features.removeAds.title)).toBeInTheDocument();
+    expect(within(dialog).getByText(en.premium.features.removeAds.description)).toBeInTheDocument();
+    expect(within(dialog).getByText(en.premium.price)).toBeInTheDocument();
+    expect(within(dialog).getByText(en.premium.signInFirst)).toBeInTheDocument();
+    await user.click(within(dialog).getByRole("button", { name: en.premium.signIn }));
     expect(spies.signInWithGoogle).toHaveBeenCalledOnce();
+    expect(within(dialog).queryByRole("link", { name: en.premium.cta })).not.toBeInTheDocument();
+    expect(within(dialog).queryByRole("button", { name: en.premium.altCodeToggle })).not.toBeInTheDocument();
     expect(loadPremiumCode).not.toHaveBeenCalled();
   });
 
-  it("loads a signed-in user's code only after opening and links to Ko-fi securely", async () => {
-    vi.mocked(useAuth).mockReturnValue(authValue({ uid: "user-1", email: "player@example.com" }));
-    const user = userEvent.setup();
-    render(<Premium variant="link" linkLabel="Remove ads" />);
-    expect(loadPremiumCode).not.toHaveBeenCalled();
-    await user.click(screen.getByRole("button", { name: "Remove ads" }));
-    const dialog = screen.getByRole("dialog", { name: "Premium" });
+  it("renders every comparison feature with a row", async () => {
+    const { dialog } = await openLinkPopup();
+    expect(within(dialog).getAllByRole("row")).toHaveLength(9);
+    for (const key of [
+      "removeAds", "bestDeckFinder", "exclude", "matchups",
+      "filters", "sortBy", "updated", "decks",
+    ] as const) {
+      expect(within(dialog).getByText(en.premium.features[key].title)).toBeInTheDocument();
+    }
+    expect(within(dialog).getByText(en.premium.features.matchups.free)).toBeInTheDocument();
+    expect(within(dialog).getAllByText(en.premium.features.matchups.premium).length).toBeGreaterThan(0);
+  });
 
-    await waitFor(() => expect(loadPremiumCode).toHaveBeenCalledWith("user-1"));
-    const link = within(dialog).getByRole("link", { name: copy["premium.tip"] });
-    expect(link).toHaveAttribute("href", "https://ko-fi.com/dalin");
-    expect(link).toHaveAttribute("target", "_blank");
-    expect(link).toHaveAttribute("rel", "noopener noreferrer");
-    expect(within(dialog).getByText("PD-ABC234")).toBeInTheDocument();
+  it("leads with a Ko-fi call to action and the account email", async () => {
+    vi.mocked(useAuth).mockReturnValue(signedIn());
+    const { dialog } = await openLinkPopup();
+    const cta = within(dialog).getByRole("link", { name: en.premium.cta });
+    expect(cta).toHaveAttribute("href", KOFI_URL);
+    expect(cta).toHaveAttribute("target", "_blank");
+    expect(cta).toHaveAttribute("rel", "noopener noreferrer");
+    expect(cta).toHaveStyle("text-decoration: none");
+    expect(within(dialog).getByText(emailHintFor("player@example.com"))).toBeInTheDocument();
+    expect(within(dialog).getByText(en.premium.price)).toBeInTheDocument();
+    expect(loadPremiumCode).not.toHaveBeenCalled();
+  });
+
+  it("leaves out the email brackets when the account has no email", async () => {
+    vi.mocked(useAuth).mockReturnValue(signedIn(null));
+    const { dialog } = await openLinkPopup();
+    const hint = within(dialog).getByText(en.premium.emailHintNoEmail);
+    expect(hint.textContent).not.toContain("(");
+    expect(within(dialog).queryByText(/player@example.com/)).not.toBeInTheDocument();
+  });
+
+  it("keeps the code section collapsed and unrequested", async () => {
+    vi.mocked(useAuth).mockReturnValue(signedIn());
+    const { dialog } = await openLinkPopup();
+    const toggle = within(dialog).getByRole("button", { name: en.premium.altCodeToggle });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(within(dialog).queryByText(en.premium.altCodeHint)).not.toBeInTheDocument();
+    expect(within(dialog).queryByText("PD-ABC234")).not.toBeInTheDocument();
+    expect(loadPremiumCode).not.toHaveBeenCalled();
+  });
+
+  it("loads the code after expanding and copies it", async () => {
+    vi.mocked(useAuth).mockReturnValue(signedIn());
+    const { user, dialog } = await openLinkPopup();
     const clipboardWrite = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
       value: { writeText: clipboardWrite },
     });
-    await user.click(within(dialog).getByRole("button", { name: copy["premium.copy"] }));
+    await expandCodeSection(user);
+    expect(loadPremiumCode).toHaveBeenCalledWith("user-1");
+    expect(await within(dialog).findByText("PD-ABC234")).toBeInTheDocument();
+    expect(within(dialog).getByText(en.premium.altCodeHint)).toBeInTheDocument();
+    await user.click(within(dialog).getByRole("button", { name: en.premium.copy }));
     expect(clipboardWrite).toHaveBeenCalledWith("PD-ABC234");
-    expect(await within(dialog).findByText(copy["premium.copied"])).toBeInTheDocument();
+    expect(await within(dialog).findByText(en.premium.copied)).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: en.premium.altCodeToggle })).toHaveAttribute("aria-expanded", "true");
   });
 
-  it("shows account-email fallback if code issuance fails", async () => {
-    vi.mocked(useAuth).mockReturnValue(authValue({ uid: "user-1", email: "player@example.com" }));
+  it("shows only the unavailable line when code issuance fails", async () => {
+    vi.mocked(useAuth).mockReturnValue(signedIn());
     vi.mocked(loadPremiumCode).mockRejectedValue(new Error("permission-denied"));
-    const { dialog } = await openLinkPopup();
-    expect(await within(dialog).findByText(copy["premium.codeError"])).toBeInTheDocument();
+    const { user, dialog } = await openLinkPopup();
+    await expandCodeSection(user);
+    expect(await within(dialog).findByText(en.premium.codeUnavailable)).toBeInTheDocument();
+    expect(within(dialog).queryByText(en.premium.altCodeHint)).not.toBeInTheDocument();
+    expect(within(dialog).queryByText(/PD-/)).not.toBeInTheDocument();
     expect(within(dialog).queryByText(/permission-denied/)).not.toBeInTheDocument();
+    expect(within(dialog).getByRole("link", { name: en.premium.cta })).toBeInTheDocument();
   });
 
-  it("shows an expiry date and a secure Ko-fi link to extend", async () => {
-    vi.mocked(useIsPremium).mockReturnValue(true);
-    vi.mocked(usePremiumExpiry).mockReturnValue(Date.UTC(2027, 0, 2));
-    vi.mocked(useAuth).mockReturnValue(authValue({ uid: "user-1", email: "player@example.com" }));
-    render(<Premium />);
-    await userEvent.setup().click(screen.getByRole("button", { name: "Premium" }));
-    const dialog = screen.getByRole("dialog", { name: "Premium" });
-    expect(within(dialog).getByText("Your Premium access ends on 2 January 2027.")).toBeInTheDocument();
-    const link = within(dialog).getByRole("link", { name: copy["premium.tip"] });
-    expect(link).toHaveAttribute("href", "https://ko-fi.com/dalin");
-    expect(link).toHaveAttribute("target", "_blank");
-    expect(link).toHaveAttribute("rel", "noopener noreferrer");
-  });
-
-  it("shows lifetime access without an expiry date", async () => {
-    vi.mocked(useIsPremium).mockReturnValue(true);
-    vi.mocked(usePremiumExpiry).mockReturnValue(null);
-    vi.mocked(useAuth).mockReturnValue(authValue({ uid: "user-1", email: "player@example.com" }));
-    render(<Premium />);
-    await userEvent.setup().click(screen.getByRole("button", { name: "Premium" }));
-    expect(screen.getByText(copy["premium.lifetime"])).toBeInTheDocument();
-    expect(loadPremiumCode).not.toHaveBeenCalled();
+  it("shows the manual-copy line when the clipboard rejects", async () => {
+    vi.mocked(useAuth).mockReturnValue(signedIn());
+    const { user, dialog } = await openLinkPopup();
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: vi.fn().mockRejectedValue(new Error("clipboard failed")) },
+    });
+    await expandCodeSection(user);
+    await within(dialog).findByText("PD-ABC234");
+    await user.click(within(dialog).getByRole("button", { name: en.premium.copy }));
+    expect(await within(dialog).findByText(en.premium.copyFailed)).toBeInTheDocument();
   });
 
   it("never renders a previous account's resolved code after an account switch", async () => {
@@ -143,13 +199,15 @@ describe("Premium", () => {
     const firstCode = new Promise<string>((resolve) => { resolveFirst = resolve; });
     vi.mocked(useAuth).mockReturnValue(authValue({ uid: "account-a", email: "a@example.com" }));
     vi.mocked(loadPremiumCode).mockReturnValue(firstCode);
-    const { rerender } = render(<Premium variant="link" linkLabel="Remove ads" />);
-    await userEvent.setup().click(screen.getByRole("button", { name: "Remove ads" }));
+    const user = userEvent.setup();
+    const view = render(linkPopup());
+    await user.click(screen.getByRole("button", { name: "Remove ads" }));
+    await expandCodeSection(user);
     await waitFor(() => expect(loadPremiumCode).toHaveBeenCalledWith("account-a"));
 
     vi.mocked(useAuth).mockReturnValue(authValue({ uid: "account-b", email: "b@example.com" }));
     vi.mocked(loadPremiumCode).mockResolvedValue("PD-BBBBBB");
-    rerender(<Premium variant="link" linkLabel="Remove ads" />);
+    view.rerender(linkPopup());
     expect(screen.queryByText("PD-AAAAAA")).not.toBeInTheDocument();
     await waitFor(() => expect(screen.getByText("PD-BBBBBB")).toBeInTheDocument());
     await act(async () => { resolveFirst("PD-AAAAAA"); });
@@ -170,8 +228,9 @@ describe("Premium", () => {
         Promise.resolve(uid === "account-a" ? "PD-AAAAAA" : "PD-BBBBBB")
       );
       const user = userEvent.setup();
-      const view = render(<Premium variant="link" linkLabel="Remove ads" />);
+      const view = render(linkPopup());
       await user.click(screen.getByRole("button", { name: "Remove ads" }));
+      await expandCodeSection(user);
       await screen.findByText("PD-AAAAAA");
 
       const clipboardWrite = vi.fn(() => pendingClipboard);
@@ -179,20 +238,58 @@ describe("Premium", () => {
         configurable: true,
         value: { writeText: clipboardWrite },
       });
-      await user.click(screen.getByRole("button", { name: copy["premium.copy"] }));
+      await user.click(screen.getByRole("button", { name: en.premium.copy }));
       expect(clipboardWrite).toHaveBeenCalledWith("PD-AAAAAA");
 
       vi.mocked(useAuth).mockReturnValue(authValue({ uid: "account-b", email: "b@example.com" }));
-      view.rerender(<Premium variant="link" linkLabel="Remove ads" />);
+      view.rerender(linkPopup());
       await screen.findByText("PD-BBBBBB");
 
       await act(async () => {
         if (outcome === "resolve") finishClipboard();
         else failClipboard(new Error("clipboard failed"));
       });
-      expect(screen.getByRole("button", { name: copy["premium.copy"] })).toBeInTheDocument();
-      expect(screen.queryByText(copy["premium.copied"])).not.toBeInTheDocument();
-      expect(screen.queryByText(copy["premium.codeError"])).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: en.premium.copy })).toBeInTheDocument();
+      expect(screen.queryByText(en.premium.copied)).not.toBeInTheDocument();
+      expect(screen.queryByText(en.premium.copyFailed)).not.toBeInTheDocument();
     }
   );
+
+  it("shows an expiry date, Extend on Ko-fi and the account email", async () => {
+    vi.mocked(useIsPremium).mockReturnValue(true);
+    vi.mocked(usePremiumExpiry).mockReturnValue(Date.UTC(2027, 0, 2));
+    vi.mocked(useAuth).mockReturnValue(signedIn());
+    const { dialog } = await openDefaultPopup();
+    expect(within(dialog).getByText("Your Premium access ends on 2 January 2027.")).toBeInTheDocument();
+    const cta = within(dialog).getByRole("link", { name: en.premium.ctaExtend });
+    expect(cta).toHaveAttribute("href", KOFI_URL);
+    expect(cta).toHaveAttribute("target", "_blank");
+    expect(cta).toHaveAttribute("rel", "noopener noreferrer");
+    expect(within(dialog).getByText(emailHintFor("player@example.com"))).toBeInTheDocument();
+    expect(within(dialog).queryByRole("table")).not.toBeInTheDocument();
+  });
+
+  it("shows lifetime access without a table, CTA or code lookup", async () => {
+    vi.mocked(useIsPremium).mockReturnValue(true);
+    vi.mocked(usePremiumExpiry).mockReturnValue(null);
+    vi.mocked(useAuth).mockReturnValue(signedIn());
+    const { dialog } = await openDefaultPopup();
+    expect(within(dialog).getByText(en.premium.lifetime)).toBeInTheDocument();
+    expect(within(dialog).queryByRole("table")).not.toBeInTheDocument();
+    expect(within(dialog).queryByRole("link", { name: en.premium.cta })).not.toBeInTheDocument();
+    expect(within(dialog).queryByText(en.premium.refund.replace("<0/>", contact))).not.toBeInTheDocument();
+    expect(loadPremiumCode).not.toHaveBeenCalled();
+  });
+
+  it("keeps the refund contact in every non-lifetime state", async () => {
+    const { dialog } = await openLinkPopup();
+    expect(within(dialog).getByText(en.premium.refund.replace("<0/>", CONTACT_EMAIL))).toBeInTheDocument();
+  });
+
+  it("closes the popup on Escape and restores focus to the trigger", async () => {
+    const { user } = await openLinkPopup();
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove ads" })).toHaveFocus();
+  });
 });

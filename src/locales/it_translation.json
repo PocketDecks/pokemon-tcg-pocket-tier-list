@@ -74,19 +74,25 @@
         "premium": "100"
       }
     },
-    "benefits": "Premium include un sito senza pubblicità, matchup dettagliati, filtri avanzati, classifiche alternative, più mazzi e aggiornamenti più rapidi.",
-    "price": "Ogni sterlina britannica intera acquista un mese di calendario. Le mance successive estendono la scadenza attuale.",
+    "price": "1 £ al mese. Dona un importo intero; ogni sterlina aggiunge un mese e le mance successive prolungano l’accesso.",
+    "cta": "Lascia una mancia su Ko-fi",
+    "ctaExtend": "Estendi su Ko-fi",
+    "emailHint": "Usa l’indirizzo e-mail del tuo account Google ({{email}}) al pagamento su Ko-fi e Premium verrà attivato automaticamente.",
+    "emailHintNoEmail": "Usa l’indirizzo e-mail del tuo account Google al pagamento su Ko-fi e Premium verrà attivato automaticamente.",
+    "altCodeToggle": "Paghi da un altro indirizzo e-mail?",
+    "altCodeHint": "Incolla questo codice nel messaggio Ko-fi.",
+    "codeUnavailable": "I codici non sono disponibili adesso. Usa la tua e-mail Google o contattaci qui sotto.",
+    "waiting": "In attesa della tua mancia… di solito serve meno di un minuto.",
+    "checkAgain": "Controlla di nuovo",
+    "copyFailed": "Impossibile copiare il codice. Selezionalo e copialo manualmente.",
+    "codeLoading": "Preparazione del codice…",
     "signInFirst": "Accedi prima con Google, così possiamo associare la mancia al tuo account.",
     "signIn": "Accedi con Google",
-    "tipPrompt": "Incolla questo codice nel messaggio Ko-fi. Va bene anche inviare la mancia dall’indirizzo e-mail del tuo account Google.",
     "copy": "Copia codice",
     "copied": "Copiato",
-    "codeError": "Se il codice non è disponibile, usa l’indirizzo e-mail verificato del tuo account Google come indirizzo e-mail di pagamento su Ko-fi. Un indirizzo scritto nel messaggio Ko-fi non viene letto. Se non puoi usare quell’indirizzo, contattaci all’indirizzo qui sotto.",
     "expires": "Il tuo accesso Premium termina il {{date}}.",
     "lifetime": "Il tuo accesso Premium non ha scadenza.",
-    "tip": "Sostieni Premium su Ko-fi",
-    "refund": "Per un rimborso o per segnalare un pagamento perso, contattaci a <0/> indicando l’indirizzo e-mail del tuo account Google e i dettagli del pagamento.",
-    "codeLoading": "Preparazione del codice del tuo account…"
+    "refund": "Per un rimborso o per segnalare un pagamento perso, contattaci a <0/> indicando l’indirizzo e-mail del tuo account Google e i dettagli del pagamento."
   },
   "ads": {
     "advertisement": "Pubblicità",

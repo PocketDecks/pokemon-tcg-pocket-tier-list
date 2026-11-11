@@ -54,6 +54,16 @@ describe("loadPremiumCode", () => {
     expect(extractCode("Thanks for the tip! PD-AAAAAA")).toBe("PD-AAAAAA");
   });
 
+  it("matches a generated code after it is pasted in lower case", async () => {
+    const code = await loadPremiumCode("user-1");
+    expect(extractCode(`Thanks for the tip! ${code.toLowerCase()}`)).toBe(code);
+  });
+
+  it("ignores a generated code glued to another letter in lower case", async () => {
+    const code = await loadPremiumCode("user-1");
+    expect(extractCode(`x${code.toLowerCase()}`)).toBeNull();
+  });
+
   it("retries a create collision with a fresh code", async () => {
     let call = 0;
     vi.spyOn(crypto, "getRandomValues").mockImplementation((bytes) => {

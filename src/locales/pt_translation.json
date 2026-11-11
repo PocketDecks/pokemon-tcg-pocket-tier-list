@@ -74,19 +74,25 @@
         "premium": "100"
       }
     },
-    "benefits": "O Premium inclui um site sem anúncios, confrontos detalhados, filtros avançados, classificações alternativas, mais decks e atualizações mais rápidas.",
-    "price": "Cada libra esterlina inteira compra um mês de calendário. Gorjetas posteriores prolongam a data de validade atual.",
+    "price": "1 £ por mês. Dê qualquer montante inteiro; cada 1 £ acrescenta um mês e as gorjetas seguintes prolongam o acesso.",
+    "cta": "Dar gorjeta no Ko-fi",
+    "ctaExtend": "Prolongar no Ko-fi",
+    "emailHint": "Utilize o endereço de e-mail da sua conta Google ({{email}}) no pagamento do Ko-fi e o Premium é ativado automaticamente.",
+    "emailHintNoEmail": "Utilize o endereço de e-mail da sua conta Google no pagamento do Ko-fi e o Premium é ativado automaticamente.",
+    "altCodeToggle": "Paga a partir de outro e-mail?",
+    "altCodeHint": "Cole este código na mensagem do Ko-fi.",
+    "codeUnavailable": "Os códigos não estão disponíveis neste momento. Utilize o seu e-mail Google ou contacte-nos abaixo.",
+    "waiting": "A aguardar a sua gorjeta… normalmente demora menos de um minuto.",
+    "checkAgain": "Verificar novamente",
+    "copyFailed": "Não foi possível copiar o código. Selecione-o e copie manualmente.",
+    "codeLoading": "A preparar o seu código…",
     "signInFirst": "Inicie sessão primeiro com o Google para podermos associar a gorjeta à sua conta.",
     "signIn": "Iniciar sessão com Google",
-    "tipPrompt": "Cole este código na mensagem do Ko-fi. Também pode enviar a gorjeta a partir do endereço de e-mail da sua conta Google.",
     "copy": "Copiar código",
     "copied": "Copiado",
-    "codeError": "Se o código não estiver disponível, utilize o endereço de e-mail verificado da sua conta Google como e-mail de pagamento no Ko-fi. Um e-mail escrito na mensagem do Ko-fi não é lido. Se não puder utilizar esse endereço, contacte-nos através do endereço abaixo.",
     "expires": "O seu acesso Premium termina em {{date}}.",
     "lifetime": "O seu acesso Premium não expira.",
-    "tip": "Apoiar o Premium no Ko-fi",
-    "refund": "Para pedir um reembolso ou comunicar um pagamento em falta, contacte-nos em <0/> e indique o e-mail da sua conta Google e os dados do pagamento.",
-    "codeLoading": "A preparar o código da sua conta…"
+    "refund": "Para pedir um reembolso ou comunicar um pagamento em falta, contacte-nos em <0/> e indique o e-mail da sua conta Google e os dados do pagamento."
   },
   "ads": {
     "advertisement": "Anúncio",

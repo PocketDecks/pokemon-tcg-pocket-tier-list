@@ -74,19 +74,25 @@
         "premium": "100"
       }
     },
-    "benefits": "Premium 提供無廣告體驗、詳細對戰分析、進階篩選、替代排名、更多牌組和更快更新。",
-    "price": "每完整 1 英鎊可獲得一個曆月。之後的打賞會延長現有到期時間。",
+    "price": "每月 1 英鎊。可打賞任意整數金額；每 1 英鎊增加一個月，之後的打賞會延長你的使用期限。",
+    "cta": "在 Ko-fi 打賞",
+    "ctaExtend": "在 Ko-fi 續期",
+    "emailHint": "在 Ko-fi 結帳時使用 Google 帳戶電子郵件（{{email}}），Premium 會自動開通。",
+    "emailHintNoEmail": "在 Ko-fi 結帳時使用 Google 帳戶電子郵件，Premium 會自動開通。",
+    "altCodeToggle": "需要用其他電子郵件付款？",
+    "altCodeHint": "請將此代碼貼到 Ko-fi 訊息中。",
+    "codeUnavailable": "代碼暫時無法使用。請使用 Google 電子郵件，或透過下方聯絡方式與我們聯繫。",
+    "waiting": "正在等待你的打賞入帳…通常不到一分鐘。",
+    "checkAgain": "再次檢查",
+    "copyFailed": "無法複製代碼。請手動選取並複製。",
+    "codeLoading": "正在準備代碼…",
     "signInFirst": "請先使用 Google 登入，讓我們能將打賞連結到你的帳戶。",
     "signIn": "使用 Google 登入",
-    "tipPrompt": "請將此代碼貼到 Ko-fi 訊息中。使用 Google 帳戶電子郵件打賞也可以連結。",
     "copy": "複製代碼",
     "copied": "已複製",
-    "codeError": "如果無法使用代碼，請將 Google 帳戶中已驗證的電子郵件用作 Ko-fi 結帳時的付款電子郵件。寫在 Ko-fi 訊息中的電子郵件不會被讀取。如果無法使用該電子郵件，請透過下方聯絡方式與我們聯繫。",
     "expires": "你的 Premium 權限於 {{date}} 到期。",
     "lifetime": "你的 Premium 權限不會到期。",
-    "tip": "在 Ko-fi 支持 Premium",
-    "refund": "如需退款或回報付款未入帳，請寄信至 <0/>，並提供 Google 帳戶電子郵件和付款資訊。",
-    "codeLoading": "正在準備你的帳戶代碼⋯⋯"
+    "refund": "如需退款或回報付款未入帳，請寄信至 <0/>，並提供 Google 帳戶電子郵件和付款資訊。"
   },
   "ads": {
     "advertisement": "廣告",

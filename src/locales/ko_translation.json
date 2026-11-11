@@ -74,19 +74,25 @@
         "premium": "100"
       }
     },
-    "benefits": "Premium에서는 광고 제거, 자세한 매치업, 고급 필터, 대체 순위, 더 많은 덱, 더 빠른 업데이트를 이용할 수 있습니다.",
-    "price": "1 GBP를 온전히 결제할 때마다 한 달력 기준 1개월이 제공됩니다. 이후 팁은 기존 만료일 뒤에 연장됩니다.",
+    "price": "월 1 £입니다. 정수 금액을 후원하면 1 £마다 한 달이 추가되고, 이후 후원으로 이용 기간이 연장됩니다.",
+    "cta": "Ko-fi에서 후원하기",
+    "ctaExtend": "Ko-fi에서 연장하기",
+    "emailHint": "Ko-fi 결제 시 Google 계정 이메일 주소({{email}})를 사용하면 Premium이 자동으로 적용됩니다.",
+    "emailHintNoEmail": "Ko-fi 결제 시 Google 계정 이메일 주소를 사용하면 Premium이 자동으로 적용됩니다.",
+    "altCodeToggle": "다른 이메일로 결제하시나요?",
+    "altCodeHint": "이 코드를 Ko-fi 메시지에 붙여넣으세요.",
+    "codeUnavailable": "지금은 코드를 사용할 수 없습니다. Google 이메일을 사용하거나 아래 연락처로 문의해 주세요.",
+    "waiting": "후원이 반영되기를 기다리고 있습니다… 보통 1분 이내에 완료됩니다.",
+    "checkAgain": "다시 확인",
+    "copyFailed": "코드를 복사하지 못했습니다. 코드를 선택해 직접 복사해 주세요.",
+    "codeLoading": "코드를 준비하는 중…",
     "signInFirst": "팁을 계정에 연결할 수 있도록 먼저 Google로 로그인하세요.",
     "signIn": "Google로 로그인",
-    "tipPrompt": "이 코드를 Ko-fi 메시지에 붙여넣으세요. Google 계정 이메일 주소로 팁을 보내도 연결됩니다.",
     "copy": "코드 복사",
     "copied": "복사됨",
-    "codeError": "코드를 사용할 수 없다면 Google 계정에서 인증된 이메일 주소를 Ko-fi 결제 시 이메일 주소로 사용하세요. Ko-fi 메시지에 적은 이메일 주소는 읽지 않습니다. 해당 이메일을 사용할 수 없다면 아래 연락처로 문의해 주세요.",
     "expires": "Premium 이용은 {{date}}에 종료됩니다.",
     "lifetime": "Premium 이용은 만료되지 않습니다.",
-    "tip": "Ko-fi에서 Premium 후원하기",
-    "refund": "환불이나 결제 누락에 대해서는 Google 계정 이메일 주소와 결제 정보를 적어 <0/>로 문의해 주세요.",
-    "codeLoading": "계정 코드를 준비하는 중…"
+    "refund": "환불이나 결제 누락에 대해서는 Google 계정 이메일 주소와 결제 정보를 적어 <0/>로 문의해 주세요."
   },
   "ads": {
     "advertisement": "광고",

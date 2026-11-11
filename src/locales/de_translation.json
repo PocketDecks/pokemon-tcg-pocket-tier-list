@@ -74,19 +74,25 @@
         "premium": "100"
       }
     },
-    "benefits": "Premium bietet eine werbefreie Website, detaillierte Matchups, erweiterte Filter, alternative Ranglisten, mehr Decks und schnellere Updates.",
-    "price": "Je volle 1 GBP gilt für einen Kalendermonat. Spätere Trinkgelder verlängern das bestehende Ablaufdatum.",
+    "price": "1 £ pro Monat. Gib einen beliebigen ganzen Betrag; je 1 £ verlängern deinen Zugang um einen Monat, und spätere Trinkgelder verlängern ihn weiter.",
+    "cta": "Auf Ko-fi Trinkgeld geben",
+    "ctaExtend": "Auf Ko-fi verlängern",
+    "emailHint": "Verwende an der Ko-fi-Kasse die E-Mail-Adresse deines Google-Kontos ({{email}}), dann wird Premium automatisch aktiviert.",
+    "emailHintNoEmail": "Verwende an der Ko-fi-Kasse die E-Mail-Adresse deines Google-Kontos, dann wird Premium automatisch aktiviert.",
+    "altCodeToggle": "Zahlung von einer anderen E-Mail-Adresse?",
+    "altCodeHint": "Füge diesen Code in die Ko-fi-Nachricht ein.",
+    "codeUnavailable": "Codes sind gerade nicht verfügbar. Nutze deine Google-E-Mail-Adresse oder kontaktiere uns unten.",
+    "waiting": "Wir warten auf dein Trinkgeld… das dauert meist weniger als eine Minute.",
+    "checkAgain": "Erneut prüfen",
+    "copyFailed": "Der Code konnte nicht kopiert werden. Markiere ihn und kopiere ihn manuell.",
+    "codeLoading": "Dein Code wird vorbereitet…",
     "signInFirst": "Melde dich zuerst mit Google an, damit wir dein Trinkgeld deinem Konto zuordnen können.",
     "signIn": "Mit Google anmelden",
-    "tipPrompt": "Füge diesen Code in deine Ko-fi-Nachricht ein. Ein Trinkgeld von der E-Mail-Adresse deines Google-Kontos funktioniert ebenfalls.",
     "copy": "Code kopieren",
     "copied": "Kopiert",
-    "codeError": "Falls der Code nicht verfügbar ist, verwende die verifizierte E-Mail-Adresse deines Google-Kontos als E-Mail-Adresse für die Zahlung beim Ko-fi-Checkout. Eine in der Ko-fi-Nachricht angegebene E-Mail-Adresse wird nicht gelesen. Wenn du diese E-Mail-Adresse nicht verwenden kannst, kontaktiere uns über die untenstehende Adresse.",
     "expires": "Dein Premium-Zugang endet am {{date}}.",
     "lifetime": "Dein Premium-Zugang läuft nicht ab.",
-    "tip": "Premium auf Ko-fi unterstützen",
-    "refund": "Bei Rückerstattungen oder verlorenen Zahlungen kontaktiere uns unter <0/> und nenne die E-Mail-Adresse deines Google-Kontos sowie die Zahlungsdaten.",
-    "codeLoading": "Dein Kontocode wird erstellt…"
+    "refund": "Bei Rückerstattungen oder verlorenen Zahlungen kontaktiere uns unter <0/> und nenne die E-Mail-Adresse deines Google-Kontos sowie die Zahlungsdaten."
   },
   "ads": {
     "advertisement": "Werbung",

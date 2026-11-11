@@ -4,7 +4,9 @@ import userEvent from "@testing-library/user-event";
 import { createInstance } from "i18next";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import Premium from "../Premium";
+import en from "../../locales/en_translation.json";
 import { CONTACT_EMAIL } from "../../app/constants";
+import { withQueryClient } from "../../test-utils/with-query-client";
 
 const mocks = vi.hoisted(() => ({
   useAuth: vi.fn(),
@@ -19,8 +21,14 @@ vi.mock("../../contexts/AuthContext", () => ({ useAuth: mocks.useAuth }));
 vi.mock("../../app/premium-code", () => ({ loadPremiumCode: mocks.loadPremiumCode }));
 
 const i18n = createInstance();
+await i18n.use(initReactI18next).init({
+  lng: "en",
+  fallbackLng: "en",
+  resources: { en: { translation: en } },
+  interpolation: { escapeValue: false },
+});
 
-beforeEach(async () => {
+beforeEach(() => {
   mocks.useAuth.mockReturnValue({
     user: { uid: "user-1", email: "player@example.com" },
     loading: false,
@@ -28,27 +36,6 @@ beforeEach(async () => {
     signOut: vi.fn(),
   });
   mocks.loadPremiumCode.mockResolvedValue("PD-ABC234");
-  await i18n.use(initReactI18next).init({
-    lng: "en",
-    resources: {
-      en: {
-        translation: {
-          a11y: { closePopup: "Close panel" },
-          premium: {
-            title: "Premium",
-            benefits: "No ads and more deck tools.",
-            price: "Each whole GBP 1 buys one calendar month.",
-            tipPrompt: "Paste this code into your Ko-fi message.",
-            codeLoading: "Preparing code",
-            tip: "Support Premium on Ko-fi",
-            copy: "Copy code",
-            refund: "For refunds or lost payments, contact us at <0/>.",
-          },
-        },
-      },
-    },
-    interpolation: { escapeValue: false },
-  });
 });
 
 describe("Premium refund contact rendering", () => {
@@ -56,12 +43,26 @@ describe("Premium refund contact rendering", () => {
     const user = userEvent.setup();
     render(
       <I18nextProvider i18n={i18n}>
-        <Premium variant="link" linkLabel="Remove ads" />
+        {withQueryClient(<Premium variant="link" linkLabel="Remove ads" />)}
       </I18nextProvider>
     );
 
     await user.click(screen.getByRole("button", { name: "Remove ads" }));
     const refundLink = await screen.findByRole("link", { name: CONTACT_EMAIL });
     expect(refundLink).toHaveAttribute("href", `mailto:${CONTACT_EMAIL}`);
+  });
+
+  it("interpolates the real English email hint with the signed-in address", async () => {
+    const user = userEvent.setup();
+    render(
+      <I18nextProvider i18n={i18n}>
+        {withQueryClient(<Premium variant="link" linkLabel="Remove ads" />)}
+      </I18nextProvider>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Remove ads" }));
+    expect(
+      screen.getByText(en.premium.emailHint.replace("{{email}}", "player@example.com"))
+    ).toBeInTheDocument();
   });
 });

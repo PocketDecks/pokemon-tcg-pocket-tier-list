@@ -12,12 +12,8 @@ export const TWITTER_URL = "https://twitter.com/pocketdecks";
 export const GOOGLE_ANALYTICS_URL = 'https://www.googletagmanager.com/gtag/js?id=G-SBZ51J3S1R';
 export const GOOGLE_GTAG = 'G-SBZ51J3S1R';
 export const CONTACT_EMAIL = "infoLeonid@protonMail.com";
-// Premium checkout is closed in the app. New signups must also be blocked in
-// Stripe by archiving every signup Price (current and legacy) so the Firebase
-// Stripe extension cannot create checkout sessions from known price IDs.
-// Existing subscribers keep renewing until they cancel via the billing portal.
 export const MANAGE_SUBSCRIPTION_URL =
-    "https://billing.stripe.com/p/login/4gM9ASeDk2QcaKq2Y957W00";
+  "https://billing.stripe.com/p/login/4gM9ASeDk2QcaKq2Y957W00";
 
 export type SocialName = "github" | "twitter";
 

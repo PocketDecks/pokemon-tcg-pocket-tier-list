@@ -1,32 +1,32 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  getCurrentUserSubscriptions,
-} from "@invertase/firestore-stripe-payments";
-import useIsPremium from "../use-is-premium";
+import useIsPremium, { usePremiumExpiry } from "../use-is-premium";
 import { useAuth } from "../../contexts/AuthContext";
 import { queryClientOptions } from "../../App";
 
-vi.mock("@invertase/firestore-stripe-payments", () => ({
-  getStripePayments: vi.fn(),
-  getCurrentUserSubscriptions: vi.fn(),
+const firestore = vi.hoisted(() => ({
+  getDoc: vi.fn(),
+  doc: vi.fn((_db: unknown, ...segments: string[]) => ({ path: segments.join("/") })),
+  getFirestore: vi.fn(() => ({ kind: "db" })),
 }));
 
-vi.mock("../../contexts/AuthContext", () => ({
-  useAuth: vi.fn(),
-}));
+vi.mock("firebase/firestore", () => firestore);
+vi.mock("../../contexts/AuthContext", () => ({ useAuth: vi.fn() }));
+vi.mock("../../config/firebase", () => ({ default: { name: "app" } }));
 
-vi.mock("../../config/firebase", () => ({
-  getPayments: vi.fn().mockResolvedValue({}),
-}));
-
-const mockSubscriptions = getCurrentUserSubscriptions as ReturnType<typeof vi.fn>;
 const mockAuth = useAuth as ReturnType<typeof vi.fn>;
+const DAY = 24 * 60 * 60 * 1000;
+const snapshot = (data: Record<string, unknown> | null) => ({
+  exists: () => data !== null,
+  data: () => data,
+});
+const timestamp = (millis: number) => ({ toMillis: () => millis });
 
 const Probe = () => {
   const isPremium = useIsPremium();
-  return <p>{isPremium === null ? "pending" : String(isPremium)}</p>;
+  const expiry = usePremiumExpiry();
+  return <p>{`${isPremium === null ? "pending" : isPremium}:${expiry ?? "none"}`}</p>;
 };
 
 let queryClient: QueryClient;
@@ -38,11 +38,15 @@ beforeEach(() => {
       queries: { ...queryClientOptions.defaultOptions.queries, retry: false },
     },
   });
+  mockAuth.mockReturnValue({ user: { uid: "u1" }, loading: false });
+  firestore.getDoc.mockResolvedValue(snapshot(null));
+  vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
 afterEach(() => {
   queryClient.clear();
   vi.clearAllMocks();
+  vi.restoreAllMocks();
 });
 
 const renderProbe = () =>
@@ -52,75 +56,55 @@ const renderProbe = () =>
     </QueryClientProvider>
   );
 
-describe("useIsPremium contract", () => {
-  it("returns null while auth is loading", async () => {
+describe("entitlement access", () => {
+  it("keeps the null loading contract", () => {
     mockAuth.mockReturnValue({ user: null, loading: true });
     renderProbe();
-    expect(screen.getByText("pending")).toBeInTheDocument();
-    expect(mockSubscriptions).not.toHaveBeenCalled();
+    expect(screen.getByText("pending:none")).toBeInTheDocument();
+    expect(firestore.getDoc).not.toHaveBeenCalled();
   });
 
-  it("returns false for a signed-out user without querying subscriptions", async () => {
-    mockAuth.mockReturnValue({ user: null, loading: false });
+  it("denies a missing entitlement without reading customers", async () => {
     renderProbe();
-    await screen.findByText("false");
-    expect(mockSubscriptions).not.toHaveBeenCalled();
+    await screen.findByText("false:none");
+    expect(firestore.doc).toHaveBeenCalledWith(expect.anything(), "entitlements", "u1");
+    expect(firestore.doc.mock.calls.some(([, ...path]) => path[0] === "customers")).toBe(false);
   });
 
-  it("returns true when a subscription exists", async () => {
-    mockSubscriptions.mockResolvedValue([{ status: "active" }]);
-    mockAuth.mockReturnValue({ user: { uid: "u1" }, loading: false });
+  it("denies an entitlement with premium false", async () => {
+    firestore.getDoc.mockResolvedValue(snapshot({ premium: false }));
     renderProbe();
-    await screen.findByText("true");
+    await screen.findByText("false:none");
   });
 
-  it("returns false when no subscription exists", async () => {
-    mockSubscriptions.mockResolvedValue([]);
-    mockAuth.mockReturnValue({ user: { uid: "u1" }, loading: false });
+  it("grants a future entitlement and exposes its expiry from the same read", async () => {
+    const expiry = Date.now() + DAY;
+    firestore.getDoc.mockResolvedValue(snapshot({ premium: true, expiresAt: timestamp(expiry) }));
     renderProbe();
-    await screen.findByText("false");
+    await screen.findByText(`true:${expiry}`);
+    expect(firestore.getDoc).toHaveBeenCalledTimes(1);
   });
 
-  it("returns false when the lookup rejects", async () => {
-    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
-    mockSubscriptions.mockRejectedValue(new Error("offline"));
-    mockAuth.mockReturnValue({ user: { uid: "u1" }, loading: false });
+  it("denies an expired entitlement", async () => {
+    const expiry = Date.now() - DAY;
+    firestore.getDoc.mockResolvedValue(snapshot({ premium: true, expiresAt: timestamp(expiry) }));
     renderProbe();
-    await screen.findByText("false");
-    expect(spy).toHaveBeenCalled();
+    await screen.findByText(`false:${expiry}`);
   });
-});
 
-describe("deduplication across hook instances", () => {
-  it("issues one subscription lookup for two consumers", async () => {
-    // Defines the work: the per-instance implementation queries once each.
-    mockSubscriptions.mockResolvedValue([]);
-    mockAuth.mockReturnValue({ user: { uid: "u1" }, loading: false });
-    render(
-      <QueryClientProvider client={queryClient}>
-        <Probe />
-        <Probe />
-      </QueryClientProvider>
-    );
-    await screen.findAllByText("false");
-    expect(mockSubscriptions).toHaveBeenCalledTimes(1);
-  });
-});
-
-describe("recovery after a transient failure", () => {
-  it("reports premium again once a refetch succeeds", async () => {
-    vi.spyOn(console, "error").mockImplementation(() => {});
-    mockAuth.mockReturnValue({ user: { uid: "u1" }, loading: false });
-    mockSubscriptions.mockRejectedValueOnce(new Error("transient"));
-
+  it.each([undefined, null])("grants a lifetime entitlement with expiry %s", async (expiresAt) => {
+    firestore.getDoc.mockResolvedValue(snapshot({ premium: true, expiresAt }));
     renderProbe();
-    await screen.findByText("false");
+    await screen.findByText("true:none");
+  });
 
-    mockSubscriptions.mockResolvedValue([{ status: "active" }]);
-    await act(async () => {
-      await queryClient.refetchQueries({ queryKey: ["premium", "u1"] });
-    });
-
-    await screen.findByText("true");
+  it.each([
+    ["missing toMillis", {}],
+    ["non-finite", { toMillis: () => Number.POSITIVE_INFINITY }],
+    ["throwing", { toMillis: () => { throw new Error("invalid timestamp"); } }],
+  ])("fails closed for %s expiry", async (_name, expiresAt) => {
+    firestore.getDoc.mockResolvedValue(snapshot({ premium: true, expiresAt }));
+    renderProbe();
+    await screen.findByText("false:none");
   });
 });

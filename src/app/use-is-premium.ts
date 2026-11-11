@@ -7,68 +7,44 @@ interface EntitlementState {
   expiresAt: number | null;
 }
 
-const getPremiumSubscriptions = async () => {
-  const [{ getCurrentUserSubscriptions }, payments] = await Promise.all([
-    import("@invertase/firestore-stripe-payments"),
-    import("../config/firebase").then(({ getPayments }) => getPayments()),
-  ]);
-  return getCurrentUserSubscriptions(payments, {
-    status: ["active", "trialing", "past_due"],
-  });
-};
-
 const getEntitlement = async (uid: string): Promise<EntitlementState> => {
   const { doc, getDoc, getFirestore } = await import("firebase/firestore");
   const { default: app } = await import("../config/firebase");
   const snapshot = await getDoc(doc(getFirestore(app), "entitlements", uid));
   if (!snapshot.exists()) return { premium: false, expiresAt: null };
   const data = snapshot.data() as { premium?: unknown; expiresAt?: unknown } | undefined;
-  const expiresAt = data?.expiresAt;
-  if (expiresAt === undefined || expiresAt === null) {
-    return { premium: data?.premium === true, expiresAt: null };
+  if (data?.premium !== true) return { premium: false, expiresAt: null };
+
+  const expiresAt = data.expiresAt;
+  if (expiresAt === undefined || expiresAt === null) return { premium: true, expiresAt: null };
+  if (typeof expiresAt !== "object" || expiresAt === null) {
+    return { premium: false, expiresAt: null };
   }
   const toMillis = (expiresAt as { toMillis?: unknown }).toMillis;
   if (typeof toMillis !== "function") return { premium: false, expiresAt: null };
-  return { premium: data?.premium === true, expiresAt: toMillis.call(expiresAt) as number };
+  const millis = toMillis.call(expiresAt);
+  return Number.isFinite(millis)
+    ? { premium: true, expiresAt: millis as number }
+    : { premium: false, expiresAt: null };
 };
 
-const grantsAccess = (entitlement: EntitlementState | undefined): boolean =>
-  !!entitlement &&
-  entitlement.premium &&
-  (entitlement.expiresAt === null || entitlement.expiresAt > Date.now());
-
-const useIsPremium = () => {
+const useEntitlement = () => {
   const { user, loading } = useAuth();
-  const enabled = !loading && !!user;
-
-  // Count subscriptions that grant Premium access. "trialing" is essential:
-  // new sign-ups start a 7-day free trial, so their subscription status is
-  // "trialing" (not "active") until the trial ends and the first invoice is
-  // paid. Filtering on "active" alone makes trialing users look non-premium,
-  // which re-shows the upsell and sends them back through Stripe checkout,
-  // some end up with duplicate subscriptions. "past_due" keeps access during
-  // Stripe's payment-retry grace period instead of yanking it on a single
-  // failed renewal.
-  const subscription = useQuery<boolean, Error>({
-    queryKey: ["premium", user?.uid ?? null],
-    enabled,
-    retry: false,
-    queryFn: async () => {
-      const subscriptions = await getPremiumSubscriptions();
-      return subscriptions.length > 0;
-    },
-  });
-
   const entitlement = useQuery<EntitlementState, Error>({
     queryKey: ["entitlement", user?.uid ?? null],
-    enabled,
+    enabled: !loading && !!user,
     retry: false,
     queryFn: () => getEntitlement(user!.uid),
   });
+  return { entitlement, user, loading };
+};
 
-  useEffect(() => {
-    if (subscription.error) console.error(subscription.error);
-  }, [subscription.error]);
+const grantsAccess = (entitlement: EntitlementState | undefined): boolean =>
+  !!entitlement?.premium &&
+  (entitlement.expiresAt === null || entitlement.expiresAt > Date.now());
+
+const useIsPremium = () => {
+  const { entitlement, user, loading } = useEntitlement();
 
   useEffect(() => {
     if (entitlement.error) console.error(entitlement.error);
@@ -76,9 +52,14 @@ const useIsPremium = () => {
 
   if (loading) return null;
   if (!user) return false;
-  if (subscription.data === true || grantsAccess(entitlement.data)) return true;
-  if (subscription.isPending || entitlement.isPending) return null;
-  return false;
+  if (entitlement.data) return grantsAccess(entitlement.data);
+  return entitlement.isPending ? null : false;
+};
+
+export const usePremiumExpiry = (): number | null => {
+  const { entitlement, user, loading } = useEntitlement();
+  if (loading || !user) return null;
+  return entitlement.data?.expiresAt ?? null;
 };
 
 export default useIsPremium;

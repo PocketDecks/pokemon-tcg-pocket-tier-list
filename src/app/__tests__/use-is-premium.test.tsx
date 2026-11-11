@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import useIsPremium, { usePremiumExpiry } from "../use-is-premium";
 import { useAuth } from "../../contexts/AuthContext";
@@ -67,15 +67,15 @@ describe("entitlement access", () => {
     expect(firestore.getDoc).toHaveBeenCalledTimes(1);
 
     first.unmount();
+    clock.mockReturnValue(10_000 + 20_000);
     renderProbe();
     await screen.findByText("false:none");
     expect(firestore.getDoc).toHaveBeenCalledTimes(1);
 
     clock.mockReturnValue(10_000 + 30_001);
-    await act(async () => {
-      await queryClient.refetchQueries({ queryKey: ["entitlement", "u1"] });
-    });
-    expect(firestore.getDoc).toHaveBeenCalledTimes(2);
+    const staleConsumer = renderProbe();
+    await waitFor(() => expect(firestore.getDoc).toHaveBeenCalledTimes(2));
+    staleConsumer.unmount();
   });
 
   it("keeps the null loading contract", () => {
@@ -157,11 +157,15 @@ describe("entitlement access", () => {
     queryClient.setQueryData(["entitlement", "u1"], { premium: true, expiresAt: expiry });
     const view = renderProbe();
     expect(screen.getByText(`true:${expiry}`)).toBeInTheDocument();
-    const pending = setTimeoutSpy.mock.results.at(-1)?.value;
+    const expiryTimerIndex = setTimeoutSpy.mock.calls.findIndex(
+      ([, delay]) => delay === expiry - Date.now()
+    );
+    expect(expiryTimerIndex).toBeGreaterThanOrEqual(0);
+    const expiryTimer = setTimeoutSpy.mock.results[expiryTimerIndex]?.value;
 
     view.unmount();
 
-    expect(clearTimeoutSpy).toHaveBeenCalledWith(pending);
+    expect(clearTimeoutSpy).toHaveBeenCalledWith(expiryTimer);
     expect(firestore.getDoc).not.toHaveBeenCalled();
   });
 

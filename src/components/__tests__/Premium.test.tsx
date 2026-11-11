@@ -281,6 +281,26 @@ describe("Premium", () => {
     expect(loadPremiumCode).not.toHaveBeenCalled();
   });
 
+  it.each([
+    [Date.UTC(2100, 0, 1), "dated"],
+    [Date.UTC(2100, 0, 1) + 1, "lifetime"],
+  ])("classifies an active expiry at %s as %s", async (expiry, expected) => {
+    vi.mocked(useIsPremium).mockReturnValue(true);
+    vi.mocked(usePremiumExpiry).mockReturnValue(expiry);
+    vi.mocked(useAuth).mockReturnValue(signedIn());
+    const { dialog } = await openDefaultPopup();
+
+    if (expected === "dated") {
+      expect(within(dialog).getByRole("link", { name: en.premium.ctaExtend })).toBeInTheDocument();
+      expect(within(dialog).queryByText(en.premium.lifetime)).not.toBeInTheDocument();
+    } else {
+      expect(within(dialog).getByText(en.premium.lifetime)).toBeInTheDocument();
+      expect(
+        within(dialog).queryByRole("link", { name: en.premium.ctaExtend })
+      ).not.toBeInTheDocument();
+    }
+  });
+
   it("keeps the refund contact in every non-lifetime state", async () => {
     const { dialog } = await openLinkPopup();
     expect(within(dialog).getByText(en.premium.refund.replace("<0/>", CONTACT_EMAIL))).toBeInTheDocument();

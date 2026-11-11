@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { act, render, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { act, cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createInstance } from "i18next";
 import { I18nextProvider, initReactI18next } from "react-i18next";
@@ -29,10 +29,15 @@ await i18n.use(initReactI18next).init({
   interpolation: { escapeValue: false },
 });
 
-const granted = {
-  exists: () => true,
-  data: () => ({ premium: true, expiresAt: { toMillis: () => Date.UTC(2027, 0, 2) } }),
+const DAY = 24 * 60 * 60 * 1000;
+const absent = {
+  exists: () => false,
+  data: () => undefined,
 };
+const granted = (expiresAt = Date.now() + DAY) => ({
+  exists: () => true,
+  data: () => ({ premium: true, expiresAt: { toMillis: () => expiresAt } }),
+});
 
 let client: QueryClient;
 
@@ -46,8 +51,15 @@ beforeEach(() => {
   } as unknown as ReturnType<typeof useAuth>);
   firestore.getDoc
     .mockReset()
-    .mockResolvedValueOnce({ exists: () => false })
-    .mockResolvedValueOnce(granted);
+    .mockResolvedValueOnce(absent)
+    .mockResolvedValueOnce(granted())
+    .mockResolvedValue(absent);
+});
+
+afterEach(() => {
+  cleanup();
+  client.clear();
+  vi.restoreAllMocks();
 });
 
 const renderPremium = () =>
@@ -96,6 +108,64 @@ describe("Premium entitlement refresh", () => {
     const { user, dialog } = await openAndTip();
     await user.click(within(dialog).getByRole("button", { name: en.premium.checkAgain }));
     await expectExpiryState(dialog);
+  });
+
+  it("consumes a completed attempt so an expired grant does not restore waiting", async () => {
+    const { dialog } = await openAndTip();
+    await act(async () => {
+      window.dispatchEvent(new Event("focus"));
+    });
+    await expectExpiryState(dialog);
+
+    const now = Date.now();
+    vi.spyOn(Date, "now").mockReturnValue(now + 2 * DAY);
+    await act(async () => {
+      await client.refetchQueries({ queryKey: ["entitlement", "user-1"] });
+    });
+
+    await waitFor(() =>
+      expect(within(dialog).getByRole("link", { name: en.premium.cta })).toBeInTheDocument()
+    );
+    expect(within(dialog).queryByText(en.premium.waiting)).not.toBeInTheDocument();
+    expect(firestore.getDoc).toHaveBeenCalledTimes(3);
+  });
+
+  it("completes a pending attempt when refresh confirms a lifetime grant", async () => {
+    firestore.getDoc
+      .mockReset()
+      .mockResolvedValueOnce(absent)
+      .mockResolvedValueOnce({
+        exists: () => true,
+        data: () => ({ premium: true }),
+      });
+    const { dialog } = await openAndTip();
+    await act(async () => {
+      window.dispatchEvent(new Event("focus"));
+    });
+
+    await waitFor(() => expect(within(dialog).getByText(en.premium.lifetime)).toBeInTheDocument());
+    expect(within(dialog).queryByText(en.premium.waiting)).not.toBeInTheDocument();
+    expect(within(dialog).queryByRole("link", { name: en.premium.cta })).not.toBeInTheDocument();
+    expect(firestore.getDoc).toHaveBeenCalledTimes(2);
+  });
+
+  it("preserves a pending attempt across close and removes its focus refresh while closed", async () => {
+    const { user, dialog } = await openAndTip();
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    await act(async () => {
+      window.dispatchEvent(new Event("focus"));
+    });
+    expect(firestore.getDoc).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByRole("button", { name: "Remove ads" }));
+    const reopened = screen.getByRole("dialog", { name: en.premium.title });
+    expect(within(reopened).getByText(en.premium.waiting)).toBeInTheDocument();
+    await act(async () => {
+      window.dispatchEvent(new Event("focus"));
+    });
+    await expectExpiryState(reopened);
   });
 
   it("does not refresh on window focus before the call to action is clicked", async () => {

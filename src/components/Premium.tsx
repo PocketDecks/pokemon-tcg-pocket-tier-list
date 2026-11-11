@@ -217,6 +217,8 @@ interface TipState {
   expiry: number | null;
 }
 
+const LIFETIME_THRESHOLD = Date.UTC(2100, 0, 1);
+
 const Premium = ({ variant = "default", linkLabel }: Props) => {
   const { t, i18n } = useTranslation();
   const isPremium = useIsPremium();
@@ -228,7 +230,12 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
   const [tipState, setTipState] = useState<TipState | null>(null);
   const [codeResult, setCodeResult] = useState<CodeResult | null>(null);
   const [copyFeedback, setCopyFeedback] = useState<CopyFeedback | null>(null);
-  const premiumState = isPremium ? (expiresAt === null ? "lifetime" : "expires") : "free";
+  const premiumState =
+    isPremium
+      ? expiresAt === null || expiresAt > LIFETIME_THRESHOLD
+        ? "lifetime"
+        : "expires"
+      : "free";
   const waiting =
     !!tipState &&
     tipState.uid === user?.uid &&
@@ -254,14 +261,20 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
   }, [expiresAt, isAltOpen, isOpen, isPremium, user?.uid]);
 
   useEffect(() => {
+    if (tipState?.uid === user?.uid && isPremium && expiresAt !== tipState.expiry) {
+      setTipState(null);
+    }
+  }, [expiresAt, isPremium, tipState, user?.uid]);
+
+  useEffect(() => {
     const uid = user?.uid;
-    if (!waiting || !uid) return;
+    if (!isOpen || !waiting || !uid) return;
     const onFocus = () => {
       void queryClient.invalidateQueries({ queryKey: ["entitlement", uid] });
     };
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
-  }, [queryClient, waiting, user?.uid]);
+  }, [isOpen, queryClient, waiting, user?.uid]);
 
   if (isPremium === null) return null;
 

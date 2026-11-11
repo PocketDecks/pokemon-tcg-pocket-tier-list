@@ -15,13 +15,6 @@
   },
   "premium": {
     "title": "Top Pocket Decks Premium",
-    "manageSubscription": "Administrar suscripción",
-    "windDown": {
-      "headline": "Premium se ha pausado temporalmente 💛",
-      "status": "¡Top Pocket Decks tiene un nuevo mantenedor y continuará recibiendo actualizaciones! Durante esta transición, los nuevos registros de Premium están pausados temporalmente y los anuncios se han desactivado para todos.",
-      "active": "Tu suscripción se mantiene activa y se seguirá renovando hasta que la canceles. Puedes cancelarla en cualquier momento a través del portal de facturación.",
-      "refund": "¿Prefieres un reembolso? Envíame un correo a <0>chase@manning.dev</0> con la dirección de correo electrónico de tu cuenta y cancelaré tu suscripción y te reembolsaré tu pago más reciente. Stripe solo me permite reembolsar pagos realizados en los últimos 180 días, así que si el tuyo es más antiguo, haré todo lo que pueda."
-    },
     "features": {
       "title": "Características",
       "free": "Gratis",
@@ -70,9 +63,9 @@
       },
       "updated": {
         "title": "Actualización de la Tier List",
-        "description": "Con qué frecuencia la Tier List obtiene nuevos datos. Las actualizaciones más rápidas te ayudan a mantenerte un paso adelante del meta.",
-        "free": "Semanal",
-        "premium": "Diario"
+        "description": "Muestra las publicaciones públicas y los datos publicados más recientes disponibles para Premium.",
+        "free": "Publicaciones públicas",
+        "premium": "Datos publicados más recientes"
       },
       "decks": {
         "title": "Mazos en la Tier List",
@@ -80,7 +73,28 @@
         "free": "30",
         "premium": "100"
       }
-    }
+    },
+    "price": "1 £ al mes. Cada libra que aportes añade un mes, y las propinas posteriores amplían tu acceso.",
+    "priceDetails": "Las propinas aptas en GBP añaden un mes por cada libra entera, hasta 120 meses por propina; las fracciones no añaden meses. Las propinas de 121 £ o más y las de otras monedas requieren revisión y no conceden Premium automáticamente.",
+    "cta": "Dar una propina en Ko-fi",
+    "ctaExtend": "Ampliar en Ko-fi",
+    "emailHint": "Usa en el pago de Ko-fi el correo de tu cuenta de Google ({{email}}) y Premium se activará automáticamente.",
+    "emailHintNoEmail": "No hay un correo de cuenta de Google disponible para la coincidencia automática. Abre la opción para usar un código y añade tu código al mensaje de Ko-fi; si no puedes obtenerlo o usarlo, escríbenos abajo.",
+    "altCodeToggle": "¿Pagas desde otro correo?",
+    "altCodeHint": "Pega este código en el mensaje de Ko-fi.",
+    "codeUnavailable": "No se ha podido cargar tu código. Aporta desde tu correo de Google o escríbenos abajo con los datos del pago.",
+    "codeUnavailableNoEmail": "No se ha podido cargar tu código. Escríbenos abajo con los datos del pago.",
+    "waiting": "Esperando tu propina… suele tardar menos de un minuto.",
+    "checkAgain": "Comprobar de nuevo",
+    "copyFailed": "No se pudo copiar el código. Selecciónalo y cópialo manualmente.",
+    "codeLoading": "Preparando tu código…",
+    "signInFirst": "Inicia sesión primero con Google para que podamos asociar tu propina a tu cuenta.",
+    "signIn": "Iniciar sesión con Google",
+    "copy": "Copiar código",
+    "copied": "Copiado",
+    "expires": "Tu acceso Premium termina el {{date}}.",
+    "lifetime": "Tu acceso Premium no caduca.",
+    "refund": "Para solicitar un reembolso o informar de un pago perdido, escríbenos a <0/> e indica el correo de tu cuenta de Google y los datos del pago."
   },
   "ads": {
     "advertisement": "Anuncio",
@@ -319,7 +333,7 @@
       "usage": "<0>Datos de uso.</0> Google Analytics registra las páginas que visita y los datos habituales del dispositivo y del navegador. Solo se ejecuta después de que acepte el análisis o, si el banner de consentimiento de su región no lo pide, sin consentimiento.",
       "account": "<0>Información de la cuenta.</0> Si inicia sesión con Google, Firebase Authentication nos proporciona su nombre, su dirección de correo electrónico y su foto de perfil. Mostramos su nombre y su foto mientras tenga la sesión iniciada, y usamos su ID de cuenta para comprobar si tiene acceso Premium.",
       "feedback": "<0>Comentarios.</0> Si envía comentarios con la sesión iniciada, guardamos su ID de cuenta, su mensaje, el tema que eligió, la página desde la que los envió y la hora de envío en Cloud Firestore, una base de datos que gestiona Google para Firebase. Guardamos su dirección de correo electrónico junto con el mensaje solo si marca la casilla para pedirnos una respuesta. También guardamos la hora de su último envío.",
-      "payment": "<0>Pagos.</0> El pago de Premium está pausado actualmente. Cuando vuelva a estar disponible, Stripe procesará los pagos y guardaremos el estado de su suscripción en Firestore."
+      "payment": "<0>Propinas.</0> Creamos un registro para cada pago de Ko-fi. Incluye el identificador y el tipo de pago, el importe y la moneda, los meses concedidos, el estado y las fechas de recepción y de Ko-fi. Si el pago se vincula a una cuenta, el registro también incluye su identificador y el método de coincidencia. Solo guardamos el correo, el nombre y el mensaje de quien envía la propina cuando el pago no se concede automáticamente, para revisarlo o aplicarlo manualmente."
     },
     "cookies": {
       "heading": "Cookies y seguimiento",
@@ -342,7 +356,7 @@
     },
     "legalBasis": {
       "heading": "Base jurídica",
-      "body": "Nos basamos en su consentimiento para el análisis y la publicidad cuando el banner de consentimiento lo solicita. Para Premium, nos basamos en nuestro contrato con usted para proporcionar el acceso y gestionar su suscripción."
+      "body": "Nos basamos en su consentimiento para el análisis y la publicidad cuando el aviso de consentimiento lo solicita. Usamos los datos de su cuenta para proporcionar el acceso Premium y revisar las propinas que no conceden automáticamente nuevo tiempo Premium."
     },
     "use": {
       "heading": "Cómo usamos la información",
@@ -353,21 +367,21 @@
     },
     "rights": {
       "heading": "Sus derechos",
-      "body": "Según su ubicación, puede tener derecho a acceder a sus datos personales, corregirlos o eliminarlos, o a oponerse o restringir determinados tratamientos. Para ejercer estos derechos, incluida una solicitud para eliminar sus comentarios o los datos de su cuenta, contáctenos con los datos indicados más abajo. Los suscriptores Premium no ven anuncios."
+      "body": "Según su ubicación, puede tener derecho a acceder a sus datos personales, corregirlos o eliminarlos, o a oponerse o restringir determinados tratamientos. Para ejercer estos derechos, incluida una solicitud para eliminar sus comentarios o los datos de su cuenta, contáctenos con los datos indicados más abajo. Los usuarios Premium no ven anuncios."
     },
     "thirdParty": {
       "heading": "Servicios de terceros",
       "intro": "Trabajamos con proveedores externos. Cada uno recibe solo la información que se describe aquí.",
       "analytics": "Google Analytics recibe datos de uso cuando el análisis está permitido.",
       "adsense": "Google AdSense recibe las solicitudes de anuncios de los visitantes del nivel gratuito.",
-      "firebase": "Firebase, un servicio de Google, gestiona el inicio de sesión, la base de datos de comentarios, los registros de suscripciones y el alojamiento del sitio. El servicio de alojamiento recibe datos técnicos de cada solicitud, como su dirección IP y el tipo de navegador.",
-      "stripe": "Stripe procesa los pagos Premium.",
-      "github": "GitHub sirve imágenes de cartas desde raw.githubusercontent.com cuando se muestra una carta, así que GitHub recibe su dirección IP y datos del navegador. GitHub, Twitter y el portal de facturación de Stripe reciben su visita solo si sigue sus enlaces.",
-      "outro": "Estos proveedores usan su información según sus propias políticas de privacidad."
+      "firebase": "Firebase, un servicio de Google, gestiona el inicio de sesión, la base de datos de comentarios, el almacenamiento de permisos y el alojamiento del sitio. El servicio de alojamiento recibe datos técnicos de cada solicitud, como la dirección IP y el navegador.",
+      "github": "GitHub sirve imágenes de cartas desde raw.githubusercontent.com cuando se muestra una carta, así que recibe su dirección IP y datos del navegador. Los sitios externos reciben su visita solo si sigue sus enlaces.",
+      "outro": "Los sitios externos reciben tu dirección IP y los datos del navegador si sigues sus enlaces. Esos sitios utilizan tu información según sus propias políticas de privacidad.",
+      "kofi": "<0>Ko-fi</0> permite enviar propinas opcionales para Premium. El proveedor de pago que elijas durante el pago procesa la transacción."
     },
     "retention": {
       "heading": "Cuánto tiempo conservamos la información",
-      "body": "Google Analytics conserva los datos de eventos durante 14 meses. Conserva los datos de usuario durante 14 meses, y ese plazo se reinicia cuando vuelve al sitio. Conservamos su cuenta de inicio de sesión de Google y los campos de perfil guardados hasta que nos pida que los eliminemos, a través de los datos de contacto indicados más abajo. Conservamos los mensajes de comentarios hasta que nos pida que los eliminemos. Google decide cuánto tiempo conserva sus datos publicitarios. Consulte la <0>política de privacidad</0> y las <1>políticas de anuncios</1> de Google. El pago de Premium está pausado actualmente. Cuando se reactive, Stripe conservará los registros de pago según exige la ley. El sitio no conserva registros propios de las solicitudes web. Firebase, el proveedor de alojamiento, y Cloudflare, el proveedor de red, conservan sus registros operativos habituales según sus propias condiciones."
+      "body": "Google Analytics conserva los datos de eventos durante 14 meses. Conserva los datos de usuario durante 14 meses, y el periodo se reinicia cuando vuelves al sitio. Guardamos tu cuenta de Google y los datos de perfil almacenados hasta que solicites su eliminación mediante los datos de contacto que aparecen abajo. Conservamos los mensajes de comentarios hasta que solicites eliminarlos. Google decide cuánto tiempo conserva los datos publicitarios. Consulta la <0>política de privacidad</0> y las <1>políticas de anuncios</1> de Google. Creamos un registro de cada pago de Ko-fi con su identificador y tipo, importe y moneda, meses concedidos, estado, fechas y, cuando corresponde, el identificador de la cuenta vinculada y el método de coincidencia. Solo guardamos el correo, el nombre y el mensaje de quien envía la propina cuando el pago no se concede automáticamente, para revisarlo o aplicarlo manualmente. El sitio no guarda registros propios de las solicitudes web. Firebase y Cloudflare conservan sus registros operativos habituales según sus propias condiciones."
     },
     "children": {
       "heading": "Menores",

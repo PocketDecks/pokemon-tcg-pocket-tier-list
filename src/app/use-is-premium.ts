@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
 interface EntitlementState {
@@ -7,15 +7,7 @@ interface EntitlementState {
   expiresAt: number | null;
 }
 
-const getPremiumSubscriptions = async () => {
-  const [{ getCurrentUserSubscriptions }, payments] = await Promise.all([
-    import("@invertase/firestore-stripe-payments"),
-    import("../config/firebase").then(({ getPayments }) => getPayments()),
-  ]);
-  return getCurrentUserSubscriptions(payments, {
-    status: ["active", "trialing", "past_due"],
-  });
-};
+const MAX_TIMEOUT = 2_147_483_647;
 
 const getEntitlement = async (uid: string): Promise<EntitlementState> => {
   const { doc, getDoc, getFirestore } = await import("firebase/firestore");
@@ -23,52 +15,52 @@ const getEntitlement = async (uid: string): Promise<EntitlementState> => {
   const snapshot = await getDoc(doc(getFirestore(app), "entitlements", uid));
   if (!snapshot.exists()) return { premium: false, expiresAt: null };
   const data = snapshot.data() as { premium?: unknown; expiresAt?: unknown } | undefined;
-  const expiresAt = data?.expiresAt;
-  if (expiresAt === undefined || expiresAt === null) {
-    return { premium: data?.premium === true, expiresAt: null };
+  if (data?.premium !== true) return { premium: false, expiresAt: null };
+
+  const expiresAt = data.expiresAt;
+  if (expiresAt === undefined || expiresAt === null) return { premium: true, expiresAt: null };
+  if (typeof expiresAt !== "object" || expiresAt === null) {
+    return { premium: false, expiresAt: null };
   }
   const toMillis = (expiresAt as { toMillis?: unknown }).toMillis;
   if (typeof toMillis !== "function") return { premium: false, expiresAt: null };
-  return { premium: data?.premium === true, expiresAt: toMillis.call(expiresAt) as number };
+  const millis = toMillis.call(expiresAt);
+  return Number.isFinite(millis)
+    ? { premium: true, expiresAt: millis as number }
+    : { premium: false, expiresAt: null };
+};
+
+const useEntitlement = () => {
+  const { user, loading } = useAuth();
+  const entitlement = useQuery<EntitlementState, Error>({
+    queryKey: ["entitlement", user?.uid ?? null],
+    enabled: !loading && !!user,
+    retry: false,
+    staleTime: 30_000,
+    queryFn: () => getEntitlement(user!.uid),
+  });
+  return { entitlement, user, loading };
 };
 
 const grantsAccess = (entitlement: EntitlementState | undefined): boolean =>
-  !!entitlement &&
-  entitlement.premium &&
+  !!entitlement?.premium &&
   (entitlement.expiresAt === null || entitlement.expiresAt > Date.now());
 
 const useIsPremium = () => {
-  const { user, loading } = useAuth();
-  const enabled = !loading && !!user;
-
-  // Count subscriptions that grant Premium access. "trialing" is essential:
-  // new sign-ups start a 7-day free trial, so their subscription status is
-  // "trialing" (not "active") until the trial ends and the first invoice is
-  // paid. Filtering on "active" alone makes trialing users look non-premium,
-  // which re-shows the upsell and sends them back through Stripe checkout,
-  // some end up with duplicate subscriptions. "past_due" keeps access during
-  // Stripe's payment-retry grace period instead of yanking it on a single
-  // failed renewal.
-  const subscription = useQuery<boolean, Error>({
-    queryKey: ["premium", user?.uid ?? null],
-    enabled,
-    retry: false,
-    queryFn: async () => {
-      const subscriptions = await getPremiumSubscriptions();
-      return subscriptions.length > 0;
-    },
-  });
-
-  const entitlement = useQuery<EntitlementState, Error>({
-    queryKey: ["entitlement", user?.uid ?? null],
-    enabled,
-    retry: false,
-    queryFn: () => getEntitlement(user!.uid),
-  });
+  const { entitlement, user, loading } = useEntitlement();
+  const [now, setNow] = useState<number>(() => Date.now());
+  const expiresAt = entitlement.data?.premium ? entitlement.data.expiresAt : null;
 
   useEffect(() => {
-    if (subscription.error) console.error(subscription.error);
-  }, [subscription.error]);
+    if (expiresAt === null || expiresAt <= now) return;
+    const delay = expiresAt - Date.now();
+    if (delay <= 0) {
+      setNow(Date.now());
+      return;
+    }
+    const timer = setTimeout(() => setNow(Date.now()), Math.min(delay, MAX_TIMEOUT));
+    return () => clearTimeout(timer);
+  }, [expiresAt, now, user?.uid]);
 
   useEffect(() => {
     if (entitlement.error) console.error(entitlement.error);
@@ -76,9 +68,15 @@ const useIsPremium = () => {
 
   if (loading) return null;
   if (!user) return false;
-  if (subscription.data === true || grantsAccess(entitlement.data)) return true;
-  if (subscription.isPending || entitlement.isPending) return null;
-  return false;
+  if (entitlement.data) return grantsAccess(entitlement.data);
+  if (entitlement.error) return false;
+  return entitlement.isPending ? null : false;
+};
+
+export const usePremiumExpiry = (): number | null => {
+  const { entitlement, user, loading } = useEntitlement();
+  if (loading || !user) return null;
+  return entitlement.data?.expiresAt ?? null;
 };
 
 export default useIsPremium;

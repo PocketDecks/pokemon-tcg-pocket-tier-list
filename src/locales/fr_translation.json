@@ -15,13 +15,6 @@
   },
   "premium": {
     "title": "Top Pocket Decks Premium",
-    "manageSubscription": "Gérer l'abonnement",
-    "windDown": {
-      "headline": "Premium est temporairement suspendu 💛",
-      "status": "Top Pocket Decks a un nouveau responsable et continuera de recevoir des mises à jour ! Pendant cette transition, les nouveaux abonnements Premium sont temporairement suspendus et les publicités ont été désactivées pour tout le monde.",
-      "active": "Votre abonnement reste actif et continue de se renouveler jusqu'à ce que vous l'annuliez. Vous pouvez l'annuler à tout moment via le portail de facturation.",
-      "refund": "Vous préférez un remboursement ? Envoyez-moi un e-mail à <0>chase@manning.dev</0> avec l'adresse e-mail de votre compte, j'annulerai votre abonnement et vous rembourserai votre paiement le plus récent. Stripe ne me permet de rembourser que les paiements effectués au cours des 180 derniers jours, donc si le vôtre est plus ancien, je ferai tout mon possible."
-    },
     "features": {
       "title": "Fonctionnalités",
       "free": "Gratuit",
@@ -70,9 +63,9 @@
       },
       "updated": {
         "title": "Mise à jour de la tier list",
-        "description": "La fréquence à laquelle la tier list récupère de nouvelles données. Des mises à jour plus rapides vous aident à garder une longueur d'avance sur la méta.",
-        "free": "Hebdomadaire",
-        "premium": "Quotidien"
+        "description": "Affiche les publications publiques et les données publiées les plus récentes disponibles pour Premium.",
+        "free": "Publications publiques",
+        "premium": "Données publiées les plus récentes"
       },
       "decks": {
         "title": "Decks dans la Tier list",
@@ -80,7 +73,28 @@
         "free": "30",
         "premium": "100"
       }
-    }
+    },
+    "price": "1 £ par mois. Chaque livre donnée ajoute un mois, et les dons suivants prolongent votre accès.",
+    "priceDetails": "Les dons admissibles en GBP ajoutent un mois par livre entière, jusqu’à 120 mois par don ; les fractions n’ajoutent aucun mois. Les dons de 121 £ ou plus et ceux dans une autre devise nécessitent une vérification et ne donnent pas automatiquement accès à Premium.",
+    "cta": "Donner un pourboire sur Ko-fi",
+    "ctaExtend": "Prolonger sur Ko-fi",
+    "emailHint": "Utilisez l’adresse e-mail de votre compte Google ({{email}}) lors du paiement sur Ko-fi et Premium sera activé automatiquement.",
+    "emailHintNoEmail": "Aucune adresse e-mail de compte Google n’est disponible pour le rapprochement automatique. Ouvrez l’option de rapprochement par code ci-dessous et ajoutez votre code au message Ko-fi ; si vous ne pouvez pas obtenir ou utiliser de code, contactez-nous ci-dessous.",
+    "altCodeToggle": "Vous payez depuis une autre adresse e-mail ?",
+    "altCodeHint": "Collez ce code dans le message Ko-fi.",
+    "codeUnavailable": "Votre code n’a pas pu être chargé. Faites plutôt un don avec votre adresse Google ou contactez-nous ci-dessous avec les détails du paiement.",
+    "codeUnavailableNoEmail": "Votre code n’a pas pu être chargé. Contactez-nous ci-dessous avec les détails du paiement.",
+    "waiting": "En attente de votre don… cela prend généralement moins d’une minute.",
+    "checkAgain": "Vérifier à nouveau",
+    "copyFailed": "Impossible de copier le code. Sélectionnez-le et copiez-le manuellement.",
+    "codeLoading": "Préparation de votre code…",
+    "signInFirst": "Connectez-vous d’abord avec Google afin que nous puissions associer votre don à votre compte.",
+    "signIn": "Se connecter avec Google",
+    "copy": "Copier le code",
+    "copied": "Copié",
+    "expires": "Votre accès Premium prend fin le {{date}}.",
+    "lifetime": "Votre accès Premium n’expire pas.",
+    "refund": "Pour demander un remboursement ou signaler un paiement perdu, contactez-nous à <0/> en indiquant l’adresse e-mail de votre compte Google et les détails du paiement."
   },
   "ads": {
     "advertisement": "Publicité",
@@ -319,7 +333,7 @@
       "usage": "<0>Données d'utilisation.</0> Google Analytics enregistre les pages que vous consultez ainsi que les informations habituelles sur l'appareil et le navigateur. Il ne fonctionne qu'après que vous avez accepté l'analyse, ou là où la bannière de consentement de votre région ne demande pas de consentement.",
       "account": "<0>Informations de compte.</0> Si vous vous connectez avec Google, Firebase Authentication nous transmet votre nom, votre adresse e-mail et votre photo de profil. Nous affichons votre nom et votre photo lorsque vous êtes connecté, et nous utilisons votre identifiant de compte pour vérifier si vous avez un accès Premium.",
       "feedback": "<0>Commentaires.</0> Si vous envoyez un commentaire en étant connecté, nous enregistrons votre identifiant de compte, votre message, le sujet que vous avez choisi, la page depuis laquelle vous l'avez envoyé et l'heure d'envoi, dans Cloud Firestore, une base de données exploitée par Google pour Firebase. Nous n'enregistrons votre adresse e-mail avec le message que si vous cochez la case demandant une réponse. Nous conservons aussi l'heure de votre dernier envoi.",
-      "payment": "<0>Paiements.</0> Le paiement Premium est actuellement suspendu. Lorsqu'il sera de nouveau disponible, Stripe traitera les paiements et nous enregistrerons le statut de votre abonnement dans Firestore."
+      "payment": "<0>Dons.</0> Nous créons un enregistrement pour chaque paiement Ko-fi. Il comprend l’identifiant et le type de paiement, le montant et la devise, les mois crédités, le statut, ainsi que les horodatages de réception et de Ko-fi. Lorsqu’un paiement est associé à un compte, l’enregistrement comprend également son identifiant et la méthode de rapprochement. Nous ne conservons l’adresse e-mail, le nom et le message de la personne que lorsque le paiement n’est pas accordé automatiquement, afin de le vérifier ou de l’appliquer manuellement."
     },
     "cookies": {
       "heading": "Cookies et suivi",
@@ -342,7 +356,7 @@
     },
     "legalBasis": {
       "heading": "Base juridique",
-      "body": "Nous nous appuyons sur votre consentement pour l'analyse et la publicité lorsque la bannière de consentement le demande. Pour Premium, nous nous appuyons sur notre contrat avec vous pour fournir l'accès et gérer votre abonnement."
+      "body": "Nous nous appuyons sur votre consentement pour l’analyse et la publicité lorsque la bannière le demande. Nous utilisons les informations de votre compte pour fournir l’accès Premium et examiner les dons qui n’accordent pas automatiquement de nouvelle période Premium."
     },
     "use": {
       "heading": "Comment nous utilisons les informations",
@@ -353,21 +367,21 @@
     },
     "rights": {
       "heading": "Vos droits",
-      "body": "Selon votre lieu de résidence, vous pouvez disposer d'un droit d'accès, de rectification ou de suppression de vos données personnelles, ainsi que d'un droit d'opposition ou de limitation de certains traitements. Pour exercer ces droits, y compris une demande de suppression de vos commentaires ou des informations de votre compte, contactez-nous par les moyens indiqués ci-dessous. Les abonnés Premium ne voient pas de publicité."
+      "body": "Selon votre lieu de résidence, vous pouvez disposer d'un droit d'accès, de rectification ou de suppression de vos données personnelles, ainsi que d'un droit d'opposition ou de limitation de certains traitements. Pour exercer ces droits, y compris une demande de suppression de vos commentaires ou des informations de votre compte, contactez-nous par les moyens indiqués ci-dessous. Les utilisateurs Premium ne voient pas de publicité."
     },
     "thirdParty": {
       "heading": "Services tiers",
       "intro": "Nous faisons appel à des prestataires tiers. Chacun ne reçoit que les informations décrites ici.",
       "analytics": "Google Analytics reçoit les données d'utilisation lorsque l'analyse est autorisée.",
       "adsense": "Google AdSense reçoit les demandes de publicité des visiteurs de l'offre gratuite.",
-      "firebase": "Firebase, un service de Google, assure la connexion, la base de données des commentaires, les enregistrements d'abonnements et l'hébergement du site. Le service d'hébergement reçoit les données techniques de chaque requête, comme votre adresse IP et le type de votre navigateur.",
-      "stripe": "Stripe traite les paiements Premium.",
-      "github": "GitHub diffuse les images des cartes depuis raw.githubusercontent.com lorsqu'une carte est affichée, de sorte que GitHub reçoit votre adresse IP et des informations sur votre navigateur. GitHub, Twitter et le portail de facturation de Stripe ne reçoivent votre visite que si vous suivez leurs liens.",
-      "outro": "Ces prestataires utilisent vos informations conformément à leurs propres politiques de confidentialité."
+      "firebase": "Firebase, un service de Google, gère la connexion, la base de données des commentaires, le stockage des droits d’accès et l’hébergement du site. Le service d’hébergement reçoit des informations techniques sur chaque requête, comme votre adresse IP et votre navigateur.",
+      "github": "GitHub diffuse les images des cartes depuis raw.githubusercontent.com lorsqu’une carte est affichée et reçoit votre adresse IP ainsi que des informations sur votre navigateur. Les sites externes ne reçoivent votre visite que si vous suivez leurs liens.",
+      "outro": "Les sites externes reçoivent votre adresse IP et les informations de votre navigateur si vous suivez leurs liens. Ils utilisent vos informations selon leurs propres politiques de confidentialité.",
+      "kofi": "<0>Ko-fi</0> permet d’envoyer des dons facultatifs pour Premium. Le prestataire de paiement choisi au moment du paiement traite la transaction."
     },
     "retention": {
       "heading": "Durée de conservation des informations",
-      "body": "Google Analytics conserve les données d'événements pendant 14 mois. Il conserve les données utilisateur pendant 14 mois, et cette durée repart à zéro lorsque vous revenez sur le site. Nous conservons votre compte de connexion Google et les champs de profil enregistrés jusqu'à ce que vous demandiez leur suppression, par les coordonnées indiquées ci-dessous. Nous conservons les messages de retour jusqu'à ce que vous nous demandiez de les supprimer. La durée de conservation des données publicitaires est fixée par Google. Consultez la <0>politique de confidentialité</0> et les <1>règles relatives à la publicité</1> de Google. Le paiement Premium est actuellement suspendu. Lorsqu'il sera de nouveau disponible, Stripe conservera les justificatifs de paiement, comme la loi l'exige. Le site ne conserve aucun journal propre des requêtes web. Firebase, notre hébergeur, et Cloudflare, notre fournisseur réseau, conservent leurs journaux d'exploitation standard selon leurs propres conditions."
+      "body": "Google Analytics conserve les données d’événements pendant 14 mois. Il conserve les données utilisateur pendant 14 mois, et cette durée repart à zéro lorsque vous revenez sur le site. Nous conservons votre compte Google et les champs de profil enregistrés jusqu’à ce que vous demandiez leur suppression aux coordonnées ci-dessous. Nous conservons les messages de commentaires jusqu’à une demande de suppression. Google décide de la durée de conservation des données publicitaires. Consultez la <0>politique de confidentialité</0> et les <1>règles relatives à la publicité</1> de Google. Nous créons un enregistrement pour chaque paiement Ko-fi, avec son identifiant et son type, le montant et la devise, les mois crédités, le statut, les horodatages et, le cas échéant, l’identifiant du compte associé et la méthode de rapprochement. L’adresse e-mail, le nom et le message ne sont conservés que lorsque le paiement n’est pas accordé automatiquement, pour vérification ou traitement manuel. Le site ne conserve aucun journal propre des requêtes web. Firebase et Cloudflare conservent leurs journaux d’exploitation habituels selon leurs propres conditions."
     },
     "children": {
       "heading": "Enfants",

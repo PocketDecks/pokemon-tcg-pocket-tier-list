@@ -15,13 +15,6 @@
   },
   "premium": {
     "title": "Top Pocket Decks Premium",
-    "manageSubscription": "Gestionare abonament",
-    "windDown": {
-      "headline": "Serviciul Premium este temporar întrerupt 💛",
-      "status": "Top Pocket Decks are un nou dezvoltator și va continua să primească actualizări! În timpul acestei tranziții, înscrierile noi la Premium sunt temporar întrerupte, iar reclamele au fost dezactivate pentru toată lumea.",
-      "active": "Abonamentul tău rămâne activ și se va reînnoi în continuare până când îl anulezi. Poți anula oricând prin portalul de facturare.",
-      "refund": "Preferi o rambursare? Trimite-mi un e-mail la <0>chase@manning.dev</0> cu adresa de e-mail asociată contului tău, îți voi anula abonamentul și voi rambursa cea mai recentă plată. Stripe îmi permite să rambursez doar plățile efectuate în ultimele 180 de zile, deci dacă a ta este mai veche, voi face tot ce pot."
-    },
     "features": {
       "title": "Funcționalități",
       "free": "Gratuit",
@@ -70,9 +63,9 @@
       },
       "updated": {
         "title": "Clasament actualizat",
-        "description": "Frecvența cu care clasamentul primește date noi. Actualizările mai rapide te ajută să fii mereu cu un pas înaintea meta-ului.",
-        "free": "Săptămânal",
-        "premium": "Zilnic"
+        "description": "Afișează lansările publice și cele mai recente date publicate disponibile pentru Premium.",
+        "free": "Lansări publice",
+        "premium": "Cele mai recente date publicate"
       },
       "decks": {
         "title": "Deck-uri în clasament",
@@ -80,7 +73,28 @@
         "free": "30",
         "premium": "100"
       }
-    }
+    },
+    "price": "1 £ pe lună. Fiecare liră donată adaugă o lună, iar donațiile ulterioare îți prelungesc accesul.",
+    "priceDetails": "Bacșișurile eligibile în GBP adaugă o lună pentru fiecare liră întreagă, până la 120 de luni per bacșiș; fracțiunile nu adaugă luni. Bacșișurile de 121 £ sau mai mult și cele în alte monede necesită verificare și nu acordă automat Premium.",
+    "cta": "Lasă un bacșiș pe Ko-fi",
+    "ctaExtend": "Prelungește pe Ko-fi",
+    "emailHint": "Folosește adresa de e-mail a contului tău Google ({{email}}) la plata pe Ko-fi și Premium se activează automat.",
+    "emailHintNoEmail": "Nu există o adresă de e-mail a contului Google pentru potrivirea automată. Deschide mai jos opțiunea de potrivire prin cod și include codul în mesajul Ko-fi; dacă nu poți obține sau folosi un cod, contactează-ne mai jos.",
+    "altCodeToggle": "Plătești de pe altă adresă de e-mail?",
+    "altCodeHint": "Lipește acest cod în mesajul Ko-fi.",
+    "codeUnavailable": "Codul nu a putut fi încărcat. Trimite bacșiș folosind e-mailul contului Google sau contactează-ne mai jos cu detaliile plății.",
+    "codeUnavailableNoEmail": "Codul nu a putut fi încărcat. Contactează-ne mai jos cu detaliile plății.",
+    "waiting": "Așteptăm bacșișul tău… de obicei durează sub un minut.",
+    "checkAgain": "Verifică din nou",
+    "copyFailed": "Codul nu a putut fi copiat. Selectează-l și copiază-l manual.",
+    "codeLoading": "Se pregătește codul…",
+    "signInFirst": "Conectează-te mai întâi cu Google pentru a putea asocia bacșișul contului tău.",
+    "signIn": "Conectare cu Google",
+    "copy": "Copiază codul",
+    "copied": "Copiat",
+    "expires": "Accesul Premium se încheie la {{date}}.",
+    "lifetime": "Accesul Premium nu expiră.",
+    "refund": "Pentru rambursări sau plăți pierdute, contactează-ne la <0/> și include adresa de e-mail a contului Google și detaliile plății."
   },
   "ads": {
     "advertisement": "Reclamă",
@@ -319,7 +333,7 @@
       "usage": "<0>Date de utilizare.</0> Google Analytics înregistrează paginile pe care le vizualizați și datele standard despre dispozitiv și browser. Rulează doar după ce acceptați analiza sau acolo unde bannerul de consimțământ din regiunea dumneavoastră nu cere consimțământ.",
       "account": "<0>Informații despre cont.</0> Dacă vă conectați cu Google, Firebase Authentication ne furnizează numele, adresa de e-mail și fotografia de profil. Vă afișăm numele și fotografia cât timp sunteți conectat, iar ID-ul contului îl folosim pentru a verifica dacă aveți acces Premium.",
       "feedback": "<0>Feedback.</0> Dacă trimiteți feedback în timp ce sunteți conectat, salvăm ID-ul contului, mesajul, tema aleasă, pagina de unde l-ați trimis și momentul trimiterii, în Cloud Firestore, o bază de date administrată de Google pentru Firebase. Vă salvăm adresa de e-mail împreună cu mesajul doar dacă bifați caseta prin care cereți un răspuns. Păstrăm și momentul ultimei trimiteri.",
-      "payment": "<0>Plăți.</0> Plata pentru Premium este momentan suspendată. Când va fi din nou disponibilă, Stripe va procesa plățile, iar noi vom stoca starea abonamentului dvs. în Firestore."
+      "payment": "<0>Bacșișuri.</0> Creăm o înregistrare pentru fiecare plată Ko-fi. Aceasta include identificatorul și tipul plății, suma și moneda, lunile acordate, starea și marcajele temporale ale primirii și Ko-fi. Dacă plata este asociată unui cont, înregistrarea include și identificatorul contului și metoda de potrivire. Păstrăm e-mailul, numele și mesajul persoanei care trimite bacșișul numai când plata nu este acordată automat, pentru verificare sau aplicare manuală."
     },
     "cookies": {
       "heading": "Cookie-uri și urmărire",
@@ -342,7 +356,7 @@
     },
     "legalBasis": {
       "heading": "Temeiul juridic",
-      "body": "Ne bazăm pe consimțământul dumneavoastră pentru analiză și publicitate acolo unde bannerul de consimțământ îl cere. Pentru Premium, ne bazăm pe contractul cu dumneavoastră pentru a asigura accesul și a gestiona abonamentul."
+      "body": "Ne bazăm pe consimțământul tău pentru analiză și publicitate atunci când bannerul solicită acest lucru. Folosim datele contului pentru a oferi acces Premium și a verifica bacșișurile care nu acordă automat timp Premium nou."
     },
     "use": {
       "heading": "Cum folosim informațiile",
@@ -353,21 +367,21 @@
     },
     "rights": {
       "heading": "Drepturile dumneavoastră",
-      "body": "În funcție de locul în care vă aflați, puteți avea dreptul de a accesa, corecta sau șterge datele dumneavoastră personale, sau dreptul de a vă opune sau de a restricționa anumite prelucrări. Pentru a vă exercita aceste drepturi, inclusiv o cerere de ștergere a feedbackului sau a informațiilor din cont, contactați-ne prin datele de mai jos. Abonații Premium nu văd reclame."
+      "body": "În funcție de locul în care vă aflați, puteți avea dreptul de a accesa, corecta sau șterge datele dumneavoastră personale, sau dreptul de a vă opune sau de a restricționa anumite prelucrări. Pentru a vă exercita aceste drepturi, inclusiv o cerere de ștergere a feedbackului sau a informațiilor din cont, contactați-ne prin datele de mai jos. Utilizatorii Premium nu văd reclame."
     },
     "thirdParty": {
       "heading": "Servicii terțe",
       "intro": "Colaborăm cu furnizori terți. Fiecare primește doar informațiile descrise aici.",
       "analytics": "Google Analytics primește date de utilizare acolo unde analiza este permisă.",
       "adsense": "Google AdSense primește cererile de reclame de la vizitatorii din planul gratuit.",
-      "firebase": "Firebase, un serviciu Google, asigură autentificarea, baza de date a feedbackului, înregistrările abonamentelor și găzduirea site-ului. Serviciul de găzduire primește detalii tehnice despre fiecare cerere, cum ar fi adresa IP și tipul browserului.",
-      "stripe": "Stripe procesează plățile Premium.",
-      "github": "GitHub livrează imaginile cărților de la raw.githubusercontent.com atunci când o carte este afișată, deci GitHub primește adresa IP și datele browserului. GitHub, Twitter și portalul de facturare al Stripe primesc vizita dumneavoastră doar dacă urmați linkurile lor.",
-      "outro": "Acești furnizori folosesc informațiile dumneavoastră conform propriilor politici de confidențialitate."
+      "firebase": "Firebase, un serviciu Google, gestionează autentificarea, baza de date pentru feedback, stocarea drepturilor de acces și găzduirea site-ului. Serviciul de găzduire primește detalii tehnice despre fiecare solicitare, precum adresa IP și browserul.",
+      "github": "GitHub livrează imaginile cărților de la raw.githubusercontent.com atunci când o carte este afișată, deci primește adresa IP și datele browserului. Site-urile externe primesc vizita doar dacă le accesezi linkurile.",
+      "outro": "Site-urile externe primesc adresa IP și datele browserului dacă le accesezi linkurile. Acestea îți folosesc informațiile conform propriilor politici de confidențialitate.",
+      "kofi": "<0>Ko-fi</0> permite trimiterea de bacșișuri opționale pentru Premium. Furnizorul de plăți ales la finalizarea plății procesează tranzacția."
     },
     "retention": {
       "heading": "Cât timp păstrăm informațiile",
-      "body": "Google Analytics păstrează datele evenimentelor timp de 14 luni. Păstrează datele utilizatorilor timp de 14 luni, iar această perioadă se reia când reveniți pe site. Păstrăm contul dvs. de conectare Google și câmpurile de profil salvate până când cereți ștergerea, prin datele de contact de mai jos. Păstrăm mesajele de feedback până când ne cereți să le ștergem. Perioada de păstrare a datelor publicitare este stabilită de Google. Consultați <0>politica de confidențialitate</0> și <1>politicile privind publicitatea</1> ale Google. Plata pentru Premium este momentan suspendată. Când va fi din nou disponibilă, Stripe păstrează înregistrările de plată, cum cere legea. Site-ul nu păstrează jurnale proprii ale cererilor web. Firebase, furnizorul de găzduire, și Cloudflare, furnizorul de rețea, își păstrează jurnalele operaționale standard conform propriilor condiții."
+      "body": "Google Analytics păstrează datele despre evenimente timp de 14 luni. Păstrează datele utilizatorilor timp de 14 luni, iar perioada se reia când revii pe site. Păstrăm contul Google și câmpurile de profil salvate până când soliciți ștergerea lor folosind datele de contact de mai jos. Păstrăm mesajele de feedback până când soliciți ștergerea lor. Google decide cât timp păstrează datele publicitare. Consultă <0>politica de confidențialitate</0> și <1>politicile privind anunțurile</1> Google. Creăm o înregistrare pentru fiecare plată Ko-fi, cu identificatorul și tipul, suma și moneda, lunile acordate, starea, marcajele temporale și, dacă este cazul, identificatorul contului asociat și metoda de potrivire. E-mailul, numele și mesajul sunt păstrate numai când plata nu este acordată automat, pentru verificare sau aplicare manuală. Site-ul nu păstrează propriile jurnale de solicitări web. Firebase și Cloudflare păstrează jurnalele operaționale obișnuite conform propriilor condiții."
     },
     "children": {
       "heading": "Copii",

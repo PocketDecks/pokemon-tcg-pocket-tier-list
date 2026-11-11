@@ -15,10 +15,6 @@ vi.mock("firebase/firestore", () => {
   };
 });
 
-vi.mock("@invertase/firestore-stripe-payments", () => ({
-  getCurrentUserSubscriptions: vi.fn().mockResolvedValue([]),
-}));
-
 vi.mock("../../contexts/AuthContext", () => ({
   useAuth: vi.fn(),
 }));
@@ -26,7 +22,6 @@ vi.mock("../../contexts/AuthContext", () => ({
 vi.mock("../../config/firebase", () => ({
   __esModule: true,
   default: { name: "app" },
-  getPayments: vi.fn().mockResolvedValue({}),
 }));
 
 const Probe = () => {

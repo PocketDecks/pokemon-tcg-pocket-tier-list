@@ -73,11 +73,48 @@ describe("translation key parity", () => {
     }
   });
 
+  it("contains no removed payment processor or wind-down copy", () => {
+    const localeDataSet = [
+      ...Object.entries(locales),
+      ["en_seo", enSeo],
+      ["ja_seo", jaSeo],
+    ];
+    for (const [, localeData] of localeDataSet) {
+      const strings = Object.values(localeData as Record<string, unknown>);
+      const collect = (value: unknown): string[] =>
+        typeof value === "string"
+          ? [value]
+          : value && typeof value === "object"
+            ? Object.values(value).flatMap(collect)
+            : [];
+      expect(collect(strings).join(" ")).not.toMatch(/stripe|wind.?down/i);
+    }
+  });
+
   it.each(Object.entries(locales))("%s consent copy names Canada", (locale, localeData) => {
     const consent = (localeData as { privacyPage: { consent: { heading: string; body: string } } })
       .privacyPage.consent;
     expect(consent.heading).toContain(canadaNames[locale]);
     expect(consent.body).toContain(canadaNames[locale]);
+  });
+
+  const adFreePremiumCopy: Record<string, string> = {
+    de: "Premium-Mitglieder sehen keine Werbung.",
+    en: "Premium users do not see ads.",
+    es: "Los usuarios Premium no ven anuncios.",
+    fr: "Les utilisateurs Premium ne voient pas de publicité.",
+    it: "Gli utenti Premium non vedono annunci.",
+    ja: "Premium 会員には広告は表示されません。",
+    ko: "Premium 사용자에게는 광고가 표시되지 않습니다.",
+    pt: "Os utilizadores Premium não veem anúncios.",
+    ro: "Utilizatorii Premium nu văd reclame.",
+    "zh-CN": "Premium 用户不会看到广告。",
+    "zh-TW": "Premium 使用者不會看到廣告。",
+  };
+
+  it.each(Object.entries(locales))("%s describes Premium ad-free users neutrally", (locale, localeData) => {
+    const body = (localeData as { privacyPage: { rights: { body: string } } }).privacyPage.rights.body;
+    expect(body).toContain(adFreePremiumCopy[locale]);
   });
 });
 

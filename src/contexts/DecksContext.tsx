@@ -463,8 +463,9 @@ const tierOf = (isPremium: boolean | null): ArtefactTier =>
 
 const useDecksData = (window: MetaWindow) => {
   const isPremium = useIsPremium();
+  const tier = isPremiumMetaWindow(window) ? tierOf(isPremium) : "public";
   return useQuery({
-    queryKey: ["decks", window],
+    queryKey: ["decks", window, tier],
     queryFn: () => fetchDeckData(window),
     ...windowQueryOptions(window, isPremium),
   });

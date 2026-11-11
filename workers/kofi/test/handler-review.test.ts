@@ -282,12 +282,16 @@ describe("review and matching", () => {
     expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ uid, matchedBy: "code" });
   });
 
-  it("does not match a lower-case code", async () => {
+  it("matches a lower-case code after normalising it", async () => {
     const { post, google } = setup();
+    google.addUser("code@example.com", "uidcode");
     google.seed("premiumCodes/PD-ABC123", { uid: "uidcode" });
     await post(payment({ message: "pd-abc123" }));
-    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ status: "unmatched" });
-    expect(google.calls.some((call) => call.url.includes("premiumCodes"))).toBe(false);
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
+      uid: "uidcode",
+      matchedBy: "code",
+    });
+    expect(google.calls.some((call) => call.url.includes("premiumCodes"))).toBe(true);
   });
 
   it("ignores a code glued to other letters", async () => {

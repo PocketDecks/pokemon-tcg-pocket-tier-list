@@ -70,6 +70,12 @@ interface CodeResult {
   failed: boolean;
 }
 
+interface CopyFeedback {
+  uid: string;
+  code: string;
+  status: "copied" | "failed";
+}
+
 const Premium = ({ variant = "default", linkLabel }: Props) => {
   const { t, i18n } = useTranslation();
   const isPremium = useIsPremium();
@@ -77,16 +83,13 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
   const { user, signInWithGoogle } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [codeResult, setCodeResult] = useState<CodeResult | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [copyFailed, setCopyFailed] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState<CopyFeedback | null>(null);
 
   useEffect(() => {
     const uid = user?.uid;
     if (!isOpen || !uid || (isPremium && expiresAt === null)) return;
     let active = true;
     setCodeResult((current) => (current?.uid === uid ? current : null));
-    setCopied(false);
-    setCopyFailed(false);
     void loadPremiumCode(uid).then(
       (code) => {
         if (active) setCodeResult({ uid, code, failed: false });
@@ -104,13 +107,24 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
 
   const isLink = variant === "link";
   const currentCode = codeResult?.uid === user?.uid ? codeResult : null;
+  const copyStatus =
+    copyFeedback &&
+    currentCode &&
+    copyFeedback.uid === currentCode.uid &&
+    copyFeedback.code === currentCode.code
+      ? copyFeedback.status
+      : null;
   const premiumState = isPremium ? (expiresAt === null ? "lifetime" : "expires") : "free";
   const date = expiresAt === null ? "" : new Intl.DateTimeFormat(i18n.language, {
     day: "numeric",
     month: "long",
     year: "numeric",
   }).format(new Date(expiresAt));
-  const mailLink = <InlineLink href={`mailto:${CONTACT_EMAIL}`} key="email" />;
+  const mailLink = (
+    <InlineLink href={`mailto:${CONTACT_EMAIL}`} key="email">
+      {CONTACT_EMAIL}
+    </InlineLink>
+  );
   const kofiLink = (
     <InlineLink href={KOFI_URL} target="_blank" rel="noopener noreferrer" key="kofi">
       {t("premium.tip")}
@@ -118,16 +132,17 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
   );
 
   const copyCode = async () => {
-    if (!currentCode?.code || !navigator.clipboard?.writeText) {
-      setCopyFailed(true);
+    if (!currentCode?.code) return;
+    const feedback = { uid: currentCode.uid, code: currentCode.code };
+    if (!navigator.clipboard?.writeText) {
+      setCopyFeedback({ ...feedback, status: "failed" });
       return;
     }
     try {
       await navigator.clipboard.writeText(currentCode.code);
-      setCopied(true);
-      setCopyFailed(false);
+      setCopyFeedback({ ...feedback, status: "copied" });
     } catch {
-      setCopyFailed(true);
+      setCopyFeedback({ ...feedback, status: "failed" });
     }
   };
 
@@ -138,12 +153,17 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
           {linkLabel ?? t("ads.removeAds")}
         </RemoveAdsLink>
       )}
-      {!isLink && isPremium && (
-        <Button onClick={() => setIsOpen(true)} aria-label={t("premium.title")}>
+      {!isLink && (isPremium || user) && (
+        <Button
+          onClick={() => setIsOpen(true)}
+          aria-label={t("premium.title")}
+          title={t("premium.title")}
+        >
           <PremiumIcon src={premiumIcon} alt="" />
+          {!isPremium && t("premium.title")}
         </Button>
       )}
-      {(isPremium || isLink) && (
+      {(isPremium || isLink || user) && (
         <Popup
           width="60rem"
           isOpen={isOpen}
@@ -171,12 +191,12 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
                     <Text>
                       <code>{currentCode.code}</code>{" "}
                       <Button aria-live="polite" onClick={() => void copyCode()}>
-                        {t(copied ? "premium.copied" : "premium.copy")}
+                        {t(copyStatus === "copied" ? "premium.copied" : "premium.copy")}
                       </Button>
                     </Text>
                   )}
                   {!currentCode && <Text role="status">{t("premium.codeLoading")}</Text>}
-                  {(currentCode?.failed || copyFailed) && (
+                  {(currentCode?.failed || copyStatus === "failed") && (
                     <Text role="status">{t("premium.codeError")}</Text>
                   )}
                   <Text>{kofiLink}</Text>

@@ -78,7 +78,7 @@
     "sourcesHeading": "Data sources and ranking method",
     "sources": "Tournament data comes from <0>Limitless</0>. The ranking model weighs tournament participation, win rates, and top-cut performance. Card data comes from the open-source <1>pokemon-tcg-pocket-cards</1> project.",
     "premiumHeading": "Premium",
-    "premium": "<0>The core tools are free.</0> Premium removes ads and adds detailed matchups, advanced filters, alternative rankings, more decks, and faster updates. Each whole GBP 1 buys one calendar month, and later tips extend your existing expiry. <1>Support Premium on Ko-fi</1>. Sign in with Google first so your tip can be matched to your account.",
+    "premium": "<0>The core tools are free.</0> Premium removes ads and adds detailed matchups, advanced filters, alternative rankings, more decks, and faster updates. Each whole GBP 1 buys one calendar month, and later tips extend your existing expiry. <1>Support Premium on Ko-fi</1>. Sign in with Google first so your tip can be matched to your account. If the email used at Ko-fi differs, use the verified email address on your Google account or get the code from the Premium popup and paste it into the Ko-fi message.",
     "openSourceHeading": "Open source",
     "openSource": "Top Pocket Decks is open source. You can review the code on <0>GitHub</0>.",
     "contactHeading": "Contact",

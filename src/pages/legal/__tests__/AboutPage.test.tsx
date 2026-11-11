@@ -43,5 +43,8 @@ describe("AboutPage", () => {
     const link = screen.getByRole("link", { name: /ko-fi/i });
     expect(link).toHaveAttribute("href", "https://ko-fi.com/dalin");
     expect(screen.getByText(/whole GBP 1 buys one calendar month/i)).toBeInTheDocument();
+    expect(screen.getByRole("article")).toHaveTextContent(
+      /verified email address on your Google account or get the code from the Premium popup/i
+    );
   });
 });

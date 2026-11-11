@@ -97,6 +97,26 @@ describe("translation key parity", () => {
     expect(consent.heading).toContain(canadaNames[locale]);
     expect(consent.body).toContain(canadaNames[locale]);
   });
+
+  const adFreePremiumCopy: Record<string, string> = {
+    de: "Premium-Mitglieder sehen keine Werbung.",
+    en: "Premium users do not see ads.",
+    es: "Los usuarios Premium no ven anuncios.",
+    fr: "Les utilisateurs Premium ne voient pas de publicité.",
+    it: "Gli utenti Premium non vedono annunci.",
+    ja: "Premium 会員には広告は表示されません。",
+    ko: "Premium 사용자에게는 광고가 표시되지 않습니다.",
+    pt: "Os utilizadores Premium não veem anúncios.",
+    ro: "Utilizatorii Premium nu văd reclame.",
+    "zh-CN": "Premium 用户不会看到广告。",
+    "zh-TW": "Premium 使用者不會看到廣告。",
+  };
+
+  it.each(Object.entries(locales))("%s describes Premium ad-free users neutrally", (locale, localeData) => {
+    const body = (localeData as { privacyPage: { rights: { body: string } } }).privacyPage.rights.body;
+    expect(body).toContain(adFreePremiumCopy[locale]);
+    expect(body).not.toMatch(/subscriber|abonn|suscriptor|abbonat|subscri|구독|订阅|訂閱/i);
+  });
 });
 
 // Only en and ja ship SEO prose; the other nine fall back to English.

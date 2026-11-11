@@ -154,4 +154,44 @@ describe("Premium", () => {
     await act(async () => { resolveFirst("PD-AAAAAA"); });
     expect(screen.queryByText("PD-AAAAAA")).not.toBeInTheDocument();
   });
+
+  it.each(["resolve", "reject"] as const)(
+    "ignores a late clipboard %s after the account changes",
+    async (outcome) => {
+      let finishClipboard!: () => void;
+      let failClipboard!: (error: Error) => void;
+      const pendingClipboard = new Promise<void>((resolve, reject) => {
+        finishClipboard = resolve;
+        failClipboard = reject;
+      });
+      vi.mocked(useAuth).mockReturnValue(authValue({ uid: "account-a", email: "a@example.com" }));
+      vi.mocked(loadPremiumCode).mockImplementation((uid) =>
+        Promise.resolve(uid === "account-a" ? "PD-AAAAAA" : "PD-BBBBBB")
+      );
+      const user = userEvent.setup();
+      const view = render(<Premium variant="link" linkLabel="Remove ads" />);
+      await user.click(screen.getByRole("button", { name: "Remove ads" }));
+      await screen.findByText("PD-AAAAAA");
+
+      const clipboardWrite = vi.fn(() => pendingClipboard);
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: { writeText: clipboardWrite },
+      });
+      await user.click(screen.getByRole("button", { name: copy["premium.copy"] }));
+      expect(clipboardWrite).toHaveBeenCalledWith("PD-AAAAAA");
+
+      vi.mocked(useAuth).mockReturnValue(authValue({ uid: "account-b", email: "b@example.com" }));
+      view.rerender(<Premium variant="link" linkLabel="Remove ads" />);
+      await screen.findByText("PD-BBBBBB");
+
+      await act(async () => {
+        if (outcome === "resolve") finishClipboard();
+        else failClipboard(new Error("clipboard failed"));
+      });
+      expect(screen.getByRole("button", { name: copy["premium.copy"] })).toBeInTheDocument();
+      expect(screen.queryByText(copy["premium.copied"])).not.toBeInTheDocument();
+      expect(screen.queryByText(copy["premium.codeError"])).not.toBeInTheDocument();
+    }
+  );
 });

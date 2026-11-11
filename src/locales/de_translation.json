@@ -74,14 +74,16 @@
         "premium": "100"
       }
     },
-    "price": "£1 pro Monat. Automatische Freischaltungen gelten nur für berechtigte GBP-Trinkgelder: Je ganzem £1 kommt ein Kalendermonat hinzu, höchstens 120 Monate pro Trinkgeld. Pence-Anteile zählen nicht. GBP-Trinkgelder ab £121 und Zahlungen in anderen Währungen müssen geprüft werden und schalten Premium nicht automatisch frei. Spätere berechtigte Trinkgelder verlängern deinen bestehenden Ablaufzeitpunkt.",
+    "price": "£1 pro Monat. Jeder £1 Trinkgeld fügt einen Monat hinzu, und spätere Trinkgelder verlängern deinen Zugang.",
+    "priceDetails": "Berechtigte Trinkgelder in GBP verlängern den Zugang um einen Monat pro ganzem £1, höchstens 120 Monate pro Trinkgeld; Bruchteile bringen keine zusätzlichen Monate. Trinkgelder ab £121 und Trinkgelder in anderen Währungen müssen geprüft werden und schalten Premium nicht automatisch frei.",
     "cta": "Auf Ko-fi Trinkgeld geben",
     "ctaExtend": "Auf Ko-fi verlängern",
     "emailHint": "Verwende an der Ko-fi-Kasse die E-Mail-Adresse deines Google-Kontos ({{email}}), dann wird Premium automatisch aktiviert.",
     "emailHintNoEmail": "Für den automatischen Abgleich ist keine Google-Konto-E-Mail verfügbar. Öffne unten den Code-Abgleich und füge deinen Code in die Ko-fi-Nachricht ein. Wenn du keinen Code erhalten oder verwenden kannst, kontaktiere uns unten.",
     "altCodeToggle": "Zahlung von einer anderen E-Mail-Adresse?",
     "altCodeHint": "Füge diesen Code in die Ko-fi-Nachricht ein.",
-    "codeUnavailable": "Ein Code ist gerade nicht verfügbar. Ohne Google-Konto-E-Mail ist kein automatischer Abgleich möglich. Kontaktiere uns unten mit deinen Zahlungsdaten, damit wir die Zahlung prüfen können.",
+    "codeUnavailable": "Dein Code konnte nicht geladen werden. Spende stattdessen über deine Google-E-Mail-Adresse oder kontaktiere uns unten mit deinen Zahlungsdaten.",
+    "codeUnavailableNoEmail": "Dein Code konnte nicht geladen werden. Kontaktiere uns unten mit deinen Zahlungsdaten.",
     "waiting": "Wir warten auf dein Trinkgeld… das dauert meist weniger als eine Minute.",
     "checkAgain": "Erneut prüfen",
     "copyFailed": "Der Code konnte nicht kopiert werden. Markiere ihn und kopiere ihn manuell.",

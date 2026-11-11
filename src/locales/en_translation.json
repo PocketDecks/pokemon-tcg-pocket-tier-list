@@ -74,14 +74,16 @@
         "premium": "100"
       }
     },
-    "price": "£1 per month. Automatic grants apply only to eligible GBP tips: each whole £1 adds one calendar month, up to 120 months per tip. Fractional pounds do not count. GBP tips of £121 or more and tips in other currencies need review and grant no Premium automatically. Later eligible tips extend your existing expiry.",
+    "price": "£1 a month. Each £1 you tip adds a month, and later tips extend your access.",
+    "priceDetails": "Eligible GBP tips add one month per whole £1, up to 120 months per tip; fractions add no months. Tips of £121 or more and tips in other currencies need review and grant no Premium automatically.",
     "cta": "Tip on Ko-fi",
     "ctaExtend": "Extend on Ko-fi",
     "emailHint": "Use the email address on your Google account ({{email}}) at Ko-fi checkout and Premium is added automatically.",
     "emailHintNoEmail": "No Google account email is available for automatic matching. Open code matching below and include your code in the Ko-fi message; if you cannot get or use a code, contact us below.",
     "altCodeToggle": "Paying from a different email?",
     "altCodeHint": "Paste this code into the Ko-fi message.",
-    "codeUnavailable": "A code is unavailable right now. Without a Google account email, we cannot match automatically. Contact us below with your payment details so we can review it.",
+    "codeUnavailable": "Your code could not be loaded. Tip from your Google email instead, or contact us below with your payment details.",
+    "codeUnavailableNoEmail": "Your code could not be loaded. Contact us below with your payment details.",
     "waiting": "Waiting for your tip to arrive… this usually takes under a minute.",
     "checkAgain": "Check again",
     "copyFailed": "Could not copy the code. Select it and copy it manually.",

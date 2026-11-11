@@ -99,6 +99,9 @@ describe("Premium", () => {
     expect(within(dialog).getByText(en.premium.features.removeAds.title)).toBeInTheDocument();
     expect(within(dialog).getByText(en.premium.features.removeAds.description)).toBeInTheDocument();
     expect(within(dialog).getByText(en.premium.price)).toBeInTheDocument();
+    const refund = within(dialog).getByText(en.premium.refund.replace("<0/>", contact));
+    const priceDetails = within(dialog).getByText(en.premium.priceDetails);
+    expect(refund.compareDocumentPosition(priceDetails) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(within(dialog).getByText(en.premium.signInFirst)).toBeInTheDocument();
     await user.click(within(dialog).getByRole("button", { name: en.premium.signIn }));
     expect(spies.signInWithGoogle).toHaveBeenCalledOnce();
@@ -182,6 +185,16 @@ describe("Premium", () => {
     expect(within(dialog).queryByText(/PD-/)).not.toBeInTheDocument();
     expect(within(dialog).queryByText(/permission-denied/)).not.toBeInTheDocument();
     expect(within(dialog).getByRole("link", { name: en.premium.cta })).toBeInTheDocument();
+  });
+
+  it("shows a contact fallback after code failure when the account has no email", async () => {
+    vi.mocked(useAuth).mockReturnValue(signedIn(null));
+    vi.mocked(loadPremiumCode).mockRejectedValue(new Error("permission-denied"));
+    const { user, dialog } = await openLinkPopup();
+    await expandCodeSection(user);
+    expect(await within(dialog).findByText(en.premium.codeUnavailableNoEmail)).toBeInTheDocument();
+    expect(within(dialog).queryByText(en.premium.codeUnavailable)).not.toBeInTheDocument();
+    expect(within(dialog).queryByText(/Google email/i)).not.toBeInTheDocument();
   });
 
   it("shows the manual-copy line when the clipboard rejects", async () => {
@@ -270,6 +283,9 @@ describe("Premium", () => {
     expect(cta).toHaveAttribute("rel", "noopener noreferrer");
     expect(within(dialog).getByText(emailHintFor("player@example.com"))).toBeInTheDocument();
     expect(within(dialog).getByText(en.premium.price)).toBeInTheDocument();
+    const refund = within(dialog).getByText(en.premium.refund.replace("<0/>", contact));
+    const priceDetails = within(dialog).getByText(en.premium.priceDetails);
+    expect(refund.compareDocumentPosition(priceDetails) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(within(dialog).queryByRole("table")).not.toBeInTheDocument();
   });
 
@@ -282,6 +298,7 @@ describe("Premium", () => {
     expect(within(dialog).queryByRole("table")).not.toBeInTheDocument();
     expect(within(dialog).queryByRole("link", { name: en.premium.cta })).not.toBeInTheDocument();
     expect(within(dialog).queryByText(en.premium.refund.replace("<0/>", contact))).not.toBeInTheDocument();
+    expect(within(dialog).queryByText(en.premium.priceDetails)).not.toBeInTheDocument();
     expect(loadPremiumCode).not.toHaveBeenCalled();
   });
 

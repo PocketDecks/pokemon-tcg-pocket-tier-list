@@ -74,14 +74,16 @@
         "premium": "100"
       }
     },
-    "price": "1 £ par mois. L’octroi automatique concerne uniquement les dons admissibles en GBP : chaque livre entière ajoute un mois civil, jusqu’à 120 mois par don. Les fractions de livre ne comptent pas. Les dons de 121 £ ou plus et ceux dans une autre devise nécessitent une vérification et ne donnent pas automatiquement accès à Premium. Les dons admissibles suivants prolongent votre date d’expiration actuelle.",
+    "price": "1 £ par mois. Chaque livre donnée ajoute un mois, et les dons suivants prolongent votre accès.",
+    "priceDetails": "Les dons admissibles en GBP ajoutent un mois par livre entière, jusqu’à 120 mois par don ; les fractions n’ajoutent aucun mois. Les dons de 121 £ ou plus et ceux dans une autre devise nécessitent une vérification et ne donnent pas automatiquement accès à Premium.",
     "cta": "Donner un pourboire sur Ko-fi",
     "ctaExtend": "Prolonger sur Ko-fi",
     "emailHint": "Utilisez l’adresse e-mail de votre compte Google ({{email}}) lors du paiement sur Ko-fi et Premium sera activé automatiquement.",
     "emailHintNoEmail": "Aucune adresse e-mail de compte Google n’est disponible pour le rapprochement automatique. Ouvrez l’option de rapprochement par code ci-dessous et ajoutez votre code au message Ko-fi ; si vous ne pouvez pas obtenir ou utiliser de code, contactez-nous ci-dessous.",
     "altCodeToggle": "Vous payez depuis une autre adresse e-mail ?",
     "altCodeHint": "Collez ce code dans le message Ko-fi.",
-    "codeUnavailable": "Le code est indisponible pour le moment. Sans adresse e-mail de compte Google, le rapprochement automatique est impossible. Contactez-nous ci-dessous avec les détails du paiement afin que nous puissions le vérifier.",
+    "codeUnavailable": "Votre code n’a pas pu être chargé. Faites plutôt un don avec votre adresse Google ou contactez-nous ci-dessous avec les détails du paiement.",
+    "codeUnavailableNoEmail": "Votre code n’a pas pu être chargé. Contactez-nous ci-dessous avec les détails du paiement.",
     "waiting": "En attente de votre don… cela prend généralement moins d’une minute.",
     "checkAgain": "Vérifier à nouveau",
     "copyFailed": "Impossible de copier le code. Sélectionnez-le et copiez-le manuellement.",

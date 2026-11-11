@@ -74,14 +74,16 @@
         "premium": "100"
       }
     },
-    "price": "1 £ por mês. A atribuição automática aplica-se apenas a gorjetas elegíveis em GBP: cada libra inteira acrescenta um mês de calendário, até 120 meses por gorjeta. As frações de libra não contam. Gorjetas de 121 £ ou mais e noutras moedas precisam de revisão e não ativam o Premium automaticamente. As próximas gorjetas elegíveis prolongam a data de validade existente.",
+    "price": "1 £ por mês. Cada libra que oferecer acrescenta um mês, e as ofertas seguintes prolongam o seu acesso.",
+    "priceDetails": "As gorjetas elegíveis em GBP acrescentam um mês por cada libra inteira, até 120 meses por gorjeta; as frações não acrescentam meses. Gorjetas de 121 £ ou mais e noutras moedas precisam de revisão e não ativam o Premium automaticamente.",
     "cta": "Dar gorjeta no Ko-fi",
     "ctaExtend": "Prolongar no Ko-fi",
     "emailHint": "Utilize o endereço de e-mail da sua conta Google ({{email}}) no pagamento do Ko-fi e o Premium é ativado automaticamente.",
     "emailHintNoEmail": "Não há um e-mail da conta Google disponível para correspondência automática. Abra abaixo a opção de correspondência por código e inclua o código na mensagem do Ko-fi; se não puder obter ou usar um código, contacte-nos abaixo.",
     "altCodeToggle": "Paga a partir de outro e-mail?",
     "altCodeHint": "Cole este código na mensagem do Ko-fi.",
-    "codeUnavailable": "O código não está disponível neste momento. Sem um e-mail da conta Google, não é possível fazer a correspondência automática. Contacte-nos abaixo com os dados do pagamento para o podermos analisar.",
+    "codeUnavailable": "Não foi possível carregar o seu código. Faça uma gorjeta com o seu e-mail Google ou contacte-nos abaixo com os dados do pagamento.",
+    "codeUnavailableNoEmail": "Não foi possível carregar o seu código. Contacte-nos abaixo com os dados do pagamento.",
     "waiting": "A aguardar a sua gorjeta… normalmente demora menos de um minuto.",
     "checkAgain": "Verificar novamente",
     "copyFailed": "Não foi possível copiar o código. Selecione-o e copie manualmente.",

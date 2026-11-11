@@ -426,7 +426,9 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
               {isAltOpen && (
                 <AltSection>
                   {currentCode?.failed ? (
-                    <Text role="status">{t("premium.codeUnavailable")}</Text>
+                    <Text role="status">
+                      {t(user?.email ? "premium.codeUnavailable" : "premium.codeUnavailableNoEmail")}
+                    </Text>
                   ) : currentCode?.code ? (
                     <>
                       <Text>
@@ -452,6 +454,9 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
             <Text>
               <Trans i18nKey="premium.refund" components={[mailLink]} />
             </Text>
+          )}
+          {(premiumState === "free" || premiumState === "expires") && (
+            <Hint>{t("premium.priceDetails")}</Hint>
           )}
         </Popup>
       )}

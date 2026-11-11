@@ -74,14 +74,16 @@
         "premium": "100"
       }
     },
-    "price": "1 £ pe lună. Acordarea automată se aplică doar bacșișurilor eligibile în GBP: fiecare liră întreagă adaugă o lună calendaristică, până la 120 de luni per bacșiș. Fracțiunile de liră nu se iau în calcul. Bacșișurile de 121 £ sau mai mult și cele în alte monede necesită verificare și nu acordă automat Premium. Următoarele bacșișuri eligibile prelungesc data de expirare existentă.",
+    "price": "1 £ pe lună. Fiecare liră donată adaugă o lună, iar donațiile ulterioare îți prelungesc accesul.",
+    "priceDetails": "Bacșișurile eligibile în GBP adaugă o lună pentru fiecare liră întreagă, până la 120 de luni per bacșiș; fracțiunile nu adaugă luni. Bacșișurile de 121 £ sau mai mult și cele în alte monede necesită verificare și nu acordă automat Premium.",
     "cta": "Lasă un bacșiș pe Ko-fi",
     "ctaExtend": "Prelungește pe Ko-fi",
     "emailHint": "Folosește adresa de e-mail a contului tău Google ({{email}}) la plata pe Ko-fi și Premium se activează automat.",
     "emailHintNoEmail": "Nu există o adresă de e-mail a contului Google pentru potrivirea automată. Deschide mai jos opțiunea de potrivire prin cod și include codul în mesajul Ko-fi; dacă nu poți obține sau folosi un cod, contactează-ne mai jos.",
     "altCodeToggle": "Plătești de pe altă adresă de e-mail?",
     "altCodeHint": "Lipește acest cod în mesajul Ko-fi.",
-    "codeUnavailable": "Codul nu este disponibil acum. Fără e-mailul contului Google, potrivirea automată nu este posibilă. Contactează-ne mai jos cu detaliile plății pentru verificare.",
+    "codeUnavailable": "Codul nu a putut fi încărcat. Trimite bacșiș folosind e-mailul contului Google sau contactează-ne mai jos cu detaliile plății.",
+    "codeUnavailableNoEmail": "Codul nu a putut fi încărcat. Contactează-ne mai jos cu detaliile plății.",
     "waiting": "Așteptăm bacșișul tău… de obicei durează sub un minut.",
     "checkAgain": "Verifică din nou",
     "copyFailed": "Codul nu a putut fi copiat. Selectează-l și copiază-l manual.",

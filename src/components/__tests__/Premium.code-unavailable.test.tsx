@@ -71,4 +71,17 @@ describe("Premium code failure with the real English resources", () => {
       `mailto:${CONTACT_EMAIL}`
     );
   });
+
+  it("uses the contact-only failure line when the account has no email", async () => {
+    mocks.useAuth.mockReturnValue({
+      user: { uid: "user-1", email: null },
+      loading: false,
+      signInWithGoogle: vi.fn(),
+      signOut: vi.fn(),
+    });
+    const { dialog } = await openWithFailedCode();
+    expect(await within(dialog).findByText(en.premium.codeUnavailableNoEmail)).toBeInTheDocument();
+    expect(within(dialog).queryByText(en.premium.codeUnavailable)).not.toBeInTheDocument();
+    expect(within(dialog).queryByText(/Google email/i)).not.toBeInTheDocument();
+  });
 });

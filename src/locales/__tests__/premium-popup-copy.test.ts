@@ -13,8 +13,8 @@ const localeName = (path: string) =>
   path.replace(/^.*\//, "").replace("_translation.json", "");
 
 const NEW_KEYS = [
-  "price", "cta", "ctaExtend", "emailHint", "emailHintNoEmail",
-  "altCodeToggle", "altCodeHint", "codeUnavailable", "waiting",
+  "price", "priceDetails", "cta", "ctaExtend", "emailHint", "emailHintNoEmail",
+  "altCodeToggle", "altCodeHint", "codeUnavailable", "codeUnavailableNoEmail", "waiting",
   "checkAgain", "copyFailed", "codeLoading",
 ] as const;
 
@@ -83,22 +83,26 @@ describe("Premium popup copy", () => {
     expect(stringOf(premium, "checkAgain").trim()).not.toBe("");
   });
 
-  it("states the English GBP amount, cap, and review policy", () => {
+  it("keeps the prescribed English lead price and GBP payment policy", () => {
     const price = stringOf(english, "price");
-    expect(price).toMatch(/£1/);
-    expect(price).toMatch(/eligible GBP tips/i);
-    expect(price).toMatch(/120 months/i);
-    expect(price).toMatch(/£121 or more/i);
-    expect(price).toMatch(/other currencies/i);
-    expect(price).toMatch(/need review and grant no Premium automatically/i);
-    expect(price).toMatch(/do not count/i);
+    expect(price).toContain("£");
+    expect(price).toBe("£1 a month. Each £1 you tip adds a month, and later tips extend your access.");
+    const details = stringOf(english, "priceDetails");
+    expect(details).toMatch(/eligible GBP tips/i);
+    expect(details).toMatch(/whole £1/i);
+    expect(details).toMatch(/120 months per tip/i);
+    expect(details).toMatch(/fractions add no months/i);
+    expect(details).toMatch(/£121 or more/i);
+    expect(details).toMatch(/other currencies/i);
+    expect(details).toMatch(/need review and grant no Premium automatically/i);
+    expect(details.match(/[.!?](?:\s|$)/g)).toHaveLength(2);
     expect(price).not.toContain("{{");
   });
 
-  it.each(Object.entries(locales))("%s has localized price terms", (path, data) => {
+  it.each(Object.entries(locales))("%s has localized price details", (path, data) => {
     const price = stringOf(data.premium, "price");
-    expect(price, path).toMatch(/120|１２０|120か月|120개월/);
     expect(price, path).not.toContain("{{");
+    expect(stringOf(data.premium, "priceDetails"), path).not.toContain("{{");
   });
 
   it("keeps interpolation placeholders aligned across locales", () => {

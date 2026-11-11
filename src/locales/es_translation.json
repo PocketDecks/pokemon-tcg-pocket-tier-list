@@ -74,14 +74,16 @@
         "premium": "100"
       }
     },
-    "price": "1 £ al mes. La concesión automática solo se aplica a propinas aptas en GBP: cada libra entera añade un mes natural, hasta 120 meses por propina. Los céntimos no cuentan. Las propinas de 121 £ o más y las de otras monedas requieren revisión y no conceden Premium automáticamente. Las siguientes propinas aptas amplían tu fecha de vencimiento actual.",
+    "price": "1 £ al mes. Cada libra que aportes añade un mes, y las siguientes amplían tu acceso.",
+    "priceDetails": "Las propinas aptas en GBP añaden un mes por cada libra entera, hasta 120 meses por propina; las fracciones no añaden meses. Las propinas de 121 £ o más y las de otras monedas requieren revisión y no conceden Premium automáticamente.",
     "cta": "Dar una propina en Ko-fi",
     "ctaExtend": "Ampliar en Ko-fi",
     "emailHint": "Usa en el pago de Ko-fi el correo de tu cuenta de Google ({{email}}) y Premium se activará automáticamente.",
     "emailHintNoEmail": "No hay un correo de cuenta de Google disponible para la coincidencia automática. Abre la opción para usar un código y añade tu código al mensaje de Ko-fi; si no puedes obtenerlo o usarlo, escríbenos abajo.",
     "altCodeToggle": "¿Pagas desde otro correo?",
     "altCodeHint": "Pega este código en el mensaje de Ko-fi.",
-    "codeUnavailable": "El código no está disponible ahora. Sin un correo de cuenta de Google no podemos hacer la coincidencia automática. Escríbenos abajo con los datos del pago para revisarlo.",
+    "codeUnavailable": "No se ha podido cargar tu código. Aporta desde tu correo de Google o escríbenos abajo con los datos del pago.",
+    "codeUnavailableNoEmail": "No se ha podido cargar tu código. Escríbenos abajo con los datos del pago.",
     "waiting": "Esperando tu propina… suele tardar menos de un minuto.",
     "checkAgain": "Comprobar de nuevo",
     "copyFailed": "No se pudo copiar el código. Selecciónalo y cópialo manualmente.",

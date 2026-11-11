@@ -63,9 +63,9 @@
       },
       "updated": {
         "title": "Tier List Atualizada",
-        "description": "Com que frequência a tier list busca novos dados. Atualizações mais rápidas ajudam você a se manter à frente no meta.",
-        "free": "Semanalmente",
-        "premium": "Diariamente"
+        "description": "Mostra as publicações públicas e os dados publicados mais recentes disponíveis para Premium.",
+        "free": "Publicações públicas",
+        "premium": "Dados publicados mais recentes"
       },
       "decks": {
         "title": "Decks na Tier List",
@@ -74,14 +74,14 @@
         "premium": "100"
       }
     },
-    "price": "1 £ por mês. Dê qualquer montante inteiro; cada 1 £ acrescenta um mês e as gorjetas seguintes prolongam o acesso.",
+    "price": "1 £ por mês. A atribuição automática aplica-se apenas a gorjetas elegíveis em GBP: cada libra inteira acrescenta um mês de calendário, até 120 meses por gorjeta. As frações de libra não contam. Gorjetas de 121 £ ou mais e noutras moedas precisam de revisão e não ativam o Premium automaticamente. As próximas gorjetas elegíveis prolongam a data de validade existente.",
     "cta": "Dar gorjeta no Ko-fi",
     "ctaExtend": "Prolongar no Ko-fi",
     "emailHint": "Utilize o endereço de e-mail da sua conta Google ({{email}}) no pagamento do Ko-fi e o Premium é ativado automaticamente.",
-    "emailHintNoEmail": "Utilize o endereço de e-mail da sua conta Google no pagamento do Ko-fi e o Premium é ativado automaticamente.",
+    "emailHintNoEmail": "Não há um e-mail da conta Google disponível para correspondência automática. Abra abaixo a opção de correspondência por código e inclua o código na mensagem do Ko-fi; se não puder obter ou usar um código, contacte-nos abaixo.",
     "altCodeToggle": "Paga a partir de outro e-mail?",
     "altCodeHint": "Cole este código na mensagem do Ko-fi.",
-    "codeUnavailable": "Os códigos não estão disponíveis neste momento. Utilize o seu e-mail Google ou contacte-nos abaixo.",
+    "codeUnavailable": "O código não está disponível neste momento. Sem um e-mail da conta Google, não é possível fazer a correspondência automática. Contacte-nos abaixo com os dados do pagamento para o podermos analisar.",
     "waiting": "A aguardar a sua gorjeta… normalmente demora menos de um minuto.",
     "checkAgain": "Verificar novamente",
     "copyFailed": "Não foi possível copiar o código. Selecione-o e copie manualmente.",
@@ -331,7 +331,7 @@
       "usage": "<0>Dados de utilização.</0> O Google Analytics regista as páginas que visualiza e os dados habituais do dispositivo e do navegador. Só funciona depois de aceitar a análise ou, onde o banner de consentimento da sua região não pedir consentimento, sem que seja necessário.",
       "account": "<0>Informações da conta.</0> Se iniciar sessão com o Google, o Firebase Authentication fornece-nos o seu nome, endereço de e-mail e foto de perfil. Mostramos o seu nome e a sua foto enquanto tiver sessão iniciada, e usamos o seu ID de conta para verificar se tem acesso Premium.",
       "feedback": "<0>Feedback.</0> Se enviar feedback com sessão iniciada, guardamos o seu ID de conta, a mensagem, o tema escolhido, a página a partir da qual o enviou e a hora do envio no Cloud Firestore, uma base de dados gerida pela Google para o Firebase. Guardamos o seu endereço de e-mail com a mensagem apenas se marcar a caixa que pede uma resposta. Também guardamos a hora do seu último envio.",
-      "payment": "<0>Gorjetas.</0> As gorjetas opcionais para o Premium podem ser associadas à sua conta Google. Só guardamos o e-mail, o nome e a mensagem de quem enviou a gorjeta quando esta não concede automaticamente novo tempo Premium, para a analisarmos manualmente."
+      "payment": "<0>Gorjetas.</0> Criamos um registo para cada pagamento do Ko-fi. Inclui o identificador e o tipo de pagamento, o montante e a moeda, os meses creditados, o estado e as datas de receção e do Ko-fi. Quando um pagamento é associado a uma conta, o registo também inclui o identificador da conta e o método de correspondência. Guardamos o e-mail, o nome e a mensagem de quem enviou a gorjeta apenas quando o pagamento não é concedido automaticamente, para análise ou aplicação manual."
     },
     "cookies": {
       "heading": "Cookies e rastreio",
@@ -379,7 +379,7 @@
     },
     "retention": {
       "heading": "Durante quanto tempo guardamos as informações",
-      "body": "O Google Analytics guarda dados de eventos durante 14 meses. Guarda dados de utilizador durante 14 meses e o período reinicia quando regressa ao site. Guardamos a sua conta Google e os campos de perfil até pedir a sua eliminação através dos contactos abaixo. Guardamos as mensagens de feedback até pedir que sejam eliminadas. O Google decide durante quanto tempo guarda os dados de publicidade. Consulte a <0>política de privacidade</0> e as <1>políticas de anúncios</1> do Google. Guardamos o e-mail, o nome e a mensagem de quem enviou uma gorjeta apenas quando esta não concede automaticamente novo tempo Premium, para a revermos e aplicarmos manualmente. O site não guarda registos próprios de pedidos web. Firebase e Cloudflare guardam os seus registos operacionais habituais segundo os próprios termos."
+      "body": "O Google Analytics guarda dados de eventos durante 14 meses. Guarda dados de utilizador durante 14 meses e o período reinicia quando regressa ao site. Guardamos a sua conta Google e os campos de perfil até pedir a sua eliminação através dos contactos abaixo. Guardamos as mensagens de feedback até pedir que sejam eliminadas. O Google decide durante quanto tempo guarda os dados de publicidade. Consulte a <0>política de privacidade</0> e as <1>políticas de anúncios</1> do Google. Criamos um registo para cada pagamento do Ko-fi com o identificador e tipo, montante e moeda, meses creditados, estado, datas e, se aplicável, o identificador da conta associada e o método de correspondência. O e-mail, o nome e a mensagem são guardados apenas quando o pagamento não é concedido automaticamente, para análise ou aplicação manual. O site não guarda registos próprios de pedidos web. Firebase e Cloudflare guardam os seus registos operacionais habituais segundo os próprios termos."
     },
     "children": {
       "heading": "Crianças",

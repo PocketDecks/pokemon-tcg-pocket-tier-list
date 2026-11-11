@@ -63,9 +63,9 @@
       },
       "updated": {
         "title": "Tier List Updated",
-        "description": "How often the tier list pulls in new data. Faster updates help you stay ahead of the meta.",
-        "free": "Weekly",
-        "premium": "Daily"
+        "description": "Shows the public release and the latest published data available to Premium members.",
+        "free": "Public releases",
+        "premium": "Latest published data"
       },
       "decks": {
         "title": "Decks on Tier List",
@@ -74,14 +74,14 @@
         "premium": "100"
       }
     },
-    "price": "£1 a month. Tip any whole amount; each £1 adds one month, and later tips extend your access.",
+    "price": "£1 per month. Automatic grants apply only to eligible GBP tips: each whole £1 adds one calendar month, up to 120 months per tip. Fractional pounds do not count. GBP tips of £121 or more and tips in other currencies need review and grant no Premium automatically. Later eligible tips extend your existing expiry.",
     "cta": "Tip on Ko-fi",
     "ctaExtend": "Extend on Ko-fi",
     "emailHint": "Use the email address on your Google account ({{email}}) at Ko-fi checkout and Premium is added automatically.",
-    "emailHintNoEmail": "Use the email address on your Google account at Ko-fi checkout and Premium is added automatically.",
+    "emailHintNoEmail": "No Google account email is available for automatic matching. Open code matching below and include your code in the Ko-fi message; if you cannot get or use a code, contact us below.",
     "altCodeToggle": "Paying from a different email?",
     "altCodeHint": "Paste this code into the Ko-fi message.",
-    "codeUnavailable": "Codes are unavailable right now. Use your Google email, or contact us below.",
+    "codeUnavailable": "A code is unavailable right now. Without a Google account email, we cannot match automatically. Contact us below with your payment details so we can review it.",
     "waiting": "Waiting for your tip to arrive… this usually takes under a minute.",
     "checkAgain": "Check again",
     "copyFailed": "Could not copy the code. Select it and copy it manually.",
@@ -331,7 +331,7 @@
       "usage": "<0>Usage data.</0> Google Analytics records the pages you view and standard device and browser details. It runs only after you accept analytics, or where your region's consent banner does not ask for consent.",
       "account": "<0>Account information.</0> If you sign in with Google, Firebase Authentication gives us your name, email address and profile photo. We show your name and photo while you are signed in, and we use your account ID to check whether you have Premium access.",
       "feedback": "<0>Feedback.</0> If you send feedback while signed in, we store your account ID, your message, the topic you chose, the page you sent it from and the time you sent it in Cloud Firestore, a database run by Google for Firebase. We store your email address with the message only if you tick the box asking us to reply. We also store the time of your last submission.",
-      "payment": "<0>Tips.</0> Optional Premium tips can be matched to your Google account. We store a tipper’s email address, name and message only when a tip does not automatically grant new Premium time, so we can review it manually."
+      "payment": "<0>Tips.</0> We create a record for every Ko-fi payment. It includes the payment identifier and type, amount and currency, credited months, status, and received and Ko-fi timestamps. When a payment matches an account, the record also includes its account identifier and how it matched. We store the tipper’s email address, name and message only when a payment is not granted automatically, so we can review it or apply it manually."
     },
     "cookies": {
       "heading": "Cookies and tracking",
@@ -379,7 +379,7 @@
     },
     "retention": {
       "heading": "How long we keep information",
-      "body": "Google Analytics keeps event data for 14 months. It keeps user data for 14 months, and that period resets when you return to the site. We keep your Google sign-in account and stored profile fields until you ask us to delete them, using the contact details below. We keep feedback messages until you ask us to delete them. Google decides how long it keeps advertising data. See its <0>privacy policy</0> and <1>ads policies</1>. We store a tipper’s email address, name and message only for tips that do not automatically grant new Premium time, so we can review and apply them manually. The site does not keep web request logs of its own. Firebase, the hosting provider, and Cloudflare, the network provider, keep their standard operational logs under their own terms."
+      "body": "Google Analytics keeps event data for 14 months. It keeps user data for 14 months, and that period resets when you return to the site. We keep your Google sign-in account and stored profile fields until you ask us to delete them, using the contact details below. We keep feedback messages until you ask us to delete them. Google decides how long it keeps advertising data. See its <0>privacy policy</0> and <1>ads policies</1>. We create a Ko-fi payment record for every payment, including its identifier and type, amount and currency, credited months, status, timestamps, and matched account identifier and matching method when applicable. The tipper’s email address, name and message are stored only when a payment is not granted automatically, for review or manual application. The site does not keep web request logs of its own. Firebase, the hosting provider, and Cloudflare, the network provider, keep their standard operational logs under their own terms."
     },
     "children": {
       "heading": "Children",

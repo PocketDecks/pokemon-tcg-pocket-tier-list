@@ -63,9 +63,9 @@
       },
       "updated": {
         "title": "Mise à jour de la tier list",
-        "description": "La fréquence à laquelle la tier list récupère de nouvelles données. Des mises à jour plus rapides vous aident à garder une longueur d'avance sur la méta.",
-        "free": "Hebdomadaire",
-        "premium": "Quotidien"
+        "description": "Affiche les publications publiques et les données publiées les plus récentes disponibles pour Premium.",
+        "free": "Publications publiques",
+        "premium": "Données publiées les plus récentes"
       },
       "decks": {
         "title": "Decks dans la Tier list",
@@ -74,14 +74,14 @@
         "premium": "100"
       }
     },
-    "price": "1 £ par mois. Donnez un montant entier ; chaque livre ajoute un mois et les dons suivants prolongent votre accès.",
+    "price": "1 £ par mois. L’octroi automatique concerne uniquement les dons admissibles en GBP : chaque livre entière ajoute un mois civil, jusqu’à 120 mois par don. Les fractions de livre ne comptent pas. Les dons de 121 £ ou plus et ceux dans une autre devise nécessitent une vérification et ne donnent pas automatiquement accès à Premium. Les dons admissibles suivants prolongent votre date d’expiration actuelle.",
     "cta": "Donner un pourboire sur Ko-fi",
     "ctaExtend": "Prolonger sur Ko-fi",
     "emailHint": "Utilisez l’adresse e-mail de votre compte Google ({{email}}) lors du paiement sur Ko-fi et Premium sera activé automatiquement.",
-    "emailHintNoEmail": "Utilisez l’adresse e-mail de votre compte Google lors du paiement sur Ko-fi et Premium sera activé automatiquement.",
+    "emailHintNoEmail": "Aucune adresse e-mail de compte Google n’est disponible pour le rapprochement automatique. Ouvrez l’option de rapprochement par code ci-dessous et ajoutez votre code au message Ko-fi ; si vous ne pouvez pas obtenir ou utiliser de code, contactez-nous ci-dessous.",
     "altCodeToggle": "Vous payez depuis une autre adresse e-mail ?",
     "altCodeHint": "Collez ce code dans le message Ko-fi.",
-    "codeUnavailable": "Les codes sont indisponibles pour le moment. Utilisez votre adresse Google ou contactez-nous ci-dessous.",
+    "codeUnavailable": "Le code est indisponible pour le moment. Sans adresse e-mail de compte Google, le rapprochement automatique est impossible. Contactez-nous ci-dessous avec les détails du paiement afin que nous puissions le vérifier.",
     "waiting": "En attente de votre don… cela prend généralement moins d’une minute.",
     "checkAgain": "Vérifier à nouveau",
     "copyFailed": "Impossible de copier le code. Sélectionnez-le et copiez-le manuellement.",
@@ -331,7 +331,7 @@
       "usage": "<0>Données d'utilisation.</0> Google Analytics enregistre les pages que vous consultez ainsi que les informations habituelles sur l'appareil et le navigateur. Il ne fonctionne qu'après que vous avez accepté l'analyse, ou là où la bannière de consentement de votre région ne demande pas de consentement.",
       "account": "<0>Informations de compte.</0> Si vous vous connectez avec Google, Firebase Authentication nous transmet votre nom, votre adresse e-mail et votre photo de profil. Nous affichons votre nom et votre photo lorsque vous êtes connecté, et nous utilisons votre identifiant de compte pour vérifier si vous avez un accès Premium.",
       "feedback": "<0>Commentaires.</0> Si vous envoyez un commentaire en étant connecté, nous enregistrons votre identifiant de compte, votre message, le sujet que vous avez choisi, la page depuis laquelle vous l'avez envoyé et l'heure d'envoi, dans Cloud Firestore, une base de données exploitée par Google pour Firebase. Nous n'enregistrons votre adresse e-mail avec le message que si vous cochez la case demandant une réponse. Nous conservons aussi l'heure de votre dernier envoi.",
-      "payment": "<0>Dons.</0> Les dons facultatifs pour Premium peuvent être associés à votre compte Google. Nous ne conservons l’adresse e-mail, le nom et le message du donateur que si le don n’accorde pas automatiquement de nouvelle période Premium, afin de l’examiner manuellement."
+      "payment": "<0>Dons.</0> Nous créons un enregistrement pour chaque paiement Ko-fi. Il comprend l’identifiant et le type de paiement, le montant et la devise, les mois crédités, le statut, ainsi que les horodatages de réception et de Ko-fi. Lorsqu’un paiement est associé à un compte, l’enregistrement comprend également son identifiant et la méthode de rapprochement. Nous ne conservons l’adresse e-mail, le nom et le message de la personne que lorsque le paiement n’est pas accordé automatiquement, afin de le vérifier ou de l’appliquer manuellement."
     },
     "cookies": {
       "heading": "Cookies et suivi",
@@ -379,7 +379,7 @@
     },
     "retention": {
       "heading": "Durée de conservation des informations",
-      "body": "Google Analytics conserve les données d’événements pendant 14 mois. Il conserve les données utilisateur pendant 14 mois, et cette durée repart à zéro lorsque vous revenez sur le site. Nous conservons votre compte Google et les champs de profil enregistrés jusqu’à ce que vous demandiez leur suppression aux coordonnées ci-dessous. Nous conservons les messages de commentaires jusqu’à une demande de suppression. Google décide de la durée de conservation des données publicitaires. Consultez la <0>politique de confidentialité</0> et les <1>règles relatives à la publicité</1> de Google. Nous ne conservons l’adresse e-mail, le nom et le message du donateur que pour les dons qui n’accordent pas automatiquement de nouvelle période Premium, afin de les examiner et de les appliquer manuellement. Le site ne conserve aucun journal propre des requêtes web. Firebase et Cloudflare conservent leurs journaux d’exploitation habituels selon leurs propres conditions."
+      "body": "Google Analytics conserve les données d’événements pendant 14 mois. Il conserve les données utilisateur pendant 14 mois, et cette durée repart à zéro lorsque vous revenez sur le site. Nous conservons votre compte Google et les champs de profil enregistrés jusqu’à ce que vous demandiez leur suppression aux coordonnées ci-dessous. Nous conservons les messages de commentaires jusqu’à une demande de suppression. Google décide de la durée de conservation des données publicitaires. Consultez la <0>politique de confidentialité</0> et les <1>règles relatives à la publicité</1> de Google. Nous créons un enregistrement pour chaque paiement Ko-fi, avec son identifiant et son type, le montant et la devise, les mois crédités, le statut, les horodatages et, le cas échéant, l’identifiant du compte associé et la méthode de rapprochement. L’adresse e-mail, le nom et le message ne sont conservés que lorsque le paiement n’est pas accordé automatiquement, pour vérification ou traitement manuel. Le site ne conserve aucun journal propre des requêtes web. Firebase et Cloudflare conservent leurs journaux d’exploitation habituels selon leurs propres conditions."
     },
     "children": {
       "heading": "Enfants",

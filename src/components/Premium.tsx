@@ -380,9 +380,9 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
           {premiumState === "free" && (
             <>
               {comparison}
-              <Text>{t("premium.price")}</Text>
             </>
           )}
+          {premiumState !== "lifetime" && <Text>{t("premium.price")}</Text>}
           {premiumState === "expires" && <Text>{t("premium.expires", { date })}</Text>}
           {!user && premiumState === "free" && (
             <>

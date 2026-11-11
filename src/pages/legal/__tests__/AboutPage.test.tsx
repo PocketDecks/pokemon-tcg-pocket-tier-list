@@ -37,14 +37,18 @@ describe("AboutPage", () => {
     expect(tierListLink()).toHaveAttribute("href", "/ja/tier-list/");
   });
 
-  it("keeps the Premium anchor and links to Ko-fi with the monthly tip rule", () => {
+  it("keeps the Premium anchor and discloses the GBP limit and review path", () => {
     renderAt("/about#premium");
     expect(document.getElementById("premium")).toBeInTheDocument();
     const link = screen.getByRole("link", { name: /ko-fi/i });
     expect(link).toHaveAttribute("href", "https://ko-fi.com/dalin");
-    expect(screen.getByText(/whole GBP 1 buys one calendar month/i)).toBeInTheDocument();
-    expect(screen.getByRole("article")).toHaveTextContent(
-      /verified email address on your Google account or get the code from the Premium popup/i
-    );
+    const article = screen.getByRole("article");
+    expect(article).toHaveTextContent(/eligible GBP tips/i);
+    expect(article).toHaveTextContent(/one calendar month per whole pound/i);
+    expect(article).toHaveTextContent(/up to 120 months per tip/i);
+    expect(article).toHaveTextContent(/GBP £121 or more/i);
+    expect(article).toHaveTextContent(/other currencies need review/i);
+    expect(article).toHaveTextContent(/grant no Premium automatically/i);
+    expect(article).toHaveTextContent(/use code matching in the Premium popup or contact us/i);
   });
 });

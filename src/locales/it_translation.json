@@ -63,9 +63,9 @@
       },
       "updated": {
         "title": "Tier List Aggiornata",
-        "description": "Quanto spesso la tier list recupera nuovi dati. Aggiornamenti più frequenti ti aiutano a stare al passo con il meta.",
-        "free": "Settimanalmente",
-        "premium": "Quotidianamente"
+        "description": "Mostra le pubblicazioni pubbliche e i dati pubblicati più recenti disponibili per Premium.",
+        "free": "Pubblicazioni pubbliche",
+        "premium": "Dati pubblicati più recenti"
       },
       "decks": {
         "title": "Mazzi nella Tier List",
@@ -74,14 +74,14 @@
         "premium": "100"
       }
     },
-    "price": "1 £ al mese. Dona un importo intero; ogni sterlina aggiunge un mese e le mance successive prolungano l’accesso.",
+    "price": "1 £ al mese. L’accredito automatico vale solo per le mance idonee in GBP: ogni sterlina intera aggiunge un mese di calendario, fino a 120 mesi per mancia. Le frazioni di sterlina non contano. Le mance da 121 £ in su e quelle in altre valute richiedono una verifica e non attivano Premium automaticamente. Le successive mance idonee prolungano la scadenza esistente.",
     "cta": "Lascia una mancia su Ko-fi",
     "ctaExtend": "Estendi su Ko-fi",
     "emailHint": "Usa l’indirizzo e-mail del tuo account Google ({{email}}) al pagamento su Ko-fi e Premium verrà attivato automaticamente.",
-    "emailHintNoEmail": "Usa l’indirizzo e-mail del tuo account Google al pagamento su Ko-fi e Premium verrà attivato automaticamente.",
+    "emailHintNoEmail": "Non è disponibile un’e-mail dell’account Google per l’abbinamento automatico. Apri qui sotto l’opzione per abbinare un codice e includi il codice nel messaggio Ko-fi; se non puoi ottenere o usare un codice, contattaci qui sotto.",
     "altCodeToggle": "Paghi da un altro indirizzo e-mail?",
     "altCodeHint": "Incolla questo codice nel messaggio Ko-fi.",
-    "codeUnavailable": "I codici non sono disponibili adesso. Usa la tua e-mail Google o contattaci qui sotto.",
+    "codeUnavailable": "Il codice non è disponibile al momento. Senza un’e-mail dell’account Google non possiamo effettuare l’abbinamento automatico. Contattaci qui sotto con i dati del pagamento per consentirci di verificarlo.",
     "waiting": "In attesa della tua mancia… di solito serve meno di un minuto.",
     "checkAgain": "Controlla di nuovo",
     "copyFailed": "Impossibile copiare il codice. Selezionalo e copialo manualmente.",
@@ -331,7 +331,7 @@
       "usage": "<0>Dati di utilizzo.</0> Google Analytics registra le pagine che visualizzi e i dati standard su dispositivo e browser. Viene eseguito solo dopo che hai accettato l'analisi, oppure dove il banner del consenso della tua regione non richiede il consenso.",
       "account": "<0>Informazioni sull'account.</0> Se accedi con Google, Firebase Authentication ci fornisce il tuo nome, l'indirizzo e-mail e la foto del profilo. Mostriamo il tuo nome e la tua foto mentre sei connesso e usiamo il tuo ID account per verificare se hai l'accesso Premium.",
       "feedback": "<0>Feedback.</0> Se invii un feedback mentre sei connesso, salviamo il tuo ID account, il messaggio, l'argomento scelto, la pagina da cui lo hai inviato e l'ora dell'invio in Cloud Firestore, un database gestito da Google per Firebase. Salviamo il tuo indirizzo e-mail insieme al messaggio solo se spunti la casella con cui ci chiedi una risposta. Conserviamo anche l'ora del tuo ultimo invio.",
-      "payment": "<0>Mance.</0> Le mance facoltative per Premium possono essere associate al tuo account Google. Conserviamo l’indirizzo e-mail, il nome e il messaggio di chi invia una mancia solo se questa non concede automaticamente nuovo tempo Premium, così da poterla esaminare manualmente."
+      "payment": "<0>Mance.</0> Creiamo un record per ogni pagamento Ko-fi. Include identificativo e tipo di pagamento, importo e valuta, mesi accreditati, stato e date di ricezione e di Ko-fi. Se il pagamento è abbinato a un account, il record include anche l’identificativo dell’account e il metodo di abbinamento. Conserviamo l’e-mail, il nome e il messaggio di chi invia la mancia solo quando il pagamento non viene accreditato automaticamente, per verificarlo o applicarlo manualmente."
     },
     "cookies": {
       "heading": "Cookie e tracciamento",
@@ -379,7 +379,7 @@
     },
     "retention": {
       "heading": "Per quanto tempo conserviamo le informazioni",
-      "body": "Google Analytics conserva i dati degli eventi per 14 mesi. Conserva i dati utente per 14 mesi e il periodo ricomincia quando torni sul sito. Conserviamo il tuo account Google e i campi del profilo salvati finché non ne chiedi la cancellazione usando i recapiti indicati più sotto. Conserviamo i messaggi di feedback finché non ne chiedi la cancellazione. Google decide per quanto tempo conservare i dati pubblicitari. Consulta l’<0>informativa sulla privacy</0> e le <1>norme sulla pubblicità</1> di Google. Conserviamo l’indirizzo e-mail, il nome e il messaggio di chi invia una mancia solo per le mance che non concedono automaticamente nuovo tempo Premium, così da poterle verificare e applicare manualmente. Il sito non conserva registri propri delle richieste web. Firebase e Cloudflare conservano i normali log operativi secondo i propri termini."
+      "body": "Google Analytics conserva i dati degli eventi per 14 mesi. Conserva i dati utente per 14 mesi e il periodo ricomincia quando torni sul sito. Conserviamo il tuo account Google e i campi del profilo salvati finché non ne chiedi la cancellazione usando i recapiti indicati più sotto. Conserviamo i messaggi di feedback finché non ne chiedi la cancellazione. Google decide per quanto tempo conservare i dati pubblicitari. Consulta l’<0>informativa sulla privacy</0> e le <1>norme sulla pubblicità</1> di Google. Creiamo un record per ogni pagamento Ko-fi, con identificativo e tipo, importo e valuta, mesi accreditati, stato, date e, se applicabile, identificativo dell’account abbinato e metodo usato. L’e-mail, il nome e il messaggio vengono conservati solo quando il pagamento non è accreditato automaticamente, per verifica o applicazione manuale. Il sito non conserva registri propri delle richieste web. Firebase e Cloudflare conservano i normali log operativi secondo i propri termini."
     },
     "children": {
       "heading": "Minori",

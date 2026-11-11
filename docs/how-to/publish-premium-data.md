@@ -8,8 +8,8 @@ The 30-day and All Time artefacts, and the full matchup and movement depth of th
 | --- | --- | --- |
 | `best-decks-{10d,20d}`, `card-scores.json`, `historical-trends.json` | `public/data/`, committed | Everyone |
 | `matchup-data-{10d,20d}` and `meta-share-{10d,20d}`, plus the un-suffixed `matchup-data.json` and `meta-share.json`, trimmed to the free tier | `public/data/`, committed | Everyone |
-| The full `matchup-data-{10d,20d}` and `meta-share-{10d,20d}` | `analysis/out/premium/`, gitignored, then Firestore | Signed-in users with an active entitlement in the current frontend; the retained legacy `stripeRole` console rule also permits Firestore reads |
-| `best-decks-{30d,all}`, `matchup-data-{30d,all}`, `meta-share-{30d,all}` | `analysis/out/premium/`, gitignored, then Firestore | The same |
+| The full `matchup-data-{10d,20d}` and `meta-share-{10d,20d}` | `analysis/out/premium/`, gitignored, then Firestore | Signed-in users with an active entitlement |
+| `best-decks-{30d,all}`, `matchup-data-{30d,all}`, `meta-share-{30d,all}` | `analysis/out/premium/`, gitignored, then Firestore | Signed-in users with an active entitlement |
 | `data-version.json` | `public/data/`, committed | Everyone |
 | `entitlements/{uid}` | Firestore, written with the Admin SDK | Only the signed-in user it belongs to |
 | `premiumCodes/{code}` | Firestore, created by the signed-in user | Only the signed-in user it belongs to |
@@ -63,7 +63,7 @@ An entitlement is the document `entitlements/{uid}`, keyed by the Firebase Authe
 | `expiresAt` | timestamp, optional | Access ends at this instant; absent or null means no expiry |
 | `updatedAt` | timestamp | When the document was last written |
 
-Only the Admin SDK writes these documents. The security rules deny every client write, and a signed-in user may read only their own document. The app reads that document through `useIsPremium()` and grants access only when it is active. Ko-fi tips grant months through the Worker; an owner can grant or revoke access with `yarn grant:premium`.
+Only trusted server tools write these documents: the publisher and manual grant command use the Admin SDK, while the Ko-fi Worker uses Firestore REST with an OAuth access token. The security rules deny every client write, and a signed-in user may read only their own document. The app reads that document through `useIsPremium()` and grants access only when it is active. Ko-fi tips grant months through the Worker; an owner can grant or revoke access with `yarn grant:premium`.
 
 Grant and revoke access from `analysis` with `yarn grant:premium`. It uses Application Default Credentials and the project in `.firebaserc`
 
@@ -86,7 +86,7 @@ A grant replaces the whole document, so running it again for the same uid update
 
 Do these once, in this order, before the first merge that carries this change
 
-1. The blocks below are the required Firestore rules. Confirm the deployed rules in the Firebase console before each release and merge these blocks into them. Keep unrelated rules, including the existing `stripeRole` branch and any rules for `customers` and `products`, unchanged. The app grants Premium from entitlements only. The legacy `stripeRole` branch is retained in the console as-is and a claim alone does not enable the current Premium interface. The `hasEntitlement()` helper treats an absent or explicit-null `expiresAt` as lifetime access, matching the app and the Worker; an expired or malformed expiry is denied. The repository has no `firestore.rules` file to deploy.
+1. The blocks below are the canonical entitlement-only Firestore rules. Compare them with the active rules in the Firebase console before release. The app and these rules grant premium data access only from an active entitlement; no `stripeRole` fallback is included. The `hasEntitlement()` helper treats an absent or explicit-null `expiresAt` as lifetime access, matching the app and the Worker; an expired or malformed expiry is denied. The repository has no `firestore.rules` file to deploy.
 
    ```
    function entitlementPath() {
@@ -102,8 +102,7 @@ Do these once, in this order, before the first merge that carries this change
                && get(entitlementPath()).data.expiresAt > request.time));
    }
    function isPremium() {
-     return request.auth != null
-       && (hasEntitlement() || request.auth.token.get("stripeRole", null) == "premium");
+     return hasEntitlement();
    }
    match /entitlements/{uid} {
      allow read: if request.auth != null && request.auth.uid == uid;
@@ -136,7 +135,7 @@ Do these once, in this order, before the first merge that carries this change
 
 ## Ko-fi tips and manual grants
 
-The Ko-fi Worker matches a tip to the signed-in account using the code shown in the Premium popup or the account's verified Google email. Each whole GBP 1 grants one calendar month; later tips extend the existing expiry. The [Ko-fi receiving guide](receive-ko-fi-payments.md) covers Worker setup and how to resolve payments that need manual review. For a gift or another manual grant, use `yarn grant:premium` as described above. Both methods write the same `entitlements/{uid}` document; the browser does not grant access itself.
+The Ko-fi Worker matches a tip to the signed-in account using the code shown in the Premium popup or the account's verified Google email. Eligible GBP tips grant one calendar month per whole pound, up to 120 months per tip; fractional pounds do not count. GBP £121 or more and other currencies require review and grant no Premium automatically. Later eligible tips extend the existing expiry. The [Ko-fi receiving guide](receive-ko-fi-payments.md) covers Worker setup and how to resolve payments that need manual review. For a gift or another manual grant, use `yarn grant:premium` as described above. Both methods write the same `entitlements/{uid}` document; the browser does not grant access itself.
 
 ## Rollback
 

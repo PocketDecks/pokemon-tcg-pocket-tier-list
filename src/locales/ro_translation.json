@@ -63,9 +63,9 @@
       },
       "updated": {
         "title": "Clasament actualizat",
-        "description": "Frecvența cu care clasamentul primește date noi. Actualizările mai rapide te ajută să fii mereu cu un pas înaintea meta-ului.",
-        "free": "Săptămânal",
-        "premium": "Zilnic"
+        "description": "Afișează lansările publice și cele mai recente date publicate disponibile pentru Premium.",
+        "free": "Lansări publice",
+        "premium": "Cele mai recente date publicate"
       },
       "decks": {
         "title": "Deck-uri în clasament",
@@ -74,14 +74,14 @@
         "premium": "100"
       }
     },
-    "price": "1 £ pe lună. Donează o sumă întreagă; fiecare 1 £ adaugă o lună, iar bacșișurile ulterioare prelungesc accesul.",
+    "price": "1 £ pe lună. Acordarea automată se aplică doar bacșișurilor eligibile în GBP: fiecare liră întreagă adaugă o lună calendaristică, până la 120 de luni per bacșiș. Fracțiunile de liră nu se iau în calcul. Bacșișurile de 121 £ sau mai mult și cele în alte monede necesită verificare și nu acordă automat Premium. Următoarele bacșișuri eligibile prelungesc data de expirare existentă.",
     "cta": "Lasă un bacșiș pe Ko-fi",
     "ctaExtend": "Prelungește pe Ko-fi",
     "emailHint": "Folosește adresa de e-mail a contului tău Google ({{email}}) la plata pe Ko-fi și Premium se activează automat.",
-    "emailHintNoEmail": "Folosește adresa de e-mail a contului tău Google la plata pe Ko-fi și Premium se activează automat.",
+    "emailHintNoEmail": "Nu există o adresă de e-mail a contului Google pentru potrivirea automată. Deschide mai jos opțiunea de potrivire prin cod și include codul în mesajul Ko-fi; dacă nu poți obține sau folosi un cod, contactează-ne mai jos.",
     "altCodeToggle": "Plătești de pe altă adresă de e-mail?",
     "altCodeHint": "Lipește acest cod în mesajul Ko-fi.",
-    "codeUnavailable": "Codurile nu sunt disponibile acum. Folosește e-mailul Google sau contactează-ne mai jos.",
+    "codeUnavailable": "Codul nu este disponibil acum. Fără e-mailul contului Google, potrivirea automată nu este posibilă. Contactează-ne mai jos cu detaliile plății pentru verificare.",
     "waiting": "Așteptăm bacșișul tău… de obicei durează sub un minut.",
     "checkAgain": "Verifică din nou",
     "copyFailed": "Codul nu a putut fi copiat. Selectează-l și copiază-l manual.",
@@ -331,7 +331,7 @@
       "usage": "<0>Date de utilizare.</0> Google Analytics înregistrează paginile pe care le vizualizați și datele standard despre dispozitiv și browser. Rulează doar după ce acceptați analiza sau acolo unde bannerul de consimțământ din regiunea dumneavoastră nu cere consimțământ.",
       "account": "<0>Informații despre cont.</0> Dacă vă conectați cu Google, Firebase Authentication ne furnizează numele, adresa de e-mail și fotografia de profil. Vă afișăm numele și fotografia cât timp sunteți conectat, iar ID-ul contului îl folosim pentru a verifica dacă aveți acces Premium.",
       "feedback": "<0>Feedback.</0> Dacă trimiteți feedback în timp ce sunteți conectat, salvăm ID-ul contului, mesajul, tema aleasă, pagina de unde l-ați trimis și momentul trimiterii, în Cloud Firestore, o bază de date administrată de Google pentru Firebase. Vă salvăm adresa de e-mail împreună cu mesajul doar dacă bifați caseta prin care cereți un răspuns. Păstrăm și momentul ultimei trimiteri.",
-      "payment": "<0>Bacșișuri.</0> Bacșișurile opționale pentru Premium pot fi asociate contului Google. Păstrăm adresa de e-mail, numele și mesajul persoanei care trimite bacșișul numai când acesta nu acordă automat timp Premium nou, pentru a-l verifica manual."
+      "payment": "<0>Bacșișuri.</0> Creăm o înregistrare pentru fiecare plată Ko-fi. Aceasta include identificatorul și tipul plății, suma și moneda, lunile acordate, starea și marcajele temporale ale primirii și Ko-fi. Dacă plata este asociată unui cont, înregistrarea include și identificatorul contului și metoda de potrivire. Păstrăm e-mailul, numele și mesajul persoanei care trimite bacșișul numai când plata nu este acordată automat, pentru verificare sau aplicare manuală."
     },
     "cookies": {
       "heading": "Cookie-uri și urmărire",
@@ -379,7 +379,7 @@
     },
     "retention": {
       "heading": "Cât timp păstrăm informațiile",
-      "body": "Google Analytics păstrează datele despre evenimente timp de 14 luni. Păstrează datele utilizatorilor timp de 14 luni, iar perioada se reia când revii pe site. Păstrăm contul Google și câmpurile de profil salvate până când soliciți ștergerea lor folosind datele de contact de mai jos. Păstrăm mesajele de feedback până când soliciți ștergerea lor. Google decide cât timp păstrează datele publicitare. Consultă <0>politica de confidențialitate</0> și <1>politicile privind anunțurile</1> Google. Păstrăm adresa de e-mail, numele și mesajul persoanei care trimite un bacșiș numai pentru bacșișurile care nu acordă automat timp Premium nou, pentru a le verifica și aplica manual. Site-ul nu păstrează propriile jurnale de solicitări web. Firebase și Cloudflare păstrează jurnalele operaționale obișnuite conform propriilor condiții."
+      "body": "Google Analytics păstrează datele despre evenimente timp de 14 luni. Păstrează datele utilizatorilor timp de 14 luni, iar perioada se reia când revii pe site. Păstrăm contul Google și câmpurile de profil salvate până când soliciți ștergerea lor folosind datele de contact de mai jos. Păstrăm mesajele de feedback până când soliciți ștergerea lor. Google decide cât timp păstrează datele publicitare. Consultă <0>politica de confidențialitate</0> și <1>politicile privind anunțurile</1> Google. Creăm o înregistrare pentru fiecare plată Ko-fi, cu identificatorul și tipul, suma și moneda, lunile acordate, starea, marcajele temporale și, dacă este cazul, identificatorul contului asociat și metoda de potrivire. E-mailul, numele și mesajul sunt păstrate numai când plata nu este acordată automat, pentru verificare sau aplicare manuală. Site-ul nu păstrează propriile jurnale de solicitări web. Firebase și Cloudflare păstrează jurnalele operaționale obișnuite conform propriilor condiții."
     },
     "children": {
       "heading": "Copii",

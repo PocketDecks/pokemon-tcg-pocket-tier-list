@@ -1,8 +1,10 @@
 # How-to guide: Receiving Ko-fi payments
 
 The Cloudflare Worker in `workers/kofi/` takes Ko-fi's payment webhooks and
-writes Premium access to Firestore. Each whole GBP 1 in a tip buys one
-calendar month, and a second tip adds its months to the end of the first
+writes Premium access to Firestore. Eligible GBP tips grant one calendar
+month per whole pound, up to 120 months per tip; fractional pounds do not
+count. GBP £121 or more and tips in other currencies need review and grant
+no Premium automatically. Later eligible tips extend the existing expiry.
 
 The Worker deploys on its own, so it can go live before the site reads
 Premium from `entitlements`
@@ -88,7 +90,9 @@ error, or just the error name for anything else. The Worker cuts stored
 text to 320 characters for the email, 500 for the message, 200 for the
 name, 64 for the Ko-fi timestamp, 32 for the type and 8 for the currency
 
-The Worker signs in with Admin credentials and bypasses Firestore rules.
+The Worker signs in with a service-account OAuth token and calls the
+Firestore REST API; it does not use the Admin SDK. Its trusted credentials
+bypass Firestore rules.
 The site also needs a client rule for `premiumCodes`, so a signed-in user
 can read their own code and create it on first use. The canonical
 `premiumCodes` rule, alongside the entitlement and premium data rules, is in

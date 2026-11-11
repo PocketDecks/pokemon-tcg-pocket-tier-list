@@ -83,12 +83,22 @@ describe("Premium popup copy", () => {
     expect(stringOf(premium, "checkAgain").trim()).not.toBe("");
   });
 
-  it.each(Object.entries(locales))("%s states a plain monthly price", (path, data) => {
-    void path;
-    const price = stringOf(data.premium, "price");
-    expect(price).toContain("1");
-    expect(price).toMatch(/£|英镑|英鎊/);
+  it("states the English GBP amount, cap, and review policy", () => {
+    const price = stringOf(english, "price");
+    expect(price).toMatch(/£1/);
+    expect(price).toMatch(/eligible GBP tips/i);
+    expect(price).toMatch(/120 months/i);
+    expect(price).toMatch(/£121 or more/i);
+    expect(price).toMatch(/other currencies/i);
+    expect(price).toMatch(/need review and grant no Premium automatically/i);
+    expect(price).toMatch(/do not count/i);
     expect(price).not.toContain("{{");
+  });
+
+  it.each(Object.entries(locales))("%s has localized price terms", (path, data) => {
+    const price = stringOf(data.premium, "price");
+    expect(price, path).toMatch(/120|１２０|120か月|120개월/);
+    expect(price, path).not.toContain("{{");
   });
 
   it("keeps interpolation placeholders aligned across locales", () => {
@@ -112,6 +122,16 @@ describe("Premium popup copy", () => {
           expect(feature[field].trim()).not.toBe("");
         }
       }
+    }
+  });
+
+  it("uses public releases and latest published data without a schedule claim", () => {
+    for (const [path, data] of Object.entries(locales)) {
+      const feature = data.premium.features.updated;
+      expect(`${path} ${feature.free} ${feature.premium} ${feature.description}`)
+        .toMatch(/public|öffentlich|públic|publi|pubbl|公開|公[開开]|공개/i);
+      expect(`${feature.free} ${feature.premium} ${feature.description}`)
+        .not.toMatch(/daily|weekly|täglich|wöchentlich|diario|semanal|quotidien|hebdomadaire|毎日|週間|매일|매주|每日|每週/i);
     }
   });
 

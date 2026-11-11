@@ -63,9 +63,9 @@
       },
       "updated": {
         "title": "Tier-Liste aktualisiert",
-        "description": "Wie oft die Tier-Liste neue Daten abruft. Schnellere Updates helfen dir, dem Meta voraus zu sein.",
-        "free": "Wöchentlich",
-        "premium": "Täglich"
+        "description": "Zeigt öffentliche Veröffentlichungen und die neuesten veröffentlichten Daten für Premium-Mitglieder.",
+        "free": "Öffentliche Veröffentlichungen",
+        "premium": "Neueste veröffentlichte Daten"
       },
       "decks": {
         "title": "Decks in der Tier-Liste",
@@ -74,14 +74,14 @@
         "premium": "100"
       }
     },
-    "price": "1 £ pro Monat. Gib einen beliebigen ganzen Betrag; je 1 £ verlängern deinen Zugang um einen Monat, und spätere Trinkgelder verlängern ihn weiter.",
+    "price": "£1 pro Monat. Automatische Freischaltungen gelten nur für berechtigte GBP-Trinkgelder: Je ganzem £1 kommt ein Kalendermonat hinzu, höchstens 120 Monate pro Trinkgeld. Pence-Anteile zählen nicht. GBP-Trinkgelder ab £121 und Zahlungen in anderen Währungen müssen geprüft werden und schalten Premium nicht automatisch frei. Spätere berechtigte Trinkgelder verlängern deinen bestehenden Ablaufzeitpunkt.",
     "cta": "Auf Ko-fi Trinkgeld geben",
     "ctaExtend": "Auf Ko-fi verlängern",
     "emailHint": "Verwende an der Ko-fi-Kasse die E-Mail-Adresse deines Google-Kontos ({{email}}), dann wird Premium automatisch aktiviert.",
-    "emailHintNoEmail": "Verwende an der Ko-fi-Kasse die E-Mail-Adresse deines Google-Kontos, dann wird Premium automatisch aktiviert.",
+    "emailHintNoEmail": "Für den automatischen Abgleich ist keine Google-Konto-E-Mail verfügbar. Öffne unten den Code-Abgleich und füge deinen Code in die Ko-fi-Nachricht ein. Wenn du keinen Code erhalten oder verwenden kannst, kontaktiere uns unten.",
     "altCodeToggle": "Zahlung von einer anderen E-Mail-Adresse?",
     "altCodeHint": "Füge diesen Code in die Ko-fi-Nachricht ein.",
-    "codeUnavailable": "Codes sind gerade nicht verfügbar. Nutze deine Google-E-Mail-Adresse oder kontaktiere uns unten.",
+    "codeUnavailable": "Ein Code ist gerade nicht verfügbar. Ohne Google-Konto-E-Mail ist kein automatischer Abgleich möglich. Kontaktiere uns unten mit deinen Zahlungsdaten, damit wir die Zahlung prüfen können.",
     "waiting": "Wir warten auf dein Trinkgeld… das dauert meist weniger als eine Minute.",
     "checkAgain": "Erneut prüfen",
     "copyFailed": "Der Code konnte nicht kopiert werden. Markiere ihn und kopiere ihn manuell.",
@@ -331,7 +331,7 @@
       "usage": "<0>Nutzungsdaten.</0> Google Analytics erfasst, welche Seiten Sie aufrufen, sowie übliche Angaben zu Gerät und Browser. Das Tool läuft nur, nachdem Sie Analyse akzeptiert haben, oder dort, wo das Einwilligungsbanner Ihrer Region keine Einwilligung abfragt.",
       "account": "<0>Kontodaten.</0> Wenn Sie sich mit Google anmelden, erhalten wir über Firebase Authentication Ihren Namen, Ihre E-Mail-Adresse und Ihr Profilfoto. Wir zeigen Ihren Namen und Ihr Foto an, solange Sie angemeldet sind, und prüfen anhand Ihrer Konto-ID, ob Sie Premium-Zugang haben.",
       "feedback": "<0>Feedback.</0> Wenn Sie als angemeldeter Nutzer Feedback senden, speichern wir Ihre Konto-ID, Ihre Nachricht, das gewählte Thema, die Seite, von der aus Sie es gesendet haben, und den Zeitpunkt in Cloud Firestore, einer von Google für Firebase betriebenen Datenbank. Ihre E-Mail-Adresse speichern wir zusammen mit der Nachricht nur, wenn Sie das Kästchen zur Antwort angeklickt haben. Außerdem speichern wir den Zeitpunkt Ihrer letzten Einsendung.",
-      "payment": "<0>Trinkgelder.</0> Freiwillige Premium-Trinkgelder können deinem Google-Konto zugeordnet werden. Die E-Mail-Adresse, den Namen und die Nachricht einer spendenden Person speichern wir nur, wenn ein Trinkgeld nicht automatisch neue Premium-Zeit gewährt, damit wir es manuell prüfen können."
+      "payment": "<0>Trinkgelder.</0> Für jede Ko-fi-Zahlung erstellen wir einen Datensatz. Er enthält Zahlungskennung und -typ, Betrag und Währung, gutgeschriebene Monate, Status sowie Eingangs- und Ko-fi-Zeitstempel. Bei einer Zuordnung enthält der Datensatz auch die Konto-ID und die Zuordnungsmethode. E-Mail-Adresse, Name und Nachricht der spendenden Person speichern wir nur, wenn eine Zahlung nicht automatisch freigeschaltet wird, damit wir sie prüfen oder manuell zuordnen können."
     },
     "cookies": {
       "heading": "Cookies und Tracking",
@@ -379,7 +379,7 @@
     },
     "retention": {
       "heading": "Wie lange wir Informationen aufbewahren",
-      "body": "Google Analytics speichert Ereignisdaten 14 Monate lang. Es speichert Nutzerdaten 14 Monate lang, und dieser Zeitraum beginnt neu, wenn du zur Website zurückkehrst. Wir bewahren dein Google-Anmeldekonto und gespeicherte Profilfelder auf, bis du deren Löschung über die unten genannten Kontaktdaten verlangst. Feedback-Nachrichten bewahren wir bis zu einer Löschanfrage auf. Google bestimmt die Speicherdauer von Werbedaten. Siehe die <0>Datenschutzerklärung</0> und die <1>Werberichtlinien</1> von Google. E-Mail-Adresse, Name und Nachricht einer spendenden Person speichern wir nur bei Trinkgeldern, die nicht automatisch neue Premium-Zeit gewähren, damit wir sie manuell prüfen und zuordnen können. Die Website speichert keine eigenen Protokolle von Webanfragen. Firebase und Cloudflare bewahren ihre üblichen Betriebsprotokolle nach eigenen Bedingungen auf."
+      "body": "Google Analytics speichert Ereignisdaten 14 Monate lang. Es speichert Nutzerdaten 14 Monate lang, und dieser Zeitraum beginnt neu, wenn du zur Website zurückkehrst. Wir bewahren dein Google-Anmeldekonto und gespeicherte Profilfelder auf, bis du deren Löschung über die unten genannten Kontaktdaten verlangst. Feedback-Nachrichten bewahren wir bis zu einer Löschanfrage auf. Google bestimmt die Speicherdauer von Werbedaten. Siehe die <0>Datenschutzerklärung</0> und die <1>Werberichtlinien</1> von Google. Für jede Ko-fi-Zahlung erstellen wir einen Datensatz mit Zahlungskennung und -typ, Betrag und Währung, gutgeschriebenen Monaten, Status, Zeitstempeln und gegebenenfalls der Konto-ID und Zuordnungsmethode. E-Mail-Adresse, Name und Nachricht speichern wir nur, wenn eine Zahlung nicht automatisch freigeschaltet wird, zur Prüfung oder manuellen Zuordnung. Die Website speichert keine eigenen Protokolle von Webanfragen. Firebase und Cloudflare bewahren ihre üblichen Betriebsprotokolle nach eigenen Bedingungen auf."
     },
     "children": {
       "heading": "Kinder",

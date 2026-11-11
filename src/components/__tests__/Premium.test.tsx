@@ -138,6 +138,9 @@ describe("Premium", () => {
     const { dialog } = await openLinkPopup();
     const hint = within(dialog).getByText(en.premium.emailHintNoEmail);
     expect(hint.textContent).not.toContain("(");
+    expect(hint).toHaveTextContent(/code matching below/i);
+    expect(hint).toHaveTextContent(/contact us below/i);
+    expect(hint).not.toHaveTextContent(/automatically/i);
     expect(within(dialog).queryByText(/player@example.com/)).not.toBeInTheDocument();
   });
 
@@ -266,6 +269,7 @@ describe("Premium", () => {
     expect(cta).toHaveAttribute("target", "_blank");
     expect(cta).toHaveAttribute("rel", "noopener noreferrer");
     expect(within(dialog).getByText(emailHintFor("player@example.com"))).toBeInTheDocument();
+    expect(within(dialog).getByText(en.premium.price)).toBeInTheDocument();
     expect(within(dialog).queryByRole("table")).not.toBeInTheDocument();
   });
 

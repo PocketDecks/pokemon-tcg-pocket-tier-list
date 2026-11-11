@@ -15,13 +15,6 @@
   },
   "premium": {
     "title": "Top Pocket Decks Premium",
-    "manageSubscription": "Gerenciar Assinatura",
-    "windDown": {
-      "headline": "O Premium está temporariamente suspenso 💛",
-      "status": "O Top Pocket Decks tem um novo mantenedor e continuará a receber atualizações! Durante essa transição, novas inscrições Premium estão temporariamente pausadas e os anúncios foram desativados para todos.",
-      "active": "Sua assinatura permanece ativa e continua sendo renovada até você cancelá-la. Você pode cancelar a qualquer momento pelo portal de cobrança.",
-      "refund": "Prefere um reembolso? Envie-me um e-mail para <0>chase@manning.dev</0> com o endereço de e-mail da sua conta e eu cancelarei sua assinatura e reembolsarei o pagamento mais recente. O Stripe só me permite reembolsar pagamentos feitos nos últimos 180 dias, então se o seu for mais antigo, farei o que for possível."
-    },
     "features": {
       "title": "Recursos",
       "free": "Grátis",
@@ -80,7 +73,20 @@
         "free": "30",
         "premium": "100"
       }
-    }
+    },
+    "benefits": "O Premium inclui um site sem anúncios, confrontos detalhados, filtros avançados, classificações alternativas, mais decks e atualizações mais rápidas.",
+    "price": "Cada libra esterlina inteira compra um mês de calendário. Gorjetas posteriores prolongam a data de validade atual.",
+    "signInFirst": "Inicie sessão primeiro com o Google para podermos associar a gorjeta à sua conta.",
+    "signIn": "Iniciar sessão com Google",
+    "tipPrompt": "Cole este código na mensagem do Ko-fi. Também pode enviar a gorjeta a partir do endereço de e-mail da sua conta Google.",
+    "copy": "Copiar código",
+    "copied": "Copiado",
+    "codeError": "Se o código não estiver disponível, indique na mensagem do Ko-fi o e-mail da sua conta Google.",
+    "expires": "O seu acesso Premium termina em {{date}}.",
+    "lifetime": "O seu acesso Premium não expira.",
+    "tip": "Apoiar o Premium no Ko-fi",
+    "refund": "Para pedir um reembolso ou comunicar um pagamento em falta, contacte-nos em <0/> e indique o e-mail da sua conta Google e os dados do pagamento.",
+    "codeLoading": "A preparar o código da sua conta…"
   },
   "ads": {
     "advertisement": "Anúncio",
@@ -319,7 +325,7 @@
       "usage": "<0>Dados de utilização.</0> O Google Analytics regista as páginas que visualiza e os dados habituais do dispositivo e do navegador. Só funciona depois de aceitar a análise ou, onde o banner de consentimento da sua região não pedir consentimento, sem que seja necessário.",
       "account": "<0>Informações da conta.</0> Se iniciar sessão com o Google, o Firebase Authentication fornece-nos o seu nome, endereço de e-mail e foto de perfil. Mostramos o seu nome e a sua foto enquanto tiver sessão iniciada, e usamos o seu ID de conta para verificar se tem acesso Premium.",
       "feedback": "<0>Feedback.</0> Se enviar feedback com sessão iniciada, guardamos o seu ID de conta, a mensagem, o tema escolhido, a página a partir da qual o enviou e a hora do envio no Cloud Firestore, uma base de dados gerida pela Google para o Firebase. Guardamos o seu endereço de e-mail com a mensagem apenas se marcar a caixa que pede uma resposta. Também guardamos a hora do seu último envio.",
-      "payment": "<0>Pagamentos.</0> O pagamento de Premium está atualmente suspenso. Quando voltar a estar disponível, a Stripe processará os pagamentos e guardaremos o estado da sua subscrição no Firestore."
+      "payment": "<0>Gorjetas.</0> As gorjetas opcionais para o Premium podem ser associadas à sua conta Google. Só guardamos o e-mail, o nome e a mensagem de quem enviou a gorjeta quando esta não concede automaticamente novo tempo Premium, para a analisarmos manualmente."
     },
     "cookies": {
       "heading": "Cookies e rastreio",
@@ -342,7 +348,7 @@
     },
     "legalBasis": {
       "heading": "Fundamento jurídico",
-      "body": "Baseamo-nos no seu consentimento para a análise e a publicidade quando o banner de consentimento o pede. Para o Premium, baseamo-nos no nosso contrato consigo para fornecer o acesso e gerir a sua subscrição."
+      "body": "Baseamo-nos no seu consentimento para análise e publicidade quando o aviso o solicita. Usamos os dados da sua conta para fornecer acesso Premium e analisar gorjetas que não concedem automaticamente novo tempo Premium."
     },
     "use": {
       "heading": "Como utilizamos as informações",
@@ -360,14 +366,14 @@
       "intro": "Recorremos a fornecedores terceiros. Cada um recebe apenas as informações aqui descritas.",
       "analytics": "O Google Analytics recebe dados de utilização quando a análise é permitida.",
       "adsense": "O Google AdSense recebe os pedidos de anúncios dos visitantes do plano gratuito.",
-      "firebase": "O Firebase, um serviço da Google, assegura o início de sessão, a base de dados de feedback, os registos de subscrições e o alojamento do site. O serviço de alojamento recebe detalhes técnicos de cada pedido, como o seu endereço IP e o tipo de navegador.",
-      "stripe": "A Stripe processa os pagamentos Premium.",
-      "github": "O GitHub entrega imagens de cartas a partir de raw.githubusercontent.com quando uma carta é apresentada, pelo que o GitHub recebe o seu endereço IP e dados do navegador. O GitHub, o Twitter e o portal de faturação da Stripe recebem a sua visita apenas se seguir as respetivas ligações.",
-      "outro": "Estes fornecedores utilizam as suas informações de acordo com as respetivas políticas de privacidade."
+      "firebase": "O Firebase, um serviço da Google, gere o início de sessão, a base de dados de feedback, o armazenamento de permissões e o alojamento do site. O serviço de alojamento recebe detalhes técnicos de cada pedido, como o endereço IP e o navegador.",
+      "github": "O GitHub entrega imagens de cartas a partir de raw.githubusercontent.com quando uma carta é apresentada, pelo que recebe o seu endereço IP e dados do navegador. Os sites externos recebem a sua visita apenas se seguir as respetivas ligações.",
+      "outro": "Os sites externos recebem o seu endereço IP e dados do navegador se seguir os respetivos links. Esses sites usam as suas informações segundo as próprias políticas de privacidade.",
+      "kofi": "<0>O Ko-fi permite enviar gorjetas opcionais para o Premium. O fornecedor de pagamento escolhido no checkout processa o pagamento.</0>"
     },
     "retention": {
       "heading": "Durante quanto tempo guardamos as informações",
-      "body": "O Google Analytics conserva os dados de eventos durante 14 meses. Conserva os dados de utilizador durante 14 meses, e esse prazo recomeça quando regressa ao site. Conservamos a sua conta de início de sessão Google e os campos de perfil guardados até nos pedir a eliminação, através dos contactos indicados abaixo. Conservamos as mensagens de feedback até nos pedir que as eliminemos. O prazo de conservação dos dados publicitários é definido pela Google. Consulte a <0>política de privacidade</0> e as <1>políticas de anúncios</1> da Google. O pagamento de Premium está atualmente suspenso. Quando voltar a estar disponível, a Stripe conserva os registos de pagamento conforme a lei exige. O site não conserva registos próprios dos pedidos web. O Firebase, fornecedor de alojamento, e a Cloudflare, fornecedor de rede, conservam os seus registos operacionais habituais de acordo com as respetivas condições."
+      "body": "O Google Analytics guarda dados de eventos durante 14 meses. Guarda dados de utilizador durante 14 meses e o período reinicia quando regressa ao site. Guardamos a sua conta Google e os campos de perfil até pedir a sua eliminação através dos contactos abaixo. Guardamos as mensagens de feedback até pedir que sejam eliminadas. O Google decide durante quanto tempo guarda os dados de publicidade. Consulte a <0>política de privacidade</0> e as <1>políticas de anúncios</1> do Google. Guardamos o e-mail, o nome e a mensagem de quem enviou uma gorjeta apenas quando esta não concede automaticamente novo tempo Premium, para a revermos e aplicarmos manualmente. O site não guarda registos próprios de pedidos web. Firebase e Cloudflare guardam os seus registos operacionais habituais segundo os próprios termos."
     },
     "children": {
       "heading": "Crianças",

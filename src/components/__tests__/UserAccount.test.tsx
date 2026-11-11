@@ -27,6 +27,7 @@ vi.mock("../../contexts/AuthContext", () => ({
 
 vi.mock("../../app/use-is-premium", () => ({
   default: vi.fn(),
+  usePremiumExpiry: vi.fn(() => null),
 }));
 
 const signedInUser = {

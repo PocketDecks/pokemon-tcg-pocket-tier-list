@@ -1,12 +1,14 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import Popup from "./Popup";
-import { CONTACT_EMAIL, MANAGE_SUBSCRIPTION_URL } from "../app/constants";
-import useIsPremium from "../app/use-is-premium";
+import { CONTACT_EMAIL, KOFI_URL } from "../app/constants";
+import useIsPremium, { usePremiumExpiry } from "../app/use-is-premium";
+import { loadPremiumCode } from "../app/premium-code";
+import { useAuth } from "../contexts/AuthContext";
 import premiumIcon from "../assets/premium.webp";
 
-const ButtonContainer = styled.button`
+const Button = styled.button`
   cursor: pointer;
 `;
 
@@ -58,33 +60,76 @@ const InlineLink = styled.a`
 `;
 
 interface Props {
-  // "link" renders a compact "Remove ads" text trigger (used by the ad anchor)
-  // instead of the default premium icon.
   variant?: "default" | "link";
   linkLabel?: string;
 }
 
-// Signups are paused during the maintainer transition, so this panel is purely
-// self-service for existing subscribers.
+interface CodeResult {
+  uid: string;
+  code: string | null;
+  failed: boolean;
+}
+
 const Premium = ({ variant = "default", linkLabel }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isPremium = useIsPremium();
+  const expiresAt = usePremiumExpiry();
+  const { user, signInWithGoogle } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [codeResult, setCodeResult] = useState<CodeResult | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
+
+  useEffect(() => {
+    const uid = user?.uid;
+    if (!isOpen || !uid || (isPremium && expiresAt === null)) return;
+    let active = true;
+    setCodeResult((current) => (current?.uid === uid ? current : null));
+    setCopied(false);
+    setCopyFailed(false);
+    void loadPremiumCode(uid).then(
+      (code) => {
+        if (active) setCodeResult({ uid, code, failed: false });
+      },
+      () => {
+        if (active) setCodeResult({ uid, code: null, failed: true });
+      }
+    );
+    return () => {
+      active = false;
+    };
+  }, [expiresAt, isOpen, isPremium, user?.uid]);
 
   if (isPremium === null) return null;
 
   const isLink = variant === "link";
-  const mailLink = (
-    <InlineLink href={`mailto:${CONTACT_EMAIL}`} key="email" />
+  const currentCode = codeResult?.uid === user?.uid ? codeResult : null;
+  const premiumState = isPremium ? (expiresAt === null ? "lifetime" : "expires") : "free";
+  const date = expiresAt === null ? "" : new Intl.DateTimeFormat(i18n.language, {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(expiresAt));
+  const mailLink = <InlineLink href={`mailto:${CONTACT_EMAIL}`} key="email" />;
+  const kofiLink = (
+    <InlineLink href={KOFI_URL} target="_blank" rel="noopener noreferrer" key="kofi">
+      {t("premium.tip")}
+    </InlineLink>
   );
-  const billingLink = (
-    <InlineLink
-      href={MANAGE_SUBSCRIPTION_URL}
-      target="_blank"
-      rel="noopener noreferrer"
-      key="billing"
-    />
-  );
+
+  const copyCode = async () => {
+    if (!currentCode?.code || !navigator.clipboard?.writeText) {
+      setCopyFailed(true);
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(currentCode.code);
+      setCopied(true);
+      setCopyFailed(false);
+    } catch {
+      setCopyFailed(true);
+    }
+  };
 
   return (
     <>
@@ -94,27 +139,60 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
         </RemoveAdsLink>
       )}
       {!isLink && isPremium && (
-        <ButtonContainer onClick={() => setIsOpen(true)}>
-          <PremiumIcon src={premiumIcon} alt="Premium" />
-        </ButtonContainer>
+        <Button onClick={() => setIsOpen(true)} aria-label={t("premium.title")}>
+          <PremiumIcon src={premiumIcon} alt="" />
+        </Button>
       )}
       {(isPremium || isLink) && (
         <Popup
           width="60rem"
           isOpen={isOpen}
-          header="premium.windDown.headline"
+          header="premium.title"
           close={() => setIsOpen(false)}
         >
-          <Text>{t("premium.windDown.status")}</Text>
-          <Text>
-            <Trans
-              i18nKey="premium.windDown.active"
-              components={[billingLink]}
-            />
-          </Text>
-          <Text>
-            <Trans i18nKey="premium.windDown.refund" components={[mailLink]} />
-          </Text>
+          {premiumState !== "lifetime" && (
+            <>
+              <Text>{t("premium.benefits")}</Text>
+              <Text>{t("premium.price")}</Text>
+              {!user ? (
+                <>
+                  <Text>{t("premium.signInFirst")}</Text>
+                  <Button onClick={() => void signInWithGoogle()}>
+                    {t("premium.signIn")}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  {premiumState === "expires" && (
+                    <Text>{t("premium.expires", { date })}</Text>
+                  )}
+                  <Text>{t("premium.tipPrompt")}</Text>
+                  {currentCode?.code && (
+                    <Text>
+                      <code>{currentCode.code}</code>{" "}
+                      <Button aria-live="polite" onClick={() => void copyCode()}>
+                        {t(copied ? "premium.copied" : "premium.copy")}
+                      </Button>
+                    </Text>
+                  )}
+                  {!currentCode && <Text role="status">{t("premium.codeLoading")}</Text>}
+                  {(currentCode?.failed || copyFailed) && (
+                    <Text role="status">{t("premium.codeError")}</Text>
+                  )}
+                  <Text>{kofiLink}</Text>
+                </>
+              )}
+              {!user && premiumState === "expires" && (
+                <Text>{t("premium.expires", { date })}</Text>
+              )}
+            </>
+          )}
+          {premiumState === "lifetime" && <Text>{t("premium.lifetime")}</Text>}
+          {premiumState !== "lifetime" && (
+            <Text>
+              <Trans i18nKey="premium.refund" components={[mailLink]} />
+            </Text>
+          )}
         </Popup>
       )}
     </>

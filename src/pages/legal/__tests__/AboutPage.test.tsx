@@ -36,4 +36,12 @@ describe("AboutPage", () => {
     renderAt("/ja/about");
     expect(tierListLink()).toHaveAttribute("href", "/ja/tier-list/");
   });
+
+  it("keeps the Premium anchor and links to Ko-fi with the monthly tip rule", () => {
+    renderAt("/about#premium");
+    expect(document.getElementById("premium")).toBeInTheDocument();
+    const link = screen.getByRole("link", { name: /ko-fi/i });
+    expect(link).toHaveAttribute("href", "https://ko-fi.com/dalin");
+    expect(screen.getByText(/whole GBP 1 buys one calendar month/i)).toBeInTheDocument();
+  });
 });

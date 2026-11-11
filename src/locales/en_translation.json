@@ -15,13 +15,6 @@
   },
   "premium": {
     "title": "Top Pocket Decks Premium",
-    "manageSubscription": "Manage Subscription",
-    "windDown": {
-      "headline": "Premium is temporarily halted 💛",
-      "status": "Top Pocket Decks has a new maintainer and will continue to receive updates! During this transition, new Premium signups are temporarily paused and ads have been switched off for everyone.",
-      "active": "Your subscription stays active and keeps renewing until you cancel it. You can cancel any time through the billing portal.",
-      "refund": "Would you rather have a refund? Email me at <0>chase@manning.dev</0> with the email address on your account and I'll cancel your subscription and refund your most recent payment. Stripe only lets me refund payments made in the last 180 days, so if yours is older than that I'll do whatever I can."
-    },
     "features": {
       "title": "Features",
       "free": "Free",
@@ -80,7 +73,20 @@
         "free": "30",
         "premium": "100"
       }
-    }
+    },
+    "benefits": "Premium includes an ad-free site, detailed matchups, advanced filters, alternative rankings, more decks and faster updates.",
+    "price": "Each whole GBP 1 buys one calendar month. Later tips extend your existing expiry.",
+    "signInFirst": "Sign in with Google first so we can match your tip to your account.",
+    "signIn": "Sign in with Google",
+    "tipPrompt": "Paste this code into your Ko-fi message. Tipping from the email address on your Google account also works.",
+    "copy": "Copy code",
+    "copied": "Copied",
+    "codeError": "If the code is unavailable, use the email address on your Google account in your Ko-fi message.",
+    "expires": "Your Premium access ends on {{date}}.",
+    "lifetime": "Your Premium access does not expire.",
+    "tip": "Support Premium on Ko-fi",
+    "refund": "For refunds or lost payments, contact us at <0/> with the email address on your Google account and the payment details.",
+    "codeLoading": "Preparing your account code…"
   },
   "ads": {
     "advertisement": "Advertisement",
@@ -319,7 +325,7 @@
       "usage": "<0>Usage data.</0> Google Analytics records the pages you view and standard device and browser details. It runs only after you accept analytics, or where your region's consent banner does not ask for consent.",
       "account": "<0>Account information.</0> If you sign in with Google, Firebase Authentication gives us your name, email address and profile photo. We show your name and photo while you are signed in, and we use your account ID to check whether you have Premium access.",
       "feedback": "<0>Feedback.</0> If you send feedback while signed in, we store your account ID, your message, the topic you chose, the page you sent it from and the time you sent it in Cloud Firestore, a database run by Google for Firebase. We store your email address with the message only if you tick the box asking us to reply. We also store the time of your last submission.",
-      "payment": "<0>Payments.</0> Premium checkout is paused. When it reopens, Stripe processes payments and we store your subscription status in Firestore."
+      "payment": "<0>Tips.</0> Optional Premium tips can be matched to your Google account. We store a tipper’s email address, name and message only when a tip does not automatically grant new Premium time, so we can review it manually."
     },
     "cookies": {
       "heading": "Cookies and tracking",
@@ -342,7 +348,7 @@
     },
     "legalBasis": {
       "heading": "Legal basis",
-      "body": "We rely on your consent for analytics and advertising where the consent banner asks for it. For Premium, we rely on our contract with you to provide access and manage your subscription."
+      "body": "We rely on your consent for analytics and advertising where the consent banner asks for it. We use your account details to provide Premium access and review tips that do not automatically grant new Premium time."
     },
     "use": {
       "heading": "How we use information",
@@ -360,14 +366,14 @@
       "intro": "We rely on third-party providers. Each one receives only the information described here.",
       "analytics": "Google Analytics receives usage data where analytics is allowed.",
       "adsense": "Google AdSense receives ad requests from free-tier visitors.",
-      "firebase": "Firebase, a Google service, runs sign-in, the feedback database, subscription records and site hosting. The hosting service receives technical details of each request, such as your IP address and browser type.",
-      "stripe": "Stripe processes Premium payments.",
-      "github": "GitHub serves card images from raw.githubusercontent.com when a card is shown, so GitHub receives your IP address and browser details. GitHub, Twitter and Stripe's billing portal receive your visit only if you follow their links.",
-      "outro": "Those providers use your information under their own privacy policies."
+      "firebase": "Firebase, a Google service, runs sign-in, the feedback database, entitlement storage and site hosting. The hosting service receives technical details of each request, such as your IP address and browser type.",
+      "github": "GitHub serves card images from raw.githubusercontent.com when a card is shown, so GitHub receives your IP address and browser details. External sites receive your visit only if you follow their links.",
+      "outro": "External sites receive your IP address and browser details if you follow their links. Those sites use your information under their own privacy policies.",
+      "kofi": "<0>Ko-fi lets visitors send optional Premium tips. The payment provider you choose at checkout processes the payment.</0>"
     },
     "retention": {
       "heading": "How long we keep information",
-      "body": "Google Analytics keeps event data for 14 months. It keeps user data for 14 months, and that period resets when you return to the site. We keep your Google sign-in account and stored profile fields until you ask us to delete them, using the contact details below. We keep feedback messages until you ask us to delete them. Google decides how long it keeps advertising data. See its <0>privacy policy</0> and <1>ads policies</1>. Premium checkout is currently paused. When checkout reopens, Stripe keeps payment records as the law requires. The site does not keep web request logs of its own. Firebase, the hosting provider, and Cloudflare, the network provider, keep their standard operational logs under their own terms."
+      "body": "Google Analytics keeps event data for 14 months. It keeps user data for 14 months, and that period resets when you return to the site. We keep your Google sign-in account and stored profile fields until you ask us to delete them, using the contact details below. We keep feedback messages until you ask us to delete them. Google decides how long it keeps advertising data. See its <0>privacy policy</0> and <1>ads policies</1>. We store a tipper’s email address, name and message only for tips that do not automatically grant new Premium time, so we can review and apply them manually. The site does not keep web request logs of its own. Firebase, the hosting provider, and Cloudflare, the network provider, keep their standard operational logs under their own terms."
     },
     "children": {
       "heading": "Children",

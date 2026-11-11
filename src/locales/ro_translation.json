@@ -15,13 +15,6 @@
   },
   "premium": {
     "title": "Top Pocket Decks Premium",
-    "manageSubscription": "Gestionare abonament",
-    "windDown": {
-      "headline": "Serviciul Premium este temporar întrerupt 💛",
-      "status": "Top Pocket Decks are un nou dezvoltator și va continua să primească actualizări! În timpul acestei tranziții, înscrierile noi la Premium sunt temporar întrerupte, iar reclamele au fost dezactivate pentru toată lumea.",
-      "active": "Abonamentul tău rămâne activ și se va reînnoi în continuare până când îl anulezi. Poți anula oricând prin portalul de facturare.",
-      "refund": "Preferi o rambursare? Trimite-mi un e-mail la <0>chase@manning.dev</0> cu adresa de e-mail asociată contului tău, îți voi anula abonamentul și voi rambursa cea mai recentă plată. Stripe îmi permite să rambursez doar plățile efectuate în ultimele 180 de zile, deci dacă a ta este mai veche, voi face tot ce pot."
-    },
     "features": {
       "title": "Funcționalități",
       "free": "Gratuit",
@@ -80,7 +73,20 @@
         "free": "30",
         "premium": "100"
       }
-    }
+    },
+    "benefits": "Premium oferă un site fără reclame, confruntări detaliate, filtre avansate, clasamente alternative, mai multe pachete și actualizări mai rapide.",
+    "price": "Fiecare liră sterlină întreagă cumpără o lună calendaristică. Bacșișurile ulterioare prelungesc data de expirare existentă.",
+    "signInFirst": "Conectează-te mai întâi cu Google pentru a putea asocia bacșișul contului tău.",
+    "signIn": "Conectare cu Google",
+    "tipPrompt": "Lipește acest cod în mesajul Ko-fi. Poți trimite bacșișul și de pe adresa de e-mail a contului Google.",
+    "copy": "Copiază codul",
+    "copied": "Copiat",
+    "codeError": "Dacă nu poți folosi codul, include adresa de e-mail a contului Google în mesajul Ko-fi.",
+    "expires": "Accesul Premium se încheie la {{date}}.",
+    "lifetime": "Accesul Premium nu expiră.",
+    "tip": "Susține Premium pe Ko-fi",
+    "refund": "Pentru rambursări sau plăți pierdute, contactează-ne la <0/> și include adresa de e-mail a contului Google și detaliile plății.",
+    "codeLoading": "Se pregătește codul contului…"
   },
   "ads": {
     "advertisement": "Reclamă",
@@ -319,7 +325,7 @@
       "usage": "<0>Date de utilizare.</0> Google Analytics înregistrează paginile pe care le vizualizați și datele standard despre dispozitiv și browser. Rulează doar după ce acceptați analiza sau acolo unde bannerul de consimțământ din regiunea dumneavoastră nu cere consimțământ.",
       "account": "<0>Informații despre cont.</0> Dacă vă conectați cu Google, Firebase Authentication ne furnizează numele, adresa de e-mail și fotografia de profil. Vă afișăm numele și fotografia cât timp sunteți conectat, iar ID-ul contului îl folosim pentru a verifica dacă aveți acces Premium.",
       "feedback": "<0>Feedback.</0> Dacă trimiteți feedback în timp ce sunteți conectat, salvăm ID-ul contului, mesajul, tema aleasă, pagina de unde l-ați trimis și momentul trimiterii, în Cloud Firestore, o bază de date administrată de Google pentru Firebase. Vă salvăm adresa de e-mail împreună cu mesajul doar dacă bifați caseta prin care cereți un răspuns. Păstrăm și momentul ultimei trimiteri.",
-      "payment": "<0>Plăți.</0> Plata pentru Premium este momentan suspendată. Când va fi din nou disponibilă, Stripe va procesa plățile, iar noi vom stoca starea abonamentului dvs. în Firestore."
+      "payment": "<0>Bacșișuri.</0> Bacșișurile opționale pentru Premium pot fi asociate contului Google. Păstrăm adresa de e-mail, numele și mesajul persoanei care trimite bacșișul numai când acesta nu acordă automat timp Premium nou, pentru a-l verifica manual."
     },
     "cookies": {
       "heading": "Cookie-uri și urmărire",
@@ -342,7 +348,7 @@
     },
     "legalBasis": {
       "heading": "Temeiul juridic",
-      "body": "Ne bazăm pe consimțământul dumneavoastră pentru analiză și publicitate acolo unde bannerul de consimțământ îl cere. Pentru Premium, ne bazăm pe contractul cu dumneavoastră pentru a asigura accesul și a gestiona abonamentul."
+      "body": "Ne bazăm pe consimțământul tău pentru analiză și publicitate atunci când bannerul solicită acest lucru. Folosim datele contului pentru a oferi acces Premium și a verifica bacșișurile care nu acordă automat timp Premium nou."
     },
     "use": {
       "heading": "Cum folosim informațiile",
@@ -360,14 +366,14 @@
       "intro": "Colaborăm cu furnizori terți. Fiecare primește doar informațiile descrise aici.",
       "analytics": "Google Analytics primește date de utilizare acolo unde analiza este permisă.",
       "adsense": "Google AdSense primește cererile de reclame de la vizitatorii din planul gratuit.",
-      "firebase": "Firebase, un serviciu Google, asigură autentificarea, baza de date a feedbackului, înregistrările abonamentelor și găzduirea site-ului. Serviciul de găzduire primește detalii tehnice despre fiecare cerere, cum ar fi adresa IP și tipul browserului.",
-      "stripe": "Stripe procesează plățile Premium.",
-      "github": "GitHub livrează imaginile cărților de la raw.githubusercontent.com atunci când o carte este afișată, deci GitHub primește adresa IP și datele browserului. GitHub, Twitter și portalul de facturare al Stripe primesc vizita dumneavoastră doar dacă urmați linkurile lor.",
-      "outro": "Acești furnizori folosesc informațiile dumneavoastră conform propriilor politici de confidențialitate."
+      "firebase": "Firebase, un serviciu Google, gestionează autentificarea, baza de date pentru feedback, stocarea drepturilor de acces și găzduirea site-ului. Serviciul de găzduire primește detalii tehnice despre fiecare solicitare, precum adresa IP și browserul.",
+      "github": "GitHub livrează imaginile cărților de la raw.githubusercontent.com atunci când o carte este afișată, deci primește adresa IP și datele browserului. Site-urile externe primesc vizita doar dacă le accesezi linkurile.",
+      "outro": "Site-urile externe primesc adresa IP și datele browserului dacă le accesezi linkurile. Acestea îți folosesc informațiile conform propriilor politici de confidențialitate.",
+      "kofi": "<0>Ko-fi permite trimiterea de bacșișuri opționale pentru Premium. Furnizorul de plăți ales la finalizarea plății procesează tranzacția.</0>"
     },
     "retention": {
       "heading": "Cât timp păstrăm informațiile",
-      "body": "Google Analytics păstrează datele evenimentelor timp de 14 luni. Păstrează datele utilizatorilor timp de 14 luni, iar această perioadă se reia când reveniți pe site. Păstrăm contul dvs. de conectare Google și câmpurile de profil salvate până când cereți ștergerea, prin datele de contact de mai jos. Păstrăm mesajele de feedback până când ne cereți să le ștergem. Perioada de păstrare a datelor publicitare este stabilită de Google. Consultați <0>politica de confidențialitate</0> și <1>politicile privind publicitatea</1> ale Google. Plata pentru Premium este momentan suspendată. Când va fi din nou disponibilă, Stripe păstrează înregistrările de plată, cum cere legea. Site-ul nu păstrează jurnale proprii ale cererilor web. Firebase, furnizorul de găzduire, și Cloudflare, furnizorul de rețea, își păstrează jurnalele operaționale standard conform propriilor condiții."
+      "body": "Google Analytics păstrează datele despre evenimente timp de 14 luni. Păstrează datele utilizatorilor timp de 14 luni, iar perioada se reia când revii pe site. Păstrăm contul Google și câmpurile de profil salvate până când soliciți ștergerea lor folosind datele de contact de mai jos. Păstrăm mesajele de feedback până când soliciți ștergerea lor. Google decide cât timp păstrează datele publicitare. Consultă <0>politica de confidențialitate</0> și <1>politicile privind anunțurile</1> Google. Păstrăm adresa de e-mail, numele și mesajul persoanei care trimite un bacșiș numai pentru bacșișurile care nu acordă automat timp Premium nou, pentru a le verifica și aplica manual. Site-ul nu păstrează propriile jurnale de solicitări web. Firebase și Cloudflare păstrează jurnalele operaționale obișnuite conform propriilor condiții."
     },
     "children": {
       "heading": "Copii",

@@ -73,6 +73,24 @@ describe("translation key parity", () => {
     }
   });
 
+  it("contains no removed payment processor or wind-down copy", () => {
+    const localeDataSet = [
+      ...Object.entries(locales),
+      ["en_seo", enSeo],
+      ["ja_seo", jaSeo],
+    ];
+    for (const [, localeData] of localeDataSet) {
+      const strings = Object.values(localeData as Record<string, unknown>);
+      const collect = (value: unknown): string[] =>
+        typeof value === "string"
+          ? [value]
+          : value && typeof value === "object"
+            ? Object.values(value).flatMap(collect)
+            : [];
+      expect(collect(strings).join(" ")).not.toMatch(/stripe|wind.?down/i);
+    }
+  });
+
   it.each(Object.entries(locales))("%s consent copy names Canada", (locale, localeData) => {
     const consent = (localeData as { privacyPage: { consent: { heading: string; body: string } } })
       .privacyPage.consent;

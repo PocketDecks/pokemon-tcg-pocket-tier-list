@@ -15,13 +15,6 @@
   },
   "premium": {
     "title": "Top Pocket Decks Premium",
-    "manageSubscription": "Abonnement verwalten",
-    "windDown": {
-      "headline": "Premium ist vorübergehend pausiert 💛",
-      "status": "Top Pocket Decks hat einen neuen Maintainer und wird weiterhin Updates erhalten! Während dieses Übergangs sind neue Premium-Anmeldungen vorübergehend pausiert und die Werbung wurde für alle abgeschaltet.",
-      "active": "Dein Abonnement bleibt aktiv und verlängert sich weiter, bis du es kündigst. Du kannst jederzeit über das Abrechnungsportal kündigen.",
-      "refund": "Möchtest du lieber eine Rückerstattung? Schreib mir an <0>chase@manning.dev</0> mit der E-Mail-Adresse deines Kontos, dann kündige ich dein Abonnement und erstatte deine letzte Zahlung. Stripe erlaubt mir Rückerstattungen nur für Zahlungen der letzten 180 Tage. Ist deine Zahlung älter, tue ich, was ich kann."
-    },
     "features": {
       "title": "Funktionen",
       "free": "Kostenlos",
@@ -80,7 +73,20 @@
         "free": "30",
         "premium": "100"
       }
-    }
+    },
+    "benefits": "Premium bietet eine werbefreie Website, detaillierte Matchups, erweiterte Filter, alternative Ranglisten, mehr Decks und schnellere Updates.",
+    "price": "Je volle 1 GBP gilt für einen Kalendermonat. Spätere Trinkgelder verlängern das bestehende Ablaufdatum.",
+    "signInFirst": "Melde dich zuerst mit Google an, damit wir dein Trinkgeld deinem Konto zuordnen können.",
+    "signIn": "Mit Google anmelden",
+    "tipPrompt": "Füge diesen Code in deine Ko-fi-Nachricht ein. Ein Trinkgeld von der E-Mail-Adresse deines Google-Kontos funktioniert ebenfalls.",
+    "copy": "Code kopieren",
+    "copied": "Kopiert",
+    "codeError": "Falls der Code nicht verfügbar ist, verwende in deiner Ko-fi-Nachricht die E-Mail-Adresse deines Google-Kontos.",
+    "expires": "Dein Premium-Zugang endet am {{date}}.",
+    "lifetime": "Dein Premium-Zugang läuft nicht ab.",
+    "tip": "Premium auf Ko-fi unterstützen",
+    "refund": "Bei Rückerstattungen oder verlorenen Zahlungen kontaktiere uns unter <0/> und nenne die E-Mail-Adresse deines Google-Kontos sowie die Zahlungsdaten.",
+    "codeLoading": "Dein Kontocode wird erstellt…"
   },
   "ads": {
     "advertisement": "Werbung",
@@ -319,7 +325,7 @@
       "usage": "<0>Nutzungsdaten.</0> Google Analytics erfasst, welche Seiten Sie aufrufen, sowie übliche Angaben zu Gerät und Browser. Das Tool läuft nur, nachdem Sie Analyse akzeptiert haben, oder dort, wo das Einwilligungsbanner Ihrer Region keine Einwilligung abfragt.",
       "account": "<0>Kontodaten.</0> Wenn Sie sich mit Google anmelden, erhalten wir über Firebase Authentication Ihren Namen, Ihre E-Mail-Adresse und Ihr Profilfoto. Wir zeigen Ihren Namen und Ihr Foto an, solange Sie angemeldet sind, und prüfen anhand Ihrer Konto-ID, ob Sie Premium-Zugang haben.",
       "feedback": "<0>Feedback.</0> Wenn Sie als angemeldeter Nutzer Feedback senden, speichern wir Ihre Konto-ID, Ihre Nachricht, das gewählte Thema, die Seite, von der aus Sie es gesendet haben, und den Zeitpunkt in Cloud Firestore, einer von Google für Firebase betriebenen Datenbank. Ihre E-Mail-Adresse speichern wir zusammen mit der Nachricht nur, wenn Sie das Kästchen zur Antwort angeklickt haben. Außerdem speichern wir den Zeitpunkt Ihrer letzten Einsendung.",
-      "payment": "<0>Zahlungen.</0> Die Zahlung für Premium ist derzeit pausiert. Sobald der Kauf wieder möglich ist, verarbeitet Stripe Zahlungen, und wir speichern Ihren Abostatus in Firestore."
+      "payment": "<0>Trinkgelder.</0> Freiwillige Premium-Trinkgelder können deinem Google-Konto zugeordnet werden. Die E-Mail-Adresse, den Namen und die Nachricht einer spendenden Person speichern wir nur, wenn ein Trinkgeld nicht automatisch neue Premium-Zeit gewährt, damit wir es manuell prüfen können."
     },
     "cookies": {
       "heading": "Cookies und Tracking",
@@ -342,7 +348,7 @@
     },
     "legalBasis": {
       "heading": "Rechtsgrundlage",
-      "body": "Für Analyse und Werbung stützen wir uns auf Ihre Einwilligung, sofern das Einwilligungsbanner sie abfragt. Für Premium stützen wir uns auf unseren Vertrag mit Ihnen, um den Zugang bereitzustellen und Ihr Abo zu verwalten."
+      "body": "Für Analyse und Werbung stützen wir uns auf Ihre Einwilligung, sofern das Einwilligungsbanner sie abfragt. Wir verwenden Ihre Kontodaten, um Premium-Zugang bereitzustellen und Trinkgelder zu prüfen, die nicht automatisch neue Premium-Zeit gewähren."
     },
     "use": {
       "heading": "Wie wir Informationen verwenden",
@@ -360,14 +366,14 @@
       "intro": "Wir arbeiten mit Drittanbietern zusammen. Jeder erhält nur die hier beschriebenen Informationen.",
       "analytics": "Google Analytics erhält Nutzungsdaten, sofern Analyse erlaubt ist.",
       "adsense": "Google AdSense erhält Anzeigenanfragen von Besuchern im kostenlosen Angebot.",
-      "firebase": "Firebase, ein Dienst von Google, betreibt die Anmeldung, die Feedback-Datenbank, die Abodaten und das Hosting der Website. Der Hosting-Dienst erhält technische Angaben zu jeder Anfrage, etwa Ihre IP-Adresse und Ihren Browsertyp.",
-      "stripe": "Stripe verarbeitet Premium-Zahlungen.",
-      "github": "GitHub liefert Kartenbilder von raw.githubusercontent.com aus, wenn eine Karte angezeigt wird. GitHub erhält deshalb Ihre IP-Adresse und Browserangaben. GitHub, Twitter und das Kundenportal von Stripe erhalten Ihren Besuch nur, wenn Sie deren Links folgen.",
-      "outro": "Diese Anbieter verwenden Ihre Informationen gemäß ihren eigenen Datenschutzerklärungen."
+      "firebase": "Firebase, ein Google-Dienst, betreibt die Anmeldung, die Feedback-Datenbank, die Speicherung von Berechtigungen und das Hosting der Website. Der Hosting-Dienst erhält technische Angaben zu jeder Anfrage, etwa IP-Adresse und Browsertyp.",
+      "github": "GitHub liefert Kartenbilder von raw.githubusercontent.com aus, wenn eine Karte angezeigt wird. GitHub erhält deshalb deine IP-Adresse und Browserangaben. Externe Websites erhalten deinen Besuch nur, wenn du ihren Links folgst.",
+      "outro": "Externe Websites erhalten deine IP-Adresse und Browserdaten, wenn du ihren Links folgst. Diese Websites verwenden deine Daten gemäß ihren eigenen Datenschutzrichtlinien.",
+      "kofi": "<0>Über Ko-fi können Besucher freiwillige Premium-Trinkgelder senden. Die beim Checkout ausgewählte Zahlungsdienstleistung verarbeitet die Zahlung.</0>"
     },
     "retention": {
       "heading": "Wie lange wir Informationen aufbewahren",
-      "body": "Google Analytics speichert Ereignisdaten 14 Monate lang. Es speichert Nutzerdaten 14 Monate lang, und dieser Zeitraum beginnt neu, wenn Sie zur Website zurückkehren. Ihr Google-Anmeldekonto und die gespeicherten Profilfelder bewahren wir auf, bis Sie deren Löschung über die unten genannten Kontaktdaten verlangen. Wir bewahren Feedback-Nachrichten auf, bis Sie deren Löschung verlangen. Die Aufbewahrungsdauer für Werbedaten legt Google selbst fest. Siehe dazu die <0>Datenschutzerklärung</0> und die <1>Werberichtlinien</1> von Google. Die Zahlung für Premium ist derzeit pausiert. Sobald der Kauf wieder möglich ist, bewahrt Stripe Zahlungsbelege auf, wie es das Gesetz vorschreibt. Die Website speichert keine eigenen Protokolle von Webanfragen. Firebase als Hosting-Anbieter und Cloudflare als Netzwerk-Anbieter bewahren ihre üblichen Betriebsprotokolle nach ihren eigenen Bedingungen auf."
+      "body": "Google Analytics speichert Ereignisdaten 14 Monate lang. Es speichert Nutzerdaten 14 Monate lang, und dieser Zeitraum beginnt neu, wenn du zur Website zurückkehrst. Wir bewahren dein Google-Anmeldekonto und gespeicherte Profilfelder auf, bis du deren Löschung über die unten genannten Kontaktdaten verlangst. Feedback-Nachrichten bewahren wir bis zu einer Löschanfrage auf. Google bestimmt die Speicherdauer von Werbedaten. Siehe die <0>Datenschutzerklärung</0> und die <1>Werberichtlinien</1> von Google. E-Mail-Adresse, Name und Nachricht einer spendenden Person speichern wir nur bei Trinkgeldern, die nicht automatisch neue Premium-Zeit gewähren, damit wir sie manuell prüfen und zuordnen können. Die Website speichert keine eigenen Protokolle von Webanfragen. Firebase und Cloudflare bewahren ihre üblichen Betriebsprotokolle nach eigenen Bedingungen auf."
     },
     "children": {
       "heading": "Kinder",

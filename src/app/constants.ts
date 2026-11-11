@@ -12,8 +12,7 @@ export const TWITTER_URL = "https://twitter.com/pocketdecks";
 export const GOOGLE_ANALYTICS_URL = 'https://www.googletagmanager.com/gtag/js?id=G-SBZ51J3S1R';
 export const GOOGLE_GTAG = 'G-SBZ51J3S1R';
 export const CONTACT_EMAIL = "infoLeonid@protonMail.com";
-export const MANAGE_SUBSCRIPTION_URL =
-  "https://billing.stripe.com/p/login/4gM9ASeDk2QcaKq2Y957W00";
+export const KOFI_URL = "https://ko-fi.com/dalin";
 
 export type SocialName = "github" | "twitter";
 

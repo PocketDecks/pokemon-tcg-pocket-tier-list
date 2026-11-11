@@ -15,13 +15,6 @@
   },
   "premium": {
     "title": "Top Pocket Decks Premium",
-    "manageSubscription": "Gestisci Abbonamento",
-    "windDown": {
-      "headline": "Il Premium è temporaneamente sospeso 💛",
-      "status": "Top Pocket Decks ha un nuovo curatore e continuerà a ricevere aggiornamenti! Durante questa transizione, le nuove iscrizioni Premium sono temporaneamente in pausa e le pubblicità sono state disattivate per tutti.",
-      "active": "Il tuo abbonamento rimane attivo e si rinnoverà finché non lo annulli. Puoi cancellarlo in qualsiasi momento tramite il portale di fatturazione.",
-      "refund": "Preferiresti avere un rimborso? Mandami un'email a <0>chase@manning.dev</0> con l'indirizzo email del tuo account e annullerò il tuo abbonamento rimborsandoti il pagamento più recente. Stripe mi consente di rimborsare solo i pagamenti effettuati negli ultimi 180 giorni, quindi se il tuo è precedente farò il possibile."
-    },
     "features": {
       "title": "Funzionalità",
       "free": "Gratis",
@@ -80,7 +73,20 @@
         "free": "30",
         "premium": "100"
       }
-    }
+    },
+    "benefits": "Premium include un sito senza pubblicità, matchup dettagliati, filtri avanzati, classifiche alternative, più mazzi e aggiornamenti più rapidi.",
+    "price": "Ogni sterlina britannica intera acquista un mese di calendario. Le mance successive estendono la scadenza attuale.",
+    "signInFirst": "Accedi prima con Google, così possiamo associare la mancia al tuo account.",
+    "signIn": "Accedi con Google",
+    "tipPrompt": "Incolla questo codice nel messaggio Ko-fi. Va bene anche inviare la mancia dall’indirizzo e-mail del tuo account Google.",
+    "copy": "Copia codice",
+    "copied": "Copiato",
+    "codeError": "Se il codice non è disponibile, indica nel messaggio Ko-fi l’indirizzo e-mail del tuo account Google.",
+    "expires": "Il tuo accesso Premium termina il {{date}}.",
+    "lifetime": "Il tuo accesso Premium non ha scadenza.",
+    "tip": "Sostieni Premium su Ko-fi",
+    "refund": "Per un rimborso o per segnalare un pagamento perso, contattaci a <0/> indicando l’indirizzo e-mail del tuo account Google e i dettagli del pagamento.",
+    "codeLoading": "Preparazione del codice del tuo account…"
   },
   "ads": {
     "advertisement": "Pubblicità",
@@ -319,7 +325,7 @@
       "usage": "<0>Dati di utilizzo.</0> Google Analytics registra le pagine che visualizzi e i dati standard su dispositivo e browser. Viene eseguito solo dopo che hai accettato l'analisi, oppure dove il banner del consenso della tua regione non richiede il consenso.",
       "account": "<0>Informazioni sull'account.</0> Se accedi con Google, Firebase Authentication ci fornisce il tuo nome, l'indirizzo e-mail e la foto del profilo. Mostriamo il tuo nome e la tua foto mentre sei connesso e usiamo il tuo ID account per verificare se hai l'accesso Premium.",
       "feedback": "<0>Feedback.</0> Se invii un feedback mentre sei connesso, salviamo il tuo ID account, il messaggio, l'argomento scelto, la pagina da cui lo hai inviato e l'ora dell'invio in Cloud Firestore, un database gestito da Google per Firebase. Salviamo il tuo indirizzo e-mail insieme al messaggio solo se spunti la casella con cui ci chiedi una risposta. Conserviamo anche l'ora del tuo ultimo invio.",
-      "payment": "<0>Pagamenti.</0> Il pagamento Premium è attualmente sospeso. Quando sarà di nuovo disponibile, Stripe elaborerà i pagamenti e conserveremo lo stato del tuo abbonamento in Firestore."
+      "payment": "<0>Mance.</0> Le mance facoltative per Premium possono essere associate al tuo account Google. Conserviamo l’indirizzo e-mail, il nome e il messaggio di chi invia una mancia solo se questa non concede automaticamente nuovo tempo Premium, così da poterla esaminare manualmente."
     },
     "cookies": {
       "heading": "Cookie e tracciamento",
@@ -342,7 +348,7 @@
     },
     "legalBasis": {
       "heading": "Base giuridica",
-      "body": "Ci basiamo sul tuo consenso per l'analisi e la pubblicità dove il banner del consenso lo richiede. Per Premium ci basiamo sul contratto con te per fornire l'accesso e gestire il tuo abbonamento."
+      "body": "Ci basiamo sul tuo consenso per analisi e pubblicità quando richiesto dal banner. Usiamo i dati del tuo account per fornire l’accesso Premium e verificare le mance che non concedono automaticamente nuovo tempo Premium."
     },
     "use": {
       "heading": "Come usiamo le informazioni",
@@ -360,14 +366,14 @@
       "intro": "Ci affidiamo a fornitori terzi. Ognuno riceve solo le informazioni descritte qui.",
       "analytics": "Google Analytics riceve i dati di utilizzo dove l'analisi è consentita.",
       "adsense": "Google AdSense riceve le richieste di annunci dai visitatori del piano gratuito.",
-      "firebase": "Firebase, un servizio di Google, gestisce l'accesso, il database dei feedback, i record degli abbonamenti e l'hosting del sito. Il servizio di hosting riceve i dati tecnici di ogni richiesta, come l'indirizzo IP e il tipo di browser.",
-      "stripe": "Stripe elabora i pagamenti Premium.",
-      "github": "GitHub fornisce le immagini delle carte da raw.githubusercontent.com quando una carta viene mostrata, quindi GitHub riceve il tuo indirizzo IP e i dati del browser. GitHub, Twitter e il portale di fatturazione di Stripe ricevono la tua visita solo se segui i loro link.",
-      "outro": "Questi fornitori usano le tue informazioni secondo le proprie informative sulla privacy."
+      "firebase": "Firebase, un servizio Google, gestisce l’accesso, il database dei feedback, l’archiviazione delle autorizzazioni e l’hosting del sito. Il servizio di hosting riceve dettagli tecnici di ogni richiesta, come l’indirizzo IP e il browser.",
+      "github": "GitHub fornisce le immagini delle carte da raw.githubusercontent.com quando una carta viene mostrata, quindi riceve il tuo indirizzo IP e i dati del browser. I siti esterni ricevono la tua visita solo se segui i loro link.",
+      "outro": "I siti esterni ricevono il tuo indirizzo IP e i dati del browser se visiti i loro link. Usano i tuoi dati secondo le proprie informative sulla privacy.",
+      "kofi": "<0>Ko-fi consente di inviare mance facoltative per Premium. Il fornitore di pagamento scelto durante il pagamento elabora la transazione.</0>"
     },
     "retention": {
       "heading": "Per quanto tempo conserviamo le informazioni",
-      "body": "Google Analytics conserva i dati degli eventi per 14 mesi. Conserva i dati utente per 14 mesi, e il periodo ricomincia quando torni sul sito. Conserviamo il tuo account di accesso Google e i campi del profilo salvati finché non chiedi di eliminarli, usando i recapiti indicati più sotto. Conserviamo i messaggi di feedback finché non ci chiedi di eliminarli. La durata di conservazione dei dati pubblicitari è stabilita da Google. Consulta la <0>informativa sulla privacy</0> e le <1>norme sulla pubblicità</1> di Google. Il pagamento Premium è attualmente sospeso. Quando sarà di nuovo disponibile, Stripe conserverà i registri dei pagamenti come richiede la legge. Il sito non conserva registri propri delle richieste web. Firebase, il fornitore di hosting, e Cloudflare, il fornitore di rete, conservano i log operativi standard secondo i propri termini."
+      "body": "Google Analytics conserva i dati degli eventi per 14 mesi. Conserva i dati utente per 14 mesi e il periodo ricomincia quando torni sul sito. Conserviamo il tuo account Google e i campi del profilo salvati finché non ne chiedi la cancellazione usando i recapiti indicati più sotto. Conserviamo i messaggi di feedback finché non ne chiedi la cancellazione. Google decide per quanto tempo conservare i dati pubblicitari. Consulta l’<0>informativa sulla privacy</0> e le <1>norme sulla pubblicità</1> di Google. Conserviamo l’indirizzo e-mail, il nome e il messaggio di chi invia una mancia solo per le mance che non concedono automaticamente nuovo tempo Premium, così da poterle verificare e applicare manualmente. Il sito non conserva registri propri delle richieste web. Firebase e Cloudflare conservano i normali log operativi secondo i propri termini."
     },
     "children": {
       "heading": "Minori",

@@ -100,6 +100,7 @@ const Hint = styled.p`
 const TableScroll = styled.div`
   width: 100%;
   max-width: 100%;
+  flex-shrink: 0;
   overflow-x: auto;
 `;
 

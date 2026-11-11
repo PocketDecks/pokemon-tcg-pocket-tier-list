@@ -27,20 +27,24 @@ For each delivery it works through these steps:
    anything under GBP 1 and anything over GBP 120 as `needs-review` and
    grants nothing
 4. It looks for the user. A code such as `PD-ABC123` in the message points at
-   `premiumCodes/{code}`, which holds `{ uid }`. Codes are upper case, and
-   no capital letter or digit may sit directly before or after one. The uid
-   must be up to 128 letters and digits, and the Worker asks Identity
-   Toolkit for it by `localId`. It accepts exactly one account that is not
-   disabled, with or without a verified email, and otherwise moves on to the
-   email. Signed-in users can find their code in the Premium popup opened
-   from the account menu; they paste it into the Ko-fi message. If the code
-   is unavailable, the popup asks them to use the email address verified on
-   their Google account instead.
-   The Worker trims it, lower-cases it and asks the Identity Toolkit admin
-   endpoint for the matching account. It accepts exactly one account that
-   has a verified email and is not disabled. With no match, or a 400 from
-   the lookup, it marks the payment `unmatched`. Any other lookup failure
-   returns 500
+   `premiumCodes/{code}`, which holds `{ uid }`. The Worker accepts codes in
+   any case and normalises them to upper case, because document IDs are upper
+   case. No letter or digit may sit directly before or after one, in any
+   case. The uid must be up to 128 letters and digits, and the Worker asks
+   Identity Toolkit for it by `localId`. It accepts exactly one account that
+   is not disabled, with or without a verified email, and otherwise moves on
+   to the email. The popup opened from the account menu leads with the email
+   path: it shows the Google account address and asks the user to pay on
+   Ko-fi with that address so Premium is added automatically. The code is an
+   optional backup for anyone who must pay from a different email. It lives
+   in a collapsed section, is requested only when that section is expanded,
+   and is pasted into the Ko-fi message. If codes are unavailable, the popup
+   shows a short line and keeps the email path and contact address visible.
+   The Worker trims the payer email, lower-cases it and asks the Identity
+   Toolkit admin endpoint for the matching account. It accepts exactly one
+   account that has a verified email and is not disabled. With no match, or a
+   400 from the lookup, it marks the payment `unmatched`. Any other lookup
+   failure returns 500
 5. It grants the months. Inside a Firestore transaction it reads
    `entitlements/{uid}`. A premium entitlement with no `expiresAt`, or with
    a null one, is a lifetime grant, which the Worker leaves alone and marks

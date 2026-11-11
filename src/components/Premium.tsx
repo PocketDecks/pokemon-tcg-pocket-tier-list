@@ -215,6 +215,7 @@ interface CopyFeedback {
 interface TipState {
   uid: string;
   expiry: number | null;
+  wasPremium: boolean;
 }
 
 const LIFETIME_THRESHOLD = Date.UTC(2100, 0, 1);
@@ -261,7 +262,11 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
   }, [expiresAt, isAltOpen, isOpen, isPremium, user?.uid]);
 
   useEffect(() => {
-    if (tipState?.uid === user?.uid && isPremium && expiresAt !== tipState.expiry) {
+    if (
+      tipState?.uid === user?.uid &&
+      isPremium &&
+      (!tipState.wasPremium || expiresAt !== tipState.expiry)
+    ) {
       setTipState(null);
     }
   }, [expiresAt, isPremium, tipState, user?.uid]);
@@ -394,7 +399,9 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => {
-                  if (user?.uid) setTipState({ uid: user.uid, expiry: expiresAt });
+                  if (user?.uid) {
+                    setTipState({ uid: user.uid, expiry: expiresAt, wasPremium: isPremium });
+                  }
                 }}
               >
                 {ctaLabel}

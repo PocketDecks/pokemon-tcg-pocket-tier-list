@@ -130,14 +130,15 @@ describe("Premium entitlement refresh", () => {
     expect(firestore.getDoc).toHaveBeenCalledTimes(3);
   });
 
-  it("completes a pending attempt when refresh confirms a lifetime grant", async () => {
+  it("consumes a pending attempt completed by a lifetime grant even if it is later revoked", async () => {
     firestore.getDoc
       .mockReset()
       .mockResolvedValueOnce(absent)
       .mockResolvedValueOnce({
         exists: () => true,
         data: () => ({ premium: true }),
-      });
+      })
+      .mockResolvedValue(absent);
     const { dialog } = await openAndTip();
     await act(async () => {
       window.dispatchEvent(new Event("focus"));
@@ -147,6 +148,15 @@ describe("Premium entitlement refresh", () => {
     expect(within(dialog).queryByText(en.premium.waiting)).not.toBeInTheDocument();
     expect(within(dialog).queryByRole("link", { name: en.premium.cta })).not.toBeInTheDocument();
     expect(firestore.getDoc).toHaveBeenCalledTimes(2);
+
+    await act(async () => {
+      await client.refetchQueries({ queryKey: ["entitlement", "user-1"] });
+    });
+    await waitFor(() =>
+      expect(within(dialog).getByRole("link", { name: en.premium.cta })).toBeInTheDocument()
+    );
+    expect(within(dialog).queryByText(en.premium.waiting)).not.toBeInTheDocument();
+    expect(firestore.getDoc).toHaveBeenCalledTimes(3);
   });
 
   it("preserves a pending attempt across close and removes its focus refresh while closed", async () => {

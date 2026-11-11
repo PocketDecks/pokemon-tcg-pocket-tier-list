@@ -375,7 +375,7 @@
       "firebase": "Firebase, a Google service, runs sign-in, the feedback database, entitlement storage and site hosting. The hosting service receives technical details of each request, such as your IP address and browser type.",
       "github": "GitHub serves card images from raw.githubusercontent.com when a card is shown, so GitHub receives your IP address and browser details. External sites receive your visit only if you follow their links.",
       "outro": "External sites receive your IP address and browser details if you follow their links. Those sites use your information under their own privacy policies.",
-      "kofi": "<0>Ko-fi lets visitors send optional Premium tips. The payment provider you choose at checkout processes the payment.</0>"
+      "kofi": "<0>Ko-fi</0> lets visitors send optional Premium tips. The payment provider you choose at checkout processes the payment."
     },
     "retention": {
       "heading": "How long we keep information",

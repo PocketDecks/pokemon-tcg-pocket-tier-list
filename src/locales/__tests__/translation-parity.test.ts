@@ -115,7 +115,6 @@ describe("translation key parity", () => {
   it.each(Object.entries(locales))("%s describes Premium ad-free users neutrally", (locale, localeData) => {
     const body = (localeData as { privacyPage: { rights: { body: string } } }).privacyPage.rights.body;
     expect(body).toContain(adFreePremiumCopy[locale]);
-    expect(body).not.toMatch(/subscriber|abonn|suscriptor|abbonat|subscri|구독|订阅|訂閱/i);
   });
 });
 

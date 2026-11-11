@@ -90,32 +90,16 @@ name, 64 for the Ko-fi timestamp, 32 for the type and 8 for the currency
 
 The Worker signs in with Admin credentials and bypasses Firestore rules.
 The site also needs a client rule for `premiumCodes`, so a signed-in user
-can read their own code and create it on first use. Before release, the
-owner must confirm the existing rules in the Firebase console and merge this
-block into them. Keep every existing rule, including the legacy
-`stripeRole` branch and any rules for `customers` and `products`, unchanged.
-No live rules were changed or verified for this task. Do not deploy rules
-from this repository.
-
-```
-match /premiumCodes/{code} {
-  allow read: if request.auth != null
-    && resource.data.uid == request.auth.uid;
-  allow create: if request.auth != null
-    && code.matches('PD-[A-Z0-9]{6}')
-    && request.resource.data.keys().hasAll(['uid'])
-    && request.resource.data.keys().hasOnly(['uid'])
-    && request.resource.data.uid == request.auth.uid;
-  allow update, delete: if false;
-}
-```
-
-The create rule matches the client `setDoc` call when the document does not
-exist. Reads are limited to documents owned by the signed-in user, the uid
-must be the caller's auth uid, and the document must contain exactly `uid`.
-Updates and deletes are denied. The client queries by uid, then retries with
-a new random code if a collision makes creation fail. The premium data guide
-contains the related entitlement and premium data rules.
+can read their own code and create it on first use. The canonical
+`premiumCodes` rule, alongside the entitlement and premium data rules, is in
+the [premium data publishing guide](publish-premium-data.md#first-time-set-up).
+Confirm those rules in the Firebase console before each release; the
+repository has no rules file to deploy. The create rule matches the client
+`setDoc` call when the document does not exist. Reads are limited to
+documents owned by the signed-in user, the uid must be the caller's auth uid,
+and the document must contain exactly `uid`. Updates and deletes are denied.
+The client queries by uid, then retries with a new random code if a
+collision makes creation fail.
 
 ## Switching it on
 

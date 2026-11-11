@@ -228,6 +228,12 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
   const [tipState, setTipState] = useState<TipState | null>(null);
   const [codeResult, setCodeResult] = useState<CodeResult | null>(null);
   const [copyFeedback, setCopyFeedback] = useState<CopyFeedback | null>(null);
+  const premiumState = isPremium ? (expiresAt === null ? "lifetime" : "expires") : "free";
+  const waiting =
+    !!tipState &&
+    tipState.uid === user?.uid &&
+    premiumState !== "lifetime" &&
+    (!isPremium || expiresAt === tipState.expiry);
 
   useEffect(() => {
     const uid = user?.uid;
@@ -249,13 +255,13 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
 
   useEffect(() => {
     const uid = user?.uid;
-    if (!tipState || tipState.uid !== uid || !uid) return;
+    if (!waiting || !uid) return;
     const onFocus = () => {
       void queryClient.invalidateQueries({ queryKey: ["entitlement", uid] });
     };
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
-  }, [queryClient, tipState, user?.uid]);
+  }, [queryClient, waiting, user?.uid]);
 
   if (isPremium === null) return null;
 
@@ -268,7 +274,6 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
     copyFeedback.code === currentCode.code
       ? copyFeedback.status
       : null;
-  const premiumState = isPremium ? (expiresAt === null ? "lifetime" : "expires") : "free";
   const date = expiresAt === null ? "" : new Intl.DateTimeFormat(i18n.language, {
     day: "numeric",
     month: "long",
@@ -283,11 +288,6 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
   const emailHint = user?.email
     ? t("premium.emailHint", { email: user.email })
     : t("premium.emailHintNoEmail");
-  const waiting =
-    !!tipState &&
-    tipState.uid === user?.uid &&
-    premiumState !== "lifetime" &&
-    (!isPremium || expiresAt === tipState.expiry);
 
   const comparison = (
     <TableScroll>

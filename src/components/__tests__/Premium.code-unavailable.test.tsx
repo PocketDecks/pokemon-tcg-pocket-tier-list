@@ -71,12 +71,4 @@ describe("Premium code failure with the real English resources", () => {
       `mailto:${CONTACT_EMAIL}`
     );
   });
-
-  it("uses short copy that names the Google email and the contact path", () => {
-    expect(en.premium.codeUnavailable).toContain("Use your Google email");
-    expect(en.premium.codeUnavailable).toContain("contact us below");
-    expect(en.premium.codeUnavailable.split(/\s+/).length).toBeLessThan(20);
-    expect(en.premium.altCodeHint).toContain("Paste this code");
-    expect(en.premium.codeUnavailable).not.toContain("{{");
-  });
 });

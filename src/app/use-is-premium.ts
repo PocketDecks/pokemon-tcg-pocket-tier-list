@@ -48,14 +48,10 @@ const grantsAccess = (entitlement: EntitlementState | undefined): boolean =>
 
 const useIsPremium = () => {
   const { entitlement, user, loading } = useEntitlement();
-  const [now, setNow] = useState<number | null>(null);
+  const [now, setNow] = useState<number>(() => Date.now());
   const expiresAt = entitlement.data?.premium ? entitlement.data.expiresAt : null;
 
   useEffect(() => {
-    if (now === null) {
-      setNow(Date.now());
-      return;
-    }
     if (expiresAt === null || expiresAt <= now) return;
     const delay = expiresAt - Date.now();
     if (delay <= 0) {
@@ -72,8 +68,8 @@ const useIsPremium = () => {
 
   if (loading) return null;
   if (!user) return false;
-  if (entitlement.error) return false;
   if (entitlement.data) return grantsAccess(entitlement.data);
+  if (entitlement.error) return false;
   return entitlement.isPending ? null : false;
 };
 

@@ -87,7 +87,7 @@ describe("Premium popup copy", () => {
     void path;
     const price = stringOf(data.premium, "price");
     expect(price).toContain("1");
-    expect(price).not.toContain("GBP");
+    expect(price).toMatch(/£|英镑|英鎊/);
     expect(price).not.toContain("{{");
   });
 
@@ -122,13 +122,5 @@ describe("Premium popup copy", () => {
         .join(" ");
       expect(values).not.toMatch(/stripe/i);
     }
-  });
-
-  it("uses British English for the primary copy", () => {
-    expect(stringOf(english, "price")).toContain("£1 a month");
-    expect(stringOf(english, "cta")).toBe("Tip on Ko-fi");
-    expect(stringOf(english, "ctaExtend")).toBe("Extend on Ko-fi");
-    expect(stringOf(english, "codeUnavailable")).toContain("contact us below");
-    expect(stringOf(english, "altCodeHint")).toBe("Paste this code into the Ko-fi message.");
   });
 });

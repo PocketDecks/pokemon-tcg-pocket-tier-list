@@ -56,14 +56,10 @@ const refreshDataVersion = (): Promise<string> => {
   });
   versionRequest = request;
   versionRefreshRequest = request;
-  void request.then(
-    () => {
-      if (versionRefreshRequest === request) versionRefreshRequest = null;
-    },
-    () => {
-      if (versionRefreshRequest === request) versionRefreshRequest = null;
-    }
-  );
+  const settle = () => {
+    if (versionRefreshRequest === request) versionRefreshRequest = null;
+  };
+  void request.then(settle, settle);
   return request;
 };
 

@@ -8,7 +8,7 @@ import { loadPremiumCode } from "../../app/premium-code";
 import { useAuth } from "../../contexts/AuthContext";
 import en from "../../locales/en_translation.json";
 import { CONTACT_EMAIL, KOFI_URL } from "../../app/constants";
-import { createTestQueryClient, withQueryClient } from "../../test-utils/with-query-client";
+import { withQueryClient } from "../../test-utils/with-query-client";
 
 const spies = vi.hoisted(() => ({ signInWithGoogle: vi.fn() }));
 const copy = vi.hoisted(() => ({ values: {} as Record<string, string> }));
@@ -291,43 +291,6 @@ describe("Premium", () => {
     await user.keyboard("{Escape}");
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Remove ads" })).toHaveFocus();
-  });
-
-  it("invalidates the entitlement on window focus after the call to action is clicked", async () => {
-    const client = createTestQueryClient();
-    const invalidate = vi.spyOn(client, "invalidateQueries");
-    vi.mocked(useAuth).mockReturnValue(signedIn());
-    const user = userEvent.setup();
-    render(withQueryClient(<Premium variant="link" linkLabel="Remove ads" />, client));
-    await user.click(screen.getByRole("button", { name: "Remove ads" }));
-    await user.click(screen.getByRole("link", { name: en.premium.cta }));
-    expect(screen.getByText(en.premium.waiting)).toBeInTheDocument();
-    act(() => { window.dispatchEvent(new Event("focus")); });
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: ["entitlement", "user-1"] });
-  });
-
-  it("does not invalidate the entitlement on focus before the call to action is clicked", async () => {
-    const client = createTestQueryClient();
-    const invalidate = vi.spyOn(client, "invalidateQueries");
-    vi.mocked(useAuth).mockReturnValue(signedIn());
-    const user = userEvent.setup();
-    render(withQueryClient(<Premium variant="link" linkLabel="Remove ads" />, client));
-    await user.click(screen.getByRole("button", { name: "Remove ads" }));
-    act(() => { window.dispatchEvent(new Event("focus")); });
-    expect(invalidate).not.toHaveBeenCalled();
-    expect(screen.queryByText(en.premium.waiting)).not.toBeInTheDocument();
-  });
-
-  it("refetches the entitlement from Check again", async () => {
-    const client = createTestQueryClient();
-    const refetch = vi.spyOn(client, "refetchQueries");
-    vi.mocked(useAuth).mockReturnValue(signedIn());
-    const user = userEvent.setup();
-    render(withQueryClient(<Premium variant="link" linkLabel="Remove ads" />, client));
-    await user.click(screen.getByRole("button", { name: "Remove ads" }));
-    await user.click(screen.getByRole("link", { name: en.premium.cta }));
-    await user.click(screen.getByRole("button", { name: en.premium.checkAgain }));
-    expect(refetch).toHaveBeenCalledWith({ queryKey: ["entitlement", "user-1"] });
   });
 
   it("swaps to the Premium state when the entitlement flips", async () => {

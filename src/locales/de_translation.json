@@ -375,7 +375,7 @@
       "firebase": "Firebase, ein Google-Dienst, betreibt die Anmeldung, die Feedback-Datenbank, die Speicherung von Berechtigungen und das Hosting der Website. Der Hosting-Dienst erhält technische Angaben zu jeder Anfrage, etwa IP-Adresse und Browsertyp.",
       "github": "GitHub liefert Kartenbilder von raw.githubusercontent.com aus, wenn eine Karte angezeigt wird. GitHub erhält deshalb deine IP-Adresse und Browserangaben. Externe Websites erhalten deinen Besuch nur, wenn du ihren Links folgst.",
       "outro": "Externe Websites erhalten deine IP-Adresse und Browserdaten, wenn du ihren Links folgst. Diese Websites verwenden deine Daten gemäß ihren eigenen Datenschutzrichtlinien.",
-      "kofi": "<0>Über Ko-fi können Besucher freiwillige Premium-Trinkgelder senden. Die beim Checkout ausgewählte Zahlungsdienstleistung verarbeitet die Zahlung.</0>"
+      "kofi": "Über <0>Ko-fi</0> können Besucher freiwillige Premium-Trinkgelder senden. Die beim Checkout ausgewählte Zahlungsdienstleistung verarbeitet die Zahlung."
     },
     "retention": {
       "heading": "Wie lange wir Informationen aufbewahren",

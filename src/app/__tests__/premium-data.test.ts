@@ -188,6 +188,33 @@ describe("loadPremiumArtefact", () => {
     expect(fetchSpy).toHaveBeenLastCalledWith("/data/data-version.json", { cache: "no-store" });
   });
 
+  it("coalesces concurrent missing-artefact refreshes into one no-store fetch", async () => {
+    fetchSpy
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ premium: "abcdef0123456789" }),
+      } as unknown as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ premium: "0123456789abcdef" }),
+      } as unknown as Response);
+    firestore.getDoc.mockResolvedValue({ exists: () => false });
+
+    const results = await Promise.all([
+      loadPremiumArtefact("best-decks-30d").catch(() => "missing"),
+      loadPremiumArtefact("best-decks-30d").catch(() => "missing"),
+    ]);
+
+    expect(results).toEqual(["missing", "missing"]);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    expect(
+      fetchSpy.mock.calls.filter(
+        ([, options]: Parameters<typeof fetch>) => options?.cache === "no-store"
+      )
+    ).toHaveLength(1);
+    expect(fetchSpy).toHaveBeenLastCalledWith("/data/data-version.json", { cache: "no-store" });
+  });
+
   it("only retries a missing artefact once", async () => {
     fetchSpy
       .mockResolvedValueOnce({

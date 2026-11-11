@@ -375,7 +375,7 @@
       "firebase": "Firebase, un service de Google, gère la connexion, la base de données des commentaires, le stockage des droits d’accès et l’hébergement du site. Le service d’hébergement reçoit des informations techniques sur chaque requête, comme votre adresse IP et votre navigateur.",
       "github": "GitHub diffuse les images des cartes depuis raw.githubusercontent.com lorsqu’une carte est affichée et reçoit votre adresse IP ainsi que des informations sur votre navigateur. Les sites externes ne reçoivent votre visite que si vous suivez leurs liens.",
       "outro": "Les sites externes reçoivent votre adresse IP et les informations de votre navigateur si vous suivez leurs liens. Ils utilisent vos informations selon leurs propres politiques de confidentialité.",
-      "kofi": "<0>Ko-fi permet d’envoyer des dons facultatifs pour Premium. Le prestataire de paiement choisi au moment du paiement traite la transaction.</0>"
+      "kofi": "<0>Ko-fi</0> permet d’envoyer des dons facultatifs pour Premium. Le prestataire de paiement choisi au moment du paiement traite la transaction."
     },
     "retention": {
       "heading": "Durée de conservation des informations",

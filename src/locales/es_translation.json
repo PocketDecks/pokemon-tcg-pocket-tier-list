@@ -375,7 +375,7 @@
       "firebase": "Firebase, un servicio de Google, gestiona el inicio de sesión, la base de datos de comentarios, el almacenamiento de permisos y el alojamiento del sitio. El servicio de alojamiento recibe datos técnicos de cada solicitud, como la dirección IP y el navegador.",
       "github": "GitHub sirve imágenes de cartas desde raw.githubusercontent.com cuando se muestra una carta, así que recibe su dirección IP y datos del navegador. Los sitios externos reciben su visita solo si sigue sus enlaces.",
       "outro": "Los sitios externos reciben tu dirección IP y los datos del navegador si sigues sus enlaces. Esos sitios utilizan tu información según sus propias políticas de privacidad.",
-      "kofi": "<0>Ko-fi permite enviar propinas opcionales para Premium. El proveedor de pago que elijas durante el pago procesa la transacción.</0>"
+      "kofi": "<0>Ko-fi</0> permite enviar propinas opcionales para Premium. El proveedor de pago que elijas durante el pago procesa la transacción."
     },
     "retention": {
       "heading": "Cuánto tiempo conservamos la información",

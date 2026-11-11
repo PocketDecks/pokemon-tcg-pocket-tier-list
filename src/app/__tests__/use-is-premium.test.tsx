@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import useIsPremium, { usePremiumExpiry } from "../use-is-premium";
 import { useAuth } from "../../contexts/AuthContext";
@@ -59,14 +59,23 @@ const renderProbe = () =>
   );
 
 describe("entitlement access", () => {
-  it("keeps the entitlement fresh for 30 seconds while the global stale time stays at one hour", async () => {
+  it("serves a second consumer from the cached entitlement and refetches after 30 seconds", async () => {
+    const clock = vi.spyOn(Date, "now").mockReturnValue(10_000);
+    firestore.getDoc.mockResolvedValue(snapshot(null));
+    const first = renderProbe();
+    await screen.findByText("false:none");
+    expect(firestore.getDoc).toHaveBeenCalledTimes(1);
+
+    first.unmount();
     renderProbe();
-    await waitFor(() => expect(firestore.getDoc).toHaveBeenCalled());
-    const query = queryClient.getQueryCache().find({ queryKey: ["entitlement", "u1"] });
-    const queryOptions = query?.options as { staleTime?: number } | undefined;
-    expect(queryOptions?.staleTime).toBe(30_000);
-    const globalQueries = queryClientOptions.defaultOptions.queries as { staleTime?: number };
-    expect(globalQueries.staleTime).toBe(1000 * 60 * 60);
+    await screen.findByText("false:none");
+    expect(firestore.getDoc).toHaveBeenCalledTimes(1);
+
+    clock.mockReturnValue(10_000 + 30_001);
+    await act(async () => {
+      await queryClient.refetchQueries({ queryKey: ["entitlement", "u1"] });
+    });
+    expect(firestore.getDoc).toHaveBeenCalledTimes(2);
   });
 
   it("keeps the null loading contract", () => {
@@ -118,35 +127,45 @@ describe("entitlement access", () => {
     expect(firestore.getDoc).toHaveBeenCalledTimes(1);
   });
 
-  it("chunks expiry timers beyond the maximum timeout delay", async () => {
+  it("revokes access through the final expiry chunk beyond the maximum timeout delay", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(100_000);
+    const maxTimeout = 2_147_483_647;
+    const expiry = Date.now() + maxTimeout + 5_000;
+    queryClient.setQueryData(["entitlement", "u1"], { premium: true, expiresAt: expiry });
+    renderProbe();
+    expect(screen.getByText(`true:${expiry}`)).toBeInTheDocument();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(maxTimeout);
+    });
+    expect(screen.getByText(`true:${expiry}`)).toBeInTheDocument();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000);
+    });
+    expect(screen.getByText(`false:${expiry}`)).toBeInTheDocument();
+    expect(firestore.getDoc).not.toHaveBeenCalled();
+  });
+
+  it("clears the pending expiry timer on unmount", () => {
     vi.useFakeTimers();
     vi.setSystemTime(100_000);
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
     const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
-    const maxTimeout = 2_147_483_647;
-    const expiry = Date.now() + maxTimeout + 5_000;
+    const expiry = Date.now() + 60_000;
     queryClient.setQueryData(["entitlement", "u1"], { premium: true, expiresAt: expiry });
     const view = renderProbe();
     expect(screen.getByText(`true:${expiry}`)).toBeInTheDocument();
-    const timerIndex = setTimeoutSpy.mock.calls.findIndex(([, delay]) => delay === maxTimeout);
-    expect(timerIndex).not.toBe(-1);
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(maxTimeout);
-    });
-    const remainderIndex = setTimeoutSpy.mock.calls.findIndex(
-      ([, delay], index) => index > timerIndex && delay === 5_000
-    );
-    expect(remainderIndex).not.toBe(-1);
-    expect(screen.getByText(`true:${expiry}`)).toBeInTheDocument();
-    const remainderTimer = setTimeoutSpy.mock.results[remainderIndex].value;
+    const pending = setTimeoutSpy.mock.results.at(-1)?.value;
 
     view.unmount();
 
-    expect(clearTimeoutSpy).toHaveBeenCalledWith(remainderTimer);
+    expect(clearTimeoutSpy).toHaveBeenCalledWith(pending);
     expect(firestore.getDoc).not.toHaveBeenCalled();
   });
 
-  it("denies cached access when a background entitlement refetch fails", async () => {
+  it("keeps valid cached access when a background entitlement refetch fails", async () => {
     const expiry = Date.now() + DAY;
     firestore.getDoc.mockResolvedValue(snapshot({ premium: true, expiresAt: timestamp(expiry) }));
     renderProbe();
@@ -159,7 +178,13 @@ describe("entitlement access", () => {
 
     expect(firestore.getDoc).toHaveBeenCalledTimes(2);
     expect(queryClient.getQueryState(["entitlement", "u1"])?.error).toBeInstanceOf(Error);
-    await screen.findByText(`false:${expiry}`);
+    expect(screen.getByText(`true:${expiry}`)).toBeInTheDocument();
+  });
+
+  it("fails closed when the first entitlement read errors", async () => {
+    firestore.getDoc.mockRejectedValue(new Error("offline"));
+    renderProbe();
+    await screen.findByText("false:none");
   });
 
   it("does not briefly grant a refetched entitlement that is already expired", async () => {

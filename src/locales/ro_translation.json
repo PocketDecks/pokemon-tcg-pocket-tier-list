@@ -375,7 +375,7 @@
       "firebase": "Firebase, un serviciu Google, gestionează autentificarea, baza de date pentru feedback, stocarea drepturilor de acces și găzduirea site-ului. Serviciul de găzduire primește detalii tehnice despre fiecare solicitare, precum adresa IP și browserul.",
       "github": "GitHub livrează imaginile cărților de la raw.githubusercontent.com atunci când o carte este afișată, deci primește adresa IP și datele browserului. Site-urile externe primesc vizita doar dacă le accesezi linkurile.",
       "outro": "Site-urile externe primesc adresa IP și datele browserului dacă le accesezi linkurile. Acestea îți folosesc informațiile conform propriilor politici de confidențialitate.",
-      "kofi": "<0>Ko-fi permite trimiterea de bacșișuri opționale pentru Premium. Furnizorul de plăți ales la finalizarea plății procesează tranzacția.</0>"
+      "kofi": "<0>Ko-fi</0> permite trimiterea de bacșișuri opționale pentru Premium. Furnizorul de plăți ales la finalizarea plății procesează tranzacția."
     },
     "retention": {
       "heading": "Cât timp păstrăm informațiile",

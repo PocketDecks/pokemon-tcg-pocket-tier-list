@@ -94,16 +94,10 @@ The Worker signs in with a service-account OAuth token and calls the
 Firestore REST API; it does not use the Admin SDK. Its trusted credentials
 bypass Firestore rules.
 The site also needs a client rule for `premiumCodes`, so a signed-in user
-can read their own code and create it on first use. The canonical
-`premiumCodes` rule, alongside the entitlement and premium data rules, is in
-the [premium data publishing guide](publish-premium-data.md#first-time-set-up).
-Confirm those rules in the Firebase console before each release; the
-repository has no rules file to deploy. The create rule matches the client
-`setDoc` call when the document does not exist. Reads are limited to
-documents owned by the signed-in user, the uid must be the caller's auth uid,
-and the document must contain exactly `uid`. Updates and deletes are denied.
-The client queries by uid, then retries with a new random code if a
-collision makes creation fail.
+can read their own code and create it on first use. The canonical rule is in
+the [premium data publishing guide](publish-premium-data.md#first-time-set-up),
+with the entitlement and premium data rules. The client queries by uid, then
+retries with a new random code if a collision makes creation fail.
 
 ## Switching it on
 

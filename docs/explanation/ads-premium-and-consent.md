@@ -28,7 +28,7 @@ Users can send optional tips through [Ko-fi](https://ko-fi.com/dalin). Eligible 
 
 The popup shows the current access state and expiry, links to Ko-fi, and gives a contact address for refunds or unmatched payments. It does not create entitlements in the browser. The Ko-fi Worker or an administrator writes the entitlement using trusted server credentials.
 
-The current app and supplied Firestore rules authorize premium data reads from an active `entitlements/{uid}` document. The canonical entitlement-only rule is in the [publishing guide](../how-to/publish-premium-data.md). This repository does not contain deployable Firestore rules; confirm the active console rules separately before release.
+The current app and supplied Firestore rules authorize premium data reads from an active `entitlements/{uid}` document. The canonical entitlement-only rule is in the [publishing guide](../how-to/publish-premium-data.md). This repository does not contain deployable Firestore rules; the rules are edited in the console.
 
 ## The ads layer
 

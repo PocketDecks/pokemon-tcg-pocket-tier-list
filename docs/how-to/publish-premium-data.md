@@ -84,22 +84,27 @@ A grant replaces the whole document, so running it again for the same uid update
 
 ## First-time set-up
 
-Do these once, in this order, before the first merge that carries this change
+Do these once, in this order
 
-1. The blocks below are the canonical entitlement-only Firestore rules. Compare them with the active rules in the Firebase console before release. The app and these rules grant premium data access only from an active entitlement; no `stripeRole` fallback is included. The `hasEntitlement()` helper treats an absent or explicit-null `expiresAt` as lifetime access, matching the app and the Worker; an expired or malformed expiry is denied. The repository has no `firestore.rules` file to deploy.
+1. The live Firestore rules in the Firebase console contain the entitlement, `premiumCodes` and `premiumData` blocks shown below, as checked on 11 November 2026. The app and these rules grant premium data access only from an active entitlement; no `stripeRole` fallback is included. The `entitlementActive()` helper treats an absent or explicit-null `expiresAt` as lifetime access, matching the app and the Worker; an expired or malformed expiry is denied. The repository has no `firestore.rules` file to deploy, so the rules are edited in the console.
 
    ```
    function entitlementPath() {
      return /databases/$(database)/documents/entitlements/$(request.auth.uid);
    }
+   function signedIn() {
+     return request.auth != null;
+   }
+   function entitlementActive(data) {
+     return data.premium == true
+       && (!('expiresAt' in data)
+         || data.expiresAt == null
+         || (data.expiresAt is timestamp && data.expiresAt > request.time));
+   }
    function hasEntitlement() {
-     return request.auth != null
+     return signedIn()
        && exists(entitlementPath())
-       && get(entitlementPath()).data.premium == true
-       && (!("expiresAt" in get(entitlementPath()).data)
-           || get(entitlementPath()).data.expiresAt == null
-           || (get(entitlementPath()).data.expiresAt is timestamp
-               && get(entitlementPath()).data.expiresAt > request.time));
+       && entitlementActive(get(entitlementPath()).data);
    }
    function isPremium() {
      return hasEntitlement();

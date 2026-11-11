@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   User,
   signInWithPopup,
@@ -6,6 +7,8 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import { auth, googleProvider } from "../config/firebase";
+import { resetPremiumCodeCache } from "../app/premium-code";
+import { resetPremiumDataCache } from "../app/premium-data";
 
 interface AuthContextType {
   user: User | null;
@@ -21,15 +24,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const previousUid = useRef<string | null | undefined>(undefined);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      const uid = user?.uid ?? null;
+      if (previousUid.current !== uid) {
+        const isPremiumQuery = (query: { queryKey: readonly unknown[] }) =>
+          query.queryKey.at(-1) === "full" ||
+          (query.queryKey[0] === "decks" &&
+            (query.queryKey[1] === "30d" || query.queryKey[1] === "all")) ||
+          query.queryKey[0] === "entitlement";
+        void queryClient.cancelQueries({ predicate: isPremiumQuery });
+        queryClient.removeQueries({ predicate: isPremiumQuery });
+        resetPremiumCodeCache();
+        resetPremiumDataCache();
+        previousUid.current = uid;
+      }
       setUser(user);
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [queryClient]);
 
   const signInWithGoogle = async () => {
     try {

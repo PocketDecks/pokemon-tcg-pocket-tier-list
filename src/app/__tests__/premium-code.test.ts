@@ -82,15 +82,15 @@ describe("loadPremiumCode", () => {
   });
 
   it("deduplicates simultaneous loads per user and isolates users", async () => {
-    firestore.getDocs.mockImplementation(async (reference: { name: string }) => ({
-      docs: [{ id: reference.name === "premiumCodes" ? "PD-AAAAAA" : "PD-AAAAAA" }],
+    firestore.getDocs.mockImplementation(async (reference: unknown[]) => ({
+      docs: [{ id: (reference[1] as string[])[2] === "user-1" ? "PD-AAAAAA" : "PD-BBBBBB" }],
     }));
 
     await expect(Promise.all([loadPremiumCode("user-1"), loadPremiumCode("user-1")])).resolves.toEqual([
       "PD-AAAAAA",
       "PD-AAAAAA",
     ]);
-    await loadPremiumCode("user-2");
+    await expect(loadPremiumCode("user-2")).resolves.toBe("PD-BBBBBB");
     expect(firestore.getDocs).toHaveBeenCalledTimes(2);
     expect(firestore.query).toHaveBeenNthCalledWith(1, expect.anything(), ["uid", "==", "user-1"]);
     expect(firestore.query).toHaveBeenNthCalledWith(2, expect.anything(), ["uid", "==", "user-2"]);

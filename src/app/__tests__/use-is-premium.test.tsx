@@ -71,6 +71,7 @@ describe("entitlement access", () => {
     first.unmount();
     clock.mockReturnValue(10_000 + 20_000);
     renderProbe();
+    await waitFor(() => expect(queryClient.getQueryState(["entitlement", "u1"])?.fetchStatus).toBe("idle"));
     expect(screen.getByText("false:none")).toBeInTheDocument();
     expect(firestore.getDoc).toHaveBeenCalledTimes(1);
 

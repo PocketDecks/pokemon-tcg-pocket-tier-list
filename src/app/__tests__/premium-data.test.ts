@@ -45,6 +45,7 @@ let fetchSpy: ReturnType<typeof vi.spyOn>;
 
 beforeEach(() => {
   resetPremiumDataCache();
+  firestore.getDoc.mockReset();
   firebase.getIdToken.mockResolvedValue("token");
   firebase.currentUser.current = { getIdToken: firebase.getIdToken };
   fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({
@@ -156,5 +157,52 @@ describe("loadPremiumArtefact", () => {
     firestore.getDoc.mockResolvedValue({ exists: () => false });
 
     await expect(loadPremiumArtefact("best-decks-30d")).rejects.toThrow(/best-decks-30d.*missing/);
+  });
+
+  it("refreshes the public version once when a cached version artefact disappears", async () => {
+    const oldPayload = '{"version":"old"}';
+    const newPayload = '{"version":"new"}';
+    fetchSpy
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ premium: "abcdef0123456789" }),
+      } as unknown as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ premium: "0123456789abcdef" }),
+      } as unknown as Response);
+    firestore.getDoc
+      .mockResolvedValueOnce(snapshot(oldPayload, await sha256(oldPayload)))
+      .mockResolvedValueOnce({ exists: () => false })
+      .mockResolvedValueOnce(snapshot(newPayload, await sha256(newPayload)));
+
+    await expect(loadPremiumArtefact("best-decks-30d")).resolves.toEqual({ version: "old" });
+    await expect(loadPremiumArtefact("best-decks-30d")).resolves.toEqual({ version: "new" });
+
+    expect(firestore.doc.mock.calls.map(([, ...path]) => path[1])).toEqual([
+      "abcdef0123456789",
+      "abcdef0123456789",
+      "0123456789abcdef",
+    ]);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    expect(fetchSpy).toHaveBeenLastCalledWith("/data/data-version.json", { cache: "no-store" });
+  });
+
+  it("only retries a missing artefact once", async () => {
+    fetchSpy
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ premium: "abcdef0123456789" }),
+      } as unknown as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ premium: "0123456789abcdef" }),
+      } as unknown as Response);
+    firestore.getDoc.mockResolvedValue({ exists: () => false });
+
+    await expect(loadPremiumArtefact("best-decks-30d")).rejects.toThrow(/best-decks-30d.*missing/);
+
+    expect(firestore.getDoc).toHaveBeenCalledTimes(2);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
 });

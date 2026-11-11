@@ -36,6 +36,7 @@ const useEntitlement = () => {
     queryKey: ["entitlement", user?.uid ?? null],
     enabled: !loading && !!user,
     retry: false,
+    staleTime: 30_000,
     queryFn: () => getEntitlement(user!.uid),
   });
   return { entitlement, user, loading };

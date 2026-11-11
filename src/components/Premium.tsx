@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
 import Popup from "./Popup";
 import { CONTACT_EMAIL, KOFI_URL } from "../app/constants";
@@ -210,13 +211,20 @@ interface CopyFeedback {
   status: "copied" | "failed";
 }
 
+interface TipState {
+  uid: string;
+  expiry: number | null;
+}
+
 const Premium = ({ variant = "default", linkLabel }: Props) => {
   const { t, i18n } = useTranslation();
   const isPremium = useIsPremium();
   const expiresAt = usePremiumExpiry();
   const { user, signInWithGoogle } = useAuth();
+  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [isAltOpen, setIsAltOpen] = useState(false);
+  const [tipState, setTipState] = useState<TipState | null>(null);
   const [codeResult, setCodeResult] = useState<CodeResult | null>(null);
   const [copyFeedback, setCopyFeedback] = useState<CopyFeedback | null>(null);
 
@@ -237,6 +245,16 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
       active = false;
     };
   }, [expiresAt, isAltOpen, isOpen, isPremium, user?.uid]);
+
+  useEffect(() => {
+    const uid = user?.uid;
+    if (!tipState || tipState.uid !== uid || !uid) return;
+    const onFocus = () => {
+      void queryClient.invalidateQueries({ queryKey: ["entitlement", uid] });
+    };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [queryClient, tipState, user?.uid]);
 
   if (isPremium === null) return null;
 
@@ -264,6 +282,11 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
   const emailHint = user?.email
     ? t("premium.emailHint", { email: user.email })
     : t("premium.emailHintNoEmail");
+  const waiting =
+    !!tipState &&
+    tipState.uid === user?.uid &&
+    premiumState !== "lifetime" &&
+    (!isPremium || expiresAt === tipState.expiry);
 
   const comparison = (
     <TableScroll>
@@ -290,6 +313,11 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
       </Comparison>
     </TableScroll>
   );
+
+  const checkAgain = () => {
+    const uid = user?.uid;
+    if (uid) void queryClient.refetchQueries({ queryKey: ["entitlement", uid] });
+  };
 
   const copyCode = async () => {
     if (!currentCode?.code) return;
@@ -347,10 +375,25 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
           )}
           {user && premiumState !== "lifetime" && (
             <>
-              <CtaLink href={KOFI_URL} target="_blank" rel="noopener noreferrer">
+              <CtaLink
+                href={KOFI_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => {
+                  if (user?.uid) setTipState({ uid: user.uid, expiry: expiresAt });
+                }}
+              >
                 {ctaLabel}
               </CtaLink>
               <Hint>{emailHint}</Hint>
+              {waiting && (
+                <>
+                  <Text role="status">{t("premium.waiting")}</Text>
+                  <ActionButton type="button" onClick={checkAgain}>
+                    {t("premium.checkAgain")}
+                  </ActionButton>
+                </>
+              )}
               <AltToggle
                 type="button"
                 aria-expanded={isAltOpen}

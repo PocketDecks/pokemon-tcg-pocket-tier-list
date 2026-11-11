@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import useIsPremium, { usePremiumExpiry } from "../use-is-premium";
 import { useAuth } from "../../contexts/AuthContext";
@@ -59,6 +59,16 @@ const renderProbe = () =>
   );
 
 describe("entitlement access", () => {
+  it("keeps the entitlement fresh for 30 seconds while the global stale time stays at one hour", async () => {
+    renderProbe();
+    await waitFor(() => expect(firestore.getDoc).toHaveBeenCalled());
+    const query = queryClient.getQueryCache().find({ queryKey: ["entitlement", "u1"] });
+    const queryOptions = query?.options as { staleTime?: number } | undefined;
+    expect(queryOptions?.staleTime).toBe(30_000);
+    const globalQueries = queryClientOptions.defaultOptions.queries as { staleTime?: number };
+    expect(globalQueries.staleTime).toBe(1000 * 60 * 60);
+  });
+
   it("keeps the null loading contract", () => {
     mockAuth.mockReturnValue({ user: null, loading: true });
     renderProbe();

@@ -1,6 +1,6 @@
 # How-to guide: Publishing premium window data
 
-The 30-day and All Time artefacts, and the full matchup and movement depth of the 10-day and 20-day artefacts, are the paid part of the site. They are not committed to the repository and they are not served from Hosting. The refresh writes them to `analysis/out/premium/`, the refresh job uploads them to Firestore at step 10, and the app reads them back only for signed-in users who hold an entitlement. Access does not depend on a payment provider: an entitlement is a Firestore document written by an administrator, and an existing Stripe subscription keeps working alongside it. This guide covers the order of work, the one-off set-up, granting access, and rollback. The manual commands below remain for recovery when the job has already run.
+The 30-day and All Time artefacts, and the full matchup and movement depth of the 10-day and 20-day artefacts, are the paid part of the site. They are not committed to the repository and they are not served from Hosting. The refresh writes them to `analysis/out/premium/`, the refresh job uploads them to Firestore at step 10, and the app reads them back only for signed-in users who hold an entitlement. Premium time is granted by tips through [Ko-fi](https://ko-fi.com/dalin) or by hand with the Admin SDK. This guide covers the order of work, the one-off set-up, granting access, and rollback. The manual commands below remain for recovery when the job has already run.
 
 ## What lives where
 
@@ -8,10 +8,11 @@ The 30-day and All Time artefacts, and the full matchup and movement depth of th
 | --- | --- | --- |
 | `best-decks-{10d,20d}`, `card-scores.json`, `historical-trends.json` | `public/data/`, committed | Everyone |
 | `matchup-data-{10d,20d}` and `meta-share-{10d,20d}`, plus the un-suffixed `matchup-data.json` and `meta-share.json`, trimmed to the free tier | `public/data/`, committed | Everyone |
-| The full `matchup-data-{10d,20d}` and `meta-share-{10d,20d}` | `analysis/out/premium/`, gitignored, then Firestore | Signed-in users with a valid entitlement, or the Stripe `stripeRole` claim |
+| The full `matchup-data-{10d,20d}` and `meta-share-{10d,20d}` | `analysis/out/premium/`, gitignored, then Firestore | Signed-in users with an active entitlement |
 | `best-decks-{30d,all}`, `matchup-data-{30d,all}`, `meta-share-{30d,all}` | `analysis/out/premium/`, gitignored, then Firestore | The same |
 | `data-version.json` | `public/data/`, committed | Everyone |
 | `entitlements/{uid}` | Firestore, written with the Admin SDK | Only the signed-in user it belongs to |
+| `premiumCodes/{code}` | Firestore, created by the signed-in user | Only the signed-in user it belongs to |
 
 `data-version.json` holds `{ "premium": "<16 hex characters>" }`, the first 16 characters of a SHA-256 over the length-prefixed names and contents of the ten premium artefacts. The publisher recomputes that value before uploading and refuses a mismatch. The refresh rewrites it whenever the premium files change. The app reads it to find the matching documents, and CI uses it to confirm that the upload happened
 
@@ -62,7 +63,7 @@ An entitlement is the document `entitlements/{uid}`, keyed by the Firebase Authe
 | `expiresAt` | timestamp, optional | Access ends at this instant; absent means no expiry |
 | `updatedAt` | timestamp | When the document was last written |
 
-Only the Admin SDK writes these documents. The security rules deny every client write, and a signed-in user may read only their own document. The app reads that one document through `useIsPremium()` and treats the user as premium when it grants access, or when the existing Stripe subscription check does. An error from one source never hides a grant from the other
+Only the Admin SDK writes these documents. The security rules deny every client write, and a signed-in user may read only their own document. The app reads that document through `useIsPremium()` and grants access only when it is active. Ko-fi tips grant months through the Worker; an owner can grant or revoke access with `yarn grant:premium`.
 
 Grant and revoke access from `analysis` with `yarn grant:premium`. It uses Application Default Credentials and the project in `.firebaserc`
 
@@ -85,7 +86,7 @@ A grant replaces the whole document, so running it again for the same uid update
 
 Do these once, in this order, before the first merge that carries this change
 
-1. Merge this block into the existing Firestore security rules in the console. Keep every rule already there, including the ones the Stripe extension needs for `customers` and `products`. The `stripeRole` comparison keeps existing subscribers working while they are still on Stripe; remove it once nobody relies on the claim.
+1. Before release, the owner must confirm the existing Firestore rules in the Firebase console and merge the blocks below into them. Keep unrelated rules, including the existing `stripeRole` branch and any rules for `customers` and `products`, unchanged. The app grants Premium from entitlements only. The legacy `stripeRole` branch is retained in the console as-is and a claim alone does not enable the current Premium interface. No live rules were changed or verified for this task. The repository does not contain the live rules; do not deploy a rules file from this repository.
 
    ```
    function entitlementPath() {
@@ -106,6 +107,16 @@ Do these once, in this order, before the first merge that carries this change
      allow read: if request.auth != null && request.auth.uid == uid;
      allow write: if false;
    }
+   match /premiumCodes/{code} {
+     allow read: if request.auth != null
+       && resource.data.uid == request.auth.uid;
+     allow create: if request.auth != null
+       && code.matches('PD-[A-Z0-9]{6}')
+       && request.resource.data.keys().hasAll(['uid'])
+       && request.resource.data.keys().hasOnly(['uid'])
+       && request.resource.data.uid == request.auth.uid;
+     allow update, delete: if false;
+   }
    match /premiumData/{version} {
      allow read: if isPremium();
      allow write: if false;
@@ -116,32 +127,14 @@ Do these once, in this order, before the first merge that carries this change
    }
    ```
 
-   The Admin SDK ignores these rules, so the grant and publish scripts still write. The repository has no `firestore.rules`. Do not add one and deploy it until the console rules are copied in, or the deploy replaces them. Each premium read evaluates the entitlement lookup, which Firestore bills as one extra document read
+   The Admin SDK ignores these rules, so the grant and publish scripts still write. The `premiumCodes` rule lets a signed-in account query and read its own code, and permits the client SDK's `setDoc` only when it creates a correctly shaped code for that same uid. Existing codes cannot be changed or deleted. If a randomly generated code already exists, the attempted overwrite is denied and the client tries another code. These rules must be confirmed in the console before release; this repository has no `firestore.rules` and no live console rules were verified for this task. Each premium data read evaluates the entitlement lookup, which Firestore bills as one extra document read.
 2. Grant yourself access with `yarn grant:premium --uid <your uid>`, then check the 30-day window loads when you are signed in.
 3. Bootstrap the first version. `analysis/out/premium/` must hold all ten files before the first publish: `best-decks-30d`, `best-decks-all`, `matchup-data-10d`, `matchup-data-20d`, `matchup-data-30d`, `matchup-data-all`, `meta-share-10d`, `meta-share-20d`, `meta-share-30d` and `meta-share-all`. The 30d and all files come from the last commit that still carried them (for example with `git show origin/main:public/data/best-decks-30d.json`). The full 10d and 20d matchup and meta-share files come from git history before the free-tier trimming landed: find the commit that trimmed them with `git log --oneline -- public/data/matchup-data-20d.json` and read each file from its parent, for example `git show <parent>:public/data/matchup-data-20d.json`. Copy them into `analysis/out/premium/` unchanged, then run the publish and verify steps above. `yarn publish:premium` refuses to start when the ten files do not hash to the committed `data-version.json`, so a wrong copy is caught before anything is uploaded. Any later refresh regenerates all ten files.
 4. Create the GitHub secret `FIREBASE_PREMIUM_VERIFIER`: the JSON key of a service account whose only role is Cloud Datastore Viewer. Only the merge workflow uses it, so pull request checks need no new secret.
 
-## Existing Stripe subscribers (optional)
+## Ko-fi tips and manual grants
 
-Skip this section when nobody is still subscribed through Stripe. It exists only so subscribers keep their windows while the account is wound down
-
-1. In the Stripe product used for Premium, set the metadata `firebaseRole` to `premium`. The Firebase Stripe extension then writes the custom claim `stripeRole: "premium"` on the user token.
-2. The extension sets the claim only on subscription events, so existing subscribers need a backfill: re-save their subscription in Stripe, or trigger a subscription event for each customer.
-3. Decide which subscription states keep the claim. The app counts `active`, `trialing` and `past_due` as premium for the interface (`use-is-premium.ts`). If the extension drops the claim on `past_due`, those users still see the premium interface but lose the windows. Either accept that or align the two.
-
-To stop depending on Stripe, run `yarn grant:premium` for each remaining subscriber with `--until` set to the end of their paid period and `--source stripe`, then remove the `stripeRole` comparison from `isPremium()`
-
-## Wiring a future payment provider
-
-Nothing in the app or the rules is tied to a provider. Any provider can grant access by writing `entitlements/{uid}` from trusted server code:
-
-1. The provider sends a webhook to a small handler that you run, for example a Cloud Function, and the handler verifies the provider's signature before it trusts the payload.
-2. The handler works out which Firebase uid the payment belongs to. Pass the uid to the provider when the checkout starts, as client reference metadata, so the webhook can read it back.
-3. On a successful payment or renewal it writes `{ premium: true, source: "<provider label>", expiresAt: <end of the paid period>, updatedAt: <now> }` with the Admin SDK.
-4. On a cancellation that takes effect, a refund or a chargeback it writes `{ premium: false, source: "<provider label>", updatedAt: <now> }`.
-5. Writing an `expiresAt` for every paid period means access lapses on its own if a webhook is ever missed.
-
-The handler never needs to touch the rules, the client code or the premium data. `analysis/src/utils/premium-grant.ts` shows the exact document shape, and `yarn grant:premium --dry-run` prints it
+The Ko-fi Worker matches a tip to the signed-in account using the code shown in the Premium popup or the account's verified Google email. Each whole GBP 1 grants one calendar month; later tips extend the existing expiry. The [Ko-fi receiving guide](receive-ko-fi-payments.md) covers Worker setup and how to resolve payments that need manual review. For a gift or another manual grant, use `yarn grant:premium` as described above. Both methods write the same `entitlements/{uid}` document; the browser does not grant access itself.
 
 ## Rollback
 
@@ -152,7 +145,7 @@ Each upload is a new version. The newest five stay in Firestore, along with vers
 - `the premium files hash to X but data-version.json says Y`: the premium files and the committed version differ. Rerun the refresh; keep both files unchanged.
 - `... is N bytes, the limit is 900000`: an artefact is approaching the Firestore document cap of 1 MiB. The largest files today are the four `matchup-data-*` artefacts at about 268 KB each. Trim the artefact or split it before raising the limit.
 - A premium user sees the trimmed matchups and movement on the 10-day or 20-day window: the read of the full artefact was denied twice, even after a forced token refresh, and the app fell back to the public file. The cause below applies here too.
-- A premium user sees the 20-day window after choosing 30d: the read was denied twice, even after a forced token refresh. Check that `entitlements/{uid}` exists for that uid with `premium: true` and an `expiresAt` that has not passed, or that the Stripe claim is present, and check the console rules.
+- A premium user sees the 20-day window after choosing 30d: the read was denied twice, even after a forced token refresh. Check that `entitlements/{uid}` exists for that uid with `premium: true` and an `expiresAt` that has not passed, and check the console rules.
 - `yarn grant:premium` fails with a message about default credentials: run `gcloud auth application-default login` and try again.
 - A user who was granted access still sees the free interface: the entitlement is cached in the browser for up to an hour. Ask them to reload the page.
 - The build fails with `Premium window data shipped in the build output`: a 30-day or All Time file has been put back under `public/data/`. Remove it.

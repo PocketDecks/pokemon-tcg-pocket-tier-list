@@ -32,7 +32,10 @@ For each delivery it works through these steps:
    must be up to 128 letters and digits, and the Worker asks Identity
    Toolkit for it by `localId`. It accepts exactly one account that is not
    disabled, with or without a verified email, and otherwise moves on to the
-   email. The site issues no codes yet, so for now the email does the work.
+   email. Signed-in users can find their code in the Premium popup opened
+   from the account menu; they paste it into the Ko-fi message. If the code
+   is unavailable, the popup asks them to use the email address verified on
+   their Google account instead.
    The Worker trims it, lower-cases it and asks the Identity Toolkit admin
    endpoint for the matching account. It accepts exactly one account that
    has a verified email and is not disabled. With no match, or a 400 from
@@ -81,9 +84,34 @@ error, or just the error name for anything else. The Worker cuts stored
 text to 320 characters for the email, 500 for the message, 200 for the
 name, 64 for the Ko-fi timestamp, 32 for the type and 8 for the currency
 
-The Firestore rules live in the Firebase console and need no change. They
-deny clients every collection they do not list, and the Worker signs in with
-admin credentials
+The Worker signs in with Admin credentials and bypasses Firestore rules.
+The site also needs a client rule for `premiumCodes`, so a signed-in user
+can read their own code and create it on first use. Before release, the
+owner must confirm the existing rules in the Firebase console and merge this
+block into them. Keep every existing rule, including the legacy
+`stripeRole` branch and any rules for `customers` and `products`, unchanged.
+No live rules were changed or verified for this task. Do not deploy rules
+from this repository.
+
+```
+match /premiumCodes/{code} {
+  allow read: if request.auth != null
+    && resource.data.uid == request.auth.uid;
+  allow create: if request.auth != null
+    && code.matches('PD-[A-Z0-9]{6}')
+    && request.resource.data.keys().hasAll(['uid'])
+    && request.resource.data.keys().hasOnly(['uid'])
+    && request.resource.data.uid == request.auth.uid;
+  allow update, delete: if false;
+}
+```
+
+The create rule matches the client `setDoc` call when the document does not
+exist. Reads are limited to documents owned by the signed-in user, the uid
+must be the caller's auth uid, and the document must contain exactly `uid`.
+Updates and deletes are denied. The client queries by uid, then retries with
+a new random code if a collision makes creation fail. The premium data guide
+contains the related entitlement and premium data rules.
 
 ## Switching it on
 

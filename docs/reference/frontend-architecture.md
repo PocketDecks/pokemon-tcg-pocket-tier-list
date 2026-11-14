@@ -31,6 +31,7 @@ BrowserRouter
 UIProvider            src/contexts/UIContext.tsx
 MissingContextProvider  src/components/MissingContext.tsx
 FilterContextProvider   src/components/FilterContext.tsx
+ThemeProvider          src/contexts/ThemeContext.tsx
 GlobalStyles
 ConsentProvider        src/consent/ConsentProvider.tsx
 App
@@ -42,6 +43,7 @@ Inside `App` (`src/App.tsx`) a second layer adds the parts the routes need:
 ErrorBoundary
 QueryClientProvider    queryClient created at module scope in App.tsx
 AuthProvider           src/contexts/AuthContext.tsx
+MetaWindowProvider     src/contexts/MetaWindowContext.tsx
 DecksProvider          src/contexts/DecksContext.tsx
 ContentReadyProvider   src/ads/ContentReadyContext.tsx
 Routes
@@ -64,41 +66,82 @@ All routes live in the table in `src/App.tsx`. Every page component is loaded
 with `React.lazy` and rendered behind the layout's `Suspense` fallback,
 `LoadingNotice` from `src/components/ErrorBoundary.tsx`.
 
+The table is written twice, once under `/` and once under `/ja`, each inside
+its own `Layout`. `LOCALE_PREFIXES` and `ROUTE_LOCALES` in
+`src/app/locale-route.ts` define the prefixes. The table stays as literal
+`<Route path="...">` elements because the postbuild check
+`scripts/verify-dist-html.js` reads `src/App.tsx` as text to find each route
+and confirm it resolves to a built page or a hosting rule. Routes built in a
+loop would be invisible to it.
+
 ```text
-/                    LandingPage      (index)
-/tier-list           TierListPage
-/cards-list          CardsListPage
-/expansion-list      ExpansionListPage
-/statistics          StatisticsPage
-/stats               StatisticsPage   (alias of /statistics)
-/privacy             PrivacyPage
-/about               AboutPage
-/404                 NotFoundPage
-/deck                DeckFinderPage   (index)
-/deck/:deckId        DeckDetailPage
-*                    NotFoundPage     (catch-all)
+/                          LandingPage        (index)
+/tier-list                 TierListPage
+/cards-list                CardsListPage
+/expansion-list            ExpansionListPage  (index)
+/expansion-list/:expansionId  ExpansionPage
+/statistics                StatisticsPage
+/privacy                   PrivacyPage
+/about                     AboutPage
+/feedback                  FeedbackPage
+/deck                      DeckFinderPage     (index)
+/deck/:deckId              DeckRoute
+*                          NotFoundPage       (catch-all)
 ```
 
+The same table repeats under `/ja`, for example `/ja/tier-list` and
+`/ja/deck/:deckId`. `/stats` is not a route. Firebase Hosting redirects it to
+`/statistics/`.
+
 A deck URL's `deckId` segment is a `FullDeckType.id`, produced by `deckSlug`
-from the deck name. `DeckDetailPage` resolves it with
-`decks?.find((d) => d.id === deckId)`. After resolution every consumer
-compares and indexes by `deck.id`; `rawDeckId` in `deck-resolution.ts` is the
-one helper for matching a raw pipeline deck to a slug.
+from the deck name. `DeckRoute` decides what the segment shows:
+
+- a deck in the current window renders `DeckDetailPage`;
+- a retired variant whose hub has a different slug redirects to that hub;
+- a hub slug renders `DeckHubPage`;
+- a slug that only a premium window offers renders `DeckPremiumGate` for a
+  free viewer, or switches a premium viewer to that window;
+- any other slug renders `NotFoundPage`.
+
+While the decks load it shows `DeckPageSkeleton`. If they fail to load, a known
+variant still renders `DeckDetailPage` and a known hub still renders
+`DeckHubPage`, so those pages can show their own error text.
+
+`DeckDetailPage` finds its deck with `useDeckDetail`, which calls
+`resolveDeckDetail` in `src/app/deck-resolution.ts` on the raw decks. After
+resolution every consumer compares and indexes by `deck.id`; `rawDeckId` in
+`deck-resolution.ts` is the one helper for matching a raw pipeline deck to a
+slug.
 
 ## Data fetching
 
-Three React Query keys exist.
+Every query that carries pipeline data is keyed by the meta window
+(`10d`, `20d`, `30d` or `all`) so that switching windows reads a separate cache
+entry. The `tier` part of a key is `full` for a premium viewer and `public`
+otherwise. The `30d` and `all` windows are premium, and their queries stay
+disabled until `useIsPremium` reports `true`.
 
 | Key | Owner | Source |
 | --- | --- | --- |
-| `["decks"]` | `DecksProvider` | `best-decks.json`, `matchup-data.json`, `meta-share.json` |
+| `["decks", window]` | `DecksProvider`, `useDeckDetail` | `best-decks.json` |
+| `["meta-share", window, tier]` | `DecksProvider` | `meta-share.json` |
+| `["matchups", window, tier]` | `useMatchups` | `matchup-data.json` |
 | `["card-scores"]` | `useCards` | `card-scores.json` |
+| `["historical-trends"]` | `usePipelineTrends` | `historical-trends.json` |
+| `["hub-file", hub]` | `useHubFile` | `hubs/{hub}.json` |
+| `["premium", uid]`, `["entitlement", uid]` | `useIsPremium` | Firestore |
 
-The `["decks"]` query fetches `best-decks.json` and `matchup-data.json` in
-parallel and attaches `meta-share.json` through `loadMetaShare()`. Share data is
-optional there: any failure, including malformed JSON, degrades to `null` so
-deck pages and statistics keep loading. The other queries throw on failure
-and surface their errors through React Query as usual.
+For the default window the file names have no suffix (`best-decks.json`). The
+other windows add one (`best-decks-10d.json`). Premium windows load through
+`src/app/premium-data.ts`. For meta share and matchups, a premium viewer on the
+10-day or 20-day window reads the full artefact and falls back to the public one
+when access is denied.
+
+`DecksProvider` fetches only best decks and meta share. Matchup data is fetched
+by the pages that show it, through `useMatchups`, so the provider's critical
+path stays small. Share data is optional: any failure, including malformed JSON,
+degrades to `null` so deck pages and statistics keep loading. The other queries
+throw on failure and surface their errors through React Query as usual.
 
 ### Card and expansion data
 
@@ -113,25 +156,38 @@ index when they infer energy for each deck's best list.
 
 ## Contexts
 
-Five contexts hold client state. `AuthContext`, `DecksContext` and `UIContext`
-live in `src/contexts/`. The other two keep their provider components in
-`src/components/` (`FilterContext.tsx`, `MissingContext.tsx`) with thin accessor
-hooks, `useFilters` and `useMissing`, in `src/app/`.
+Seven contexts hold client state. `AuthContext`, `DecksContext`,
+`MetaWindowContext`, `ThemeContext` and `UIContext` live in `src/contexts/`. The
+other two keep their provider components in `src/components/`
+(`FilterContext.tsx`, `MissingContext.tsx`) with thin accessor hooks,
+`useFilters` and `useMissing`, in `src/app/`. `useMetaWindow` and `useTheme`
+are also in `src/app/`.
 
 ### DecksContext
 
-`DecksProvider` joins the pipeline's partial decks against the card data and
-exposes `{ decks, metaShareBySlug, loading, error }` through `useDecks()`. Its
-consumers are `TierListPage`, `DeckFinderPage`, `DeckDetailPage` and
-`StatisticsPage`.
+`DecksProvider` joins the pipeline's partial decks against the card data.
+`useDecks()` returns a union keyed by `status`:
+
+| `status` | Fields |
+| --- | --- |
+| `"loading"` | `decks: null`, `scoreBaseline: null` |
+| `"error"` | `decks: null`, `scoreBaseline: null`, `error` |
+| `"ready"` | `decks`, `scoreBaseline` (null when no deck has a finite power score) |
+
+Every variant also carries `rawDecks`, `metaShare`, `metaShareBySlug` and
+`isPremium`. Pages test `status` once instead of checking `loading`, `error` and
+`decks` separately. The state is `ready` whenever a deck list exists, `error`
+when the query failed and there is none, and `loading` otherwise, including
+while a premium window waits for the premium check. Consumers include
+`TierListPage`, `DeckFinderPage`, `DeckDetailPage`, `DeckHubPage`,
+`DeckRoute`, `StatisticsPage`, `ExpansionPage` and the landing components.
 
 The join is `buildDecks` in `src/app/build-decks.ts`, run in one memo keyed on
-the raw decks, filters and missing counts. Until the raw decks have loaded it
-returns `null`. `loading` is true exactly while there is neither a deck list nor
-an error, so a consumer that has checked `loading` and `error` can rely on
-`decks`. Premium status does not enter the join; it only decides which window
-queries are enabled. `src/app/deck-payload.ts` holds the pure loaders and the
-shape checks for `best-decks.json`, `matchup-data.json` and `meta-share.json`.
+the raw decks, filters and missing counts. Until the raw decks have loaded the
+state has no deck list. Premium status does not enter the join; it only decides
+which window queries are enabled. `src/app/deck-payload.ts` holds the pure
+loaders and the shape checks for `best-decks.json`, `matchup-data.json` and
+`meta-share.json`.
 The steps, in order:
 
 1. Filter each deck's lists with the predicates from `src/app/deck-filters.ts`:
@@ -166,7 +222,7 @@ field, which matches a deck id, so movement tables can link on it.
 Holds the user-facing filter state consumed by `DecksContext` and `useCards`:
 `energy` (element or null), `includeEx`, `deckAmount` (default
 `FREE_DECK_AMOUNT`, 30), `sortBy` (a `SortBy` enum value, default
-`SortBy.SCORE`), `expansion` (set code or null) and `latestExpansionCards`
+`SortBy.POWER`), `expansion` (set code or null) and `latestExpansionCards`
 (minimum count from the newest set, or null). The enum and defaults are
 exported from `src/components/FilterContext.tsx`.
 
@@ -177,7 +233,7 @@ where each copy counts as one entry. `addMissing(ids)` records a batch and
 pushes it onto an undo history; `undoMissing()` pops the most recent batch.
 `canUndo` and `lastRemovedId` support the undo control. `missingCounts` maps
 each card id to the number of copies marked missing; the provider computes it
-once. Consumed by `DecksContext`, `DeckDetailPage` and `useCards`.
+once. Consumed by `DecksContext`, `DeckDetailPage`, `DeckFinderPage` and `useCards`.
 
 ### UIContext
 
@@ -197,7 +253,8 @@ or when a Firestore Stripe subscription with the status `active`, `trialing` or
 `past_due` exists, and `boolean | null` while it works. Trialing counts
 because new subscribers spend their first seven days in a trial, and
 `past_due` keeps access through Stripe's payment-retry grace period.
-`DecksContext` waits for a non-null answer before computing decks.
+`DecksProvider` keeps the premium-window queries disabled until the answer is
+`true`; the default window loads without waiting.
 
 ## Internationalisation
 
@@ -221,7 +278,8 @@ renderer.
 | `deck-code.ts` | `TRAINER_OFFSET`, `SPECIAL_THRESHOLD`, `ENERGY_IDS`, `createDeckCode` | `DecksContext` |
 | `deck-energy.ts` | `inferEnergyIds`, `EXCLUDED_DECK_BUILDER_NR`, `FORCED_LIGHTNING_NR` | `DecksContext` |
 | `deck-filters.ts` | `cardToId`, `cardToCount`, `deckNameToIconIds`, `findUnresolvedCardIds`, `isAffordable`, `matchesEnergy`, `matchesExFilter`, `hasEnoughLatestExpansionCards` | `DecksContext` |
-| `tier-helper.ts` | `buildTiers` | `TierGrid`, `StatisticsPage` |
+| `tier-helper.ts` | `buildTiers` | `TierGrid`, `use-deck-tiers.ts`, `MatrixSection` |
+| `ranked-deck.ts` | `RankedDeck`, `isRanked`, `rankedDecks`, `sortRanked`, `comparePowerDescending` | `score-baseline.ts`, `use-deck-tiers.ts`, tier list, statistics and landing pages |
 | `build-decks.ts` | `buildDecks`, `BuildOptions` | `DecksContext` |
 | `deck-payload.ts` | `fetchBestDecks`, `parseBestDecks`, `fetchMatchupData`, `sanitiseMatchupData`, `loadMetaShare` | `DecksContext` |
 | `deck-types.ts` | `FullDeckType`, `MatchupType` | `DecksContext`, `sorting-helper.ts` |

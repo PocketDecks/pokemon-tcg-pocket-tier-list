@@ -77,6 +77,14 @@ const getTournamentDecks = async (tournament: Tournament) => {
     );
   }
 
+  const malformedRow = standings.findIndex((row) => !isRecord(row));
+  if (malformedRow !== -1) {
+    const row = standings[malformedRow];
+    throw new LimitlessError(
+      `Tournament ${tournament.id}: standings row ${malformedRow} was ${row === null ? "null" : typeof row}, expected an object`
+    );
+  }
+
   const submitted = standings.filter(hasSubmittedDecklist);
   const decks = submitted.filter(hasValidCards);
   if (decks.length < submitted.length) {

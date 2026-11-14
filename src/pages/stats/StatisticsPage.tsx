@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LocaleLink as Link } from "../../app/locale-link";
 import usePipelineTrends from "../../app/use-pipeline-trends";
@@ -13,6 +13,7 @@ import WindowToggle from "../../components/WindowToggle";
 import MatrixSection from "./MatrixSection";
 import MovementSection from "./MovementSection";
 import TrendsSection from "./TrendsSection";
+import type { MovementView } from "./movement-rows";
 import { Loading } from "./stats-section.styles";
 
 const PageContainer = styled.div`
@@ -46,6 +47,8 @@ const StatisticsPage = () => {
     const { decks, metaShare } = decksState;
     const trendQuery = usePipelineTrends();
     const newest = latestCoveredExpansion(decks);
+    const [movementView, setMovementView] = useState<MovementView>("rising");
+    const [pinnedSeries, setPinnedSeries] = useState<string | null>(null);
 
     useMarkContentReady(decksState.status === "ready" && !trendQuery.isLoading);
 
@@ -65,9 +68,18 @@ const StatisticsPage = () => {
         }
         return (
             <>
-                <TrendsSection decks={decksState.decks} />
+                <TrendsSection
+                    decks={decksState.decks}
+                    pinnedSeries={pinnedSeries}
+                    onPinnedSeriesChange={setPinnedSeries}
+                />
                 <AdInContent placement="statistics" />
-                <MovementSection metaShare={metaShare} decksById={decksById} />
+                <MovementSection
+                    metaShare={metaShare}
+                    decksById={decksById}
+                    view={movementView}
+                    onViewChange={setMovementView}
+                />
                 <AdInContent placement="statistics" />
                 <MatrixSection decks={decksState.decks} />
             </>

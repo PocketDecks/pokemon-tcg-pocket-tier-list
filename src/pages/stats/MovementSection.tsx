@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { LocaleLink as Link } from "../../app/locale-link";
 import useDeckHref from "../../app/use-deck-href";
@@ -245,12 +245,13 @@ const MovementTableRow = ({ row }: { row: MovementRow }) => (
 interface Props {
     metaShare: PipelineMetaShare | null;
     decksById: ReadonlyMap<string, FullDeckType>;
+    view: MovementView;
+    onViewChange: (view: MovementView) => void;
 }
 
-const MovementSection = ({ metaShare, decksById }: Props) => {
+const MovementSection = ({ metaShare, decksById, view, onViewChange }: Props) => {
     const { t } = useTranslation();
     const deckHref = useDeckHref();
-    const [view, setView] = useState<MovementView>("rising");
 
     const limited = !!metaShare && metaShare.decks.some((entry) => !hasMovement(entry));
     const rows = useMemo(
@@ -268,7 +269,7 @@ const MovementSection = ({ metaShare, decksById }: Props) => {
                             key={option}
                             $active={view === option}
                             aria-pressed={view === option}
-                            onClick={() => setView(option)}
+                            onClick={() => onViewChange(option)}
                         >
                             {t(VIEW_LABEL_KEYS[option])}
                         </ToggleButton>

@@ -11,12 +11,17 @@ import { Section, SectionHeader, SectionTitle } from "./stats-section.styles";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const TrendsSection = ({ decks }: { decks: FullDeckType[] }) => {
+interface Props {
+    decks: FullDeckType[];
+    pinnedSeries: string | null;
+    onPinnedSeriesChange: (update: (current: string | null) => string | null) => void;
+}
+
+const TrendsSection = ({ decks, pinnedSeries, onPinnedSeriesChange }: Props) => {
     const { t, i18n } = useTranslation();
     const { window: metaWindow } = useMetaWindow();
     const { rows, failed } = usePipelineTrends();
     const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
-    const [pinnedSeries, setPinnedSeries] = useState<string | null>(null);
 
     const visibleRows = useMemo(() => {
         if (!rows.length) return [];
@@ -49,7 +54,7 @@ const TrendsSection = ({ decks }: { decks: FullDeckType[] }) => {
                 formatDay={(value) => formatTrendDay(value, i18n.language)}
                 seriesLabel={(name) => deckDisplayName(decks.find((d) => d.name === name) ?? { name })}
                 onHover={setHoveredSeries}
-                onPin={(name) => setPinnedSeries((current) => (current === name ? null : name))}
+                onPin={(name) => onPinnedSeriesChange((current) => (current === name ? null : name))}
             />
         </Section>
     );

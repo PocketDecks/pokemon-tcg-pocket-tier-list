@@ -81,7 +81,8 @@ const ENERGY_TYPES = [
 ];
 
 const TierListPage = () => {
-  const { decks, rawDecks, metaShareBySlug, loading, error } = useDecks();
+  const decksState = useDecks();
+  const { decks, rawDecks, metaShareBySlug } = decksState;
   const {
     energy,
     setEnergy,
@@ -99,16 +100,16 @@ const TierListPage = () => {
   const bestListNewest = latestBestListExpansion(rawDecks);
   const isPremium = useIsPremium();
 
-  const ready = !loading && !!decks && decks.length > 0;
+  const ready = decksState.status === "ready" && decksState.decks.length > 0;
   useMarkContentReady(ready);
 
-  if (error)
+  if (decksState.status === "error")
     return (
       <>
         <WindowToggleCorner>
           <WindowToggle />
         </WindowToggleCorner>
-        <div>Error loading data: {error.message}</div>
+        <div>Error loading data: {decksState.error.message}</div>
       </>
     );
 

@@ -141,7 +141,10 @@ const BreadcrumbSeparator = styled.span`
 const ExpansionPage = () => {
   const { expansionId } = useParams();
   const [searchParams] = useSearchParams();
-  const { decks, rawDecks, error: decksError, metaShareBySlug, loading: decksLoading } = useDecks();
+  const decksState = useDecks();
+  const { decks, rawDecks, metaShareBySlug } = decksState;
+  const decksLoading = decksState.status === "loading";
+  const decksError = decksState.status === "error";
   const expansions = useExpansions();
   const { t, i18n } = useTranslation();
   const expansion = expansions.find((entry) => entry.id === expansionId);

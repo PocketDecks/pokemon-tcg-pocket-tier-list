@@ -15,7 +15,7 @@ import ExpansionPage from "../ExpansionPage";
 const state = vi.hoisted(() => ({ mode: "empty" }));
 vi.mock("../../../app/use-expansions", () => ({ default: () => [{ id: "b4a", name: "Team Rocket's Ambition", release_date: null, packs: [{ id: "b4a-booster", name: "Booster", image: "b4a.webp" }] }] }));
 
-vi.mock("../../../app/use-decks", () => ({ useDecks: () => ({ decks: [], rawDecks: [], loading: false }) }));
+vi.mock("../../../app/use-decks", () => ({ useDecks: () => ({ decks: [], rawDecks: [], status: "ready" }) }));
 vi.mock("../../../app/expansion-page-data", () => ({ packNameForSlug: () => null, expansionPageData: () => ({ cards: state.mode === "good" ? [{ id: "b4a-001", name: "Volbeat" }] : [], decks: [] }) }));
 
 describe("ExpansionPage content readiness", () => {

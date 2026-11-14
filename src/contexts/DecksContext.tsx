@@ -35,20 +35,23 @@ export type { FullDeckType };
 export type { MatchupType };
 export { sanitiseMatchupData };
 
-/// `loading` is true exactly while there is neither a deck list nor an error,
-/// so a consumer that has checked `loading` and `error` can rely on `decks`.
-interface DecksContextType {
-  decks: FullDeckType[] | null;
+interface DecksShared {
   rawDecks: PipelinePartialDeck[] | null;
-  scoreBaseline: ScoreBaseline | null;
   metaShare: PipelineMetaShare | null;
   metaShareBySlug: Record<string, MetaShareEntry> | null;
-  loading: boolean;
-  error: Error | null;
   isPremium: boolean | null;
 }
 
-const DecksContext = createContext<DecksContextType | undefined>(undefined);
+/// `ready` is the only state with a deck list; `error` is reported only while
+/// there is none. `scoreBaseline` is null when no deck has a finite power score.
+export type DecksState = DecksShared &
+  (
+    | { status: "loading"; decks: null; scoreBaseline: null }
+    | { status: "error"; decks: null; scoreBaseline: null; error: Error }
+    | { status: "ready"; decks: FullDeckType[]; scoreBaseline: ScoreBaseline | null }
+  );
+
+const DecksContext = createContext<DecksState | undefined>(undefined);
 
 export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -107,31 +110,29 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
     latestExpansionId,
   ]);
 
-  const error = decksError ?? null;
-  const loading = decks === null && error === null;
-
-  const value = useMemo(
-    () => ({
-      decks,
+  const value = useMemo<DecksState>(() => {
+    const shared = {
       rawDecks,
-      scoreBaseline,
       metaShare: settledMetaShare,
       metaShareBySlug,
-      loading,
-      error,
       isPremium,
-    }),
-    [
-      decks,
-      rawDecks,
-      scoreBaseline,
-      settledMetaShare,
-      metaShareBySlug,
-      loading,
-      error,
-      isPremium,
-    ]
-  );
+    };
+    if (decks !== null) {
+      return { ...shared, status: "ready", decks, scoreBaseline };
+    }
+    if (decksError) {
+      return { ...shared, status: "error", decks: null, scoreBaseline: null, error: decksError };
+    }
+    return { ...shared, status: "loading", decks: null, scoreBaseline: null };
+  }, [
+    decks,
+    rawDecks,
+    scoreBaseline,
+    settledMetaShare,
+    metaShareBySlug,
+    decksError,
+    isPremium,
+  ]);
 
   return (
     <DecksContext.Provider value={value}>{children}</DecksContext.Provider>

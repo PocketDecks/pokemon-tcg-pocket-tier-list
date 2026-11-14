@@ -6,7 +6,12 @@ import i18n from "../../../i18n";
 import DeckHubPage from "../DeckHubPage";
 
 const decksState = vi.hoisted(() => ({
-  value: { decks: [] as unknown[] | null, metaShareBySlug: {}, loading: false, error: null as Error | null },
+  value: { decks: [], metaShareBySlug: {}, status: "ready" } as {
+    decks: unknown[] | null;
+    metaShareBySlug: object;
+    status: "ready" | "loading" | "error";
+    error?: Error;
+  },
 }));
 
 const matchupsState = vi.hoisted(() => ({
@@ -103,7 +108,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
-  decksState.value = { decks: [], metaShareBySlug: {}, loading: false, error: null };
+  decksState.value = { decks: [], metaShareBySlug: {}, status: "ready" };
   matchupsState.value = { matchupsByName: null, loading: false, error: null };
 });
 
@@ -122,7 +127,7 @@ describe("DeckHubPage", () => {
   });
 
   it("does not claim the hub is out of meta when decks fail to load", () => {
-    decksState.value = { decks: null, metaShareBySlug: {}, loading: false, error: new Error("offline") };
+    decksState.value = { decks: null, metaShareBySlug: {}, status: "error", error: new Error("offline") };
     renderAt("/deck/mega-greninja-ex");
     expect(screen.queryByText(/Not in the current/)).toBeNull();
   });
@@ -135,8 +140,7 @@ describe("DeckHubPage", () => {
         { id: "mega-altaria-ex-b1-102&greninja-a1-089", name: "mega-altaria-ex-b1-102&greninja-a1-089", powerScore: 70, expectedWinRate: 0.4 },
       ] as unknown[],
       metaShareBySlug: {},
-      loading: false,
-      error: null,
+      status: "ready",
     };
     renderAt("/deck/mega-altaria-ex");
     const hrefs = screen
@@ -163,8 +167,7 @@ describe("DeckHubPage", () => {
         },
       ] as unknown[],
       metaShareBySlug: {},
-      loading: false,
-      error: null,
+      status: "ready",
     };
     renderAt("/deck/mega-greninja-ex");
     expect(screen.getByText("Mega Greninja ex / Greninja ex")).toBeTruthy();
@@ -174,8 +177,7 @@ describe("DeckHubPage", () => {
     decksState.value = {
       decks: [{ id: "mega-altaria-ex-b1-102", name: "mega-altaria-ex-b1-102", powerScore: 40, expectedWinRate: 0.5 }] as unknown[],
       metaShareBySlug: {},
-      loading: false,
-      error: null,
+      status: "ready",
     };
     renderAt("/deck/mega-altaria-ex");
     expect(screen.getByText("Mega Altaria ex")).toBeTruthy();
@@ -186,8 +188,7 @@ describe("DeckHubPage", () => {
     decksState.value = {
       decks: [{ id: "mega-altaria-ex-b1-102", name: "mega-altaria-ex-b1-102", powerScore: 40, expectedWinRate: 0.5 }] as unknown[],
       metaShareBySlug: {},
-      loading: false,
-      error: null,
+      status: "ready",
     };
     render(
       <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
@@ -215,7 +216,7 @@ describe("DeckHubPage content", () => {
   const liveGreninja = liveDeck(GRENINJA, 70, ["Mega Greninja ex", "Greninja ex"]);
 
   it("lists the core cards of the strongest live variant with counts and names", async () => {
-    decksState.value = { decks: [liveGreninja], metaShareBySlug: {}, loading: false, error: null };
+    decksState.value = { decks: [liveGreninja], metaShareBySlug: {}, status: "ready" };
     renderAt("/deck/mega-greninja-ex");
     expect(await screen.findByText("2 × Charmander")).toBeTruthy();
     expect(screen.getByText("1 × Greninja ex")).toBeTruthy();
@@ -237,8 +238,7 @@ describe("DeckHubPage content", () => {
         liveDeck("zoroark-ex-b3-106", 3, ["Zoroark ex", null]),
       ],
       metaShareBySlug: {},
-      loading: false,
-      error: null,
+      status: "ready",
     };
     matchupsState.value = {
       matchupsByName: {
@@ -248,8 +248,7 @@ describe("DeckHubPage content", () => {
           { name: "zoroark-ex-b3-106", winRate: 0.9, totalGames: 19 },
         ],
       },
-      loading: false,
-      error: null,
+      loading: false, error: null,
     };
     renderAt("/deck/mega-greninja-ex");
     expect(await screen.findByText("70.0% win rate")).toBeTruthy();
@@ -259,11 +258,10 @@ describe("DeckHubPage content", () => {
   });
 
   it("hides the matchups section when the strongest deck has only its Total row", async () => {
-    decksState.value = { decks: [liveGreninja], metaShareBySlug: {}, loading: false, error: null };
+    decksState.value = { decks: [liveGreninja], metaShareBySlug: {}, status: "ready" };
     matchupsState.value = {
       matchupsByName: { [GRENINJA]: [{ name: "Total", winRate: 0.55, totalGames: 400 }] },
-      loading: false,
-      error: null,
+      loading: false, error: null,
     };
     renderAt("/deck/mega-greninja-ex");
 
@@ -282,8 +280,7 @@ describe("DeckHubPage content", () => {
         liveDeck("zoroark-ex-b3-106", 3, ["Zoroark ex", null], ["a1-001"]),
       ],
       metaShareBySlug: {},
-      loading: false,
-      error: null,
+      status: "ready",
     };
     renderAt("/deck/mega-greninja-ex");
     const venusaur = await screen.findByRole("link", { name: /Venusaur ex \/ Bulbasaur/ });
@@ -294,7 +291,7 @@ describe("DeckHubPage content", () => {
   });
 
   it("lists every variant of the hub newest first, with its peak share and date", async () => {
-    decksState.value = { decks: [liveGreninja], metaShareBySlug: {}, loading: false, error: null };
+    decksState.value = { decks: [liveGreninja], metaShareBySlug: {}, status: "ready" };
     renderAt("/deck/mega-greninja-ex");
     await screen.findByText(/Peak 13.0% on 29 Oct 2026/);
     const peaks = screen.getAllByText(/Peak /).map((node) => node.textContent?.split(" · ")[1]);
@@ -302,7 +299,7 @@ describe("DeckHubPage content", () => {
   });
 
   it("separates the seen range from the peak line in each history row", async () => {
-    decksState.value = { decks: [liveGreninja], metaShareBySlug: {}, loading: false, error: null };
+    decksState.value = { decks: [liveGreninja], metaShareBySlug: {}, status: "ready" };
     renderAt("/deck/mega-greninja-ex");
     const meta = await screen.findByText(/Peak 13.0% on 29 Oct 2026/);
     expect(meta.textContent).toBe("Seen from 31 Oct 2025 to 2 Nov 2026 · Peak 13.0% on 29 Oct 2026");
@@ -312,8 +309,7 @@ describe("DeckHubPage content", () => {
     decksState.value = {
       decks: [liveGreninja],
       metaShareBySlug: { [GRENINJA]: { share: 0.1 } },
-      loading: false,
-      error: null,
+      status: "ready",
     };
     renderAt("/deck/mega-greninja-ex");
     expect(await screen.findByText(/Mega Greninja ex is tracked on Top Pocket Decks in 2 variants/)).toBeTruthy();
@@ -325,8 +321,7 @@ describe("DeckHubPage content", () => {
     decksState.value = {
       decks: [{ id: "other-a1-001", name: "other-a1-001", powerScore: null, expectedWinRate: 0.5, bestList: { cards: [] }, lists: [{ cards: ["2:c1-018"] }] }] as unknown[],
       metaShareBySlug: {},
-      loading: false,
-      error: null,
+      status: "ready",
     };
     renderAt("/deck/mega-greninja-ex");
     expect(await screen.findByText(/was last seen on 2 Nov 2026/)).toBeTruthy();
@@ -370,7 +365,7 @@ describe("DeckHubPage tiny shares", () => {
 
 describe("DeckHubPage landmarks", () => {
   it("renders no main element of its own inside the layout's main", () => {
-    decksState.value = { decks: [], metaShareBySlug: {}, loading: false, error: null };
+    decksState.value = { decks: [], metaShareBySlug: {}, status: "ready" };
     const { container } = render(
       <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
         <main>
@@ -420,8 +415,7 @@ describe("DeckHubPage head", () => {
     decksState.value = {
       decks: [liveDeck(GRENINJA, 70, ["Mega Greninja ex", "Greninja ex"])],
       metaShareBySlug: {},
-      loading: false,
-      error: null,
+      status: "ready",
     };
     renderAt("/deck/mega-greninja-ex");
     await waitFor(() => expect(document.title).toBe("Mega Greninja ex Deck | Pokemon TCG Pocket"));
@@ -433,7 +427,7 @@ describe("DeckHubPage head", () => {
 
 describe("DeckHubPage without live data", () => {
   it("makes no meta claim in the summary paragraph when live deck data is unavailable", async () => {
-    decksState.value = { decks: null, metaShareBySlug: {}, loading: false, error: new Error("offline") };
+    decksState.value = { decks: null, metaShareBySlug: {}, status: "error", error: new Error("offline") };
     renderAt("/deck/mega-greninja-ex");
     expect(await screen.findByText(/is tracked on Top Pocket Decks/)).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/was last seen on|not in the current meta/);

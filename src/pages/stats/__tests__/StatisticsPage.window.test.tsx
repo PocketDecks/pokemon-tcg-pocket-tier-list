@@ -52,7 +52,7 @@ describe("StatisticsPage window selector", () => {
         removeEventListener: () => {},
       }),
     });
-    useDecks.mockReturnValue({ decks, metaShare: { decks: [] }, loading: false, error: null });
+    useDecks.mockReturnValue({ decks, metaShare: { decks: [] }, status: "ready" });
     useMatchups.mockReturnValue({ matchupsByName: {}, loading: false, error: null });
     usePipelineTrends.mockReturnValue({ rows: [], isLoading: false, failed: false });
 

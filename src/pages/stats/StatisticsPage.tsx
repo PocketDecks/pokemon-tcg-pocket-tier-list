@@ -329,7 +329,8 @@ const StatisticsPage = () => {
     const { theme } = useTheme();
     const scale = matrixScale[theme];
     const matrixColourFor = matrixColour(scale);
-    const { decks, metaShare, loading, error } = useDecks();
+    const decksState = useDecks();
+    const { decks, metaShare } = decksState;
     const newest = latestCoveredExpansion(decks);
     const { matchupsByName, loading: matchupsLoading, error: matchupsError } = useMatchups();
     const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
@@ -342,7 +343,7 @@ const StatisticsPage = () => {
     const trendData = trendQuery.rows;
     const [movementView, setMovementView] = useState<"rising" | "falling" | "new">("rising");
 
-    useMarkContentReady(!loading && !!decks && !trendQuery.isLoading);
+    useMarkContentReady(decksState.status === "ready" && !trendQuery.isLoading);
 
     const movementLimited = !!metaShare && metaShare.decks.some((entry) => !hasMovement(entry));
 
@@ -427,9 +428,8 @@ const StatisticsPage = () => {
     // so returning early here would ship a page whose only content is
     // "Loading..." to crawlers.
     const renderContent = () => {
-            if (loading) return <Loading>Loading...</Loading>;
-            if (error) return <Loading>Error loading data: {error.message}</Loading>;
-            if (!decks) return <Loading>Loading...</Loading>;
+            if (decksState.status === "loading") return <Loading>Loading...</Loading>;
+            if (decksState.status === "error") return <Loading>Error loading data: {decksState.error.message}</Loading>;
 
             return (
             <>

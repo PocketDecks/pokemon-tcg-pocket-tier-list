@@ -42,13 +42,13 @@ const jsonResponse = (body: unknown) =>
   Promise.resolve({ ok: true, json: () => Promise.resolve(body) } as unknown as Response);
 
 const Probe = () => {
-  const { decks, loading } = useDecks();
+  const { decks } = useDecks();
   const { window } = useMetaWindow();
   return (
     <div>
       <p data-testid="window">{window}</p>
       <p data-testid="decks">
-        {loading || !decks ? "loading" : decks.map((entry) => entry.name).join(",")}
+        {!decks ? "loading" : decks.map((entry) => entry.name).join(",")}
       </p>
     </div>
   );
@@ -60,10 +60,14 @@ const MatchupProbe = () => {
 };
 
 const StateProbe = () => {
-  const { decks, loading, error } = useDecks();
+  const state = useDecks();
   return (
     <p data-testid="state">
-      {JSON.stringify({ loading, hasDecks: decks !== null, error: error?.message ?? null })}
+      {JSON.stringify({
+        loading: state.status === "loading",
+        hasDecks: state.decks !== null,
+        error: state.status === "error" ? state.error.message : null,
+      })}
     </p>
   );
 };

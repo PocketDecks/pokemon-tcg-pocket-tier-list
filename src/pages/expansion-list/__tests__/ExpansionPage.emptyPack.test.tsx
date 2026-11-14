@@ -60,8 +60,7 @@ vi.mock("../../../app/use-decks", () => ({
     decks: [],
     rawDecks: [{ name: "charizard-b2-001", lists: [{ score: 1, cards: ["2:b2-001"] }] }],
     metaShareBySlug: null,
-    loading: false,
-    error: null,
+    status: "ready",
   }),
 }));
 

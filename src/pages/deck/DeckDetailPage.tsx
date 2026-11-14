@@ -88,7 +88,8 @@ const SwapThumb = ({ card }: { card: CardType }) => (
 
 const DeckDetailPage = () => {
   const deckId = useParams().deckId;
-  const { decks, metaShareBySlug, loading, error } = useDecks();
+  const decksState = useDecks();
+  const { decks, metaShareBySlug } = decksState;
   const { matchupsByName, loading: matchupsLoading, error: matchupsError } = useMatchups();
   const tiers = useDeckTiers(decks);
   const { missingCounts, canUndo, undoMissing, lastRemovedId } = useMissing();
@@ -113,7 +114,7 @@ const DeckDetailPage = () => {
 
   // Ready (for showing ads) only once a real deck is resolved, never on the
   // loading or "not enough cards" screens.
-  useMarkContentReady(!loading && !!deck);
+  useMarkContentReady(decksState.status !== "loading" && !!deck);
 
   // Opponent tiles only; the viewed deck resolves through useDeckDetail. A
   // filter or the paired trim can drop an opponent from `decks`, which
@@ -173,8 +174,8 @@ const DeckDetailPage = () => {
     };
   }, [deck, deckMap, deckMatchups, extinct]);
 
-  if (loading) return <DeckPageSkeleton />;
-  if (error) return <Overlay>Error loading data: {error.message}</Overlay>;
+  if (decksState.status === "loading") return <DeckPageSkeleton />;
+  if (decksState.status === "error") return <Overlay>Error loading data: {decksState.error.message}</Overlay>;
   if (!derived || !deck) return <NotFoundPage />;
 
   if (extinct) {

@@ -53,9 +53,9 @@ const errorResponse = (status: number, statusText: string) =>
   } as unknown as Response);
 
 const ErrorProbe = () => {
-  const { loading, error } = useDecks();
-  if (loading) return <p>loading</p>;
-  if (error) return <p>{error.message}</p>;
+  const state = useDecks();
+  if (state.status === "loading") return <p>loading</p>;
+  if (state.status === "error") return <p>{state.error.message}</p>;
   return <p>loaded</p>;
 };
 
@@ -67,8 +67,8 @@ const MatchupsProbe = () => {
 };
 
 const DeckNames = () => {
-  const { decks, loading } = useDecks();
-  if (loading || !decks) return <p>loading</p>;
+  const { decks } = useDecks();
+  if (!decks) return <p>loading</p>;
   return (
     <ul>
       {decks.map((deck) => (
@@ -79,8 +79,8 @@ const DeckNames = () => {
 };
 
 const DeckPopularities = () => {
-  const { decks, loading } = useDecks();
-  if (loading || !decks) return <p>loading</p>;
+  const { decks } = useDecks();
+  if (!decks) return <p>loading</p>;
   return (
     <ul>
       {decks.map((deck) => (

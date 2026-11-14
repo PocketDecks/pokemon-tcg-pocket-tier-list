@@ -13,7 +13,7 @@ import NotFoundPage from "../not-found/NotFoundPage";
 
 const DeckRoute = () => {
   const { deckId = "" } = useParams();
-  const { decks, loading, isPremium } = useDecks();
+  const { status, decks, isPremium } = useDecks();
   const { window, setWindow } = useMetaWindow();
   const [switchedFor, setSwitchedFor] = useState<string | null>(null);
   const entry = DECK_ARCHIVE.find((candidate) => candidate.variant === deckId);
@@ -30,12 +30,12 @@ const DeckRoute = () => {
     setWindow(premiumWindows[0]);
   }, [awaitingSwitch, deckId, premiumWindows, setWindow]);
 
-  if (loading) return <DeckPageSkeleton />;
+  if (status === "loading") return <DeckPageSkeleton />;
   if (premiumWindows.length > 0 && !offered) {
     if (isPremium === null || awaitingSwitch) return <DeckPageSkeleton />;
     if (isPremium === false || needsSwitch) return <DeckPremiumGate />;
   }
-  if (!decks) {
+  if (decks === null) {
     if (entry) return <DeckDetailPage />;
     if (archiveForHub(deckId).length > 0) return <DeckHubPage />;
     return <NotFoundPage />;

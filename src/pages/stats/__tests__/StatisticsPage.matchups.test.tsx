@@ -47,7 +47,7 @@ describe("StatisticsPage matchups", () => {
         removeEventListener: () => {},
       }),
     });
-    useDecks.mockReturnValue({ decks, metaShare: { decks: [] }, loading: false, error: null });
+    useDecks.mockReturnValue({ decks, metaShare: { decks: [] }, status: "ready" });
     usePipelineTrends.mockReturnValue({ rows: [], isLoading: false, failed: false });
   });
 

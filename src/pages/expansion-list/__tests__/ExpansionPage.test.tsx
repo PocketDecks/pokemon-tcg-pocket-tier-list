@@ -102,7 +102,7 @@ vi.mock("../../../app/use-decks", () => ({
     decks: fixtures.decks,
     rawDecks: fixtures.rawDecks,
     metaShareBySlug: fixtures.metaShareBySlug,
-    loading: false,
+    status: fixtures.decksError ? "error" : "ready",
     error: fixtures.decksError,
   }),
 }));

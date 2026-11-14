@@ -34,8 +34,7 @@ vi.mock("../../../app/use-decks", () => ({
       },
     ],
     metaShareBySlug: {},
-    loading: false,
-    error: null,
+    status: "ready",
   }),
   useMatchups: () => ({ matchupsByName: null, loading: false, error: null }),
 }));

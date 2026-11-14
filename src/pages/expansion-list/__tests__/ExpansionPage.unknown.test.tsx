@@ -18,8 +18,7 @@ vi.mock("../../../app/use-decks", () => ({
     decks: [],
     rawDecks: [],
     metaShareBySlug: null,
-    loading: false,
-    error: null,
+    status: "ready",
   }),
 }));
 

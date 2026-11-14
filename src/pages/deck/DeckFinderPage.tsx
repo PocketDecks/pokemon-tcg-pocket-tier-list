@@ -38,7 +38,8 @@ import {
 } from "./deck-page.styles";
 
 const DeckFinderPage = () => {
-  const { decks, scoreBaseline, metaShareBySlug, loading, error } = useDecks();
+  const decksState = useDecks();
+  const { decks, scoreBaseline, metaShareBySlug } = decksState;
   const { matchupsByName, loading: matchupsLoading, error: matchupsError } = useMatchups();
   const tiers = useDeckTiers(decks);
   const { undoMissing, canUndo, lastRemovedId } = useMissing();
@@ -53,11 +54,10 @@ const DeckFinderPage = () => {
 
   // Ready (for showing ads) only once a real deck is resolved, never on the
   // loading or "not enough cards" screens.
-  useMarkContentReady(!loading && !!decks && !!deck);
+  useMarkContentReady(!!deck);
 
-  if (loading) return <DeckPageSkeleton showPanel={false} />;
-  if (error) return <Overlay>Error loading data: {error.message}</Overlay>;
-  if (!decks) return <DeckPageSkeleton showPanel={false} />;
+  if (decksState.status === "loading") return <DeckPageSkeleton showPanel={false} />;
+  if (decksState.status === "error") return <Overlay>Error loading data: {decksState.error.message}</Overlay>;
 
   if (!deck) {
     return (

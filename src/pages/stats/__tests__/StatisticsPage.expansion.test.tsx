@@ -46,7 +46,7 @@ const renderStatistics = () =>
   );
 
 const setDecks = (decks: unknown[] | null) => {
-  useDecks.mockReturnValue({ decks, metaShare: { decks: [] }, loading: decks === null, error: null });
+  useDecks.mockReturnValue({ decks, metaShare: { decks: [] }, status: decks === null ? "loading" : "ready" });
   useMatchups.mockReturnValue({ matchupsByName: {}, loading: false, error: null });
   usePipelineTrends.mockReturnValue({ rows: [], isLoading: false, failed: false });
 };

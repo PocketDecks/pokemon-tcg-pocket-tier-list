@@ -169,7 +169,7 @@ const shareText = (value: number) => (value > 0 && value < 0.0005 ? "<0.1" : per
 
 const HubPage = () => {
   const { deckId: hubSlug } = useParams();
-  const { decks, metaShareBySlug, loading } = useDecks();
+  const { status, decks, metaShareBySlug } = useDecks();
   const { matchupsByName, loading: matchupsLoading } = useMatchups();
   const { t, i18n } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");
@@ -188,14 +188,14 @@ const HubPage = () => {
   const latest = newestCoveredExpansion(ALL_EXPANSIONS, decks);
   const contentReady =
     variants.length === 0 || (hub !== undefined && !matchupsLoading);
-  useMarkContentReady(!loading && contentReady);
+  useMarkContentReady(status !== "loading" && contentReady);
 
   if (!hubSlug || variants.length === 0) return <NotFoundPage />;
 
   const name = hubDisplayName(variants);
   const seen = hubSeenRange(variants);
   const headStatus: HubHeadStatus =
-    loading || decks === null ? "unknown" : liveVariants.length > 0 ? "live" : "retired";
+    decks === null ? "unknown" : liveVariants.length > 0 ? "live" : "retired";
   const records = hub?.variants ?? [];
   const recordSeen = hubSeenRange(records.length > 0 ? records : variants);
   const strongest = liveVariants[0];
@@ -218,7 +218,7 @@ const HubPage = () => {
   const peak = hubPeak(records);
   const topCards = mostIncluded(namedCore, 3).map((card) => card.name);
   const expansionName = latest?.name ?? t("deckHub.expansionFallback");
-  const status = decks === null || loading
+  const liveStatus = decks === null
     ? null
     : strongestDeck
     ? strongestShare === undefined
@@ -275,7 +275,7 @@ const HubPage = () => {
       <DeckHubHeadTags name={name} status={headStatus} />
       <Header>
         <Title>{t("deckHub.title", { name })}</Title>
-        {loading ? null : !decks ? (
+        {status === "loading" ? null : decks === null ? (
           <Summary>{t("deckHub.unavailable")}</Summary>
         ) : liveVariants.length > 0 ? (
           <Summary>{t("deckHub.liveSummary", { count: liveVariants.length })}</Summary>
@@ -402,7 +402,7 @@ const HubPage = () => {
         <SeoContent>
           <h2>{t("hub.heading", { ns: "seo", name })}</h2>
           {overview !== null && <p>{overview}</p>}
-          {status !== null && <p>{status}</p>}
+          {liveStatus !== null && <p>{liveStatus}</p>}
           {coreSentence !== null && <p>{coreSentence}</p>}
         </SeoContent>
       )}

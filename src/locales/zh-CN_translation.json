@@ -441,5 +441,12 @@
     "errorTitle": "出错了",
     "errorMessage": "此页面部分加载失败。重新加载通常可以解决。通常。",
     "reload": "重新加载页面"
+  },
+  "common": {
+    "loading": "Loading...",
+    "loadError": "Error loading data: {{message}}",
+    "all": "All",
+    "noCards": "No cards found",
+    "noDecks": "No decks found"
   }
 }

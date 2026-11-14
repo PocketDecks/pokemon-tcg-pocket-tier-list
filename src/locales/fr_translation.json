@@ -441,5 +441,12 @@
     "errorTitle": "Un problème est survenu",
     "errorMessage": "Cette partie du site n'a pas pu être chargée. Recharger suffit souvent. Souvent.",
     "reload": "Recharger la page"
+  },
+  "common": {
+    "loading": "Loading...",
+    "loadError": "Error loading data: {{message}}",
+    "all": "All",
+    "noCards": "No cards found",
+    "noDecks": "No decks found"
   }
 }

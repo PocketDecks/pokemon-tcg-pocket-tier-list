@@ -162,7 +162,7 @@ const DeckDetailPage = () => {
   }, [deck, deckMap, deckMatchups, extinct]);
 
   if (decksState.status === "loading") return <DeckPageSkeleton />;
-  if (decksState.status === "error") return <Overlay>Error loading data: {decksState.error.message}</Overlay>;
+  if (decksState.status === "error") return <Overlay>{t("common.loadError", { message: decksState.error.message })}</Overlay>;
   if (!derived || !deck) return <NotFoundPage />;
 
   if (extinct) {

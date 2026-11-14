@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { useDecks } from "../../app/use-decks";
+import { dateLocale } from "../../app/format-rankings-date";
 import useExpansions from "../../app/use-expansions";
 import { CARDS } from "../../app/cards-api";
 import { expansionPageData, packNameForSlug } from "../../app/expansion-page-data";
@@ -155,7 +156,7 @@ const ExpansionPage = () => {
   useMarkContentReady(!decksLoading && !decksError && !!data?.cards.length, !decksLoading);
 
   if (!expansion || !isListedExpansion(expansion)) return <NotFoundPage />;
-  const locale = i18n.language === "en" ? "en-GB" : i18n.language;
+  const locale = dateLocale(i18n.language);
   const releaseDate = expansion.release_date
     ? new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${expansion.release_date}T00:00:00Z`))
     : null;

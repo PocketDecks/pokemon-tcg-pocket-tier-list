@@ -441,5 +441,12 @@
     "errorTitle": "問題が発生しました",
     "errorMessage": "このページの一部を読み込めませんでした。再読み込みで直ることが多いです。たいてい。",
     "reload": "ページを再読み込み"
+  },
+  "common": {
+    "loading": "Loading...",
+    "loadError": "Error loading data: {{message}}",
+    "all": "All",
+    "noCards": "No cards found",
+    "noDecks": "No decks found"
   }
 }

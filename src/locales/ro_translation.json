@@ -441,5 +441,12 @@
     "errorTitle": "Ceva nu a funcționat",
     "errorMessage": "Această parte a site-ului nu a putut fi încărcată. Reîncărcarea ajută de obicei. De obicei.",
     "reload": "Reîncarcă pagina"
+  },
+  "common": {
+    "loading": "Loading...",
+    "loadError": "Error loading data: {{message}}",
+    "all": "All",
+    "noCards": "No cards found",
+    "noDecks": "No decks found"
   }
 }

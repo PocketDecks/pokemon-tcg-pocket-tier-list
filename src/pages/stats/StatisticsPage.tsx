@@ -59,9 +59,9 @@ const StatisticsPage = () => {
     // data available, so returning early would ship a page whose only content
     // is "Loading..." to crawlers.
     const renderContent = () => {
-        if (decksState.status === "loading") return <Loading>Loading...</Loading>;
+        if (decksState.status === "loading") return <Loading>{t("common.loading")}</Loading>;
         if (decksState.status === "error") {
-            return <Loading>Error loading data: {decksState.error.message}</Loading>;
+            return <Loading>{t("common.loadError", { message: decksState.error.message })}</Loading>;
         }
         return (
             <>

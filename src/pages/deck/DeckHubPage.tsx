@@ -8,6 +8,7 @@ import useDeckHref from "../../app/use-deck-href";
 import { hubDisplayName, hubSeenRange } from "../../app/deck-archetype";
 import { deckDisplayName, variantDisplayName } from "../../app/deck-display";
 import { useDecks, useMatchups } from "../../app/use-decks";
+import { dateLocale } from "../../app/format-rankings-date";
 import { comparePowerDescending } from "../../app/ranked-deck";
 import { useHubFile } from "../../app/use-hub-file";
 import { CARDS_BY_ID } from "../../app/cards-api";
@@ -158,8 +159,6 @@ const Action = styled(Link)`
   color: var(--main);
   font-weight: 600;
 `;
-
-const dateLocale = (language: string) => (language === "en" ? "en-GB" : language);
 
 const formatDate = (date: string, language: string) =>
   new Intl.DateTimeFormat(dateLocale(language), { dateStyle: "medium", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));

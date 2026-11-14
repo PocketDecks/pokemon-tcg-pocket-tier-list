@@ -65,7 +65,7 @@ describe("CardsListPage empty recovery", () => {
     const filter = screen.getByRole("combobox");
     fireEvent.change(filter, { target: { value: "a2a" } });
 
-    expect(await screen.findByText("No cards found")).toBeInTheDocument();
+    expect(await screen.findByText("common.noCards")).toBeInTheDocument();
     const emptyFilter = screen.getByRole("combobox");
     expect(emptyFilter).toHaveValue("a2a");
 

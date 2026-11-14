@@ -110,7 +110,7 @@ const TierListPage = () => {
         <WindowToggleCorner>
           <WindowToggle />
         </WindowToggleCorner>
-        <div>Error loading data: {decksState.error.message}</div>
+        <div>{t("common.loadError", { message: decksState.error.message })}</div>
       </>
     );
 

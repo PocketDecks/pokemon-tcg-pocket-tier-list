@@ -441,5 +441,12 @@
     "errorTitle": "發生問題",
     "errorMessage": "此頁面部分載入失敗。重新載入通常可以解決。通常。",
     "reload": "重新載入頁面"
+  },
+  "common": {
+    "loading": "Loading...",
+    "loadError": "Error loading data: {{message}}",
+    "all": "All",
+    "noCards": "No cards found",
+    "noDecks": "No decks found"
   }
 }

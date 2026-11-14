@@ -50,7 +50,7 @@ const DeckFinderPage = () => {
   useMarkContentReady(!!deck);
 
   if (decksState.status === "loading") return <DeckPageSkeleton showPanel={false} />;
-  if (decksState.status === "error") return <Overlay>Error loading data: {decksState.error.message}</Overlay>;
+  if (decksState.status === "error") return <Overlay>{t("common.loadError", { message: decksState.error.message })}</Overlay>;
 
   if (!deck) {
     return (

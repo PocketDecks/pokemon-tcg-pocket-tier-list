@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { buildTiers, TIER_COUNT } from "../app/tier-helper";
 import React, { type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 const Page = styled.div`
   width: 100%;
@@ -156,9 +157,10 @@ const TierGrid = <T,>({
   filters,
   footer,
   error,
-  loadingLabel = "Loading...",
-  emptyLabel = "No decks found",
+  loadingLabel,
+  emptyLabel,
 }: Props<T>) => {
+  const { t } = useTranslation();
   const isEmpty = items === null || items.length === 0;
 
   // The caller states which items can be banded. Items the predicate rejects
@@ -172,7 +174,7 @@ const TierGrid = <T,>({
     <Page>
       {filters && <FilterContainer>{filters}</FilterContainer>}
       {error ? error : isEmpty ? (
-        <Loading role="status" aria-busy={items === null}>{items === null ? loadingLabel : emptyLabel}</Loading>
+        <Loading role="status" aria-busy={items === null}>{items === null ? (loadingLabel ?? t("common.loading")) : (emptyLabel ?? t("common.noDecks"))}</Loading>
       ) : (
         <>
           {tiers.map((tier) => (

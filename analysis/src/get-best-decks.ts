@@ -6,11 +6,10 @@ import { calculateCardScores } from "./utils/calculate-card-scores";
 import { buildTrends, pickTrendNames } from "./utils/build-trends";
 import { modalCopies, tallyCards } from "./utils/tally-cards";
 import {
+  buildDeckPopulation,
   buildWindowArtefacts,
   DEFAULT_WINDOW,
-  latestAnchor,
-  qualifiedDecksInWindow,
-  unmatchedDecksInWindow,
+  unmatchedDecksIn,
   WINDOW_IDS,
   WindowArtefacts,
   WindowId,
@@ -107,10 +106,10 @@ const buildCardScores = (qualifiedDecks: Deck[], weights: ScoringWeights) => {
 export const run = async (): Promise<void> => {
   const allDecks = withStoreLock(decksDir(), () => getDecks());
   const today = new Date();
-  const dataAnchor = latestAnchor(allDecks, today);
+  const population = buildDeckPopulation(allDecks, today);
 
   const artefacts = Object.fromEntries(
-    WINDOW_IDS.map((window) => [window, buildWindowArtefacts(allDecks, window, today)])
+    WINDOW_IDS.map((window) => [window, buildWindowArtefacts(population, window)])
   ) as Record<WindowId, WindowArtefacts>;
 
   for (const window of WINDOW_IDS) {
@@ -122,12 +121,12 @@ export const run = async (): Promise<void> => {
   // Decks that matched no listing are not archetypes, so they leave the
   // published ranking. Their count and games are logged and gated: a rise in
   // the bucket means the pairing store missed something.
-  const unmatched = unmatchedDecksInWindow(allDecks, DEFAULT_WINDOW, today);
-  const defaultQualifiedGames = qualifiedDecksInWindow(
-    allDecks,
-    DEFAULT_WINDOW,
-    today
-  ).reduce((sum, deck) => sum + deck.totalGames, 0);
+  const defaultQualified = population.windows[DEFAULT_WINDOW].qualified;
+  const unmatched = unmatchedDecksIn(defaultQualified);
+  const defaultQualifiedGames = defaultQualified.reduce(
+    (sum, deck) => sum + deck.totalGames,
+    0
+  );
   console.log(
     `Unmatched decks in ${DEFAULT_WINDOW}: ${unmatched.decks} ` +
       `(${unmatched.games} of ${defaultQualifiedGames} qualified games)`
@@ -136,11 +135,11 @@ export const run = async (): Promise<void> => {
   // Trends and card scores stay un-windowed, so they read the whole store
   // through the all-time window and the published page keeps the same
   // history and card table as before the selector landed.
-  const allQualified = qualifiedDecksInWindow(allDecks, "all", today);
+  const allQualified = population.windows.all.qualified;
   const latestDataDate = newestDeckDate(allDecks);
   const newestQualifiedDate = newestDeckDate(allQualified);
   const trends = buildTrends(allQualified, pickTrendNames(artefacts.all.bestDecks));
-  const cardScoresList = buildCardScores(allQualified, scoringWeights(dataAnchor));
+  const cardScoresList = buildCardScores(allQualified, scoringWeights(population.anchor));
 
   const cardsById = new Map(cards.map((card: any) => [card.id, card] as [string, any]));
   for (const deck of artefacts[DEFAULT_WINDOW].bestDecks) {

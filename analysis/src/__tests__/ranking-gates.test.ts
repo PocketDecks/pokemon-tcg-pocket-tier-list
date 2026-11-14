@@ -1,4 +1,4 @@
-import { buildWindowArtefacts } from "../utils/build-window-artefacts";
+import { windowArtefacts } from "./window-fixture";
 import { Card, Deck } from "../utils/types";
 
 const TODAY = new Date("2026-09-24T12:00:00.000Z");
@@ -23,7 +23,7 @@ const makeDeck = (overrides: Partial<Deck>): Deck => ({
 });
 
 const rankedNames = (decks: Deck[]): string[] =>
-  buildWindowArtefacts(decks, "all", TODAY).bestDecks.map((deck) => deck.name);
+  windowArtefacts(decks, "all", TODAY).bestDecks.map((deck) => deck.name);
 
 describe("the win-rate gate", () => {
   it("keeps a deck exactly at the gate and drops one just below it", () => {

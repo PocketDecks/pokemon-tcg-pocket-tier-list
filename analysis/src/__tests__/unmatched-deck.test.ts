@@ -3,10 +3,8 @@ import getDeckName, {
   UNMATCHED_DECK,
 } from "../utils/get-deck-name";
 import { SET_CODE_PATTERN } from "../utils/set-codes";
-import {
-  buildWindowArtefacts,
-  unmatchedDecksInWindow,
-} from "../utils/build-window-artefacts";
+import { unmatchedDecksIn } from "../utils/build-window-artefacts";
+import { windowArtefacts, windowDecks } from "./window-fixture";
 import { MIN_ARCHETYPE_QUALIFIED_GAMES, MIN_WINRATE_THRESHOLD } from "../settings";
 import { Deck } from "../utils/types";
 
@@ -71,7 +69,7 @@ describe("a window holding unmatched decks", () => {
   ];
 
   it("ranks only the real archetypes", () => {
-    const names = buildWindowArtefacts(field, "10d", TODAY).bestDecks.map(
+    const names = windowArtefacts(field, "10d", TODAY).bestDecks.map(
       (deck) => deck.name
     );
 
@@ -80,7 +78,7 @@ describe("a window holding unmatched decks", () => {
   });
 
   it("keeps the bucket out of the meta-share entries", () => {
-    const entries = buildWindowArtefacts(field, "10d", TODAY).metaShare.decks.map(
+    const entries = windowArtefacts(field, "10d", TODAY).metaShare.decks.map(
       (entry) => entry.name
     );
 
@@ -92,12 +90,12 @@ describe("a window holding unmatched decks", () => {
       mkDeck("alpha-1", "Alpha", { wins: Array(30).fill(UNMATCHED_DECK) }),
       unmatchedDeck("unmatched-1", { losses: Array(30).fill("Alpha") }),
     ];
-    const bucket = unmatchedDecksInWindow(bucketGames, "10d", TODAY);
+    const bucket = unmatchedDecksIn(windowDecks(bucketGames, "10d", TODAY).qualified);
 
     expect(bucket.decks).toBe(1);
     expect(bucket.games).toBeGreaterThanOrEqual(MIN_ARCHETYPE_QUALIFIED_GAMES);
 
-    const data = buildWindowArtefacts(bucketGames, "10d", TODAY).matchupData;
+    const data = windowArtefacts(bucketGames, "10d", TODAY).matchupData;
 
     expect(Object.keys(data)).toEqual(["Alpha"]);
     expect(data["Alpha"].map((row) => row.name)).toContain(UNMATCHED_DECK);
@@ -113,7 +111,7 @@ describe("a window holding unmatched decks", () => {
     // shares divide by: a deck that matched no listing still played games, and
     // its games stay in the denominator every archetype's share is measured
     // against. Alpha and Beta each hold 60 of the field's 210 qualified games.
-    const artefacts = buildWindowArtefacts(field, "10d", TODAY);
+    const artefacts = windowArtefacts(field, "10d", TODAY);
     const total = field.reduce((sum, deck) => sum + deck.totalGames, 0);
 
     for (const deck of artefacts.bestDecks) {
@@ -128,7 +126,7 @@ describe("a window holding unmatched decks", () => {
     );
     const expected = qualified.filter((deck) => isUnmatchedDeck(deck.name));
 
-    const counted = unmatchedDecksInWindow(field, "10d", TODAY);
+    const counted = unmatchedDecksIn(windowDecks(field, "10d", TODAY).qualified);
 
     expect(counted.decks).toBe(expected.length);
     expect(counted.games).toBe(
@@ -140,6 +138,6 @@ describe("a window holding unmatched decks", () => {
   it("does not count an unqualified unmatched deck", () => {
     const weak = unmatchedDeck("weak", { winCount: 1, totalGames: 30 });
 
-    expect(unmatchedDecksInWindow([...field, weak], "10d", TODAY).decks).toBe(3);
+    expect(unmatchedDecksIn(windowDecks([...field, weak], "10d", TODAY).qualified).decks).toBe(3);
   });
 });

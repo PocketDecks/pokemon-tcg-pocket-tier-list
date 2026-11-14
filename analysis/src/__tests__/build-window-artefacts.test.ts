@@ -1,10 +1,10 @@
 import {
-  buildWindowArtefacts,
   WINDOW_IDS,
   WINDOW_LENGTH_DAYS,
   WindowArtefacts,
   WindowId,
 } from "../utils/build-window-artefacts";
+import { windowArtefacts } from "./window-fixture";
 import { Deck } from "../utils/types";
 import { EXPANSION_RELEASE_DATE } from "../settings";
 
@@ -31,7 +31,7 @@ const makeDeck = (overrides: Partial<Deck>): Deck => ({
 
 const artefactsByWindow = (decks: Deck[], today: Date) =>
   Object.fromEntries(
-    WINDOW_IDS.map((w) => [w, buildWindowArtefacts(decks, w, today)])
+    WINDOW_IDS.map((w) => [w, windowArtefacts(decks, w, today)])
   ) as Record<WindowId, WindowArtefacts>;
 
 const beta = (artefacts: WindowArtefacts, name = "Alpha") =>
@@ -50,7 +50,7 @@ describe("buildWindowArtefacts window boundary", () => {
     const inside = makeDeck({ id: "inside", name: "Inside", date: "2026-10-01" });
     const outside = makeDeck({ id: "outside", name: "Outside", date: "2026-09-30" });
 
-    const names = buildWindowArtefacts([anchor, inside, outside], "10d", TODAY)
+    const names = windowArtefacts([anchor, inside, outside], "10d", TODAY)
       .bestDecks.map((deck) => deck.name);
 
     expect(names).toContain("Inside");
@@ -61,7 +61,7 @@ describe("buildWindowArtefacts window boundary", () => {
     const old = makeDeck({ id: "old", name: "Old", date: "2025-01-01" });
     const anchor = makeDeck({ id: "anchor", name: "Anchor", date: "2026-10-10" });
 
-    const names = buildWindowArtefacts([old, anchor], "all", TODAY)
+    const names = windowArtefacts([old, anchor], "all", TODAY)
       .bestDecks.map((deck) => deck.name)
       .sort();
 
@@ -93,7 +93,7 @@ describe("buildWindowArtefacts flat weighting", () => {
   });
 
   it("pools every in-window game with equal weight", () => {
-    const row = beta(buildWindowArtefacts([older, newer], "10d", TODAY));
+    const row = beta(windowArtefacts([older, newer], "10d", TODAY));
 
     expect(row.totalGames).toBe(60);
     expect(row.winRate).toBeCloseTo(0.9, 10);
@@ -105,8 +105,8 @@ describe("buildWindowArtefacts flat weighting", () => {
       { ...newer, date: "2026-10-01" },
     ];
 
-    expect(beta(buildWindowArtefacts(swapped, "10d", TODAY))).toEqual(
-      beta(buildWindowArtefacts([older, newer], "10d", TODAY))
+    expect(beta(windowArtefacts(swapped, "10d", TODAY))).toEqual(
+      beta(windowArtefacts([older, newer], "10d", TODAY))
     );
   });
 
@@ -115,8 +115,8 @@ describe("buildWindowArtefacts flat weighting", () => {
     const laterRun = new Date(EXPANSION_RELEASE_DATE.getTime() + 8 * 24 * 60 * 60 * 1000);
 
     expect(
-      buildWindowArtefacts([older, newer], "10d", laterRun).bestDecks
-    ).toEqual(buildWindowArtefacts([older, newer], "10d", earlierRun).bestDecks);
+      windowArtefacts([older, newer], "10d", laterRun).bestDecks
+    ).toEqual(windowArtefacts([older, newer], "10d", earlierRun).bestDecks);
   });
 
   it("advances scores when the latest data date advances", () => {
@@ -126,7 +126,7 @@ describe("buildWindowArtefacts flat weighting", () => {
         .slice(0, 10);
     const runDate = new Date(EXPANSION_RELEASE_DATE.getTime() + 14 * 24 * 60 * 60 * 1000);
     const scoreAt = (days: number) =>
-      buildWindowArtefacts(
+      windowArtefacts(
         [older, newer].map((deck) => ({ ...deck, date: day(days) })),
         "all",
         runDate
@@ -143,7 +143,7 @@ describe("buildWindowArtefacts meta share window", () => {
     const lateRun = new Date("2026-11-01T12:00:00Z");
     const decks = [makeDeck({ name: "Alpha", date: "2026-10-08", totalGames: 30 })];
 
-    const share = buildWindowArtefacts(decks, "10d", lateRun).metaShare;
+    const share = windowArtefacts(decks, "10d", lateRun).metaShare;
 
     expect(share.windowDays).toBe(10);
     expect(share.decks[0].share).toBeGreaterThan(0);
@@ -152,14 +152,14 @@ describe("buildWindowArtefacts meta share window", () => {
   it("reports the window length and null for all-time", () => {
     const decks = [makeDeck({ name: "Alpha", date: "2026-10-08", totalGames: 30 })];
 
-    expect(buildWindowArtefacts(decks, "20d", TODAY).metaShare.windowDays).toBe(20);
-    expect(buildWindowArtefacts(decks, "all", TODAY).metaShare.windowDays).toBeNull();
+    expect(windowArtefacts(decks, "20d", TODAY).metaShare.windowDays).toBe(20);
+    expect(windowArtefacts(decks, "all", TODAY).metaShare.windowDays).toBeNull();
   });
 });
 
 describe("buildWindowArtefacts empty window", () => {
   it("fails closed with empty artefacts instead of inventing scores", () => {
-    const artefacts = buildWindowArtefacts([], "10d", TODAY);
+    const artefacts = windowArtefacts([], "10d", TODAY);
 
     expect(artefacts.bestDecks).toEqual([]);
     expect(artefacts.metaShare.decks).toEqual([]);
@@ -185,7 +185,7 @@ describe("buildWindowArtefacts across windows", () => {
 
   it("scores a finite Power Score and positive games in every window", () => {
     for (const w of WINDOW_IDS) {
-      const artefacts = buildWindowArtefacts(spread, w, TODAY);
+      const artefacts = windowArtefacts(spread, w, TODAY);
 
       expect(artefacts.bestDecks.length).toBeGreaterThan(0);
       for (const deck of artefacts.bestDecks) {
@@ -201,7 +201,7 @@ describe("buildWindowArtefacts across windows", () => {
 
   it("carries fewer games in the shorter window", () => {
     const games = (w: (typeof WINDOW_IDS)[number]) =>
-      buildWindowArtefacts(spread, w, TODAY).metaShare.decks.reduce(
+      windowArtefacts(spread, w, TODAY).metaShare.decks.reduce(
         (sum, entry) => sum + entry.windowGames,
         0
       );
@@ -223,7 +223,7 @@ describe("buildWindowArtefacts movement across two adjacent windows", () => {
   ];
 
   const entry = (name: string) =>
-    buildWindowArtefacts(movement, "10d", TODAY).metaShare.decks.find(
+    windowArtefacts(movement, "10d", TODAY).metaShare.decks.find(
       (row) => row.name === name
     )!;
 
@@ -262,7 +262,7 @@ describe("buildWindowArtefacts movement across two adjacent windows", () => {
       makeDeck({ id: "o1", name: "Other", date: "2026-10-10", winCount: 30, totalGames: 30 }),
     ];
 
-    const row = buildWindowArtefacts(earlier, "10d", TODAY).metaShare.decks.find(
+    const row = windowArtefacts(earlier, "10d", TODAY).metaShare.decks.find(
       (deck) => deck.name === "Earlier"
     )!;
 
@@ -272,7 +272,7 @@ describe("buildWindowArtefacts movement across two adjacent windows", () => {
   });
 
   it("counts both appearances of an established archetype in the wider window", () => {
-    const steady = buildWindowArtefacts(movement, "20d", TODAY).metaShare.decks.find(
+    const steady = windowArtefacts(movement, "20d", TODAY).metaShare.decks.find(
       (row) => row.name === "Steady"
     )!;
 
@@ -282,7 +282,7 @@ describe("buildWindowArtefacts movement across two adjacent windows", () => {
   it("leaves ranking fields untouched by the wider history", () => {
     const inWindow = movement.filter((deck) => deck.date >= "2026-10-01");
     const ranking = (decks: typeof movement) =>
-      buildWindowArtefacts(decks, "10d", TODAY).bestDecks.map((deck) => ({
+      windowArtefacts(decks, "10d", TODAY).bestDecks.map((deck) => ({
         name: deck.name,
         lists: deck.lists,
         popularity: deck.popularity,
@@ -300,7 +300,7 @@ describe("buildWindowArtefacts movement across two adjacent windows", () => {
 
   it("keeps current share and window games unchanged when history is wider", () => {
     const current = (decks: typeof movement) =>
-      buildWindowArtefacts(decks, "10d", TODAY).metaShare.decks.map((row) => ({
+      windowArtefacts(decks, "10d", TODAY).metaShare.decks.map((row) => ({
         name: row.name,
         share: row.share,
         windowGames: row.windowGames,
@@ -319,7 +319,7 @@ describe("buildWindowArtefacts movement across two adjacent windows", () => {
       makeDeck({ id: "b2", name: "Beta", date: "2026-08-20", winCount: 30, totalGames: 30 }),
     ];
 
-    for (const row of buildWindowArtefacts(decks, "all", TODAY).metaShare.decks) {
+    for (const row of windowArtefacts(decks, "all", TODAY).metaShare.decks) {
       expect(row.sharePrev).toBe(row.share);
       expect(row.delta).toBe(0);
       expect(row.isNew).toBe(false);
@@ -336,7 +336,7 @@ describe("buildWindowArtefacts movement window boundaries", () => {
   ];
 
   const row = (name: string, window: "10d" | "all") =>
-    buildWindowArtefacts(decks, window, TODAY).metaShare.decks.find(
+    windowArtefacts(decks, window, TODAY).metaShare.decks.find(
       (entry) => entry.name === name
     )!;
 
@@ -362,7 +362,7 @@ describe("buildWindowArtefacts movement window boundaries", () => {
       makeDeck({ id: "o2", name: "Other", date: "2026-10-01", winCount: 30, totalGames: 30 }),
     ];
 
-    const opening = buildWindowArtefacts(decksOnFirstDay, "10d", TODAY).metaShare.decks.find(
+    const opening = windowArtefacts(decksOnFirstDay, "10d", TODAY).metaShare.decks.find(
       (entry) => entry.name === "Opening"
     )!;
 
@@ -377,7 +377,7 @@ describe("buildWindowArtefacts movement window boundaries", () => {
       makeDeck({ id: "o1", name: "Other", date: "2026-10-05", winCount: 40, totalGames: 40 }),
     ];
 
-    const thinRow = buildWindowArtefacts(thin, "10d", TODAY).metaShare.decks.find(
+    const thinRow = windowArtefacts(thin, "10d", TODAY).metaShare.decks.find(
       (entry) => entry.name === "Thin"
     )!;
 

@@ -5,11 +5,11 @@ import { describe, expect, it } from "vitest";
 
 import { buildRunFiles } from "../utils/build-run-files";
 import {
-  buildWindowArtefacts,
   WINDOW_IDS,
   WindowArtefacts,
   WindowId,
 } from "../utils/build-window-artefacts";
+import { windowArtefacts } from "./window-fixture";
 import { Deck } from "../utils/types";
 import { FREE_DECK_LIMIT } from "../../../src/app/free-tier";
 
@@ -74,7 +74,7 @@ const digest = (content: string) => ({
 
 describe("buildRunFiles characterisation", () => {
   const artefacts = Object.fromEntries(
-    WINDOW_IDS.map((window) => [window, buildWindowArtefacts(fixtureDecks(), window, TODAY)])
+    WINDOW_IDS.map((window) => [window, windowArtefacts(fixtureDecks(), window, TODAY)])
   ) as Record<WindowId, WindowArtefacts>;
 
   it("ranks more than the free limit in every window", () => {

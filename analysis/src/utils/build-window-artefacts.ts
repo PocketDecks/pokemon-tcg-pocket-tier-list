@@ -13,23 +13,20 @@ import getId from "./get-id";
 import { tallyCards } from "./tally-cards";
 import { Deck } from "./types";
 import {
+  DEFAULT_WINDOW,
+  WINDOW_IDS,
+  WINDOW_LENGTH_DAYS,
+  type WindowId,
+} from "../../../src/types/meta-windows";
+import {
   MIN_ARCHETYPE_QUALIFIED_GAMES,
   MIN_WINRATE_THRESHOLD,
   ScoringWeights,
   scoringWeights,
 } from "../settings";
 
-export const WINDOW_IDS = ["10d", "20d", "30d", "all"] as const;
-export type WindowId = (typeof WINDOW_IDS)[number];
-
-export const WINDOW_LENGTH_DAYS: Record<WindowId, number | null> = {
-  "10d": 10,
-  "20d": 20,
-  "30d": 30,
-  all: null,
-};
-
-export const DEFAULT_WINDOW: WindowId = "20d";
+export { DEFAULT_WINDOW, WINDOW_IDS, WINDOW_LENGTH_DAYS };
+export type { WindowId };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 

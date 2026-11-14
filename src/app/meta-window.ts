@@ -1,14 +1,21 @@
+import {
+  DEFAULT_WINDOW,
+  PREMIUM_WINDOWS,
+  WINDOW_IDS,
+  WINDOW_LENGTH_DAYS,
+  windowArtefactName,
+  windowDataFile,
+  type WindowId,
+} from "../types/meta-windows";
 import { PremiumAccessError, loadPremiumArtefact } from "./premium-data";
 
-// The 20-day window is also written under the un-suffixed artefact filenames.
+export const META_WINDOWS = WINDOW_IDS;
 
-export const META_WINDOWS = ["10d", "20d", "30d", "all"] as const;
+export type MetaWindow = WindowId;
 
-export type MetaWindow = (typeof META_WINDOWS)[number];
+export const DEFAULT_META_WINDOW: MetaWindow = DEFAULT_WINDOW;
 
-export const DEFAULT_META_WINDOW: MetaWindow = "20d";
-
-const PREMIUM_META_WINDOWS: readonly MetaWindow[] = ["30d", "all"];
+const PREMIUM_META_WINDOWS: readonly MetaWindow[] = PREMIUM_WINDOWS;
 
 export const parseMetaWindow = (value: string | null): MetaWindow | null =>
   META_WINDOWS.find((window) => window === value) ?? null;
@@ -16,19 +23,7 @@ export const parseMetaWindow = (value: string | null): MetaWindow | null =>
 export const isPremiumMetaWindow = (window: MetaWindow): boolean =>
   PREMIUM_META_WINDOWS.includes(window);
 
-export const META_WINDOW_LENGTH_DAYS: Record<MetaWindow, number | null> = {
-  "10d": 10,
-  "20d": 20,
-  "30d": 30,
-  all: null,
-};
-
-export const META_WINDOW_LABEL_DAYS: Record<MetaWindow, string> = {
-  "10d": "10d",
-  "20d": "20d",
-  "30d": "30d",
-  all: "all",
-};
+export const META_WINDOW_LENGTH_DAYS: Record<MetaWindow, number | null> = WINDOW_LENGTH_DAYS;
 
 export const META_WINDOW_LABEL_KEYS: Record<MetaWindow, string> = {
   "10d": "window.10d",
@@ -39,7 +34,7 @@ export const META_WINDOW_LABEL_KEYS: Record<MetaWindow, string> = {
 
 /** "best-decks" + "10d" -> "best-decks-10d.json"; the default stays un-suffixed. */
 export const metaWindowDataFile = (base: string, window: MetaWindow): string =>
-  window === DEFAULT_META_WINDOW ? `${base}.json` : `${base}-${window}.json`;
+  windowDataFile(base, window);
 
 export const metaWindowDataPath = (base: string, window: MetaWindow): string =>
   `/data/${metaWindowDataFile(base, window)}`;
@@ -49,7 +44,7 @@ export const loadWindowArtefact = async (
   window: MetaWindow
 ): Promise<unknown> => {
   if (isPremiumMetaWindow(window)) {
-    return loadPremiumArtefact(`${base}-${window}`);
+    return loadPremiumArtefact(windowArtefactName(base, window));
   }
   const file = metaWindowDataFile(base, window);
   const response = await fetch(`/data/${file}`);
@@ -70,7 +65,7 @@ export const loadTieredArtefact = async (
     return loadWindowArtefact(base, window);
   }
   try {
-    return await loadPremiumArtefact(`${base}-${window}`);
+    return await loadPremiumArtefact(windowArtefactName(base, window));
   } catch (error) {
     if (error instanceof PremiumAccessError) return loadWindowArtefact(base, window);
     throw error;

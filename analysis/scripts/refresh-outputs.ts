@@ -18,6 +18,13 @@ import {
   sha256 as hash,
   sidecarNames,
 } from "../../scripts/refresh-sidecars.mjs";
+import {
+  ARTEFACT_BASES,
+  DEFAULT_WINDOW,
+  TRIMMED_WINDOWS,
+  windowArtefactName,
+  windowDataFile,
+} from "../../src/types/meta-windows";
 import { PREMIUM_ARTEFACT_NAMES } from "../src/utils/premium-artefacts";
 import { renameWithRetry } from "../src/utils/rename-with-retry";
 
@@ -33,15 +40,10 @@ export const REFRESH_OUTPUT_FILES = [
   "public/data/data-version.json",
   "public/data/historical-trends.json",
   "public/data/card-scores.json",
-  "public/data/best-decks.json",
-  "public/data/best-decks-10d.json",
-  "public/data/best-decks-20d.json",
-  "public/data/meta-share.json",
-  "public/data/meta-share-10d.json",
-  "public/data/meta-share-20d.json",
-  "public/data/matchup-data.json",
-  "public/data/matchup-data-10d.json",
-  "public/data/matchup-data-20d.json",
+  ...ARTEFACT_BASES.flatMap((base) => [
+    `public/data/${windowDataFile(base, DEFAULT_WINDOW)}`,
+    ...TRIMMED_WINDOWS.map((window) => `public/data/${windowArtefactName(base, window)}.json`),
+  ]),
   ...PREMIUM_ARTEFACT_NAMES.map((name) => `analysis/out/premium/${name}.json`),
 ];
 export const REFRESH_OUTPUT_TREES = ["public/data/hubs", "public/og/deck"];
@@ -691,7 +693,7 @@ export const finishRefresh = (root: string): void => {
   fs.rmSync(journalPath(root), { force: true });
 };
 
-if (process.argv[1]?.replace(/\\/g, "/").endsWith("/refresh-outputs.ts")) {
+if (require.main === module) {
   const action = process.argv[2];
   const root = path.resolve(__dirname, "../..");
   if (action === "begin") beginRefresh(root);

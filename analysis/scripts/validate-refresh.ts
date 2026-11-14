@@ -14,6 +14,7 @@ import {
   REFRESH_WINDOWS,
   validateRefresh,
 } from "../src/utils/validate-refresh";
+import { windowArtefactName } from "../../src/types/meta-windows";
 
 const args = process.argv.slice(2);
 const flag = (name: string): string | null => {
@@ -57,13 +58,13 @@ const readPrevious = (): string | null => {
   }
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "refresh-previous-"));
   for (const window of REFRESH_WINDOWS) {
-    const file = `public/data/best-decks-${window}.json`;
-    const metaFile = `public/data/meta-share-${window}.json`;
+    const file = `public/data/${windowArtefactName("best-decks", window)}.json`;
+    const metaFile = `public/data/${windowArtefactName("meta-share", window)}.json`;
     let contents: string | undefined;
     let metaContents: string | undefined;
     if ((PREMIUM_WINDOWS as readonly string[]).includes(window)) {
-      contents = premiumSnapshot?.[`best-decks-${window}`];
-      metaContents = premiumSnapshot?.[`meta-share-${window}`];
+      contents = premiumSnapshot?.[windowArtefactName("best-decks", window)];
+      metaContents = premiumSnapshot?.[windowArtefactName("meta-share", window)];
       if (contents === undefined) continue;
     } else {
       try {
@@ -89,9 +90,9 @@ const readPrevious = (): string | null => {
         );
       }
     }
-    fs.writeFileSync(path.join(dir, `best-decks-${window}.json`), contents);
+    fs.writeFileSync(path.join(dir, `${windowArtefactName("best-decks", window)}.json`), contents);
     if (metaContents !== undefined) {
-      fs.writeFileSync(path.join(dir, `meta-share-${window}.json`), metaContents);
+      fs.writeFileSync(path.join(dir, `${windowArtefactName("meta-share", window)}.json`), metaContents);
     }
   }
   return dir;

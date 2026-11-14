@@ -41,6 +41,7 @@ import cardsJson from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 import type { PokemonTCGPocketCardsV5CoreSchema } from "pokemon-tcg-pocket-cards/data/v5/cards.core";
 import { deckSlug } from "../../src/app/deck-slug";
 import { parseDeckListRef } from "../../src/app/card-ref";
+import { windowArtefactName } from "../../src/types/meta-windows";
 import type { PipelinePartialDeck } from "../../src/types/pipeline-data";
 
 const isPremiumWindow = (window: WindowId): boolean =>
@@ -48,15 +49,15 @@ const isPremiumWindow = (window: WindowId): boolean =>
 const previousCount = (window: WindowId, baselineDir: string | null): number | null => {
   if (!isPremiumWindow(window)) {
     return readPreviousArchetypeCount(
-      `../public/data/best-decks-${window}.json`,
-      `../public/data/meta-share-${window}.json`,
+      `../public/data/${windowArtefactName("best-decks", window)}.json`,
+      `../public/data/${windowArtefactName("meta-share", window)}.json`,
       EXPANSION_RELEASE_DATE
     );
   }
   if (baselineDir === null) return null;
   return readPreviousArchetypeCount(
-    premiumFilePath(`best-decks-${window}`, baselineDir),
-    premiumFilePath(`meta-share-${window}`, baselineDir),
+    premiumFilePath(windowArtefactName("best-decks", window), baselineDir),
+    premiumFilePath(windowArtefactName("meta-share", window), baselineDir),
     EXPANSION_RELEASE_DATE
   );
 };

@@ -45,6 +45,41 @@ const namedPaths = (section: string): string[] =>
   [...section.matchAll(/`([^`]+)`/g)].map((match) => match[1]);
 
 describe("refresh job file lists", () => {
+  it("lists the generated outputs in a fixed order", () => {
+    expect(REFRESH_OUTPUT_FILES).toEqual([
+      "analysis/src/data/limitless-decks.json",
+      "analysis/src/__fixtures__/deck-name-golden.json",
+      "analysis/src/data/card-printings.json",
+      "src/data/premium-deck-slugs.json",
+      "src/data/deck-hub-slugs.json",
+      "src/app/last-updated.ts",
+      "public/data/deck-archive.json",
+      "firebase.json",
+      "public/data/data-version.json",
+      "public/data/historical-trends.json",
+      "public/data/card-scores.json",
+      "public/data/best-decks.json",
+      "public/data/best-decks-10d.json",
+      "public/data/best-decks-20d.json",
+      "public/data/meta-share.json",
+      "public/data/meta-share-10d.json",
+      "public/data/meta-share-20d.json",
+      "public/data/matchup-data.json",
+      "public/data/matchup-data-10d.json",
+      "public/data/matchup-data-20d.json",
+      "analysis/out/premium/best-decks-30d.json",
+      "analysis/out/premium/best-decks-all.json",
+      "analysis/out/premium/matchup-data-30d.json",
+      "analysis/out/premium/matchup-data-all.json",
+      "analysis/out/premium/meta-share-30d.json",
+      "analysis/out/premium/meta-share-all.json",
+      "analysis/out/premium/matchup-data-10d.json",
+      "analysis/out/premium/matchup-data-20d.json",
+      "analysis/out/premium/meta-share-10d.json",
+      "analysis/out/premium/meta-share-20d.json",
+    ]);
+  });
+
   it("allows every file writeArtefacts stages in generated-output recovery", () => {
     for (const target of writeArtefactKeys()) {
       expect(REFRESH_OUTPUT_FILES).toContain(target);

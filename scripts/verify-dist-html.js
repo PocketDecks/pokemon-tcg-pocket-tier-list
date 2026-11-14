@@ -2,7 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const { deckNameToIconIds } = require("./deck-name.mjs");
 const { deckSlug } = require("./deck-slug.mjs");
-const { loadPremiumDeckSlugs, PREMIUM_WINDOWS } = require("./premium-deck-slugs.mjs");
+const { loadPremiumDeckSlugs } = require("./premium-deck-slugs.mjs");
+const { PREMIUM_BASES, PREMIUM_WINDOWS, windowArtefactName } = require("./meta-windows.mjs");
 const { localeRoute, ROUTE_LOCALES } = require("./locale-route.mjs");
 const {
   CARD_THUMB_WIDTHS,
@@ -29,8 +30,8 @@ const DATA_DIR = process.env.BUILD_DIR
 const SITE_HOST = "pocketdecks.top";
 const LOOPBACK = /(https?:)?\/\/(127\.0\.0\.1|localhost)(:\d+)?/g;
 
-const PREMIUM_DATA_FILES = ["best-decks", "matchup-data", "meta-share"].flatMap((base) =>
-  PREMIUM_WINDOWS.map((window) => `${base}-${window}.json`)
+const PREMIUM_DATA_FILES = PREMIUM_BASES.flatMap((base) =>
+  PREMIUM_WINDOWS.map((window) => `${windowArtefactName(base, window)}.json`)
 );
 
 const premiumDataFiles = (dist) => {

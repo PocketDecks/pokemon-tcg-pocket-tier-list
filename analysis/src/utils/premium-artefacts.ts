@@ -3,26 +3,34 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { freeDeckNames } from "../../../src/app/free-tier";
-import { DEFAULT_WINDOW, WINDOW_IDS, WindowArtefacts, WindowId } from "./build-window-artefacts";
+import {
+  ARTEFACT_BASES,
+  DEFAULT_WINDOW,
+  PREMIUM_BASES,
+  PREMIUM_WINDOWS,
+  TRIMMED_BASES,
+  TRIMMED_WINDOWS,
+  WINDOW_IDS,
+  windowArtefactName,
+  windowDataFile,
+  type ArtefactBase,
+  type PremiumWindow,
+  type TrimmedBase,
+  type WindowId,
+} from "../../../src/types/meta-windows";
+import { WindowArtefacts } from "./build-window-artefacts";
 import { trimMatchupData, trimMetaShare } from "./trim-free-window";
 
-export const PREMIUM_WINDOWS = ["30d", "all"] as const;
-export type PremiumWindow = (typeof PREMIUM_WINDOWS)[number];
-
-export const PREMIUM_BASES = ["best-decks", "matchup-data", "meta-share"] as const;
-
-export const TRIMMED_BASES = ["matchup-data", "meta-share"] as const;
-export type TrimmedBase = (typeof TRIMMED_BASES)[number];
-
-export const TRIMMED_WINDOWS = ["10d", "20d"] as const;
+export { PREMIUM_BASES, PREMIUM_WINDOWS, TRIMMED_BASES, TRIMMED_WINDOWS };
+export type { PremiumWindow, TrimmedBase };
 
 const premiumWindowNames: readonly string[] = PREMIUM_BASES.flatMap((base) =>
-  PREMIUM_WINDOWS.map((window) => `${base}-${window}`)
+  PREMIUM_WINDOWS.map((window) => windowArtefactName(base, window))
 );
 
 export const PREMIUM_ARTEFACT_NAMES: readonly string[] = [
   ...premiumWindowNames,
-  ...TRIMMED_BASES.flatMap((base) => TRIMMED_WINDOWS.map((window) => `${base}-${window}`)),
+  ...TRIMMED_BASES.flatMap((base) => TRIMMED_WINDOWS.map((window) => windowArtefactName(base, window))),
 ];
 
 export const PREMIUM_DIR = path.resolve(__dirname, "../../out/premium");
@@ -40,14 +48,15 @@ export const sha256Hex = (text: string): string =>
 
 const render = (value: unknown): string => JSON.stringify(value, null, 2);
 
-const PAYLOAD_BASES = ["best-decks", "meta-share", "matchup-data"] as const;
-type PayloadBase = (typeof PAYLOAD_BASES)[number];
+type PayloadBase = ArtefactBase;
 type Payloads = Record<PayloadBase, string>;
 
 const isWindowIn = (list: readonly string[], window: WindowId): boolean => list.includes(window);
 
 const publicPath = (base: PayloadBase, window?: WindowId): string =>
-  `${PUBLIC_DATA_PREFIX}${base}${window ? `-${window}` : ""}.json`;
+  `${PUBLIC_DATA_PREFIX}${
+    window ? `${windowArtefactName(base, window)}.json` : windowDataFile(base, DEFAULT_WINDOW)
+  }`;
 
 const serialise = (artefacts: WindowArtefacts): Payloads => ({
   "best-decks": render(artefacts.bestDecks),
@@ -78,20 +87,20 @@ export const splitWindowArtefacts = (
   for (const window of WINDOW_IDS) {
     const full = serialise(artefacts[window]);
     if (isWindowIn(PREMIUM_WINDOWS, window)) {
-      for (const base of PAYLOAD_BASES) premiumFiles[`${base}-${window}`] = full[base];
+      for (const base of ARTEFACT_BASES) premiumFiles[windowArtefactName(base, window)] = full[base];
       continue;
     }
     const trimmed = isWindowIn(TRIMMED_WINDOWS, window);
     const free = trimmed ? serialiseTrimmed(artefacts[window], full) : full;
-    for (const base of PAYLOAD_BASES) {
+    for (const base of ARTEFACT_BASES) {
       publicFiles[publicPath(base, window)] = free[base];
-      if (trimmed && base !== "best-decks") premiumFiles[`${base}-${window}`] = full[base];
+      if (trimmed && base !== "best-decks") premiumFiles[windowArtefactName(base, window)] = full[base];
     }
     if (window === DEFAULT_WINDOW) defaultPublic = free;
   }
 
   if (!defaultPublic) throw new Error(`the default window ${DEFAULT_WINDOW} has no public files`);
-  for (const base of PAYLOAD_BASES) publicFiles[publicPath(base)] = defaultPublic[base];
+  for (const base of ARTEFACT_BASES) publicFiles[publicPath(base)] = defaultPublic[base];
   return { publicFiles, premiumFiles };
 };
 

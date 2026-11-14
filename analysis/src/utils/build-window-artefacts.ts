@@ -240,36 +240,3 @@ export const buildWindowArtefacts = (
     ),
   };
 };
-
-const ARTEFACT_BASES = ["best-decks", "meta-share", "matchup-data"] as const;
-
-// The default window is also written un-suffixed for readers that predate
-// the selector.
-export const buildArtefactFiles = (
-  artefacts: Record<WindowId, WindowArtefacts>
-): Record<string, string> => {
-  const files: Record<string, string> = {};
-
-  for (const window of WINDOW_IDS) {
-    const { bestDecks, metaShare, matchupData } = artefacts[window];
-    const payloads: Record<(typeof ARTEFACT_BASES)[number], unknown> = {
-      "best-decks": bestDecks,
-      "meta-share": metaShare,
-      "matchup-data": matchupData,
-    };
-    for (const base of ARTEFACT_BASES) {
-      files[`../public/data/${base}-${window}.json`] = JSON.stringify(
-        payloads[base],
-        null,
-        2
-      );
-    }
-  }
-
-  for (const base of ARTEFACT_BASES) {
-    files[`../public/data/${base}.json`] =
-      files[`../public/data/${base}-${DEFAULT_WINDOW}.json`];
-  }
-
-  return files;
-};

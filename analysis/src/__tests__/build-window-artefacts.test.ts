@@ -1,5 +1,4 @@
 import {
-  buildArtefactFiles,
   buildWindowArtefacts,
   WINDOW_IDS,
   WINDOW_LENGTH_DAYS,
@@ -209,36 +208,6 @@ describe("buildWindowArtefacts across windows", () => {
 
     expect(games("10d")).toBeLessThan(games("30d"));
     expect(games("30d")).toBeLessThan(games("all"));
-  });
-});
-
-describe("buildArtefactFiles", () => {
-  const decks = [
-    makeDeck({ id: "anchor", name: "Anchor", date: "2026-10-10", totalGames: 30 }),
-  ];
-
-  it("emits a suffixed artefact set for every window", () => {
-    const files = buildArtefactFiles(artefactsByWindow(decks, TODAY));
-
-    for (const w of WINDOW_IDS) {
-      expect(files[`../public/data/best-decks-${w}.json`]).toBeDefined();
-      expect(files[`../public/data/meta-share-${w}.json`]).toBeDefined();
-      expect(files[`../public/data/matchup-data-${w}.json`]).toBeDefined();
-    }
-  });
-
-  it("writes un-suffixed copies that match the 20d set", () => {
-    const files = buildArtefactFiles(artefactsByWindow(decks, TODAY));
-
-    expect(files["../public/data/best-decks.json"]).toBe(
-      files["../public/data/best-decks-20d.json"]
-    );
-    expect(files["../public/data/meta-share.json"]).toBe(
-      files["../public/data/meta-share-20d.json"]
-    );
-    expect(files["../public/data/matchup-data.json"]).toBe(
-      files["../public/data/matchup-data-20d.json"]
-    );
   });
 });
 

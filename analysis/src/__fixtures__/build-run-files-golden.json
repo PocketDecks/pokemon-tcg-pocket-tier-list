@@ -1,0 +1,98 @@
+{
+  "../public/data/best-decks-10d.json": {
+    "bytes": 7100,
+    "sha256": "8bea37c4f37a85bdf137a9164584b65d3a400ac7ecf176a7c8eb712cce149369"
+  },
+  "../public/data/meta-share-10d.json": {
+    "bytes": 2856,
+    "sha256": "e268fc83fbba2446f75d9569e46a469daa7ca3aa54febadc80abde17550c73ea"
+  },
+  "../public/data/matchup-data-10d.json": {
+    "bytes": 4374,
+    "sha256": "7a1c2d55751c77c0ff47fd615d391bcf79168de859b3ad3725f893c0bc37aa1d"
+  },
+  "../public/data/best-decks-20d.json": {
+    "bytes": 9692,
+    "sha256": "5680dc6accf666b808ddec266feca99a4239dd11fb983d0342bd6bc1641f4966"
+  },
+  "../public/data/meta-share-20d.json": {
+    "bytes": 2861,
+    "sha256": "ef52ef8ccf2e9c3e34e8a2cafd83670b8835fa57540267c71134f85df8a38ecf"
+  },
+  "../public/data/matchup-data-20d.json": {
+    "bytes": 6233,
+    "sha256": "96ab145c90eeb561c05f738e77093ddf8161c6d947ceba121adec24381be069a"
+  },
+  "../public/data/best-decks.json": {
+    "bytes": 9692,
+    "sha256": "5680dc6accf666b808ddec266feca99a4239dd11fb983d0342bd6bc1641f4966"
+  },
+  "../public/data/meta-share.json": {
+    "bytes": 2861,
+    "sha256": "ef52ef8ccf2e9c3e34e8a2cafd83670b8835fa57540267c71134f85df8a38ecf"
+  },
+  "../public/data/matchup-data.json": {
+    "bytes": 6233,
+    "sha256": "96ab145c90eeb561c05f738e77093ddf8161c6d947ceba121adec24381be069a"
+  },
+  "/premium/meta-share-10d.json": {
+    "bytes": 3392,
+    "sha256": "5cc66f4b579fbb5788beb4c2f3262f2eb1f1206dcc7249975cef299dfea92792"
+  },
+  "/premium/matchup-data-10d.json": {
+    "bytes": 5451,
+    "sha256": "980321872b45a0cba6997879154e8a6fec4ed0738b390a525e3b580339738f97"
+  },
+  "/premium/meta-share-20d.json": {
+    "bytes": 3395,
+    "sha256": "902f54a064769273c2df5bdeec26b7660f816fbcf1fbf6a0e889dac3a5035db4"
+  },
+  "/premium/matchup-data-20d.json": {
+    "bytes": 7718,
+    "sha256": "f10384f3329b9b4dabc9b6ca92ce66b344e7b768f0b554ed6f6af76637d95aaa"
+  },
+  "/premium/best-decks-30d.json": {
+    "bytes": 12141,
+    "sha256": "0cf242aa00939da0a2bb477c2a220bdfa774759970a1bb35eb49d3f8648961df"
+  },
+  "/premium/meta-share-30d.json": {
+    "bytes": 3413,
+    "sha256": "2bbf24e04b26ba3823a2b3d800da1eb860f381a5115bcf061b1bd6c6d7292d15"
+  },
+  "/premium/matchup-data-30d.json": {
+    "bytes": 9942,
+    "sha256": "7350ce454570c2e85a8402d110b4c143be20f732a0eac05b79bf7c938faa7802"
+  },
+  "/premium/best-decks-all.json": {
+    "bytes": 14486,
+    "sha256": "7ed51ba7cca58c0dfb96949062f7101ee287dfd45aeab9c71ee797e7805bb7eb"
+  },
+  "/premium/meta-share-all.json": {
+    "bytes": 3124,
+    "sha256": "9805b6ce19e7613a0913366da79c58e2713c34dc611288e3c18d9ca9c7d53c42"
+  },
+  "/premium/matchup-data-all.json": {
+    "bytes": 11839,
+    "sha256": "9cdd73f9dc7108e798d7389d605e39834dfec6b2ede480bcede89aae9fe207ab"
+  },
+  "../public/data/data-version.json": {
+    "bytes": 34,
+    "sha256": "8b40cb89628fe7ce334a8d3d636173821fc6c12889ca17933573489f30bcc9dd"
+  },
+  "../src/data/premium-deck-slugs.json": {
+    "bytes": 3,
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+  },
+  "../public/data/historical-trends.json": {
+    "bytes": 72,
+    "sha256": "b76ba4b1dd63942d53ed618d8737cd14151017f17e9443b2f42449eed4a0e9a0"
+  },
+  "../public/data/card-scores.json": {
+    "bytes": 72,
+    "sha256": "ef6bf6749336c71d29c68e6dc655d9f8e0931776fc2f933bd8b57d25624129ca"
+  },
+  "../src/app/last-updated.ts": {
+    "bytes": 65,
+    "sha256": "ee958a36db9a5d65cf2379f112821b5e292a59eb4d9234607f1754251bda93d9"
+  }
+}

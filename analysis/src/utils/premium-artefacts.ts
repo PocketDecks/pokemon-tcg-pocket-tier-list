@@ -3,11 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { freeDeckNames } from "../../../src/app/free-tier";
-import {
-  PipelineMatchupData,
-  PipelineMetaShare,
-  PipelinePartialDeck,
-} from "../../../src/types/pipeline-data";
+import { DEFAULT_WINDOW, WINDOW_IDS, WindowArtefacts, WindowId } from "./build-window-artefacts";
 import { trimMatchupData, trimMetaShare } from "./trim-free-window";
 
 export const PREMIUM_WINDOWS = ["30d", "all"] as const;
@@ -42,53 +38,60 @@ export const premiumFilePath = (name: string, dir: string = PREMIUM_DIR): string
 export const sha256Hex = (text: string): string =>
   createHash("sha256").update(text, "utf8").digest("hex");
 
-const dataNameOf = (file: string): string | null => {
-  if (!file.startsWith(PUBLIC_DATA_PREFIX)) return null;
-  const rest = file.slice(PUBLIC_DATA_PREFIX.length);
-  return rest.endsWith(".json") ? rest.slice(0, -".json".length) : null;
-};
-
-const TRIMMED_NAME = new RegExp(
-  `^(${TRIMMED_BASES.join("|")})(?:-(${TRIMMED_WINDOWS.join("|")}))?$`
-);
-
 const render = (value: unknown): string => JSON.stringify(value, null, 2);
 
-const freeNamesFor = (files: Record<string, string>, suffix: string): Set<string> => {
-  const file = `${PUBLIC_DATA_PREFIX}best-decks${suffix}.json`;
-  const content = files[file];
-  if (content === undefined) {
-    throw new Error(`cannot trim the public data without best-decks${suffix}.json`);
-  }
-  return freeDeckNames(JSON.parse(content) as PipelinePartialDeck[]);
+const PAYLOAD_BASES = ["best-decks", "meta-share", "matchup-data"] as const;
+type PayloadBase = (typeof PAYLOAD_BASES)[number];
+type Payloads = Record<PayloadBase, string>;
+
+const isWindowIn = (list: readonly string[], window: WindowId): boolean => list.includes(window);
+
+const publicPath = (base: PayloadBase, window?: WindowId): string =>
+  `${PUBLIC_DATA_PREFIX}${base}${window ? `-${window}` : ""}.json`;
+
+const serialise = (artefacts: WindowArtefacts): Payloads => ({
+  "best-decks": render(artefacts.bestDecks),
+  "meta-share": render(artefacts.metaShare),
+  "matchup-data": render(artefacts.matchupData),
+});
+
+const serialiseTrimmed = (artefacts: WindowArtefacts, full: Payloads): Payloads => {
+  const freeNames = freeDeckNames(artefacts.bestDecks);
+  return {
+    "best-decks": full["best-decks"],
+    "meta-share": render(trimMetaShare(artefacts.metaShare, freeNames)),
+    "matchup-data": render(trimMatchupData(artefacts.matchupData, freeNames)),
+  };
 };
 
-export const splitArtefactFiles = (
-  files: Record<string, string>
+// Public files hold the free tier. 30d and all-time exist only as premium
+// files; 10d and 20d are public with the free decks' detail and premium in
+// full. The default window is also written un-suffixed for readers that
+// predate the selector.
+export const splitWindowArtefacts = (
+  artefacts: Record<WindowId, WindowArtefacts>
 ): { publicFiles: Record<string, string>; premiumFiles: Record<string, string> } => {
   const publicFiles: Record<string, string> = {};
   const premiumFiles: Record<string, string> = {};
-  for (const [file, content] of Object.entries(files)) {
-    const name = dataNameOf(file);
-    if (name !== null && premiumWindowNames.includes(name)) {
-      premiumFiles[name] = content;
+  let defaultPublic: Payloads | undefined;
+
+  for (const window of WINDOW_IDS) {
+    const full = serialise(artefacts[window]);
+    if (isWindowIn(PREMIUM_WINDOWS, window)) {
+      for (const base of PAYLOAD_BASES) premiumFiles[`${base}-${window}`] = full[base];
       continue;
     }
-    const trimmed = name === null ? null : TRIMMED_NAME.exec(name);
-    if (trimmed === null) {
-      publicFiles[file] = content;
-      continue;
+    const trimmed = isWindowIn(TRIMMED_WINDOWS, window);
+    const free = trimmed ? serialiseTrimmed(artefacts[window], full) : full;
+    for (const base of PAYLOAD_BASES) {
+      publicFiles[publicPath(base, window)] = free[base];
+      if (trimmed && base !== "best-decks") premiumFiles[`${base}-${window}`] = full[base];
     }
-    const [, base, window] = trimmed;
-    const freeNames = freeNamesFor(files, window ? `-${window}` : "");
-    const parsed: unknown = JSON.parse(content);
-    publicFiles[file] = render(
-      base === "matchup-data"
-        ? trimMatchupData(parsed as PipelineMatchupData, freeNames)
-        : trimMetaShare(parsed as PipelineMetaShare, freeNames)
-    );
-    if (window) premiumFiles[name as string] = content;
+    if (window === DEFAULT_WINDOW) defaultPublic = free;
   }
+
+  if (!defaultPublic) throw new Error(`the default window ${DEFAULT_WINDOW} has no public files`);
+  for (const base of PAYLOAD_BASES) publicFiles[publicPath(base)] = defaultPublic[base];
   return { publicFiles, premiumFiles };
 };
 

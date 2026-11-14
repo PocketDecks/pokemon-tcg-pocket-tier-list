@@ -7,6 +7,7 @@ import { useMatchups } from "../../app/use-decks";
 import { useTheme } from "../../app/use-theme";
 import { buildTiers } from "../../app/tier-helper";
 import { sortByPowerScore } from "../../app/score-baseline";
+import { rankedDecks } from "../../app/ranked-deck";
 import type { FullDeckType } from "../../app/deck-types";
 import { matrixScale, mixOklab, type MatrixScale } from "../../styles/theme-tokens";
 import { MatchupUnavailable, VisuallyHidden } from "../deck/deck-page.styles";
@@ -63,10 +64,7 @@ const MatrixSection = ({ decks }: { decks: FullDeckType[] }) => {
     );
     const tierMap = useMemo(() => {
         const map = new Map<string, string>();
-        const tiers = buildTiers(
-            sortedDecks.filter((d) => d.powerScore !== null),
-            (d) => d.powerScore ?? -1
-        );
+        const tiers = buildTiers(rankedDecks(sortedDecks), (d) => d.powerScore);
         tiers.forEach((tier) => {
             tier.data.forEach((d) => map.set(d.id, tier.color));
         });

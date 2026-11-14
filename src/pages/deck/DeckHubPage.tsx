@@ -8,6 +8,7 @@ import useDeckHref from "../../app/use-deck-href";
 import { hubDisplayName, hubSeenRange } from "../../app/deck-archetype";
 import { deckDisplayName, variantDisplayName } from "../../app/deck-display";
 import { useDecks, useMatchups } from "../../app/use-decks";
+import { comparePowerDescending } from "../../app/ranked-deck";
 import { useHubFile } from "../../app/use-hub-file";
 import { CARDS_BY_ID } from "../../app/cards-api";
 import { MIN_MATCHUP_GAMES } from "../../app/config";
@@ -181,10 +182,11 @@ const HubPage = () => {
   const liveBySlug = new Map((decks ?? []).map((deck) => [deck.id, deck]));
   const deckByName = new Map((decks ?? []).map((deck) => [deck.name, deck]));
   const liveNames = new Set((decks ?? []).map((deck) => deck.name));
-  const powerOf = (variant: string) => liveBySlug.get(variant)?.powerScore ?? -1;
   const liveVariants = variants
     .filter((entry) => liveBySlug.has(entry.variant))
-    .sort((a, b) => powerOf(b.variant) - powerOf(a.variant));
+    .sort((a, b) =>
+      comparePowerDescending(liveBySlug.get(a.variant)!, liveBySlug.get(b.variant)!)
+    );
   const latest = newestCoveredExpansion(ALL_EXPANSIONS, decks);
   const contentReady =
     variants.length === 0 || (hub !== undefined && !matchupsLoading);

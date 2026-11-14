@@ -3,6 +3,7 @@ import Button from "../../components/Button";
 import { useTranslation } from "react-i18next";
 import { LocaleLink as Link } from "../../app/locale-link";
 import { useDecks } from "../../app/use-decks";
+import { sortRanked } from "../../app/ranked-deck";
 import useDeckTiers from "../../app/use-deck-tiers";
 import DeckCard from "../../components/DeckCard";
 import NavIcon from "../../components/NavIcon";
@@ -241,9 +242,7 @@ const Hero = () => {
         <Preview aria-label={t("header.tierList")}>
           {hasDecks
             ? tiers.map((tier) => {
-                const strongest = [...tier.decks]
-                  .sort((a, b) => (b.powerScore ?? -1) - (a.powerScore ?? -1))
-                  .slice(0, PREVIEW_DECKS);
+                const strongest = sortRanked(tier.decks).slice(0, PREVIEW_DECKS);
                 return (
                   <PreviewRow key={tier.label}>
                     <RowHeader $color={tier.color}>{tier.label}</RowHeader>

@@ -5,6 +5,7 @@ import Button from "../../components/Button";
 import DeckArt from "../../components/DeckArt";
 import NavIcon from "../../components/NavIcon";
 import { useDecks } from "../../app/use-decks";
+import { rankedDecks } from "../../app/ranked-deck";
 import { deckDisplayName, formatArchetypeId } from "../../app/deck-display";
 
 const PREVIEW_ROWS = 4;
@@ -137,7 +138,7 @@ const StatsPreview = () => {
   const { decks, metaShare } = useDecks();
 
   const rankedIds = new Set(
-    (decks ?? []).filter((deck) => deck.powerScore !== null).map((deck) => deck.id)
+    rankedDecks(decks ?? []).map((deck) => deck.id)
   );
   const rising = (metaShare?.decks ?? [])
     .flatMap((entry) => (typeof entry.delta === "number" ? [{ ...entry, delta: entry.delta }] : []))

@@ -1,5 +1,6 @@
 import { Trans, useTranslation } from "react-i18next";
 import { useDecks } from "../../app/use-decks";
+import { rankedDecks } from "../../app/ranked-deck";
 import useFilters from "../../app/use-filters";
 import { latestBestListExpansion, latestCoveredExpansion } from "../../app/use-expansions";
 import { expansionCode } from "../../app/expansion-policy.mjs";
@@ -193,8 +194,8 @@ const TierListPage = () => {
           : t("header.tierListGeneric")}
       </PageTitle>
       <TierGrid
-        items={decks ? decks.filter((deck) => deck.powerScore !== null) : null}
-        getScore={(d) => d.powerScore ?? -1}
+        items={decks ? rankedDecks(decks) : null}
+        getScore={(d) => d.powerScore}
         getKey={(d) => d.id}
         renderItem={(deck) => (
           <DeckCard

@@ -1,12 +1,19 @@
 const test = require("node:test");
 const assert = require("node:assert");
-const { findUnresolvedAppRoutes } = require("../verify-dist-html");
+const { findUnresolvedAppRoutes, readAppRoutePaths } = require("../verify-dist-html");
 const { resolveHosting } = require("../firebase-hosting");
 const { makeDist } = require("./verify-dist-html-fixtures");
 
-const APP_ROUTES = `
-<Routes>
-  <Route path="/" element={<Layout />}>
+// The route table expands under every locale prefix; these tests exercise the
+// un-prefixed routes, and the locale tests further down cover the prefixed ones.
+const findEnglishRoutes = (dir, options) =>
+  findUnresolvedAppRoutes(dir, options).filter((issue) => !issue.startsWith("/ja/") && !issue.startsWith("/ja:"));
+
+const pageRoutes = (routes) => `const pageRoutes = (\n  <>\n${routes}\n  </>\n);`;
+
+const SINGLE_FEEDBACK_ROUTE = pageRoutes('    <Route path="feedback" element={<FeedbackPage />} />');
+
+const APP_ROUTES = pageRoutes(`
     <Route index element={<LandingPage />} />
     <Route path="tier-list" element={<TierListPage />} />
     <Route path="stats" element={<StatisticsPage />} />
@@ -16,9 +23,7 @@ const APP_ROUTES = `
       <Route index element={<DeckFinderPage />} />
       <Route path=":deckId" element={<DeckDetailPage />} />
     </Route>
-    <Route path="*" element={<NotFoundPage />} />
-  </Route>
-</Routes>`;
+    <Route path="*" element={<NotFoundPage />} />`);
 
 const HOSTING = {
   hosting: {
@@ -45,7 +50,7 @@ test("flags app routes with no file, redirect, rewrite or deck page", () => {
     "app-shell.html": "",
   });
   assert.deepStrictEqual(
-    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING }),
+    findEnglishRoutes(dir, { source: APP_ROUTES, firebase: HOSTING }),
     [
       "/feedback: no file, redirect or rewrite",
       "/about: no file, redirect or rewrite",
@@ -66,7 +71,7 @@ test("passes app routes served by a file, a redirect or a built rewrite", () => 
     "app-shell.html": "",
   });
   assert.deepStrictEqual(
-    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING_WITH_FEEDBACK_REDIRECT }),
+    findEnglishRoutes(dir, { source: APP_ROUTES, firebase: HOSTING_WITH_FEEDBACK_REDIRECT }),
     []
   );
 });
@@ -82,18 +87,18 @@ test("flags a bare route that only a slashed rewrite serves", () => {
     "app-shell.html": "",
   });
   assert.deepStrictEqual(
-    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING }),
+    findEnglishRoutes(dir, { source: APP_ROUTES, firebase: HOSTING }),
     ["/feedback: no file, redirect or rewrite"]
   );
 });
 
 test("flags a missing slashed route when its bare route resolves to a file", () => {
-  const dir = makeDist({ feedback: "" });
+  const dir = makeDist({ "index.html": "", feedback: "" });
   const firebase = { hosting: { redirects: [], rewrites: [] } };
   assert.equal(resolveHosting(firebase, new Set(["feedback"]), "/feedback").kind, "file");
   assert.deepStrictEqual(
-    findUnresolvedAppRoutes(dir, {
-      source: '<Routes><Route path="/feedback" element={<FeedbackPage />} /></Routes>',
+    findEnglishRoutes(dir, {
+      source: SINGLE_FEEDBACK_ROUTE,
       firebase,
     }),
     ["/feedback/: no file, redirect or rewrite"]
@@ -101,7 +106,7 @@ test("flags a missing slashed route when its bare route resolves to a file", () 
 });
 
 test("flags a missing slashed rewrite target when its bare route resolves to a file", () => {
-  const dir = makeDist({ feedback: "" });
+  const dir = makeDist({ "index.html": "", feedback: "" });
   const firebase = {
     hosting: { redirects: [], rewrites: [{ source: "/feedback/**", destination: "/app-shell.html" }] },
   };
@@ -113,8 +118,8 @@ test("flags a missing slashed rewrite target when its bare route resolves to a f
     file: "app-shell.html",
   });
   assert.deepStrictEqual(
-    findUnresolvedAppRoutes(dir, {
-      source: '<Routes><Route path="/feedback" element={<FeedbackPage />} /></Routes>',
+    findEnglishRoutes(dir, {
+      source: SINGLE_FEEDBACK_ROUTE,
       firebase,
     }),
     ["/feedback/: rewrite target app-shell.html is not built"]
@@ -141,7 +146,7 @@ test("flags a redirect whose destination does not resolve", () => {
     },
   };
   assert.deepStrictEqual(
-    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase }),
+    findEnglishRoutes(dir, { source: APP_ROUTES, firebase }),
     ["/feedback: redirect to /nowhere/ does not resolve"]
   );
 });
@@ -156,31 +161,20 @@ test("flags a rewrite whose target is not built", () => {
     "deck/x/index.html": "",
   });
   assert.deepStrictEqual(
-    findUnresolvedAppRoutes(dir, { source: APP_ROUTES, firebase: HOSTING_WITH_FEEDBACK_REDIRECT }),
+    findEnglishRoutes(dir, { source: APP_ROUTES, firebase: HOSTING_WITH_FEEDBACK_REDIRECT }),
     ["/feedback/: rewrite target app-shell.html is not built"]
   );
 });
 
-const LOCALE_APP_ROUTES = `
-<Routes>
-  <Route path="/" element={<Layout />}>
+const LOCALE_APP_ROUTES = pageRoutes(`
     <Route index element={<LandingPage />} />
     <Route path="deck">
       <Route index element={<DeckFinderPage />} />
       <Route path=":deckId" element={<DeckDetailPage />} />
-    </Route>
-  </Route>
-  <Route path="/ja" element={<Layout />}>
-    <Route index element={<LandingPage />} />
-    <Route path="deck">
-      <Route index element={<DeckFinderPage />} />
-      <Route path=":deckId" element={<DeckDetailPage />} />
-    </Route>
-  </Route>
-</Routes>`;
+    </Route>`);
 
 const FEEDBACK_APP_ROUTES =
-  '<Routes><Route path="/ja/feedback" element={<FeedbackPage />} /></Routes>';
+  pageRoutes('    <Route path="feedback" element={<FeedbackPage />} />');
 
 const FEEDBACK_HOSTING = {
   hosting: {
@@ -196,7 +190,7 @@ const FEEDBACK_HOSTING = {
 };
 
 test("checks the Japanese feedback redirect, rewrite and destination", () => {
-  const dir = makeDist({ "app-shell.html": "" });
+  const dir = makeDist({ "index.html": "", "ja/index.html": "", "app-shell.html": "" });
   assert.deepStrictEqual(findUnresolvedAppRoutes(dir, { source: FEEDBACK_APP_ROUTES, firebase: FEEDBACK_HOSTING }), []);
 
   const badDestination = {
@@ -240,4 +234,37 @@ test("passes a locale dynamic route once its pages are built", () => {
     findUnresolvedAppRoutes(dir, { source: LOCALE_APP_ROUTES, firebase: HOSTING }),
     []
   );
+});
+
+test("reads the single page route table under every locale prefix", () => {
+  assert.deepStrictEqual(readAppRoutePaths(LOCALE_APP_ROUTES), [
+    "/",
+    "/deck",
+    "/deck/:deckId",
+    "/ja",
+    "/ja/deck",
+    "/ja/deck/:deckId",
+  ]);
+});
+
+test("reads the routes of src/App.tsx", () => {
+  const source = require("node:fs").readFileSync(require("node:path").join(__dirname, "../../src/App.tsx"), "utf8");
+  const pages = [
+    "/tier-list",
+    "/cards-list",
+    "/expansion-list",
+    "/expansion-list/:expansionId",
+    "/statistics",
+    "/privacy",
+    "/about",
+    "/feedback",
+    "/deck",
+    "/deck/:deckId",
+    "/*",
+  ];
+  assert.deepStrictEqual(readAppRoutePaths(source), ["/", ...pages, "/ja", ...pages.map((page) => `/ja${page}`)]);
+});
+
+test("fails when src/App.tsx has no page route table", () => {
+  assert.throws(() => readAppRoutePaths("<Routes />"), /pageRoutes/);
 });

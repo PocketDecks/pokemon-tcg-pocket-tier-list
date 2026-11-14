@@ -66,13 +66,13 @@ All routes live in the table in `src/App.tsx`. Every page component is loaded
 with `React.lazy` and rendered behind the layout's `Suspense` fallback,
 `LoadingNotice` from `src/components/ErrorBoundary.tsx`.
 
-The table is written twice, once under `/` and once under `/ja`, each inside
-its own `Layout`. `LOCALE_PREFIXES` and `ROUTE_LOCALES` in
-`src/app/locale-route.ts` define the prefixes. The table stays as literal
-`<Route path="...">` elements because the postbuild check
-`scripts/verify-dist-html.js` reads `src/App.tsx` as text to find each route
-and confirm it resolves to a built page or a hosting rule. Routes built in a
-loop would be invisible to it.
+The page routes are written once, in the `pageRoutes` fragment in
+`src/App.tsx`. `App` mounts that fragment under one `Layout` route per entry in
+`ROUTE_LOCALES`, at the path `LOCALE_PREFIXES` gives it (`/` and `/ja`). The
+fragment stays a block of literal `<Route path="...">` elements because the
+postbuild check `scripts/verify-dist-html.js` reads it as text and repeats it
+under each prefix, to confirm every route resolves to a built page or a hosting
+rule.
 
 ```text
 /                          LandingPage        (index)

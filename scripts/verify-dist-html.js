@@ -4,7 +4,7 @@ const { deckNameToIconIds } = require("./deck-name.mjs");
 const { deckSlug } = require("./deck-slug.mjs");
 const { loadPremiumDeckSlugs } = require("./premium-deck-slugs.mjs");
 const { PREMIUM_BASES, PREMIUM_WINDOWS, windowArtefactName } = require("./meta-windows.mjs");
-const { localeRoute, ROUTE_LOCALES } = require("./locale-route.mjs");
+const { localeRoute, LOCALE_PREFIXES, ROUTE_LOCALES } = require("./locale-route.mjs");
 const {
   CARD_THUMB_WIDTHS,
   DECK_THUMB_SIZES,
@@ -271,8 +271,12 @@ const shellPageIssues = (dist) =>
     return issues;
   });
 
-const readAppRoutePaths = (source) => {
-  const tokens = [...source.matchAll(/<Route\b|<\/Route>/g)];
+// App.tsx holds the page routes once, in the `<>` fragment assigned to `pageRoutes`.
+// Each prefix in LOCALE_PREFIXES mounts that fragment under its own layout route.
+const PAGE_ROUTES_BLOCK = /const pageRoutes = \(\s*<>([\s\S]*?)<\/>\s*\);/;
+
+const readPageRoutePaths = (block) => {
+  const tokens = [...block.matchAll(/<Route\b|<\/Route>/g)];
   const stack = [];
   const routes = [];
   tokens.forEach((token, index) => {
@@ -280,20 +284,25 @@ const readAppRoutePaths = (source) => {
       stack.pop();
       return;
     }
-    const end = index + 1 < tokens.length ? tokens[index + 1].index : source.length;
-    const segment = source.slice(token.index, end);
+    const end = index + 1 < tokens.length ? tokens[index + 1].index : block.length;
+    const segment = block.slice(token.index, end);
     const parent = stack[stack.length - 1] ?? "";
     const own = segment.match(/\spath="([^"]*)"/)?.[1];
-    const full =
-      own === undefined
-        ? parent || "/"
-        : own.startsWith("/")
-          ? own
-          : `${parent.replace(/\/$/, "")}/${own}`;
+    const full = own === undefined ? parent : `${parent}/${own}`;
     if (own !== undefined) routes.push(full);
     if (!/\/>\s*$/.test(segment.trimEnd())) stack.push(full);
   });
   return routes;
+};
+
+const readAppRoutePaths = (source) => {
+  const block = source.match(PAGE_ROUTES_BLOCK)?.[1];
+  if (block === undefined) throw new Error("src/App.tsx: no `const pageRoutes = (<>...</>)` block found");
+  const paths = readPageRoutePaths(block);
+  return Object.values(LOCALE_PREFIXES).flatMap((prefix) => [
+    prefix || "/",
+    ...paths.map((path) => `${prefix}${path}`),
+  ]);
 };
 
 const unresolvedAppRoutes = (
@@ -753,6 +762,7 @@ module.exports = {
   findCspBootstrapIssues: forDir(cspBootstrapIssues),
   findShellPageIssues: forDir(shellPageIssues),
   findTitleCountIssues: forDir(titleCountIssues),
+  readAppRoutePaths,
   findUnresolvedAppRoutes: forDir(unresolvedAppRoutes),
   findDeckImagePreloadIssues: forDir(deckImagePreloadIssues),
   findEmptyDeckRoots: forDir(emptyDeckRoots),

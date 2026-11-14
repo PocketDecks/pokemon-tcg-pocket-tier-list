@@ -3,6 +3,7 @@ import { LocaleLink as Link } from "../../app/locale-link";
 import { useTranslation } from "react-i18next";
 import Button from "../../components/Button";
 import { useDecks } from "../../app/use-decks";
+import { uniqueCardsById } from "../../app/unique-cards";
 import { sortByPowerScore } from "../../app/score-baseline";
 import { deckDisplayName } from "../../app/deck-display";
 import {
@@ -113,9 +114,7 @@ const BestDeckFinder = () => {
   const { decks } = useDecks();
   const topDeck = decks ? sortByPowerScore(decks)[0] : undefined;
   const previewCards = topDeck
-    ? topDeck.bestList.cards
-        .filter((card, index, self) => self.findIndex((c) => c.id === card.id) === index)
-        .slice(0, PREVIEW_CARDS)
+    ? uniqueCardsById(topDeck.bestList.cards).slice(0, PREVIEW_CARDS)
     : [];
 
   return (

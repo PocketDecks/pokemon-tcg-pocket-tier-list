@@ -1,14 +1,13 @@
 import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
-import { useDecks, useDeckDetail, MatchupType, useMatchups } from "../../app/use-decks";
+import { useDecks, useDeckDetail, useMatchups } from "../../app/use-decks";
 import useMissing from "../../app/use-missing";
 import { formatCardScore } from "../../app/format-card-score";
 import { CARDS_BY_ID, type CardType } from "../../app/cards-api";
 import DeckCardGrid from "./DeckCardGrid";
 import DeckHeadTags from "./DeckHeadTags";
 import DeckHubLink from "./DeckHubLink";
-import DeckCard from "../../components/DeckCard";
 import { MIN_MATCHUP_GAMES, WINRATE_THRESHOLD } from "../../app/config";
 import useIsPremium from "../../app/use-is-premium";
 import useFreeDeckNames from "../../app/use-free-deck-names";
@@ -23,10 +22,13 @@ import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { countById, oneSwapAlternatives } from "../../app/deck-diff";
 import { deckDisplayName } from "../../app/deck-display";
-import DeckHero, { type DeckHeroStat } from "./DeckHero";
+import DeckHero from "./DeckHero";
+import DeckEmptyState from "./DeckEmptyState";
+import MatchupListSection from "./MatchupListSection";
+import { buildHeroStats } from "./hero-stats";
+import { uniqueCardsById } from "../../app/unique-cards";
 import DeckPageSkeleton from "./DeckPageSkeleton";
 import NotFoundPage from "../not-found/NotFoundPage";
-import EnergyList from "./EnergyList";
 import useDeckTiers, { tierForDeck } from "../../app/use-deck-tiers";
 import { useLocaleHref } from "../../app/locale-link";
 import {
@@ -40,24 +42,14 @@ import {
   BackIcon,
   BackToTierList,
   CardSection,
-  DeckCardContainer,
-  EmptyActions,
-  EmptyMessage,
   KeyStats,
   KeyStatRow,
   KeyStatValue,
-  MatchupContainer,
-  MatchupLabel,
-  MatchupList,
   MatchupNotice,
-  MatchupSkeletonTile,
-  MatchupUnavailable,
   MatchupSection,
   Matchups,
-  Or,
   Overlay,
   PanelSection,
-  Shrug,
   StyledDeckPage,
   StyledLink,
   SubHeader,
@@ -67,8 +59,6 @@ import {
   SwapName,
   SwapSide,
   UndoButton,
-  VisuallyHidden,
-  WinRatePlaceholder,
 } from "./deck-page.styles";
 
 const SWAP_THUMB_WIDTH = 240;
@@ -139,10 +129,7 @@ const DeckDetailPage = () => {
         weakAgainst: [],
       };
     }
-    const uniqueCards = deck.bestList.cards.filter(
-      (card, index, self) =>
-        self.findIndex((c) => c.id === card.id) === index
-    );
+    const uniqueCards = uniqueCardsById(deck.bestList.cards);
     const cardCounts = countById(deck.bestList.cards);
     const alternatives = oneSwapAlternatives(deck.bestList, deck.lists, 3);
     const validMatchups =
@@ -180,29 +167,21 @@ const DeckDetailPage = () => {
 
   if (extinct) {
     return (
-      <Overlay>
-        <Shrug>{t("deckPage.extinctShrug")}</Shrug>
-        {lastCutName ? (
-          <EmptyMessage>
-            {t("deckPage.extinctBody", {
-              card: lastCutName,
-              defaultValue: `That was the last copy of ${lastCutName}. There is no version of this deck left to build.`,
-            })}
-          </EmptyMessage>
-        ) : (
-          <EmptyMessage>
-            {t(
-              "deckPage.extinctBodyNoCard",
-              "Every version of this deck needs a card you have marked as missing. There is nothing left to build."
-            )}
-          </EmptyMessage>
-        )}
-        <EmptyActions>
-          <UndoButton onClick={undoMissing}>{t("deckPage.undo")}</UndoButton>
-          <Or>{t("deckPage.or")}</Or>
-          <StyledLink to={tierListHref}>{t("deckPage.tryAnotherDeck")}</StyledLink>
-        </EmptyActions>
-      </Overlay>
+      <DeckEmptyState
+        shrug={t("deckPage.extinctShrug")}
+        message={
+          lastCutName
+            ? t("deckPage.extinctBody", {
+                card: lastCutName,
+                defaultValue: `That was the last copy of ${lastCutName}. There is no version of this deck left to build.`,
+              })
+            : t(
+                "deckPage.extinctBodyNoCard",
+                "Every version of this deck needs a card you have marked as missing. There is nothing left to build."
+              )
+        }
+        onUndo={undoMissing}
+      />
     );
   }
 
@@ -213,19 +192,12 @@ const DeckDetailPage = () => {
   const winRatePct = totalMatchup ? Math.round(totalMatchup.winRate * 100) : null;
 
   const displayName = deckDisplayName(deck);
-  const heroStats: DeckHeroStat[] = [
-    ...(matchupsLoading
-      ? [{ label: t("deckPage.winRate"), value: <WinRatePlaceholder aria-hidden="true" data-testid="win-rate-placeholder" /> }]
-      : winRatePct !== null
-        ? [{ label: t("deckPage.winRate"), value: `${winRatePct}%` }]
-        : []),
-    ...(shareEntry
-      ? [{ label: t("deckPage.metaShare"), value: `${(shareEntry.share * 100).toFixed(1)}%` }]
-      : []),
-    ...(deck.bestList.energyIds.length > 0
-      ? [{ label: t("deckPage.energyUsed"), value: <EnergyList energyIds={deck.bestList.energyIds} /> }]
-      : []),
-  ];
+  const heroStats = buildHeroStats({
+    t,
+    winRatePct: matchupsLoading ? "loading" : winRatePct,
+    metaShare: shareEntry?.share,
+    energyIds: deck.bestList.energyIds,
+  });
 
   return (
     <>
@@ -362,59 +334,22 @@ const DeckDetailPage = () => {
               </MatchupSection>
             ) : (
               <>
-                <MatchupSection>
-                  <SubHeader $backgroundColor="var(--f)">
-                    {t("deckPage.strongAgainst")}
-                  </SubHeader>
-                  {matchupsPending ? (
-                    <MatchupList aria-busy="true">
-                      {Array.from({ length: 6 }, (_, index) => <MatchupSkeletonTile key={index} aria-hidden="true" />)}
-                      <VisuallyHidden role="status">{t("deckPage.matchupsLoading")}</VisuallyHidden>
-                    </MatchupList>
-                  ) : matchupsError ? (
-                    <MatchupUnavailable>{t("deckPage.matchupsUnavailable")}</MatchupUnavailable>
-                  ) : (
-                    <MatchupList>
-                      {strongAgainst.map((matchup: MatchupType) => (
-                        <MatchupContainer key={matchup.name}>
-                          <DeckCardContainer>
-                            <DeckCard deck={deckMap.get(matchup.name)!} />
-                          </DeckCardContainer>
-                          <MatchupLabel $winRate={matchup.winRate}>
-                            {`${(matchup.winRate * 100).toFixed(0)}%`}
-                          </MatchupLabel>
-                        </MatchupContainer>
-                      ))}
-                    </MatchupList>
-                  )}
-                </MatchupSection>
-
-                <MatchupSection>
-                  <SubHeader $backgroundColor="var(--s)">
-                    {t("deckPage.weakAgainst")}
-                  </SubHeader>
-                  {matchupsPending ? (
-                    <MatchupList aria-busy="true">
-                      {Array.from({ length: 6 }, (_, index) => <MatchupSkeletonTile key={index} aria-hidden="true" />)}
-                      <VisuallyHidden role="status">{t("deckPage.matchupsLoading")}</VisuallyHidden>
-                    </MatchupList>
-                  ) : matchupsError ? (
-                    <MatchupUnavailable>{t("deckPage.matchupsUnavailable")}</MatchupUnavailable>
-                  ) : (
-                    <MatchupList>
-                      {weakAgainst.map((matchup: MatchupType) => (
-                        <MatchupContainer key={matchup.name}>
-                          <DeckCardContainer>
-                            <DeckCard deck={deckMap.get(matchup.name)!} />
-                          </DeckCardContainer>
-                          <MatchupLabel $winRate={matchup.winRate}>
-                            {`${(matchup.winRate * 100).toFixed(0)}%`}
-                          </MatchupLabel>
-                        </MatchupContainer>
-                      ))}
-                    </MatchupList>
-                  )}
-                </MatchupSection>
+                <MatchupListSection
+                  title={t("deckPage.strongAgainst")}
+                  headerColour="var(--f)"
+                  pending={matchupsPending}
+                  failed={!!matchupsError}
+                  matchups={strongAgainst}
+                  decksByName={deckMap}
+                />
+                <MatchupListSection
+                  title={t("deckPage.weakAgainst")}
+                  headerColour="var(--s)"
+                  pending={matchupsPending}
+                  failed={!!matchupsError}
+                  matchups={weakAgainst}
+                  decksByName={deckMap}
+                />
               </>
             )}
           </Matchups>

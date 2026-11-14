@@ -1,5 +1,5 @@
 import attackCosts from "../data/attack-costs.json";
-import { CARDS_URL } from "./constants";
+import { RAW_CARDS } from "./constants";
 import type { PokemonTCGPocketCardsV5CoreSchema } from "pokemon-tcg-pocket-cards/core";
 
 export type RawCardType = PokemonTCGPocketCardsV5CoreSchema[number];
@@ -42,24 +42,12 @@ export type AttacksByDeckBuilderNr = Map<
   Record<string, { cost: string | null }> | undefined
 >;
 
-export interface CardsPayload {
-  cards: CardType[];
-  attacksByDeckBuilderNr: AttacksByDeckBuilderNr;
-}
+export const CARDS: readonly CardType[] = normaliseMultipleCards(RAW_CARDS);
 
-/**
- * Resolves the cards and the attack index together so no caller can read the
- * index before the fetch that fills it.
- */
-export const fetchCards = async (): Promise<CardsPayload> => {
-  const attacksByDeckBuilderNr = new Map(
-    Object.entries(attackCosts).map(([nr, costs]) => [
-      Number(nr),
-      costs,
-    ])
-  );
-  return {
-    cards: normaliseMultipleCards(CARDS_URL),
-    attacksByDeckBuilderNr,
-  };
-};
+export const CARDS_BY_ID: ReadonlyMap<string, CardType> = new Map(
+  CARDS.map((card) => [card.id, card])
+);
+
+export const ATTACKS_BY_DECK_BUILDER_NR: AttacksByDeckBuilderNr = new Map(
+  Object.entries(attackCosts).map(([nr, costs]) => [Number(nr), costs])
+);

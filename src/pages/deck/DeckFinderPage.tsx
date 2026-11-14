@@ -16,8 +16,7 @@ import AdInContent from "../../ads/AdInContent";
 import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { useLocaleHref } from "../../app/locale-link";
-import { useQuery } from "@tanstack/react-query";
-import { CardType, fetchCards } from "../../app/cards-api";
+import { CARDS_BY_ID } from "../../app/cards-api";
 import { countById } from "../../app/deck-diff";
 import {
   CardSection,
@@ -46,18 +45,8 @@ const DeckFinderPage = () => {
   const { t } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");
 
-  // Card data for resolving a removed card's name in the empty-deck notice.
-  // React Query dedupes this against the same queryKey used elsewhere, so it is
-  // a cache read, not a second network fetch.
-  const { data: cardsPayload } = useQuery({
-    queryKey: ["cards"],
-    queryFn: fetchCards,
-  });
-  const cardsById = new Map(
-    (cardsPayload?.cards ?? []).map((card) => [card.id, card] as [string, CardType])
-  );
   const lastCutName = lastRemovedId
-    ? (cardsById.get(lastRemovedId)?.name ?? null)
+    ? (CARDS_BY_ID.get(lastRemovedId)?.name ?? null)
     : null;
 
   const deck = decks ? sortByPowerScore(decks)[0] : undefined;

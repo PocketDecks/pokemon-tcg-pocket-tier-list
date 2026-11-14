@@ -38,10 +38,6 @@ vi.mock("../../../app/use-decks", () => ({
   useMatchups: () => ({ matchupsByName: null, loading: false, error: null }),
 }));
 
-vi.mock("../../../app/cards-api", () => ({
-  fetchCards: () => Promise.resolve({ cards: [], attacksByDeckBuilderNr: new Map() }),
-}));
-
 vi.mock("../../../ads/ContentReadyContext", () => ({ useMarkContentReady: () => {} }));
 
 const renderHub = (window: "20d" | "30d") => {

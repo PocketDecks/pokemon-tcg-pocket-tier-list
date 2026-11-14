@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { CardType, fetchCards } from "./cards-api";
+import { CARDS_BY_ID, type CardType } from "./cards-api";
 import { parseScoreRef } from "./card-ref";
 import useFilters from "./use-filters";
 import useMissing from "./use-missing";
-import { EXPANSIONS_URL } from "./constants";
+import { ALL_EXPANSIONS } from "./constants";
 
-const knownSets = new Set((EXPANSIONS_URL as { id: string }[]).map((entry) => entry.id));
+const knownSets = new Set(ALL_EXPANSIONS.map((entry) => entry.id));
 
 export interface CardScoreType extends CardType {
   count: number;
@@ -71,16 +71,6 @@ const useCards = (amount: number = 30, options: UseCardsOptions = {}): UseCardsR
   const { missing: collected } = useMissing();
 
   const {
-    data: cardsPayload,
-    error: cardsError,
-    refetch: refetchCards,
-  } = useQuery({
-    queryKey: ["cards"],
-    queryFn: fetchCards,
-  });
-  const cardData = cardsPayload?.cards;
-
-  const {
     data: cards,
     error: scoresError,
     refetch: refetchScores,
@@ -89,15 +79,15 @@ const useCards = (amount: number = 30, options: UseCardsOptions = {}): UseCardsR
     queryFn: fetchCardScores,
   });
 
-  const error = scoresError ?? cardsError;
+  const error = scoresError;
   const retry = async () => {
-    await Promise.all([refetchScores(), refetchCards()]);
+    await refetchScores();
   };
 
-  if (!cardData || !cards) {
+  if (!cards) {
     return {
       cards: null,
-      error: error as Error | null,
+      error,
       retry,
     };
   }
@@ -127,7 +117,7 @@ const useCards = (amount: number = 30, options: UseCardsOptions = {}): UseCardsR
     seenIds.add(id);
 
     const collectedCount = collectedCounts[id] || 0;
-    const cardInfo = cardData.find((c: CardType) => c.id === id);
+    const cardInfo = CARDS_BY_ID.get(id);
     if (!cardInfo) {
       unresolvedIds.add(id);
       continue;
@@ -157,7 +147,7 @@ const useCards = (amount: number = 30, options: UseCardsOptions = {}): UseCardsR
       .slice(0, amount)
       .sort((a, b) => b.score - a.score);
 
-  return { cards: ranked, error: error as Error | null, retry };
+  return { cards: ranked, error, retry };
 };
 
 export default useCards;

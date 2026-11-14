@@ -7,8 +7,7 @@ import useIsPremium from "../../app/use-is-premium";
 import { useMetaWindow } from "../../app/use-meta-window";
 import useDeckHref from "../../app/use-deck-href";
 import { META_WINDOW_LENGTH_DAYS } from "../../app/meta-window";
-import { useQuery } from "@tanstack/react-query";
-import { fetchCards } from "../../app/cards-api";
+import { CARDS_BY_ID } from "../../app/cards-api";
 import { deckNameToIconIds } from "../../app/deck-filters";
 import usePipelineTrends from "../../app/use-pipeline-trends";
 import SeoContent from "../../components/SeoContent";
@@ -345,11 +344,6 @@ const StatisticsPage = () => {
 
     useMarkContentReady(!loading && !!decks && !trendQuery.isLoading);
 
-    const { data: cardsPayload } = useQuery({
-        queryKey: ["cards"],
-        queryFn: fetchCards,
-    });
-
     const movementLimited = !!metaShare && metaShare.decks.some((entry) => !hasMovement(entry));
 
     const movementDecks = useMemo(() => {
@@ -416,7 +410,7 @@ const StatisticsPage = () => {
     const formatDay = (value: string) => formatTrendDay(value, i18n.language);
 
     const cardImage = (id: string | undefined) =>
-        id ? cardsPayload?.cards.find((c) => c.id === id)?.image : undefined;
+        id ? CARDS_BY_ID.get(id)?.image : undefined;
 
     const maxMovementShare = Math.max(0.0001, ...movementDecks.map((d) => d.share));
 
@@ -513,15 +507,12 @@ const StatisticsPage = () => {
                                             const deck = decks?.find(
                                                 (d) => d.id === entry.name
                                             );
-                                            const cards = cardsPayload?.cards;
                                             const iconNames = deck
                                                 ? null
-                                                : cards
-                                                  ? deckNameToIconIds(entry.name)
-                                                        .map((id) => cards.find((c) => c.id === id)?.name)
-                                                        .filter(Boolean)
-                                                        .join(" / ")
-                                                  : null;
+                                                : deckNameToIconIds(entry.name)
+                                                      .map((id) => CARDS_BY_ID.get(id)?.name)
+                                                      .filter(Boolean)
+                                                      .join(" / ");
                                             return (
                                                 <Link to={deckHref(entry.name)}>
                                                     {deck

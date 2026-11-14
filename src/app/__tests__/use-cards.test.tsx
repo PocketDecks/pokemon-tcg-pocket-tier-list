@@ -5,17 +5,7 @@ import { describe, expect, it } from "vitest";
 import useCards from "../use-cards";
 import { MissingContext } from "../../components/MissingContext";
 
-const cards = [
-  { id: "b4a-001", name: "Volbeat", set: "b4a", pack: "Booster", rarity: "Common", image: "/cards/b4a-001.webp" },
-];
-
 const scores = [{ name: "2 b4a 001", score: 0.8, popularity: 0.5, count: 2 }];
-
-const selectionCards = [
-  { id: "b4a-001", name: "High score", set: "b4a", pack: "Booster", rarity: "Common", image: "/a.webp" },
-  { id: "b4a-002", name: "Medium score", set: "b4a", pack: "Booster", rarity: "Common", image: "/b.webp" },
-  { id: "b4a-003", name: "Low score", set: "b4a", pack: "Booster", rarity: "Common", image: "/c.webp" },
-];
 
 const selectionScores = [
   { name: "1 b4a 001", score: 9, popularity: 0.1 },
@@ -25,7 +15,6 @@ const selectionScores = [
 
 const wrapperWithSelection = () => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-  queryClient.setQueryData(["cards"], { cards: selectionCards });
   queryClient.setQueryData(["card-scores"], selectionScores);
   return ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={queryClient}>
@@ -40,7 +29,6 @@ const wrapperWithSelection = () => {
 
 const wrapperWith = (marks: string[], rows: typeof scores = scores) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-  queryClient.setQueryData(["cards"], { cards });
   queryClient.setQueryData(["card-scores"], rows);
   return ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={queryClient}>

@@ -85,35 +85,29 @@ from the deck name. `DeckDetailPage` resolves it with
 
 ## Data fetching
 
-Four React Query keys exist.
+Three React Query keys exist.
 
 | Key | Owner | Source |
 | --- | --- | --- |
-| `["cards"]` | shared | `fetchCards()` in `src/app/cards-api.ts` |
 | `["decks"]` | `DecksProvider` | `best-decks.json`, `matchup-data.json`, `meta-share.json` |
 | `["card-scores"]` | `useCards` | `card-scores.json` |
-| `["expansions"]` | `useExpansions` | `EXPANSIONS_URL` from `src/app/constants.ts` |
-
-`["cards"]` has two consumers, the `DecksProvider` in
-`src/contexts/DecksContext.tsx` and `useCards` in `src/app/use-cards.ts`. Both
-issue the same query, so React Query fetches once and shares the cache entry.
 
 The `["decks"]` query fetches `best-decks.json` and `matchup-data.json` in
 parallel and attaches `meta-share.json` through `loadMetaShare()`. Share data is
 optional there: any failure, including malformed JSON, degrades to `null` so
-deck pages and statistics keep loading. The other two queries throw on failure
+deck pages and statistics keep loading. The other queries throw on failure
 and surface their errors through React Query as usual.
 
-### The cards payload
+### Card and expansion data
 
-`fetchCards()` returns a `CardsPayload`: `{ cards, attacksByDeckBuilderNr }`.
-The attack index used to live in module scope and be filled by a side effect;
-it now travels with the cards so no caller can read it before the fetch that
-fills it. Consumers pull both fields out of the query data directly
-(`cardsPayload?.cards`, `cardsPayload?.attacksByDeckBuilderNr`) instead of
-calling getters, because the payload is plain cached value with no accessor
-layer. `DecksContext` feeds the attack index into energy inference when it
-builds each deck's best list.
+Cards and expansions come from the `pokemon-tcg-pocket-cards` package and ship
+inside the bundle, so no query loads them. `src/app/cards-api.ts` exports
+`CARDS`, `CARDS_BY_ID` and `ATTACKS_BY_DECK_BUILDER_NR`, each computed once at
+module load. `src/app/constants.ts` exports the raw package data as `RAW_CARDS`
+and `ALL_EXPANSIONS`. `useExpansions()` returns the listed expansions
+synchronously. Components and hooks read card names, images and attacks from
+these values directly, and `buildFullLists` and `pickBestList` use the attack
+index when they infer energy for each deck's best list.
 
 ## Contexts
 

@@ -35,7 +35,7 @@ const inPack = (card: CardType, packName: string) =>
 
 export const expansionPageData = (
   expansion: ExpansionType,
-  cards: CardType[],
+  cards: readonly CardType[],
   rawDecks: readonly RawDeck[],
   resolvedDecks: readonly FullDeckType[],
   packName?: string

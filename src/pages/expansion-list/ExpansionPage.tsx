@@ -1,11 +1,10 @@
 import styled from "styled-components";
 import { useParams, useSearchParams } from "react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { useDecks } from "../../app/use-decks";
 import useExpansions from "../../app/use-expansions";
-import { fetchCards } from "../../app/cards-api";
+import { CARDS } from "../../app/cards-api";
 import { expansionPageData, packNameForSlug } from "../../app/expansion-page-data";
 import { cardThumbUrl, onDeckThumbError } from "../../app/deck-thumb";
 import { LocaleLink } from "../../app/locale-link";
@@ -145,17 +144,13 @@ const ExpansionPage = () => {
   const { decks, rawDecks, error: decksError, metaShareBySlug, loading: decksLoading } = useDecks();
   const expansions = useExpansions();
   const { t, i18n } = useTranslation();
-  const expansion = expansions?.find((entry) => entry.id === expansionId);
+  const expansion = expansions.find((entry) => entry.id === expansionId);
   const packName = expansion ? packNameForSlug(expansion, searchParams.get("pack")) : null;
-  const allCardsQuery = useQuery({ queryKey: ["cards"], queryFn: fetchCards });
-  const rawCards = allCardsQuery.data?.cards ?? [];
-  const cardsSettled = allCardsQuery.isSuccess || allCardsQuery.isError;
-  const data = expansion && allCardsQuery.isSuccess && rawDecks
-    ? expansionPageData(expansion, rawCards, rawDecks, decks ?? [], packName ?? undefined)
+  const data = expansion && rawDecks
+    ? expansionPageData(expansion, CARDS, rawDecks, decks ?? [], packName ?? undefined)
     : null;
-  useMarkContentReady(!decksLoading && !decksError && !allCardsQuery.isError && !!data?.cards.length, !decksLoading && !!expansions && cardsSettled);
+  useMarkContentReady(!decksLoading && !decksError && !!data?.cards.length, !decksLoading);
 
-  if (expansions === null) return null;
   if (!expansion || !isListedExpansion(expansion)) return <NotFoundPage />;
   const locale = i18n.language === "en" ? "en-GB" : i18n.language;
   const releaseDate = expansion.release_date
@@ -182,7 +177,7 @@ const ExpansionPage = () => {
         {releaseDate && <Meta>{t("expansionPage.released", { date: releaseDate })}</Meta>}
         {!(data && data.cards.length === 0) && <Meta>{t("expansionPage.intro", { name: expansion.name })}</Meta>}
       </Header>
-      {allCardsQuery.isError || decksError ? (
+      {decksError ? (
         <Meta>{t("expansionPage.loadError")}</Meta>
       ) : data && data.cards.length === 0 ? (
         <EmptyState>

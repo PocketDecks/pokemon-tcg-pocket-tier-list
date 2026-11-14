@@ -1,8 +1,6 @@
 import styled from "styled-components";
 import { Link, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { archiveForHub } from "../../app/deck-archive";
 import { LocaleLink, useLocaleHref } from "../../app/locale-link";
@@ -12,10 +10,10 @@ import { hubDisplayName, hubSeenRange } from "../../app/deck-archetype";
 import { deckDisplayName, variantDisplayName } from "../../app/deck-display";
 import { useDecks, useMatchups } from "../../app/use-decks";
 import { useHubFile } from "../../app/use-hub-file";
-import { fetchCards } from "../../app/cards-api";
+import { CARDS_BY_ID } from "../../app/cards-api";
 import { MIN_MATCHUP_GAMES } from "../../app/config";
 import { newestCoveredExpansion } from "../../app/expansion-feed.mjs";
-import { EXPANSIONS_URL } from "../../app/constants";
+import { ALL_EXPANSIONS } from "../../app/constants";
 import SeoContent from "../../components/SeoContent";
 import DeckHubHeadTags, { type HubHeadStatus } from "./DeckHubHeadTags";
 import NotFoundPage from "../not-found/NotFoundPage";
@@ -180,12 +178,7 @@ const HubPage = () => {
   const deckFinderHref = useLocaleHref("/deck");
   const variants = hubSlug ? archiveForHub(hubSlug) : [];
   const hubQuery = useHubFile(hubSlug);
-  const cardsQuery = useQuery({ queryKey: ["cards"], queryFn: fetchCards });
   const hub = hubQuery.data;
-  const cardNames = useMemo(
-    () => new Map((cardsQuery.data?.cards ?? []).map((card) => [card.id, card.name])),
-    [cardsQuery.data]
-  );
   const liveBySlug = new Map((decks ?? []).map((deck) => [deckSlug(deck.name), deck]));
   const deckByName = new Map((decks ?? []).map((deck) => [deck.name, deck]));
   const liveNames = new Set((decks ?? []).map((deck) => deck.name));
@@ -193,9 +186,9 @@ const HubPage = () => {
   const liveVariants = variants
     .filter((entry) => liveBySlug.has(entry.variant))
     .sort((a, b) => powerOf(b.variant) - powerOf(a.variant));
-  const latest = newestCoveredExpansion(EXPANSIONS_URL, decks);
+  const latest = newestCoveredExpansion(ALL_EXPANSIONS, decks);
   const contentReady =
-    variants.length === 0 || (hub !== undefined && cardsQuery.isSuccess && !matchupsLoading);
+    variants.length === 0 || (hub !== undefined && !matchupsLoading);
   useMarkContentReady(!loading && contentReady);
 
   if (!hubSlug || variants.length === 0) return <NotFoundPage />;
@@ -214,7 +207,7 @@ const HubPage = () => {
     : newestFirst(records).find((record) => record.cards.length > 0);
   const coreCards = coreCardsOf(coreRecord?.cards ?? []);
   const namedCore = coreCards.flatMap((card) => {
-    const cardName = cardNames.get(card.id);
+    const cardName = CARDS_BY_ID.get(card.id)?.name;
     return cardName ? [{ ...card, name: cardName }] : [];
   });
   const coreIds = new Set(coreCards.map((card) => card.id));

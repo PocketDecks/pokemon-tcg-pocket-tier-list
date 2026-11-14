@@ -4,11 +4,7 @@ import useMissing from "../app/use-missing";
 import useFilters from "../app/use-filters";
 import useIsPremium from "../app/use-is-premium";
 import { getSortValue } from "../app/sorting-helper";
-import {
-  CardType,
-  CardsPayload,
-  fetchCards,
-} from "../app/cards-api";
+import { CARDS_BY_ID, type CardType } from "../app/cards-api";
 import useExpansions from "../app/use-expansions";
 import { newestExpansion } from "../app/expansion-policy.mjs";
 import { MetaShareEntry, PipelineMatchupData, PipelineMetaShare, PipelinePartialDeck, PipelineDeckList } from "../types/pipeline-data";
@@ -182,8 +178,6 @@ const trimPairedDecks = (fullDecks: FullDeckType[]): FullDeckType[] => {
 
 const buildDecks = (
   decksData: { decks: PartialDeckType[] },
-  cardsPayload: CardsPayload,
-  cardsMapping: Record<string, CardType>,
   options: BuildOptions
 ): FullDeckType[] => {
   const { decks } = decksData;
@@ -200,7 +194,7 @@ const buildDecks = (
 
   const unresolvedCardIds = new Set<string>();
   const canResolveIcon = (id: string): boolean => {
-    if (cardsMapping[id]) return true;
+    if (CARDS_BY_ID.has(id)) return true;
     unresolvedCardIds.add(id);
     return false;
   };
@@ -209,10 +203,7 @@ const buildDecks = (
       .map((deck: PartialDeckType) => {
         const filteredLists = deck.lists
             .filter((list: PartialList) => {
-              const unresolved = findUnresolvedCardIds(
-                  list.cards,
-                  cardsMapping
-              );
+              const unresolved = findUnresolvedCardIds(list.cards);
               unresolved.forEach((id: string) => unresolvedCardIds.add(id));
               return unresolved.length === 0;
             })
@@ -220,15 +211,14 @@ const buildDecks = (
                 isAffordable(list.cards, missingCounts)
             )
             .filter((list: PartialList) =>
-                matchesEnergy(list.cards, cardsMapping, energy)
+                matchesEnergy(list.cards, energy)
             )
             .filter((list: PartialList) =>
-                matchesExFilter(list.cards, cardsMapping, includeEx)
+                matchesExFilter(list.cards, includeEx)
             )
             .filter((list: PartialList) =>
                 hasEnoughLatestExpansionCards(
                     list.cards,
-                    cardsMapping,
                     latestExpansionId,
                     latestExpansionCards
                 )
@@ -260,12 +250,12 @@ const buildDecks = (
 
   const fullDecks = decksFiltered
       .map((oldDeck: PartialDeckType) => {
-        const lists = buildFullLists(oldDeck.lists, cardsMapping);
-        const bestList = pickBestList(lists, cardsPayload);
+        const lists = buildFullLists(oldDeck.lists);
+        const bestList = pickBestList(lists);
 
         const cardIds = deckNameToIconIds(oldDeck.name);
         const iconSecondary = cardIds[1]
-          ? cardsMapping[cardIds[1]] ?? null
+          ? CARDS_BY_ID.get(cardIds[1]) ?? null
           : null;
 
         const deck: FullDeckType = {
@@ -282,7 +272,7 @@ const buildDecks = (
           freqScore: oldDeck.freqScore,
           metaScore: oldDeck.metaScore,
           percentOfGames: oldDeck.percentOfGames,
-          iconPrimary: cardsMapping[cardIds[0]],
+          iconPrimary: CARDS_BY_ID.get(cardIds[0]) as CardType,
           iconSecondary,
         };
         return deck;
@@ -312,8 +302,6 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
   const isPremium = useIsPremium();
   const expansions = useExpansions();
 
-  const { cardsPayload, cardsMapping, isLoading: cardsLoading } = useCardsData();
-
   const { window } = useMetaWindow();
 
   const { data: decksData, isLoading: decksLoading, error: decksError } = useDecksData(window);
@@ -338,18 +326,18 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [settledMetaShare]);
 
   const latestExpansionId = useMemo(() => {
-    return newestExpansion(expansions ?? [])?.id ?? null;
+    return newestExpansion(expansions)?.id ?? null;
   }, [expansions]);
 
   const decks = useMemo(() => {
-    if (!cardsPayload || !decksData || isPremium === null) return null;
+    if (!decksData || isPremium === null) return null;
 
     const missingCounts: Record<string, number> = {};
     for (const id of missing) {
       missingCounts[id] = (missingCounts[id] || 0) + 1;
     }
 
-    return buildDecks(decksData, cardsPayload, cardsMapping, {
+    return buildDecks(decksData, {
       missingCounts,
       energy,
       includeEx,
@@ -360,7 +348,6 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
       applyPairedTrim: energy === null,
     });
   }, [
-    cardsPayload,
     decksData,
     isPremium,
     missing,
@@ -368,7 +355,6 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
     includeEx,
     deckAmount,
     sortBy,
-    cardsMapping,
     latestExpansionCards,
     latestExpansionId,
   ]);
@@ -382,7 +368,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
       scoreBaseline,
       metaShare: settledMetaShare,
       metaShareBySlug,
-      loading: cardsLoading || decksLoading || awaitingPremium,
+      loading: decksLoading || awaitingPremium,
       error: decksError ?? null,
       isPremium,
     }),
@@ -392,7 +378,6 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
       scoreBaseline,
       settledMetaShare,
       metaShareBySlug,
-      cardsLoading,
       decksLoading,
       awaitingPremium,
       decksError,
@@ -424,23 +409,6 @@ export const useMatchups = () => {
     ...windowQueryOptions(window, isPremium),
   });
   return { matchupsByName: data ?? null, loading: isLoading, error: error ?? null };
-};
-
-/// Shared between DecksProvider and useDeckDetail: one React Query cache
-/// entry per key, so a detail page pays no second fetch.
-const useCardsData = () => {
-  const { data: cardsPayload, isLoading } = useQuery({
-    queryKey: ["cards"],
-    queryFn: fetchCards,
-  });
-  const cards = cardsPayload?.cards;
-  const cardsMapping: Record<string, CardType> = useMemo(() => {
-    return (cards ?? []).reduce((acc: Record<string, CardType>, card: CardType) => {
-      acc[card.id] = card;
-      return acc;
-    }, {});
-  }, [cards]);
-  return { cardsPayload, cardsMapping, isLoading };
 };
 
 const fetchDeckData = async (window: MetaWindow) => {
@@ -486,23 +454,16 @@ export const useDeckDetail = (
   deckId: string | undefined,
   missingCounts: Record<string, number>
 ) => {
-  const { cardsPayload, cardsMapping } = useCardsData();
   const { window } = useMetaWindow();
   const { data: decksData } = useDecksData(window);
   return useMemo(() => {
-    if (!cardsPayload || !decksData || !deckId) {
+    if (!decksData || !deckId) {
       return { deck: null, extinct: false };
     }
-    const resolved = resolveDeckDetail(
-      decksData.decks,
-      cardsPayload,
-      cardsMapping,
-      deckId,
-      missingCounts
-    );
+    const resolved = resolveDeckDetail(decksData.decks, deckId, missingCounts);
     return {
       deck: resolved?.deck ?? null,
       extinct: resolved?.extinct ?? false,
     };
-  }, [cardsPayload, cardsMapping, decksData, deckId, missingCounts]);
+  }, [decksData, deckId, missingCounts]);
 };

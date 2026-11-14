@@ -32,24 +32,9 @@ vi.mock("../../../ads/ContentReadyContext", () => ({
   useMarkContentReady: vi.fn(),
 }));
 
-const card = (id: string, pack: string) => ({
-  id,
-  name: id,
-  rarity: "Common",
-  pack,
-  type: "Pokemon",
-  supertype: "Pokemon",
-  health: 100,
-  stage: "Basic",
-  image: `/cards/${id}.webp`,
-  ex: false,
-  deckBuilderNr: 1,
-});
-
-const cards = [card("a1-001", "Charizard"), card("a1-002", "Mewtwo"), card("b4a-001", "Booster")];
 const scores = [
   { name: "1 a1 001", score: 0.8, popularity: 0.5, count: 1 },
-  { name: "1 a1 002", score: 0.6, popularity: 0.5, count: 1 },
+  { name: "1 a1 011", score: 0.6, popularity: 0.5, count: 1 },
   { name: "1 b4a 001", score: 0.9, popularity: 0.5, count: 1 },
 ];
 
@@ -78,7 +63,6 @@ const missingWith = (missing: string[]) => ({
 
 const renderWithMarks = (path: string, marks: string[]) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-  queryClient.setQueryData(["cards"], { cards });
   queryClient.setQueryData(["card-scores"], scores);
   return render(
     <QueryClientProvider client={queryClient}>
@@ -95,7 +79,6 @@ const renderWithMarks = (path: string, marks: string[]) => {
 
 const renderWithFilter = (path: string, expansion: string | null) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-  queryClient.setQueryData(["cards"], { cards });
   queryClient.setQueryData(["card-scores"], scores);
   return render(
     <QueryClientProvider client={queryClient}>

@@ -37,7 +37,7 @@ const CardsListPage = () => {
         }}
       >
         <option value="">All</option>
-        {expansions?.map((expansion: ExpansionType) => (
+        {expansions.map((expansion: ExpansionType) => (
           <option key={expansion.id} value={expansion.id}>
             {expansion.name}
           </option>

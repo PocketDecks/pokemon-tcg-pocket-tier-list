@@ -30,6 +30,16 @@ const card = {
   deckBuilderNr: 1,
 };
 
+vi.mock("../../../app/cards-api", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../../app/cards-api")>();
+  return {
+    ...actual,
+    get CARDS() {
+      return [card];
+    },
+  };
+});
+
 vi.mock("../../../app/use-expansions", () => ({
   __esModule: true,
   default: () => [
@@ -62,7 +72,6 @@ vi.mock("../../../ads/ContentReadyContext", () => ({
 
 const renderAt = (path: string) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-  queryClient.setQueryData(["cards"], { cards: [card] });
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={[path]}>

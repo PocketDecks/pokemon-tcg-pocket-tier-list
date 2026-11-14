@@ -13,17 +13,11 @@ const matchupsState = vi.hoisted(() => ({
   value: { matchupsByName: null as Record<string, unknown[]> | null, loading: false, error: null as Error | null },
 }));
 
-const cardsState = vi.hoisted(() => ({ value: null as unknown }));
-
 const readiness = vi.hoisted(() => ({ markContentReady: vi.fn() }));
 
 vi.mock("../../../app/use-decks", () => ({
   useDecks: () => decksState.value,
   useMatchups: () => matchupsState.value,
-}));
-
-vi.mock("../../../app/cards-api", () => ({
-  fetchCards: () => Promise.resolve(cardsState.value),
 }));
 
 vi.mock("../../../ads/ContentReadyContext", () => ({
@@ -34,17 +28,6 @@ vi.mock("../../not-found/NotFoundPage", () => ({
   __esModule: true,
   default: () => <p>not found page</p>,
 }));
-
-const CARD_NAMES: Record<string, string> = {
-  "b2b-007": "Mega Greninja ex",
-  "b1-073": "Greninja",
-  "a1-004": "Venusaur ex",
-};
-
-const CARD_PAYLOAD = {
-  cards: Object.entries(CARD_NAMES).map(([id, name]) => ({ id, name })),
-  attacksByDeckBuilderNr: new Map(),
-};
 
 const GRENINJA = "mega-greninja-ex-c1-042&greninja-ex-b1-073";
 const VENUSAUR = "venusaur-ex-a1-004&bulbasaur-a1-001";
@@ -113,7 +96,6 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  cardsState.value = CARD_PAYLOAD;
   stubHubFiles({ "mega-greninja-ex": GRENINJA_HUB });
   readiness.markContentReady.mockClear();
 });
@@ -233,15 +215,15 @@ describe("DeckHubPage content", () => {
   it("lists the core cards of the strongest live variant with counts and names", async () => {
     decksState.value = { decks: [liveGreninja], metaShareBySlug: {}, loading: false, error: null };
     renderAt("/deck/mega-greninja-ex");
-    expect(await screen.findByText("2 × Mega Greninja ex")).toBeTruthy();
-    expect(screen.getByText("1 × Greninja")).toBeTruthy();
+    expect(await screen.findByText("2 × Charmander")).toBeTruthy();
+    expect(screen.getByText("1 × Greninja ex")).toBeTruthy();
     expect(screen.getByText("2 × Venusaur ex")).toBeTruthy();
   });
 
   it("lists the cards of the most recently seen variant with cards when the hub is retired", async () => {
     renderAt("/deck/mega-greninja-ex");
-    expect(await screen.findByText("2 × Mega Greninja ex")).toBeTruthy();
-    expect(screen.queryByText("1 × Mega Greninja ex")).toBeNull();
+    expect(await screen.findByText("2 × Charmander")).toBeTruthy();
+    expect(screen.queryByText("1 × Charmander")).toBeNull();
   });
 
   it("shows the three best and three worst matchups, leaving out games below the minimum", async () => {

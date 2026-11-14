@@ -4,8 +4,7 @@ import { useMemo } from "react";
 import { useDecks, useDeckDetail, MatchupType, useMatchups } from "../../app/use-decks";
 import useMissing from "../../app/use-missing";
 import { formatCardScore } from "../../app/format-card-score";
-import { useQuery } from "@tanstack/react-query";
-import { CardType, fetchCards } from "../../app/cards-api";
+import { CARDS_BY_ID, type CardType } from "../../app/cards-api";
 import DeckCardGrid from "./DeckCardGrid";
 import DeckHeadTags from "./DeckHeadTags";
 import DeckHubLink from "./DeckHubLink";
@@ -108,18 +107,8 @@ const DeckDetailPage = () => {
   }, [missing]);
 
   const { deck, extinct } = useDeckDetail(deckId, missingCounts);
-  // Card data for resolving the removed card's name in the extinct notice.
-  // React Query dedupes this against the same queryKey used elsewhere, so it is
-  // a cache read, not a second network fetch.
-  const { data: cardsPayload } = useQuery({
-    queryKey: ["cards"],
-    queryFn: fetchCards,
-  });
-  const cardsById = new Map(
-    (cardsPayload?.cards ?? []).map((card) => [card.id, card] as [string, CardType])
-  );
   const lastCutName = lastRemovedId
-    ? (cardsById.get(lastRemovedId)?.name ?? null)
+    ? (CARDS_BY_ID.get(lastRemovedId)?.name ?? null)
     : null;
   const shareEntry: MetaShareEntry | null =
     metaShareBySlug?.[deckId ?? ""] ?? null;

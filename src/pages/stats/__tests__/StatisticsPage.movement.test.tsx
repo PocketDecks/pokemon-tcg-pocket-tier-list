@@ -13,9 +13,6 @@ const { usePipelineTrends } = vi.hoisted(() => ({ usePipelineTrends: vi.fn() }))
 
 vi.mock("../../../app/use-is-premium", () => ({ __esModule: true, default: () => false }));
 vi.mock("../../../app/use-pipeline-trends", () => ({ __esModule: true, default: usePipelineTrends }));
-vi.mock("../../../app/cards-api", () => ({
-  fetchCards: vi.fn().mockResolvedValue({ cards: [], attacksByDeckBuilderNr: new Map() }),
-}));
 vi.mock("../../../app/use-expansions", () => ({
   __esModule: true,
   default: () => [],

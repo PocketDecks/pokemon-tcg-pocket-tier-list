@@ -443,10 +443,10 @@
     "reload": "重新加载页面"
   },
   "common": {
-    "loading": "Loading...",
-    "loadError": "Error loading data: {{message}}",
-    "all": "All",
-    "noCards": "No cards found",
-    "noDecks": "No decks found"
+    "loading": "加载中...",
+    "loadError": "数据加载失败：{{message}}",
+    "all": "全部",
+    "noCards": "未找到卡牌",
+    "noDecks": "未找到牌组"
   }
 }

@@ -443,10 +443,10 @@
     "reload": "Ricarica la pagina"
   },
   "common": {
-    "loading": "Loading...",
-    "loadError": "Error loading data: {{message}}",
-    "all": "All",
-    "noCards": "No cards found",
-    "noDecks": "No decks found"
+    "loading": "Caricamento...",
+    "loadError": "Errore durante il caricamento dei dati: {{message}}",
+    "all": "Tutte",
+    "noCards": "Nessuna carta trovata",
+    "noDecks": "Nessun mazzo trovato"
   }
 }

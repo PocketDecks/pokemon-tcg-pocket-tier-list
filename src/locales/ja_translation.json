@@ -443,10 +443,10 @@
     "reload": "ページを再読み込み"
   },
   "common": {
-    "loading": "Loading...",
-    "loadError": "Error loading data: {{message}}",
-    "all": "All",
-    "noCards": "No cards found",
-    "noDecks": "No decks found"
+    "loading": "読み込み中...",
+    "loadError": "データを読み込めませんでした: {{message}}",
+    "all": "すべて",
+    "noCards": "カードが見つかりません",
+    "noDecks": "デッキが見つかりません"
   }
 }

@@ -443,10 +443,10 @@
     "reload": "Reîncarcă pagina"
   },
   "common": {
-    "loading": "Loading...",
-    "loadError": "Error loading data: {{message}}",
-    "all": "All",
-    "noCards": "No cards found",
-    "noDecks": "No decks found"
+    "loading": "Se încarcă...",
+    "loadError": "Eroare la încărcarea datelor: {{message}}",
+    "all": "Toate",
+    "noCards": "Nu s-au găsit cărți",
+    "noDecks": "Nu s-au găsit pachete"
   }
 }

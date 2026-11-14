@@ -443,10 +443,10 @@
     "reload": "Seite neu laden"
   },
   "common": {
-    "loading": "Loading...",
-    "loadError": "Error loading data: {{message}}",
-    "all": "All",
-    "noCards": "No cards found",
-    "noDecks": "No decks found"
+    "loading": "Wird geladen...",
+    "loadError": "Fehler beim Laden der Daten: {{message}}",
+    "all": "Alle",
+    "noCards": "Keine Karten gefunden",
+    "noDecks": "Keine Decks gefunden"
   }
 }

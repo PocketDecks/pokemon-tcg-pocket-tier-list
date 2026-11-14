@@ -375,6 +375,11 @@ const StatisticsPage = () => {
         return isPremium ? sortedDecks : sortedDecks.filter((deck) => freeNames.has(deck.name));
     }, [sortedDecks, isPremium, freeNames]);
 
+    const decksById = useMemo(
+        () => new Map((decks ?? []).map((d) => [d.id, d])),
+        [decks]
+    );
+
     const tierMap = useMemo(() => {
         const map = new Map<string, string>();
         const tiers = buildTiers(
@@ -499,14 +504,12 @@ const StatisticsPage = () => {
                                         <DeckArt
                                             size={2.8}
                                             src={
-                                                decks?.find((d) => d.id === entry.name)?.iconPrimary?.image ??
+                                                decksById.get(entry.name)?.iconPrimary?.image ??
                                                 cardImage(deckNameToIconIds(entry.name)[0])
                                             }
                                         />
                                         {(() => {
-                                            const deck = decks?.find(
-                                                (d) => d.id === entry.name
-                                            );
+                                            const deck = decksById.get(entry.name);
                                             const iconNames = deck
                                                 ? null
                                                 : deckNameToIconIds(entry.name)
@@ -522,7 +525,7 @@ const StatisticsPage = () => {
                                                 </Link>
                                             );
                                         })()}
-                                        {!decks?.some((d) => d.id === entry.name) && (
+                                        {!decksById.has(entry.name) && (
                                             <CrownLink to="/about#premium" aria-label="Premium">
                                                 <img src={crownIcon} alt="" />
                                             </CrownLink>

@@ -15,6 +15,7 @@ vi.mock("../../../app/use-decks", () => ({
   useDecks: () => ({
     decks: [
       {
+        id: "mega-altaria-ex-b1-102",
         name: "mega-altaria-ex-b1-102",
         powerScore: 40,
         expectedWinRate: 0.5,
@@ -23,6 +24,7 @@ vi.mock("../../../app/use-decks", () => ({
         bestList: { cards: [] },
       },
       {
+        id: "mega-altaria-ex-b1-102&greninja-a1-089",
         name: "mega-altaria-ex-b1-102&greninja-a1-089",
         powerScore: 70,
         expectedWinRate: 0.4,

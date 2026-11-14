@@ -58,6 +58,7 @@ const GRENINJA_HUB = {
 };
 
 const liveDeck = (name: string, powerScore: number, icons: [string, string | null], cardIds: string[] = []) => ({
+  id: name,
   name,
   powerScore,
   expectedWinRate: 0.52,
@@ -129,9 +130,9 @@ describe("DeckHubPage", () => {
   it("lists live variants by power score, highest first, with unscored decks last", () => {
     decksState.value = {
       decks: [
-        { name: "mega-altaria-ex-b1-102", powerScore: 40, expectedWinRate: 0.5 },
-        { name: "mega-altaria-ex-b1-102&espeon-b3a-020", powerScore: null, expectedWinRate: 0.6 },
-        { name: "mega-altaria-ex-b1-102&greninja-a1-089", powerScore: 70, expectedWinRate: 0.4 },
+        { id: "mega-altaria-ex-b1-102", name: "mega-altaria-ex-b1-102", powerScore: 40, expectedWinRate: 0.5 },
+        { id: "mega-altaria-ex-b1-102&espeon-b3a-020", name: "mega-altaria-ex-b1-102&espeon-b3a-020", powerScore: null, expectedWinRate: 0.6 },
+        { id: "mega-altaria-ex-b1-102&greninja-a1-089", name: "mega-altaria-ex-b1-102&greninja-a1-089", powerScore: 70, expectedWinRate: 0.4 },
       ] as unknown[],
       metaShareBySlug: {},
       loading: false,
@@ -153,6 +154,7 @@ describe("DeckHubPage", () => {
     decksState.value = {
       decks: [
         {
+          id: "mega-greninja-ex-c1-042&greninja-ex-b1-073",
           name: "mega-greninja-ex-c1-042&greninja-ex-b1-073",
           powerScore: 1,
           expectedWinRate: 0.5,
@@ -170,7 +172,7 @@ describe("DeckHubPage", () => {
 
   it("drops the card ID fragments from a live variant whose icons are missing", () => {
     decksState.value = {
-      decks: [{ name: "mega-altaria-ex-b1-102", powerScore: 40, expectedWinRate: 0.5 }] as unknown[],
+      decks: [{ id: "mega-altaria-ex-b1-102", name: "mega-altaria-ex-b1-102", powerScore: 40, expectedWinRate: 0.5 }] as unknown[],
       metaShareBySlug: {},
       loading: false,
       error: null,
@@ -182,7 +184,7 @@ describe("DeckHubPage", () => {
 
   it("keeps the locale on variant links", () => {
     decksState.value = {
-      decks: [{ name: "mega-altaria-ex-b1-102", powerScore: 40, expectedWinRate: 0.5 }] as unknown[],
+      decks: [{ id: "mega-altaria-ex-b1-102", name: "mega-altaria-ex-b1-102", powerScore: 40, expectedWinRate: 0.5 }] as unknown[],
       metaShareBySlug: {},
       loading: false,
       error: null,
@@ -321,7 +323,7 @@ describe("DeckHubPage content", () => {
 
   it("states the last sighting and the covered expansion when the hub has no live variant", async () => {
     decksState.value = {
-      decks: [{ name: "other-a1-001", powerScore: null, expectedWinRate: 0.5, bestList: { cards: [] }, lists: [{ cards: ["2:c1-018"] }] }] as unknown[],
+      decks: [{ id: "other-a1-001", name: "other-a1-001", powerScore: null, expectedWinRate: 0.5, bestList: { cards: [] }, lists: [{ cards: ["2:c1-018"] }] }] as unknown[],
       metaShareBySlug: {},
       loading: false,
       error: null,

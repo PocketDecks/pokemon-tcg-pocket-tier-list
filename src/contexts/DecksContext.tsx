@@ -19,10 +19,8 @@ import {
   matchesEnergy,
   matchesExFilter,
 } from "../app/deck-filters";
-import { deckSlug } from "../app/deck-slug";
 import {
-  buildFullLists,
-  pickBestList,
+  resolveDeck,
   resolveDeckDetail,
 } from "../app/deck-resolution";
 import { getScoreBaseline, type ScoreBaseline } from "../app/score-baseline";
@@ -61,13 +59,6 @@ const DecksContext = createContext<DecksContextType | undefined>(undefined);
 const maxStrength = (deck: PartialDeckType): number => {
   return deck.lists.reduce((curr: number, list: PartialList) => {
     if (list.strength > curr) return list.strength;
-    return curr;
-  }, 0);
-};
-
-const maxScore = (deck: PartialDeckType): number => {
-  return deck.lists.reduce((curr: number, list: PartialList) => {
-    if (list.score > curr) return list.score;
     return curr;
   }, 0);
 };
@@ -249,33 +240,14 @@ const buildDecks = (
           : 0;
 
   const fullDecks = decksFiltered
-      .map((oldDeck: PartialDeckType) => {
-        const lists = buildFullLists(oldDeck.lists);
-        const bestList = pickBestList(lists);
-
-        const cardIds = deckNameToIconIds(oldDeck.name);
-        const iconSecondary = cardIds[1]
-          ? CARDS_BY_ID.get(cardIds[1]) ?? null
-          : null;
-
-        const deck: FullDeckType = {
-          id: deckSlug(oldDeck.name),
-          name: oldDeck.name,
-          lists,
-          bestList,
-          score: maxScore(oldDeck),
+      .map((oldDeck: PartialDeckType): FullDeckType => {
+        const resolved = resolveDeck(oldDeck, oldDeck.lists);
+        return {
+          ...resolved,
           popularity: highestPopularity > 0 ? oldDeck.popularity / highestPopularity : 0,
-          strength: highestStrength > 0 ? maxStrength(oldDeck) / highestStrength : 0,
-          expectedWinRate: oldDeck.expectedWinRate,
-          fieldCoverage: oldDeck.fieldCoverage,
-          powerScore: oldDeck.powerScore,
-          freqScore: oldDeck.freqScore,
-          metaScore: oldDeck.metaScore,
+          strength: highestStrength > 0 ? resolved.strength / highestStrength : 0,
           percentOfGames: oldDeck.percentOfGames,
-          iconPrimary: CARDS_BY_ID.get(cardIds[0]) as CardType,
-          iconSecondary,
         };
-        return deck;
       })
       .sort(
           (a: FullDeckType, b: FullDeckType) =>

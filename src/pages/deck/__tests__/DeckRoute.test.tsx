@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import DeckRoute from "../DeckRoute";
 
 const decksState = vi.hoisted(() => ({
-  value: { decks: [] as { name: string }[] | null, loading: false, error: null as Error | null },
+  value: { decks: [] as { id: string; name: string }[] | null, loading: false, error: null as Error | null },
 }));
 
 vi.mock("../../../app/use-decks", () => ({
@@ -47,28 +47,28 @@ const renderAt = (path: string) =>
 
 describe("DeckRoute", () => {
   it("renders the detail page for a live variant", () => {
-    decksState.value = { decks: [{ name: "garchomp-a2-123" }], loading: false, error: null };
+    decksState.value = { decks: [{ id: "garchomp-a2-123", name: "garchomp-a2-123" }], loading: false, error: null };
     renderAt("/deck/garchomp-a2-123");
     expect(screen.getByText("live deck page")).toBeTruthy();
     expect(screen.getByTestId("path").textContent).toBe("/deck/garchomp-a2-123");
   });
 
   it("replaces a retired variant with its hub", () => {
-    decksState.value = { decks: [{ name: "garchomp-a2-123" }], loading: false, error: null };
+    decksState.value = { decks: [{ id: "garchomp-a2-123", name: "garchomp-a2-123" }], loading: false, error: null };
     renderAt("/deck/umbreon-ex-a4-112&greninja-a1-089");
     expect(screen.getByText("hub page")).toBeTruthy();
     expect(screen.getByTestId("path").textContent).toBe("/deck/umbreon-ex/");
   });
 
   it("renders the hub page for a known hub", () => {
-    decksState.value = { decks: [{ name: "garchomp-a2-123" }], loading: false, error: null };
+    decksState.value = { decks: [{ id: "garchomp-a2-123", name: "garchomp-a2-123" }], loading: false, error: null };
     renderAt("/deck/garchomp");
     expect(screen.getByText("hub page")).toBeTruthy();
     expect(screen.getByTestId("path").textContent).toBe("/deck/garchomp");
   });
 
   it("renders the not-found page for anything else", () => {
-    decksState.value = { decks: [{ name: "garchomp-a2-123" }], loading: false, error: null };
+    decksState.value = { decks: [{ id: "garchomp-a2-123", name: "garchomp-a2-123" }], loading: false, error: null };
     renderAt("/deck/does-not-exist");
     expect(screen.getByText("not found page")).toBeTruthy();
   });

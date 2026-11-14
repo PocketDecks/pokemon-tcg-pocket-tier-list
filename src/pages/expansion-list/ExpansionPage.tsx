@@ -236,7 +236,7 @@ const ExpansionPage = () => {
                     <DeckRow key={name}>
                       {deck && (
                         <DeckSlot>
-                          <DeckCard deck={deck} linkTo={`/deck/${hub}`} metaShare={metaShareBySlug?.[deck.name] ?? null} />
+                          <DeckCard deck={deck} linkTo={`/deck/${hub}`} metaShare={metaShareBySlug?.[deck.id] ?? null} />
                         </DeckSlot>
                       )}
                       <DeckName>{deck ? label : <LocaleLink to={`/deck/${hub}`}>{label}</LocaleLink>}</DeckName>

@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { archiveForHub } from "../../app/deck-archive";
 import { LocaleLink, useLocaleHref } from "../../app/locale-link";
-import { deckSlug } from "../../app/deck-slug";
 import useDeckHref from "../../app/use-deck-href";
 import { hubDisplayName, hubSeenRange } from "../../app/deck-archetype";
 import { deckDisplayName, variantDisplayName } from "../../app/deck-display";
@@ -179,7 +178,7 @@ const HubPage = () => {
   const variants = hubSlug ? archiveForHub(hubSlug) : [];
   const hubQuery = useHubFile(hubSlug);
   const hub = hubQuery.data;
-  const liveBySlug = new Map((decks ?? []).map((deck) => [deckSlug(deck.name), deck]));
+  const liveBySlug = new Map((decks ?? []).map((deck) => [deck.id, deck]));
   const deckByName = new Map((decks ?? []).map((deck) => [deck.name, deck]));
   const liveNames = new Set((decks ?? []).map((deck) => deck.name));
   const powerOf = (variant: string) => liveBySlug.get(variant)?.powerScore ?? -1;
@@ -350,7 +349,7 @@ const HubPage = () => {
               <Rows>
                 {similar.map(({ deck, shared }) => (
                   <li key={deck.name}>
-                    <Variant to={deckHref(deckSlug(deck.name))}>
+                    <Variant to={deckHref(deck.id)}>
                       <VariantName>{deckDisplayName(deck)}</VariantName>
                       <VariantMeta>{t("deckHub.sharedCards", { count: shared })}</VariantMeta>
                     </Variant>

@@ -81,7 +81,9 @@ with `React.lazy` and rendered behind the layout's `Suspense` fallback,
 
 A deck URL's `deckId` segment is a `FullDeckType.id`, produced by `deckSlug`
 from the deck name. `DeckDetailPage` resolves it with
-`decks?.find((d) => d.id === deckId)`.
+`decks?.find((d) => d.id === deckId)`. After resolution every consumer
+compares and indexes by `deck.id`; `rawDeckId` in `deck-resolution.ts` is the
+one helper for matching a raw pipeline deck to a slug.
 
 ## Data fetching
 
@@ -135,11 +137,14 @@ order:
    (`deckNameToIconIds(name)[0]`) is missing from the card data.
 3. Sort by `percentOfGames` descending and slice to `deckAmount`.
 4. Normalise `popularity` and `strength` against the observed maxima.
-5. Map each partial deck to a `FullDeckType`: `id` via `deckSlug`, matchups
-   looked up by name in the matchup data, icons resolved from the name, and a
-   best list augmented with `energyIds` (`inferEnergyIds`) and a share code
-   (`createDeckCode`). Energy inference and encoding run only when every card
-   in the best list carries a `deckBuilderNr`; otherwise both fields stay empty.
+5. Resolve each partial deck with `resolveDeck` from
+   `src/app/deck-resolution.ts`, the function `resolveDeckDetail` also uses for
+   the detail page, then add the normalised `popularity` and `strength` and
+   `percentOfGames` to make a `FullDeckType`. `resolveDeck` sets `id` with
+   `deckSlug`, resolves icons from the name, and augments the best list with
+   `energyIds` (`inferEnergyIds`) and a share code (`createDeckCode`). Energy
+   inference and encoding run only when every card in the best list carries a
+   `deckBuilderNr`; otherwise both fields stay empty.
 6. Sort the finished decks with `getSortValue(b, sortBy)`.
 7. When no energy filter is set, trim the single-Pokémon decks ranked below
    the lowest-ranked two-Pokémon deck (a name containing `&`), so at least one
@@ -210,12 +215,12 @@ renderer.
 | `deck-diff.ts` | `countById`, `ListDiff`, `diffLists`, `oneSwapAlternatives` | `DeckFinderPage`, `DeckDetailPage` |
 | `deck-code.ts` | `TRAINER_OFFSET`, `SPECIAL_THRESHOLD`, `ENERGY_IDS`, `createDeckCode` | `DecksContext` |
 | `deck-energy.ts` | `inferEnergyIds`, `EXCLUDED_DECK_BUILDER_NR`, `FORCED_LIGHTNING_NR` | `DecksContext` |
-| `deck-filters.ts` | `CardsMapping`, `cardToId`, `cardToCount`, `deckNameToIconIds`, `findUnresolvedCardIds`, `isAffordable`, `matchesEnergy`, `matchesExFilter`, `hasEnoughLatestExpansionCards` | `DecksContext` |
+| `deck-filters.ts` | `cardToId`, `cardToCount`, `deckNameToIconIds`, `findUnresolvedCardIds`, `isAffordable`, `matchesEnergy`, `matchesExFilter`, `hasEnoughLatestExpansionCards` | `DecksContext` |
 | `tier-helper.ts` | `buildTiers` | `TierGrid`, `StatisticsPage` |
 | `deck-types.ts` | `FullDeckType`, `MatchupType` | `DecksContext`, `sorting-helper.ts` |
 | `sort-by.ts` | `SortBy` | `DecksContext`, `FilterContext`, `sorting-helper.ts` |
 | `sorting-helper.ts` | `getSortValue` | `DecksContext`, `TierListPage` |
-| `deck-slug.ts` | re-exports `deckSlug` from `scripts/deck-slug.mjs` | `DecksContext`, `ShareDeckCode` |
+| `deck-slug.ts` | re-exports `deckSlug` from `scripts/deck-slug.mjs` | `deck-resolution.ts`, `ShareDeckCode` |
 
 Notes on individual files:
 

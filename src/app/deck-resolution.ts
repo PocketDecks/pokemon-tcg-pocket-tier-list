@@ -26,8 +26,8 @@ export interface FullList {
   deckCode: string | null;
 }
 
-/// Shared shape between the tier-list build (FullDeckType) and the single-deck
-/// detail resolver: everything a deck page renders once its deck is known.
+/// Everything a deck page renders once its deck is known. `FullDeckType`
+/// extends it with the tier-list-only fields.
 export interface ResolvedDeck {
   id: string;
   name: string;
@@ -83,6 +83,34 @@ export const pickBestList = (lists: FullList[]): FullList => {
   return { ...best, energyIds, deckCode: createDeckCode(deckBuilderNrs as number[], energyIds) };
 };
 
+/// The id a pipeline deck gets once resolved, for matching raw decks to a slug.
+export const rawDeckId = (raw: { name: string }): string => deckSlug(raw.name);
+
+/// Builds the view model for one pipeline deck from the lists that survived
+/// filtering. Used by the tier-list build and the detail resolver.
+export const resolveDeck = (
+  raw: PipelinePartialDeck,
+  lists: PipelineDeckList[]
+): ResolvedDeck => {
+  const fullLists = buildFullLists(lists);
+  const cardIds = deckNameToIconIds(raw.name);
+  return {
+    id: rawDeckId(raw),
+    name: raw.name,
+    lists: fullLists,
+    bestList: pickBestList(fullLists),
+    score: Math.max(...fullLists.map((l) => l.score)),
+    strength: Math.max(...fullLists.map((l) => l.strength)),
+    expectedWinRate: raw.expectedWinRate,
+    fieldCoverage: raw.fieldCoverage,
+    powerScore: raw.powerScore,
+    freqScore: raw.freqScore,
+    metaScore: raw.metaScore,
+    iconPrimary: CARDS_BY_ID.get(cardIds[0]) as CardType,
+    iconSecondary: cardIds[1] ? CARDS_BY_ID.get(cardIds[1]) ?? null : null,
+  };
+};
+
 /// Resolves one deck by id straight from the raw pipeline data, filtered by the
 /// missing-card rule alone. Tier-list-wide concerns (energy, EX, expansion,
 /// deck count, paired trim, rank) never gate a page the user has already
@@ -94,7 +122,7 @@ export const resolveDeckDetail = (
   deckId: string,
   missingCounts: Record<string, number>
 ): { deck: ResolvedDeck; extinct: boolean } | null => {
-  const oldDeck = decksRaw.find((d) => deckSlug(d.name) === deckId);
+  const oldDeck = decksRaw.find((d) => rawDeckId(d) === deckId);
   if (!oldDeck) return null;
 
   // Unresolvable card ids fail the same way as in buildDecks: the list cannot
@@ -110,29 +138,5 @@ export const resolveDeckDetail = (
   const extinct = affordableLists.length === 0;
   const listsToUse = extinct ? resolvedLists : affordableLists;
 
-  const fullLists = buildFullLists(listsToUse);
-  const bestList = pickBestList(fullLists);
-
-  const cardIds = deckNameToIconIds(oldDeck.name);
-  const iconSecondary = cardIds[1] ? CARDS_BY_ID.get(cardIds[1]) ?? null : null;
-
-  return {
-    extinct,
-    deck: {
-      id: deckSlug(oldDeck.name),
-      name: oldDeck.name,
-      lists: fullLists,
-      bestList,
-      score: Math.max(...fullLists.map((l) => l.score)),
-      strength: Math.max(...fullLists.map((l) => l.strength)),
-      expectedWinRate: oldDeck.expectedWinRate,
-      fieldCoverage: oldDeck.fieldCoverage,
-      powerScore: oldDeck.powerScore,
-      freqScore: oldDeck.freqScore,
-      metaScore: oldDeck.metaScore,
-      iconPrimary: CARDS_BY_ID.get(cardIds[0]) as CardType,
-      iconSecondary,
-    },
-  };
+  return { extinct, deck: resolveDeck(oldDeck, listsToUse) };
 };
-

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate, useParams } from "react-router";
 import { DECK_ARCHIVE, archiveForHub } from "../../app/deck-archive";
-import { deckSlug } from "../../app/deck-slug";
 import { premiumWindowsForSlug } from "../../app/premium-deck-slugs";
 import { useDecks } from "../../app/use-decks";
 import { useMetaWindow } from "../../app/use-meta-window";
@@ -20,7 +19,7 @@ const DeckRoute = () => {
   const entry = DECK_ARCHIVE.find((candidate) => candidate.variant === deckId);
   const hubHref = useLocaleHref(`/deck/${entry?.hub ?? ""}`);
   const premiumWindows = premiumWindowsForSlug(deckId);
-  const offered = decks?.some((deck) => deckSlug(deck.name) === deckId) ?? false;
+  const offered = decks?.some((deck) => deck.id === deckId) ?? false;
   const needsSwitch =
     premiumWindows.length > 0 && !offered && isPremium === true && !premiumWindows.includes(window);
   const awaitingSwitch = needsSwitch && switchedFor !== deckId;

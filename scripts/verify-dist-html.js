@@ -2,7 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const { deckNameToIconIds } = require("./deck-name.mjs");
 const { deckSlug } = require("./deck-slug.mjs");
-const { loadPremiumDeckSlugs } = require("./premium-deck-slugs.mjs");
+const { loadPremiumDeckSlugs, PREMIUM_WINDOWS } = require("./premium-deck-slugs.mjs");
+const { localeRoute, ROUTE_LOCALES } = require("./locale-route.mjs");
 const {
   CARD_THUMB_WIDTHS,
   DECK_THUMB_SIZES,
@@ -29,41 +30,63 @@ const SITE_HOST = "pocketdecks.top";
 const LOOPBACK = /(https?:)?\/\/(127\.0\.0\.1|localhost)(:\d+)?/g;
 
 const PREMIUM_DATA_FILES = ["best-decks", "matchup-data", "meta-share"].flatMap((base) =>
-  ["30d", "all"].map((window) => `${base}-${window}.json`)
+  PREMIUM_WINDOWS.map((window) => `${base}-${window}.json`)
 );
 
-const findPremiumDataFiles = (dir = DIST_DIR) => {
-  const dataDir = path.join(dir, "data");
-  if (!fs.existsSync(dataDir)) return [];
-  return fs
-    .readdirSync(dataDir, { recursive: true })
-    .filter((entry) => PREMIUM_DATA_FILES.includes(path.basename(entry)))
-    .map((entry) => path.join("data", entry));
+const premiumDataFiles = (dist) => {
+  if (!dist.has("data")) return [];
+  return dist
+    .files()
+    .filter((entry) => entry.split(path.sep)[0] === "data" && PREMIUM_DATA_FILES.includes(path.basename(entry)));
 };
 
 const premiumDeckSlugList = () => Object.keys(loadPremiumDeckSlugs());
 
 const posixEntry = (entry) => entry.split(path.sep).join("/");
 
-const premiumShellEntries = (slugs) =>
-  new Set(["", "ja/"].flatMap((prefix) => slugs.map((slug) => `${prefix}deck/${slug}/index.html`)));
+const localeEntryPrefix = (locale) => localeRoute(locale, "/").slice(1);
+const LOCALE_ENTRY_PREFIXES = ROUTE_LOCALES.map(localeEntryPrefix);
 
-const listHtmlFiles = (dir = DIST_DIR) =>
-  fs.readdirSync(dir, { recursive: true }).filter((entry) => entry.endsWith(".html"));
+const deckPageEntries = (slug) => LOCALE_ENTRY_PREFIXES.map((prefix) => `${prefix}deck/${slug}/index.html`);
 
-const findLoopbackRefs = (dir = DIST_DIR) =>
-  fs
-    .readdirSync(dir, { recursive: true })
-    .filter((entry) => entry.endsWith(".html"))
-    .flatMap((entry) => {
-      const file = path.join(dir, entry);
-      const hits = fs.readFileSync(file, "utf8").match(LOOPBACK) || [];
-      return hits.map((hit) => `${entry}: ${hit}`);
-    });
+const premiumShellEntries = (slugs) => new Set(slugs.flatMap(deckPageEntries));
 
-const findSlashlessInternalLinks = (dir = DIST_DIR) =>
-  listHtmlFiles(dir).flatMap((entry) => {
-    const html = fs.readFileSync(path.join(dir, entry), "utf8");
+// One listing and one read per page for every check that shares the reader.
+const openDist = (dir) => {
+  const pages = new Map();
+  let files;
+  const listFiles = () =>
+    (files ??= fs
+      .readdirSync(dir, { recursive: true, withFileTypes: true })
+      .filter((entry) => entry.isFile())
+      .map((entry) => path.relative(dir, path.join(entry.parentPath, entry.name))));
+  return {
+    dir,
+    files: listFiles,
+    htmlFiles: () => listFiles().filter((entry) => entry.endsWith(".html")),
+    read: (entry) => {
+      const key = path.normalize(entry);
+      if (!pages.has(key)) pages.set(key, fs.readFileSync(path.join(dir, key), "utf8"));
+      return pages.get(key);
+    },
+    has: (entry) => fs.existsSync(path.join(dir, entry)),
+  };
+};
+
+const forDir =
+  (check) =>
+  (dir = DIST_DIR, ...rest) =>
+    check(openDist(dir), ...rest);
+
+const loopbackRefs = (dist) =>
+  dist.htmlFiles().flatMap((entry) => {
+    const hits = dist.read(entry).match(LOOPBACK) || [];
+    return hits.map((hit) => `${entry}: ${hit}`);
+  });
+
+const slashlessInternalLinks = (dist) =>
+  dist.htmlFiles().flatMap((entry) => {
+    const html = dist.read(entry);
     return [...html.matchAll(/<a\b[^>]*\bhref=["']([^"']*)["']/gi)].flatMap((match) => {
       const href = decodeXmlEntities(match[1]);
       if (!href.startsWith("/") && !href.startsWith(`https://${SITE_HOST}/`)) return [];
@@ -73,9 +96,9 @@ const findSlashlessInternalLinks = (dir = DIST_DIR) =>
     });
   });
 
-const findOpenGraphIssues = (dir = DIST_DIR) =>
-  listHtmlFiles(dir).flatMap((entry) => {
-    const html = fs.readFileSync(path.join(dir, entry), "utf8");
+const openGraphIssues = (dist) =>
+  dist.htmlFiles().flatMap((entry) => {
+    const html = dist.read(entry);
     const head = html.match(HEAD_BLOCK)?.[0] ?? html;
     const canonicals = head.match(CANONICAL_TAG) ?? [];
     if (canonicals.length === 0) return [];
@@ -96,24 +119,18 @@ const findOpenGraphIssues = (dir = DIST_DIR) =>
     return issues;
   });
 
-const findEmptyStyledTags = (dir = DIST_DIR) =>
-  fs
-    .readdirSync(dir, { recursive: true })
-    .filter((entry) => entry.endsWith(".html"))
-    .flatMap((entry) => {
-      const file = path.join(dir, entry);
-      const html = fs.readFileSync(file, "utf8");
-      return [...html.matchAll(/<style\b[^>]*data-styled(?:=["'][^"']*["'])?[^>]*>([\s\S]*?)<\/style>/gi)]
-        .filter((match) => match[1].trim() === "")
-        .map(() => entry);
-    });
+const emptyStyledTags = (dist) =>
+  dist.htmlFiles().flatMap((entry) =>
+    [...dist.read(entry).matchAll(/<style\b[^>]*data-styled(?:=["'][^"']*["'])?[^>]*>([\s\S]*?)<\/style>/gi)]
+      .filter((match) => match[1].trim() === "")
+      .map(() => entry)
+  );
 
 const BAKED_APP_STATE = ["data-app-visible", "data-consent-pending"];
 
-const findBakedAppState = (dir = DIST_DIR) =>
-  listHtmlFiles(dir).flatMap((entry) => {
-    const html = fs.readFileSync(path.join(dir, entry), "utf8");
-    const tag = html.match(/<html(?:\s[^>]*)?>/i)?.[0] ?? "";
+const bakedAppState = (dist) =>
+  dist.htmlFiles().flatMap((entry) => {
+    const tag = dist.read(entry).match(/<html(?:\s[^>]*)?>/i)?.[0] ?? "";
     return BAKED_APP_STATE.filter((name) => tag.includes(name)).map(
       (name) => `${entry}: ${name}`
     );
@@ -121,20 +138,16 @@ const findBakedAppState = (dir = DIST_DIR) =>
 
 const EMPTY_ROOT = /<div\b[^>]*id=["']root["'][^>]*>\s*<\/div>/i;
 
-const findEmptyDeckRoots = (dir = DIST_DIR, shellSlugs = premiumDeckSlugList()) =>
-  deckDetailFiles(dir, shellSlugs)
-    .filter((file) => EMPTY_ROOT.test(fs.readFileSync(file, "utf8")))
-    .map((file) => path.relative(dir, file));
+const emptyDeckRoots = (dist, shellSlugs = premiumDeckSlugList()) =>
+  deckDetailEntries(dist, shellSlugs).filter((entry) => EMPTY_ROOT.test(dist.read(entry)));
 
 const hasCapturedStyles = (html) =>
   [...html.matchAll(/<style\b[^>]*data-styled[^>]*>([\s\S]*?)<\/style>/gi)].some(
     (match) => match[1].trim() !== ""
   );
 
-const findUncapturedDeckStyles = (dir = DIST_DIR, shellSlugs = premiumDeckSlugList()) =>
-  deckDetailFiles(dir, shellSlugs)
-    .filter((file) => !hasCapturedStyles(fs.readFileSync(file, "utf8")))
-    .map((file) => path.relative(dir, file));
+const uncapturedDeckStyles = (dist, shellSlugs = premiumDeckSlugList()) =>
+  deckDetailEntries(dist, shellSlugs).filter((entry) => !hasCapturedStyles(dist.read(entry)));
 
 const CANONICAL_TAG = /<link\b[^>]*\brel=["']canonical["'][^>]*>/gi;
 
@@ -153,11 +166,13 @@ const expectedCanonical = (entry) => {
   return dir === "." ? `https://${SITE_HOST}/` : `https://${SITE_HOST}/${dir}/`;
 };
 
-const findCanonicalIssues = (dir = DIST_DIR, shellSlugs = premiumDeckSlugList()) =>
-  listHtmlFiles(dir)
-    .filter((entry) => !SHELL_PAGES.has(entry) && !premiumShellEntries(shellSlugs).has(posixEntry(entry)))
+const canonicalIssues = (dist, shellSlugs = premiumDeckSlugList()) => {
+  const shells = premiumShellEntries(shellSlugs);
+  return dist
+    .htmlFiles()
+    .filter((entry) => !SHELL_PAGES.has(entry) && !shells.has(posixEntry(entry)))
     .flatMap((entry) => {
-      const tags = fs.readFileSync(path.join(dir, entry), "utf8").match(CANONICAL_TAG) ?? [];
+      const tags = dist.read(entry).match(CANONICAL_TAG) ?? [];
       if (tags.length !== 1) {
         return [`${entry}: expected 1 canonical, found ${tags.length}`];
       }
@@ -165,6 +180,7 @@ const findCanonicalIssues = (dir = DIST_DIR, shellSlugs = premiumDeckSlugList())
       const expected = expectedCanonical(entry);
       return href === expected ? [] : [`${entry}: canonical ${href} is not ${expected}`];
     });
+};
 
 const metaContent = (html, name) => {
   const tag = (html.match(/<meta\b[^>]*>/gi) ?? []).find((candidate) =>
@@ -199,35 +215,33 @@ const hubHtmlIssues = (entry, html, expectedRobots, expectedName) => {
   return issues;
 };
 
-const findHubPageIssues = (dir = DIST_DIR, archive = loadArchive(), decks = loadDecks()) => {
+const hubPageIssues = (dist, archive = loadArchive(), decks = loadDecks()) => {
   const liveSlugs = new Set(decks.map((deck) => deckSlug(deck.name)));
   const hubs = [...new Set(archive.map((entry) => entry.hub))].filter((hub) => !liveSlugs.has(hub));
   return hubs.flatMap((hub) => {
     const entries = archive.filter((entry) => entry.hub === hub);
     const indexed = shouldIndexHub(entries);
     const name = hubDisplayName(entries);
-    return ["", "ja/"].flatMap((prefix) => {
+    return LOCALE_ENTRY_PREFIXES.flatMap((prefix) => {
       const entry = `${prefix}deck/${hub}/index.html`;
-      const file = path.join(dir, entry);
-      if (!fs.existsSync(file)) return [`${entry}: missing`];
+      if (!dist.has(entry)) return [`${entry}: missing`];
       const expectedRobots = prefix === "" && indexed ? "index, follow" : "noindex, follow";
-      return hubHtmlIssues(entry, fs.readFileSync(file, "utf8"), expectedRobots, name);
+      return hubHtmlIssues(entry, dist.read(entry), expectedRobots, name);
     });
   });
 };
 
-const findExpansionPageIssues = (dir = DIST_DIR, expansions = loadExpansions(), decks = loadDecks()) => {
+const expansionPageIssues = (dist, expansions = loadExpansions(), decks = loadDecks()) => {
   const policy = expansionIndexPolicy(expansions, decks);
   const issues = [];
   for (const expansion of expansions.filter((entry) => !DELUXE_EXPANSION_IDS.has(entry.id))) {
-    for (const prefix of ["", "ja/"]) {
+    for (const prefix of LOCALE_ENTRY_PREFIXES) {
       const entry = `${prefix}expansion-list/${expansion.id}/index.html`;
-      const file = path.join(dir, entry);
-      if (!fs.existsSync(file)) {
+      if (!dist.has(entry)) {
         issues.push(`${entry}: missing`);
         continue;
       }
-      const html = fs.readFileSync(file, "utf8");
+      const html = dist.read(entry);
       const expectedRobots = policy.isIndexable(expansion.id) ? "index, follow" : "noindex, follow";
       issues.push(...hubHtmlIssues(entry, html, expectedRobots, expansionCode(expansion.id)));
       if (!html.includes(`"@type":"BreadcrumbList"`)) issues.push(`${entry}: missing BreadcrumbList JSON-LD`);
@@ -239,18 +253,16 @@ const findExpansionPageIssues = (dir = DIST_DIR, expansions = loadExpansions(), 
 const HEAD_BLOCK = /<head\b[^>]*>[\s\S]*?<\/head>/i;
 const TITLE_TAG = /<title\b[^>]*>[\s\S]*?<\/title>/gi;
 
-const findTitleCountIssues = (dir = DIST_DIR) =>
-  listHtmlFiles(dir).flatMap((entry) => {
-    const html = fs.readFileSync(path.join(dir, entry), "utf8");
-    const count = (html.match(HEAD_BLOCK)?.[0].match(TITLE_TAG) ?? []).length;
+const titleCountIssues = (dist) =>
+  dist.htmlFiles().flatMap((entry) => {
+    const count = (dist.read(entry).match(HEAD_BLOCK)?.[0].match(TITLE_TAG) ?? []).length;
     return count === 1 ? [] : [`${entry}: expected 1 title, found ${count}`];
   });
 
-const findShellPageIssues = (dir = DIST_DIR) =>
+const shellPageIssues = (dist) =>
   [...SHELL_PAGES].flatMap((entry) => {
-    const file = path.join(dir, entry);
-    if (!fs.existsSync(file)) return [`${entry}: missing`];
-    const html = fs.readFileSync(file, "utf8");
+    if (!dist.has(entry)) return [`${entry}: missing`];
+    const html = dist.read(entry);
     const robots = (html.match(/<meta\b[^>]*>/gi) ?? []).filter((tag) => /\bname=["']robots["']/i.test(tag));
     const issues = [];
     if (!robots.some((tag) => /\bnoindex\b/i.test(tag))) issues.push(`${entry}: no noindex robots meta`);
@@ -283,19 +295,14 @@ const readAppRoutePaths = (source) => {
   return routes;
 };
 
-const findUnresolvedAppRoutes = (
-  dir = DIST_DIR,
+const unresolvedAppRoutes = (
+  dist,
   {
     source = fs.readFileSync(APP_SOURCE_PATH, "utf8"),
     firebase = JSON.parse(fs.readFileSync(FIREBASE_CONFIG_PATH, "utf8")),
   } = {}
 ) => {
-  const files = new Set(
-    fs
-      .readdirSync(dir, { recursive: true, withFileTypes: true })
-      .filter((entry) => entry.isFile())
-      .map((entry) => path.relative(dir, path.join(entry.parentPath, entry.name)).split(path.sep).join("/"))
-  );
+  const files = new Set(dist.files().map(posixEntry));
   return readAppRoutePaths(source)
     .filter((route) => !route.includes("*"))
     .flatMap((route) => {
@@ -345,18 +352,16 @@ const collectModulepreloads = (html) =>
     .map((tag) => (tag.match(/href=["']([^"']*)["']/i) || [])[1])
     .filter((href) => href !== undefined);
 
-const deckDetailFiles = (dir = DIST_DIR, shellSlugs = premiumDeckSlugList()) => {
-  if (!fs.existsSync(dir)) return [];
+const deckDetailEntries = (dist, shellSlugs = premiumDeckSlugList()) => {
+  if (!fs.existsSync(dist.dir)) return [];
   const shells = premiumShellEntries(shellSlugs);
-  return fs
-    .readdirSync(dir, { recursive: true, withFileTypes: true })
-    .filter((entry) => entry.isFile() && entry.name === "index.html")
-    .map((entry) => path.join(entry.parentPath, entry.name))
-    .filter((file) => {
-      const segments = path.relative(dir, file).split(path.sep);
-      return segments.length >= 3 && segments[segments.length - 3] === "deck";
+  return dist
+    .htmlFiles()
+    .filter((entry) => {
+      const segments = entry.split(path.sep);
+      return segments.length >= 3 && segments.at(-1) === "index.html" && segments.at(-3) === "deck";
     })
-    .filter((file) => !shells.has(posixEntry(path.relative(dir, file))))
+    .filter((entry) => !shells.has(posixEntry(entry)))
     .sort();
 };
 
@@ -366,16 +371,15 @@ const defaultOtherDeckSlugs = () => {
   return new Set([...live, ...hubs]);
 };
 
-const findPremiumShellIssues = (
-  dir = DIST_DIR,
+const premiumShellIssues = (
+  dist,
   { slugs = premiumDeckSlugList(), otherSlugs = defaultOtherDeckSlugs() } = {}
 ) => {
   const expected = [...premiumShellEntries(slugs)];
   const issues = expected.flatMap((entry) => {
-    const file = path.join(dir, entry);
     const local = entry.split("/").join(path.sep);
-    if (!fs.existsSync(file)) return [`${local}: missing`];
-    const html = fs.readFileSync(file, "utf8");
+    if (!dist.has(entry)) return [`${local}: missing`];
+    const html = dist.read(entry);
     const robots = (html.match(/<meta\b[^>]*>/gi) ?? []).filter((tag) => /\bname=["']robots["']/i.test(tag));
     return [
       ...(robots.some((tag) => /\bnoindex\b/i.test(tag)) ? [] : [`${local}: no noindex robots meta`]),
@@ -384,37 +388,26 @@ const findPremiumShellIssues = (
       ...(EMPTY_ROOT.test(html) ? [] : [`${local}: carries rendered content`]),
     ];
   });
-  const allowed = new Set([...expected, ...[...otherSlugs].flatMap((slug) => [`deck/${slug}/index.html`, `ja/deck/${slug}/index.html`])]);
-  const extras = deckDetailFiles(dir, [])
-    .map((file) => posixEntry(path.relative(dir, file)))
+  const allowed = new Set([...expected, ...[...otherSlugs].flatMap(deckPageEntries)]);
+  const extras = deckDetailEntries(dist, [])
+    .map(posixEntry)
     .filter((entry) => !allowed.has(entry))
     .map((entry) => `${entry.split("/").join(path.sep)}: unexpected deck page`);
   return [...issues, ...extras];
 };
 
-const findTemplateModulepreloads = (dir = DIST_DIR) => {
-  const detail = deckDetailFiles(dir);
-  if (detail.length > 0) {
-    return new Set(collectModulepreloads(fs.readFileSync(detail[0], "utf8")));
-  }
-  const home = path.join(dir, "index.html");
-  if (fs.existsSync(home)) {
-    return new Set(collectModulepreloads(fs.readFileSync(home, "utf8")));
-  }
-  return new Set();
+const templateModulepreloads = (dist) => {
+  const template = deckDetailEntries(dist)[0] ?? (dist.has("index.html") ? "index.html" : undefined);
+  return new Set(template === undefined ? [] : collectModulepreloads(dist.read(template)));
 };
 
 const sameSet = (a, b) =>
   a.length === b.length && a.every((value, index) => value === b[index]);
 
-const findModulepreloadDrift = (
-  dir = DIST_DIR,
-  templateHrefs = findTemplateModulepreloads(dir)
-) => {
+const modulepreloadDrift = (dist, templateHrefs = templateModulepreloads(dist)) => {
   const expected = [...templateHrefs].sort();
-  return listHtmlFiles(dir).flatMap((entry) => {
-    const html = fs.readFileSync(path.join(dir, entry), "utf8");
-    const actual = [...new Set(collectModulepreloads(html))].sort();
+  return dist.htmlFiles().flatMap((entry) => {
+    const actual = [...new Set(collectModulepreloads(dist.read(entry)))].sort();
     return sameSet(actual, expected)
       ? []
       : [`${entry}: ${actual.join(", ")}`];
@@ -439,11 +432,12 @@ const loadExpansions = () =>
   require("pokemon-tcg-pocket-cards/data/v5/expansions.json");
 
 const EXPANSION_LIST_ENTRY = "expansion-list/index.html";
-const JA_EXPANSION_LIST_ENTRY = "ja/expansion-list/index.html";
-const EXPANSIONS_OPTION_LABEL = {
-  [EXPANSION_LIST_ENTRY]: require("../src/locales/en_translation.json").expansionList.viewExpansions,
-  [JA_EXPANSION_LIST_ENTRY]: require("../src/locales/ja_translation.json").expansionList.viewExpansions,
-};
+const EXPANSIONS_OPTION_LABEL = Object.fromEntries(
+  ROUTE_LOCALES.map((locale) => [
+    `${localeEntryPrefix(locale)}${EXPANSION_LIST_ENTRY}`,
+    require(`../src/locales/${locale}_translation.json`).expansionList.viewExpansions,
+  ])
+);
 
 const imageSrcs = (html) =>
   [...html.matchAll(/<img\b[^>]*\ssrc=["']([^"']*)["']/gi)].map((match) => match[1]);
@@ -467,9 +461,8 @@ const findDefaultViewIssues = (entry, html) => {
   return issues;
 };
 
-const findExpansionListIssues = (dir = DIST_DIR, list = loadExpansions()) => {
-  const html = fs.readFileSync(path.join(dir, EXPANSION_LIST_ENTRY), "utf8");
-  const sources = imageSrcs(html);
+const expansionListIssues = (dist, list = loadExpansions()) => {
+  const sources = imageSrcs(dist.read(EXPANSION_LIST_ENTRY));
   const newest = newestExpansion(list);
   const issues = [];
   if (!newest) {
@@ -482,12 +475,11 @@ const findExpansionListIssues = (dir = DIST_DIR, list = loadExpansions()) => {
       issues.push(`${EXPANSION_LIST_ENTRY}: deluxe pack /packs/${id}- is listed`);
     }
   }
-  for (const entry of [EXPANSION_LIST_ENTRY, JA_EXPANSION_LIST_ENTRY]) {
-    const file = path.join(dir, entry);
-    if (!fs.existsSync(file)) {
+  for (const entry of Object.keys(EXPANSIONS_OPTION_LABEL)) {
+    if (!dist.has(entry)) {
       issues.push(`${entry}: missing`);
     } else {
-      issues.push(...findDefaultViewIssues(entry, fs.readFileSync(file, "utf8")));
+      issues.push(...findDefaultViewIssues(entry, dist.read(entry)));
     }
   }
   return issues;
@@ -529,17 +521,16 @@ const imageCandidates = (tag) =>
 const cardlessDeckSlugs = (decks = loadDecks()) =>
   new Set(decks.filter((deck) => firstBestListCardId(deck) === null).map((deck) => deckSlug(deck.name)));
 
-const findDeckImagePreloadIssues = (
-  dir = DIST_DIR,
+const deckImagePreloadIssues = (
+  dist,
   hubSlugs = new Set(loadArchive().map((entry) => entry.hub)),
   cardlessSlugs = new Set()
 ) =>
-  deckDetailFiles(dir)
-    .filter((file) => !hubSlugs.has(path.basename(path.dirname(file))))
-    .flatMap((file) => {
-    const entry = path.relative(dir, file);
-    const tags = collectImagePreloads(fs.readFileSync(file, "utf8"));
-    const expected = cardlessSlugs.has(path.basename(path.dirname(file))) ? 0 : 1;
+  deckDetailEntries(dist)
+    .filter((entry) => !hubSlugs.has(path.basename(path.dirname(entry))))
+    .flatMap((entry) => {
+    const tags = collectImagePreloads(dist.read(entry));
+    const expected = cardlessSlugs.has(path.basename(path.dirname(entry))) ? 0 : 1;
     if (tags.length !== expected) {
       return [`${entry}: expected ${expected} image preload${expected === 1 ? "" : "s"}, found ${tags.length}`];
     }
@@ -547,15 +538,13 @@ const findDeckImagePreloadIssues = (
     return imageCandidates(tags[0]).flatMap((candidate) => {
       const url = candidate.split("?")[0];
       if (!url.startsWith("/thumbs/")) return [`${entry}: ${candidate} is outside /thumbs/`];
-      return fs.existsSync(path.join(dir, url)) ? [] : [`${entry}: ${url} is not built`];
+      return dist.has(url) ? [] : [`${entry}: ${url} is not built`];
     });
   });
 
 const findMissingLiveDeckPages = (dir = DIST_DIR, decks = loadDecks()) =>
   decks.flatMap((deck) => {
-    const slug = deckSlug(deck.name);
-    return ["", "ja/"]
-      .map((prefix) => `${prefix}deck/${slug}/index.html`)
+    return deckPageEntries(deckSlug(deck.name))
       .filter((entry) => !fs.existsSync(path.join(dir, entry)))
       .map((entry) => `${entry}: missing`);
   });
@@ -567,17 +556,16 @@ const isExternalHost = (src) => {
   return host !== SITE_HOST;
 };
 
-const findExternalScripts = (dir = DIST_DIR) =>
-  listHtmlFiles(dir).flatMap((entry) => {
-    const html = fs.readFileSync(path.join(dir, entry), "utf8");
-    return [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']*)["'][^>]*>/gi)]
+const externalScripts = (dist) =>
+  dist.htmlFiles().flatMap((entry) => {
+    return [...dist.read(entry).matchAll(/<script\b[^>]*\bsrc=["']([^"']*)["'][^>]*>/gi)]
       .map((match) => match[1])
       .filter(isExternalHost)
       .map((src) => `${entry}: ${src}`);
   });
 
-const findCspHashIssues = (
-  dir = DIST_DIR,
+const cspHashIssues = (
+  dist,
   firebase = JSON.parse(fs.readFileSync(FIREBASE_CONFIG_PATH, "utf8"))
 ) => {
   const policy = enforcedPolicy(firebase);
@@ -591,15 +579,15 @@ const findCspHashIssues = (
     "default-src",
   ].find((name) => parsedPolicy.has(name)) ?? "script-src";
   const allowed = new Set(parsedPolicy.get(directive) ?? []);
-  return listHtmlFiles(dir).flatMap((entry) =>
-    inlineScriptHashes(fs.readFileSync(path.join(dir, entry), "utf8"))
+  return dist.htmlFiles().flatMap((entry) =>
+    inlineScriptHashes(dist.read(entry))
       .filter((hash) => !allowed.has(hash))
       .map((hash) => `${entry}: ${hash} is not in ${directive}`)
   );
 };
 
-const findCspBootstrapIssues = (
-  dir = DIST_DIR,
+const cspBootstrapIssues = (
+  dist,
   firebase = JSON.parse(fs.readFileSync(FIREBASE_CONFIG_PATH, "utf8"))
 ) => {
   const policyValue = enforcedPolicy(firebase);
@@ -611,11 +599,11 @@ const findCspBootstrapIssues = (
   if (!allowed.has("'strict-dynamic'")) {
     issues.push(`${directive ?? "script-src"}: 'strict-dynamic' is missing`);
   }
-  if (!fs.existsSync(path.join(dir, "app.js"))) {
+  if (!dist.has("app.js")) {
     issues.push("app.js: fixed application entry is missing");
   }
-  for (const entry of listHtmlFiles(dir)) {
-    const html = fs.readFileSync(path.join(dir, entry), "utf8");
+  for (const entry of dist.htmlFiles()) {
+    const html = dist.read(entry);
     const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
     const bootstraps = scripts.filter(([, attributes]) => /(?:^|\s)data-csp-bootstrap(?:\s|=|$)/i.test(attributes));
     if (bootstraps.length !== 1) {
@@ -650,170 +638,103 @@ const findCspBootstrapIssues = (
   return issues;
 };
 
+const CHECKS = [
+  {
+    heading: "Live decks without a prerendered page:",
+    find: (dist) => findMissingLiveDeckPages(dist.dir),
+  },
+  { heading: "Loopback origins found in built HTML:", find: (dist) => loopbackRefs(dist) },
+  {
+    heading: "Internal links without a trailing slash in built HTML:",
+    find: (dist) => slashlessInternalLinks(dist),
+  },
+  {
+    heading: "Duplicate or non-canonical Open Graph metadata in built HTML:",
+    find: (dist) => openGraphIssues(dist),
+  },
+  { heading: "Empty styled-components CSS found in built HTML:", find: (dist) => emptyStyledTags(dist) },
+  { heading: "Empty deck roots found in built HTML:", find: (dist) => emptyDeckRoots(dist) },
+  {
+    heading: "Deck pages without captured styled-components CSS:",
+    find: (dist) => uncapturedDeckStyles(dist),
+  },
+  { heading: "Built pages without exactly one title:", find: (dist) => titleCountIssues(dist) },
+  {
+    heading: "Pages without exactly one canonical of their own:",
+    find: (dist) => canonicalIssues(dist),
+  },
+  { heading: "Deck hub pages failing the head or copy checks:", find: (dist) => hubPageIssues(dist) },
+  {
+    heading: "Expansion pages failing the head or coverage checks:",
+    find: (dist) => expansionPageIssues(dist),
+  },
+  { heading: "Premium window data shipped in the build output:", find: (dist) => premiumDataFiles(dist) },
+  {
+    heading: "Premium deck shells must match the slug list exactly:",
+    find: (dist) => premiumShellIssues(dist),
+  },
+  {
+    heading: "404 and app-shell pages must be noindex without a canonical:",
+    find: (dist) => shellPageIssues(dist),
+  },
+  {
+    heading: "Expansion list missing the newest set or showing a deluxe pack:",
+    find: (dist) => expansionListIssues(dist),
+  },
+  {
+    heading: "App routes with no built file, redirect or explicit rewrite:",
+    find: (dist) => unresolvedAppRoutes(dist),
+  },
+  {
+    heading: "Live app state baked into the <html> tag of built HTML:",
+    find: (dist) => bakedAppState(dist),
+  },
+  { heading: "Modulepreload sets drifting from the template:", find: (dist) => modulepreloadDrift(dist) },
+  {
+    heading: "Script tags pointing at another host in built HTML:",
+    find: (dist) => externalScripts(dist),
+  },
+  {
+    heading: "Inline scripts missing from the enforced Content-Security-Policy in firebase.json:",
+    find: (dist) => cspHashIssues(dist),
+  },
+  {
+    heading: "Untrusted or missing application bootstrap in built HTML:",
+    find: (dist) => cspBootstrapIssues(dist),
+  },
+  {
+    heading: "Deck page image preloads without a built file:",
+    find: (dist) => deckImagePreloadIssues(dist, undefined, cardlessDeckSlugs()),
+  },
+  {
+    heading: "Deck icon ids without a built thumbnail:",
+    find: (dist) => findMissingDeckThumbs(dist.dir),
+    describeError: (error) => `Deck thumbnail check failed: ${error.message}`,
+  },
+  {
+    heading: "Deck card ids without a built card thumbnail:",
+    find: (dist) => findMissingCardThumbs(dist.dir),
+    describeError: (error) => `Deck thumbnail check failed: ${error.message}`,
+  },
+];
+
 const main = () => {
-  const missingLivePages = findMissingLiveDeckPages();
-  if (missingLivePages.length > 0) {
-    console.error(`Live decks without a prerendered page:\n${missingLivePages.join("\n")}`);
-    process.exit(1);
-  }
-  const offenders = findLoopbackRefs();
-  if (offenders.length > 0) {
-    console.error(
-      `Loopback origins found in built HTML:\n${offenders.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const slashlessInternalLinks = findSlashlessInternalLinks();
-  if (slashlessInternalLinks.length > 0) {
-    console.error(
-      `Internal links without a trailing slash in built HTML:\n${slashlessInternalLinks.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const openGraphIssues = findOpenGraphIssues();
-  if (openGraphIssues.length > 0) {
-    console.error(`Duplicate or non-canonical Open Graph metadata in built HTML:\n${openGraphIssues.join("\n")}`);
-    process.exit(1);
-  }
-  const emptyStyledTags = findEmptyStyledTags();
-  if (emptyStyledTags.length > 0) {
-    console.error(
-      `Empty styled-components CSS found in built HTML:\n${emptyStyledTags.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const emptyDeckRoots = findEmptyDeckRoots();
-  if (emptyDeckRoots.length > 0) {
-    console.error(
-      `Empty deck roots found in built HTML:\n${emptyDeckRoots.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const uncapturedDeckStyles = findUncapturedDeckStyles();
-  if (uncapturedDeckStyles.length > 0) {
-    console.error(
-      `Deck pages without captured styled-components CSS:\n${uncapturedDeckStyles.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const titleIssues = findTitleCountIssues();
-  if (titleIssues.length > 0) {
-    console.error(`Built pages without exactly one title:\n${titleIssues.join("\n")}`);
-    process.exit(1);
-  }
-  const canonicalIssues = findCanonicalIssues();
-  if (canonicalIssues.length > 0) {
-    console.error(
-      `Pages without exactly one canonical of their own:\n${canonicalIssues.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const hubIssues = findHubPageIssues();
-  if (hubIssues.length > 0) {
-    console.error(`Deck hub pages failing the head or copy checks:\n${hubIssues.join("\n")}`);
-    process.exit(1);
-  }
-  const expansionIssues = findExpansionPageIssues();
-  if (expansionIssues.length > 0) {
-    console.error(`Expansion pages failing the head or coverage checks:\n${expansionIssues.join("\n")}`);
-    process.exit(1);
-  }
-  const premiumDataFiles = findPremiumDataFiles();
-  if (premiumDataFiles.length > 0) {
-    console.error(
-      `Premium window data shipped in the build output:\n${premiumDataFiles.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const premiumShellIssues = findPremiumShellIssues();
-  if (premiumShellIssues.length > 0) {
-    console.error(
-      `Premium deck shells must match the slug list exactly:\n${premiumShellIssues.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const shellIssues = findShellPageIssues();
-  if (shellIssues.length > 0) {
-    console.error(
-      `404 and app-shell pages must be noindex without a canonical:\n${shellIssues.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const expansionListIssues = findExpansionListIssues();
-  if (expansionListIssues.length > 0) {
-    console.error(
-      `Expansion list missing the newest set or showing a deluxe pack:\n${expansionListIssues.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const routeGaps = findUnresolvedAppRoutes();
-  if (routeGaps.length > 0) {
-    console.error(
-      `App routes with no built file, redirect or explicit rewrite:\n${routeGaps.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const bakedAppState = findBakedAppState();
-  if (bakedAppState.length > 0) {
-    console.error(
-      `Live app state baked into the <html> tag of built HTML:\n${bakedAppState.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const preloadDrift = findModulepreloadDrift();
-  if (preloadDrift.length > 0) {
-    console.error(
-      `Modulepreload sets drifting from the template:\n${preloadDrift.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const externalScripts = findExternalScripts();
-  if (externalScripts.length > 0) {
-    console.error(
-      `Script tags pointing at another host in built HTML:\n${externalScripts.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const cspHashIssues = findCspHashIssues();
-  if (cspHashIssues.length > 0) {
-    console.error(
-      `Inline scripts missing from the enforced Content-Security-Policy in firebase.json:\n${cspHashIssues.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const cspBootstrapIssues = findCspBootstrapIssues();
-  if (cspBootstrapIssues.length > 0) {
-    console.error(
-      `Untrusted or missing application bootstrap in built HTML:\n${cspBootstrapIssues.join("\n")}`
-    );
-    process.exit(1);
-  }
-  const imagePreloadIssues = findDeckImagePreloadIssues(undefined, undefined, cardlessDeckSlugs());
-  if (imagePreloadIssues.length > 0) {
-    console.error(
-      `Deck page image preloads without a built file:\n${imagePreloadIssues.join("\n")}`
-    );
-    process.exit(1);
-  }
-  try {
-    const missingThumbs = findMissingDeckThumbs();
-    if (missingThumbs.length > 0) {
-      console.error(
-        `Deck icon ids without a built thumbnail:\n${missingThumbs.join("\n")}`
-      );
-      process.exit(1);
+  const dist = openDist(DIST_DIR);
+  let failed = false;
+  for (const { heading, find, describeError } of CHECKS) {
+    try {
+      const entries = find(dist);
+      if (entries.length > 0) {
+        console.error(`${heading}\n${entries.join("\n")}`);
+        failed = true;
+      }
+    } catch (error) {
+      if (describeError === undefined) throw error;
+      console.error(describeError(error));
+      failed = true;
     }
-    const missingCardThumbs = findMissingCardThumbs();
-    if (missingCardThumbs.length > 0) {
-      console.error(
-        `Deck card ids without a built card thumbnail:\n${missingCardThumbs.join("\n")}`
-      );
-      process.exit(1);
-    }
-  } catch (error) {
-    console.error(`Deck thumbnail check failed: ${error.message}`);
-    process.exit(1);
   }
+  if (failed) process.exit(1);
   console.log(`No loopback origins in ${DIST_DIR}`);
 };
 
@@ -821,31 +742,31 @@ if (require.main === module) main();
 
 module.exports = {
   PREMIUM_DATA_FILES,
-  findPremiumDataFiles,
-  findPremiumShellIssues,
-  findBakedAppState,
-  findHubPageIssues,
-  findExpansionPageIssues,
-  findCanonicalIssues,
-  findCspHashIssues,
-  findCspBootstrapIssues,
-  findShellPageIssues,
-  findTitleCountIssues,
-  findUnresolvedAppRoutes,
-  findDeckImagePreloadIssues,
-  findEmptyDeckRoots,
-  findEmptyStyledTags,
-  findExpansionListIssues,
-  findExternalScripts,
-  findLoopbackRefs,
-  findSlashlessInternalLinks,
-  findOpenGraphIssues,
+  findPremiumDataFiles: forDir(premiumDataFiles),
+  findPremiumShellIssues: forDir(premiumShellIssues),
+  findBakedAppState: forDir(bakedAppState),
+  findHubPageIssues: forDir(hubPageIssues),
+  findExpansionPageIssues: forDir(expansionPageIssues),
+  findCanonicalIssues: forDir(canonicalIssues),
+  findCspHashIssues: forDir(cspHashIssues),
+  findCspBootstrapIssues: forDir(cspBootstrapIssues),
+  findShellPageIssues: forDir(shellPageIssues),
+  findTitleCountIssues: forDir(titleCountIssues),
+  findUnresolvedAppRoutes: forDir(unresolvedAppRoutes),
+  findDeckImagePreloadIssues: forDir(deckImagePreloadIssues),
+  findEmptyDeckRoots: forDir(emptyDeckRoots),
+  findEmptyStyledTags: forDir(emptyStyledTags),
+  findExpansionListIssues: forDir(expansionListIssues),
+  findExternalScripts: forDir(externalScripts),
+  findLoopbackRefs: forDir(loopbackRefs),
+  findSlashlessInternalLinks: forDir(slashlessInternalLinks),
+  findOpenGraphIssues: forDir(openGraphIssues),
   findMissingCardThumbs,
   findMissingLiveDeckPages,
   findMissingDeckThumbs,
-  findModulepreloadDrift,
-  findUncapturedDeckStyles,
+  findModulepreloadDrift: forDir(modulepreloadDrift),
+  findUncapturedDeckStyles: forDir(uncapturedDeckStyles),
   loadDecks,
   loadExpansions,
-  findTemplateModulepreloads,
+  findTemplateModulepreloads: forDir(templateModulepreloads),
 };

@@ -19,7 +19,7 @@ const wrapperWithSelection = () => {
   return ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={queryClient}>
       <MissingContext.Provider
-        value={{ missing: [], addMissing: () => {}, canUndo: false, undoMissing: () => {}, lastRemovedId: null }}
+        value={{ missing: [], missingCounts: {}, addMissing: () => {}, canUndo: false, undoMissing: () => {}, lastRemovedId: null }}
       >
         {children}
       </MissingContext.Provider>
@@ -33,7 +33,7 @@ const wrapperWith = (marks: string[], rows: typeof scores = scores) => {
   return ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={queryClient}>
       <MissingContext.Provider
-        value={{ missing: marks, addMissing: () => {}, canUndo: false, undoMissing: () => {}, lastRemovedId: null }}
+        value={{ missing: marks, missingCounts: {}, addMissing: () => {}, canUndo: false, undoMissing: () => {}, lastRemovedId: null }}
       >
         {children}
       </MissingContext.Provider>

@@ -2,6 +2,8 @@ import { createContext, useCallback, useMemo, useState, ReactNode } from "react"
 
 interface MissingContextType {
   missing: string[];
+  /// Copies marked missing per card id.
+  missingCounts: Record<string, number>;
   addMissing: (ids: string[]) => void;
   canUndo: boolean;
   undoMissing: () => void;
@@ -10,6 +12,7 @@ interface MissingContextType {
 
 export const MissingContext = createContext<MissingContextType>({
   missing: [],
+  missingCounts: {},
   addMissing: () => {},
   canUndo: false,
   undoMissing: () => {},
@@ -46,18 +49,25 @@ const MissingContextProvider = ({ children }: Props) => {
     setHistory((prev) => prev.slice(0, -1));
   }, [history]);
 
+  const missingCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const id of missing) counts[id] = (counts[id] || 0) + 1;
+    return counts;
+  }, [missing]);
+
   const lastBatch = history[history.length - 1];
   const lastRemovedId = lastBatch ? lastBatch[0] : null;
 
   const value = useMemo(
     () => ({
       missing,
+      missingCounts,
       addMissing,
       canUndo: history.length > 0,
       undoMissing,
       lastRemovedId,
     }),
-    [missing, history, addMissing, undoMissing, lastRemovedId]
+    [missing, missingCounts, history, addMissing, undoMissing, lastRemovedId]
   );
 
   return (

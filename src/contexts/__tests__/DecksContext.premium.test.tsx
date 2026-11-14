@@ -59,6 +59,15 @@ const MatchupProbe = () => {
   return <p data-testid="matchups">{matchupsByName ? Object.keys(matchupsByName).join(",") : "none"}</p>;
 };
 
+const StateProbe = () => {
+  const { decks, loading, error } = useDecks();
+  return (
+    <p data-testid="state">
+      {JSON.stringify({ loading, hasDecks: decks !== null, error: error?.message ?? null })}
+    </p>
+  );
+};
+
 let requestedUrls: string[];
 
 const renderOn = (initialWindow: "20d" | "30d" | "all", children: React.ReactNode = <Probe />) =>
@@ -112,6 +121,24 @@ describe("premium window queries", () => {
       expect(requestedUrls.some((url) => /-(30d|all)\.json$/.test(url))).toBe(false);
     }
   );
+
+  it("reports loading, not an empty result, while premium is unknown on a premium window", async () => {
+    premium.isPremium = null;
+    renderOn("30d", <StateProbe />);
+
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(screen.getByTestId("state")).toHaveTextContent(
+      JSON.stringify({ loading: true, hasDecks: false, error: null })
+    );
+  });
+
+  it("serves the default window before premium is known", async () => {
+    premium.isPremium = null;
+    renderOn("20d");
+
+    expect(await screen.findByText(PUBLIC_DECK)).toBeInTheDocument();
+  });
 
   it("loads the premium window artefacts through the premium loader once premium is confirmed", async () => {
     premium.isPremium = true;

@@ -161,6 +161,29 @@ describe("DecksProvider with a drifted card id", () => {
     expect(screen.queryByText(DRIFTED_DECK)).not.toBeInTheDocument();
   });
 
+  it.each([
+    ["an object", {}],
+    ["a deck without a name", [{ ...decks[0], name: undefined }]],
+    ["a list without cards", [{ ...decks[0], lists: [{ score: 1, strength: 1 }] }]],
+    ["a deck with a non-numeric popularity", [{ ...decks[0], popularity: "high" }]],
+  ])("reports an unexpected shape when best-decks is %s", async (_label, body) => {
+    vi.spyOn(global, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("best-decks.json")) return jsonResponse(body);
+      return jsonResponse(rawCards);
+    });
+
+    render(
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <DecksProvider>
+          <ErrorProbe />
+        </DecksProvider>
+      </QueryClientProvider>
+    );
+
+    expect(await screen.findByText("best-decks.json has an unexpected shape")).toBeInTheDocument();
+  });
+
   it("keeps an unpaired deck when no paired decks exist", async () => {
     const unpairedDeck = GOOD_DECK.replace("&", "/");
     vi.spyOn(global, "fetch").mockImplementation((input) => {

@@ -125,10 +125,14 @@ exposes `{ decks, metaShareBySlug, loading, error }` through `useDecks()`. Its
 consumers are `TierListPage`, `DeckFinderPage`, `DeckDetailPage` and
 `StatisticsPage`.
 
-The join runs in one memo keyed on cards, decks, filters, missing counts and
-premium status. Until cards, decks and premium status have all resolved it
-returns `null`, which every consumer treats as still loading. The steps, in
-order:
+The join is `buildDecks` in `src/app/build-decks.ts`, run in one memo keyed on
+the raw decks, filters and missing counts. Until the raw decks have loaded it
+returns `null`. `loading` is true exactly while there is neither a deck list nor
+an error, so a consumer that has checked `loading` and `error` can rely on
+`decks`. Premium status does not enter the join; it only decides which window
+queries are enabled. `src/app/deck-payload.ts` holds the pure loaders and the
+shape checks for `best-decks.json`, `matchup-data.json` and `meta-share.json`.
+The steps, in order:
 
 1. Filter each deck's lists with the predicates from `src/app/deck-filters.ts`:
    `findUnresolvedCardIds`, `isAffordable`, `matchesEnergy`,
@@ -171,8 +175,9 @@ exported from `src/components/FilterContext.tsx`.
 Tracks which cards the user does not own: `missing` is a flat array of card ids
 where each copy counts as one entry. `addMissing(ids)` records a batch and
 pushes it onto an undo history; `undoMissing()` pops the most recent batch.
-`canUndo` and `lastRemovedId` support the undo control. Consumed by
-`DecksContext` and `useCards`.
+`canUndo` and `lastRemovedId` support the undo control. `missingCounts` maps
+each card id to the number of copies marked missing; the provider computes it
+once. Consumed by `DecksContext`, `DeckDetailPage` and `useCards`.
 
 ### UIContext
 
@@ -217,6 +222,8 @@ renderer.
 | `deck-energy.ts` | `inferEnergyIds`, `EXCLUDED_DECK_BUILDER_NR`, `FORCED_LIGHTNING_NR` | `DecksContext` |
 | `deck-filters.ts` | `cardToId`, `cardToCount`, `deckNameToIconIds`, `findUnresolvedCardIds`, `isAffordable`, `matchesEnergy`, `matchesExFilter`, `hasEnoughLatestExpansionCards` | `DecksContext` |
 | `tier-helper.ts` | `buildTiers` | `TierGrid`, `StatisticsPage` |
+| `build-decks.ts` | `buildDecks`, `BuildOptions` | `DecksContext` |
+| `deck-payload.ts` | `fetchBestDecks`, `parseBestDecks`, `fetchMatchupData`, `sanitiseMatchupData`, `loadMetaShare` | `DecksContext` |
 | `deck-types.ts` | `FullDeckType`, `MatchupType` | `DecksContext`, `sorting-helper.ts` |
 | `sort-by.ts` | `SortBy` | `DecksContext`, `FilterContext`, `sorting-helper.ts` |
 | `sorting-helper.ts` | `getSortValue` | `DecksContext`, `TierListPage` |

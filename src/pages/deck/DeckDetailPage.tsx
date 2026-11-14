@@ -91,7 +91,7 @@ const DeckDetailPage = () => {
   const { decks, metaShareBySlug, loading, error } = useDecks();
   const { matchupsByName, loading: matchupsLoading, error: matchupsError } = useMatchups();
   const tiers = useDeckTiers(decks);
-  const { missing, canUndo, undoMissing, lastRemovedId } = useMissing();
+  const { missingCounts, canUndo, undoMissing, lastRemovedId } = useMissing();
   const { t } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");
   const premiumHref = useLocaleHref("/about#premium");
@@ -99,12 +99,6 @@ const DeckDetailPage = () => {
   const freeNames = useFreeDeckNames();
   const { window: metaWindow } = useMetaWindow();
   useWindowSearchParam();
-
-  const missingCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const id of missing) counts[id] = (counts[id] || 0) + 1;
-    return counts;
-  }, [missing]);
 
   const { deck, extinct } = useDeckDetail(deckId, missingCounts);
   const lastCutName = lastRemovedId

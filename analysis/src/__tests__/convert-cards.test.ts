@@ -20,9 +20,10 @@ describe("convertCardsToIds", () => {
   });
 
   it("drops the hyphen from the promo set codes", () => {
-    expect(convertCardsToIds([card(2, "P-A", "7"), card(1, "P-B", "12")])).toEqual([
+    expect(convertCardsToIds([card(2, "P-A", "7"), card(1, "P-B", "12"), card(1, "P-C", "3")])).toEqual([
       "2:pa-007",
       "1:pb-012",
+      "1:pc-003",
     ]);
   });
 

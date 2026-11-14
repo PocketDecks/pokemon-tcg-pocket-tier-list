@@ -64,7 +64,7 @@ export const downloadDecks = async () => {
   }
 };
 
-if (process.argv[1]?.endsWith("download-decks.ts")) {
+if (require.main === module) {
   downloadDecks().catch((error) => {
     console.error("Fatal error:", error);
     process.exit(1);

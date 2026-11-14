@@ -123,7 +123,7 @@ export const snapshotPremiumVersion = (
   }
 };
 
-export const readPremiumVersionSnapshot = (
+export const loadPremiumSnapshotForVersion = (
   version: string,
   dir: string = PREMIUM_DIR
 ): Record<string, string> | undefined => {
@@ -138,11 +138,6 @@ export const readPremiumVersionSnapshot = (
     return undefined;
   }
 };
-
-export const loadPremiumSnapshotForVersion = (
-  version: string,
-  dir: string = PREMIUM_DIR
-): Record<string, string> | undefined => readPremiumVersionSnapshot(version, dir);
 
 export const prunePremiumSnapshots = (
   protectedVersions: readonly string[],

@@ -5,6 +5,7 @@
 //   cd analysis && yarn real-decks:generate
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { byCodeUnit } from "../src/utils/compare";
 
 const SOURCE = resolve(__dirname, "../../public/data/best-decks.json");
 const OUT = resolve(__dirname, "../src/__fixtures__/real-deck-lists.json");
@@ -16,7 +17,6 @@ interface BestDeckArchetype {
 
 const bestDecks = JSON.parse(readFileSync(SOURCE, "utf8")) as BestDeckArchetype[];
 
-const byCodeUnit = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 
 const snapshot = bestDecks
   .map((archetype) => ({

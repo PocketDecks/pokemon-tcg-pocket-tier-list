@@ -114,6 +114,22 @@ describe("getTournamentDecks", () => {
     expect(deck.losses).toEqual(["tournament1-y"]);
   });
 
+  it("ignores standings rows that are not objects or lack a record", async () => {
+    global.fetch = respondByUrl({
+      "/details": {},
+      "/standings": [
+        null,
+        "player",
+        { player: "norecord", decklist: { pokemon: [card("Mew", 2)], trainer: [card("Potion", 2, "5")] } },
+        standing("good", [card("Mew", 2)], [card("Potion", 2, "5")]),
+      ],
+    });
+    vi.mocked(getPairings).mockResolvedValue([]);
+
+    const result = await getTournamentDecks(mockTournament as any);
+    expect(result.map((deck) => deck.id)).toEqual(["tournament1-good"]);
+  });
+
   it("skips decks whose cards lack a set or number and warns once", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     global.fetch = respondByUrl({

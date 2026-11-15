@@ -133,10 +133,13 @@ describe("splitWindowArtefacts", () => {
 
   it("publishes every deck's matchup rows in the 10d and 20d files", () => {
     const input = artefacts();
+    const firstDeck = Object.keys(input["10d"].matchupData)[0];
+    (input["10d"].matchupData[firstDeck] as { winRate: number }[])[0].winRate = 0.61;
     const { publicFiles } = splitWindowArtefacts(input);
 
     expect(publicFiles[`${DIR}matchup-data-10d.json`]).toBe(render(input["10d"].matchupData));
     expect(publicFiles[`${DIR}matchup-data-20d.json`]).toBe(render(input["20d"].matchupData));
+    expect(publicFiles[`${DIR}matchup-data-10d.json`]).not.toBe(publicFiles[`${DIR}matchup-data-20d.json`]);
   });
 
   it("trims the public meta share to name, share and window games for the other decks", () => {

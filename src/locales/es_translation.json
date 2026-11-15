@@ -24,8 +24,11 @@
       "rankings": "Clasificaciones por popularidad o fuerza",
       "decks": "Hasta 100 mazos en la Tier List",
       "data": "Los datos publicados más recientes",
-      "contact": "Contacto con los desarrolladores"
+      "contact": "Contacto con los desarrolladores",
+      "gratitude": "Gratitud eterna por apoyar un proyecto personal"
     },
+    "discord": "Si suficientes colaboradores quieren un servidor de Discord, abriré uno solo para ellos.",
+    "kindNote": "Si no puedes dar una propina, no pasa nada. Cada vez que compartes la Tier List con un amigo o la recomiendas en tu comunidad, ayuda más que cualquier cantidad de dinero. Me alegra que la web haya mejorado un poco tu experiencia 😊",
     "contact": {
       "title": "Contactar a los desarrolladores",
       "description": "Envía un correo a los desarrolladores para dar tu opinión sobre el sitio, solicitar nuevas funciones o reportar errores. Las solicitudes de funciones no están garantizadas, pero las leemos todas."

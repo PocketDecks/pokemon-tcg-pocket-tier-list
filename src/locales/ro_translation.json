@@ -24,8 +24,11 @@
       "rankings": "Clasamente după popularitate sau putere",
       "decks": "Până la 100 de deck-uri în clasament",
       "data": "Cele mai recente date publicate",
-      "contact": "Contact cu dezvoltatorii"
+      "contact": "Contact cu dezvoltatorii",
+      "gratitude": "Recunoștință veșnică pentru că susții un proiect făcut din pasiune"
     },
+    "discord": "Dacă își doresc destui susținători, voi deschide un server de Discord doar pentru ei.",
+    "kindNote": "Dacă nu poți lăsa un bacșiș, nu e nicio problemă. De fiecare dată când dai mai departe clasamentul unui prieten sau îl recomanzi comunității tale, ajuți mai mult decât orice sumă de bani. Mă bucur doar că site-ul ți-a făcut experiența puțin mai bună 😊",
     "contact": {
       "title": "Contactează dezvoltatorii",
       "description": "Trimite un e-mail dezvoltatorilor pentru a oferi feedback despre site, pentru a solicita funcționalități noi sau pentru a raporta erori. Funcționalitățile solicitate nu sunt garantate, dar le citim pe toate."

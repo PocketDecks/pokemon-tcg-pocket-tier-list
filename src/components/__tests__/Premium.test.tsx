@@ -115,6 +115,41 @@ describe("Premium", () => {
     expect(dialog.textContent).not.toMatch(/Best Deck Finder|[✅🚫]/u);
   });
 
+  it("shows the Discord line right after the perks", async () => {
+    const { dialog } = await openLinkPopup();
+    const discord = within(dialog).getByText(en.premium.discord);
+    const perks = within(dialog).getByRole("list");
+    expect(perks.compareDocumentPosition(discord) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(perks.nextElementSibling).toBe(discord);
+  });
+
+  it("shows the personal note to a signed-out visitor after the sign-in button", async () => {
+    const { dialog } = await openLinkPopup();
+    const note = within(dialog).getByText(en.premium.kindNote);
+    const signIn = within(dialog).getByRole("button", { name: en.premium.signIn });
+    expect(signIn.nextElementSibling).toBe(note);
+  });
+
+  it("shows the personal note to a signed-in visitor after the email hint", async () => {
+    vi.mocked(useAuth).mockReturnValue(signedIn());
+    const { dialog } = await openLinkPopup();
+    const note = within(dialog).getByText(en.premium.kindNote);
+    const hint = within(dialog).getByText(emailHintFor("player@example.com"));
+    expect(hint.nextElementSibling).toBe(note);
+  });
+
+  it.each([
+    [Date.UTC(2027, 0, 2), "dated"],
+    [null, "lifetime"],
+  ])("hides the note and the Discord line for a %2$s supporter", async (expiry, state) => {
+    vi.mocked(useIsPremium).mockReturnValue(true);
+    vi.mocked(usePremiumExpiry).mockReturnValue(expiry);
+    vi.mocked(useAuth).mockReturnValue(signedIn());
+    const { dialog } = await openDefaultPopup();
+    expect(within(dialog).queryByText(en.premium.kindNote), state).not.toBeInTheDocument();
+    expect(within(dialog).queryByText(en.premium.discord), state).not.toBeInTheDocument();
+  });
+
   it("keeps the tip rules collapsed after the refund line", async () => {
     const { dialog } = await openLinkPopup();
     const refund = within(dialog).getByText(en.premium.refund.replace("<0/>", contact));

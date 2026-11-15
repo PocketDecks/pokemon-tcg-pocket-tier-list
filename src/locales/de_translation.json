@@ -24,8 +24,11 @@
       "rankings": "Ranglisten nach Beliebtheit oder Stärke",
       "decks": "Bis zu 100 Decks in der Tier-Liste",
       "data": "Die neuesten veröffentlichten Daten",
-      "contact": "Kontakt zu den Entwicklern"
+      "contact": "Kontakt zu den Entwicklern",
+      "gratitude": "Ewige Dankbarkeit dafür, dass du ein Herzensprojekt unterstützt"
     },
+    "discord": "Wenn genug Unterstützer einen Discord-Server möchten, richte ich einen nur für sie ein.",
+    "kindNote": "Wenn du kein Trinkgeld geben kannst, ist das völlig in Ordnung. Jedes Mal, wenn du die Tier-Liste mit einem Freund teilst oder in deiner Community empfiehlst, hilft das mehr als jede Geldsumme. Ich freue mich einfach, wenn die Seite dein Erlebnis ein bisschen besser gemacht hat 😊",
     "contact": {
       "title": "Entwickler kontaktieren",
       "description": "Schreibe den Entwicklern eine E-Mail, um Feedback zur Website zu geben, neue Funktionen anzufordern oder Fehler zu melden. Funktionsanfragen werden nicht garantiert, aber wir lesen sie alle."

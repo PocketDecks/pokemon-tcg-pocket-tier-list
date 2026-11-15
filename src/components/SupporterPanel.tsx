@@ -186,7 +186,7 @@ const InlineLink = styled.a`
   }
 `;
 
-const PERKS = ["noAds", "windows", "filters", "rankings", "decks", "data", "contact"] as const;
+const PERKS = ["noAds", "windows", "filters", "rankings", "decks", "data", "contact", "gratitude"] as const;
 
 interface CodeResult {
   uid: string;
@@ -327,6 +327,7 @@ const SupporterPanel = () => {
               <Perk key={key}>{t(`premium.perks.${key}`)}</Perk>
             ))}
           </Perks>
+          <Hint>{t("premium.discord")}</Hint>
         </>
       )}
       {!user && premiumState === "free" && (
@@ -335,6 +336,7 @@ const SupporterPanel = () => {
           <CtaButton type="button" onClick={() => void signInWithGoogle()}>
             {t("premium.signIn")}
           </CtaButton>
+          <Hint>{t("premium.kindNote")}</Hint>
         </Actions>
       )}
       {user && premiumState !== "lifetime" && (
@@ -352,6 +354,7 @@ const SupporterPanel = () => {
             {ctaLabel}
           </CtaLink>
           <Hint>{emailHint}</Hint>
+          {premiumState === "free" && <Hint>{t("premium.kindNote")}</Hint>}
           {waiting && (
             <>
               <Text role="status">{t("premium.waiting")}</Text>

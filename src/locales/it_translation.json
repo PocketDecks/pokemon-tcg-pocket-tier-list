@@ -24,8 +24,11 @@
       "rankings": "Classifiche per popolarità o forza",
       "decks": "Fino a 100 mazzi nella Tier List",
       "data": "I dati pubblicati più recenti",
-      "contact": "Contatto con gli sviluppatori"
+      "contact": "Contatto con gli sviluppatori",
+      "gratitude": "Eterna gratitudine per aver sostenuto un progetto nato da una passione"
     },
+    "discord": "Se abbastanza sostenitori ne vogliono uno, aprirò un server Discord solo per loro.",
+    "kindNote": "Se non puoi lasciare una mancia, va benissimo così. Ogni volta che condividi la tier list con un amico o la consigli alla tua community, aiuti più di qualsiasi somma di denaro. Sono contento che il sito abbia reso un po’ migliore la tua esperienza 😊",
     "contact": {
       "title": "Contatta gli Sviluppatori",
       "description": "Manda un'email agli sviluppatori per dare feedback sul sito, richiedere nuove funzionalità o segnalare bug. Le richieste di funzioni non sono garantite, ma le leggiamo tutte."

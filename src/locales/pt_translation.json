@@ -24,8 +24,11 @@
       "rankings": "Classificações por popularidade ou força",
       "decks": "Até 100 decks na Tier List",
       "data": "Os dados publicados mais recentes",
-      "contact": "Contacto com os programadores"
+      "contact": "Contacto com os programadores",
+      "gratitude": "Gratidão eterna por apoiar um projeto feito com paixão"
     },
+    "discord": "Se houver apoiantes suficientes interessados, abrirei um servidor de Discord só para eles.",
+    "kindNote": "Se não puder dar uma gorjeta, não faz mal nenhum. Sempre que partilha a Tier List com um amigo ou a recomenda à sua comunidade, ajuda mais do que qualquer quantia em dinheiro. Fico só contente por o site ter tornado a sua experiência um pouco melhor 😊",
     "contact": {
       "title": "Contato com os Desenvolvedores",
       "description": "Envie e-mail aos desenvolvedores para dar feedback sobre o site, solicitar novos recursos ou relatar bugs. Solicitações de recursos não são garantidas, mas lemos todas."

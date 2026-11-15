@@ -103,6 +103,31 @@ describe("getTournaments", () => {
     ]);
   });
 
+  describe("since", () => {
+    const listing = [
+      { id: "before", players: 150, date: "2026-10-28T23:59:59.000Z" },
+      { id: "start", players: 150, date: "2026-10-29T00:00:00.000Z" },
+      { id: "after", players: 150, date: "2026-11-02T12:00:00.000Z" },
+      { id: "undated", players: 150 },
+    ];
+
+    it("keeps tournaments dated on or after the given instant", async () => {
+      global.fetch = respond(listing);
+      const result = await getTournaments({ since: new Date("2026-10-29T00:00:00.000Z") });
+      expect(result.map((tournament) => tournament.id)).toEqual(["start", "after"]);
+    });
+
+    it("returns the whole listing when no date is given", async () => {
+      global.fetch = respond(listing);
+      expect((await getTournaments()).map((tournament) => tournament.id)).toEqual([
+        "before",
+        "start",
+        "after",
+        "undated",
+      ]);
+    });
+  });
+
   it("treats a missing processed file as nothing processed", async () => {
     vi.mocked(fs.existsSync).mockReturnValue(false);
     global.fetch = respond([{ id: "1", players: 150 }]);

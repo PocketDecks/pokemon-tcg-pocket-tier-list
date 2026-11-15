@@ -1,6 +1,7 @@
 import "./load-env-side-effect";
 import fs from "fs";
 import path from "path";
+import { EXPANSION_RELEASE_DATE } from "./settings";
 import { getTournaments } from "./utils/get-tournaments";
 import getTournamentDecks from "./utils/get-tournament-decks";
 import { mapWithConcurrency } from "./utils/limitless-client";
@@ -30,8 +31,31 @@ export const readProcessed = (): unknown[] => {
   return value;
 };
 
-export const downloadDecks = async () => {
-  const tournaments = await getTournaments();
+const SINCE_FLAG = "--since";
+const SINCE_USAGE = `${SINCE_FLAG} takes a date as YYYY-MM-DD, or "release"`;
+
+export const parseSince = (value: string): Date => {
+  if (value === "release") return EXPANSION_RELEASE_DATE;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (match) {
+    const [year, month, day] = match.slice(1).map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    if (date.getUTCMonth() === month - 1 && date.getUTCDate() === day) return date;
+  }
+  throw new Error(`Invalid ${SINCE_FLAG} value "${value}": ${SINCE_USAGE}`);
+};
+
+export const parseArgs = (argv: readonly string[]): { since?: Date } => {
+  const index = argv.findIndex((arg) => arg === SINCE_FLAG || arg.startsWith(`${SINCE_FLAG}=`));
+  if (index === -1) return {};
+  const inline = argv[index].startsWith(`${SINCE_FLAG}=`);
+  const value = inline ? argv[index].slice(SINCE_FLAG.length + 1) : argv[index + 1];
+  if (value === undefined) throw new Error(`Missing value for ${SINCE_FLAG}: ${SINCE_USAGE}`);
+  return { since: parseSince(value) };
+};
+
+export const downloadDecks = async (options: { since?: Date } = {}) => {
+  const tournaments = await getTournaments(options);
   console.log(`Downloaded tournaments\n${tournaments.length} to process`);
 
   let processed = readProcessed();
@@ -62,7 +86,9 @@ export const downloadDecks = async () => {
 };
 
 if (require.main === module) {
-  downloadDecks().catch((error) => {
+  Promise.resolve()
+    .then(() => downloadDecks(parseArgs(process.argv.slice(2))))
+    .catch((error) => {
     console.error("Fatal error:", error);
     process.exit(1);
   });

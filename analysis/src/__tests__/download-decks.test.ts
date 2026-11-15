@@ -2,7 +2,8 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import { vi } from "vitest";
-import { BATCH_SIZE, downloadDecks, readProcessed } from "../download-decks";
+import { BATCH_SIZE, downloadDecks, parseArgs, parseSince, readProcessed } from "../download-decks";
+import { EXPANSION_RELEASE_DATE } from "../settings";
 import { readDecks, readManifest, verifyStore } from "../utils/deck-store";
 
 const { getTournamentDecks, getTournaments } = vi.hoisted(() => ({
@@ -66,6 +67,22 @@ describe("downloadDecks", () => {
     expect(processedIds()).toHaveLength(BATCH_SIZE * 2 + 5);
     expect(readDecks(path.join(dataDir, "decks"))).toHaveLength(BATCH_SIZE * 2 + 5);
     expect(verifyStore(path.join(dataDir, "decks"), { placement: true })).toEqual([]);
+  });
+
+  it("passes the since date to the listing and records only what it returns", async () => {
+    const since = new Date("2026-09-01T00:00:00.000Z");
+    getTournaments.mockResolvedValue(tournaments(2));
+
+    await downloadDecks({ since });
+
+    expect(getTournaments).toHaveBeenCalledWith({ since });
+    expect(processedIds()).toEqual(["t0", "t1"]);
+  });
+
+  it("lists without a date filter by default", async () => {
+    getTournaments.mockResolvedValue([]);
+    await downloadDecks();
+    expect(getTournaments.mock.calls[0][0]?.since).toBeUndefined();
   });
 
   it("keeps the batches that finished when a later batch fails", async () => {
@@ -188,5 +205,38 @@ describe("downloadDecks", () => {
 
       expect(readProcessed()).toEqual([{ id: "t0" }]);
     });
+  });
+});
+
+describe("parseSince", () => {
+  it("reads a calendar day as the start of that UTC day", () => {
+    expect(parseSince("2026-10-29").toISOString()).toBe("2026-10-29T00:00:00.000Z");
+  });
+
+  it("reads release as the expansion release date", () => {
+    expect(parseSince("release")).toBe(EXPANSION_RELEASE_DATE);
+  });
+
+  it.each(["", "yesterday", "2026-13-01", "2026-02-30", "2026-1-5", "2026-10-29T10:00:00Z", "Release"])(
+    "rejects %j",
+    (value) => {
+      expect(() => parseSince(value)).toThrow(/Invalid --since value/);
+    }
+  );
+});
+
+describe("parseArgs", () => {
+  it("returns no filter without the flag", () => {
+    expect(parseArgs([])).toEqual({});
+  });
+
+  it("accepts the value after the flag or joined with =", () => {
+    expect(parseArgs(["--since", "2026-10-29"]).since?.toISOString()).toBe("2026-10-29T00:00:00.000Z");
+    expect(parseArgs(["--since=release"]).since).toBe(EXPANSION_RELEASE_DATE);
+  });
+
+  it("rejects a flag with no value or a bad one", () => {
+    expect(() => parseArgs(["--since"])).toThrow("Missing value for --since");
+    expect(() => parseArgs(["--since", "soon"])).toThrow(/Invalid --since value/);
   });
 });

@@ -26,7 +26,7 @@ For each delivery it works through these steps:
 3. It counts the months. One-off tips (`Donation`) and monthly tips
    (`Subscription`) in GBP earn one month per whole pound, up to 120
    months. The Worker marks a shop order, a commission, another currency,
-   anything under GBP 1 and anything over GBP 120 as `needs-review` and
+   anything under GBP 1 and GBP £121 or more as `needs-review` and
    grants nothing
 4. It looks for the user. A code such as `PD-ABC123` in the message points at
    `premiumCodes/{code}`, which holds `{ uid }`. The Worker accepts codes in
@@ -180,7 +180,7 @@ did not grant, so a code or account email written there is still to hand
 ## Granting a payment by hand
 
 A tip needs a person when the Worker marks it `unmatched` (no account for
-the tipper's email) or `needs-review` (not a GBP tip, or over GBP 120). The
+the tipper's email) or `needs-review` (not a GBP tip, or GBP £121 or more). The
 `grant` command credits such a payment to the user you pick. It reuses the
 Worker's own code, so it stacks months, leaves lifetime access alone and
 applies the 2100 rule the same way. It runs in one Firestore transaction:

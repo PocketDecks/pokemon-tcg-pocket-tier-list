@@ -13,23 +13,20 @@ import getId from "./get-id";
 import { tallyCards } from "./tally-cards";
 import { Deck } from "./types";
 import {
+  DEFAULT_WINDOW,
+  WINDOW_IDS,
+  WINDOW_LENGTH_DAYS,
+  type WindowId,
+} from "../../../src/types/meta-windows";
+import {
   MIN_ARCHETYPE_QUALIFIED_GAMES,
   MIN_WINRATE_THRESHOLD,
   ScoringWeights,
   scoringWeights,
 } from "../settings";
 
-export const WINDOW_IDS = ["10d", "20d", "30d", "all"] as const;
-export type WindowId = (typeof WINDOW_IDS)[number];
-
-export const WINDOW_LENGTH_DAYS: Record<WindowId, number | null> = {
-  "10d": 10,
-  "20d": 20,
-  "30d": 30,
-  all: null,
-};
-
-export const DEFAULT_WINDOW: WindowId = "20d";
+export { DEFAULT_WINDOW, WINDOW_IDS, WINDOW_LENGTH_DAYS };
+export type { WindowId };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -65,47 +62,56 @@ export const latestAnchor = (decks: Deck[], fallback: Date): Date => {
   return new Date(`${newestKey || dayKey(fallback.toISOString())}T00:00:00Z`);
 };
 
-const qualifiedInWindow = (decks: Deck[]): Deck[] =>
-  decks.filter(
-    (deck) =>
-      deck.totalGames > 0 &&
-      deck.winCount / deck.totalGames >= MIN_WINRATE_THRESHOLD
-  );
+const isQualified = (deck: Deck): boolean =>
+  deck.totalGames > 0 && deck.winCount / deck.totalGames >= MIN_WINRATE_THRESHOLD;
 
-// Exported for the non-windowed artefacts: trends and card scores read the
-// all-time qualified set.
-export const qualifiedDecksInWindow = (
-  decks: Deck[],
-  window: WindowId,
-  today: Date
-): Deck[] =>
-  qualifiedInWindow(decksInWindow(decks, window, latestAnchor(decks, today)));
+export interface WindowDecks {
+  inWindow: Deck[];
+  qualified: Deck[];
+}
+
+// The store's decks, the newest data date every window anchors on, and each
+// window's decks, computed once per run. `today` is the run clock: it stamps
+// generated files and stands in for the anchor when the store is empty.
+export interface DeckPopulation {
+  today: Date;
+  anchor: Date;
+  windows: Record<WindowId, WindowDecks>;
+}
+
+export const buildDeckPopulation = (decks: Deck[], today: Date): DeckPopulation => {
+  const anchor = latestAnchor(decks, today);
+  const windows = Object.fromEntries(
+    WINDOW_IDS.map((window) => {
+      const inWindow = decksInWindow(decks, window, anchor);
+      return [window, { inWindow, qualified: inWindow.filter(isQualified) }];
+    })
+  ) as Record<WindowId, WindowDecks>;
+  return { today, anchor, windows };
+};
 
 export interface UnmatchedDecks {
   decks: number;
   games: number;
 }
 
-// How many qualified decks in a window matched no listing, and the games they
-// carry. Reported on every run so a rise in the bucket is visible.
-export const unmatchedDecksInWindow = (
-  decks: Deck[],
-  window: WindowId,
-  today: Date
-): UnmatchedDecks => {
-  const unmatched = qualifiedDecksInWindow(decks, window, today).filter((deck) =>
-    isUnmatchedDeck(deck.name)
-  );
+// How many qualified decks matched no listing, and the games they carry.
+// Reported on every run so a rise in the bucket is visible.
+export const unmatchedDecksIn = (qualified: Deck[]): UnmatchedDecks => {
+  const unmatched = qualified.filter((deck) => isUnmatchedDeck(deck.name));
   return {
     decks: unmatched.length,
     games: unmatched.reduce((sum, deck) => sum + deck.totalGames, 0),
   };
 };
 
+type PowerFields = "expectedWinRate" | "fieldCoverage" | "powerScore" | "freqScore" | "metaScore";
+type RankedDeck = Omit<PipelinePartialDeck, PowerFields>;
+
 const rankDecks = (
   qualifiedDecks: Deck[],
   weights: ScoringWeights
-): { bestDecks: PipelinePartialDeck[]; rankedNames: string[] } => {
+): { rankedDecks: RankedDeck[]; rankedNames: string[] } => {
   const totalQualifiedGames = qualifiedDecks.reduce(
     (sum, deck) => sum + deck.totalGames,
     0
@@ -119,7 +125,7 @@ const rankDecks = (
     (name) => (gamesByName.get(name) ?? 0) >= MIN_ARCHETYPE_QUALIFIED_GAMES
   );
 
-  const bestDecks: PipelinePartialDeck[] = [];
+  const rankedDecks: RankedDeck[] = [];
   const idExists: Record<string, boolean> = {};
 
   for (const name of rankedNames) {
@@ -152,41 +158,32 @@ const rankDecks = (
     }
 
     const share = matchingGames / totalQualifiedGames;
-    bestDecks.push({
+    rankedDecks.push({
       name,
       lists,
       popularity: share,
       percentOfGames: share,
       score: lists.length ? Math.max(...lists.map((list) => list.score)) : 0,
-      expectedWinRate: 0.5,
-      fieldCoverage: 0,
-      powerScore: null,
-      freqScore: 0,
-      metaScore: null,
     });
   }
 
-  bestDecks.sort((a, b) => b.score - a.score);
-  return { bestDecks, rankedNames };
+  rankedDecks.sort((a, b) => b.score - a.score);
+  return { rankedDecks, rankedNames };
 };
 
 // Every in-window game counts once; only the window choice changes which
 // games contribute. Pure, so tests drive it without a scrape.
 export const buildWindowArtefacts = (
-  decks: Deck[],
-  window: WindowId,
-  today: Date
+  population: DeckPopulation,
+  window: WindowId
 ): WindowArtefacts => {
-  const anchor = latestAnchor(decks, today);
-  const qualifiedDecks = qualifiedDecksInWindow(decks, window, today);
-  const { bestDecks: rankedDecks, rankedNames } = rankDecks(
-    qualifiedDecks,
-    scoringWeights(anchor)
-  );
+  const { today, anchor } = population;
+  const { inWindow, qualified } = population.windows[window];
+  const { rankedDecks, rankedNames } = rankDecks(qualified, scoringWeights(anchor));
 
   const shareDays = WINDOW_LENGTH_DAYS[window];
   const metaShare = buildMetaShare(
-    qualifiedDecksInWindow(decks, "all", today),
+    population.windows.all.qualified,
     rankedDecks,
     today,
     { shareDays, gamesDays: shareDays, anchor }
@@ -197,8 +194,8 @@ export const buildWindowArtefacts = (
   // keeps the unmatched bucket, so its games stay in the denominator every
   // archetype's shares and coverage are measured against.
   const { publicMatchupData, powerMatchupData } = buildMatchupPopulations(
-    decksInWindow(decks, window, anchor),
-    qualifiedDecks,
+    inWindow,
+    qualified,
     rankedNames
   );
 
@@ -213,24 +210,25 @@ export const buildWindowArtefacts = (
   const powerByName = new Map(
     buildDeckPower(powerInputs).map((row) => [row.name, row] as const)
   );
-  for (const deck of rankedDecks) {
+  const scoredDecks: PipelinePartialDeck[] = rankedDecks.map((deck) => {
     const power = powerByName.get(deck.name);
-    deck.expectedWinRate = power?.expectedWinRate ?? 0.5;
-    deck.fieldCoverage = power?.fieldCoverage ?? 0;
-    deck.powerScore = power?.powerScore ?? null;
-    deck.freqScore = power?.freqScore ?? 0;
-    deck.metaScore = power?.metaScore ?? null;
-  }
+    return {
+      ...deck,
+      expectedWinRate: power?.expectedWinRate ?? 0.5,
+      fieldCoverage: power?.fieldCoverage ?? 0,
+      powerScore: power?.powerScore ?? null,
+      freqScore: power?.freqScore ?? 0,
+      metaScore: power?.metaScore ?? null,
+    };
+  });
 
   // The bucket is scored with the field so the shares above count its games,
   // then dropped from every published row: a deck that matched no listing is
   // not an archetype, so it carries no ranking row, no movement row and no
   // matchup table of its own. Its games survive as opponent rows in the
   // tallies above, where the decks it played still name it.
-  const bestDecks = rankedDecks.filter((deck) => !isUnmatchedDeck(deck.name));
-
   return {
-    bestDecks,
+    bestDecks: scoredDecks.filter((deck) => !isUnmatchedDeck(deck.name)),
     metaShare: {
       ...metaShare,
       decks: metaShare.decks.filter((entry) => !isUnmatchedDeck(entry.name)),
@@ -239,37 +237,4 @@ export const buildWindowArtefacts = (
       Object.entries(publicMatchupData).filter(([name]) => !isUnmatchedDeck(name))
     ),
   };
-};
-
-const ARTEFACT_BASES = ["best-decks", "meta-share", "matchup-data"] as const;
-
-// The default window is also written un-suffixed for readers that predate
-// the selector.
-export const buildArtefactFiles = (
-  artefacts: Record<WindowId, WindowArtefacts>
-): Record<string, string> => {
-  const files: Record<string, string> = {};
-
-  for (const window of WINDOW_IDS) {
-    const { bestDecks, metaShare, matchupData } = artefacts[window];
-    const payloads: Record<(typeof ARTEFACT_BASES)[number], unknown> = {
-      "best-decks": bestDecks,
-      "meta-share": metaShare,
-      "matchup-data": matchupData,
-    };
-    for (const base of ARTEFACT_BASES) {
-      files[`../public/data/${base}-${window}.json`] = JSON.stringify(
-        payloads[base],
-        null,
-        2
-      );
-    }
-  }
-
-  for (const base of ARTEFACT_BASES) {
-    files[`../public/data/${base}.json`] =
-      files[`../public/data/${base}-${DEFAULT_WINDOW}.json`];
-  }
-
-  return files;
 };

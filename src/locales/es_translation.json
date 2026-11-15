@@ -455,5 +455,12 @@
     "errorTitle": "Algo salió mal",
     "errorMessage": "Esta parte del sitio no se pudo cargar. Recargar suele resolverlo. Normalmente.",
     "reload": "Recargar la página"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "loadError": "Error al cargar los datos: {{message}}",
+    "all": "Todas",
+    "noCards": "No se encontraron cartas",
+    "noDecks": "No se encontraron mazos"
   }
 }

@@ -123,14 +123,16 @@ describe("fetchLimitless", () => {
     expect(failure.status).toBe(500);
   });
 
-  it("fails fast when the key is not set", async () => {
-    vi.stubEnv("LIMITLESS_API_KEY", "");
-    const fetchImpl = vi.fn();
-    await expect(fetchLimitless("/x", {}, { fetchImpl: asFetch(fetchImpl) })).rejects.toThrow(
-      "LIMITLESS_API_KEY not set"
-    );
-    expect(fetchImpl).not.toHaveBeenCalled();
-  });
+  it.each([["unset", undefined], ["empty", ""]])(
+    "sends no key header and still fetches when the key is %s",
+    async (_label, value) => {
+      if (value === undefined) vi.stubEnv("LIMITLESS_API_KEY", undefined);
+      else vi.stubEnv("LIMITLESS_API_KEY", value);
+      const fetchImpl = vi.fn().mockResolvedValue(ok([1]));
+      await expect(fetchLimitless("/x", {}, { fetchImpl: asFetch(fetchImpl) })).resolves.toEqual([1]);
+      expect(fetchImpl.mock.calls[0][1].headers).toEqual({});
+    }
+  );
 });
 
 describe("mapWithConcurrency", () => {

@@ -49,7 +49,7 @@ describe("Retry focus", () => {
         }
       } else if (outcome === "empty") {
         expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-        expect(screen.getByText(_name === "cards" ? "No cards found" : "No decks found")).toBeInTheDocument();
+        expect(screen.getByText(_name === "cards" ? "common.noCards" : "common.noDecks")).toBeInTheDocument();
       } else {
         expect(screen.getByRole("alert")).toBeInTheDocument();
         const retryAgain = screen.getByRole("button", { name: "loadError.retry" });

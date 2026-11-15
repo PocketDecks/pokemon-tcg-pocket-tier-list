@@ -70,6 +70,12 @@ const PERMITTED_CROSSINGS: Record<string, { specifier: string; reason: string }>
       "entry-point test must call it with an injected database. The script " +
       "is a script by convention, not by dependency direction.",
   },
+  "src/utils/write-artifacts.ts": {
+    specifier: "../../../scripts/refresh-sidecars.mjs",
+    reason:
+      "the sidecar and proof formats are shared with the root build scripts " +
+      "and with recovery, so one module in the root scripts folder owns them.",
+  },
   "src/__tests__/refresh-job-lists.test.ts": {
     specifier: "../../scripts/refresh-outputs",
     reason:

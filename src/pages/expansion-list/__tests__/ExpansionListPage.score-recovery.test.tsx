@@ -49,7 +49,7 @@ describe("ExpansionListPage score recovery", () => {
 
     expect(screen.getByRole("alert")).toBeInTheDocument();
     expect(screen.getByText("loadError.title")).toBeInTheDocument();
-    expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+    expect(screen.queryByText("common.loading")).not.toBeInTheDocument();
     const toggle = screen.getByRole("group", { name: "expansionList.viewLabel" });
     for (const button of within(toggle).getAllByRole("button")) expect(button).toBeDisabled();
 

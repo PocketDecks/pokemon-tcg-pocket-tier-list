@@ -51,7 +51,7 @@ const windowDayKeys = (
 // are inclusive calendar-day ranges.
 export const buildMetaShare = (
   qualifiedHistory: Deck[],
-  bestDecks: PipelinePartialDeck[],
+  bestDecks: readonly { name: string }[],
   today: Date,
   window: MetaShareWindow = DEFAULT_WINDOW
 ): WindowMetaShare => {

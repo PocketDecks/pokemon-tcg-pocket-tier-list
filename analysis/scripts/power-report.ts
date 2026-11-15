@@ -1,6 +1,7 @@
 // Prints the ranking the site publishes: cd analysis && yarn power:report
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { byCodeUnit } from "../src/utils/compare";
 import {
   PipelineMetaShare,
   PipelinePartialDeck,
@@ -32,11 +33,11 @@ const byRank = (a: PipelinePartialDeck, b: PipelinePartialDeck): number => {
   if (power !== 0) return power;
   const freq = b.freqScore - a.freqScore;
   if (freq !== 0) return freq;
-  return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+  return byCodeUnit(a.name, b.name);
 };
 
 const byFreq = (a: PipelinePartialDeck, b: PipelinePartialDeck): number =>
-  b.freqScore - a.freqScore || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+  b.freqScore - a.freqScore || byCodeUnit(a.name, b.name);
 
 const buildPowerReport = (
   decks: PipelinePartialDeck[],

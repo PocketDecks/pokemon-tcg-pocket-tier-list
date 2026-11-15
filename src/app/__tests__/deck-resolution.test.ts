@@ -2,17 +2,6 @@ import { describe, it, expect } from "vitest";
 import { resolveDeckDetail } from "../deck-resolution";
 import { formatCardScore } from "../format-card-score";
 import type { PipelinePartialDeck } from "../../types/pipeline-data";
-import rawCards from "../__fixtures__/cards-full-v510.json";
-import { normaliseMultipleCards } from "../cards-api";
-
-const cardsPayload = {
-  cards: normaliseMultipleCards(rawCards as never),
-  attacksByDeckBuilderNr: new Map(),
-};
-const cardsMapping = Object.fromEntries(
-  cardsPayload.cards.map((c) => [c.id, c])
-);
-
 
 const decksRaw: PipelinePartialDeck[] = [
   {
@@ -36,8 +25,6 @@ describe("resolveDeckDetail", () => {
   it("resolves the deck's best surviving list once a card is missing", () => {
     const result = resolveDeckDetail(
       decksRaw,
-      cardsPayload,
-      cardsMapping,
       "venusaur-a1-004",
       { "a1-004": 2 }
     );
@@ -53,8 +40,6 @@ describe("resolveDeckDetail", () => {
     ];
     const result = resolveDeckDetail(
       decksAllShared,
-      cardsPayload,
-      cardsMapping,
       "venusaur-a1-004",
       { "a1-004": 2 }
     );
@@ -66,7 +51,7 @@ describe("resolveDeckDetail", () => {
 
   it("returns null for an unknown deck id", () => {
     expect(
-      resolveDeckDetail(decksRaw, cardsPayload, cardsMapping, "nope-a9-999", {})
+      resolveDeckDetail(decksRaw, "nope-a9-999", {})
     ).toBeNull();
   });
 

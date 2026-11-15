@@ -38,9 +38,10 @@ const RetryButton = styled.button`
 `;
 
 export const LoadingNotice = () => {
+  const { t } = useTranslation(undefined, { useSuspense: false });
   return (
     <Notice role="status" aria-busy="true">
-      <Message>Loading...</Message>
+      <Message>{t("common.loading", { defaultValue: "Loading..." })}</Message>
     </Notice>
   );
 };

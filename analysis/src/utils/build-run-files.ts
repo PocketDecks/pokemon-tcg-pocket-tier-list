@@ -1,5 +1,4 @@
 import {
-  buildArtefactFiles,
   DEFAULT_WINDOW,
   WINDOW_IDS,
   WindowArtefacts,
@@ -10,7 +9,7 @@ import {
   premiumFilePath,
   premiumVersion,
   renderDataVersion,
-  splitArtefactFiles,
+  splitWindowArtefacts,
 } from "./premium-artefacts";
 import {
   buildPremiumDeckSlugs,
@@ -31,7 +30,7 @@ export const buildRunFiles = ({
   today: Date;
   premiumDir: string;
 }): Record<string, string> => {
-  const { publicFiles, premiumFiles } = splitArtefactFiles(buildArtefactFiles(artefacts));
+  const { publicFiles, premiumFiles } = splitWindowArtefacts(artefacts);
   return {
     ...publicFiles,
     ...Object.fromEntries(

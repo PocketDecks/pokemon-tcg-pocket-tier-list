@@ -1,32 +1,46 @@
-import { Tournament } from "./types";
+import { Card, Tournament } from "./types";
 import { getPairings } from "./get-pairings";
 import { fetchLimitless, LimitlessError } from "./limitless-client";
 import { nonStandardReason, TournamentDetails } from "./tournament-format";
 
-const isValidCard = (card: any): boolean =>
-  !!card &&
-  typeof card.name === "string" &&
-  card.name.trim() !== "" &&
-  typeof card.set === "string" &&
-  card.set.trim() !== "" &&
-  typeof card.number === "string" &&
-  card.number.trim() !== "" &&
+interface SubmittedStanding {
+  player?: unknown;
+  decklist: { pokemon: unknown; trainer: unknown };
+  record: { wins: number; losses: number };
+}
+
+interface ValidStanding extends SubmittedStanding {
+  decklist: { pokemon: Card[]; trainer: Card[] };
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const isNonEmptyString = (value: unknown): value is string =>
+  typeof value === "string" && value.trim() !== "";
+
+const isValidCard = (card: unknown): card is Card =>
+  isRecord(card) &&
+  isNonEmptyString(card.name) &&
+  isNonEmptyString(card.set) &&
+  isNonEmptyString(card.number) &&
   typeof card.count === "number" &&
   card.count >= 0;
 
-const hasSubmittedDecklist = (deck: any): boolean =>
-  !!deck.decklist &&
-  !!deck.decklist.pokemon &&
-  !!deck.decklist.trainer &&
-  !!deck.record &&
-  typeof deck.record.wins === "number" &&
-  typeof deck.record.losses === "number";
+const hasSubmittedDecklist = (standing: unknown): standing is SubmittedStanding =>
+  isRecord(standing) &&
+  isRecord(standing.decklist) &&
+  !!standing.decklist.pokemon &&
+  !!standing.decklist.trainer &&
+  isRecord(standing.record) &&
+  typeof standing.record.wins === "number" &&
+  typeof standing.record.losses === "number";
 
-const hasValidCards = (deck: any): boolean =>
-  Array.isArray(deck.decklist.pokemon) &&
-  Array.isArray(deck.decklist.trainer) &&
-  deck.decklist.pokemon.every(isValidCard) &&
-  deck.decklist.trainer.every(isValidCard);
+const hasValidCards = (standing: SubmittedStanding): standing is ValidStanding =>
+  Array.isArray(standing.decklist.pokemon) &&
+  Array.isArray(standing.decklist.trainer) &&
+  standing.decklist.pokemon.every(isValidCard) &&
+  standing.decklist.trainer.every(isValidCard);
 
 const groupBy = (pairs: { key: string; value: string }[]): Map<string, string[]> => {
   const grouped = new Map<string, string[]>();
@@ -51,7 +65,7 @@ const getTournamentDecks = async (tournament: Tournament) => {
     return [];
   }
 
-  const standings = await fetchLimitless<any[]>(
+  const standings = await fetchLimitless<unknown>(
     `/tournaments/${tournament.id}/standings`
   );
 
@@ -60,6 +74,14 @@ const getTournamentDecks = async (tournament: Tournament) => {
   if (!Array.isArray(standings)) {
     throw new LimitlessError(
       `Tournament ${tournament.id}: standings response was ${typeof standings}, expected an array`
+    );
+  }
+
+  const malformedRow = standings.findIndex((row) => !isRecord(row));
+  if (malformedRow !== -1) {
+    const row = standings[malformedRow];
+    throw new LimitlessError(
+      `Tournament ${tournament.id}: standings row ${malformedRow} was ${row === null ? "null" : typeof row}, expected an object`
     );
   }
 
@@ -72,12 +94,12 @@ const getTournamentDecks = async (tournament: Tournament) => {
   }
   if (decks.length === 0) return [];
 
-  const amountWithEx = decks.filter((deck: any) => {
-    return deck.decklist.pokemon.some((card: any) => card.name.endsWith(" ex"));
-  }).length;
+  const amountWithEx = decks.filter((deck) =>
+    deck.decklist.pokemon.some((card) => card.name.endsWith(" ex"))
+  ).length;
   const tournamentExPercent = amountWithEx / decks.length;
   const noTrainerPercent =
-    decks.filter((deck: any) => deck.decklist.trainer.length === 0).length /
+    decks.filter((deck) => deck.decklist.trainer.length === 0).length /
     decks.length;
 
   const pairings = await getPairings(tournament);
@@ -88,15 +110,13 @@ const getTournamentDecks = async (tournament: Tournament) => {
     pairings.map((pairing) => ({ key: pairing.loser, value: pairing.winner }))
   );
 
-  return decks.map((deck: any) => {
+  return decks.map((deck) => {
     const id = `${tournament.id}-${deck.player}`;
 
     return {
       id,
       cards: [...deck.decklist.pokemon, ...deck.decklist.trainer],
-      pokemon: deck.decklist.pokemon.reduce((acc: number, card: any) => {
-        return acc + card.count;
-      }, 0),
+      pokemon: deck.decklist.pokemon.reduce((acc, card) => acc + card.count, 0),
       differentPokemon: deck.decklist.pokemon.length,
       winCount: deck.record.wins,
       lossCount: deck.record.losses,

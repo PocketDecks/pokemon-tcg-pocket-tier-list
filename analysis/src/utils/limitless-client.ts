@@ -5,10 +5,9 @@ export const BASE_DELAY_MS = 500;
 export const MAX_RETRY_AFTER_MS = 30_000;
 export const REQUEST_TIMEOUT_MS = 20_000;
 
-export const apiKey = (): string => {
+const authHeaders = (): Record<string, string> => {
   const key = process.env.LIMITLESS_API_KEY;
-  if (!key) throw new Error("LIMITLESS_API_KEY not set");
-  return key;
+  return key ? { "X-Access-Key": key } : {};
 };
 
 export class LimitlessError extends Error {
@@ -31,15 +30,14 @@ const defaultSleep = (ms: number): Promise<void> =>
 
 const withAuth = (
   path: string,
-  query: Record<string, string | number>,
-  key: string
+  query: Record<string, string | number>
 ): { url: string; headers: Record<string, string> } => {
   const search = new URLSearchParams(
     Object.entries(query).map(([name, value]): [string, string] => [name, String(value)])
   ).toString();
   return {
     url: `${BASE}${path}${search ? `?${search}` : ""}`,
-    headers: { "X-Access-Key": key },
+    headers: authHeaders(),
   };
 };
 
@@ -58,7 +56,7 @@ export const fetchLimitless = async <T>(
   query: Record<string, string | number> = {},
   { fetchImpl = fetch, sleep = defaultSleep }: ClientDeps = {}
 ): Promise<T> => {
-  const { url, headers } = withAuth(path, query, apiKey());
+  const { url, headers } = withAuth(path, query);
   let lastFailure = "no attempt made";
   let lastStatus: number | undefined;
 

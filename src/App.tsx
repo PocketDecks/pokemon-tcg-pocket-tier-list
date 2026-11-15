@@ -15,7 +15,7 @@ import Header, { RAIL_WIDTH } from "./components/Header";
 import HomeBanner from "./components/HomeBanner";
 import LayoutMain from "./components/LayoutMain";
 import { useDocumentLanguage } from "./app/use-document-language";
-import { splitLocale } from "./app/locale-route";
+import { LOCALE_PREFIXES, ROUTE_LOCALES, splitLocale } from "./app/locale-route";
 
 const LandingPage = lazy(() => import("./pages/landing/LandingPage"));
 const TierListPage = lazy(() => import("./pages/tier-list/TierListPage"));
@@ -118,6 +118,30 @@ export const Layout = () => {
   );
 };
 
+// Every page route lives in this fragment, once. It is mounted under each locale
+// prefix in `App`, and `readAppRoutePaths` in scripts/verify-dist-html.js reads
+// it as text, so keep it a `<>` block of literal `<Route path="...">` elements.
+const pageRoutes = (
+  <>
+    <Route index element={<LandingPage />} />
+    <Route path="tier-list" element={<TierListPage />} />
+    <Route path="cards-list" element={<CardsListPage />} />
+    <Route path="expansion-list">
+      <Route index element={<ExpansionListPage />} />
+      <Route path=":expansionId" element={<ExpansionPage />} />
+    </Route>
+    <Route path="statistics" element={<StatisticsPage />} />
+    <Route path="privacy" element={<PrivacyPage />} />
+    <Route path="about" element={<AboutPage />} />
+    <Route path="feedback" element={<FeedbackPage />} />
+    <Route path="deck">
+      <Route index element={<DeckFinderPage />} />
+      <Route path=":deckId" element={<DeckRoute />} />
+    </Route>
+    <Route path="*" element={<NotFoundPage />} />
+  </>
+);
+
 const App = () => {
   return (
       <ErrorBoundary>
@@ -127,42 +151,11 @@ const App = () => {
               <DecksProvider>
                 <ContentReadyProvider>
                   <Routes>
-                    <Route path="/" element={<Layout />}>
-                      <Route index element={<LandingPage />} />
-                      <Route path="tier-list" element={<TierListPage />} />
-                      <Route path="cards-list" element={<CardsListPage />} />
-                      <Route path="expansion-list">
-                        <Route index element={<ExpansionListPage />} />
-                        <Route path=":expansionId" element={<ExpansionPage />} />
+                    {ROUTE_LOCALES.map((locale) => (
+                      <Route key={locale} path={LOCALE_PREFIXES[locale] || "/"} element={<Layout />}>
+                        {pageRoutes}
                       </Route>
-                      <Route path="statistics" element={<StatisticsPage />} />
-                      <Route path="privacy" element={<PrivacyPage />} />
-                      <Route path="about" element={<AboutPage />} />
-                      <Route path="feedback" element={<FeedbackPage />} />
-                      <Route path="deck">
-                        <Route index element={<DeckFinderPage />} />
-                        <Route path=":deckId" element={<DeckRoute />} />
-                      </Route>
-                      <Route path="*" element={<NotFoundPage />} />
-                    </Route>
-                    <Route path="/ja" element={<Layout />}>
-                      <Route index element={<LandingPage />} />
-                      <Route path="tier-list" element={<TierListPage />} />
-                      <Route path="cards-list" element={<CardsListPage />} />
-                      <Route path="expansion-list">
-                        <Route index element={<ExpansionListPage />} />
-                        <Route path=":expansionId" element={<ExpansionPage />} />
-                      </Route>
-                      <Route path="statistics" element={<StatisticsPage />} />
-                      <Route path="privacy" element={<PrivacyPage />} />
-                      <Route path="about" element={<AboutPage />} />
-                      <Route path="feedback" element={<FeedbackPage />} />
-                      <Route path="deck">
-                        <Route index element={<DeckFinderPage />} />
-                        <Route path=":deckId" element={<DeckRoute />} />
-                      </Route>
-                      <Route path="*" element={<NotFoundPage />} />
-                    </Route>
+                    ))}
                   </Routes>
                 </ContentReadyProvider>
               </DecksProvider>

@@ -14,7 +14,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import ExpansionPage from "../ExpansionPage";
-import { fetchCards } from "../../../app/cards-api";
 import { useMarkContentReady } from "../../../ads/ContentReadyContext";
 import { cardThumbUrl } from "../../../app/deck-thumb";
 
@@ -94,6 +93,7 @@ const fixtures = vi.hoisted(() => {
     ],
     cards: [higher, lower, gengar, greninja, mewtwoCard, sharedCard],
     decksError: null as Error | null,
+    current: [] as unknown[],
   };
 });
 
@@ -102,7 +102,7 @@ vi.mock("../../../app/use-decks", () => ({
     decks: fixtures.decks,
     rawDecks: fixtures.rawDecks,
     metaShareBySlug: fixtures.metaShareBySlug,
-    loading: false,
+    status: fixtures.decksError ? "error" : "ready",
     error: fixtures.decksError,
   }),
 }));
@@ -114,7 +114,12 @@ vi.mock("../../../app/use-expansions", () => ({
 
 vi.mock("../../../app/cards-api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../../app/cards-api")>();
-  return { ...actual, fetchCards: vi.fn(actual.fetchCards) };
+  return {
+    ...actual,
+    get CARDS() {
+      return fixtures.current;
+    },
+  };
 });
 
 vi.mock("../../../ads/ContentReadyContext", () => ({
@@ -123,8 +128,8 @@ vi.mock("../../../ads/ContentReadyContext", () => ({
 }));
 
 const renderPage = (path = "/expansion-list/c1", cards = fixtures.cards) => {
+  fixtures.current = cards;
   const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-  queryClient.setQueryData(["cards"], { cards });
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={[path]}>
@@ -239,26 +244,6 @@ describe("ExpansionPage unlisted ids", () => {
   it("renders the not-found page for a deluxe expansion id", () => {
     renderPage("/expansion-list/b4b");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Page not found");
-  });
-});
-
-describe("ExpansionPage card data failure", () => {
-  it("shows a load error, settles prerendering and keeps ads off", async () => {
-    await i18nReady;
-    vi.mocked(fetchCards).mockRejectedValueOnce(new Error("offline"));
-    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-    render(
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={["/expansion-list/c1"]}>
-          <Routes>
-            <Route path="/expansion-list/:expansionId" element={<ExpansionPage />} />
-          </Routes>
-        </MemoryRouter>
-      </QueryClientProvider>
-    );
-    expect(await screen.findByText("Card data didn't load. Refresh the page to try again.")).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Cards used in live decks" })).toBeNull();
-    expect(vi.mocked(useMarkContentReady)).toHaveBeenLastCalledWith(false, true);
   });
 });
 

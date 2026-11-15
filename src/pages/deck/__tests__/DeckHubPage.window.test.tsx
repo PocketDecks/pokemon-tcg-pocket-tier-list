@@ -15,6 +15,7 @@ vi.mock("../../../app/use-decks", () => ({
   useDecks: () => ({
     decks: [
       {
+        id: "mega-altaria-ex-b1-102",
         name: "mega-altaria-ex-b1-102",
         powerScore: 40,
         expectedWinRate: 0.5,
@@ -23,6 +24,7 @@ vi.mock("../../../app/use-decks", () => ({
         bestList: { cards: [] },
       },
       {
+        id: "mega-altaria-ex-b1-102&greninja-a1-089",
         name: "mega-altaria-ex-b1-102&greninja-a1-089",
         powerScore: 70,
         expectedWinRate: 0.4,
@@ -32,14 +34,9 @@ vi.mock("../../../app/use-decks", () => ({
       },
     ],
     metaShareBySlug: {},
-    loading: false,
-    error: null,
+    status: "ready",
   }),
   useMatchups: () => ({ matchupsByName: null, loading: false, error: null }),
-}));
-
-vi.mock("../../../app/cards-api", () => ({
-  fetchCards: () => Promise.resolve({ cards: [], attacksByDeckBuilderNr: new Map() }),
 }));
 
 vi.mock("../../../ads/ContentReadyContext", () => ({ useMarkContentReady: () => {} }));

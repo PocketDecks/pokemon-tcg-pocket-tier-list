@@ -58,7 +58,7 @@ Goodra).
 
 ## Fixture regeneration
 
-When `CARDS_URL` is bumped to a new payload version:
+When the `pokemon-tcg-pocket-cards` dependency moves to a new payload version:
 
 1. Refresh `src/app/__fixtures__/cards-full-v510.json`:
 

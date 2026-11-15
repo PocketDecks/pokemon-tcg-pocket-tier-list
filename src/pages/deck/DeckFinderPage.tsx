@@ -6,89 +6,64 @@ import {
   sortByPowerScore,
 } from "../../app/score-baseline";
 import DeckCardGrid from "./DeckCardGrid";
-import DeckHero, { type DeckHeroStat } from "./DeckHero";
+import DeckHero from "./DeckHero";
+import DeckEmptyState from "./DeckEmptyState";
+import { buildHeroStats } from "./hero-stats";
+import { uniqueCardsById } from "../../app/unique-cards";
 import DeckPageSkeleton from "./DeckPageSkeleton";
-import EnergyList from "./EnergyList";
 import useDeckTiers, { tierForDeck } from "../../app/use-deck-tiers";
 import ShareDeckCode from "../../components/ShareDeckCode";
 import PageTitle from "../../components/PageTitle";
 import AdInContent from "../../ads/AdInContent";
 import SeoContent from "../../components/SeoContent";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
-import { useLocaleHref } from "../../app/locale-link";
-import { useQuery } from "@tanstack/react-query";
-import { CardType, fetchCards } from "../../app/cards-api";
+import { CARDS_BY_ID } from "../../app/cards-api";
 import { countById } from "../../app/deck-diff";
 import {
   CardSection,
-  EmptyActions,
-  EmptyMessage,
   FinderHelper,
-  Or,
   Overlay,
-  Shrug,
   Strength,
   StrengthFill,
   StrengthLabel,
   StrengthTrack,
   StyledDeckPage,
-  StyledLink,
-  UndoButton,
   MatchupUnavailable,
-  WinRatePlaceholder,
 } from "./deck-page.styles";
 
 const DeckFinderPage = () => {
-  const { decks, scoreBaseline, metaShareBySlug, loading, error } = useDecks();
+  const decksState = useDecks();
+  const { decks, scoreBaseline, metaShareBySlug } = decksState;
   const { matchupsByName, loading: matchupsLoading, error: matchupsError } = useMatchups();
   const tiers = useDeckTiers(decks);
   const { undoMissing, canUndo, lastRemovedId } = useMissing();
   const { t } = useTranslation();
-  const tierListHref = useLocaleHref("/tier-list");
 
-  // Card data for resolving a removed card's name in the empty-deck notice.
-  // React Query dedupes this against the same queryKey used elsewhere, so it is
-  // a cache read, not a second network fetch.
-  const { data: cardsPayload } = useQuery({
-    queryKey: ["cards"],
-    queryFn: fetchCards,
-  });
-  const cardsById = new Map(
-    (cardsPayload?.cards ?? []).map((card) => [card.id, card] as [string, CardType])
-  );
   const lastCutName = lastRemovedId
-    ? (cardsById.get(lastRemovedId)?.name ?? null)
+    ? (CARDS_BY_ID.get(lastRemovedId)?.name ?? null)
     : null;
 
   const deck = decks ? sortByPowerScore(decks)[0] : undefined;
 
   // Ready (for showing ads) only once a real deck is resolved, never on the
   // loading or "not enough cards" screens.
-  useMarkContentReady(!loading && !!decks && !!deck);
+  useMarkContentReady(!!deck);
 
-  if (loading) return <DeckPageSkeleton showPanel={false} />;
-  if (error) return <Overlay>Error loading data: {error.message}</Overlay>;
-  if (!decks) return <DeckPageSkeleton showPanel={false} />;
+  if (decksState.status === "loading") return <DeckPageSkeleton showPanel={false} />;
+  if (decksState.status === "error") return <Overlay>{t("common.loadError", { message: decksState.error.message })}</Overlay>;
 
   if (!deck) {
     return (
-      <Overlay>
-        <Shrug>{t("deckPage.notEnoughShrug")}</Shrug>
-        {lastCutName ? (
-          <EmptyMessage>
-            {t("deckPage.notEnoughBody", { card: lastCutName })}
-          </EmptyMessage>
-        ) : (
-          <EmptyMessage>{t("deckPage.notEnoughCards")}</EmptyMessage>
-        )}
-        <EmptyActions>
-          <UndoButton disabled={!canUndo} $disabled={!canUndo} onClick={undoMissing}>
-            {t("deckPage.undo")}
-          </UndoButton>
-          <Or>{t("deckPage.or")}</Or>
-          <StyledLink to={tierListHref}>{t("deckPage.tryAnotherDeck")}</StyledLink>
-        </EmptyActions>
-      </Overlay>
+      <DeckEmptyState
+        shrug={t("deckPage.notEnoughShrug")}
+        message={
+          lastCutName
+            ? t("deckPage.notEnoughBody", { card: lastCutName })
+            : t("deckPage.notEnoughCards")
+        }
+        onUndo={undoMissing}
+        undoDisabled={!canUndo}
+      />
     );
   }
 
@@ -96,27 +71,21 @@ const DeckFinderPage = () => {
     typeof deck.powerScore === "number" && scoreBaseline
       ? relativeToBaseline(deck.powerScore, scoreBaseline.powerScore)
       : null;
-  const uniqueCards = deck.bestList.cards.filter(
-    (card, index, self) => self.findIndex((c) => c.id === card.id) === index
-  );
+  const uniqueCards = uniqueCardsById(deck.bestList.cards);
   const cardCounts = countById(deck.bestList.cards);
   const deckMatchups = matchupsByName?.[deck.name];
   const totalMatchup = deckMatchups?.find((m) => m.name === "Total");
   const share = metaShareBySlug?.[deck.id]?.share;
-  const heroStats: DeckHeroStat[] = [
-    ...(matchupsLoading
-      ? [{ label: t("deckPage.winRate"), value: <WinRatePlaceholder aria-hidden="true" data-testid="win-rate-placeholder" /> }]
+  const heroStats = buildHeroStats({
+    t,
+    winRatePct: matchupsLoading
+      ? "loading"
       : totalMatchup && !matchupsError
-      ? [{ label: t("deckPage.winRate"), value: `${Math.round(totalMatchup.winRate * 100)}%` }]
-      : []),
-    ...(share !== undefined
-      ? [{ label: t("deckPage.metaShare"), value: `${(share * 100).toFixed(1)}%` }]
-      : []),
-    ...(deck.bestList.energyIds.length > 0
-      ? [{ label: t("deckPage.energyUsed"), value: <EnergyList energyIds={deck.bestList.energyIds} /> }]
-      : []),
-  ];
-
+        ? Math.round(totalMatchup.winRate * 100)
+        : null,
+    metaShare: share,
+    energyIds: deck.bestList.energyIds,
+  });
 
   return (
     <>

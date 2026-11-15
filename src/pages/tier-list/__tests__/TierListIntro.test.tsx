@@ -23,7 +23,7 @@ const decks = vi.hoisted(() => ({ value: [] as unknown[] }));
 const rawDecks = vi.hoisted(() => ({ value: [] as unknown[] }));
 
 vi.mock("../../../app/use-decks", () => ({
-  useDecks: () => ({ decks: decks.value, rawDecks: rawDecks.value, metaShareBySlug: null, loading: false, error: null }),
+  useDecks: () => ({ decks: decks.value, rawDecks: rawDecks.value, metaShareBySlug: null, status: "ready" }),
 }));
 
 vi.mock("../../../app/use-filters", () => ({

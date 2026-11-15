@@ -53,9 +53,9 @@ const errorResponse = (status: number, statusText: string) =>
   } as unknown as Response);
 
 const ErrorProbe = () => {
-  const { loading, error } = useDecks();
-  if (loading) return <p>loading</p>;
-  if (error) return <p>{error.message}</p>;
+  const state = useDecks();
+  if (state.status === "loading") return <p>loading</p>;
+  if (state.status === "error") return <p>{state.error.message}</p>;
   return <p>loaded</p>;
 };
 
@@ -67,8 +67,8 @@ const MatchupsProbe = () => {
 };
 
 const DeckNames = () => {
-  const { decks, loading } = useDecks();
-  if (loading || !decks) return <p>loading</p>;
+  const { decks } = useDecks();
+  if (!decks) return <p>loading</p>;
   return (
     <ul>
       {decks.map((deck) => (
@@ -79,8 +79,8 @@ const DeckNames = () => {
 };
 
 const DeckPopularities = () => {
-  const { decks, loading } = useDecks();
-  if (loading || !decks) return <p>loading</p>;
+  const { decks } = useDecks();
+  if (!decks) return <p>loading</p>;
   return (
     <ul>
       {decks.map((deck) => (
@@ -159,6 +159,29 @@ describe("DecksProvider with a drifted card id", () => {
 
     await screen.findByText(GOOD_DECK);
     expect(screen.queryByText(DRIFTED_DECK)).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ["an object", {}],
+    ["a deck without a name", [{ ...decks[0], name: undefined }]],
+    ["a list without cards", [{ ...decks[0], lists: [{ score: 1, strength: 1 }] }]],
+    ["a deck with a non-numeric popularity", [{ ...decks[0], popularity: "high" }]],
+  ])("reports an unexpected shape when best-decks is %s", async (_label, body) => {
+    vi.spyOn(global, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("best-decks.json")) return jsonResponse(body);
+      return jsonResponse(rawCards);
+    });
+
+    render(
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <DecksProvider>
+          <ErrorProbe />
+        </DecksProvider>
+      </QueryClientProvider>
+    );
+
+    expect(await screen.findByText("best-decks.json has an unexpected shape")).toBeInTheDocument();
   });
 
   it("keeps an unpaired deck when no paired decks exist", async () => {

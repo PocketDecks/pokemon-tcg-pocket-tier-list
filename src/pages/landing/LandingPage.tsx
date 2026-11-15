@@ -18,8 +18,8 @@ const StyledLandingPage = styled.div`
 `;
 
 const LandingPage = () => {
-  const { decks, loading } = useDecks();
-  useMarkContentReady(!loading && decks !== null);
+  const { status } = useDecks();
+  useMarkContentReady(status === "ready");
 
   return (
     <StyledLandingPage>

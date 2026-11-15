@@ -1,5 +1,6 @@
 import { Trans, useTranslation } from "react-i18next";
 import { useDecks } from "../../app/use-decks";
+import { rankedDecks } from "../../app/ranked-deck";
 import useFilters from "../../app/use-filters";
 import { latestBestListExpansion, latestCoveredExpansion } from "../../app/use-expansions";
 import { expansionCode } from "../../app/expansion-policy.mjs";
@@ -81,7 +82,8 @@ const ENERGY_TYPES = [
 ];
 
 const TierListPage = () => {
-  const { decks, rawDecks, metaShareBySlug, loading, error } = useDecks();
+  const decksState = useDecks();
+  const { decks, rawDecks, metaShareBySlug } = decksState;
   const {
     energy,
     setEnergy,
@@ -99,16 +101,16 @@ const TierListPage = () => {
   const bestListNewest = latestBestListExpansion(rawDecks);
   const isPremium = useIsPremium();
 
-  const ready = !loading && !!decks && decks.length > 0;
+  const ready = decksState.status === "ready" && decksState.decks.length > 0;
   useMarkContentReady(ready);
 
-  if (error)
+  if (decksState.status === "error")
     return (
       <>
         <WindowToggleCorner>
           <WindowToggle />
         </WindowToggleCorner>
-        <div>Error loading data: {error.message}</div>
+        <div>{t("common.loadError", { message: decksState.error.message })}</div>
       </>
     );
 
@@ -192,8 +194,8 @@ const TierListPage = () => {
           : t("header.tierListGeneric")}
       </PageTitle>
       <TierGrid
-        items={decks ? decks.filter((deck) => deck.powerScore !== null) : null}
-        getScore={(d) => d.powerScore ?? -1}
+        items={decks ? rankedDecks(decks) : null}
+        getScore={(d) => d.powerScore}
         getKey={(d) => d.id}
         renderItem={(deck) => (
           <DeckCard

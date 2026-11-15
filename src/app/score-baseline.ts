@@ -1,3 +1,5 @@
+import { comparePowerDescending, rankedDecks, sortRanked } from "./ranked-deck";
+
 export interface ScoreBaseline {
   deckName: string;
   powerScore: number;
@@ -11,20 +13,16 @@ export type PowerScoredDeck = {
 export const sortByPowerScore = <T extends PowerScoredDeck>(
   decks: T[]
 ): T[] =>
-  [...decks].sort(
-    (a, b) => (b.powerScore ?? -1) - (a.powerScore ?? -1)
-  );
+  [...decks].sort(comparePowerDescending);
 
 export const getScoreBaseline = (
   decks: PowerScoredDeck[]
 ): ScoreBaseline | null => {
-  const leader = sortByPowerScore(
-    decks.filter(
-      (deck) => deck.powerScore !== null && Number.isFinite(deck.powerScore)
-    )
+  const leader = sortRanked(
+    rankedDecks(decks).filter((deck) => Number.isFinite(deck.powerScore))
   )[0];
 
-  if (!leader || leader.powerScore === null) return null;
+  if (!leader) return null;
 
   return {
     deckName: leader.name,

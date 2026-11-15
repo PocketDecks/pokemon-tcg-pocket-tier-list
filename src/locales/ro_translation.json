@@ -455,5 +455,12 @@
     "errorTitle": "Ceva nu a funcționat",
     "errorMessage": "Această parte a site-ului nu a putut fi încărcată. Reîncărcarea ajută de obicei. De obicei.",
     "reload": "Reîncarcă pagina"
+  },
+  "common": {
+    "loading": "Se încarcă...",
+    "loadError": "Eroare la încărcarea datelor: {{message}}",
+    "all": "Toate",
+    "noCards": "Nu s-au găsit cărți",
+    "noDecks": "Nu s-au găsit pachete"
   }
 }

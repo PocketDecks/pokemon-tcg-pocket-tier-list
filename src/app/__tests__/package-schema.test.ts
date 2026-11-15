@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import rawCards from "pokemon-tcg-pocket-cards/data/v5/cards.core.min.json";
 import rawExpansions from "pokemon-tcg-pocket-cards/data/v5/expansions.min.json";
-import { fetchCards } from "../cards-api";
+import { CARDS } from "../cards-api";
 import type { ExpansionType } from "../use-expansions";
-import { CARDS_URL, EXPANSIONS_URL } from "../constants";
+import { RAW_CARDS, ALL_EXPANSIONS } from "../constants";
 
 const expansionById = (id: string): ExpansionType => {
-  const expansion = EXPANSIONS_URL.find((entry) => entry.id === id);
+  const expansion = ALL_EXPANSIONS.find((entry) => entry.id === id);
   if (!expansion) throw new Error(`Missing expansion ${id}`);
   return expansion;
 };
@@ -20,9 +20,9 @@ const summariseExpansion = (expansion: ExpansionType) => ({
 });
 
 describe("frontend card payload", () => {
-  it("serves every record from the installed core payload", async () => {
-    const { cards } = await fetchCards();
-    expect(CARDS_URL).toHaveLength(rawCards.length);
+  it("serves every record from the installed core payload", () => {
+    const cards = CARDS;
+    expect(RAW_CARDS).toHaveLength(rawCards.length);
     expect(cards).toHaveLength(rawCards.length);
     expect(cards.map((card) => card.id)).toEqual(rawCards.map((card) => card.id));
     expect(cards.map((card) => card.deckBuilderNr)).toEqual(
@@ -30,8 +30,8 @@ describe("frontend card payload", () => {
     );
   });
 
-  it("normalises representative cards to their exact values", async () => {
-    const { cards } = await fetchCards();
+  it("normalises representative cards to their exact values", () => {
+    const cards = CARDS;
     const cardById = (id: string) => cards.find((card) => card.id === id);
 
     expect(cardById("a1-001")).toEqual({
@@ -102,14 +102,14 @@ describe("frontend card payload", () => {
 
 describe("frontend expansion payload", () => {
   it("exposes every expansion record from the installed payload", () => {
-    expect(EXPANSIONS_URL).toHaveLength(rawExpansions.length);
-    expect(EXPANSIONS_URL.map((expansion) => expansion.id)).toEqual(
+    expect(ALL_EXPANSIONS).toHaveLength(rawExpansions.length);
+    expect(ALL_EXPANSIONS.map((expansion) => expansion.id)).toEqual(
       rawExpansions.map((expansion) => expansion.id)
     );
   });
 
   it("keeps every expansion's full pack list", () => {
-    expect(EXPANSIONS_URL.map((expansion) => expansion.packs.map((pack) => pack.id))).toEqual(
+    expect(ALL_EXPANSIONS.map((expansion) => expansion.packs.map((pack) => pack.id))).toEqual(
       rawExpansions.map((expansion) => expansion.packs.map((pack) => pack.id))
     );
   });

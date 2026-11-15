@@ -54,8 +54,8 @@ describe("CardsListPage score recovery", () => {
 
     expect(screen.getByRole("alert")).toBeInTheDocument();
     expect(screen.getByText("loadError.title")).toBeInTheDocument();
-    expect(screen.queryByText("No cards found")).not.toBeInTheDocument();
-    expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+    expect(screen.queryByText("common.noCards")).not.toBeInTheDocument();
+    expect(screen.queryByText("common.loading")).not.toBeInTheDocument();
     expect(screen.getByRole("combobox")).toBeInTheDocument();
     expect(screen.getByRole("alert").parentElement).toHaveStyle({ position: "relative", display: "flex" });
 

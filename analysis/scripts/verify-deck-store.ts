@@ -35,7 +35,7 @@ export const runVerify = ({ dir, allowEmpty = false, processedFile: processed = 
   return 0;
 };
 
-if (process.argv[1]?.endsWith("verify-deck-store.ts")) {
+if (require.main === module) {
   process.exitCode = runVerify({
     dir: decksDir(),
     allowEmpty: process.argv.includes("--allow-empty"),

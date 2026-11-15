@@ -246,7 +246,7 @@ const argument = (flag: string, fallback: string): string => {
   return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback;
 };
 
-if (process.argv[1]?.endsWith("purge-nonstandard-tournaments.ts")) {
+if (require.main === module) {
   purgeNonStandardTournaments({
     dir: argument("--dir", decksDir()),
     apply: process.argv.includes("--apply"),

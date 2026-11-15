@@ -114,6 +114,34 @@ describe("getTournamentDecks", () => {
     expect(deck.losses).toEqual(["tournament1-y"]);
   });
 
+  it("ignores standings rows that lack a record", async () => {
+    global.fetch = respondByUrl({
+      "/details": {},
+      "/standings": [
+        { player: "norecord", decklist: { pokemon: [card("Mew", 2)], trainer: [card("Potion", 2, "5")] } },
+        standing("good", [card("Mew", 2)], [card("Potion", 2, "5")]),
+      ],
+    });
+    vi.mocked(getPairings).mockResolvedValue([]);
+
+    const result = await getTournamentDecks(mockTournament as any);
+    expect(result.map((deck) => deck.id)).toEqual(["tournament1-good"]);
+  });
+
+  it.each([
+    [null, "null"],
+    ["player", "string"],
+  ])("refuses a standings row that is %j, naming the tournament", async (row, kind) => {
+    global.fetch = respondByUrl({
+      "/details": {},
+      "/standings": [standing("good", [card("Mew", 2)], [card("Potion", 2, "5")]), row],
+    });
+
+    await expect(getTournamentDecks(mockTournament as any)).rejects.toThrow(
+      `Tournament tournament1: standings row 1 was ${kind}, expected an object`
+    );
+  });
+
   it("skips decks whose cards lack a set or number and warns once", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     global.fetch = respondByUrl({

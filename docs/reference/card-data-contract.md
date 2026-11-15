@@ -10,12 +10,12 @@ ones the app uses, so everything passes through a normalisation layer first
 
 ## Where normalisation happens
 
-`src/app/cards-api.ts` owns the contract. `fetchCards()` is the only function
-that should read the card payload. It maps each record through
-`normaliseCard` and returns `CardType[]`. Both `DecksContext` and `useCards`
-call it under the same `["cards"]` query key. The attack index consumed by
-`fetchCards` is generated from the gameplay projection at prebuild, so the
-frontend never imports the 1.19 MiB payload.
+`src/app/cards-api.ts` owns the contract. It maps each record of
+`RAW_CARDS` (exported from `src/app/constants.ts`) through `normaliseCard` once
+at module load and exports the result as `CARDS`, with `CARDS_BY_ID` and
+`ATTACKS_BY_DECK_BUILDER_NR` derived from it. Read card data from those
+exports. The attack index is generated from the gameplay projection at
+prebuild, so the frontend never imports the 1.19 MiB payload.
 
 ## Field mapping
 

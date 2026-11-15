@@ -4,29 +4,33 @@ import path from "node:path";
 
 import { freeDeckNames } from "../../../src/app/free-tier";
 import {
-  PipelineMatchupData,
-  PipelineMetaShare,
-  PipelinePartialDeck,
-} from "../../../src/types/pipeline-data";
+  ARTEFACT_BASES,
+  DEFAULT_WINDOW,
+  PREMIUM_BASES,
+  PREMIUM_WINDOWS,
+  TRIMMED_BASES,
+  TRIMMED_WINDOWS,
+  WINDOW_IDS,
+  windowArtefactName,
+  windowDataFile,
+  type ArtefactBase,
+  type PremiumWindow,
+  type TrimmedBase,
+  type WindowId,
+} from "../../../src/types/meta-windows";
+import { WindowArtefacts } from "./build-window-artefacts";
 import { trimMatchupData, trimMetaShare } from "./trim-free-window";
 
-export const PREMIUM_WINDOWS = ["30d", "all"] as const;
-export type PremiumWindow = (typeof PREMIUM_WINDOWS)[number];
-
-export const PREMIUM_BASES = ["best-decks", "matchup-data", "meta-share"] as const;
-
-export const TRIMMED_BASES = ["matchup-data", "meta-share"] as const;
-export type TrimmedBase = (typeof TRIMMED_BASES)[number];
-
-export const TRIMMED_WINDOWS = ["10d", "20d"] as const;
+export { PREMIUM_BASES, PREMIUM_WINDOWS, TRIMMED_BASES, TRIMMED_WINDOWS };
+export type { PremiumWindow, TrimmedBase };
 
 const premiumWindowNames: readonly string[] = PREMIUM_BASES.flatMap((base) =>
-  PREMIUM_WINDOWS.map((window) => `${base}-${window}`)
+  PREMIUM_WINDOWS.map((window) => windowArtefactName(base, window))
 );
 
 export const PREMIUM_ARTEFACT_NAMES: readonly string[] = [
   ...premiumWindowNames,
-  ...TRIMMED_BASES.flatMap((base) => TRIMMED_WINDOWS.map((window) => `${base}-${window}`)),
+  ...TRIMMED_BASES.flatMap((base) => TRIMMED_WINDOWS.map((window) => windowArtefactName(base, window))),
 ];
 
 export const PREMIUM_DIR = path.resolve(__dirname, "../../out/premium");
@@ -42,53 +46,61 @@ export const premiumFilePath = (name: string, dir: string = PREMIUM_DIR): string
 export const sha256Hex = (text: string): string =>
   createHash("sha256").update(text, "utf8").digest("hex");
 
-const dataNameOf = (file: string): string | null => {
-  if (!file.startsWith(PUBLIC_DATA_PREFIX)) return null;
-  const rest = file.slice(PUBLIC_DATA_PREFIX.length);
-  return rest.endsWith(".json") ? rest.slice(0, -".json".length) : null;
-};
-
-const TRIMMED_NAME = new RegExp(
-  `^(${TRIMMED_BASES.join("|")})(?:-(${TRIMMED_WINDOWS.join("|")}))?$`
-);
-
 const render = (value: unknown): string => JSON.stringify(value, null, 2);
 
-const freeNamesFor = (files: Record<string, string>, suffix: string): Set<string> => {
-  const file = `${PUBLIC_DATA_PREFIX}best-decks${suffix}.json`;
-  const content = files[file];
-  if (content === undefined) {
-    throw new Error(`cannot trim the public data without best-decks${suffix}.json`);
-  }
-  return freeDeckNames(JSON.parse(content) as PipelinePartialDeck[]);
+type PayloadBase = ArtefactBase;
+type Payloads = Record<PayloadBase, string>;
+
+const isWindowIn = (list: readonly string[], window: WindowId): boolean => list.includes(window);
+
+const publicPath = (base: PayloadBase, window?: WindowId): string =>
+  `${PUBLIC_DATA_PREFIX}${
+    window ? `${windowArtefactName(base, window)}.json` : windowDataFile(base, DEFAULT_WINDOW)
+  }`;
+
+const serialise = (artefacts: WindowArtefacts): Payloads => ({
+  "best-decks": render(artefacts.bestDecks),
+  "meta-share": render(artefacts.metaShare),
+  "matchup-data": render(artefacts.matchupData),
+});
+
+const serialiseTrimmed = (artefacts: WindowArtefacts, full: Payloads): Payloads => {
+  const freeNames = freeDeckNames(artefacts.bestDecks);
+  return {
+    "best-decks": full["best-decks"],
+    "meta-share": render(trimMetaShare(artefacts.metaShare, freeNames)),
+    "matchup-data": render(trimMatchupData(artefacts.matchupData, freeNames)),
+  };
 };
 
-export const splitArtefactFiles = (
-  files: Record<string, string>
+// Public files hold the free tier. 30d and all-time exist only as premium
+// files; 10d and 20d are public with the free decks' detail and premium in
+// full. The default window is also written un-suffixed for readers that
+// predate the selector.
+export const splitWindowArtefacts = (
+  artefacts: Record<WindowId, WindowArtefacts>
 ): { publicFiles: Record<string, string>; premiumFiles: Record<string, string> } => {
   const publicFiles: Record<string, string> = {};
   const premiumFiles: Record<string, string> = {};
-  for (const [file, content] of Object.entries(files)) {
-    const name = dataNameOf(file);
-    if (name !== null && premiumWindowNames.includes(name)) {
-      premiumFiles[name] = content;
+  let defaultPublic: Payloads | undefined;
+
+  for (const window of WINDOW_IDS) {
+    const full = serialise(artefacts[window]);
+    if (isWindowIn(PREMIUM_WINDOWS, window)) {
+      for (const base of ARTEFACT_BASES) premiumFiles[windowArtefactName(base, window)] = full[base];
       continue;
     }
-    const trimmed = name === null ? null : TRIMMED_NAME.exec(name);
-    if (trimmed === null) {
-      publicFiles[file] = content;
-      continue;
+    const trimmed = isWindowIn(TRIMMED_WINDOWS, window);
+    const free = trimmed ? serialiseTrimmed(artefacts[window], full) : full;
+    for (const base of ARTEFACT_BASES) {
+      publicFiles[publicPath(base, window)] = free[base];
+      if (trimmed && base !== "best-decks") premiumFiles[windowArtefactName(base, window)] = full[base];
     }
-    const [, base, window] = trimmed;
-    const freeNames = freeNamesFor(files, window ? `-${window}` : "");
-    const parsed: unknown = JSON.parse(content);
-    publicFiles[file] = render(
-      base === "matchup-data"
-        ? trimMatchupData(parsed as PipelineMatchupData, freeNames)
-        : trimMetaShare(parsed as PipelineMetaShare, freeNames)
-    );
-    if (window) premiumFiles[name as string] = content;
+    if (window === DEFAULT_WINDOW) defaultPublic = free;
   }
+
+  if (!defaultPublic) throw new Error(`the default window ${DEFAULT_WINDOW} has no public files`);
+  for (const base of ARTEFACT_BASES) publicFiles[publicPath(base)] = defaultPublic[base];
   return { publicFiles, premiumFiles };
 };
 
@@ -120,7 +132,7 @@ export const snapshotPremiumVersion = (
   }
 };
 
-export const readPremiumVersionSnapshot = (
+export const loadPremiumSnapshotForVersion = (
   version: string,
   dir: string = PREMIUM_DIR
 ): Record<string, string> | undefined => {
@@ -135,11 +147,6 @@ export const readPremiumVersionSnapshot = (
     return undefined;
   }
 };
-
-export const loadPremiumSnapshotForVersion = (
-  version: string,
-  dir: string = PREMIUM_DIR
-): Record<string, string> | undefined => readPremiumVersionSnapshot(version, dir);
 
 export const prunePremiumSnapshots = (
   protectedVersions: readonly string[],

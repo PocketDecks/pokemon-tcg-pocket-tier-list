@@ -154,7 +154,7 @@ export const main = async (options: SyncOptions = {}): Promise<SyncRunState> => 
   };
 };
 
-if (process.argv[1]?.endsWith("sync-pairings.ts")) {
+if (require.main === module) {
   main()
     .then((state) => {
       process.exitCode = exitCodeFor(state);

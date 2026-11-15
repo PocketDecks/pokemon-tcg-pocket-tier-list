@@ -16,7 +16,6 @@ const { useDecks, useMatchups, usePipelineTrends } = vi.hoisted(() => ({
 vi.mock("../../../app/use-decks", () => ({ useDecks, useMatchups }));
 vi.mock("../../../app/use-is-premium", () => ({ __esModule: true, default: () => true }));
 vi.mock("../../../app/use-pipeline-trends", () => ({ __esModule: true, default: usePipelineTrends }));
-vi.mock("../../../app/cards-api", () => ({ fetchCards: vi.fn().mockResolvedValue({ cards: [] }) }));
 vi.mock("../../../ads/AdInContent", () => ({ __esModule: true, default: () => null }));
 vi.mock("../../../components/SeoContent", () => ({ __esModule: true, default: ({ children }: { children: React.ReactNode }) => <>{children}</> }));
 vi.mock("../TrendChart", () => ({ __esModule: true, default: () => null }));
@@ -53,7 +52,7 @@ describe("StatisticsPage window selector", () => {
         removeEventListener: () => {},
       }),
     });
-    useDecks.mockReturnValue({ decks, metaShare: { decks: [] }, loading: false, error: null });
+    useDecks.mockReturnValue({ decks, metaShare: { decks: [] }, status: "ready" });
     useMatchups.mockReturnValue({ matchupsByName: {}, loading: false, error: null });
     usePipelineTrends.mockReturnValue({ rows: [], isLoading: false, failed: false });
 

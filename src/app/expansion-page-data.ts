@@ -2,7 +2,7 @@ import type { CardType } from "./cards-api";
 import type { ExpansionType } from "./use-expansions";
 import type { FullDeckType } from "./deck-types";
 import { bestListCardIds } from "./expansion-feed.mjs";
-import { deckSlug } from "./deck-slug";
+import { rawDeckId } from "./deck-resolution";
 import { deckArchetypeSlug } from "./deck-archetype";
 import { deckDisplayName } from "./deck-display";
 import { isSharedPack } from "./expansion-scores";
@@ -35,7 +35,7 @@ const inPack = (card: CardType, packName: string) =>
 
 export const expansionPageData = (
   expansion: ExpansionType,
-  cards: CardType[],
+  cards: readonly CardType[],
   rawDecks: readonly RawDeck[],
   resolvedDecks: readonly FullDeckType[],
   packName?: string
@@ -50,7 +50,7 @@ export const expansionPageData = (
   const qualifying = rawDecks.filter((deck) => bestListCardIds(deck).some((id) => expansionCards.has(id)));
   const liveDecks: ExpansionLiveDeck[] = qualifying
     .map((raw) => {
-      const deck = resolvedDecks.find((candidate) => candidate.id === deckSlug(raw.name)) ?? null;
+      const deck = resolvedDecks.find((candidate) => candidate.id === rawDeckId(raw)) ?? null;
       return {
         name: raw.name,
         hub: deckArchetypeSlug(raw.name),

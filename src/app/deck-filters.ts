@@ -1,9 +1,7 @@
-import { CardType } from "./cards-api";
+import { CARDS_BY_ID, type CardType } from "./cards-api";
 import { parseDeckListRef } from "./card-ref";
 
 export { deckNameToIconIds } from "../types/deck-name";
-
-export type CardsMapping = Record<string, CardType>;
 
 export const cardToId = (card: string): string => parseDeckListRef(card).id;
 
@@ -11,14 +9,12 @@ export const cardToCount = (card: string): number =>
   parseDeckListRef(card).count;
 
 /** Cards and deck lists are versioned separately, so ids can fall out of step. */
-export const findUnresolvedCardIds = (
-  cards: string[],
-  cardsMapping: CardsMapping
-): string[] => {
-  return cards
-    .map(cardToId)
-    .filter((id: string) => !cardsMapping[id]);
-};
+export const findUnresolvedCardIds = (cards: string[]): string[] =>
+  cards.map(cardToId).filter((id: string) => !CARDS_BY_ID.has(id));
+
+/** Only for lists that passed findUnresolvedCardIds. */
+const cardOf = (card: string): CardType =>
+  CARDS_BY_ID.get(cardToId(card)) as CardType;
 
 /** A card is capped at 2 copies, less whatever the user is missing. */
 export const isAffordable = (
@@ -37,31 +33,28 @@ export const isAffordable = (
 /** Trainers carry no elemental type, so they pass every energy filter. */
 export const matchesEnergy = (
   cards: string[],
-  cardsMapping: CardsMapping,
   energy: string | null
 ): boolean => {
   if (energy === null) return true;
   return cards.every((card: string) => {
-    const cardData = cardsMapping[cardToId(card)];
+    const cardData = cardOf(card);
     return cardData.type === energy || cardData.supertype === "Trainer";
   });
 };
 
 export const matchesExFilter = (
   cards: string[],
-  cardsMapping: CardsMapping,
   includeEx: boolean
 ): boolean => {
   if (includeEx) return true;
   return cards.every((card: string) => {
-    const cardData = cardsMapping[cardToId(card)];
+    const cardData = cardOf(card);
     return cardData.supertype === "Trainer" || !cardData.ex;
   });
 };
 
 export const hasEnoughLatestExpansionCards = (
   cards: string[],
-  cardsMapping: CardsMapping,
   latestExpansionId: string | null,
   required: number | null
 ): boolean => {
@@ -69,8 +62,7 @@ export const hasEnoughLatestExpansionCards = (
 
   let count = 0;
   for (const card of cards) {
-    const cardData = cardsMapping[cardToId(card)];
-    if (cardData.id.split("-")[0] === latestExpansionId) {
+    if (cardToId(card).split("-")[0] === latestExpansionId) {
       count += cardToCount(card);
     }
   }

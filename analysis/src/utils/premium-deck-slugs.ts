@@ -1,3 +1,4 @@
+import { byCodeUnit } from "./compare";
 import { deckSlug } from "../../../src/app/deck-slug";
 
 export const PREMIUM_DECK_SLUGS_FILE = "../src/data/premium-deck-slugs.json";
@@ -22,12 +23,8 @@ export const buildPremiumDeckSlugs = (
       windowsBySlug.set(slug, windows);
     }
   }
-  return Object.fromEntries([...windowsBySlug.entries()].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
+  return Object.fromEntries([...windowsBySlug.entries()].sort(([a], [b]) => byCodeUnit(a, b)));
 };
 
 export const renderPremiumDeckSlugs = (slugs: PremiumDeckSlugs): string =>
-  `${JSON.stringify(
-    Object.fromEntries(Object.entries(slugs).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))),
-    null,
-    2
-  )}\n`;
+  `${JSON.stringify(slugs, null, 2)}\n`;

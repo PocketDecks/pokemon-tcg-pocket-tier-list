@@ -36,8 +36,8 @@ const CardsListPage = () => {
           setExpansion(value === "" ? null : value);
         }}
       >
-        <option value="">All</option>
-        {expansions?.map((expansion: ExpansionType) => (
+        <option value="">{t("common.all")}</option>
+        {expansions.map((expansion: ExpansionType) => (
           <option key={expansion.id} value={expansion.id}>
             {expansion.name}
           </option>
@@ -58,7 +58,7 @@ const CardsListPage = () => {
         filters={filters}
         error={error && !cards ? <QueryErrorNotice onRetry={retryAndFocus} /> : undefined}
         footer={<LastUpdated />}
-        emptyLabel="No cards found"
+        emptyLabel={t("common.noCards")}
       />
       <SeoContent>
         <h2>{t("cardsList.heading", { ns: "seo" })}</h2>

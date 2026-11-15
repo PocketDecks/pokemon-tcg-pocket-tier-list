@@ -1,21 +1,20 @@
 import styled from "styled-components";
 import { Link, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import { archiveForHub } from "../../app/deck-archive";
 import { LocaleLink, useLocaleHref } from "../../app/locale-link";
-import { deckSlug } from "../../app/deck-slug";
 import useDeckHref from "../../app/use-deck-href";
 import { hubDisplayName, hubSeenRange } from "../../app/deck-archetype";
 import { deckDisplayName, variantDisplayName } from "../../app/deck-display";
 import { useDecks, useMatchups } from "../../app/use-decks";
+import { dateLocale } from "../../app/format-rankings-date";
+import { comparePowerDescending } from "../../app/ranked-deck";
 import { useHubFile } from "../../app/use-hub-file";
-import { fetchCards } from "../../app/cards-api";
+import { CARDS_BY_ID } from "../../app/cards-api";
 import { MIN_MATCHUP_GAMES } from "../../app/config";
 import { newestCoveredExpansion } from "../../app/expansion-feed.mjs";
-import { EXPANSIONS_URL } from "../../app/constants";
+import { ALL_EXPANSIONS } from "../../app/constants";
 import SeoContent from "../../components/SeoContent";
 import DeckHubHeadTags, { type HubHeadStatus } from "./DeckHubHeadTags";
 import NotFoundPage from "../not-found/NotFoundPage";
@@ -161,8 +160,6 @@ const Action = styled(Link)`
   font-weight: 600;
 `;
 
-const dateLocale = (language: string) => (language === "en" ? "en-GB" : language);
-
 const formatDate = (date: string, language: string) =>
   new Intl.DateTimeFormat(dateLocale(language), { dateStyle: "medium", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
 
@@ -172,7 +169,7 @@ const shareText = (value: number) => (value > 0 && value < 0.0005 ? "<0.1" : per
 
 const HubPage = () => {
   const { deckId: hubSlug } = useParams();
-  const { decks, metaShareBySlug, loading } = useDecks();
+  const { status, decks, metaShareBySlug } = useDecks();
   const { matchupsByName, loading: matchupsLoading } = useMatchups();
   const { t, i18n } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");
@@ -180,30 +177,26 @@ const HubPage = () => {
   const deckFinderHref = useLocaleHref("/deck");
   const variants = hubSlug ? archiveForHub(hubSlug) : [];
   const hubQuery = useHubFile(hubSlug);
-  const cardsQuery = useQuery({ queryKey: ["cards"], queryFn: fetchCards });
   const hub = hubQuery.data;
-  const cardNames = useMemo(
-    () => new Map((cardsQuery.data?.cards ?? []).map((card) => [card.id, card.name])),
-    [cardsQuery.data]
-  );
-  const liveBySlug = new Map((decks ?? []).map((deck) => [deckSlug(deck.name), deck]));
+  const liveBySlug = new Map((decks ?? []).map((deck) => [deck.id, deck]));
   const deckByName = new Map((decks ?? []).map((deck) => [deck.name, deck]));
   const liveNames = new Set((decks ?? []).map((deck) => deck.name));
-  const powerOf = (variant: string) => liveBySlug.get(variant)?.powerScore ?? -1;
   const liveVariants = variants
     .filter((entry) => liveBySlug.has(entry.variant))
-    .sort((a, b) => powerOf(b.variant) - powerOf(a.variant));
-  const latest = newestCoveredExpansion(EXPANSIONS_URL, decks);
+    .sort((a, b) =>
+      comparePowerDescending(liveBySlug.get(a.variant)!, liveBySlug.get(b.variant)!)
+    );
+  const latest = newestCoveredExpansion(ALL_EXPANSIONS, decks);
   const contentReady =
-    variants.length === 0 || (hub !== undefined && cardsQuery.isSuccess && !matchupsLoading);
-  useMarkContentReady(!loading && contentReady);
+    variants.length === 0 || (hub !== undefined && !matchupsLoading);
+  useMarkContentReady(status !== "loading" && contentReady);
 
   if (!hubSlug || variants.length === 0) return <NotFoundPage />;
 
   const name = hubDisplayName(variants);
   const seen = hubSeenRange(variants);
   const headStatus: HubHeadStatus =
-    loading || decks === null ? "unknown" : liveVariants.length > 0 ? "live" : "retired";
+    decks === null ? "unknown" : liveVariants.length > 0 ? "live" : "retired";
   const records = hub?.variants ?? [];
   const recordSeen = hubSeenRange(records.length > 0 ? records : variants);
   const strongest = liveVariants[0];
@@ -214,7 +207,7 @@ const HubPage = () => {
     : newestFirst(records).find((record) => record.cards.length > 0);
   const coreCards = coreCardsOf(coreRecord?.cards ?? []);
   const namedCore = coreCards.flatMap((card) => {
-    const cardName = cardNames.get(card.id);
+    const cardName = CARDS_BY_ID.get(card.id)?.name;
     return cardName ? [{ ...card, name: cardName }] : [];
   });
   const coreIds = new Set(coreCards.map((card) => card.id));
@@ -226,7 +219,7 @@ const HubPage = () => {
   const peak = hubPeak(records);
   const topCards = mostIncluded(namedCore, 3).map((card) => card.name);
   const expansionName = latest?.name ?? t("deckHub.expansionFallback");
-  const status = decks === null || loading
+  const liveStatus = decks === null
     ? null
     : strongestDeck
     ? strongestShare === undefined
@@ -283,7 +276,7 @@ const HubPage = () => {
       <DeckHubHeadTags name={name} status={headStatus} />
       <Header>
         <Title>{t("deckHub.title", { name })}</Title>
-        {loading ? null : !decks ? (
+        {status === "loading" ? null : decks === null ? (
           <Summary>{t("deckHub.unavailable")}</Summary>
         ) : liveVariants.length > 0 ? (
           <Summary>{t("deckHub.liveSummary", { count: liveVariants.length })}</Summary>
@@ -357,7 +350,7 @@ const HubPage = () => {
               <Rows>
                 {similar.map(({ deck, shared }) => (
                   <li key={deck.name}>
-                    <Variant to={deckHref(deckSlug(deck.name))}>
+                    <Variant to={deckHref(deck.id)}>
                       <VariantName>{deckDisplayName(deck)}</VariantName>
                       <VariantMeta>{t("deckHub.sharedCards", { count: shared })}</VariantMeta>
                     </Variant>
@@ -410,7 +403,7 @@ const HubPage = () => {
         <SeoContent>
           <h2>{t("hub.heading", { ns: "seo", name })}</h2>
           {overview !== null && <p>{overview}</p>}
-          {status !== null && <p>{status}</p>}
+          {liveStatus !== null && <p>{liveStatus}</p>}
           {coreSentence !== null && <p>{coreSentence}</p>}
         </SeoContent>
       )}

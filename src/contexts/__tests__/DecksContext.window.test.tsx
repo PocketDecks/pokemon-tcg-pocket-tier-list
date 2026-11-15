@@ -41,8 +41,8 @@ const jsonResponse = (body: unknown) =>
   } as unknown as Response);
 
 const DeckProbe = () => {
-  const { decks: resolved, loading } = useDecks();
-  if (loading || !resolved) return <p>loading</p>;
+  const { decks: resolved } = useDecks();
+  if (!resolved) return <p>loading</p>;
   return <p>{resolved.map((deck) => deck.name).join(",")}</p>;
 };
 

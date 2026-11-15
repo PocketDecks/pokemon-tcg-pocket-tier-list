@@ -7,8 +7,8 @@ const PREMIUM_ONLY = "mega-altaria-ex-b1-102&bonsly-b3-078";
 const LATE_ONLY = "old-a1-009";
 
 const state = vi.hoisted(() => ({
-  decks: [] as { name: string }[] | null,
-  loading: false,
+  decks: [] as { id: string; name: string }[] | null,
+  status: "ready" as "ready" | "loading" | "error",
   error: null as Error | null,
   premium: false as boolean | null,
   window: "20d" as "10d" | "20d" | "30d" | "all",
@@ -25,7 +25,7 @@ vi.mock("../../../data/premium-deck-slugs.json", () => ({
 vi.mock("../../../app/use-decks", () => ({
   useDecks: () => ({
     decks: state.decks,
-    loading: state.loading,
+    status: state.status,
     error: state.error,
     isPremium: state.premium,
   }),
@@ -52,8 +52,8 @@ const tree = (path: string) => (
 const renderAt = (path: string) => render(tree(path));
 
 beforeEach(() => {
-  state.decks = [{ name: "garchomp-a2-123" }];
-  state.loading = false;
+  state.decks = [{ id: "garchomp-a2-123", name: "garchomp-a2-123" }];
+  state.status = "ready";
   state.error = null;
   state.premium = false;
   state.window = "20d";
@@ -96,7 +96,7 @@ describe("DeckRoute for a deck only the premium windows offer", () => {
   });
 
   it("keeps the skeleton while the decks are loading", () => {
-    state.loading = true;
+    state.status = "loading";
     state.decks = null;
     renderAt(`/deck/${PREMIUM_ONLY}`);
 
@@ -107,7 +107,7 @@ describe("DeckRoute for a deck only the premium windows offer", () => {
     state.premium = true;
     state.setWindow.mockImplementation((next: typeof state.window) => {
       state.window = next;
-      state.decks = [{ name: PREMIUM_ONLY }];
+      state.decks = [{ id: PREMIUM_ONLY, name: PREMIUM_ONLY }];
     });
     const view = renderAt(`/deck/${PREMIUM_ONLY}`);
 
@@ -129,7 +129,7 @@ describe("DeckRoute for a deck only the premium windows offer", () => {
   it("renders the deck once the selected window offers it", () => {
     state.premium = true;
     state.window = "30d";
-    state.decks = [{ name: PREMIUM_ONLY }];
+    state.decks = [{ id: PREMIUM_ONLY, name: PREMIUM_ONLY }];
     renderAt(`/deck/${PREMIUM_ONLY}`);
 
     expect(screen.getByText("live deck page")).toBeTruthy();
@@ -137,7 +137,7 @@ describe("DeckRoute for a deck only the premium windows offer", () => {
   });
 
   it("renders the deck for a free viewer when the free window offers it", () => {
-    state.decks = [{ name: PREMIUM_ONLY }];
+    state.decks = [{ id: PREMIUM_ONLY, name: PREMIUM_ONLY }];
     renderAt(`/deck/${PREMIUM_ONLY}`);
 
     expect(screen.getByText("live deck page")).toBeTruthy();

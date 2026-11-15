@@ -10,11 +10,7 @@ export interface CardRef {
 }
 
 /** Promo sets carry a hyphen the card ids drop. */
-export const setCode = (set: string): string => {
-  if (set === "P-A") return "pa";
-  if (set === "P-B") return "pb";
-  return set.toLowerCase();
-};
+export const setCode = (set: string): string => set.toLowerCase().replace(/^p-(?=[a-z]$)/, "p");
 
 /** "2:a1-004" from best-decks.json. */
 export const parseDeckListRef = (ref: string): CardRef => {

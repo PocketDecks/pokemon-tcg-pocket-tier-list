@@ -14,7 +14,7 @@ const DATE_LOCALES: Record<string, string> = {
 
 const DEFAULT_DATE_LOCALE = "en-GB";
 
-const dateLocale = (language: string) => DATE_LOCALES[language] ?? DEFAULT_DATE_LOCALE;
+export const dateLocale = (language: string) => DATE_LOCALES[language] ?? DEFAULT_DATE_LOCALE;
 
 export const formatRankingsDate = (date: Date, language: string): string =>
   date.toLocaleDateString(dateLocale(language), {

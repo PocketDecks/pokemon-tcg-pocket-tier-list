@@ -441,5 +441,12 @@
     "errorTitle": "Etwas ist schiefgelaufen",
     "errorMessage": "Dieser Teil der Website konnte nicht geladen werden. Erneut laden hilft meist. Meist.",
     "reload": "Seite neu laden"
+  },
+  "common": {
+    "loading": "Wird geladen...",
+    "loadError": "Fehler beim Laden der Daten: {{message}}",
+    "all": "Alle",
+    "noCards": "Keine Karten gefunden",
+    "noDecks": "Keine Decks gefunden"
   }
 }

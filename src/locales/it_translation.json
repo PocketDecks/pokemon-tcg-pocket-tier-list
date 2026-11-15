@@ -441,5 +441,12 @@
     "errorTitle": "Qualcosa è andato storto",
     "errorMessage": "Questa parte del sito non è stata caricata. Di solito basta ricaricare. Di solito.",
     "reload": "Ricarica la pagina"
+  },
+  "common": {
+    "loading": "Caricamento...",
+    "loadError": "Errore durante il caricamento dei dati: {{message}}",
+    "all": "Tutte",
+    "noCards": "Nessuna carta trovata",
+    "noDecks": "Nessun mazzo trovato"
   }
 }

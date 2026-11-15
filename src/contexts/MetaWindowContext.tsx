@@ -1,5 +1,4 @@
 import {
-  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -28,19 +27,18 @@ export const MetaWindowProvider = ({
   children: ReactNode;
   initialWindow?: MetaWindow;
 }) => {
-  const [window, setWindowState] = useState<MetaWindow>(
+  const [window, setWindow] = useState<MetaWindow>(
     () => initialWindow ?? windowFromUrl() ?? DEFAULT_META_WINDOW
   );
   const isPremium = useIsPremium();
   const queryClient = useQueryClient();
-  const setWindow = useCallback((next: MetaWindow) => setWindowState(next), []);
 
   // Premium lapse mid-session falls back to the default; unknown premium
   // state (null) never resets.
 
   useEffect(() => {
     if (isPremium === false && isPremiumMetaWindow(window)) {
-      setWindowState(DEFAULT_META_WINDOW);
+      setWindow(DEFAULT_META_WINDOW);
     }
   }, [isPremium, window]);
 
@@ -52,13 +50,13 @@ export const MetaWindowProvider = ({
           event.action.type === "error" &&
           event.action.error instanceof PremiumAccessError
         ) {
-          setWindowState(DEFAULT_META_WINDOW);
+          setWindow(DEFAULT_META_WINDOW);
         }
       }),
     [queryClient]
   );
 
-  const value = useMemo(() => ({ window, setWindow }), [window, setWindow]);
+  const value = useMemo(() => ({ window, setWindow }), [window]);
 
   return (
     <MetaWindowContext.Provider value={value}>

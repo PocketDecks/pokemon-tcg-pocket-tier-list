@@ -1,19 +1,17 @@
 import { useMemo } from "react";
 import { buildTiers } from "./tier-helper";
 import type { FullDeckType } from "./deck-types";
+import { rankedDecks, type RankedDeck } from "./ranked-deck";
 
 export interface DeckTier {
   label: string;
   color: string;
-  decks: FullDeckType[];
+  decks: RankedDeck<FullDeckType>[];
 }
 
 export const rankDeckTiers = (decks: FullDeckType[] | null): DeckTier[] => {
   if (!decks) return [];
-  return buildTiers(
-    decks.filter((deck) => deck.powerScore !== null),
-    (deck) => deck.powerScore ?? -1
-  ).map((tier) => ({ label: tier.label, color: tier.color, decks: tier.data }));
+  return buildTiers(rankedDecks(decks), (deck) => deck.powerScore).map((tier) => ({ label: tier.label, color: tier.color, decks: tier.data }));
 };
 
 export const tierForDeck = (tiers: DeckTier[], deckId: string): DeckTier | null =>

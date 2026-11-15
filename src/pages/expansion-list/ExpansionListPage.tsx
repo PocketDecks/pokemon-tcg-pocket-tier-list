@@ -33,12 +33,12 @@ const ExpansionListPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const view: ExpansionView = searchParams.get("view") === "packs" ? "packs" : "expansions";
 
-  const loaded = !!cards && !!expansions;
+  const loaded = !!cards;
 
-  const expansionData = buildExpansionData(cards ?? [], expansions ?? []);
-  const packData = buildExpansionPackData(cards ?? [], expansions ?? []);
+  const expansionData = buildExpansionData(cards ?? [], expansions);
+  const packData = buildExpansionPackData(cards ?? [], expansions);
   useMarkContentReady(loaded && (view === "packs" ? packData : expansionData).length > 0, !!error || loaded);
-  const expansionName = (id: string) => expansions?.find((entry) => entry.id === id)?.name ?? id;
+  const expansionName = (id: string) => expansions.find((entry) => entry.id === id)?.name ?? id;
 
   const selectView = (next: ExpansionView) => {
     const params = new URLSearchParams(searchParams);
@@ -72,7 +72,7 @@ const ExpansionListPage = () => {
             getKey={(d) => d.packId}
             renderItem={(data) => {
               const name = `${expansionName(data.expansionId)}: ${data.packName}`;
-              const expansion = expansions?.find((entry) => entry.id === data.expansionId);
+              const expansion = expansions.find((entry) => entry.id === data.expansionId);
               const to =
                 (expansion?.packs.length ?? 0) > 1
                   ? `/expansion-list/${data.expansionId}?pack=${packSlug(data.expansionId, data.packId)}`

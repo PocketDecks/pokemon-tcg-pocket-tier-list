@@ -3,10 +3,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deckSlug } from "./deck-slug.mjs";
 import { isMainModule } from "./is-main-module.mjs";
+import { PREMIUM_WINDOWS } from "./meta-windows.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const PREMIUM_DECK_SLUGS_FILE = path.join(ROOT, "src", "data", "premium-deck-slugs.json");
-export const PREMIUM_WINDOWS = ["30d", "all"];
 
 const SAFE_SLUG = /^[a-z0-9&-]+$/;
 

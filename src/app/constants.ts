@@ -2,8 +2,8 @@ import cardsPayload from "pokemon-tcg-pocket-cards/core";
 import expansionsPayload from "pokemon-tcg-pocket-cards/expansions";
 
 export const FREE_DECK_AMOUNT = 30;
-export const CARDS_URL = cardsPayload;
-export const EXPANSIONS_URL = expansionsPayload;
+export const RAW_CARDS = cardsPayload;
+export const ALL_EXPANSIONS = expansionsPayload;
 export const GITHUB_URL =
   "https://github.com/PocketDecks/pokemon-tcg-pocket-tier-list";
 export const CARDS_REPO_URL =

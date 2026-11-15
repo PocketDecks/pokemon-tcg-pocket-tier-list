@@ -1,5 +1,10 @@
 import fs from "fs";
-import { createHash } from "node:crypto";
+import {
+  buildArtefactProof,
+  proofCoversTarget,
+  readProof,
+  sidecarNames,
+} from "../../../scripts/refresh-sidecars.mjs";
 import { renameWithRetry } from "./rename-with-retry";
 
 type Artefact = {
@@ -15,15 +20,12 @@ type Artefact = {
   retainTemporary: boolean;
 };
 
-export const writeArtefacts = (files: Record<string, string>): void => {
-  const artefacts: Artefact[] = Object.keys(files).map((target) => {
+const planArtefacts = (files: Record<string, string>): Artefact[] =>
+  Object.keys(files).map((target) => {
     const hadTarget = fs.existsSync(target);
     return {
       target,
-      temporary: `${target}.tmp`,
-      proof: `${target}.tmp.owner`,
-      backup: `${target}.bak`,
-      marker: `${target}.created`,
+      ...sidecarNames(target),
       content: files[target],
       previous: hadTarget ? fs.readFileSync(target, "utf8") : null,
       hadTarget,
@@ -32,147 +34,158 @@ export const writeArtefacts = (files: Record<string, string>): void => {
     };
   });
 
+const refuseStale = (artefact: Artefact): never => {
+  throw new Error(`Refusing stale staging files for ${artefact.target}`);
+};
+
+const proofMatchesPrevious = (artefact: Artefact): boolean => {
+  const record = readProof(artefact.proof);
+  return record !== undefined && proofCoversTarget(record, artefact.previous ?? "");
+};
+
+const preflight = (artefacts: Artefact[]): void => {
   for (const artefact of artefacts) {
     const hasTemporary = fs.existsSync(artefact.temporary);
     const hasBackup = fs.existsSync(artefact.backup);
     const hasMarker = fs.existsSync(artefact.marker);
-    if (hasTemporary || hasBackup || hasMarker) {
-      throw new Error(`Refusing stale staging files for ${artefact.target}`);
-    }
+    if (hasTemporary || hasBackup || hasMarker) refuseStale(artefact);
     if (fs.existsSync(artefact.proof)) {
-      if (!artefact.hadTarget) throw new Error(`Refusing stale staging files for ${artefact.target}`);
-      try {
-        const proof = JSON.parse(fs.readFileSync(artefact.proof, "utf8")) as { version?: number; targetSha256?: string; sha256?: string };
-        const current = createHash("sha256").update(artefact.previous ?? "").digest("hex");
-        if (proof.version !== 1 || (proof.targetSha256 !== current && proof.sha256 !== current)) {
-          throw new Error("proof does not match target");
-        }
-      } catch {
-        throw new Error(`Refusing stale staging files for ${artefact.target}`);
-      }
+      if (!artefact.hadTarget) refuseStale(artefact);
+      if (!proofMatchesPrevious(artefact)) refuseStale(artefact);
       fs.rmSync(artefact.proof, { force: true });
     }
   }
+};
 
+const stage = (artefacts: Artefact[]): void => {
+  for (const artefact of artefacts) {
+    fs.writeFileSync(
+      artefact.proof,
+      buildArtefactProof({ content: artefact.content, previous: artefact.previous })
+    );
+    fs.writeFileSync(artefact.temporary, artefact.content);
+    // A target this write creates leaves a marker, so an interrupted run
+    // leaves evidence that the target is new.
+    if (!artefact.hadTarget) fs.writeFileSync(artefact.marker, "");
+  }
+};
+
+const moveTargetToBackup = (artefact: Artefact): void => {
   try {
-    for (const artefact of artefacts) {
-      fs.writeFileSync(artefact.proof, JSON.stringify({
-        version: 1,
-        targetSha256: artefact.hadTarget && artefact.previous !== null
-          ? createHash("sha256").update(artefact.previous).digest("hex")
-          : undefined,
-        sha256: createHash("sha256").update(artefact.content).digest("hex"),
-      }));
-      fs.writeFileSync(artefact.temporary, artefact.content);
-      // A target this write creates leaves a marker, so an interrupted run
-      // leaves evidence that the target is new.
-      if (!artefact.hadTarget) fs.writeFileSync(artefact.marker, "");
-    }
-
-    for (const artefact of artefacts) {
-      if (artefact.hadTarget) {
-        try {
-          renameWithRetry(artefact.target, artefact.backup);
-        } catch (error) {
-          artefact.retainTemporary = true;
-          throw error;
-        }
-        if (!fs.existsSync(artefact.backup)) {
-          artefact.retainTemporary = true;
-          throw new Error(`Backup missing after renaming ${artefact.target}`);
-        }
-      }
-      try {
-        renameWithRetry(artefact.temporary, artefact.target);
-      } catch (error) {
-        if (
-          (error as NodeJS.ErrnoException).code !== "EPERM" ||
-          !artefact.hadTarget ||
-          !fs.existsSync(artefact.backup)
-        ) {
-          throw error;
-        }
-        fs.writeFileSync(artefact.target, artefact.content);
-        artefact.committed = true;
-        fs.rmSync(artefact.temporary, { force: true });
-      }
-      artefact.committed = true;
-    }
+    renameWithRetry(artefact.target, artefact.backup);
   } catch (error) {
-    for (const artefact of [...artefacts].reverse()) {
-      try {
-        if (fs.existsSync(artefact.backup)) {
-          if (fs.existsSync(artefact.target)) fs.rmSync(artefact.target);
-          renameWithRetry(artefact.backup, artefact.target);
-        } else if (artefact.committed) {
-          if (artefact.previous !== null) {
-            fs.writeFileSync(artefact.target, artefact.previous);
-          } else if (fs.existsSync(artefact.target)) {
-            fs.rmSync(artefact.target);
-          }
-        }
-        if (!fs.existsSync(artefact.target) && fs.existsSync(artefact.marker)) {
-          fs.rmSync(artefact.marker);
-        }
-      } catch (rollbackError) {
-        console.warn(`Could not roll back artefact ${artefact.target}:`, rollbackError);
-      }
-    }
-
-    for (const artefact of artefacts) {
-      if (artefact.retainTemporary || !fs.existsSync(artefact.temporary)) continue;
-      try {
-        fs.rmSync(artefact.temporary);
-      } catch (cleanupError) {
-        console.warn(`Could not remove artefact staging file ${artefact.temporary}:`, cleanupError);
-      }
-    }
-    for (const artefact of artefacts) {
-      if (fs.existsSync(artefact.temporary)) continue;
-      try {
-        fs.rmSync(artefact.proof, { force: true });
-      } catch (cleanupError) {
-        console.warn(`Could not remove artefact proof ${artefact.proof}:`, cleanupError);
-      }
-    }
+    artefact.retainTemporary = true;
     throw error;
   }
+  if (!fs.existsSync(artefact.backup)) {
+    artefact.retainTemporary = true;
+    throw new Error(`Backup missing after renaming ${artefact.target}`);
+  }
+};
 
+const installTemporary = (artefact: Artefact): void => {
+  try {
+    renameWithRetry(artefact.temporary, artefact.target);
+  } catch (error) {
+    if (
+      (error as NodeJS.ErrnoException).code !== "EPERM" ||
+      !artefact.hadTarget ||
+      !fs.existsSync(artefact.backup)
+    ) {
+      throw error;
+    }
+    fs.writeFileSync(artefact.target, artefact.content);
+    artefact.committed = true;
+    fs.rmSync(artefact.temporary, { force: true });
+  }
+  artefact.committed = true;
+};
+
+const commit = (artefacts: Artefact[]): void => {
+  for (const artefact of artefacts) {
+    if (artefact.hadTarget) moveTargetToBackup(artefact);
+    installTemporary(artefact);
+  }
+};
+
+const rollbackOne = (artefact: Artefact): void => {
+  if (fs.existsSync(artefact.backup)) {
+    if (fs.existsSync(artefact.target)) fs.rmSync(artefact.target);
+    renameWithRetry(artefact.backup, artefact.target);
+  } else if (artefact.committed) {
+    if (artefact.previous !== null) {
+      fs.writeFileSync(artefact.target, artefact.previous);
+    } else if (fs.existsSync(artefact.target)) {
+      fs.rmSync(artefact.target);
+    }
+  }
+  if (!fs.existsSync(artefact.target) && fs.existsSync(artefact.marker)) {
+    fs.rmSync(artefact.marker);
+  }
+};
+
+const rollback = (artefacts: Artefact[]): void => {
+  for (const artefact of [...artefacts].reverse()) {
+    try {
+      rollbackOne(artefact);
+    } catch (rollbackError) {
+      console.warn(`Could not roll back artefact ${artefact.target}:`, rollbackError);
+    }
+  }
+};
+
+const removeOrWarn = (file: string, warning: string, options?: fs.RmOptions): void => {
+  try {
+    fs.rmSync(file, options);
+  } catch (cleanupError) {
+    console.warn(warning, cleanupError);
+  }
+};
+
+const committedWarning = (kind: string, file: string): string =>
+  `Could not remove artefact ${kind} ${file}. The committed ` +
+  `target remains active. Verify it and remove the ${kind} before rerunning:`;
+
+const cleanUpAfterFailure = (artefacts: Artefact[]): void => {
+  for (const artefact of artefacts) {
+    if (artefact.retainTemporary || !fs.existsSync(artefact.temporary)) continue;
+    removeOrWarn(
+      artefact.temporary,
+      `Could not remove artefact staging file ${artefact.temporary}:`
+    );
+  }
+  for (const artefact of artefacts) {
+    if (fs.existsSync(artefact.temporary)) continue;
+    removeOrWarn(artefact.proof, `Could not remove artefact proof ${artefact.proof}:`, {
+      force: true,
+    });
+  }
+};
+
+const cleanUpAfterCommit = (artefacts: Artefact[]): void => {
   for (const artefact of artefacts) {
     if (!fs.existsSync(artefact.backup)) continue;
-    try {
-      fs.rmSync(artefact.backup);
-    } catch (cleanupError) {
-      console.warn(
-        `Could not remove artefact backup ${artefact.backup}. The committed ` +
-          `target remains active. Verify it and remove the backup before rerunning:`,
-        cleanupError
-      );
-    }
+    removeOrWarn(artefact.backup, committedWarning("backup", artefact.backup));
   }
-
   for (const artefact of artefacts) {
     if (!fs.existsSync(artefact.marker)) continue;
-    try {
-      fs.rmSync(artefact.marker);
-    } catch (cleanupError) {
-      console.warn(
-        `Could not remove artefact marker ${artefact.marker}. The committed ` +
-          `target remains active. Verify it and remove the marker before rerunning:`,
-        cleanupError
-      );
-    }
+    removeOrWarn(artefact.marker, committedWarning("marker", artefact.marker));
   }
-
   for (const artefact of artefacts) {
-    try {
-      fs.rmSync(artefact.proof, { force: true });
-    } catch (cleanupError) {
-      console.warn(
-        `Could not remove artefact proof ${artefact.proof}. The committed ` +
-          `target remains active. Verify it and remove the proof before rerunning:`,
-        cleanupError
-      );
-    }
+    removeOrWarn(artefact.proof, committedWarning("proof", artefact.proof), { force: true });
   }
+};
+
+export const writeArtefacts = (files: Record<string, string>): void => {
+  const artefacts = planArtefacts(files);
+  preflight(artefacts);
+  try {
+    stage(artefacts);
+    commit(artefacts);
+  } catch (error) {
+    rollback(artefacts);
+    cleanUpAfterFailure(artefacts);
+    throw error;
+  }
+  cleanUpAfterCommit(artefacts);
 };

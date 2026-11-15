@@ -42,13 +42,13 @@ const jsonResponse = (body: unknown) =>
   Promise.resolve({ ok: true, json: () => Promise.resolve(body) } as unknown as Response);
 
 const Probe = () => {
-  const { decks, loading } = useDecks();
+  const { decks } = useDecks();
   const { window } = useMetaWindow();
   return (
     <div>
       <p data-testid="window">{window}</p>
       <p data-testid="decks">
-        {loading || !decks ? "loading" : decks.map((entry) => entry.name).join(",")}
+        {!decks ? "loading" : decks.map((entry) => entry.name).join(",")}
       </p>
     </div>
   );
@@ -57,6 +57,19 @@ const Probe = () => {
 const MatchupProbe = () => {
   const { matchupsByName } = useMatchups();
   return <p data-testid="matchups">{matchupsByName ? Object.keys(matchupsByName).join(",") : "none"}</p>;
+};
+
+const StateProbe = () => {
+  const state = useDecks();
+  return (
+    <p data-testid="state">
+      {JSON.stringify({
+        loading: state.status === "loading",
+        hasDecks: state.decks !== null,
+        error: state.status === "error" ? state.error.message : null,
+      })}
+    </p>
+  );
 };
 
 let requestedUrls: string[];
@@ -112,6 +125,24 @@ describe("premium window queries", () => {
       expect(requestedUrls.some((url) => /-(30d|all)\.json$/.test(url))).toBe(false);
     }
   );
+
+  it("reports loading, not an empty result, while premium is unknown on a premium window", async () => {
+    premium.isPremium = null;
+    renderOn("30d", <StateProbe />);
+
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(screen.getByTestId("state")).toHaveTextContent(
+      JSON.stringify({ loading: true, hasDecks: false, error: null })
+    );
+  });
+
+  it("serves the default window before premium is known", async () => {
+    premium.isPremium = null;
+    renderOn("20d");
+
+    expect(await screen.findByText(PUBLIC_DECK)).toBeInTheDocument();
+  });
 
   it("loads the premium window artefacts through the premium loader once premium is confirmed", async () => {
     premium.isPremium = true;

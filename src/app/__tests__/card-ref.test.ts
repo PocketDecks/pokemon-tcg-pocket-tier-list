@@ -49,6 +49,7 @@ describe("setCode", () => {
   it("strips the hyphen from promo sets", () => {
     expect(setCode("P-A")).toBe("pa");
     expect(setCode("P-B")).toBe("pb");
+    expect(setCode("P-C")).toBe("pc");
   });
 
   it("lowercases everything else", () => {

@@ -12,10 +12,10 @@ import {
   rampedFloor,
   readPreviousArchetypeCount,
 } from "./assert-publishable";
-import { PREMIUM_WINDOWS } from "./premium-artefacts";
+import { PREMIUM_WINDOWS, WINDOW_IDS, windowArtefactName, type WindowId } from "../../../src/types/meta-windows";
 
-export const REFRESH_WINDOWS = ["10d", "20d", "30d", "all"] as const;
-export type RefreshWindow = (typeof REFRESH_WINDOWS)[number];
+export const REFRESH_WINDOWS = WINDOW_IDS;
+export type RefreshWindow = WindowId;
 
 export interface WindowReport {
   window: RefreshWindow;
@@ -38,7 +38,7 @@ const isPremiumWindow = (window: RefreshWindow): boolean =>
   (PREMIUM_WINDOWS as readonly string[]).includes(window);
 
 const readDecks = (dir: string, window: RefreshWindow): { name: string }[] => {
-  const file = path.join(dir, `best-decks-${window}.json`);
+  const file = path.join(dir, `${windowArtefactName("best-decks", window)}.json`);
   if (!fs.existsSync(file)) throw new Error(`missing ${file}`);
   return JSON.parse(fs.readFileSync(file, "utf8")) as { name: string }[];
 };
@@ -50,15 +50,15 @@ const readPreviousCount = (
   if (previousDir === null) return null;
   if (
     isPremiumWindow(window) &&
-    !fs.existsSync(path.join(previousDir, `best-decks-${window}.json`))
+    !fs.existsSync(path.join(previousDir, `${windowArtefactName("best-decks", window)}.json`))
   ) {
     return null;
   }
-  const bestDecksFile = path.join(previousDir, `best-decks-${window}.json`);
+  const bestDecksFile = path.join(previousDir, `${windowArtefactName("best-decks", window)}.json`);
   if (!fs.existsSync(bestDecksFile)) throw new Error(`missing ${bestDecksFile}`);
   return readPreviousArchetypeCount(
     bestDecksFile,
-    path.join(previousDir, `meta-share-${window}.json`),
+    path.join(previousDir, `${windowArtefactName("meta-share", window)}.json`),
     EXPANSION_RELEASE_DATE
   );
 };

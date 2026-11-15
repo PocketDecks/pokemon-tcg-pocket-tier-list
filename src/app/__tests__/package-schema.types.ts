@@ -3,10 +3,10 @@ import type { PokemonTCGPocketCardsV5CoreSchema } from "pokemon-tcg-pocket-cards
 import type { PokemonTCGPocketExpansionsV5Schema } from "pokemon-tcg-pocket-cards/expansions";
 import type { RawCardType } from "../cards-api";
 import type { ExpansionType, PackType } from "../use-expansions";
-import type { CARDS_URL, EXPANSIONS_URL } from "../constants";
+import type { RAW_CARDS, ALL_EXPANSIONS } from "../constants";
 
 expectTypeOf<RawCardType>().toEqualTypeOf<PokemonTCGPocketCardsV5CoreSchema[number]>();
 expectTypeOf<ExpansionType>().toEqualTypeOf<PokemonTCGPocketExpansionsV5Schema[number]>();
 expectTypeOf<PackType>().toEqualTypeOf<PokemonTCGPocketExpansionsV5Schema[number]["packs"][number]>();
-expectTypeOf<typeof CARDS_URL>().toEqualTypeOf<PokemonTCGPocketCardsV5CoreSchema>();
-expectTypeOf<typeof EXPANSIONS_URL>().toEqualTypeOf<PokemonTCGPocketExpansionsV5Schema>();
+expectTypeOf<typeof RAW_CARDS>().toEqualTypeOf<PokemonTCGPocketCardsV5CoreSchema>();
+expectTypeOf<typeof ALL_EXPANSIONS>().toEqualTypeOf<PokemonTCGPocketExpansionsV5Schema>();

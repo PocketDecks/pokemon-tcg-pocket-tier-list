@@ -68,10 +68,17 @@ describe("renderPremiumDeckSlugs", () => {
     expect(renderPremiumDeckSlugs({})).toBe("{}\n");
   });
 
-  it("renders sorted keys with two-space indentation and a trailing newline", () => {
-    expect(renderPremiumDeckSlugs({ b: ["all"], a: ["30d", "all"] })).toBe(
+  it("renders keys with two-space indentation and a trailing newline", () => {
+    expect(renderPremiumDeckSlugs({ a: ["30d", "all"], b: ["all"] })).toBe(
       '{\n  "a": [\n    "30d",\n    "all"\n  ],\n  "b": [\n    "all"\n  ]\n}\n'
     );
+  });
+
+  it("renders the built slugs in sorted key order", () => {
+    const decks = [{ name: "Zed" }, { name: "Alpha" }, { name: "Mid" }];
+    const built = buildPremiumDeckSlugs({ "20d": [], "30d": decks }, "20d", ["30d"]);
+
+    expect(Object.keys(JSON.parse(renderPremiumDeckSlugs(built)))).toEqual(["alpha", "mid", "zed"]);
   });
 
   it("targets the committed frontend data file", () => {

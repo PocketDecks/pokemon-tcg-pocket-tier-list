@@ -40,7 +40,7 @@ const deck = (id: string, iconName: string, powerScore: number | null) => ({
 const decks = vi.hoisted(() => ({ value: [] as unknown[] }));
 
 vi.mock("../../../app/use-decks", () => ({
-  useDecks: () => ({ decks: decks.value, metaShareBySlug: null, loading: false, error: null }),
+  useDecks: () => ({ decks: decks.value, metaShareBySlug: null, status: "ready" }),
 }));
 
 vi.mock("../../../app/use-filters", () => ({

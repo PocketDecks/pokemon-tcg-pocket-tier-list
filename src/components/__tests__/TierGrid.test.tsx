@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
+import "../../i18n";
 import TierGrid from "../TierGrid";
 
 describe("TierGrid", () => {

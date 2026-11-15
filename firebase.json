@@ -1455,11 +1455,6 @@
         "type": 301
       },
       {
-        "source": "/deck/giratina-ex-a2b-035&darkrai-ex-a2-110{,/**}",
-        "destination": "/deck/giratina-ex/",
-        "type": 301
-      },
-      {
         "source": "/deck/giratina-ex-a2b-035&gastly-a1-120{,/**}",
         "destination": "/deck/giratina-ex/",
         "type": 301
@@ -2821,11 +2816,6 @@
       },
       {
         "source": "/deck/mega-blaziken-ex-b1-036{,/**}",
-        "destination": "/deck/mega-blaziken-ex/",
-        "type": 301
-      },
-      {
-        "source": "/deck/mega-blaziken-ex-b1-036&castform-sunny-form-b3-024{,/**}",
         "destination": "/deck/mega-blaziken-ex/",
         "type": 301
       },
@@ -6180,11 +6170,6 @@
         "type": 301
       },
       {
-        "source": "/ja/deck/giratina-ex-a2b-035&darkrai-ex-a2-110{,/**}",
-        "destination": "/ja/deck/giratina-ex/",
-        "type": 301
-      },
-      {
         "source": "/ja/deck/giratina-ex-a2b-035&gastly-a1-120{,/**}",
         "destination": "/ja/deck/giratina-ex/",
         "type": 301
@@ -7546,11 +7531,6 @@
       },
       {
         "source": "/ja/deck/mega-blaziken-ex-b1-036{,/**}",
-        "destination": "/ja/deck/mega-blaziken-ex/",
-        "type": 301
-      },
-      {
-        "source": "/ja/deck/mega-blaziken-ex-b1-036&castform-sunny-form-b3-024{,/**}",
         "destination": "/ja/deck/mega-blaziken-ex/",
         "type": 301
       },

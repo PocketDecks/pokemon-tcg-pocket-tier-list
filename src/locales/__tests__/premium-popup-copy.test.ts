@@ -138,7 +138,7 @@ describe("Supporter popup copy", () => {
   it("translates the new popup copy outside English", () => {
     for (const [path, data] of Object.entries(locales)) {
       if (localeName(path) === "en") continue;
-      for (const key of ["title", "become", "perksLead", "rulesToggle", "signInFirst", "refund", "price"]) {
+      for (const key of ["title", "become", "perksLead", "rulesToggle", "signInFirst", "refund", "price", "priceDetails", "emailHint", "emailHintNoEmail", "kindNote", "discord"]) {
         expect([path, key, stringOf(data.premium, key)]).not.toEqual([
           path, key, stringOf(english, key),
         ]);

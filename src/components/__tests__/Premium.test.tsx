@@ -308,21 +308,28 @@ describe("Premium", () => {
   );
 
   it("shows an expiry date, Extend on Ko-fi and the account email", async () => {
-    vi.mocked(useIsPremium).mockReturnValue(true);
-    vi.mocked(usePremiumExpiry).mockReturnValue(Date.UTC(2027, 0, 2));
-    vi.mocked(useAuth).mockReturnValue(signedIn());
-    const { dialog } = await openDefaultPopup();
-    expect(within(dialog).getByText("Your Supporter access ends on 2 January 2027.")).toBeInTheDocument();
-    const cta = within(dialog).getByRole("link", { name: en.premium.ctaExtend });
-    expect(cta).toHaveAttribute("href", KOFI_URL);
-    expect(cta).toHaveAttribute("target", "_blank");
-    expect(cta).toHaveAttribute("rel", "noopener noreferrer");
-    expect(within(dialog).getByText(emailHintFor("player@example.com"))).toBeInTheDocument();
-    expect(within(dialog).getByText(en.premium.price)).toBeInTheDocument();
-    const refund = within(dialog).getByText(en.premium.refund.replace("<0/>", contact));
-    const rules = within(dialog).getByText(en.premium.rulesToggle);
-    expect(rules.compareDocumentPosition(refund) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(within(dialog).queryByRole("listitem")).not.toBeInTheDocument();
+    const previous = process.env.TZ;
+    process.env.TZ = "UTC";
+    try {
+      vi.mocked(useIsPremium).mockReturnValue(true);
+      vi.mocked(usePremiumExpiry).mockReturnValue(Date.UTC(2027, 0, 2));
+      vi.mocked(useAuth).mockReturnValue(signedIn());
+      const { dialog } = await openDefaultPopup();
+      expect(within(dialog).getByText("Your Supporter access ends on 2 January 2027.")).toBeInTheDocument();
+      const cta = within(dialog).getByRole("link", { name: en.premium.ctaExtend });
+      expect(cta).toHaveAttribute("href", KOFI_URL);
+      expect(cta).toHaveAttribute("target", "_blank");
+      expect(cta).toHaveAttribute("rel", "noopener noreferrer");
+      expect(within(dialog).getByText(emailHintFor("player@example.com"))).toBeInTheDocument();
+      expect(within(dialog).getByText(en.premium.price)).toBeInTheDocument();
+      const refund = within(dialog).getByText(en.premium.refund.replace("<0/>", contact));
+      const rules = within(dialog).getByText(en.premium.rulesToggle);
+      expect(rules.compareDocumentPosition(refund) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(within(dialog).queryByRole("listitem")).not.toBeInTheDocument();
+    } finally {
+      if (previous === undefined) delete process.env.TZ;
+      else process.env.TZ = previous;
+    }
   });
 
   it("shows lifetime access without a table, CTA or code lookup", async () => {
@@ -371,17 +378,24 @@ describe("Premium", () => {
   });
 
   it("swaps to the Supporter state when the entitlement flips", async () => {
-    vi.mocked(useAuth).mockReturnValue(signedIn());
-    const user = userEvent.setup();
-    const view = render(linkPopup());
-    await user.click(screen.getByRole("button", { name: "Remove ads" }));
-    await user.click(screen.getByRole("link", { name: en.premium.cta }));
-    expect(screen.getByText(en.premium.waiting)).toBeInTheDocument();
-    vi.mocked(useIsPremium).mockReturnValue(true);
-    vi.mocked(usePremiumExpiry).mockReturnValue(Date.UTC(2027, 0, 2));
-    view.rerender(linkPopup());
-    expect(screen.queryByText(en.premium.waiting)).not.toBeInTheDocument();
-    expect(screen.getByText("Your Supporter access ends on 2 January 2027.")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: en.premium.ctaExtend })).toBeInTheDocument();
+    const previous = process.env.TZ;
+    process.env.TZ = "UTC";
+    try {
+      vi.mocked(useAuth).mockReturnValue(signedIn());
+      const user = userEvent.setup();
+      const view = render(linkPopup());
+      await user.click(screen.getByRole("button", { name: "Remove ads" }));
+      await user.click(screen.getByRole("link", { name: en.premium.cta }));
+      expect(screen.getByText(en.premium.waiting)).toBeInTheDocument();
+      vi.mocked(useIsPremium).mockReturnValue(true);
+      vi.mocked(usePremiumExpiry).mockReturnValue(Date.UTC(2027, 0, 2));
+      view.rerender(linkPopup());
+      expect(screen.queryByText(en.premium.waiting)).not.toBeInTheDocument();
+      expect(screen.getByText("Your Supporter access ends on 2 January 2027.")).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: en.premium.ctaExtend })).toBeInTheDocument();
+    } finally {
+      if (previous === undefined) delete process.env.TZ;
+      else process.env.TZ = previous;
+    }
   });
 });

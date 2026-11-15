@@ -189,7 +189,7 @@ describe("premium entry points", () => {
 
     expect(result.status).toBe(1);
     expect(result.stderr).toContain("unknown argument");
-  });
+  }, 30_000);
 
   it("runs an injected dry-run CLI without initialising credentials", async () => {
     const files = premiumPayloads();

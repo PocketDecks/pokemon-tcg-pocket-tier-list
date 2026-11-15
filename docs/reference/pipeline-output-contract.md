@@ -164,9 +164,8 @@ the `name` values in best-decks.json, and only ranked archetypes have keys.
 | `winRate` | number | Wins divided by games against that opponent, 0 when no games were recorded. |
 | `totalGames` | number | Games recorded against that opponent. |
 
-In the public 10d and 20d files and the un-suffixed file, only the ten decks
-that `freeDeckNames` selects keep every row; every other key holds just its
-`Total` row. The full file is the premium artefact of the same name.
+The public 10d and 20d files and the un-suffixed file carry every row for
+every deck. The 30d and all-time files exist only as premium artefacts.
 
 `DecksContext` attaches each archetype's rows to its deck as `matchups`.
 Consumers read aggregate numbers from the `Total` row: `sorting-helper.ts`'s

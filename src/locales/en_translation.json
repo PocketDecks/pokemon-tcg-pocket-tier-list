@@ -14,72 +14,29 @@
     "switchToDark": "Switch to dark mode"
   },
   "premium": {
-    "title": "Top Pocket Decks Supporter",
-    "features": {
-      "title": "Features",
-      "free": "Free",
-      "premium": "Supporter",
-      "removeAds": {
-        "title": "Remove Ads",
-        "description": "Enjoy an experience without ads across the whole site.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "bestDeckFinder": {
-        "title": "Best Deck Finder",
-        "description": "Find the strongest deck you can build with your cards. It doubles as a complete PTCGP collection tracker.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "exclude": {
-        "title": "Exclude Cards You Don't Have",
-        "description": "Filter out cards you do not own to live update the tier list with what you have.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "matchups": {
-        "title": "Deck Strengths and Weaknesses",
-        "description": "See which decks your build beats and loses to, including win rate percentages.",
-        "free": "Top 10",
-        "premium": "✅"
-      },
-      "filters": {
-        "title": "Deck Filters",
-        "description": "Filter decks by Energy or ban EX cards entirely to beat solo battles.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "sortBy": {
-        "title": "Alternative Rankings",
-        "description": "Change the tier list to rank by popularity or strength.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "contact": {
-        "title": "Contact Developers",
-        "description": "Email the developers to give feedback on the site, request new features, or report bugs. Feature requests are not guaranteed, but we read them all.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "updated": {
-        "title": "Tier List Updated",
-        "description": "Shows the public release and the latest published data available to Supporter members.",
-        "free": "Public releases",
-        "premium": "Latest published data"
-      },
-      "decks": {
-        "title": "Decks on Tier List",
-        "description": "Number of decks shown in the tier list. More decks means more options for you to choose from. Discover strong decks that haven't yet become popular.",
-        "free": "30",
-        "premium": "100"
-      }
+    "title": "Supporter",
+    "become": "Become a Supporter!",
+    "perksLead": "Supporters get:",
+    "perks": {
+      "noAds": "No ads",
+      "windows": "30-day and all-time windows",
+      "filters": "Energy and no-EX deck filters",
+      "rankings": "Rankings by popularity or strength",
+      "decks": "Up to 100 decks on the tier list",
+      "data": "The latest published data",
+      "contact": "Contact with the developers"
     },
-    "price": "£1 a month. Each £1 you tip adds a month, and later tips extend your access.",
+    "contact": {
+      "title": "Contact Developers",
+      "description": "Email the developers to give feedback on the site, request new features, or report bugs. Feature requests are not guaranteed, but we read them all."
+    },
+    "price": "£1 a month. Each £1 tip adds a month.",
+    "rulesToggle": "How tips count",
     "priceDetails": "Eligible GBP tips add one month per whole £1, up to 120 months per tip; fractions add no months. Tips of £121 or more and tips in other currencies need review and grant no Supporter access automatically.",
     "cta": "Tip on Ko-fi",
     "ctaExtend": "Extend on Ko-fi",
-    "emailHint": "Use the email address on your Google account ({{email}}) at Ko-fi checkout and Supporter access is added automatically.",
-    "emailHintNoEmail": "No Google account email is available for automatic matching. Open code matching below and include your code in the Ko-fi message; if you cannot get or use a code, contact us below.",
+    "emailHint": "Use your Google email ({{email}}) at Ko-fi checkout.",
+    "emailHintNoEmail": "Your Google account has no email. Use the code option below.",
     "altCodeToggle": "Paying from a different email?",
     "altCodeHint": "Paste this code into the Ko-fi message.",
     "codeUnavailable": "Your code could not be loaded. Tip from your Google email instead, or contact us below with your payment details.",
@@ -88,13 +45,13 @@
     "checkAgain": "Check again",
     "copyFailed": "Could not copy the code. Select it and copy it manually.",
     "codeLoading": "Preparing your code…",
-    "signInFirst": "Sign in with Google first so we can match your tip to your account.",
+    "signInFirst": "Sign in first so we can match your tip.",
     "signIn": "Sign in with Google",
     "copy": "Copy code",
     "copied": "Copied",
     "expires": "Your Supporter access ends on {{date}}.",
     "lifetime": "Your Supporter access does not expire.",
-    "refund": "For refunds or lost payments, contact us at <0/> with the email address on your Google account and the payment details."
+    "refund": "For refunds or lost payments, email <0/> with your payment details."
   },
   "ads": {
     "advertisement": "Advertisement",

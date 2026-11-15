@@ -156,7 +156,7 @@ const UserAccount = ({ compact = false }: Props) => {
         {isPremium && (
           <ContactButton
             onClick={() => setIsContactOpen(true)}
-            aria-label={t("premium.features.contact.title")}
+            aria-label={t("premium.contact.title")}
           >
             <ContactIcon name="mail" size={34} />
           </ContactButton>
@@ -214,12 +214,12 @@ const UserAccount = ({ compact = false }: Props) => {
       <Popup
         width="40rem"
         isOpen={isContactOpen}
-        header="premium.features.contact.title"
+        header="premium.contact.title"
         close={() => {
           setIsContactOpen(false);
         }}
       >
-        <ContactText>{t("premium.features.contact.description")}</ContactText>
+        <ContactText>{t("premium.contact.description")}</ContactText>
         <EmailText>{CONTACT_EMAIL}</EmailText>
       </Popup>
     </>

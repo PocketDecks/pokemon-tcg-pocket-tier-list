@@ -14,72 +14,29 @@
     "switchToDark": "Cambiar al modo oscuro"
   },
   "premium": {
-    "title": "Top Pocket Decks Colaborador",
-    "features": {
-      "title": "Características",
-      "free": "Gratis",
-      "premium": "Colaborador",
-      "removeAds": {
-        "title": "Eliminar anuncios",
-        "description": "Disfruta de una experiencia sin anuncios en todo el sitio.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "bestDeckFinder": {
-        "title": "Buscador del mejor mazo",
-        "description": "Encuentra el mazo más fuerte que puedes construir con tus cartas. También funciona como un rastreador completo de la colección de PTCGP.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "exclude": {
-        "title": "Excluir cartas que no tienes",
-        "description": "Filtra las cartas que no posees para actualizar la Tier List en tiempo real con lo que sí tienes.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "matchups": {
-        "title": "Fortalezas y debilidades de los mazos",
-        "description": "Mira a qué mazos vence tu construcción y contra cuáles pierde, incluyendo los porcentajes de tasa de victoria.",
-        "free": "Top 10",
-        "premium": "✅"
-      },
-      "filters": {
-        "title": "Filtros de mazos",
-        "description": "Filtra mazos por Energía o prohíbe las cartas EX por completo para ganar las batallas en solitario.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "sortBy": {
-        "title": "Clasificaciones alternativas",
-        "description": "Cambia la Tier List para clasificar por popularidad o fuerza.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "contact": {
-        "title": "Contactar a los desarrolladores",
-        "description": "Envía un correo a los desarrolladores para dar tu opinión sobre el sitio, solicitar nuevas funciones o reportar errores. Las solicitudes de funciones no están garantizadas, pero las leemos todas.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "updated": {
-        "title": "Actualización de la Tier List",
-        "description": "Muestra las publicaciones públicas y los datos publicados más recientes disponibles para los colaboradores.",
-        "free": "Publicaciones públicas",
-        "premium": "Datos publicados más recientes"
-      },
-      "decks": {
-        "title": "Mazos en la Tier List",
-        "description": "Número de mazos que se muestran en la Tier List. Más mazos significan más opciones para que elijas. Descubre mazos fuertes que aún no se han vuelto populares.",
-        "free": "30",
-        "premium": "100"
-      }
+    "title": "Colaborador",
+    "become": "¡Hazte colaborador!",
+    "perksLead": "Los colaboradores tienen:",
+    "perks": {
+      "noAds": "Sin anuncios",
+      "windows": "Ventanas de 30 días y de todo el tiempo",
+      "filters": "Filtros de mazos por energía y sin EX",
+      "rankings": "Clasificaciones por popularidad o fuerza",
+      "decks": "Hasta 100 mazos en la Tier List",
+      "data": "Los datos publicados más recientes",
+      "contact": "Contacto con los desarrolladores"
     },
-    "price": "1 £ al mes. Cada libra que aportes añade un mes, y las propinas posteriores amplían tu acceso.",
+    "contact": {
+      "title": "Contactar a los desarrolladores",
+      "description": "Envía un correo a los desarrolladores para dar tu opinión sobre el sitio, solicitar nuevas funciones o reportar errores. Las solicitudes de funciones no están garantizadas, pero las leemos todas."
+    },
+    "price": "1 £ al mes. Cada 1 £ de propina añade un mes.",
+    "rulesToggle": "Cómo cuentan las propinas",
     "priceDetails": "Las propinas aptas en GBP añaden un mes por cada libra entera, hasta 120 meses por propina; las fracciones no añaden meses. Las propinas de 121 £ o más y las de otras monedas requieren revisión y no conceden acceso de colaborador automáticamente.",
     "cta": "Dar una propina en Ko-fi",
     "ctaExtend": "Ampliar en Ko-fi",
-    "emailHint": "Usa en el pago de Ko-fi el correo de tu cuenta de Google ({{email}}) y el acceso de colaborador se activará automáticamente.",
-    "emailHintNoEmail": "No hay un correo de cuenta de Google disponible para la coincidencia automática. Abre la opción para usar un código y añade tu código al mensaje de Ko-fi; si no puedes obtenerlo o usarlo, escríbenos abajo.",
+    "emailHint": "Usa el correo de tu cuenta de Google ({{email}}) al pagar en Ko-fi.",
+    "emailHintNoEmail": "Tu cuenta de Google no tiene correo. Usa la opción de código de abajo.",
     "altCodeToggle": "¿Pagas desde otro correo?",
     "altCodeHint": "Pega este código en el mensaje de Ko-fi.",
     "codeUnavailable": "No se ha podido cargar tu código. Aporta desde tu correo de Google o escríbenos abajo con los datos del pago.",
@@ -88,13 +45,13 @@
     "checkAgain": "Comprobar de nuevo",
     "copyFailed": "No se pudo copiar el código. Selecciónalo y cópialo manualmente.",
     "codeLoading": "Preparando tu código…",
-    "signInFirst": "Inicia sesión primero con Google para que podamos asociar tu propina a tu cuenta.",
+    "signInFirst": "Inicia sesión primero para que podamos asociar tu propina.",
     "signIn": "Iniciar sesión con Google",
     "copy": "Copiar código",
     "copied": "Copiado",
     "expires": "Tu acceso de colaborador termina el {{date}}.",
     "lifetime": "Tu acceso de colaborador no caduca.",
-    "refund": "Para solicitar un reembolso o informar de un pago perdido, escríbenos a <0/> e indica el correo de tu cuenta de Google y los datos del pago."
+    "refund": "Para reembolsos o pagos perdidos, escribe a <0/> con los datos del pago."
   },
   "ads": {
     "advertisement": "Anuncio",

@@ -14,72 +14,29 @@
     "switchToDark": "Mudar para o modo escuro"
   },
   "premium": {
-    "title": "Top Pocket Decks Apoiante",
-    "features": {
-      "title": "Recursos",
-      "free": "Grátis",
-      "premium": "Apoiante",
-      "removeAds": {
-        "title": "Remover Anúncios",
-        "description": "Aproveite uma experiência sem anúncios em todo o site.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "bestDeckFinder": {
-        "title": "Buscador de Melhores Decks",
-        "description": "Encontre o deck mais forte que você pode montar com suas cartas. Também funciona como um rastreador completo de coleção do PTCGP.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "exclude": {
-        "title": "Excluir Cartas que Você Não Tem",
-        "description": "Filtre as cartas que você não possui para atualizar a tier list ao vivo apenas com o que você tem.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "matchups": {
-        "title": "Pontos Fortes e Fracos do Deck",
-        "description": "Veja quais decks a sua lista vence ou perde, incluindo porcentagens de taxa de vitória.",
-        "free": "Top 10",
-        "premium": "✅"
-      },
-      "filters": {
-        "title": "Filtros de Deck",
-        "description": "Filtre decks por Energia ou bana cartas EX completamente para vencer batalhas solo.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "sortBy": {
-        "title": "Classificações Alternativas",
-        "description": "Mude a tier list para classificar por popularidade ou força.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "contact": {
-        "title": "Contato com os Desenvolvedores",
-        "description": "Envie e-mail aos desenvolvedores para dar feedback sobre o site, solicitar novos recursos ou relatar bugs. Solicitações de recursos não são garantidas, mas lemos todas.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "updated": {
-        "title": "Tier List Atualizada",
-        "description": "Mostra as publicações públicas e os dados publicados mais recentes disponíveis para apoiantes.",
-        "free": "Publicações públicas",
-        "premium": "Dados publicados mais recentes"
-      },
-      "decks": {
-        "title": "Decks na Tier List",
-        "description": "Número de decks mostrados na tier list. Mais decks significam mais opções para você escolher. Descubra decks fortes que ainda não se tornaram populares.",
-        "free": "30",
-        "premium": "100"
-      }
+    "title": "Apoiante",
+    "become": "Torne-se apoiante!",
+    "perksLead": "Os apoiantes têm:",
+    "perks": {
+      "noAds": "Sem anúncios",
+      "windows": "Janelas de 30 dias e de todo o período",
+      "filters": "Filtros de deck por energia e sem EX",
+      "rankings": "Classificações por popularidade ou força",
+      "decks": "Até 100 decks na Tier List",
+      "data": "Os dados publicados mais recentes",
+      "contact": "Contacto com os programadores"
     },
-    "price": "1 £ por mês. Cada libra que oferecer acrescenta um mês, e as ofertas seguintes prolongam o seu acesso.",
+    "contact": {
+      "title": "Contato com os Desenvolvedores",
+      "description": "Envie e-mail aos desenvolvedores para dar feedback sobre o site, solicitar novos recursos ou relatar bugs. Solicitações de recursos não são garantidas, mas lemos todas."
+    },
+    "price": "1 £ por mês. Cada 1 £ de gorjeta acrescenta um mês.",
+    "rulesToggle": "Como contam as gorjetas",
     "priceDetails": "As gorjetas elegíveis em GBP acrescentam um mês por cada libra inteira, até 120 meses por gorjeta; as frações não acrescentam meses. Gorjetas de 121 £ ou mais e noutras moedas precisam de revisão e não ativam o acesso de apoiante automaticamente.",
     "cta": "Dar gorjeta no Ko-fi",
     "ctaExtend": "Prolongar no Ko-fi",
-    "emailHint": "Utilize o endereço de e-mail da sua conta Google ({{email}}) no pagamento do Ko-fi e o acesso de apoiante é ativado automaticamente.",
-    "emailHintNoEmail": "Não há um e-mail da conta Google disponível para correspondência automática. Abra abaixo a opção de correspondência por código e inclua o código na mensagem do Ko-fi; se não puder obter ou usar um código, contacte-nos abaixo.",
+    "emailHint": "Utilize o e-mail da sua conta Google ({{email}}) no pagamento do Ko-fi.",
+    "emailHintNoEmail": "A sua conta Google não tem e-mail. Utilize a opção de código abaixo.",
     "altCodeToggle": "Paga a partir de outro e-mail?",
     "altCodeHint": "Cole este código na mensagem do Ko-fi.",
     "codeUnavailable": "Não foi possível carregar o seu código. Faça uma gorjeta com o seu e-mail Google ou contacte-nos abaixo com os dados do pagamento.",
@@ -88,13 +45,13 @@
     "checkAgain": "Verificar novamente",
     "copyFailed": "Não foi possível copiar o código. Selecione-o e copie manualmente.",
     "codeLoading": "A preparar o seu código…",
-    "signInFirst": "Inicie sessão primeiro com o Google para podermos associar a gorjeta à sua conta.",
+    "signInFirst": "Inicie sessão primeiro para associarmos a sua gorjeta.",
     "signIn": "Iniciar sessão com Google",
     "copy": "Copiar código",
     "copied": "Copiado",
     "expires": "O seu acesso de apoiante termina em {{date}}.",
     "lifetime": "O seu acesso de apoiante não expira.",
-    "refund": "Para pedir um reembolso ou comunicar um pagamento em falta, contacte-nos em <0/> e indique o e-mail da sua conta Google e os dados do pagamento."
+    "refund": "Para reembolsos ou pagamentos perdidos, escreva para <0/> com os dados do pagamento."
   },
   "ads": {
     "advertisement": "Anúncio",

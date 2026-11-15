@@ -14,72 +14,29 @@
     "switchToDark": "切换到深色模式"
   },
   "premium": {
-    "title": "Top Pocket Decks 支持者",
-    "features": {
-      "title": "功能",
-      "free": "免费",
-      "premium": "支持者",
-      "removeAds": {
-        "title": "去除广告",
-        "description": "在整个网站享受无广告的体验。",
-        "free": "无",
-        "premium": "有"
-      },
-      "bestDeckFinder": {
-        "title": "最佳卡组查找器",
-        "description": "找到您能用您的卡牌组建的最强卡组。它兼作完整的 PTCGP 收藏追踪器。",
-        "free": "有",
-        "premium": "有"
-      },
-      "exclude": {
-        "title": "排除您没有的卡牌",
-        "description": "过滤掉您不拥有的卡牌，以使用您拥有的卡牌实时更新等级列表。",
-        "free": "有",
-        "premium": "有"
-      },
-      "matchups": {
-        "title": "卡组优势和劣势",
-        "description": "查看您的构筑击败和输给哪些卡组，包括胜率百分比。",
-        "free": "前10名",
-        "premium": "有"
-      },
-      "filters": {
-        "title": "卡组筛选",
-        "description": "按能量筛选卡组，或完全禁用 EX 卡牌以击败单人战斗。",
-        "free": "无",
-        "premium": "有"
-      },
-      "sortBy": {
-        "title": "替代排名",
-        "description": "更改等级列表以按流行度或强度进行排名。",
-        "free": "无",
-        "premium": "有"
-      },
-      "contact": {
-        "title": "联系开发者",
-        "description": "向开发者发送电子邮件以提供有关网站的反馈，请求新功能或报告错误。不保证满足功能请求，但我们会阅读所有请求。",
-        "free": "无",
-        "premium": "有"
-      },
-      "updated": {
-        "title": "等级列表已更新",
-        "description": "显示公开发布内容，以及支持者可用的最新已发布数据。",
-        "free": "公开发布",
-        "premium": "最新已发布数据"
-      },
-      "decks": {
-        "title": "等级列表中的卡组",
-        "description": "等级列表中显示的卡组数量。更多卡组意味着您有更多选择。发现尚未流行起来的强力卡组。",
-        "free": "30",
-        "premium": "100"
-      }
+    "title": "支持者",
+    "become": "成为支持者！",
+    "perksLead": "支持者可获得：",
+    "perks": {
+      "noAds": "无广告",
+      "windows": "30 天和全部时间视图",
+      "filters": "按能量和排除 EX 筛选卡组",
+      "rankings": "按热度或强度排名",
+      "decks": "等级列表最多显示 100 套卡组",
+      "data": "最新已发布数据",
+      "contact": "联系开发者"
     },
-    "price": "每月 1 英镑。每打赏 1 英镑可增加一个月，之后的打赏会延长你的使用期限。",
+    "contact": {
+      "title": "联系开发者",
+      "description": "向开发者发送电子邮件以提供有关网站的反馈，请求新功能或报告错误。不保证满足功能请求，但我们会阅读所有请求。"
+    },
+    "price": "每月 £1。每打赏 £1 增加一个月。",
+    "rulesToggle": "打赏如何计算",
     "priceDetails": "符合条件的 GBP 打赏每满 1 英镑增加一个月，每笔最多 120 个月；不足 1 英镑的部分不会增加月数。121 英镑及以上的打赏和其他货币的打赏需要审核，不会自动开通支持者权限。",
     "cta": "在 Ko-fi 打赏",
     "ctaExtend": "在 Ko-fi 续期",
-    "emailHint": "在 Ko-fi 结账时使用 Google 账号邮箱（{{email}}），支持者权限会自动开通。",
-    "emailHintNoEmail": "没有可用于自动匹配的 Google 账号邮箱。请打开下方的代码匹配选项，并将代码写入 Ko-fi 留言；如果无法获取或使用代码，请通过下方联系方式联系我们。",
+    "emailHint": "在 Ko-fi 结账时使用你的 Google 邮箱（{{email}}）。",
+    "emailHintNoEmail": "你的 Google 账号没有邮箱。请使用下方的代码方式。",
     "altCodeToggle": "需要用其他邮箱付款？",
     "altCodeHint": "请将此代码粘贴到 Ko-fi 留言中。",
     "codeUnavailable": "无法加载你的代码。请使用 Google 邮箱打赏，或通过下方联系方式提供付款信息。",
@@ -88,13 +45,13 @@
     "checkAgain": "再次检查",
     "copyFailed": "无法复制代码。请手动选中并复制。",
     "codeLoading": "正在准备代码…",
-    "signInFirst": "请先使用 Google 登录，以便我们将打赏关联到你的账号。",
+    "signInFirst": "请先登录，以便我们把打赏匹配到你的账号。",
     "signIn": "使用 Google 登录",
     "copy": "复制代码",
     "copied": "已复制",
     "expires": "你的支持者权限于 {{date}} 到期。",
     "lifetime": "你的支持者权限不会到期。",
-    "refund": "如需退款或报告付款未到账，请发送邮件至 <0/>，并提供 Google 账号邮箱和付款信息。"
+    "refund": "退款或付款丢失，请发邮件至 <0/>，并附上付款信息。"
   },
   "ads": {
     "advertisement": "广告",

@@ -46,7 +46,7 @@ const openWithFailedCode = async () => {
     </I18nextProvider>
   );
   await user.click(screen.getByRole("button", { name: "Remove ads" }));
-  const dialog = screen.getByRole("dialog", { name: en.premium.title });
+  const dialog = screen.getByRole("dialog", { name: en.premium.become });
   await user.click(within(dialog).getByRole("button", { name: en.premium.altCodeToggle }));
   return { user, dialog };
 };

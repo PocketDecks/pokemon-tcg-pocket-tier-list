@@ -78,7 +78,7 @@ const openAndTip = async () => {
     expect(screen.getByRole("button", { name: "Remove ads" })).toBeInTheDocument()
   );
   await user.click(screen.getByRole("button", { name: "Remove ads" }));
-  const dialog = screen.getByRole("dialog", { name: en.premium.title });
+  const dialog = screen.getByRole("dialog", { name: en.premium.become });
   await waitFor(() =>
     expect(within(dialog).getByRole("link", { name: en.premium.cta })).toBeInTheDocument()
   );
@@ -175,7 +175,7 @@ describe("Premium entitlement refresh", () => {
     expect(firestore.getDoc).toHaveBeenCalledTimes(1);
 
     await user.click(screen.getByRole("button", { name: "Remove ads" }));
-    const reopened = screen.getByRole("dialog", { name: en.premium.title });
+    const reopened = screen.getByRole("dialog", { name: en.premium.become });
     expect(within(reopened).queryByText(en.premium.waiting)).not.toBeInTheDocument();
     await act(async () => {
       window.dispatchEvent(new Event("focus"));
@@ -191,7 +191,7 @@ describe("Premium entitlement refresh", () => {
       expect(screen.getByRole("button", { name: "Remove ads" })).toBeInTheDocument()
     );
     await user.click(screen.getByRole("button", { name: "Remove ads" }));
-    const dialog = screen.getByRole("dialog", { name: en.premium.title });
+    const dialog = screen.getByRole("dialog", { name: en.premium.become });
     await waitFor(() =>
       expect(within(dialog).getByRole("link", { name: en.premium.cta })).toBeInTheDocument()
     );

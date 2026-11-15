@@ -14,72 +14,29 @@
     "switchToDark": "Passa al tema scuro"
   },
   "premium": {
-    "title": "Top Pocket Decks Sostenitore",
-    "features": {
-      "title": "Funzionalità",
-      "free": "Gratis",
-      "premium": "Sostenitore",
-      "removeAds": {
-        "title": "Rimuovi Pubblicità",
-        "description": "Goditi un'esperienza senza pubblicità in tutto il sito.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "bestDeckFinder": {
-        "title": "Trova il Miglior Mazzo",
-        "description": "Trova il mazzo più forte che puoi costruire con le tue carte. Funziona anche come tracker completo per la collezione PTCGP.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "exclude": {
-        "title": "Escludi le Carte che Non Hai",
-        "description": "Filtra le carte che non possiedi per aggiornare la tier list in tempo reale con ciò che hai.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "matchups": {
-        "title": "Punti di Forza e Debolezza del Mazzo",
-        "description": "Guarda contro quali mazzi il tuo vince o perde, incluse le percentuali di vittoria.",
-        "free": "Top 10",
-        "premium": "✅"
-      },
-      "filters": {
-        "title": "Filtri per i Mazzi",
-        "description": "Filtra i mazzi per Energia o banna completamente le carte EX per vincere le lotte in solitario.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "sortBy": {
-        "title": "Classifiche Alternative",
-        "description": "Modifica la tier list ordinandola per popolarità o forza.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "contact": {
-        "title": "Contatta gli Sviluppatori",
-        "description": "Manda un'email agli sviluppatori per dare feedback sul sito, richiedere nuove funzionalità o segnalare bug. Le richieste di funzioni non sono garantite, ma le leggiamo tutte.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "updated": {
-        "title": "Tier List Aggiornata",
-        "description": "Mostra le pubblicazioni pubbliche e i dati pubblicati più recenti disponibili per i sostenitori.",
-        "free": "Pubblicazioni pubbliche",
-        "premium": "Dati pubblicati più recenti"
-      },
-      "decks": {
-        "title": "Mazzi nella Tier List",
-        "description": "Numero di mazzi mostrati nella tier list. Più mazzi significa più opzioni tra cui scegliere. Scopri mazzi forti che non sono ancora diventati popolari.",
-        "free": "30",
-        "premium": "100"
-      }
+    "title": "Sostenitore",
+    "become": "Diventa sostenitore!",
+    "perksLead": "I sostenitori ottengono:",
+    "perks": {
+      "noAds": "Nessuna pubblicità",
+      "windows": "Finestre da 30 giorni e di tutto il periodo",
+      "filters": "Filtri per i mazzi per energia e senza EX",
+      "rankings": "Classifiche per popolarità o forza",
+      "decks": "Fino a 100 mazzi nella Tier List",
+      "data": "I dati pubblicati più recenti",
+      "contact": "Contatto con gli sviluppatori"
     },
-    "price": "1 £ al mese. Ogni sterlina donata aggiunge un mese e le donazioni successive prolungano l’accesso.",
+    "contact": {
+      "title": "Contatta gli Sviluppatori",
+      "description": "Manda un'email agli sviluppatori per dare feedback sul sito, richiedere nuove funzionalità o segnalare bug. Le richieste di funzioni non sono garantite, ma le leggiamo tutte."
+    },
+    "price": "1 £ al mese. Ogni 1 £ di mancia aggiunge un mese.",
+    "rulesToggle": "Come contano le mance",
     "priceDetails": "Le mance idonee in GBP aggiungono un mese per ogni sterlina intera, fino a 120 mesi per mancia; le frazioni non aggiungono mesi. Le mance da 121 £ in su e quelle in altre valute richiedono una verifica e non attivano l’accesso Sostenitore automaticamente.",
     "cta": "Lascia una mancia su Ko-fi",
     "ctaExtend": "Estendi su Ko-fi",
-    "emailHint": "Usa l’indirizzo e-mail del tuo account Google ({{email}}) al pagamento su Ko-fi e l’accesso Sostenitore verrà attivato automaticamente.",
-    "emailHintNoEmail": "Non è disponibile un’e-mail dell’account Google per l’abbinamento automatico. Apri qui sotto l’opzione per abbinare un codice e includi il codice nel messaggio Ko-fi; se non puoi ottenere o usare un codice, contattaci qui sotto.",
+    "emailHint": "Usa l’e-mail del tuo account Google ({{email}}) al pagamento su Ko-fi.",
+    "emailHintNoEmail": "Il tuo account Google non ha un’e-mail. Usa l’opzione del codice qui sotto.",
     "altCodeToggle": "Paghi da un altro indirizzo e-mail?",
     "altCodeHint": "Incolla questo codice nel messaggio Ko-fi.",
     "codeUnavailable": "Non è stato possibile caricare il codice. Fai una donazione usando la tua e-mail Google oppure contattaci qui sotto con i dati del pagamento.",
@@ -88,13 +45,13 @@
     "checkAgain": "Controlla di nuovo",
     "copyFailed": "Impossibile copiare il codice. Selezionalo e copialo manualmente.",
     "codeLoading": "Preparazione del codice…",
-    "signInFirst": "Accedi prima con Google, così possiamo associare la mancia al tuo account.",
+    "signInFirst": "Accedi prima, così possiamo abbinare la tua mancia.",
     "signIn": "Accedi con Google",
     "copy": "Copia codice",
     "copied": "Copiato",
     "expires": "Il tuo accesso Sostenitore termina il {{date}}.",
     "lifetime": "Il tuo accesso Sostenitore non ha scadenza.",
-    "refund": "Per un rimborso o per segnalare un pagamento perso, contattaci a <0/> indicando l’indirizzo e-mail del tuo account Google e i dettagli del pagamento."
+    "refund": "Per rimborsi o pagamenti persi scrivi a <0/> con i dettagli del pagamento."
   },
   "ads": {
     "advertisement": "Pubblicità",

@@ -15,8 +15,10 @@ vi.mock("react-i18next", () => ({
         {
           "userAccount.title": "User Account",
           "userAccount.signOut": "Sign out",
-          "premium.features.contact.title": "Contact us",
-          "premium.title": "Premium",
+          "premium.contact.title": "Contact us",
+          "premium.title": "Supporter",
+          "premium.become": "Become a Supporter!",
+          "premium.perksLead": "Supporters get:",
           "premium.price": "£1 a month.",
           "premium.cta": "Tip on Ko-fi",
           "premium.emailHint": "Use the email address on your Google account ({{email}}) at Ko-fi checkout.",
@@ -61,12 +63,12 @@ beforeEach(() => {
 });
 
 describe("UserAccount", () => {
-  it("lets a signed-in free user open Premium from the account controls", async () => {
+  it("lets a signed-in free user open the Supporter popup from the account controls", async () => {
     const user = userEvent.setup();
     render(withQueryClient(<UserAccount />));
 
-    await user.click(screen.getByRole("button", { name: "Premium" }));
-    const dialog = screen.getByRole("dialog", { name: "Premium" });
+    await user.click(screen.getByRole("button", { name: "Become a Supporter!" }));
+    const dialog = screen.getByRole("dialog", { name: "Become a Supporter!" });
     expect(dialog).toHaveTextContent("£1 a month.");
     expect(within(dialog).getByRole("link", { name: "Tip on Ko-fi" })).toHaveAttribute(
       "href",

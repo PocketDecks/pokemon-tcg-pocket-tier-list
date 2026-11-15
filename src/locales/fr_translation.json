@@ -14,72 +14,29 @@
     "switchToDark": "Passer au mode sombre"
   },
   "premium": {
-    "title": "Top Pocket Decks Soutien",
-    "features": {
-      "title": "Fonctionnalités",
-      "free": "Gratuit",
-      "premium": "Soutien",
-      "removeAds": {
-        "title": "Supprimer les publicités",
-        "description": "Profitez d'une expérience sans publicité sur l'ensemble du site.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "bestDeckFinder": {
-        "title": "Trouver votre meilleur deck",
-        "description": "Trouvez le deck le plus puissant que vous pouvez construire avec vos cartes. Il sert également de suivi complet pour votre collection PTCGP.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "exclude": {
-        "title": "Exclure les cartes que vous n'avez pas",
-        "description": "Filtrez les cartes que vous ne possédez pas pour mettre à jour la tier list en direct avec ce que vous avez.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "matchups": {
-        "title": "Forces et faiblesses des decks",
-        "description": "Voyez quels decks votre construction bat et contre lesquels elle perd, y compris les pourcentages de taux de victoire.",
-        "free": "Top 10",
-        "premium": "✅"
-      },
-      "filters": {
-        "title": "Filtres de decks",
-        "description": "Filtrez les decks par Énergie ou bannissez complètement les cartes EX pour gagner les combats en solo.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "sortBy": {
-        "title": "Classements alternatifs",
-        "description": "Modifiez la tier list pour la classer par popularité ou par force.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "contact": {
-        "title": "Contacter les développeurs",
-        "description": "Envoyez un e-mail aux développeurs pour donner votre avis sur le site, demander de nouvelles fonctionnalités ou signaler des bugs. Les demandes de fonctionnalités ne sont pas garanties, mais nous les lisons toutes.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "updated": {
-        "title": "Mise à jour de la tier list",
-        "description": "Affiche les publications publiques et les données publiées les plus récentes disponibles pour les soutiens.",
-        "free": "Publications publiques",
-        "premium": "Données publiées les plus récentes"
-      },
-      "decks": {
-        "title": "Decks dans la Tier list",
-        "description": "Nombre de decks affichés dans la tier list. Plus de decks signifie plus d'options parmi lesquelles choisir. Découvrez des decks puissants qui ne sont pas encore devenus populaires.",
-        "free": "30",
-        "premium": "100"
-      }
+    "title": "Soutien",
+    "become": "Devenir soutien !",
+    "perksLead": "Les soutiens ont droit à :",
+    "perks": {
+      "noAds": "Aucune publicité",
+      "windows": "Fenêtres 30 jours et toute la période",
+      "filters": "Filtres de decks par énergie et sans EX",
+      "rankings": "Classements par popularité ou par force",
+      "decks": "Jusqu’à 100 decks dans la Tier list",
+      "data": "Les dernières données publiées",
+      "contact": "Contact avec les développeurs"
     },
-    "price": "1 £ par mois. Chaque livre donnée ajoute un mois, et les dons suivants prolongent votre accès.",
+    "contact": {
+      "title": "Contacter les développeurs",
+      "description": "Envoyez un e-mail aux développeurs pour donner votre avis sur le site, demander de nouvelles fonctionnalités ou signaler des bugs. Les demandes de fonctionnalités ne sont pas garanties, mais nous les lisons toutes."
+    },
+    "price": "1 £ par mois. Chaque don de 1 £ ajoute un mois.",
+    "rulesToggle": "Comment les dons sont comptés",
     "priceDetails": "Les dons admissibles en GBP ajoutent un mois par livre entière, jusqu’à 120 mois par don ; les fractions n’ajoutent aucun mois. Les dons de 121 £ ou plus et ceux dans une autre devise nécessitent une vérification et ne donnent pas automatiquement accès Soutien.",
     "cta": "Donner un pourboire sur Ko-fi",
     "ctaExtend": "Prolonger sur Ko-fi",
-    "emailHint": "Utilisez l’adresse e-mail de votre compte Google ({{email}}) lors du paiement sur Ko-fi et l’accès Soutien sera activé automatiquement.",
-    "emailHintNoEmail": "Aucune adresse e-mail de compte Google n’est disponible pour le rapprochement automatique. Ouvrez l’option de rapprochement par code ci-dessous et ajoutez votre code au message Ko-fi ; si vous ne pouvez pas obtenir ou utiliser de code, contactez-nous ci-dessous.",
+    "emailHint": "Utilisez l’adresse e-mail de votre compte Google ({{email}}) au paiement sur Ko-fi.",
+    "emailHintNoEmail": "Votre compte Google n’a pas d’adresse e-mail. Utilisez l’option du code ci-dessous.",
     "altCodeToggle": "Vous payez depuis une autre adresse e-mail ?",
     "altCodeHint": "Collez ce code dans le message Ko-fi.",
     "codeUnavailable": "Votre code n’a pas pu être chargé. Faites plutôt un don avec votre adresse Google ou contactez-nous ci-dessous avec les détails du paiement.",
@@ -88,13 +45,13 @@
     "checkAgain": "Vérifier à nouveau",
     "copyFailed": "Impossible de copier le code. Sélectionnez-le et copiez-le manuellement.",
     "codeLoading": "Préparation de votre code…",
-    "signInFirst": "Connectez-vous d’abord avec Google afin que nous puissions associer votre don à votre compte.",
+    "signInFirst": "Connectez-vous d’abord pour que nous puissions associer votre don.",
     "signIn": "Se connecter avec Google",
     "copy": "Copier le code",
     "copied": "Copié",
     "expires": "Votre accès Soutien prend fin le {{date}}.",
     "lifetime": "Votre accès Soutien n’expire pas.",
-    "refund": "Pour demander un remboursement ou signaler un paiement perdu, contactez-nous à <0/> en indiquant l’adresse e-mail de votre compte Google et les détails du paiement."
+    "refund": "Pour un remboursement ou un paiement perdu, écrivez à <0/> avec les détails du paiement."
   },
   "ads": {
     "advertisement": "Publicité",

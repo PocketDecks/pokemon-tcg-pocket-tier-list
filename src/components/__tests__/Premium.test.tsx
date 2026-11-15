@@ -71,18 +71,20 @@ beforeEach(() => {
 
 const linkPopup = () => withQueryClient(<Premium variant="link" linkLabel="Remove ads" />);
 
+const heading = () => (vi.mocked(useIsPremium)() ? en.premium.title : en.premium.become);
+
 const openLinkPopup = async () => {
   const user = userEvent.setup();
   const view = render(linkPopup());
   await user.click(screen.getByRole("button", { name: "Remove ads" }));
-  return { user, dialog: screen.getByRole("dialog", { name: en.premium.title }), view };
+  return { user, dialog: screen.getByRole("dialog", { name: heading() }), view };
 };
 
 const openDefaultPopup = async () => {
   const user = userEvent.setup();
   render(withQueryClient(<Premium />));
-  await user.click(screen.getByRole("button", { name: en.premium.title }));
-  return { user, dialog: screen.getByRole("dialog", { name: en.premium.title }) };
+  await user.click(screen.getByRole("button", { name: heading() }));
+  return { user, dialog: screen.getByRole("dialog", { name: heading() }) };
 };
 
 const expandCodeSection = async (user: ReturnType<typeof userEvent.setup>) => {
@@ -92,16 +94,12 @@ const expandCodeSection = async (user: ReturnType<typeof userEvent.setup>) => {
 const emailHintFor = (email: string) => en.premium.emailHint.replace("{{email}}", email);
 
 describe("Premium", () => {
-  it("shows the comparison table, price and sign-in prompt for signed-out visitors", async () => {
+  it("shows the price, the perks and one sign-in step for signed-out visitors", async () => {
     const { user, dialog } = await openLinkPopup();
-    expect(within(dialog).getByRole("columnheader", { name: en.premium.features.free })).toBeInTheDocument();
-    expect(within(dialog).getByRole("columnheader", { name: en.premium.features.premium })).toBeInTheDocument();
-    expect(within(dialog).getByText(en.premium.features.removeAds.title)).toBeInTheDocument();
-    expect(within(dialog).getByText(en.premium.features.removeAds.description)).toBeInTheDocument();
     expect(within(dialog).getByText(en.premium.price)).toBeInTheDocument();
-    const refund = within(dialog).getByText(en.premium.refund.replace("<0/>", contact));
-    const priceDetails = within(dialog).getByText(en.premium.priceDetails);
-    expect(refund.compareDocumentPosition(priceDetails) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(within(dialog).getByText(en.premium.perksLead)).toBeInTheDocument();
+    expect(within(dialog).queryByRole("table")).not.toBeInTheDocument();
+    expect(within(dialog).getByText(en.premium.refund.replace("<0/>", contact))).toBeInTheDocument();
     expect(within(dialog).getByText(en.premium.signInFirst)).toBeInTheDocument();
     await user.click(within(dialog).getByRole("button", { name: en.premium.signIn }));
     expect(spies.signInWithGoogle).toHaveBeenCalledOnce();
@@ -110,17 +108,21 @@ describe("Premium", () => {
     expect(loadPremiumCode).not.toHaveBeenCalled();
   });
 
-  it("renders every comparison feature with a row", async () => {
+  it("lists each perk once and nothing every visitor already gets", async () => {
     const { dialog } = await openLinkPopup();
-    expect(within(dialog).getAllByRole("row")).toHaveLength(9);
-    for (const key of [
-      "removeAds", "bestDeckFinder", "exclude", "matchups",
-      "filters", "sortBy", "updated", "decks",
-    ] as const) {
-      expect(within(dialog).getByText(en.premium.features[key].title)).toBeInTheDocument();
-    }
-    expect(within(dialog).getByText(en.premium.features.matchups.free)).toBeInTheDocument();
-    expect(within(dialog).getAllByText(en.premium.features.matchups.premium).length).toBeGreaterThan(0);
+    const items = within(dialog).getAllByRole("listitem");
+    expect(items.map((item) => item.textContent)).toEqual(Object.values(en.premium.perks));
+    expect(dialog.textContent).not.toMatch(/Best Deck Finder|[✅🚫]/u);
+  });
+
+  it("keeps the tip rules collapsed after the refund line", async () => {
+    const { dialog } = await openLinkPopup();
+    const refund = within(dialog).getByText(en.premium.refund.replace("<0/>", contact));
+    const details = within(dialog).getByText(en.premium.rulesToggle).closest("details");
+    expect(details).not.toBeNull();
+    expect(details).not.toHaveAttribute("open");
+    expect(details).toContainElement(within(dialog).getByText(en.premium.priceDetails));
+    expect(refund.compareDocumentPosition(details!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("leads with a Ko-fi call to action and the account email", async () => {
@@ -141,8 +143,7 @@ describe("Premium", () => {
     const { dialog } = await openLinkPopup();
     const hint = within(dialog).getByText(en.premium.emailHintNoEmail);
     expect(hint.textContent).not.toContain("(");
-    expect(hint).toHaveTextContent(/code matching below/i);
-    expect(hint).toHaveTextContent(/contact us below/i);
+    expect(hint).toHaveTextContent(/code option below/i);
     expect(hint).not.toHaveTextContent(/automatically/i);
     expect(within(dialog).queryByText(/player@example.com/)).not.toBeInTheDocument();
   });
@@ -284,9 +285,9 @@ describe("Premium", () => {
     expect(within(dialog).getByText(emailHintFor("player@example.com"))).toBeInTheDocument();
     expect(within(dialog).getByText(en.premium.price)).toBeInTheDocument();
     const refund = within(dialog).getByText(en.premium.refund.replace("<0/>", contact));
-    const priceDetails = within(dialog).getByText(en.premium.priceDetails);
-    expect(refund.compareDocumentPosition(priceDetails) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(within(dialog).queryByRole("table")).not.toBeInTheDocument();
+    const rules = within(dialog).getByText(en.premium.rulesToggle);
+    expect(refund.compareDocumentPosition(rules) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(within(dialog).queryByRole("listitem")).not.toBeInTheDocument();
   });
 
   it("shows lifetime access without a table, CTA or code lookup", async () => {

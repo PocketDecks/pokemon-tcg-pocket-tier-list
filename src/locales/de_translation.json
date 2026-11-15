@@ -14,72 +14,29 @@
     "switchToDark": "Zum dunklen Modus wechseln"
   },
   "premium": {
-    "title": "Top Pocket Decks Unterstützer",
-    "features": {
-      "title": "Funktionen",
-      "free": "Kostenlos",
-      "premium": "Unterstützer",
-      "removeAds": {
-        "title": "Werbung entfernen",
-        "description": "Genieße ein werbefreies Erlebnis auf der gesamten Website.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "bestDeckFinder": {
-        "title": "Bester Deck-Finder",
-        "description": "Finde das stärkste Deck, das du mit deinen Karten bauen kannst. Es dient gleichzeitig als vollständiger PTCGP-Sammlungs-Tracker.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "exclude": {
-        "title": "Karten ausschließen, die du nicht hast",
-        "description": "Filtere Karten heraus, die du nicht besitzt, um die Tier-Liste live mit deinen vorhandenen Karten zu aktualisieren.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "matchups": {
-        "title": "Deck-Stärken und -Schwächen",
-        "description": "Sieh, gegen welche Decks dein Build gewinnt und verliert, einschließlich der Gewinnquoten in Prozent.",
-        "free": "Top 10",
-        "premium": "✅"
-      },
-      "filters": {
-        "title": "Deck-Filter",
-        "description": "Filtere Decks nach Energie oder verbanne EX-Karten komplett, um Solo-Kämpfe zu gewinnen.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "sortBy": {
-        "title": "Alternative Ranglisten",
-        "description": "Ändere die Tier-Liste, um nach Beliebtheit oder Stärke zu sortieren.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "contact": {
-        "title": "Entwickler kontaktieren",
-        "description": "Schreibe den Entwicklern eine E-Mail, um Feedback zur Website zu geben, neue Funktionen anzufordern oder Fehler zu melden. Funktionsanfragen werden nicht garantiert, aber wir lesen sie alle.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "updated": {
-        "title": "Tier-Liste aktualisiert",
-        "description": "Zeigt öffentliche Veröffentlichungen und die neuesten veröffentlichten Daten für Unterstützer.",
-        "free": "Öffentliche Veröffentlichungen",
-        "premium": "Neueste veröffentlichte Daten"
-      },
-      "decks": {
-        "title": "Decks in der Tier-Liste",
-        "description": "Anzahl der Decks, die in der Tier-Liste angezeigt werden. Mehr Decks bedeuten mehr Auswahlmöglichkeiten für dich. Entdecke starke Decks, die noch nicht populär geworden sind.",
-        "free": "30",
-        "premium": "100"
-      }
+    "title": "Unterstützer",
+    "become": "Unterstützer werden!",
+    "perksLead": "Unterstützer bekommen:",
+    "perks": {
+      "noAds": "Keine Werbung",
+      "windows": "30-Tage- und Gesamtzeit-Ansicht",
+      "filters": "Deck-Filter nach Energie und ohne EX",
+      "rankings": "Ranglisten nach Beliebtheit oder Stärke",
+      "decks": "Bis zu 100 Decks in der Tier-Liste",
+      "data": "Die neuesten veröffentlichten Daten",
+      "contact": "Kontakt zu den Entwicklern"
     },
-    "price": "£1 pro Monat. Pro gespendetem Pfund kommt ein weiterer Monat hinzu, und weitere Trinkgelder verlängern deinen Zugang.",
+    "contact": {
+      "title": "Entwickler kontaktieren",
+      "description": "Schreibe den Entwicklern eine E-Mail, um Feedback zur Website zu geben, neue Funktionen anzufordern oder Fehler zu melden. Funktionsanfragen werden nicht garantiert, aber wir lesen sie alle."
+    },
+    "price": "£1 im Monat. Jedes £1 Trinkgeld bringt einen Monat.",
+    "rulesToggle": "So zählen Trinkgelder",
     "priceDetails": "Berechtigte Trinkgelder in GBP verlängern den Zugang um einen Monat pro ganzem £1, höchstens 120 Monate pro Trinkgeld; Bruchteile bringen keine zusätzlichen Monate. Trinkgelder ab £121 und Trinkgelder in anderen Währungen müssen geprüft werden und schalten den Unterstützer-Zugang nicht automatisch frei.",
     "cta": "Auf Ko-fi Trinkgeld geben",
     "ctaExtend": "Auf Ko-fi verlängern",
-    "emailHint": "Verwende an der Ko-fi-Kasse die E-Mail-Adresse deines Google-Kontos ({{email}}), dann wird der Unterstützer-Zugang automatisch aktiviert.",
-    "emailHintNoEmail": "Für den automatischen Abgleich ist keine Google-Konto-E-Mail verfügbar. Öffne unten den Code-Abgleich und füge deinen Code in die Ko-fi-Nachricht ein. Wenn du keinen Code erhalten oder verwenden kannst, kontaktiere uns unten.",
+    "emailHint": "Nutze an der Ko-fi-Kasse deine Google-E-Mail ({{email}}).",
+    "emailHintNoEmail": "Dein Google-Konto hat keine E-Mail-Adresse. Nutze unten die Code-Option.",
     "altCodeToggle": "Zahlung von einer anderen E-Mail-Adresse?",
     "altCodeHint": "Füge diesen Code in die Ko-fi-Nachricht ein.",
     "codeUnavailable": "Dein Code konnte nicht geladen werden. Spende stattdessen über deine Google-E-Mail-Adresse oder kontaktiere uns unten mit deinen Zahlungsdaten.",
@@ -88,13 +45,13 @@
     "checkAgain": "Erneut prüfen",
     "copyFailed": "Der Code konnte nicht kopiert werden. Markiere ihn und kopiere ihn manuell.",
     "codeLoading": "Dein Code wird vorbereitet…",
-    "signInFirst": "Melde dich zuerst mit Google an, damit wir dein Trinkgeld deinem Konto zuordnen können.",
+    "signInFirst": "Melde dich zuerst an, damit wir dein Trinkgeld zuordnen können.",
     "signIn": "Mit Google anmelden",
     "copy": "Code kopieren",
     "copied": "Kopiert",
     "expires": "Dein Unterstützer-Zugang endet am {{date}}.",
     "lifetime": "Dein Unterstützer-Zugang läuft nicht ab.",
-    "refund": "Bei Rückerstattungen oder verlorenen Zahlungen kontaktiere uns unter <0/> und nenne die E-Mail-Adresse deines Google-Kontos sowie die Zahlungsdaten."
+    "refund": "Bei Rückerstattungen oder verlorenen Zahlungen schreib an <0/> und nenne die Zahlungsdetails."
   },
   "ads": {
     "advertisement": "Werbung",

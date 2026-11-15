@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 type PremiumBlock = Record<string, unknown> & {
-  features: Record<string, Record<string, string>>;
+  perks: Record<string, string>;
+  contact: Record<string, string>;
 };
 
 const locales = import.meta.glob<{ premium: PremiumBlock }>("../*_translation.json", {
@@ -15,15 +16,13 @@ const localeName = (path: string) =>
 const NEW_KEYS = [
   "price", "priceDetails", "cta", "ctaExtend", "emailHint", "emailHintNoEmail",
   "altCodeToggle", "altCodeHint", "codeUnavailable", "codeUnavailableNoEmail", "waiting",
-  "checkAgain", "copyFailed", "codeLoading",
+  "checkAgain", "copyFailed", "codeLoading", "title", "become", "perksLead",
+  "rulesToggle", "signInFirst", "refund",
 ] as const;
 
-const REMOVED_KEYS = ["benefits", "tipPrompt", "tip", "codeError"] as const;
+const REMOVED_KEYS = ["benefits", "tipPrompt", "tip", "codeError", "features"] as const;
 
-const COMPARISON_FEATURES = [
-  "removeAds", "bestDeckFinder", "exclude", "matchups",
-  "filters", "sortBy", "updated", "decks",
-] as const;
+const PERKS = ["noAds", "windows", "filters", "rankings", "decks", "data", "contact"] as const;
 
 const placeholders = (value: string) =>
   [...value.matchAll(/\{\{(\w+)\}\}/g)].map((match) => match[1]).sort();
@@ -36,7 +35,7 @@ const stringOf = (premium: PremiumBlock, key: string) => {
   return value as string;
 };
 
-describe("Premium popup copy", () => {
+describe("Supporter popup copy", () => {
   it("covers all 11 interface locales", () => {
     expect(Object.keys(locales)).toHaveLength(11);
   });
@@ -65,7 +64,7 @@ describe("Premium popup copy", () => {
     const noEmail = stringOf(premium, "emailHintNoEmail");
     expect(noEmail).not.toContain("{{email}}");
     expect(noEmail).not.toContain("(");
-    expect(stringOf(premium, "emailHint")).toContain("Google");
+    expect(stringOf(premium, "emailHint")).toMatch(/Google/);
     expect(stringOf(premium, "cta")).toContain("Ko-fi");
     expect(stringOf(premium, "ctaExtend")).toContain("Ko-fi");
   });
@@ -86,7 +85,7 @@ describe("Premium popup copy", () => {
   it("keeps the prescribed English lead price and GBP payment policy", () => {
     const price = stringOf(english, "price");
     expect(price).toContain("£");
-    expect(price).toBe("£1 a month. Each £1 you tip adds a month, and later tips extend your access.");
+    expect(price).toBe("£1 a month. Each £1 tip adds a month.");
     const details = stringOf(english, "priceDetails");
     expect(details).toMatch(/eligible GBP tips/i);
     expect(details).toMatch(/whole £1/i);
@@ -116,26 +115,45 @@ describe("Premium popup copy", () => {
     }
   });
 
-  it("keeps the comparison feature data in every locale", () => {
-    for (const [, data] of Object.entries(locales)) {
-      for (const key of COMPARISON_FEATURES) {
-        const feature = data.premium.features[key];
-        expect(feature).toBeDefined();
-        for (const field of ["title", "description", "free", "premium"]) {
-          expect(typeof feature[field]).toBe("string");
-          expect(feature[field].trim()).not.toBe("");
-        }
+  it("lists one short line per perk in every locale", () => {
+    for (const [path, data] of Object.entries(locales)) {
+      expect(Object.keys(data.premium.perks), path).toEqual([...PERKS]);
+      for (const key of PERKS) {
+        const line = data.premium.perks[key];
+        expect(typeof line, `${path} ${key}`).toBe("string");
+        expect(line.trim(), `${path} ${key}`).not.toBe("");
+        expect(line, `${path} ${key}`).not.toMatch(/[✅🚫]/u);
       }
     }
   });
 
-  it("uses public releases and latest published data without a schedule claim", () => {
+  it("keeps the developer contact copy in every locale", () => {
+    for (const [, data] of Object.entries(locales)) {
+      for (const field of ["title", "description"]) {
+        expect(data.premium.contact[field].trim()).not.toBe("");
+      }
+    }
+  });
+
+  it("translates the new popup copy outside English", () => {
     for (const [path, data] of Object.entries(locales)) {
-      const feature = data.premium.features.updated;
-      expect(`${path} ${feature.free} ${feature.premium} ${feature.description}`)
-        .toMatch(/public|öffentlich|públic|publi|pubbl|公開|公[開开]|공개/i);
-      expect(`${feature.free} ${feature.premium} ${feature.description}`)
-        .not.toMatch(/daily|weekly|täglich|wöchentlich|di[aá]ri|semana|quotidi|hebdomadaire|giornalier|settimanal|zilnic|săptămân|毎日|毎週|週間|매일|매주|每日|每周|每週/i);
+      if (localeName(path) === "en") continue;
+      for (const key of ["title", "become", "perksLead", "rulesToggle", "signInFirst", "refund", "price"]) {
+        expect([path, key, stringOf(data.premium, key)]).not.toEqual([
+          path, key, stringOf(english, key),
+        ]);
+      }
+      for (const key of PERKS) {
+        expect([path, key, data.premium.perks[key]]).not.toEqual([path, key, english.perks[key]]);
+      }
+    }
+  });
+
+  it("describes the public release and the latest published data as a perk", () => {
+    for (const [path, data] of Object.entries(locales)) {
+      expect(`${path} ${data.premium.perks.data}`).not.toMatch(
+        /daily|weekly|täglich|wöchentlich|di[aá]ri|semana|quotidi|hebdomadaire|giornalier|settimanal|zilnic|săptămân|毎日|毎週|週間|매일|매주|每日|每周|每週/i
+      );
     }
   });
 

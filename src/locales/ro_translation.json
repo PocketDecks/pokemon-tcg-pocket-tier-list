@@ -14,72 +14,29 @@
     "switchToDark": "Comută la modul întunecat"
   },
   "premium": {
-    "title": "Top Pocket Decks Susținător",
-    "features": {
-      "title": "Funcționalități",
-      "free": "Gratuit",
-      "premium": "Susținător",
-      "removeAds": {
-        "title": "Fără reclame",
-        "description": "Bucură-te de o experiență complet lipsită de reclame pe tot site-ul.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "bestDeckFinder": {
-        "title": "Best Deck Finder",
-        "description": "Găsește cel mai puternic deck pe care îl poți construi cu cărțile tale. Acesta servește și ca un instrument complet de urmărire a colecției PTCGP.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "exclude": {
-        "title": "Exclude cărțile pe care nu le ai",
-        "description": "Filtrează cărțile pe care nu le deții pentru a actualiza clasamentul în timp real cu ceea ce ai.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "matchups": {
-        "title": "Puncte forte și slabe ale deck-ului",
-        "description": "Vezi ce deck-uri poate învinge construcția ta și în fața cărora pierde, inclusiv procentele ratei de victorie.",
-        "free": "Top 10",
-        "premium": "✅"
-      },
-      "filters": {
-        "title": "Filtre pentru deck-uri",
-        "description": "Filtrează deck-urile după Energie sau interzice complet cărțile EX pentru a câștiga bătăliile solo.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "sortBy": {
-        "title": "Clasamente alternative",
-        "description": "Modifică clasamentul pentru a ordona după popularitate sau putere.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "contact": {
-        "title": "Contactează dezvoltatorii",
-        "description": "Trimite un e-mail dezvoltatorilor pentru a oferi feedback despre site, pentru a solicita funcționalități noi sau pentru a raporta erori. Funcționalitățile solicitate nu sunt garantate, dar le citim pe toate.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "updated": {
-        "title": "Clasament actualizat",
-        "description": "Afișează lansările publice și cele mai recente date publicate disponibile pentru susținători.",
-        "free": "Lansări publice",
-        "premium": "Cele mai recente date publicate"
-      },
-      "decks": {
-        "title": "Deck-uri în clasament",
-        "description": "Numărul de deck-uri afișat în clasament. Mai multe deck-uri înseamnă mai multe opțiuni din care poți alege. Descoperă deck-uri puternice care încă nu au devenit populare.",
-        "free": "30",
-        "premium": "100"
-      }
+    "title": "Susținător",
+    "become": "Devino susținător!",
+    "perksLead": "Susținătorii primesc:",
+    "perks": {
+      "noAds": "Fără reclame",
+      "windows": "Ferestre de 30 de zile și pentru toată perioada",
+      "filters": "Filtre pentru deck-uri după energie și fără EX",
+      "rankings": "Clasamente după popularitate sau putere",
+      "decks": "Până la 100 de deck-uri în clasament",
+      "data": "Cele mai recente date publicate",
+      "contact": "Contact cu dezvoltatorii"
     },
-    "price": "1 £ pe lună. Fiecare liră donată adaugă o lună, iar donațiile ulterioare îți prelungesc accesul.",
+    "contact": {
+      "title": "Contactează dezvoltatorii",
+      "description": "Trimite un e-mail dezvoltatorilor pentru a oferi feedback despre site, pentru a solicita funcționalități noi sau pentru a raporta erori. Funcționalitățile solicitate nu sunt garantate, dar le citim pe toate."
+    },
+    "price": "1 £ pe lună. Fiecare 1 £ bacșiș adaugă o lună.",
+    "rulesToggle": "Cum se numără bacșișurile",
     "priceDetails": "Bacșișurile eligibile în GBP adaugă o lună pentru fiecare liră întreagă, până la 120 de luni per bacșiș; fracțiunile nu adaugă luni. Bacșișurile de 121 £ sau mai mult și cele în alte monede necesită verificare și nu acordă automat acces de susținător.",
     "cta": "Lasă un bacșiș pe Ko-fi",
     "ctaExtend": "Prelungește pe Ko-fi",
-    "emailHint": "Folosește adresa de e-mail a contului tău Google ({{email}}) la plata pe Ko-fi și accesul de susținător se activează automat.",
-    "emailHintNoEmail": "Nu există o adresă de e-mail a contului Google pentru potrivirea automată. Deschide mai jos opțiunea de potrivire prin cod și include codul în mesajul Ko-fi; dacă nu poți obține sau folosi un cod, contactează-ne mai jos.",
+    "emailHint": "Folosește la plata pe Ko-fi e-mailul contului tău Google ({{email}}).",
+    "emailHintNoEmail": "Contul tău Google nu are e-mail. Folosește mai jos opțiunea cu cod.",
     "altCodeToggle": "Plătești de pe altă adresă de e-mail?",
     "altCodeHint": "Lipește acest cod în mesajul Ko-fi.",
     "codeUnavailable": "Codul nu a putut fi încărcat. Trimite bacșiș folosind e-mailul contului Google sau contactează-ne mai jos cu detaliile plății.",
@@ -88,13 +45,13 @@
     "checkAgain": "Verifică din nou",
     "copyFailed": "Codul nu a putut fi copiat. Selectează-l și copiază-l manual.",
     "codeLoading": "Se pregătește codul…",
-    "signInFirst": "Conectează-te mai întâi cu Google pentru a putea asocia bacșișul contului tău.",
+    "signInFirst": "Conectează-te mai întâi ca să-ți putem asocia bacșișul.",
     "signIn": "Conectare cu Google",
     "copy": "Copiază codul",
     "copied": "Copiat",
     "expires": "Accesul de susținător se încheie la {{date}}.",
     "lifetime": "Accesul de susținător nu expiră.",
-    "refund": "Pentru rambursări sau plăți pierdute, contactează-ne la <0/> și include adresa de e-mail a contului Google și detaliile plății."
+    "refund": "Pentru rambursări sau plăți pierdute, scrie la <0/> cu detaliile plății."
   },
   "ads": {
     "advertisement": "Reclamă",

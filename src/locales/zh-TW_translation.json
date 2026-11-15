@@ -14,72 +14,29 @@
     "switchToDark": "切換到深色模式"
   },
   "premium": {
-    "title": "Top Pocket Decks 支持者",
-    "features": {
-      "title": "功能",
-      "free": "免費版",
-      "premium": "支持者",
-      "removeAds": {
-        "title": "移除廣告",
-        "description": "享受全站無廣告的體驗。",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "bestDeckFinder": {
-        "title": "最佳牌組尋找器",
-        "description": "尋找你能用現有卡牌組建的最強牌組。它同時也是一個完整的 PTCGP 收藏追蹤器。",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "exclude": {
-        "title": "排除你沒有的卡牌",
-        "description": "過濾掉你不擁有的卡牌，根據你擁有的卡牌即時更新強度排行榜。",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "matchups": {
-        "title": "牌組優勢與劣勢",
-        "description": "查看你的牌組能擊敗或輸給哪些牌組，包含勝率百分比。",
-        "free": "前10名",
-        "premium": "✅"
-      },
-      "filters": {
-        "title": "牌組過濾",
-        "description": "透過能量過濾牌組或完全禁用 EX 卡牌以在單人對戰中獲勝。",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "sortBy": {
-        "title": "替代排名",
-        "description": "更改強度排行榜以根據人氣或強度進行排名。",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "contact": {
-        "title": "聯絡開發者",
-        "description": "向開發者發送電子郵件以提供網站反饋、請求新功能或報告錯誤。新功能請求不保證會實現，但我們每一則都會閱讀。",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "updated": {
-        "title": "排行榜更新頻率",
-        "description": "顯示公開發布內容，以及支持者可用的最新已發布資料。",
-        "free": "公開發布",
-        "premium": "最新已發布資料"
-      },
-      "decks": {
-        "title": "排行榜牌組數量",
-        "description": "強度排行榜上顯示的牌組數量。更多牌組代表你有更多選擇。發掘尚未普及的強大牌組。",
-        "free": "30",
-        "premium": "100"
-      }
+    "title": "支持者",
+    "become": "成為支持者！",
+    "perksLead": "支持者可獲得：",
+    "perks": {
+      "noAds": "無廣告",
+      "windows": "30 天與全部時間檢視",
+      "filters": "依能量與排除 EX 篩選牌組",
+      "rankings": "依熱度或強度排名",
+      "decks": "排行榜最多顯示 100 套牌組",
+      "data": "最新已發布資料",
+      "contact": "聯絡開發者"
     },
-    "price": "每月 1 英鎊。每打賞 1 英鎊可增加一個月，之後的打賞會延長你的使用期限。",
+    "contact": {
+      "title": "聯絡開發者",
+      "description": "向開發者發送電子郵件以提供網站反饋、請求新功能或報告錯誤。新功能請求不保證會實現，但我們每一則都會閱讀。"
+    },
+    "price": "每月 £1。每打賞 £1 增加一個月。",
+    "rulesToggle": "打賞如何計算",
     "priceDetails": "符合條件的 GBP 打賞每滿 1 英鎊增加一個月，每筆最多 120 個月；不足 1 英鎊的部分不會增加月數。121 英鎊以上的打賞及其他貨幣的打賞需要審核，不會自動開通支持者權限。",
     "cta": "在 Ko-fi 打賞",
     "ctaExtend": "在 Ko-fi 續期",
-    "emailHint": "在 Ko-fi 結帳時使用 Google 帳戶電子郵件（{{email}}），支持者權限會自動開通。",
-    "emailHintNoEmail": "沒有可用於自動配對的 Google 帳戶電子郵件。請開啟下方的代碼配對選項，並將代碼寫入 Ko-fi 留言；若無法取得或使用代碼，請透過下方聯絡方式與我們聯繫。",
+    "emailHint": "在 Ko-fi 結帳時使用你的 Google 電子郵件（{{email}}）。",
+    "emailHintNoEmail": "你的 Google 帳戶沒有電子郵件。請使用下方的代碼方式。",
     "altCodeToggle": "需要用其他電子郵件付款？",
     "altCodeHint": "請將此代碼貼到 Ko-fi 訊息中。",
     "codeUnavailable": "無法載入你的代碼。請使用 Google 電子郵件打賞，或透過下方聯絡方式提供付款資訊。",
@@ -88,13 +45,13 @@
     "checkAgain": "再次檢查",
     "copyFailed": "無法複製代碼。請手動選取並複製。",
     "codeLoading": "正在準備代碼…",
-    "signInFirst": "請先使用 Google 登入，讓我們能將打賞連結到你的帳戶。",
+    "signInFirst": "請先登入，以便我們把打賞配對到你的帳戶。",
     "signIn": "使用 Google 登入",
     "copy": "複製代碼",
     "copied": "已複製",
     "expires": "你的支持者權限於 {{date}} 到期。",
     "lifetime": "你的支持者權限不會到期。",
-    "refund": "如需退款或回報付款未入帳，請寄信至 <0/>，並提供 Google 帳戶電子郵件和付款資訊。"
+    "refund": "退款或付款遺失，請寄信至 <0/>，並附上付款資訊。"
   },
   "ads": {
     "advertisement": "廣告",

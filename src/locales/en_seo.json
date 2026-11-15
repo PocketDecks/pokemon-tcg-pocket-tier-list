@@ -94,5 +94,13 @@
     "retiredStatus": "{{name}} was last seen on {{lastSeen}} and is not in the current meta for {{expansion}}.",
     "coreCards": "The most-included cards on the core list are {{cards}}.",
     "retiredStatusGeneric": "{{name}} was last seen on {{lastSeen}} and is not in the current meta."
+  },
+  "supporter": {
+    "heading": "Supporting Top Pocket Decks",
+    "intro": "Top Pocket Decks is free to use. The tier list, the Best Deck Finder, the card rankings and every deck's matchups in the 10-day and 20-day windows stay open to everyone. Supporters pay for the hosting and the tournament data work, and get a few extras in return.",
+    "howHeading": "How supporting works",
+    "howBody": "Sign in with Google, then send a tip on Ko-fi from the same email address. Each whole pound adds one month of Supporter access, and a later tip adds its months to the time you have left. The site usually picks up a tip within a minute. If you pay from another email, add the code from this page to your Ko-fi message.",
+    "perksHeading": "What Supporters get",
+    "perksBody": "Supporters use the site without ads and can switch the tier list to the 30-day and all-time windows, which count more tournaments in every ranking. They can filter decks by Energy type or leave out EX cards, rank decks by popularity or card strength, show up to 100 decks, and email the developers directly."
   }
 }

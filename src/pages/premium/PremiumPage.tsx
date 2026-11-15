@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import SupporterPanel from "../../components/SupporterPanel";
+import SeoContent from "../../components/SeoContent";
 import useIsPremium from "../../app/use-is-premium";
 
 const Page = styled.div`
@@ -46,6 +47,14 @@ const PremiumPage = () => {
       <Content>
         <h1>{t(isPremium ? "premium.title" : "premium.become")}</h1>
         <SupporterPanel />
+        <SeoContent>
+          <h2>{t("supporter.heading", { ns: "seo" })}</h2>
+          <p>{t("supporter.intro", { ns: "seo" })}</p>
+          <h3>{t("supporter.howHeading", { ns: "seo" })}</h3>
+          <p>{t("supporter.howBody", { ns: "seo" })}</p>
+          <h3>{t("supporter.perksHeading", { ns: "seo" })}</h3>
+          <p>{t("supporter.perksBody", { ns: "seo" })}</p>
+        </SeoContent>
       </Content>
     </Page>
   );

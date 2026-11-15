@@ -22,13 +22,14 @@
       "windows": "Ferestre de 30 de zile și pentru toată perioada",
       "filters": "Filtre pentru deck-uri după energie și fără EX",
       "rankings": "Clasamente după popularitate sau putere",
-      "decks": "Până la 100 de deck-uri în clasament",
+      "decks": "Până la 100 de deck-uri în tier list",
       "data": "Cele mai recente date publicate",
       "contact": "Contact cu dezvoltatorii",
+      "earlyAccess": "Acces timpuriu la funcțiile experimentale noi",
       "gratitude": "Recunoștință veșnică pentru că susții un proiect făcut din pasiune"
     },
     "discord": "Dacă își doresc destui susținători, voi deschide un server de Discord doar pentru ei.",
-    "kindNote": "Dacă nu poți lăsa un bacșiș, nu e nicio problemă. De fiecare dată când dai mai departe clasamentul unui prieten sau îl recomanzi comunității tale, ajuți mai mult decât orice sumă de bani. Mă bucur doar că site-ul ți-a făcut experiența puțin mai bună 😊",
+    "kindNote": "Dacă nu poți lăsa un bacșiș, nu e nicio problemă. De fiecare dată când trimiți tier list-ul unui prieten sau îl recomanzi comunității tale, ajuți mai mult decât orice sumă de bani. Mă bucur doar că site-ul ți-a făcut experiența puțin mai bună 😊",
     "contact": {
       "title": "Contactează dezvoltatorii",
       "description": "Trimite un e-mail dezvoltatorilor pentru a oferi feedback despre site, pentru a solicita funcționalități noi sau pentru a raporta erori. Funcționalitățile solicitate nu sunt garantate, dar le citim pe toate."
@@ -181,7 +182,7 @@
     "button": "Încearcă Best Deck Finder"
   },
   "header": {
-    "tierList": "Clasament",
+    "tierList": "Tier List",
     "bestDeckFinder": "Best Deck Finder",
     "signIn": "Conectează-te cu Google",
     "signOut": "Deconectează-te",
@@ -227,9 +228,9 @@
     "rateLimited": "Ai trimis deja feedback în ultima oră. Mesajul tău rămâne aici, așa că îl poți trimite după ce trece ora."
   },
   "hero": {
-    "title": "Cele mai bune deck-uri și clasamente pentru Pokemon TCG Pocket",
+    "title": "Cele mai bune deck-uri și tier list pentru Pokemon TCG Pocket",
     "subtitle": "Găsește cele mai puternice deck-uri Pokemon TCG Pocket folosind date reale din turnee. Poți filtra liste complete, poți marca cărțile care îți lipsesc și poți vedea exact ce să construiești mai departe. Domină meta-ul.",
-    "button": "Vezi clasamentul"
+    "button": "Vezi tier list-ul"
   },
   "landing": {
     "stats": {
@@ -242,11 +243,11 @@
     "title": "Caracteristici",
     "tournamentResults": {
       "title": "Rezultate din turnee",
-      "description": "Clasamentul se bazează pe rezultatele din turnee. Un algoritm determină nivelul (tier-ul) și lista deck-ului."
+      "description": "Tier list-ul se bazează pe rezultatele din turnee. Un algoritm determină nivelul (tier-ul) și lista deck-ului."
     },
     "weeklyUpdates": {
       "title": "Actualizări frecvente",
-      "description": "Clasamentul se actualizează de patru ori pe săptămână, aducând deck-uri și matchup-uri noi."
+      "description": "Tier list-ul se actualizează de patru ori pe săptămână, aducând deck-uri și matchup-uri noi."
     },
     "filters": {
       "title": "Filtre",
@@ -254,7 +255,7 @@
     },
     "missingCards": {
       "title": "Cărți lipsă",
-      "description": "Fă clic pe orice cărți îți lipsesc, iar clasamentul se va actualiza automat cu ceea ce deții."
+      "description": "Fă clic pe orice cărți îți lipsesc, iar tier list-ul se va actualiza automat cu ceea ce deții."
     },
     "matchups": {
       "title": "Matchup-uri",
@@ -370,7 +371,7 @@
     "title": "Deck {{name}}",
     "liveSummary_one": "{{count}} variantă activă în metagame-ul actual, cu cea mai puternică listă primă",
     "liveSummary_other": "{{count}} variante active în metagame-ul actual, cu cele mai puternice liste primele",
-    "notInMeta": "Nu este în metagame-ul {{expansion}} actual. Consultă lista de tier-uri pentru clasamentele actuale",
+    "notInMeta": "Nu este în metagame-ul {{expansion}} actual. Consultă tier list-ul pentru clasamentele actuale",
     "expansionFallback": "expansiune",
     "unavailable": "Statisticile live ale deck-urilor nu sunt disponibile acum. Arhiva de mai jos este totuși actuală",
     "seenFrom": "Văzut din {{from}} până în {{to}}",

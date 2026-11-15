@@ -87,9 +87,8 @@ const primaryAction = css`
   text-decoration: none;
   cursor: pointer;
 
-  @media (min-width: 901px) {
-    align-self: flex-start;
-  }
+  align-self: flex-start;
+  min-width: 20rem;
 
   &:hover {
     opacity: 0.85;
@@ -400,13 +399,13 @@ const SupporterPanel = () => {
               )}
             </>
           )}
-          <Hint as="span">
-            <Trans i18nKey="premium.refund" components={[mailLink]} />
-          </Hint>
           <Rules>
             <summary>{t("premium.rulesToggle")}</summary>
             <p>{t("premium.priceDetails")}</p>
           </Rules>
+          <Hint as="span">
+            <Trans i18nKey="premium.refund" components={[mailLink]} />
+          </Hint>
         </SmallPrint>
       )}
     </Body>

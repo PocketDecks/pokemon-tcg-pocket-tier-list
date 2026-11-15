@@ -122,7 +122,7 @@ describe("Premium", () => {
     expect(details).not.toBeNull();
     expect(details).not.toHaveAttribute("open");
     expect(details).toContainElement(within(dialog).getByText(en.premium.priceDetails));
-    expect(refund.compareDocumentPosition(details!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(details!.compareDocumentPosition(refund) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("leads with a Ko-fi call to action and the account email", async () => {
@@ -286,7 +286,7 @@ describe("Premium", () => {
     expect(within(dialog).getByText(en.premium.price)).toBeInTheDocument();
     const refund = within(dialog).getByText(en.premium.refund.replace("<0/>", contact));
     const rules = within(dialog).getByText(en.premium.rulesToggle);
-    expect(refund.compareDocumentPosition(rules) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(rules.compareDocumentPosition(refund) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(within(dialog).queryByRole("listitem")).not.toBeInTheDocument();
   });
 

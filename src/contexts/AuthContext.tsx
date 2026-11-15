@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (previousUid.current !== uid) {
         const isPremiumQuery = (query: { queryKey: readonly unknown[] }) =>
           query.queryKey.at(-1) === "full" ||
-          (query.queryKey[0] === "decks" &&
+          ((query.queryKey[0] === "decks" || query.queryKey[0] === "matchups") &&
             (query.queryKey[1] === "30d" || query.queryKey[1] === "all")) ||
           query.queryKey[0] === "entitlement";
         void queryClient.cancelQueries({ predicate: isPremiumQuery });

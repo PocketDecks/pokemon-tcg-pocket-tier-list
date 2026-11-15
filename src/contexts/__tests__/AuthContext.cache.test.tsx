@@ -78,6 +78,22 @@ describe("auth cache isolation", () => {
     expect(client.getQueryData(["decks", "20d", "public"])).toBe("public data");
   });
 
+  it("purges cached Supporter matchups on sign-out and keeps the public 20-day matchups", async () => {
+    client.setQueryData(["matchups", "30d"], "supporter matchups 30d");
+    client.setQueryData(["matchups", "all"], "supporter matchups all");
+    client.setQueryData(["matchups", "20d"], "public matchups 20d");
+    render(tree());
+
+    act(() => authState.callback?.({ uid: "user-a" }));
+    await waitFor(() => expect(screen.getByTestId("premium")).toHaveTextContent("premium data for user-a"));
+
+    act(() => authState.callback?.(null));
+    await waitFor(() => expect(keys()).not.toContainEqual(["matchups", "30d"]));
+    expect(keys()).not.toContainEqual(["matchups", "all"]);
+    expect(keys()).toContainEqual(["matchups", "20d"]);
+    expect(client.getQueryData(["matchups", "20d"])).toBe("public matchups 20d");
+  });
+
   it("does not restore an old account's in-flight premium result after an account switch", async () => {
     let resolveOld!: (value: string) => void;
     let resolveNew!: (value: string) => void;

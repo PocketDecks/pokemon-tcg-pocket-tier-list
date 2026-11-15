@@ -111,14 +111,19 @@ describe("Premium entitlement refresh", () => {
   });
 
   it("consumes a completed attempt so an expired grant does not restore waiting", async () => {
+    const expiry = Date.now() + DAY;
+    firestore.getDoc
+      .mockReset()
+      .mockResolvedValueOnce(absent)
+      .mockResolvedValueOnce(granted(expiry))
+      .mockResolvedValueOnce(granted(expiry));
     const { dialog } = await openAndTip();
     await act(async () => {
       window.dispatchEvent(new Event("focus"));
     });
     await expectExpiryState(dialog);
 
-    const now = Date.now();
-    vi.spyOn(Date, "now").mockReturnValue(now + 2 * DAY);
+    vi.spyOn(Date, "now").mockReturnValue(expiry + DAY);
     await act(async () => {
       await client.refetchQueries({ queryKey: ["entitlement", "user-1"] });
     });

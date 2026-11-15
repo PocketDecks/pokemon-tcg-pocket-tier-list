@@ -31,9 +31,6 @@ export const readProcessed = (): unknown[] => {
 };
 
 export const downloadDecks = async () => {
-  const apiKey = process.env.LIMITLESS_API_KEY;
-  if (!apiKey) throw new Error("LIMITLESS_API_KEY not set");
-
   const tournaments = await getTournaments();
   console.log(`Downloaded tournaments\n${tournaments.length} to process`);
 

@@ -2,9 +2,9 @@
 
 This tutorial explains how to fetch Limitless tournament data and run the analysis pipeline locally. You need **Node.js 24.22.1**, the version the CI workflows pin, and **Yarn** installed on your system.
 
-## Acquiring an API key
+## Limitless API key (optional)
 
-The pipeline pulls tournament data from Limitless. You must generate your own API key from their developer portal. Maintainers do not provide shared keys. Keep your key secure and do not commit it to the repository.
+The pipeline pulls tournament data from Limitless. The endpoints it uses answer without a key, so you can skip this step. If you have a key from the Limitless developer portal, the downloader sends it with each request. Maintainers do not provide shared keys. Keep your key secure and do not commit it to the repository.
 
 ## Installing dependencies
 
@@ -57,7 +57,7 @@ This reads the manifest and every shard it names and reports the problems it fin
 
 ## Running the fetch script
 
-The pipeline reads the key from `LIMITLESS_API_KEY` in the root `.env` file. From the repository root, copy `.env.example` to `.env` and add your key. Then return to `analysis/` and run the download script. The script skips any tournament already listed in your `processed-tournaments.json` file.
+If you have a Limitless key, the pipeline reads it from `LIMITLESS_API_KEY` in the root `.env` file: copy `.env.example` to `.env` from the repository root and add the key. Without one, leave the variable blank or unset. Then run the download script from `analysis/`. The script skips any tournament already listed in your `processed-tournaments.json` file.
 
 ```bash
 cd analysis

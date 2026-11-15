@@ -8,7 +8,7 @@ The pipeline downloads data from the Limitless API and assigns standardised name
 
 ## Data acquisition
 
-The `download-decks.ts` script fetches data. It pulls tournament standings and pairings for events not present in `processed-tournaments.json`. The `get-tournament-decks.ts` script converts the raw Limitless API responses into `Deck` objects. It tracks wins and losses against specific opponents by matching player IDs.
+The `download-decks.ts` script fetches data. It pulls tournament standings and pairings for events not present in `processed-tournaments.json`. `yarn download --since YYYY-MM-DD` (or `--since release`) limits the listing to tournaments dated on or after that UTC day in `getTournaments`; skipped tournaments stay out of `processed-tournaments.json`. The `get-tournament-decks.ts` script converts the raw Limitless API responses into `Deck` objects. It tracks wins and losses against specific opponents by matching player IDs.
 
 A tournament counts only when its listing and its details describe standard play. The listing `format` must be absent, `null` or `STANDARD`, so `CUSTOM`, `NOEX` and any format Limitless adds later are dropped in the listing filter, at no request cost. The details decide the rest: `specialRules` must be absent or empty, no `bannedCards` entry may ban a whole set (`"name": "*"`), and the list may name at most `MAX_BANNED_CARDS` cards, which is `2`. The downloader reads a tournament's details before its standings and pairings, logs `Tournament <id>: skipped, <reason>` when the details fail any of these, and records the tournament as processed, so it is not fetched again. A `bannedCards` or `specialRules` field that is present but not an array throws a `LimitlessError` naming the tournament.
 

@@ -1,0 +1,27 @@
+{
+  "hub": "mega-dragonite-ex",
+  "name": "Mega Dragonite ex",
+  "variants": [
+    {
+      "variant": "mega-dragonite-ex-c1-100&dragonite-a1-185",
+      "name": "mega-dragonite-ex-c1-100&dragonite-a1-185",
+      "firstSeen": "2026-11-14",
+      "lastSeen": "2026-11-14",
+      "peakShare": 0.002447050881782128,
+      "peakDate": "2026-11-14",
+      "cards": [
+        "2:a1-183",
+        "1:a1-185",
+        "2:c1-100",
+        "2:a4-066",
+        "2:b1-225",
+        "2:pa-007",
+        "2:b4-153",
+        "2:a3-144",
+        "2:pa-005",
+        "2:pa-002",
+        "1:b2-147"
+      ]
+    }
+  ]
+}

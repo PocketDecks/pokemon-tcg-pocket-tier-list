@@ -17,8 +17,10 @@ const ModalOverlay = styled.div`
   align-items: center;
   z-index: 1000;
   padding: 1.6rem;
+  overscroll-behavior: contain;
 
   @media (max-width: 900px) {
+    align-items: flex-start;
     padding: 1.2rem;
 
     :root[data-consent-pending] & {
@@ -36,7 +38,9 @@ const ModalContent = styled.div<{ $width?: string }>`
   width: 100%;
   margin: 0;
   max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   position: relative;
   box-shadow: 0 4px 6px var(--shadow-soft);
   font-size: 1.25rem;
@@ -51,8 +55,12 @@ const ModalContent = styled.div<{ $width?: string }>`
     font-size: 1.1rem;
     line-height: 1.5;
 
+    max-height: calc(100vh - 2.4rem);
+    max-height: calc(100dvh - 2.4rem);
+
     :root[data-consent-pending] & {
       max-height: calc(50vh - 2.4rem);
+      max-height: calc(50dvh - 2.4rem);
     }
   }
 

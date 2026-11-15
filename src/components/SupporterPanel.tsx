@@ -186,7 +186,7 @@ const InlineLink = styled.a`
   }
 `;
 
-const PERKS = ["noAds", "windows", "filters", "rankings", "decks", "data", "contact", "gratitude"] as const;
+const PERKS = ["noAds", "windows", "filters", "rankings", "decks", "data", "contact", "earlyAccess", "gratitude"] as const;
 
 interface CodeResult {
   uid: string;

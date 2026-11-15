@@ -22,7 +22,7 @@ const NEW_KEYS = [
 
 const REMOVED_KEYS = ["benefits", "tipPrompt", "tip", "codeError", "features"] as const;
 
-const PERKS = ["noAds", "windows", "filters", "rankings", "decks", "data", "contact", "gratitude"] as const;
+const PERKS = ["noAds", "windows", "filters", "rankings", "decks", "data", "contact", "earlyAccess", "gratitude"] as const;
 
 const placeholders = (value: string) =>
   [...value.matchAll(/\{\{(\w+)\}\}/g)].map((match) => match[1]).sort();

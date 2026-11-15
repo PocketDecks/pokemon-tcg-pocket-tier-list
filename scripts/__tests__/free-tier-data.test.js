@@ -26,22 +26,14 @@ const WINDOWS = [
 for (const { label, suffix, ranking } of WINDOWS) {
   const free = freeNamesOf(readJson(ranking));
 
-  test(`${label} matchup data holds rows beyond Total only for the free decks`, () => {
+  test(`${label} matchup data keeps every row of every deck`, () => {
     const matchups = readJson(`matchup-data${suffix}.json`);
-    const leaking = Object.entries(matchups)
-      .filter(([name]) => !free.has(name))
-      .filter(([, rows]) => rows.some((row) => row.name !== "Total"))
-      .map(([name]) => name);
-    assert.deepStrictEqual(leaking, []);
-  });
-
-  test(`${label} matchup data keeps full rows and a Total row for every free deck`, () => {
-    const matchups = readJson(`matchup-data${suffix}.json`);
-    for (const name of free) {
+    const decks = readJson(ranking);
+    for (const { name } of decks) {
       assert.ok(matchups[name].some((row) => row.name !== "Total"), `${name} has no matchup rows`);
     }
-    for (const rows of Object.values(matchups)) {
-      assert.ok(rows.some((row) => row.name === "Total"));
+    for (const [name, rows] of Object.entries(matchups)) {
+      assert.ok(rows.some((row) => row.name === "Total"), `${name} has no Total row`);
     }
   });
 

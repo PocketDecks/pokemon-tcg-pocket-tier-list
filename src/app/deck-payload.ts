@@ -109,12 +109,9 @@ export const sanitiseMatchupData = (
   return { matchups, dropped };
 };
 
-export const fetchMatchupData = async (
-  window: MetaWindow,
-  tier: ArtefactTier
-): Promise<PipelineMatchupData> => {
+export const fetchMatchupData = async (window: MetaWindow): Promise<PipelineMatchupData> => {
   const file = metaWindowDataFile("matchup-data", window);
-  const data = await loadTieredArtefact("matchup-data", window, tier);
+  const data = await loadWindowArtefact("matchup-data", window);
   if (!isRecord(data)) {
     throw new Error(`${file} has an unexpected shape`);
   }

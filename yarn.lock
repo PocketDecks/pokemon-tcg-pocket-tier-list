@@ -947,11 +947,6 @@
   resolved "https://registry.yarnpkg.com/@img/sharp-win32-x64/-/sharp-win32-x64-0.35.5.tgz#1785356b8cb396e58430e03865281280acb818b1"
   integrity sha512-x76eH0vEiHlcMQu8Y8IenntaACtddpT6W0wmXtWrnKcnKI7ME5DdgqhAD6SEWOEl1v2zDvkZDhFA9KnURwpfqg==
 
-"@invertase/firestore-stripe-payments@^0.0.8":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@invertase/firestore-stripe-payments/-/firestore-stripe-payments-0.0.8.tgz#498428c43f6f030afe10241796672ba53165eac1"
-  integrity sha512-3qLwKrXG2ygxzeWOFZxdIw/UnWpFyQe7FLqlkfl4fAm5keGi4rY/6MdWI5mdm96cNVhnP5i/4HWnnooc4fXbAA==
-
 "@isaacs/nonrecursive-glob-match@^1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@isaacs/nonrecursive-glob-match/-/nonrecursive-glob-match-1.0.3.tgz#7f6724fd8a6ca315d6bb7f63f0e4d079060da246"

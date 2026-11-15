@@ -10,6 +10,6 @@ export const WINDOW_LENGTH_DAYS: {
 };
 export const ARTEFACT_BASES: readonly ["best-decks", "meta-share", "matchup-data"];
 export const PREMIUM_BASES: readonly ["best-decks", "matchup-data", "meta-share"];
-export const TRIMMED_BASES: readonly ["matchup-data", "meta-share"];
+export const TRIMMED_BASES: readonly ["meta-share"];
 export const windowArtefactName: (base: string, window: string) => string;
 export const windowDataFile: (base: string, window: string) => string;

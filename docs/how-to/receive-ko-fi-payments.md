@@ -1,8 +1,10 @@
 # How-to guide: Receiving Ko-fi payments
 
 The Cloudflare Worker in `workers/kofi/` takes Ko-fi's payment webhooks and
-writes Premium access to Firestore. Each whole GBP 1 in a tip buys one
-calendar month, and a second tip adds its months to the end of the first
+writes Premium access to Firestore. Eligible GBP tips grant one calendar
+month per whole pound, up to 120 months per tip; fractional pounds do not
+count. GBP £121 or more and tips in other currencies need review and grant
+no Premium automatically. Later eligible tips extend the existing expiry.
 
 The Worker deploys on its own, so it can go live before the site reads
 Premium from `entitlements`
@@ -24,20 +26,27 @@ For each delivery it works through these steps:
 3. It counts the months. One-off tips (`Donation`) and monthly tips
    (`Subscription`) in GBP earn one month per whole pound, up to 120
    months. The Worker marks a shop order, a commission, another currency,
-   anything under GBP 1 and anything over GBP 120 as `needs-review` and
+   anything under GBP 1 and GBP £121 or more as `needs-review` and
    grants nothing
 4. It looks for the user. A code such as `PD-ABC123` in the message points at
-   `premiumCodes/{code}`, which holds `{ uid }`. Codes are upper case, and
-   no capital letter or digit may sit directly before or after one. The uid
-   must be up to 128 letters and digits, and the Worker asks Identity
-   Toolkit for it by `localId`. It accepts exactly one account that is not
-   disabled, with or without a verified email, and otherwise moves on to the
-   email. The site issues no codes yet, so for now the email does the work.
-   The Worker trims it, lower-cases it and asks the Identity Toolkit admin
-   endpoint for the matching account. It accepts exactly one account that
-   has a verified email and is not disabled. With no match, or a 400 from
-   the lookup, it marks the payment `unmatched`. Any other lookup failure
-   returns 500
+   `premiumCodes/{code}`, which holds `{ uid }`. The Worker accepts codes in
+   any case and normalises them to upper case, because document IDs are upper
+   case. No letter or digit may sit directly before or after one, in any
+   case. The uid must be up to 128 letters and digits, and the Worker asks
+   Identity Toolkit for it by `localId`. It accepts exactly one account that
+   is not disabled, with or without a verified email, and otherwise moves on
+   to the email. The popup opened from the account menu leads with the email
+   path: it shows the Google account address and asks the user to pay on
+   Ko-fi with that address so Premium is added automatically. The code is an
+   optional backup for anyone who must pay from a different email. It lives
+   in a collapsed section, is requested only when that section is expanded,
+   and is pasted into the Ko-fi message. If codes are unavailable, the popup
+   shows a short line and keeps the email path and contact address visible.
+   The Worker trims the payer email, lower-cases it and asks the Identity
+   Toolkit admin endpoint for the matching account. It accepts exactly one
+   account that has a verified email and is not disabled. With no match, or a
+   400 from the lookup, it marks the payment `unmatched`. Any other lookup
+   failure returns 500
 5. It grants the months. Inside a Firestore transaction it reads
    `entitlements/{uid}`. A premium entitlement with no `expiresAt`, or with
    a null one, is a lifetime grant, which the Worker leaves alone and marks
@@ -81,9 +90,14 @@ error, or just the error name for anything else. The Worker cuts stored
 text to 320 characters for the email, 500 for the message, 200 for the
 name, 64 for the Ko-fi timestamp, 32 for the type and 8 for the currency
 
-The Firestore rules live in the Firebase console and need no change. They
-deny clients every collection they do not list, and the Worker signs in with
-admin credentials
+The Worker signs in with a service-account OAuth token and calls the
+Firestore REST API; it does not use the Admin SDK. Its trusted credentials
+bypass Firestore rules.
+The site also needs a client rule for `premiumCodes`, so a signed-in user
+can read their own code and create it on first use. The canonical rule is in
+the [premium data publishing guide](publish-premium-data.md#first-time-set-up),
+with the entitlement and premium data rules. The client queries by uid, then
+retries with a new random code if a collision makes creation fail.
 
 ## Switching it on
 
@@ -166,7 +180,7 @@ did not grant, so a code or account email written there is still to hand
 ## Granting a payment by hand
 
 A tip needs a person when the Worker marks it `unmatched` (no account for
-the tipper's email) or `needs-review` (not a GBP tip, or over GBP 120). The
+the tipper's email) or `needs-review` (not a GBP tip, or GBP £121 or more). The
 `grant` command credits such a payment to the user you pick. It reuses the
 Worker's own code, so it stacks months, leaves lifetime access alone and
 applies the 2100 rule the same way. It runs in one Firestore transaction:

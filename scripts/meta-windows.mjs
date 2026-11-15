@@ -14,8 +14,8 @@ export const ARTEFACT_BASES = ["best-decks", "meta-share", "matchup-data"];
 // Alphabetical, which is the order premium artefacts are listed in.
 export const PREMIUM_BASES = [...ARTEFACT_BASES].sort();
 
-// Best decks keep their full list in the public file, so only these are cut down.
-export const TRIMMED_BASES = PREMIUM_BASES.filter((base) => base !== "best-decks");
+// Best decks and matchups keep their full content in the public file; only meta share is cut down.
+export const TRIMMED_BASES = ["meta-share"];
 
 /** "best-decks" + "10d" -> "best-decks-10d". */
 export const windowArtefactName = (base, window) => `${base}-${window}`;

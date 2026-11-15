@@ -150,10 +150,9 @@ export const useDecks = () => {
 export const useMatchups = () => {
   const { window } = useMetaWindow();
   const isPremium = useIsPremium();
-  const tier = tierOf(isPremium);
   const { data, isLoading, error } = useQuery({
-    queryKey: ["matchups", window, tier],
-    queryFn: () => fetchMatchupData(window, tier),
+    queryKey: ["matchups", window],
+    queryFn: () => fetchMatchupData(window),
     retry: 1,
     ...windowQueryOptions(window, isPremium),
   });
@@ -195,8 +194,9 @@ const tierOf = (isPremium: boolean | null): ArtefactTier =>
 
 const useDecksData = (window: MetaWindow) => {
   const isPremium = useIsPremium();
+  const tier = isPremiumMetaWindow(window) ? tierOf(isPremium) : "public";
   return useQuery({
-    queryKey: ["decks", window],
+    queryKey: ["decks", window, tier],
     queryFn: () => fetchBestDecks(window),
     ...windowQueryOptions(window, isPremium),
   });

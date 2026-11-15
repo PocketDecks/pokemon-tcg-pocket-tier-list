@@ -40,8 +40,7 @@ const bestDeck = {
 
 const row = (name: string, totalGames: number) => ({ name, winRate: 0.6, totalGames });
 
-const PUBLIC_MATCHUPS = { [DECK]: [row("Total", 10)] };
-const FULL_MATCHUPS = { [DECK]: [row(OPPONENT, 7), row("Total", 10)] };
+const MATCHUPS = { [DECK]: [row(OPPONENT, 7), row("Total", 10)] };
 
 const PUBLIC_SHARE = { generatedAt: "x", windowDays: 20, decks: [{ name: DECK, share: 0.2, windowGames: 9 }] };
 const FULL_SHARE = {
@@ -87,14 +86,12 @@ beforeEach(() => {
   premium.isPremium = null;
   requestedUrls = [];
   client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  premium.loadPremiumArtefact.mockImplementation(async (name: string) =>
-    name.startsWith("matchup-data") ? FULL_MATCHUPS : FULL_SHARE
-  );
+  premium.loadPremiumArtefact.mockImplementation(async () => FULL_SHARE);
   vi.spyOn(global, "fetch").mockImplementation((input) => {
     const url = String(input);
     requestedUrls.push(url);
     if (url.includes("best-decks")) return jsonResponse([bestDeck]);
-    if (url.includes("matchup-data")) return jsonResponse(PUBLIC_MATCHUPS);
+    if (url.includes("matchup-data")) return jsonResponse(MATCHUPS);
     if (url.includes("meta-share")) return jsonResponse(PUBLIC_SHARE);
     return jsonResponse(rawCards);
   });
@@ -106,58 +103,58 @@ afterEach(() => {
 });
 
 describe("matchup and meta share tiers", () => {
-  it("reads the public files for a free viewer and keys the queries as public", async () => {
+  it("reads the public files for a free viewer and keys the meta share query as public", async () => {
     premium.isPremium = false;
     render(tree("20d"));
 
-    await waitFor(() => expect(screen.getByTestId("rows")).toHaveTextContent("1"));
+    await waitFor(() => expect(screen.getByTestId("rows")).toHaveTextContent("2"));
     await waitFor(() => expect(screen.getByTestId("delta")).toHaveTextContent("undefined"));
 
     expect(requestedUrls).toContain("/data/matchup-data.json");
     expect(requestedUrls).toContain("/data/meta-share.json");
     expect(premium.loadPremiumArtefact).not.toHaveBeenCalled();
-    expect(queryKeys()).toContainEqual(["matchups", "20d", "public"]);
+    expect(queryKeys()).toContainEqual(["matchups", "20d"]);
     expect(queryKeys()).toContainEqual(["meta-share", "20d", "public"]);
   });
 
-  it("reads the full artefacts for a premium viewer and keys the queries as full", async () => {
+  it("reads the full meta share for a premium viewer and still reads the matchups from the public file", async () => {
     premium.isPremium = true;
     render(tree("20d"));
 
     await waitFor(() => expect(screen.getByTestId("rows")).toHaveTextContent("2"));
     await waitFor(() => expect(screen.getByTestId("delta")).toHaveTextContent("0.1"));
 
-    expect(premium.loadPremiumArtefact).toHaveBeenCalledWith("matchup-data-20d");
     expect(premium.loadPremiumArtefact).toHaveBeenCalledWith("meta-share-20d");
+    expect(premium.loadPremiumArtefact).not.toHaveBeenCalledWith("matchup-data-20d");
     expect(requestedUrls).toContain("/data/best-decks.json");
-    expect(requestedUrls).not.toContain("/data/matchup-data.json");
+    expect(requestedUrls).toContain("/data/matchup-data.json");
     expect(requestedUrls).not.toContain("/data/meta-share.json");
-    expect(queryKeys()).toContainEqual(["matchups", "20d", "full"]);
+    expect(queryKeys()).toContainEqual(["matchups", "20d"]);
     expect(queryKeys()).toContainEqual(["meta-share", "20d", "full"]);
   });
 
-  it("uses the public files while premium is unknown, then the full ones", async () => {
+  it("loads the matchups while premium is unknown and the full meta share once it is known", async () => {
     premium.isPremium = null;
     const view = render(tree("20d"));
 
-    await waitFor(() => expect(screen.getByTestId("rows")).toHaveTextContent("1"));
+    await waitFor(() => expect(screen.getByTestId("rows")).toHaveTextContent("2"));
     expect(premium.loadPremiumArtefact).not.toHaveBeenCalled();
 
     premium.isPremium = true;
     view.rerender(tree("20d"));
 
-    await waitFor(() => expect(screen.getByTestId("rows")).toHaveTextContent("2"));
-    expect(premium.loadPremiumArtefact).toHaveBeenCalledWith("matchup-data-20d");
+    await waitFor(() => expect(screen.getByTestId("delta")).toHaveTextContent("0.1"));
+    expect(premium.loadPremiumArtefact).toHaveBeenCalledWith("meta-share-20d");
   });
 
   it.each(["10d", "20d"] as const)(
-    "falls back to the public file without leaving the %s window when the full artefact is denied",
+    "falls back to the public meta share without leaving the %s window when the full artefact is denied",
     async (window) => {
       premium.isPremium = true;
-      premium.loadPremiumArtefact.mockRejectedValue(new PremiumAccessError("matchup-data"));
+      premium.loadPremiumArtefact.mockRejectedValue(new PremiumAccessError("meta-share"));
       render(tree(window));
 
-      await waitFor(() => expect(screen.getByTestId("rows")).toHaveTextContent("1"));
+      await waitFor(() => expect(screen.getByTestId("rows")).toHaveTextContent("2"));
       await waitFor(() => expect(screen.getByTestId("delta")).toHaveTextContent("undefined"));
 
       expect(screen.getByTestId("window")).toHaveTextContent(window);

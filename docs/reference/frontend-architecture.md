@@ -248,13 +248,11 @@ Wraps Firebase Auth: `user`, `loading`, `signInWithGoogle` (popup) and
 auth is unresolved, so first paint never blocks on Firebase.
 
 Premium status is not a context. `useIsPremium` in `src/app/use-is-premium.ts`
-returns `true` when the user's own `entitlements/{uid}` document grants access
-or when a Firestore Stripe subscription with the status `active`, `trialing` or
-`past_due` exists, and `boolean | null` while it works. Trialing counts
-because new subscribers spend their first seven days in a trial, and
-`past_due` keeps access through Stripe's payment-retry grace period.
-`DecksProvider` keeps the premium-window queries disabled until the answer is
-`true`; the default window loads without waiting.
+reads the signed-in user's `entitlements/{uid}` document and returns `true` only
+for an active entitlement, `false` when access is absent or expired, and
+`boolean | null` while the lookup is unresolved. `DecksProvider` keeps the
+premium-window queries disabled until the answer is `true`; the default window
+loads without waiting.
 
 ## Internationalisation
 

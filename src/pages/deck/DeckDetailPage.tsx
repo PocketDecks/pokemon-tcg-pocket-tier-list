@@ -10,7 +10,7 @@ import DeckHeadTags from "./DeckHeadTags";
 import DeckHubLink from "./DeckHubLink";
 import { MIN_MATCHUP_GAMES, WINRATE_THRESHOLD } from "../../app/config";
 import useIsPremium from "../../app/use-is-premium";
-import useFreeDeckNames from "../../app/use-free-deck-names";
+import { isPremiumMetaWindow } from "../../app/meta-window";
 import { useMetaWindow } from "../../app/use-meta-window";
 import useWindowSearchParam from "../../app/use-window-search-param";
 import ShareDeckCode from "../../components/ShareDeckCode";
@@ -45,13 +45,11 @@ import {
   KeyStats,
   KeyStatRow,
   KeyStatValue,
-  MatchupNotice,
   MatchupSection,
   Matchups,
   Overlay,
   PanelSection,
   StyledDeckPage,
-  StyledLink,
   SubHeader,
   SwapArrow,
   SwapCount,
@@ -85,9 +83,7 @@ const DeckDetailPage = () => {
   const { missingCounts, canUndo, undoMissing, lastRemovedId } = useMissing();
   const { t } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");
-  const premiumHref = useLocaleHref("/about#premium");
   const isPremium = useIsPremium();
-  const freeNames = useFreeDeckNames();
   const { window: metaWindow } = useMetaWindow();
   useWindowSearchParam();
 
@@ -98,9 +94,8 @@ const DeckDetailPage = () => {
   const shareEntry: MetaShareEntry | null =
     metaShareBySlug?.[deckId ?? ""] ?? null;
   const deckMatchups = deck ? matchupsByName?.[deck.name] : undefined;
-  const isFreeDeck = !!deck && freeNames.has(deck.name);
-  const matchupsLocked = isPremium === false && !!deck && !isFreeDeck;
-  const matchupsPending = matchupsLoading || (isPremium === null && !isFreeDeck);
+  const matchupsPending =
+    matchupsLoading || (isPremium === null && isPremiumMetaWindow(metaWindow));
 
   // Ready (for showing ads) only once a real deck is resolved, never on the
   // loading or "not enough cards" screens.
@@ -322,36 +317,22 @@ const DeckDetailPage = () => {
               </MatchupSection>
             )}
 
-            {matchupsLocked ? (
-              <MatchupSection>
-                <SubHeader $backgroundColor="var(--c)">
-                  {t("deckPage.matchups")}
-                </SubHeader>
-                <MatchupNotice>
-                  <span>{t("deckPage.matchupsPremium")}</span>
-                  <StyledLink to={premiumHref}>{t("deckPage.premiumGateAction")}</StyledLink>
-                </MatchupNotice>
-              </MatchupSection>
-            ) : (
-              <>
-                <MatchupListSection
-                  title={t("deckPage.strongAgainst")}
-                  headerColour="var(--f)"
-                  pending={matchupsPending}
-                  failed={!!matchupsError}
-                  matchups={strongAgainst}
-                  decksByName={deckMap}
-                />
-                <MatchupListSection
-                  title={t("deckPage.weakAgainst")}
-                  headerColour="var(--s)"
-                  pending={matchupsPending}
-                  failed={!!matchupsError}
-                  matchups={weakAgainst}
-                  decksByName={deckMap}
-                />
-              </>
-            )}
+            <MatchupListSection
+              title={t("deckPage.strongAgainst")}
+              headerColour="var(--f)"
+              pending={matchupsPending}
+              failed={!!matchupsError}
+              matchups={strongAgainst}
+              decksByName={deckMap}
+            />
+            <MatchupListSection
+              title={t("deckPage.weakAgainst")}
+              headerColour="var(--s)"
+              pending={matchupsPending}
+              failed={!!matchupsError}
+              matchups={weakAgainst}
+              decksByName={deckMap}
+            />
           </Matchups>
         </PanelSection>
       </StyledDeckPage>

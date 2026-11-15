@@ -21,7 +21,7 @@ describe("planPremiumUpload", () => {
   it("plans one document per artefact and a version document that lists every hash", () => {
     const plan = planPremiumUpload({ files: files(), version: "abc", existing: [] });
 
-    expect(plan.artefactWrites).toHaveLength(10);
+    expect(plan.artefactWrites).toHaveLength(8);
     const write = plan.artefactWrites.find((entry) => entry.path === "premiumData/abc/artefacts/best-decks-30d");
     expect(write?.data).toEqual({
       payload: '{"name":"best-decks-30d"}',

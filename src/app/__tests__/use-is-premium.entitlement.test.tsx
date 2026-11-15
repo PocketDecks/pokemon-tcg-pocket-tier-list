@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { getCurrentUserSubscriptions } from "@invertase/firestore-stripe-payments";
 import useIsPremium from "../use-is-premium";
 import { useAuth } from "../../contexts/AuthContext";
 import { queryClientOptions } from "../../App";
@@ -14,21 +13,14 @@ const firestore = vi.hoisted(() => ({
 
 vi.mock("firebase/firestore", () => firestore);
 
-vi.mock("@invertase/firestore-stripe-payments", () => ({
-  getStripePayments: vi.fn(),
-  getCurrentUserSubscriptions: vi.fn(),
-}));
-
 vi.mock("../../contexts/AuthContext", () => ({
   useAuth: vi.fn(),
 }));
 
 vi.mock("../../config/firebase", () => ({
   default: { name: "app" },
-  getPayments: vi.fn().mockResolvedValue({}),
 }));
 
-const mockSubscriptions = getCurrentUserSubscriptions as ReturnType<typeof vi.fn>;
 const mockAuth = useAuth as ReturnType<typeof vi.fn>;
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -55,7 +47,6 @@ beforeEach(() => {
     },
   });
   mockAuth.mockReturnValue({ user: { uid: "u1" }, loading: false });
-  mockSubscriptions.mockResolvedValue([]);
   firestore.getDoc.mockResolvedValue(entitlement(null));
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -80,7 +71,7 @@ describe("entitlement document", () => {
     expect(firestore.doc).toHaveBeenCalledWith(expect.anything(), "entitlements", "u1");
   });
 
-  it("grants premium without any Stripe subscription", async () => {
+  it("grants premium from the entitlement document", async () => {
     firestore.getDoc.mockResolvedValue(
       entitlement({ premium: true, source: "manual", updatedAt: timestamp(1) })
     );
@@ -127,41 +118,7 @@ describe("entitlement document", () => {
     expect(screen.getByText("pending")).toBeInTheDocument();
   });
 
-  it("grants as soon as the entitlement does, even while Stripe is still pending", async () => {
-    mockSubscriptions.mockReturnValue(new Promise(() => {}));
-    firestore.getDoc.mockResolvedValue(entitlement({ premium: true, source: "manual" }));
-    renderProbe();
-    await screen.findByText("true");
-  });
-});
-
-describe("independence of the two sources", () => {
-  it("keeps a Stripe grant when the entitlement read is denied", async () => {
-    mockSubscriptions.mockResolvedValue([{ status: "active" }]);
-    firestore.getDoc.mockRejectedValue(
-      Object.assign(new Error("denied"), { code: "permission-denied" })
-    );
-    renderProbe();
-    await screen.findByText("true");
-  });
-
-  it("keeps an entitlement grant when the Stripe lookup fails", async () => {
-    mockSubscriptions.mockRejectedValue(new Error("offline"));
-    firestore.getDoc.mockResolvedValue(entitlement({ premium: true, source: "manual" }));
-    renderProbe();
-    await screen.findByText("true");
-  });
-
-  it("resolves to false when both sources fail", async () => {
-    mockSubscriptions.mockRejectedValue(new Error("offline"));
-    firestore.getDoc.mockRejectedValue(new Error("offline"));
-    renderProbe();
-    await screen.findByText("false");
-    expect(firestore.getDoc).toHaveBeenCalled();
-  });
-
-  it("resolves to false when one source fails and the other holds no grant", async () => {
-    mockSubscriptions.mockResolvedValue([]);
+  it("fails closed when the entitlement read fails", async () => {
     firestore.getDoc.mockRejectedValue(new Error("offline"));
     renderProbe();
     await screen.findByText("false");

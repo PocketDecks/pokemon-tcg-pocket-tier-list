@@ -15,6 +15,7 @@ vi.mock("react-i18next", () => ({
           "a11y.closeMenu": "Close menu",
           "a11y.primaryNav": "Main navigation",
           "footer.about": "About",
+          "premium.become": "Become a Supporter!",
           "footer.privacySettings": "Privacy settings",
         } as Record<string, string>
       )[key] ?? key,
@@ -77,6 +78,11 @@ describe("Header", () => {
     expect(
       within(screen.getByRole("contentinfo")).getByTestId("language-switcher")
     ).toBeInTheDocument();
+  });
+
+  it("links the footer to the Supporter page", () => {
+    renderHeader(true);
+    expect(screen.getByRole("link", { name: "Become a Supporter!" })).toHaveAttribute("href", "/premium/");
   });
 
   it("renders the footer without a second banner or navigation", () => {

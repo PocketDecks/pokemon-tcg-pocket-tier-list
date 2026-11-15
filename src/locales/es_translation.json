@@ -3,7 +3,7 @@
     "banner": "Las clasificaciones están actualizadas al {{date}}."
   },
   "a11y": {
-    "premiumOnly": "(Premium)",
+    "premiumOnly": "(Colaborador)",
     "skipToContent": "Saltar al contenido",
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú",
@@ -14,73 +14,48 @@
     "switchToDark": "Cambiar al modo oscuro"
   },
   "premium": {
-    "title": "Top Pocket Decks Premium",
-    "manageSubscription": "Administrar suscripción",
-    "windDown": {
-      "headline": "Premium se ha pausado temporalmente 💛",
-      "status": "¡Top Pocket Decks tiene un nuevo mantenedor y continuará recibiendo actualizaciones! Durante esta transición, los nuevos registros de Premium están pausados temporalmente y los anuncios se han desactivado para todos.",
-      "active": "Tu suscripción se mantiene activa y se seguirá renovando hasta que la canceles. Puedes cancelarla en cualquier momento a través del portal de facturación.",
-      "refund": "¿Prefieres un reembolso? Envíame un correo a <0>chase@manning.dev</0> con la dirección de correo electrónico de tu cuenta y cancelaré tu suscripción y te reembolsaré tu pago más reciente. Stripe solo me permite reembolsar pagos realizados en los últimos 180 días, así que si el tuyo es más antiguo, haré todo lo que pueda."
+    "title": "Colaborador",
+    "become": "¡Hazte colaborador!",
+    "perksLead": "Los colaboradores tienen:",
+    "perks": {
+      "noAds": "Sin anuncios",
+      "windows": "Ventanas de 30 días y de todo el tiempo",
+      "filters": "Filtros de mazos por energía y sin EX",
+      "rankings": "Clasificaciones por popularidad o fuerza",
+      "decks": "Hasta 100 mazos en la Tier List",
+      "data": "Los datos publicados más recientes",
+      "contact": "Contacto con los desarrolladores",
+      "earlyAccess": "Acceso anticipado a nuevas funciones experimentales",
+      "gratitude": "Gratitud eterna por apoyar un proyecto personal"
     },
-    "features": {
-      "title": "Características",
-      "free": "Gratis",
-      "premium": "Premium",
-      "removeAds": {
-        "title": "Eliminar anuncios",
-        "description": "Disfruta de una experiencia sin anuncios en todo el sitio.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "bestDeckFinder": {
-        "title": "Buscador del mejor mazo",
-        "description": "Encuentra el mazo más fuerte que puedes construir con tus cartas. También funciona como un rastreador completo de la colección de PTCGP.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "exclude": {
-        "title": "Excluir cartas que no tienes",
-        "description": "Filtra las cartas que no posees para actualizar la Tier List en tiempo real con lo que sí tienes.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "matchups": {
-        "title": "Fortalezas y debilidades de los mazos",
-        "description": "Mira a qué mazos vence tu construcción y contra cuáles pierde, incluyendo los porcentajes de tasa de victoria.",
-        "free": "Top 10",
-        "premium": "✅"
-      },
-      "filters": {
-        "title": "Filtros de mazos",
-        "description": "Filtra mazos por Energía o prohíbe las cartas EX por completo para ganar las batallas en solitario.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "sortBy": {
-        "title": "Clasificaciones alternativas",
-        "description": "Cambia la Tier List para clasificar por popularidad o fuerza.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "contact": {
-        "title": "Contactar a los desarrolladores",
-        "description": "Envía un correo a los desarrolladores para dar tu opinión sobre el sitio, solicitar nuevas funciones o reportar errores. Las solicitudes de funciones no están garantizadas, pero las leemos todas.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "updated": {
-        "title": "Actualización de la Tier List",
-        "description": "Con qué frecuencia la Tier List obtiene nuevos datos. Las actualizaciones más rápidas te ayudan a mantenerte un paso adelante del meta.",
-        "free": "Semanal",
-        "premium": "Diario"
-      },
-      "decks": {
-        "title": "Mazos en la Tier List",
-        "description": "Número de mazos que se muestran en la Tier List. Más mazos significan más opciones para que elijas. Descubre mazos fuertes que aún no se han vuelto populares.",
-        "free": "30",
-        "premium": "100"
-      }
-    }
+    "discord": "Si suficientes colaboradores quieren un servidor de Discord, abriré uno solo para ellos.",
+    "kindNote": "Si no puedes dar una propina, no pasa nada. Cada vez que compartes la Tier List con un amigo o la recomiendas en tu comunidad, ayuda más que cualquier cantidad de dinero. Me alegra que la web haya mejorado un poco tu experiencia 😊",
+    "contact": {
+      "title": "Contactar a los desarrolladores",
+      "description": "Envía un correo a los desarrolladores para dar tu opinión sobre el sitio, solicitar nuevas funciones o reportar errores. Las solicitudes de funciones no están garantizadas, pero las leemos todas."
+    },
+    "price": "1 £ al mes. Cada 1 £ de propina añade un mes.",
+    "rulesToggle": "Cómo cuentan las propinas",
+    "priceDetails": "Las propinas aptas en GBP añaden un mes por cada libra entera, hasta 120 meses por propina; las fracciones no añaden meses. Las propinas de 121 £ o más y las de otras monedas requieren revisión y no conceden acceso de colaborador automáticamente.",
+    "cta": "Dar una propina en Ko-fi",
+    "ctaExtend": "Ampliar en Ko-fi",
+    "emailHint": "Usa el correo de tu cuenta de Google ({{email}}) al pagar en Ko-fi.",
+    "emailHintNoEmail": "Tu cuenta de Google no tiene correo. Usa la opción de código de abajo.",
+    "altCodeToggle": "¿Pagas desde otro correo?",
+    "altCodeHint": "Pega este código en el mensaje de Ko-fi.",
+    "codeUnavailable": "No se ha podido cargar tu código. Aporta desde tu correo de Google o escríbenos abajo con los datos del pago.",
+    "codeUnavailableNoEmail": "No se ha podido cargar tu código. Escríbenos abajo con los datos del pago.",
+    "waiting": "Esperando tu propina… suele tardar menos de un minuto.",
+    "checkAgain": "Comprobar de nuevo",
+    "copyFailed": "No se pudo copiar el código. Selecciónalo y cópialo manualmente.",
+    "codeLoading": "Preparando tu código…",
+    "signInFirst": "Inicia sesión primero para que podamos asociar tu propina.",
+    "signIn": "Iniciar sesión con Google",
+    "copy": "Copiar código",
+    "copied": "Copiado",
+    "expires": "Tu acceso de colaborador termina el {{date}}.",
+    "lifetime": "Tu acceso de colaborador no caduca.",
+    "refund": "Para reembolsos o pagos perdidos, escribe a <0/> con los datos del pago."
   },
   "ads": {
     "advertisement": "Anuncio",
@@ -143,10 +118,9 @@
     "shareQrCopy": "Copiar código del mazo",
     "shareQrCopied": "¡Copiado!",
     "shareQrDownload": "Descargar QR",
-    "premiumGateTitle": "Este mazo solo aparece en un periodo Premium",
-    "premiumGateBody": "Figura en las vistas de 30 días y de todo el tiempo, que forman parte de Premium.",
-    "premiumGateAction": "Ver Premium",
-    "matchupsPremium": "Los enfrentamientos de este mazo forman parte de Premium. Las cuentas gratuitas los ven para los 10 mejores mazos."
+    "premiumGateTitle": "Este mazo solo aparece en un periodo para colaboradores",
+    "premiumGateBody": "Figura en las vistas de 30 días y de todo el tiempo, que son para colaboradores.",
+    "premiumGateAction": "¡Hazte colaborador!"
   },
   "energyDropdown": {
     "all": "Todos los tipos de Energía",
@@ -198,7 +172,7 @@
     "deltaColumn": "Cambio",
     "noTrends": "Los datos de tendencias no están disponibles ahora mismo.",
     "noMovement": "No hay movimiento de mazos en este periodo.",
-    "movementPremium": "El movimiento se muestra para los 10 mejores mazos. Premium lo muestra para todos los mazos.",
+    "movementPremium": "El movimiento se muestra para los 10 mejores mazos. Los colaboradores lo ven para todos los mazos.",
     "introGeneric": "Analiza el metajuego actual de Pokémon TCG Pocket con datos históricos en vivo y mapas de calor de enfrentamientos entre arquetipos. Estos datos muestran cómo cambian con el tiempo la popularidad de los mazos y las tasas de victoria."
   },
   "bestDeckFinder": {
@@ -317,9 +291,9 @@
     "collect": {
       "heading": "Información que recogemos",
       "usage": "<0>Datos de uso.</0> Google Analytics registra las páginas que visita y los datos habituales del dispositivo y del navegador. Solo se ejecuta después de que acepte el análisis o, si el banner de consentimiento de su región no lo pide, sin consentimiento.",
-      "account": "<0>Información de la cuenta.</0> Si inicia sesión con Google, Firebase Authentication nos proporciona su nombre, su dirección de correo electrónico y su foto de perfil. Mostramos su nombre y su foto mientras tenga la sesión iniciada, y usamos su ID de cuenta para comprobar si tiene acceso Premium.",
+      "account": "<0>Información de la cuenta.</0> Si inicia sesión con Google, Firebase Authentication nos proporciona su nombre, su dirección de correo electrónico y su foto de perfil. Mostramos su nombre y su foto mientras tenga la sesión iniciada, y usamos su ID de cuenta para comprobar si tiene acceso de colaborador.",
       "feedback": "<0>Comentarios.</0> Si envía comentarios con la sesión iniciada, guardamos su ID de cuenta, su mensaje, el tema que eligió, la página desde la que los envió y la hora de envío en Cloud Firestore, una base de datos que gestiona Google para Firebase. Guardamos su dirección de correo electrónico junto con el mensaje solo si marca la casilla para pedirnos una respuesta. También guardamos la hora de su último envío.",
-      "payment": "<0>Pagos.</0> El pago de Premium está pausado actualmente. Cuando vuelva a estar disponible, Stripe procesará los pagos y guardaremos el estado de su suscripción en Firestore."
+      "payment": "<0>Propinas.</0> Creamos un registro para cada pago de Ko-fi. Incluye el identificador y el tipo de pago, el importe y la moneda, los meses concedidos, el estado y las fechas de recepción y de Ko-fi. Si el pago se vincula a una cuenta, el registro también incluye su identificador y el método de coincidencia. Solo guardamos el correo, el nombre y el mensaje de quien envía la propina cuando el pago no se concede automáticamente, para revisarlo o aplicarlo manualmente."
     },
     "cookies": {
       "heading": "Cookies y seguimiento",
@@ -333,7 +307,7 @@
       "language": "<0>Idioma.</0> El sitio lee la configuración de idioma de su navegador para elegir el idioma de la página. No guarda nada.",
       "missing": "<0>Cartas que faltan.</0> Las cartas que marca como que le faltan solo se guardan en la memoria de la página. No se guardan, y al recargar la página se borran.",
       "analytics": "<0>Análisis.</0> Google Analytics usa sus propias cookies para distinguir las visitas. Cuando el banner de consentimiento pide consentimiento, estas cookies solo se establecen después de que acepte el análisis.",
-      "ads": "<0>Publicidad.</0> Los visitantes del nivel gratuito ven anuncios de Google AdSense. Google y sus socios pueden usar cookies para mostrar anuncios según sus visitas a este sitio y a otros. Los miembros Premium no ven anuncios.",
+      "ads": "<0>Publicidad.</0> Los visitantes del nivel gratuito ven anuncios de Google AdSense. Google y sus socios pueden usar cookies para mostrar anuncios según sus visitas a este sitio y a otros. Los colaboradores no ven anuncios.",
       "optOut": "Puede desactivar la publicidad personalizada en <0>Configuración de anuncios de Google</0>. También puede desactivar las cookies publicitarias de algunos proveedores en <1>www.aboutads.info</1>."
     },
     "consent": {
@@ -342,32 +316,32 @@
     },
     "legalBasis": {
       "heading": "Base jurídica",
-      "body": "Nos basamos en su consentimiento para el análisis y la publicidad cuando el banner de consentimiento lo solicita. Para Premium, nos basamos en nuestro contrato con usted para proporcionar el acceso y gestionar su suscripción."
+      "body": "Nos basamos en su consentimiento para el análisis y la publicidad cuando el aviso de consentimiento lo solicita. Usamos los datos de su cuenta para proporcionar el acceso de colaborador y revisar las propinas que no conceden automáticamente nuevo tiempo de colaborador."
     },
     "use": {
       "heading": "Cómo usamos la información",
       "item1": "Para prestar el sitio y sus funciones, y para mejorarlos.",
-      "item2": "Para iniciar su sesión, gestionar sus comentarios y administrar el acceso Premium.",
+      "item2": "Para iniciar su sesión, gestionar sus comentarios y administrar el acceso de colaborador.",
       "item3": "Para entender el uso del sitio y medir su rendimiento, cuando el análisis esté permitido.",
       "item4": "Para mostrar publicidad a los visitantes del nivel gratuito, sujeta a las reglas de consentimiento anteriores."
     },
     "rights": {
       "heading": "Sus derechos",
-      "body": "Según su ubicación, puede tener derecho a acceder a sus datos personales, corregirlos o eliminarlos, o a oponerse o restringir determinados tratamientos. Para ejercer estos derechos, incluida una solicitud para eliminar sus comentarios o los datos de su cuenta, contáctenos con los datos indicados más abajo. Los suscriptores Premium no ven anuncios."
+      "body": "Según su ubicación, puede tener derecho a acceder a sus datos personales, corregirlos o eliminarlos, o a oponerse o restringir determinados tratamientos. Para ejercer estos derechos, incluida una solicitud para eliminar sus comentarios o los datos de su cuenta, contáctenos con los datos indicados más abajo. Los colaboradores no ven anuncios."
     },
     "thirdParty": {
       "heading": "Servicios de terceros",
       "intro": "Trabajamos con proveedores externos. Cada uno recibe solo la información que se describe aquí.",
       "analytics": "Google Analytics recibe datos de uso cuando el análisis está permitido.",
       "adsense": "Google AdSense recibe las solicitudes de anuncios de los visitantes del nivel gratuito.",
-      "firebase": "Firebase, un servicio de Google, gestiona el inicio de sesión, la base de datos de comentarios, los registros de suscripciones y el alojamiento del sitio. El servicio de alojamiento recibe datos técnicos de cada solicitud, como su dirección IP y el tipo de navegador.",
-      "stripe": "Stripe procesa los pagos Premium.",
-      "github": "GitHub sirve imágenes de cartas desde raw.githubusercontent.com cuando se muestra una carta, así que GitHub recibe su dirección IP y datos del navegador. GitHub, Twitter y el portal de facturación de Stripe reciben su visita solo si sigue sus enlaces.",
-      "outro": "Estos proveedores usan su información según sus propias políticas de privacidad."
+      "firebase": "Firebase, un servicio de Google, gestiona el inicio de sesión, la base de datos de comentarios, el almacenamiento de permisos y el alojamiento del sitio. El servicio de alojamiento recibe datos técnicos de cada solicitud, como la dirección IP y el navegador.",
+      "github": "GitHub sirve imágenes de cartas desde raw.githubusercontent.com cuando se muestra una carta, así que recibe su dirección IP y datos del navegador. Los sitios externos reciben su visita solo si sigue sus enlaces.",
+      "outro": "Los sitios externos reciben tu dirección IP y los datos del navegador si sigues sus enlaces. Esos sitios utilizan tu información según sus propias políticas de privacidad.",
+      "kofi": "<0>Ko-fi</0> permite enviar propinas opcionales de colaborador. El proveedor de pago que elijas durante el pago procesa la transacción."
     },
     "retention": {
       "heading": "Cuánto tiempo conservamos la información",
-      "body": "Google Analytics conserva los datos de eventos durante 14 meses. Conserva los datos de usuario durante 14 meses, y ese plazo se reinicia cuando vuelve al sitio. Conservamos su cuenta de inicio de sesión de Google y los campos de perfil guardados hasta que nos pida que los eliminemos, a través de los datos de contacto indicados más abajo. Conservamos los mensajes de comentarios hasta que nos pida que los eliminemos. Google decide cuánto tiempo conserva sus datos publicitarios. Consulte la <0>política de privacidad</0> y las <1>políticas de anuncios</1> de Google. El pago de Premium está pausado actualmente. Cuando se reactive, Stripe conservará los registros de pago según exige la ley. El sitio no conserva registros propios de las solicitudes web. Firebase, el proveedor de alojamiento, y Cloudflare, el proveedor de red, conservan sus registros operativos habituales según sus propias condiciones."
+      "body": "Google Analytics conserva los datos de eventos durante 14 meses. Conserva los datos de usuario durante 14 meses, y el periodo se reinicia cuando vuelves al sitio. Guardamos tu cuenta de Google y los datos de perfil almacenados hasta que solicites su eliminación mediante los datos de contacto que aparecen abajo. Conservamos los mensajes de comentarios hasta que solicites eliminarlos. Google decide cuánto tiempo conserva los datos publicitarios. Consulta la <0>política de privacidad</0> y las <1>políticas de anuncios</1> de Google. Creamos un registro de cada pago de Ko-fi con su identificador y tipo, importe y moneda, meses concedidos, estado, fechas y, cuando corresponde, el identificador de la cuenta vinculada y el método de coincidencia. Solo guardamos el correo, el nombre y el mensaje de quien envía la propina cuando el pago no se concede automáticamente, para revisarlo o aplicarlo manualmente. El sitio no guarda registros propios de las solicitudes web. Firebase y Cloudflare conservan sus registros operativos habituales según sus propias condiciones."
     },
     "children": {
       "heading": "Menores",

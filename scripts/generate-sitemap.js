@@ -22,6 +22,7 @@ const STATIC_ROUTES = [
   "/statistics",
   "/deck",
   "/about",
+  "/premium",
   "/privacy",
 ];
 

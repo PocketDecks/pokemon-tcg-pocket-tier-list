@@ -67,12 +67,12 @@ describe("Popup layout beside the consent banner", () => {
     const overlay = dialog.parentElement as HTMLElement;
 
     expect(matchesPhoneRule(overlay, "padding-bottom: 50vh")).toBe(false);
-    expect(matchesPhoneRule(dialog, "max-height: calc(50vh - 2.4rem)")).toBe(false);
+    expect(matchesPhoneRule(dialog, "max-height: calc(50dvh - 2.4rem)")).toBe(false);
 
     document.documentElement.setAttribute("data-consent-pending", "");
     try {
       expect(matchesPhoneRule(overlay, "padding-bottom: 50vh")).toBe(true);
-      expect(matchesPhoneRule(dialog, "max-height: calc(50vh - 2.4rem)")).toBe(true);
+      expect(matchesPhoneRule(dialog, "max-height: calc(50dvh - 2.4rem)")).toBe(true);
       expect(consentPendingRules().filter((rule) => rule.mediaText === null)).toEqual([]);
     } finally {
       document.documentElement.removeAttribute("data-consent-pending");

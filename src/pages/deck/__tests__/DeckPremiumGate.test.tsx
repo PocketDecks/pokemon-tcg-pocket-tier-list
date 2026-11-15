@@ -20,17 +20,17 @@ describe("DeckPremiumGate", () => {
     renderGate();
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "This deck only appears in a Premium window"
+      "This deck only appears in a Supporter window"
     );
     expect(
-      screen.getByText("It is listed in the 30 day and all time views, which are part of Premium.")
+      screen.getByText("It is listed in the 30 day and all time views, which are for Supporters.")
     ).toBeInTheDocument();
   });
 
-  it("links to the Premium section of the about page", () => {
+  it("links to the Supporter section of the about page", () => {
     renderGate();
 
-    expect(screen.getByRole("link", { name: "See Premium" })).toHaveAttribute("href", "/about/#premium");
+    expect(screen.getByRole("link", { name: "Become a Supporter!" })).toHaveAttribute("href", "/about/#premium");
   });
 
   it("keeps the locale prefix on the link", () => {

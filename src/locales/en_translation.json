@@ -3,7 +3,7 @@
     "banner": "Rankings are current as of {{date}}."
   },
   "a11y": {
-    "premiumOnly": "(Premium)",
+    "premiumOnly": "(Supporter)",
     "skipToContent": "Skip to content",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
@@ -14,73 +14,48 @@
     "switchToDark": "Switch to dark mode"
   },
   "premium": {
-    "title": "Top Pocket Decks Premium",
-    "manageSubscription": "Manage Subscription",
-    "windDown": {
-      "headline": "Premium is temporarily halted 💛",
-      "status": "Top Pocket Decks has a new maintainer and will continue to receive updates! During this transition, new Premium signups are temporarily paused and ads have been switched off for everyone.",
-      "active": "Your subscription stays active and keeps renewing until you cancel it. You can cancel any time through the billing portal.",
-      "refund": "Would you rather have a refund? Email me at <0>chase@manning.dev</0> with the email address on your account and I'll cancel your subscription and refund your most recent payment. Stripe only lets me refund payments made in the last 180 days, so if yours is older than that I'll do whatever I can."
+    "title": "Supporter",
+    "become": "Become a Supporter!",
+    "perksLead": "Supporters get:",
+    "perks": {
+      "noAds": "No ads",
+      "windows": "30-day and all-time windows",
+      "filters": "Energy and no-EX deck filters",
+      "rankings": "Rankings by popularity or strength",
+      "decks": "Up to 100 decks on the tier list",
+      "data": "The latest published data",
+      "contact": "Contact with the developers",
+      "earlyAccess": "Early access to new experimental features",
+      "gratitude": "Eternal gratitude for supporting a passion project"
     },
-    "features": {
-      "title": "Features",
-      "free": "Free",
-      "premium": "Premium",
-      "removeAds": {
-        "title": "Remove Ads",
-        "description": "Enjoy an experience without ads across the whole site.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "bestDeckFinder": {
-        "title": "Best Deck Finder",
-        "description": "Find the strongest deck you can build with your cards. It doubles as a complete PTCGP collection tracker.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "exclude": {
-        "title": "Exclude Cards You Don't Have",
-        "description": "Filter out cards you do not own to live update the tier list with what you have.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "matchups": {
-        "title": "Deck Strengths and Weaknesses",
-        "description": "See which decks your build beats and loses to, including win rate percentages.",
-        "free": "Top 10",
-        "premium": "✅"
-      },
-      "filters": {
-        "title": "Deck Filters",
-        "description": "Filter decks by Energy or ban EX cards entirely to beat solo battles.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "sortBy": {
-        "title": "Alternative Rankings",
-        "description": "Change the tier list to rank by popularity or strength.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "contact": {
-        "title": "Contact Developers",
-        "description": "Email the developers to give feedback on the site, request new features, or report bugs. Feature requests are not guaranteed, but we read them all.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "updated": {
-        "title": "Tier List Updated",
-        "description": "How often the tier list pulls in new data. Faster updates help you stay ahead of the meta.",
-        "free": "Weekly",
-        "premium": "Daily"
-      },
-      "decks": {
-        "title": "Decks on Tier List",
-        "description": "Number of decks shown in the tier list. More decks means more options for you to choose from. Discover strong decks that haven't yet become popular.",
-        "free": "30",
-        "premium": "100"
-      }
-    }
+    "discord": "If enough Supporters want one, I'll open a Discord server just for them.",
+    "kindNote": "If you can't tip, that's completely fine. Every time you share the tier list with a friend or recommend it to your community, it helps more than any amount of money could. I'm just glad the site made your experience a little better 😊",
+    "contact": {
+      "title": "Contact Developers",
+      "description": "Email the developers to give feedback on the site, request new features, or report bugs. Feature requests are not guaranteed, but we read them all."
+    },
+    "price": "£1 a month. Each £1 tip adds a month.",
+    "rulesToggle": "How tips count",
+    "priceDetails": "Eligible GBP tips add one month per whole £1, up to 120 months per tip; fractions add no months. Tips of £121 or more and tips in other currencies need review and grant no Supporter access automatically.",
+    "cta": "Tip on Ko-fi",
+    "ctaExtend": "Extend on Ko-fi",
+    "emailHint": "Use your Google email ({{email}}) at Ko-fi checkout.",
+    "emailHintNoEmail": "Your Google account has no email. Use the code option below.",
+    "altCodeToggle": "Paying from a different email?",
+    "altCodeHint": "Paste this code into the Ko-fi message.",
+    "codeUnavailable": "Your code could not be loaded. Tip from your Google email instead, or contact us below with your payment details.",
+    "codeUnavailableNoEmail": "Your code could not be loaded. Contact us below with your payment details.",
+    "waiting": "Waiting for your tip to arrive… this usually takes under a minute.",
+    "checkAgain": "Check again",
+    "copyFailed": "Could not copy the code. Select it and copy it manually.",
+    "codeLoading": "Preparing your code…",
+    "signInFirst": "Sign in first so we can match your tip.",
+    "signIn": "Sign in with Google",
+    "copy": "Copy code",
+    "copied": "Copied",
+    "expires": "Your Supporter access ends on {{date}}.",
+    "lifetime": "Your Supporter access does not expire.",
+    "refund": "For refunds or lost payments, email <0/> with your payment details."
   },
   "ads": {
     "advertisement": "Advertisement",
@@ -143,10 +118,9 @@
     "shareQrCopy": "Copy deck code",
     "shareQrCopied": "Copied!",
     "shareQrDownload": "Download QR",
-    "premiumGateTitle": "This deck only appears in a Premium window",
-    "premiumGateBody": "It is listed in the 30 day and all time views, which are part of Premium.",
-    "premiumGateAction": "See Premium",
-    "matchupsPremium": "Matchups for this deck are part of Premium. Free accounts see them for the top 10 decks."
+    "premiumGateTitle": "This deck only appears in a Supporter window",
+    "premiumGateBody": "It is listed in the 30 day and all time views, which are for Supporters.",
+    "premiumGateAction": "Become a Supporter!"
   },
   "energyDropdown": {
     "all": "All Energy Types",
@@ -198,7 +172,7 @@
     "deltaColumn": "Change",
     "noTrends": "Trend data is unavailable right now.",
     "noMovement": "No deck movement in this window.",
-    "movementPremium": "Movement is shown for the top 10 decks. Premium shows it for every deck.",
+    "movementPremium": "Movement is shown for the top 10 decks. Supporters see it for every deck.",
     "introGeneric": "Analyse the current Pokémon TCG Pocket metagame using live historical data and archetype matchup heatmaps. This tracking data maps exactly how deck popularity and win rates shift over time, and it draws on results from recent competitive events."
   },
   "bestDeckFinder": {
@@ -317,9 +291,9 @@
     "collect": {
       "heading": "Information we collect",
       "usage": "<0>Usage data.</0> Google Analytics records the pages you view and standard device and browser details. It runs only after you accept analytics, or where your region's consent banner does not ask for consent.",
-      "account": "<0>Account information.</0> If you sign in with Google, Firebase Authentication gives us your name, email address and profile photo. We show your name and photo while you are signed in, and we use your account ID to check whether you have Premium access.",
+      "account": "<0>Account information.</0> If you sign in with Google, Firebase Authentication gives us your name, email address and profile photo. We show your name and photo while you are signed in, and we use your account ID to check whether you have Supporter access.",
       "feedback": "<0>Feedback.</0> If you send feedback while signed in, we store your account ID, your message, the topic you chose, the page you sent it from and the time you sent it in Cloud Firestore, a database run by Google for Firebase. We store your email address with the message only if you tick the box asking us to reply. We also store the time of your last submission.",
-      "payment": "<0>Payments.</0> Premium checkout is paused. When it reopens, Stripe processes payments and we store your subscription status in Firestore."
+      "payment": "<0>Tips.</0> We create a record for every Ko-fi payment. It includes the payment identifier and type, amount and currency, credited months, status, and received and Ko-fi timestamps. When a payment matches an account, the record also includes its account identifier and how it matched. We store the tipper’s email address, name and message only when a payment is not granted automatically, so we can review it or apply it manually."
     },
     "cookies": {
       "heading": "Cookies and tracking",
@@ -333,7 +307,7 @@
       "language": "<0>Language.</0> The site reads your browser's language setting to choose the language of the page. It stores nothing.",
       "missing": "<0>Missing cards.</0> The cards you mark as missing are kept only in the page's memory. They are not saved, and reloading the page clears them.",
       "analytics": "<0>Analytics.</0> Google Analytics uses its own cookies to tell visits apart. Where the consent banner asks for consent, these cookies are set only after you accept analytics.",
-      "ads": "<0>Advertising.</0> Free-tier visitors see ads from Google AdSense. Google and its partners may use cookies to serve ads based on your visits to this and other sites. Premium members do not see ads.",
+      "ads": "<0>Advertising.</0> Free-tier visitors see ads from Google AdSense. Google and its partners may use cookies to serve ads based on your visits to this and other sites. Supporter members do not see ads.",
       "optOut": "You can opt out of personalised advertising at <0>Google Ads Settings</0>. You can also opt out of some vendors' advertising cookies at <1>www.aboutads.info</1>."
     },
     "consent": {
@@ -342,32 +316,32 @@
     },
     "legalBasis": {
       "heading": "Legal basis",
-      "body": "We rely on your consent for analytics and advertising where the consent banner asks for it. For Premium, we rely on our contract with you to provide access and manage your subscription."
+      "body": "We rely on your consent for analytics and advertising where the consent banner asks for it. We use your account details to provide Supporter access and review tips that do not automatically grant new Supporter time."
     },
     "use": {
       "heading": "How we use information",
       "item1": "To provide and improve the site and its features.",
-      "item2": "To sign you in, handle your feedback and manage Premium access.",
+      "item2": "To sign you in, handle your feedback and manage Supporter access.",
       "item3": "To understand usage and measure performance, where analytics is allowed.",
       "item4": "To show advertising to free-tier visitors, subject to the consent rules above."
     },
     "rights": {
       "heading": "Your rights",
-      "body": "Depending on your location, you may have the right to access, correct or delete your personal data, or to object to or restrict certain processing. To exercise these rights, including a request to delete your feedback or account information, contact us using the details below. Premium subscribers do not see ads."
+      "body": "Depending on your location, you may have the right to access, correct or delete your personal data, or to object to or restrict certain processing. To exercise these rights, including a request to delete your feedback or account information, contact us using the details below. Supporters do not see ads."
     },
     "thirdParty": {
       "heading": "Third-party services",
       "intro": "We rely on third-party providers. Each one receives only the information described here.",
       "analytics": "Google Analytics receives usage data where analytics is allowed.",
       "adsense": "Google AdSense receives ad requests from free-tier visitors.",
-      "firebase": "Firebase, a Google service, runs sign-in, the feedback database, subscription records and site hosting. The hosting service receives technical details of each request, such as your IP address and browser type.",
-      "stripe": "Stripe processes Premium payments.",
-      "github": "GitHub serves card images from raw.githubusercontent.com when a card is shown, so GitHub receives your IP address and browser details. GitHub, Twitter and Stripe's billing portal receive your visit only if you follow their links.",
-      "outro": "Those providers use your information under their own privacy policies."
+      "firebase": "Firebase, a Google service, runs sign-in, the feedback database, entitlement storage and site hosting. The hosting service receives technical details of each request, such as your IP address and browser type.",
+      "github": "GitHub serves card images from raw.githubusercontent.com when a card is shown, so GitHub receives your IP address and browser details. External sites receive your visit only if you follow their links.",
+      "outro": "External sites receive your IP address and browser details if you follow their links. Those sites use your information under their own privacy policies.",
+      "kofi": "<0>Ko-fi</0> lets visitors send optional Supporter tips. The payment provider you choose at checkout processes the payment."
     },
     "retention": {
       "heading": "How long we keep information",
-      "body": "Google Analytics keeps event data for 14 months. It keeps user data for 14 months, and that period resets when you return to the site. We keep your Google sign-in account and stored profile fields until you ask us to delete them, using the contact details below. We keep feedback messages until you ask us to delete them. Google decides how long it keeps advertising data. See its <0>privacy policy</0> and <1>ads policies</1>. Premium checkout is currently paused. When checkout reopens, Stripe keeps payment records as the law requires. The site does not keep web request logs of its own. Firebase, the hosting provider, and Cloudflare, the network provider, keep their standard operational logs under their own terms."
+      "body": "Google Analytics keeps event data for 14 months. It keeps user data for 14 months, and that period resets when you return to the site. We keep your Google sign-in account and stored profile fields until you ask us to delete them, using the contact details below. We keep feedback messages until you ask us to delete them. Google decides how long it keeps advertising data. See its <0>privacy policy</0> and <1>ads policies</1>. We create a Ko-fi payment record for every payment, including its identifier and type, amount and currency, credited months, status, timestamps, and matched account identifier and matching method when applicable. The tipper’s email address, name and message are stored only when a payment is not granted automatically, for review or manual application. The site does not keep web request logs of its own. Firebase, the hosting provider, and Cloudflare, the network provider, keep their standard operational logs under their own terms."
     },
     "children": {
       "heading": "Children",

@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import LegalPage from "./LegalPage";
-import { GITHUB_URL, CONTACT_EMAIL } from "../../app/constants";
+import { GITHUB_URL, CONTACT_EMAIL, KOFI_URL } from "../../app/constants";
 import { useLocaleHref } from "../../app/locale-link";
 
 const ExternalLink = ({ href, children }: { href: string; children?: ReactNode }) => (
@@ -25,6 +25,7 @@ const AboutPage = () => {
   const githubLink = <ExternalLink href={GITHUB_URL} />;
   const mailLink = <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>;
   const tierListLink = <InternalLink href={tierListHref} />;
+  const kofiLink = <ExternalLink href={KOFI_URL} />;
 
   return (
       <LegalPage>
@@ -61,7 +62,7 @@ const AboutPage = () => {
 
           <h2 id="premium">{t("about.premiumHeading", { ns: "seo" })}</h2>
           <p>
-              <Trans i18nKey="about.premium" ns="seo" components={[strong]} />
+              <Trans i18nKey="about.premium" ns="seo" components={[strong, kofiLink]} />
           </p>
 
           <h2>{t("about.openSourceHeading", { ns: "seo" })}</h2>

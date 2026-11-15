@@ -3,7 +3,7 @@
     "banner": "排名截至 {{date}}。"
   },
   "a11y": {
-    "premiumOnly": "(高級會員)",
+    "premiumOnly": "(支持者)",
     "skipToContent": "跳到主要內容",
     "openMenu": "開啟選單",
     "closeMenu": "關閉選單",
@@ -14,73 +14,48 @@
     "switchToDark": "切換到深色模式"
   },
   "premium": {
-    "title": "Top Pocket Decks Premium",
-    "manageSubscription": "管理訂閱",
-    "windDown": {
-      "headline": "Premium 已暫時停止 💛",
-      "status": "Top Pocket Decks 有了新的維護者並將繼續接收更新！在此過渡期間，新的 Premium 註冊已暫停，且所有人的廣告都已關閉。",
-      "active": "你的訂閱將保持活躍並自動續訂直到你取消。你可以隨時透過帳單系統取消。",
-      "refund": "寧願選擇退款？請發電子郵件至 <0>chase@manning.dev</0> 並附上你帳號的電子郵件地址，我將取消你的訂閱並退還最近一次的付款。Stripe 僅允許我退還過去 180 天內的付款，所以如果你的付款超過此期限，我會盡力處理。"
+    "title": "支持者",
+    "become": "成為支持者！",
+    "perksLead": "支持者可獲得：",
+    "perks": {
+      "noAds": "無廣告",
+      "windows": "30 天與全部時間檢視",
+      "filters": "依能量與排除 EX 篩選牌組",
+      "rankings": "依熱度或強度排名",
+      "decks": "排行榜最多顯示 100 套牌組",
+      "data": "最新已發布資料",
+      "contact": "聯絡開發者",
+      "earlyAccess": "搶先體驗新的實驗性功能",
+      "gratitude": "感謝你支持這個出於熱愛的專案，我會永遠記在心裡"
     },
-    "features": {
-      "title": "功能",
-      "free": "免費版",
-      "premium": "Premium",
-      "removeAds": {
-        "title": "移除廣告",
-        "description": "享受全站無廣告的體驗。",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "bestDeckFinder": {
-        "title": "最佳牌組尋找器",
-        "description": "尋找你能用現有卡牌組建的最強牌組。它同時也是一個完整的 PTCGP 收藏追蹤器。",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "exclude": {
-        "title": "排除你沒有的卡牌",
-        "description": "過濾掉你不擁有的卡牌，根據你擁有的卡牌即時更新強度排行榜。",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "matchups": {
-        "title": "牌組優勢與劣勢",
-        "description": "查看你的牌組能擊敗或輸給哪些牌組，包含勝率百分比。",
-        "free": "前10名",
-        "premium": "✅"
-      },
-      "filters": {
-        "title": "牌組過濾",
-        "description": "透過能量過濾牌組或完全禁用 EX 卡牌以在單人對戰中獲勝。",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "sortBy": {
-        "title": "替代排名",
-        "description": "更改強度排行榜以根據人氣或強度進行排名。",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "contact": {
-        "title": "聯絡開發者",
-        "description": "向開發者發送電子郵件以提供網站反饋、請求新功能或報告錯誤。新功能請求不保證會實現，但我們每一則都會閱讀。",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "updated": {
-        "title": "排行榜更新頻率",
-        "description": "強度排行榜獲取新數據的頻率。更快的更新幫助你領先於環境（Meta）。",
-        "free": "每週",
-        "premium": "每日"
-      },
-      "decks": {
-        "title": "排行榜牌組數量",
-        "description": "強度排行榜上顯示的牌組數量。更多牌組代表你有更多選擇。發掘尚未普及的強大牌組。",
-        "free": "30",
-        "premium": "100"
-      }
-    }
+    "discord": "如果有足夠多的支持者想要，我會開一個只屬於支持者的 Discord 伺服器。",
+    "kindNote": "如果你不方便打賞，完全沒關係。每次你把強度排行榜分享給朋友，或推薦給你的社群，幫助都比任何金額更大。能讓你在這個網站上的體驗好一點，我就很開心了 😊",
+    "contact": {
+      "title": "聯絡開發者",
+      "description": "向開發者發送電子郵件以提供網站反饋、請求新功能或報告錯誤。新功能請求不保證會實現，但我們每一則都會閱讀。"
+    },
+    "price": "每月 £1。每打賞 £1 增加一個月。",
+    "rulesToggle": "打賞如何計算",
+    "priceDetails": "符合條件的 GBP 打賞每滿 1 英鎊增加一個月，每筆最多 120 個月；不足 1 英鎊的部分不會增加月數。121 英鎊以上的打賞及其他貨幣的打賞需要審核，不會自動開通支持者權限。",
+    "cta": "在 Ko-fi 打賞",
+    "ctaExtend": "在 Ko-fi 續期",
+    "emailHint": "在 Ko-fi 結帳時使用你的 Google 電子郵件（{{email}}）。",
+    "emailHintNoEmail": "你的 Google 帳戶沒有電子郵件。請使用下方的代碼方式。",
+    "altCodeToggle": "需要用其他電子郵件付款？",
+    "altCodeHint": "請將此代碼貼到 Ko-fi 訊息中。",
+    "codeUnavailable": "無法載入你的代碼。請使用 Google 電子郵件打賞，或透過下方聯絡方式提供付款資訊。",
+    "codeUnavailableNoEmail": "無法載入你的代碼。請透過下方聯絡方式提供付款資訊。",
+    "waiting": "正在等待你的打賞入帳…通常不到一分鐘。",
+    "checkAgain": "再次檢查",
+    "copyFailed": "無法複製代碼。請手動選取並複製。",
+    "codeLoading": "正在準備代碼…",
+    "signInFirst": "請先登入，以便我們把打賞配對到你的帳戶。",
+    "signIn": "使用 Google 登入",
+    "copy": "複製代碼",
+    "copied": "已複製",
+    "expires": "你的支持者權限於 {{date}} 到期。",
+    "lifetime": "你的支持者權限不會到期。",
+    "refund": "退款或付款遺失，請寄信至 <0/>，並附上付款資訊。"
   },
   "ads": {
     "advertisement": "廣告",
@@ -143,10 +118,9 @@
     "shareQrCopy": "複製牌組代碼",
     "shareQrCopied": "已複製！",
     "shareQrDownload": "下載 QR 碼",
-    "premiumGateTitle": "此牌組僅出現在 Premium 時間範圍內",
-    "premiumGateBody": "它列在 30 天與全部時間的檢視中，這些檢視屬於 Premium。",
-    "premiumGateAction": "了解 Premium",
-    "matchupsPremium": "此牌組的對戰組合屬於 Premium。免費帳號僅能查看前 10 名牌組。"
+    "premiumGateTitle": "此牌組僅出現在支持者時間範圍內",
+    "premiumGateBody": "它列在 30 天與全部時間的檢視中，這些檢視屬於支持者。",
+    "premiumGateAction": "成為支持者！"
   },
   "energyDropdown": {
     "all": "所有能量屬性",
@@ -198,7 +172,7 @@
     "deltaColumn": "變化",
     "noTrends": "暫時無法取得趨勢資料。",
     "noMovement": "此時間範圍內沒有卡組變動。",
-    "movementPremium": "變動僅顯示前 10 名牌組。Premium 可查看所有牌組。",
+    "movementPremium": "變動僅顯示前 10 名牌組。支持者可查看所有牌組。",
     "introGeneric": "借助即時歷史資料與原型對戰熱力圖，分析目前的寶可夢卡牌 Pocket 環境。這些追蹤資料呈現卡組人氣與勝率如何隨時間變化。"
   },
   "bestDeckFinder": {
@@ -317,9 +291,9 @@
     "collect": {
       "heading": "我們收集的資訊",
       "usage": "<0>使用資料。</0>Google Analytics 會記錄您瀏覽的頁面以及常見的裝置和瀏覽器資訊。只有在您接受分析之後，或在您所在地區的同意橫幅不要求同意的情況下，它才會運作。",
-      "account": "<0>帳戶資訊。</0>如果您使用 Google 登入，Firebase Authentication 會向我們提供您的姓名、電子郵件地址和大頭照。您登入期間，我們會顯示您的姓名和大頭照，並使用您的帳戶 ID 確認您是否擁有 Premium 權限。",
+      "account": "<0>帳戶資訊。</0>如果您使用 Google 登入，Firebase Authentication 會向我們提供您的姓名、電子郵件地址和大頭照。您登入期間，我們會顯示您的姓名和大頭照，並使用您的帳戶 ID 確認您是否擁有支持者權限。",
       "feedback": "<0>意見回饋。</0>如果您在登入狀態下提交意見回饋，我們會將您的帳戶 ID、訊息內容、您選擇的主題、您提交時所在的頁面以及提交時間儲存到 Cloud Firestore 中。Cloud Firestore 是 Google 為 Firebase 營運的資料庫。只有在您勾選要求回覆的核取方塊時，我們才會將您的電子郵件地址與訊息一起儲存。我們也會儲存您最近一次提交的時間。",
-      "payment": "<0>付款。</0>Premium 的付款目前已暫停。恢復後，Stripe 會處理付款，我們會將您的訂閱狀態儲存在 Firestore 中。"
+      "payment": "<0>打賞。</0> 我們會為每筆 Ko-fi 付款建立紀錄，包括付款識別碼和類型、金額與幣別、授予的月數、狀態、收款時間和 Ko-fi 時間戳記。付款配對到帳戶時，紀錄也包含帳戶識別碼和配對方式。只有付款未自動開通支持者時，我們才會保存打賞者的電子郵件、姓名和訊息，以便審核或手動處理。"
     },
     "cookies": {
       "heading": "Cookie 與追蹤",
@@ -333,7 +307,7 @@
       "language": "<0>語言。</0>本網站會讀取您瀏覽器的語言設定，以選擇頁面語言。本網站不儲存任何內容。",
       "missing": "<0>缺少的卡牌。</0>您標記為缺少的卡牌只會保存在頁面的記憶體中。它們不會被儲存，重新載入頁面後會被清除。",
       "analytics": "<0>分析。</0>Google Analytics 使用其自有的 Cookie 來區分不同的造訪。在同意橫幅要求同意的地區，只有在您接受分析之後，才會設定這些 Cookie。",
-      "ads": "<0>廣告。</0>免費版訪客會看到 Google AdSense 提供的廣告。Google 及其合作夥伴可能會使用 Cookie，根據您在本網站和其他網站上的造訪記錄投放廣告。Premium 會員不會看到廣告。",
+      "ads": "<0>廣告。</0>免費版訪客會看到 Google AdSense 提供的廣告。Google 及其合作夥伴可能會使用 Cookie，根據您在本網站和其他網站上的造訪記錄投放廣告。支持者不會看到廣告。",
       "optOut": "您可以在 <0>Google 廣告設定</0>中選擇退出個人化廣告。您也可以在 <1>www.aboutads.info</1> 上選擇退出部分廣告服務商的廣告 Cookie。"
     },
     "consent": {
@@ -342,32 +316,32 @@
     },
     "legalBasis": {
       "heading": "法律依據",
-      "body": "在同意橫幅要求同意的情況下，我們依據您的同意進行分析和廣告相關的處理。對於 Premium，我們依據與您之間的契約提供存取權限並管理您的訂閱。"
+      "body": "在同意橫幅徵求許可時，我們會根據你的同意處理分析和廣告資料。我們使用帳戶資訊提供支持者權限，並核查未自動授予新支持者時段的打賞。"
     },
     "use": {
       "heading": "我們如何使用這些資訊",
       "item1": "用於提供及改進本網站及其功能。",
-      "item2": "用於為您登入、處理您的意見回饋以及管理 Premium 權限。",
+      "item2": "用於為您登入、處理您的意見回饋以及管理支持者權限。",
       "item3": "在允許分析的情況下，用於了解網站使用情況並衡量其成效。",
       "item4": "在遵守上述同意規則的前提下，用於向免費版訪客顯示廣告。"
     },
     "rights": {
       "heading": "您的權利",
-      "body": "根據您所在的地區，您可能有權存取、更正或刪除您的個人資料，或有權反對或限制某些處理活動。如需行使這些權利（包括要求刪除您的意見回饋或帳戶資訊），請使用下方列出的聯絡方式與我們聯繫。Premium 訂閱使用者不會看到廣告。"
+      "body": "根據您所在的地區，您可能有權存取、更正或刪除您的個人資料，或有權反對或限制某些處理活動。如需行使這些權利（包括要求刪除您的意見回饋或帳戶資訊），請使用下方列出的聯絡方式與我們聯繫。支持者使用者不會看到廣告。"
     },
     "thirdParty": {
       "heading": "第三方服務",
       "intro": "我們仰賴第三方服務供應商。每個供應商只會接收此處所述的資訊。",
       "analytics": "在允許分析的情況下，Google Analytics 會接收使用資料。",
       "adsense": "Google AdSense 會接收免費版訪客的廣告請求。",
-      "firebase": "Firebase 是 Google 的服務，負責提供登入、意見回饋資料庫、訂閱記錄以及網站代管。代管服務會接收每個請求的技術資訊，例如您的 IP 位址和瀏覽器類型。",
-      "stripe": "Stripe 負責處理 Premium 付款。",
-      "github": "在顯示卡牌時，GitHub 會從 raw.githubusercontent.com 提供卡牌圖片，因此 GitHub 會接收您的 IP 位址和瀏覽器資訊。只有當您點擊 GitHub、Twitter 或 Stripe 帳單入口網站的連結時，它們才會接收到您的造訪資訊。",
-      "outro": "這些供應商會依據各自的隱私權政策使用您的資訊。"
+      "firebase": "Google 的 Firebase 服務負責登入、意見回饋資料庫、權限儲存和網站託管。託管服務會接收每次請求的技術資訊，例如 IP 位址和瀏覽器類型。",
+      "github": "顯示卡牌時，GitHub 會從 raw.githubusercontent.com 提供卡牌圖片，因此會接收你的 IP 位址和瀏覽器資訊。只有點擊外部網站連結時，這些網站才會接收到造訪資訊。",
+      "outro": "如果你造訪外部連結，這些網站會收到你的 IP 位址和瀏覽器資訊，並依據各自的隱私權政策使用這些資訊。",
+      "kofi": "訪客可以透過 <0>Ko-fi</0> 自願為支持者打賞。付款由結帳時選擇的付款服務商處理。"
     },
     "retention": {
       "heading": "我們保存資訊的時間",
-      "body": "Google Analytics 將事件資料保存 14 個月。它會將使用者資料保存 14 個月，訪客再次造訪時，該期限會重新計算。您的 Google 登入帳戶和已儲存的個人資料欄位會一直保留，直到您透過下方的聯絡方式要求刪除。在您要求刪除之前，我們會一直保留意見回饋訊息。廣告資料的保存期限由 Google 決定。請參閱 Google 的<0>隱私權政策</0>和<1>廣告政策</1>。Premium 的付款目前已暫停。恢復後，Stripe 會依法律要求保留付款紀錄。本網站不保存自身的網路要求紀錄。代管服務供應商 Firebase 與網路服務供應商 Cloudflare 會依各自條款保存標準營運紀錄。"
+      "body": "Google Analytics 會保留事件資料 14 個月，並保留使用者資料 14 個月；你再次造訪網站時，該期限會重新計算。我們會保留你的 Google 登入帳戶和已儲存的個人資料，直到你使用下方聯絡方式要求刪除。意見回饋訊息會保留到你要求刪除為止。廣告資料的保留期限由 Google 決定。請參閱 Google 的<0>隱私權政策</0>和<1>廣告政策</1>。我們會為每筆 Ko-fi 付款建立紀錄，包含付款識別碼和類型、金額與幣別、授予的月數、狀態、時間戳記，以及適用時配對帳戶的識別碼和配對方式。只有付款未自動開通支持者時，我們才會保存打賞者的電子郵件、姓名和訊息，以便審核或手動處理。本網站不會自行保存網頁請求記錄。Firebase 和 Cloudflare 會依據各自條款保留一般營運記錄。"
     },
     "children": {
       "heading": "兒童",

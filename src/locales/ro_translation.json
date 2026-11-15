@@ -3,7 +3,7 @@
     "banner": "Clasamentele sunt actualizate la {{date}}."
   },
   "a11y": {
-    "premiumOnly": "(Premium)",
+    "premiumOnly": "(Susținător)",
     "skipToContent": "Salt la conținut",
     "openMenu": "Deschide meniul",
     "closeMenu": "Închide meniul",
@@ -14,73 +14,48 @@
     "switchToDark": "Comută la modul întunecat"
   },
   "premium": {
-    "title": "Top Pocket Decks Premium",
-    "manageSubscription": "Gestionare abonament",
-    "windDown": {
-      "headline": "Serviciul Premium este temporar întrerupt 💛",
-      "status": "Top Pocket Decks are un nou dezvoltator și va continua să primească actualizări! În timpul acestei tranziții, înscrierile noi la Premium sunt temporar întrerupte, iar reclamele au fost dezactivate pentru toată lumea.",
-      "active": "Abonamentul tău rămâne activ și se va reînnoi în continuare până când îl anulezi. Poți anula oricând prin portalul de facturare.",
-      "refund": "Preferi o rambursare? Trimite-mi un e-mail la <0>chase@manning.dev</0> cu adresa de e-mail asociată contului tău, îți voi anula abonamentul și voi rambursa cea mai recentă plată. Stripe îmi permite să rambursez doar plățile efectuate în ultimele 180 de zile, deci dacă a ta este mai veche, voi face tot ce pot."
+    "title": "Susținător",
+    "become": "Devino susținător!",
+    "perksLead": "Susținătorii primesc:",
+    "perks": {
+      "noAds": "Fără reclame",
+      "windows": "Ferestre de 30 de zile și pentru toată perioada",
+      "filters": "Filtre pentru deck-uri după energie și fără EX",
+      "rankings": "Clasamente după popularitate sau putere",
+      "decks": "Până la 100 de deck-uri în tier list",
+      "data": "Cele mai recente date publicate",
+      "contact": "Contact cu dezvoltatorii",
+      "earlyAccess": "Acces timpuriu la funcțiile experimentale noi",
+      "gratitude": "Recunoștință veșnică pentru că susții un proiect făcut din pasiune"
     },
-    "features": {
-      "title": "Funcționalități",
-      "free": "Gratuit",
-      "premium": "Premium",
-      "removeAds": {
-        "title": "Fără reclame",
-        "description": "Bucură-te de o experiență complet lipsită de reclame pe tot site-ul.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "bestDeckFinder": {
-        "title": "Best Deck Finder",
-        "description": "Găsește cel mai puternic deck pe care îl poți construi cu cărțile tale. Acesta servește și ca un instrument complet de urmărire a colecției PTCGP.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "exclude": {
-        "title": "Exclude cărțile pe care nu le ai",
-        "description": "Filtrează cărțile pe care nu le deții pentru a actualiza clasamentul în timp real cu ceea ce ai.",
-        "free": "✅",
-        "premium": "✅"
-      },
-      "matchups": {
-        "title": "Puncte forte și slabe ale deck-ului",
-        "description": "Vezi ce deck-uri poate învinge construcția ta și în fața cărora pierde, inclusiv procentele ratei de victorie.",
-        "free": "Top 10",
-        "premium": "✅"
-      },
-      "filters": {
-        "title": "Filtre pentru deck-uri",
-        "description": "Filtrează deck-urile după Energie sau interzice complet cărțile EX pentru a câștiga bătăliile solo.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "sortBy": {
-        "title": "Clasamente alternative",
-        "description": "Modifică clasamentul pentru a ordona după popularitate sau putere.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "contact": {
-        "title": "Contactează dezvoltatorii",
-        "description": "Trimite un e-mail dezvoltatorilor pentru a oferi feedback despre site, pentru a solicita funcționalități noi sau pentru a raporta erori. Funcționalitățile solicitate nu sunt garantate, dar le citim pe toate.",
-        "free": "🚫",
-        "premium": "✅"
-      },
-      "updated": {
-        "title": "Clasament actualizat",
-        "description": "Frecvența cu care clasamentul primește date noi. Actualizările mai rapide te ajută să fii mereu cu un pas înaintea meta-ului.",
-        "free": "Săptămânal",
-        "premium": "Zilnic"
-      },
-      "decks": {
-        "title": "Deck-uri în clasament",
-        "description": "Numărul de deck-uri afișat în clasament. Mai multe deck-uri înseamnă mai multe opțiuni din care poți alege. Descoperă deck-uri puternice care încă nu au devenit populare.",
-        "free": "30",
-        "premium": "100"
-      }
-    }
+    "discord": "Dacă își doresc destui susținători, voi deschide un server de Discord doar pentru ei.",
+    "kindNote": "Dacă nu poți lăsa un bacșiș, nu e nicio problemă. De fiecare dată când trimiți tier list-ul unui prieten sau îl recomanzi comunității tale, ajuți mai mult decât orice sumă de bani. Mă bucur doar că site-ul ți-a făcut experiența puțin mai bună 😊",
+    "contact": {
+      "title": "Contactează dezvoltatorii",
+      "description": "Trimite un e-mail dezvoltatorilor pentru a oferi feedback despre site, pentru a solicita funcționalități noi sau pentru a raporta erori. Funcționalitățile solicitate nu sunt garantate, dar le citim pe toate."
+    },
+    "price": "1 £ pe lună. Fiecare 1 £ bacșiș adaugă o lună.",
+    "rulesToggle": "Cum se numără bacșișurile",
+    "priceDetails": "Bacșișurile eligibile în GBP adaugă o lună pentru fiecare liră întreagă, până la 120 de luni per bacșiș; fracțiunile nu adaugă luni. Bacșișurile de 121 £ sau mai mult și cele în alte monede necesită verificare și nu acordă automat acces de susținător.",
+    "cta": "Lasă un bacșiș pe Ko-fi",
+    "ctaExtend": "Prelungește pe Ko-fi",
+    "emailHint": "Folosește la plata pe Ko-fi e-mailul contului tău Google ({{email}}).",
+    "emailHintNoEmail": "Contul tău Google nu are e-mail. Folosește mai jos opțiunea cu cod.",
+    "altCodeToggle": "Plătești de pe altă adresă de e-mail?",
+    "altCodeHint": "Lipește acest cod în mesajul Ko-fi.",
+    "codeUnavailable": "Codul nu a putut fi încărcat. Trimite bacșiș folosind e-mailul contului Google sau contactează-ne mai jos cu detaliile plății.",
+    "codeUnavailableNoEmail": "Codul nu a putut fi încărcat. Contactează-ne mai jos cu detaliile plății.",
+    "waiting": "Așteptăm bacșișul tău… de obicei durează sub un minut.",
+    "checkAgain": "Verifică din nou",
+    "copyFailed": "Codul nu a putut fi copiat. Selectează-l și copiază-l manual.",
+    "codeLoading": "Se pregătește codul…",
+    "signInFirst": "Conectează-te mai întâi ca să-ți putem asocia bacșișul.",
+    "signIn": "Conectare cu Google",
+    "copy": "Copiază codul",
+    "copied": "Copiat",
+    "expires": "Accesul de susținător se încheie la {{date}}.",
+    "lifetime": "Accesul de susținător nu expiră.",
+    "refund": "Pentru rambursări sau plăți pierdute, scrie la <0/> cu detaliile plății."
   },
   "ads": {
     "advertisement": "Reclamă",
@@ -143,10 +118,9 @@
     "shareQrCopy": "Copiază codul deck-ului",
     "shareQrCopied": "Copiat!",
     "shareQrDownload": "Descarcă QR",
-    "premiumGateTitle": "Acest deck apare doar într-o perioadă Premium",
-    "premiumGateBody": "Figurează în vizualizările de 30 de zile și pentru toată perioada, care fac parte din Premium.",
-    "premiumGateAction": "Vezi Premium",
-    "matchupsPremium": "Matchup-urile acestui deck fac parte din Premium. Conturile gratuite le văd pentru primele 10 deckuri."
+    "premiumGateTitle": "Acest deck apare doar într-o perioadă pentru susținători",
+    "premiumGateBody": "Figurează în vizualizările de 30 de zile și pentru toată perioada, rezervate susținătorilor.",
+    "premiumGateAction": "Devino susținător!"
   },
   "energyDropdown": {
     "all": "Toate tipurile de energie",
@@ -198,7 +172,7 @@
     "deltaColumn": "Schimbare",
     "noTrends": "Datele despre tendințe nu sunt disponibile acum.",
     "noMovement": "Nicio mișcare a pachetelor în această perioadă.",
-    "movementPremium": "Mișcarea este afișată pentru primele 10 deckuri. Premium o afișează pentru fiecare deck.",
+    "movementPremium": "Mișcarea este afișată pentru primele 10 deckuri. Susținătorii o văd pentru fiecare deck.",
     "introGeneric": "Analizați metajocul actual al Pokémon TCG Pocket folosind date istorice în timp real și hărți termice ale matchup-urilor dintre arhetipuri. Aceste date arată cum se schimbă în timp popularitatea deck-urilor și ratele de victorie."
   },
   "bestDeckFinder": {
@@ -208,7 +182,7 @@
     "button": "Încearcă Best Deck Finder"
   },
   "header": {
-    "tierList": "Clasament",
+    "tierList": "Tier List",
     "bestDeckFinder": "Best Deck Finder",
     "signIn": "Conectează-te cu Google",
     "signOut": "Deconectează-te",
@@ -254,9 +228,9 @@
     "rateLimited": "Ai trimis deja feedback în ultima oră. Mesajul tău rămâne aici, așa că îl poți trimite după ce trece ora."
   },
   "hero": {
-    "title": "Cele mai bune deck-uri și clasamente pentru Pokemon TCG Pocket",
+    "title": "Cele mai bune deck-uri și tier list pentru Pokemon TCG Pocket",
     "subtitle": "Găsește cele mai puternice deck-uri Pokemon TCG Pocket folosind date reale din turnee. Poți filtra liste complete, poți marca cărțile care îți lipsesc și poți vedea exact ce să construiești mai departe. Domină meta-ul.",
-    "button": "Vezi clasamentul"
+    "button": "Vezi tier list-ul"
   },
   "landing": {
     "stats": {
@@ -269,11 +243,11 @@
     "title": "Caracteristici",
     "tournamentResults": {
       "title": "Rezultate din turnee",
-      "description": "Clasamentul se bazează pe rezultatele din turnee. Un algoritm determină nivelul (tier-ul) și lista deck-ului."
+      "description": "Tier list-ul se bazează pe rezultatele din turnee. Un algoritm determină nivelul (tier-ul) și lista deck-ului."
     },
     "weeklyUpdates": {
       "title": "Actualizări frecvente",
-      "description": "Clasamentul se actualizează de patru ori pe săptămână, aducând deck-uri și matchup-uri noi."
+      "description": "Tier list-ul se actualizează de patru ori pe săptămână, aducând deck-uri și matchup-uri noi."
     },
     "filters": {
       "title": "Filtre",
@@ -281,7 +255,7 @@
     },
     "missingCards": {
       "title": "Cărți lipsă",
-      "description": "Fă clic pe orice cărți îți lipsesc, iar clasamentul se va actualiza automat cu ceea ce deții."
+      "description": "Fă clic pe orice cărți îți lipsesc, iar tier list-ul se va actualiza automat cu ceea ce deții."
     },
     "matchups": {
       "title": "Matchup-uri",
@@ -317,9 +291,9 @@
     "collect": {
       "heading": "Informațiile pe care le colectăm",
       "usage": "<0>Date de utilizare.</0> Google Analytics înregistrează paginile pe care le vizualizați și datele standard despre dispozitiv și browser. Rulează doar după ce acceptați analiza sau acolo unde bannerul de consimțământ din regiunea dumneavoastră nu cere consimțământ.",
-      "account": "<0>Informații despre cont.</0> Dacă vă conectați cu Google, Firebase Authentication ne furnizează numele, adresa de e-mail și fotografia de profil. Vă afișăm numele și fotografia cât timp sunteți conectat, iar ID-ul contului îl folosim pentru a verifica dacă aveți acces Premium.",
+      "account": "<0>Informații despre cont.</0> Dacă vă conectați cu Google, Firebase Authentication ne furnizează numele, adresa de e-mail și fotografia de profil. Vă afișăm numele și fotografia cât timp sunteți conectat, iar ID-ul contului îl folosim pentru a verifica dacă aveți acces de susținător.",
       "feedback": "<0>Feedback.</0> Dacă trimiteți feedback în timp ce sunteți conectat, salvăm ID-ul contului, mesajul, tema aleasă, pagina de unde l-ați trimis și momentul trimiterii, în Cloud Firestore, o bază de date administrată de Google pentru Firebase. Vă salvăm adresa de e-mail împreună cu mesajul doar dacă bifați caseta prin care cereți un răspuns. Păstrăm și momentul ultimei trimiteri.",
-      "payment": "<0>Plăți.</0> Plata pentru Premium este momentan suspendată. Când va fi din nou disponibilă, Stripe va procesa plățile, iar noi vom stoca starea abonamentului dvs. în Firestore."
+      "payment": "<0>Bacșișuri.</0> Creăm o înregistrare pentru fiecare plată Ko-fi. Aceasta include identificatorul și tipul plății, suma și moneda, lunile acordate, starea și marcajele temporale ale primirii și Ko-fi. Dacă plata este asociată unui cont, înregistrarea include și identificatorul contului și metoda de potrivire. Păstrăm e-mailul, numele și mesajul persoanei care trimite bacșișul numai când plata nu este acordată automat, pentru verificare sau aplicare manuală."
     },
     "cookies": {
       "heading": "Cookie-uri și urmărire",
@@ -333,7 +307,7 @@
       "language": "<0>Limba.</0> Site-ul citește setarea de limbă a browserului pentru a alege limba paginii. Nu stochează nimic.",
       "missing": "<0>Cărți lipsă.</0> Cărțile pe care le marcați ca lipsă sunt păstrate doar în memoria paginii. Nu sunt salvate, iar reîncărcarea paginii le șterge.",
       "analytics": "<0>Analiză.</0> Google Analytics folosește propriile cookie-uri pentru a deosebi vizitele. Acolo unde bannerul de consimțământ cere consimțământ, aceste cookie-uri sunt plasate doar după ce acceptați analiza.",
-      "ads": "<0>Publicitate.</0> Vizitatorii din planul gratuit văd reclame de la Google AdSense. Google și partenerii săi pot folosi cookie-uri pentru a afișa reclame în funcție de vizitele dumneavoastră pe acest site și pe altele. Membrii Premium nu văd reclame.",
+      "ads": "<0>Publicitate.</0> Vizitatorii din planul gratuit văd reclame de la Google AdSense. Google și partenerii săi pot folosi cookie-uri pentru a afișa reclame în funcție de vizitele dumneavoastră pe acest site și pe altele. Susținătorii nu văd reclame.",
       "optOut": "Puteți refuza publicitatea personalizată din <0>Setările pentru anunțuri Google</0>. Puteți refuza și cookie-urile publicitare ale unor furnizori la <1>www.aboutads.info</1>."
     },
     "consent": {
@@ -342,32 +316,32 @@
     },
     "legalBasis": {
       "heading": "Temeiul juridic",
-      "body": "Ne bazăm pe consimțământul dumneavoastră pentru analiză și publicitate acolo unde bannerul de consimțământ îl cere. Pentru Premium, ne bazăm pe contractul cu dumneavoastră pentru a asigura accesul și a gestiona abonamentul."
+      "body": "Ne bazăm pe consimțământul tău pentru analiză și publicitate atunci când bannerul solicită acest lucru. Folosim datele contului pentru a oferi acces de susținător și a verifica bacșișurile care nu acordă automat timp de susținător nou."
     },
     "use": {
       "heading": "Cum folosim informațiile",
       "item1": "Pentru a furniza site-ul și funcțiile sale și pentru a le îmbunătăți.",
-      "item2": "Pentru a vă autentifica, a gestiona feedbackul și a administra accesul Premium.",
+      "item2": "Pentru a vă autentifica, a gestiona feedbackul și a administra accesul Susținător.",
       "item3": "Pentru a înțelege utilizarea site-ului și a măsura performanța, acolo unde analiza este permisă.",
       "item4": "Pentru a afișa publicitate vizitatorilor din planul gratuit, sub rezerva regulilor de consimțământ de mai sus."
     },
     "rights": {
       "heading": "Drepturile dumneavoastră",
-      "body": "În funcție de locul în care vă aflați, puteți avea dreptul de a accesa, corecta sau șterge datele dumneavoastră personale, sau dreptul de a vă opune sau de a restricționa anumite prelucrări. Pentru a vă exercita aceste drepturi, inclusiv o cerere de ștergere a feedbackului sau a informațiilor din cont, contactați-ne prin datele de mai jos. Abonații Premium nu văd reclame."
+      "body": "În funcție de locul în care vă aflați, puteți avea dreptul de a accesa, corecta sau șterge datele dumneavoastră personale, sau dreptul de a vă opune sau de a restricționa anumite prelucrări. Pentru a vă exercita aceste drepturi, inclusiv o cerere de ștergere a feedbackului sau a informațiilor din cont, contactați-ne prin datele de mai jos. Susținătorii nu văd reclame."
     },
     "thirdParty": {
       "heading": "Servicii terțe",
       "intro": "Colaborăm cu furnizori terți. Fiecare primește doar informațiile descrise aici.",
       "analytics": "Google Analytics primește date de utilizare acolo unde analiza este permisă.",
       "adsense": "Google AdSense primește cererile de reclame de la vizitatorii din planul gratuit.",
-      "firebase": "Firebase, un serviciu Google, asigură autentificarea, baza de date a feedbackului, înregistrările abonamentelor și găzduirea site-ului. Serviciul de găzduire primește detalii tehnice despre fiecare cerere, cum ar fi adresa IP și tipul browserului.",
-      "stripe": "Stripe procesează plățile Premium.",
-      "github": "GitHub livrează imaginile cărților de la raw.githubusercontent.com atunci când o carte este afișată, deci GitHub primește adresa IP și datele browserului. GitHub, Twitter și portalul de facturare al Stripe primesc vizita dumneavoastră doar dacă urmați linkurile lor.",
-      "outro": "Acești furnizori folosesc informațiile dumneavoastră conform propriilor politici de confidențialitate."
+      "firebase": "Firebase, un serviciu Google, gestionează autentificarea, baza de date pentru feedback, stocarea drepturilor de acces și găzduirea site-ului. Serviciul de găzduire primește detalii tehnice despre fiecare solicitare, precum adresa IP și browserul.",
+      "github": "GitHub livrează imaginile cărților de la raw.githubusercontent.com atunci când o carte este afișată, deci primește adresa IP și datele browserului. Site-urile externe primesc vizita doar dacă le accesezi linkurile.",
+      "outro": "Site-urile externe primesc adresa IP și datele browserului dacă le accesezi linkurile. Acestea îți folosesc informațiile conform propriilor politici de confidențialitate.",
+      "kofi": "<0>Ko-fi</0> permite trimiterea de bacșișuri opționale de susținător. Furnizorul de plăți ales la finalizarea plății procesează tranzacția."
     },
     "retention": {
       "heading": "Cât timp păstrăm informațiile",
-      "body": "Google Analytics păstrează datele evenimentelor timp de 14 luni. Păstrează datele utilizatorilor timp de 14 luni, iar această perioadă se reia când reveniți pe site. Păstrăm contul dvs. de conectare Google și câmpurile de profil salvate până când cereți ștergerea, prin datele de contact de mai jos. Păstrăm mesajele de feedback până când ne cereți să le ștergem. Perioada de păstrare a datelor publicitare este stabilită de Google. Consultați <0>politica de confidențialitate</0> și <1>politicile privind publicitatea</1> ale Google. Plata pentru Premium este momentan suspendată. Când va fi din nou disponibilă, Stripe păstrează înregistrările de plată, cum cere legea. Site-ul nu păstrează jurnale proprii ale cererilor web. Firebase, furnizorul de găzduire, și Cloudflare, furnizorul de rețea, își păstrează jurnalele operaționale standard conform propriilor condiții."
+      "body": "Google Analytics păstrează datele despre evenimente timp de 14 luni. Păstrează datele utilizatorilor timp de 14 luni, iar perioada se reia când revii pe site. Păstrăm contul Google și câmpurile de profil salvate până când soliciți ștergerea lor folosind datele de contact de mai jos. Păstrăm mesajele de feedback până când soliciți ștergerea lor. Google decide cât timp păstrează datele publicitare. Consultă <0>politica de confidențialitate</0> și <1>politicile privind anunțurile</1> Google. Creăm o înregistrare pentru fiecare plată Ko-fi, cu identificatorul și tipul, suma și moneda, lunile acordate, starea, marcajele temporale și, dacă este cazul, identificatorul contului asociat și metoda de potrivire. E-mailul, numele și mesajul sunt păstrate numai când plata nu este acordată automat, pentru verificare sau aplicare manuală. Site-ul nu păstrează propriile jurnale de solicitări web. Firebase și Cloudflare păstrează jurnalele operaționale obișnuite conform propriilor condiții."
     },
     "children": {
       "heading": "Copii",
@@ -397,7 +371,7 @@
     "title": "Deck {{name}}",
     "liveSummary_one": "{{count}} variantă activă în metagame-ul actual, cu cea mai puternică listă primă",
     "liveSummary_other": "{{count}} variante active în metagame-ul actual, cu cele mai puternice liste primele",
-    "notInMeta": "Nu este în metagame-ul {{expansion}} actual. Consultă lista de tier-uri pentru clasamentele actuale",
+    "notInMeta": "Nu este în metagame-ul {{expansion}} actual. Consultă tier list-ul pentru clasamentele actuale",
     "expansionFallback": "expansiune",
     "unavailable": "Statisticile live ale deck-urilor nu sunt disponibile acum. Arhiva de mai jos este totuși actuală",
     "seenFrom": "Văzut din {{from}} până în {{to}}",

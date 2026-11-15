@@ -14,7 +14,6 @@ vi.mock("../../ads/AdAnchor", () => ({ default: () => null }));
 vi.mock("../../config/firebase", () => ({
   auth: {},
   googleProvider: {},
-  getPayments: vi.fn(),
 }));
 
 describe("LayoutMain", () => {

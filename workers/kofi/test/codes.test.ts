@@ -15,18 +15,34 @@ describe("extractCode", () => {
     expect(extractCode("PD-ABC1234")).toBeNull();
   });
 
-  it("ignores lower-case codes", () => {
-    expect(extractCode("pd-abc123")).toBeNull();
+  it("normalises a lower-case code to upper case", () => {
+    expect(extractCode("pd-abc123")).toBe("PD-ABC123");
   });
 
-  it("ignores lower-case letters after the prefix", () => {
-    expect(extractCode("PD-abc123")).toBeNull();
-    expect(extractCode("PD-ABc123")).toBeNull();
+  it("normalises a mixed-case code to upper case", () => {
+    expect(extractCode("Pd-AbC123")).toBe("PD-ABC123");
+  });
+
+  it("normalises lower-case letters after the prefix", () => {
+    expect(extractCode("PD-abc123")).toBe("PD-ABC123");
+    expect(extractCode("PD-ABc123")).toBe("PD-ABC123");
+  });
+
+  it("ignores a lower-case code glued to another letter or digit", () => {
+    expect(extractCode("xpd-abc123")).toBeNull();
+    expect(extractCode("9pd-abc123")).toBeNull();
+    expect(extractCode("pd-abc123x")).toBeNull();
+    expect(extractCode("pd-abc1234")).toBeNull();
   });
 
   it("ignores a code glued to a preceding letter or digit", () => {
     expect(extractCode("XPD-ABC123")).toBeNull();
     expect(extractCode("9PD-ABC123")).toBeNull();
+    expect(extractCode("xPD-ABC123")).toBeNull();
+  });
+
+  it("still matches an existing upper-case code unchanged", () => {
+    expect(extractCode("Love the site! PD-ABC123 cheers")).toBe("PD-ABC123");
   });
 
   it("accepts a code after punctuation or at the start", () => {

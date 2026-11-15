@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import LegalPage from "./LegalPage";
-import { CONTACT_EMAIL } from "../../app/constants";
+import { CONTACT_EMAIL, KOFI_URL } from "../../app/constants";
 
 const ExternalLink = ({ href, children }: { href: string; children?: ReactNode }) => (
   <a href={href} target="_blank" rel="noopener noreferrer">
@@ -17,6 +17,7 @@ const PrivacyPage = () => {
   const mailLink = <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>;
   const googlePrivacyLink = <ExternalLink href="https://policies.google.com/privacy" />;
   const googleAdsPoliciesLink = <ExternalLink href="https://policies.google.com/technologies/ads" />;
+  const kofiLink = <ExternalLink href={KOFI_URL} />;
 
   return (
     <LegalPage>
@@ -105,7 +106,9 @@ const PrivacyPage = () => {
         <li>{t("privacyPage.thirdParty.analytics")}</li>
         <li>{t("privacyPage.thirdParty.adsense")}</li>
         <li>{t("privacyPage.thirdParty.firebase")}</li>
-        <li>{t("privacyPage.thirdParty.stripe")}</li>
+        <li>
+          <Trans i18nKey="privacyPage.thirdParty.kofi" components={[kofiLink]} />
+        </li>
         <li>{t("privacyPage.thirdParty.github")}</li>
       </ul>
       <p>{t("privacyPage.thirdParty.outro")}</p>

@@ -73,11 +73,48 @@ describe("translation key parity", () => {
     }
   });
 
+  it("contains no removed payment processor or wind-down copy", () => {
+    const localeDataSet = [
+      ...Object.entries(locales),
+      ["en_seo", enSeo],
+      ["ja_seo", jaSeo],
+    ];
+    for (const [, localeData] of localeDataSet) {
+      const strings = Object.values(localeData as Record<string, unknown>);
+      const collect = (value: unknown): string[] =>
+        typeof value === "string"
+          ? [value]
+          : value && typeof value === "object"
+            ? Object.values(value).flatMap(collect)
+            : [];
+      expect(collect(strings).join(" ")).not.toMatch(/stripe|wind.?down/i);
+    }
+  });
+
   it.each(Object.entries(locales))("%s consent copy names Canada", (locale, localeData) => {
     const consent = (localeData as { privacyPage: { consent: { heading: string; body: string } } })
       .privacyPage.consent;
     expect(consent.heading).toContain(canadaNames[locale]);
     expect(consent.body).toContain(canadaNames[locale]);
+  });
+
+  const adFreeSupporterCopy: Record<string, string> = {
+    de: "Unterstützer sehen keine Werbung.",
+    en: "Supporters do not see ads.",
+    es: "Los colaboradores no ven anuncios.",
+    fr: "Les soutiens ne voient pas de publicité.",
+    it: "I sostenitori non vedono annunci.",
+    ja: "サポーター会員には広告は表示されません。",
+    ko: "서포터에게는 광고가 표시되지 않습니다.",
+    pt: "Os apoiantes não veem anúncios.",
+    ro: "Susținătorii nu văd reclame.",
+    "zh-CN": "支持者用户不会看到广告。",
+    "zh-TW": "支持者使用者不會看到廣告。",
+  };
+
+  it.each(Object.entries(locales))("%s describes Supporter ad-free users neutrally", (locale, localeData) => {
+    const body = (localeData as { privacyPage: { rights: { body: string } } }).privacyPage.rights.body;
+    expect(body).toContain(adFreeSupporterCopy[locale]);
   });
 });
 

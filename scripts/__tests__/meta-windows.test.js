@@ -21,7 +21,7 @@ test("window model lists", () => {
   assert.deepEqual(WINDOW_LENGTH_DAYS, { "10d": 10, "20d": 20, "30d": 30, all: null });
   assert.deepEqual(ARTEFACT_BASES, ["best-decks", "meta-share", "matchup-data"]);
   assert.deepEqual(PREMIUM_BASES, ["best-decks", "matchup-data", "meta-share"]);
-  assert.deepEqual(TRIMMED_BASES, ["matchup-data", "meta-share"]);
+  assert.deepEqual(TRIMMED_BASES, ["meta-share"]);
 });
 
 test("file names leave the default window un-suffixed", () => {

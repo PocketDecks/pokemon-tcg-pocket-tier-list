@@ -82,7 +82,7 @@ test("no raw ampersands remain anywhere in the XML output", () => {
 
 test("the route count reported for the sitemap matches the emitted url entries", () => {
   const xml = buildSitemap({ decks: FIXTURE_DECKS, lastmod: LASTMOD });
-  assert.strictEqual(countUrlEntries(xml), 20);
+  assert.strictEqual(countUrlEntries(xml), 22);
   assert.strictEqual(countUrlEntries(xml), xml.split("<loc>").length - 1);
 });
 

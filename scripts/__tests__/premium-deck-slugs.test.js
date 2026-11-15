@@ -98,7 +98,7 @@ test("the sitemap never names a slug that only the premium windows offer", () =>
     lastmod: "2026-11-07",
   });
   assert.ok(!xml.includes(PREMIUM_ONLY));
-  assert.ok(!xml.includes("premium"));
+  assert.doesNotMatch(xml, /<loc>[^<]*\/deck\/[^<]*premium/);
 });
 
 test("the generated redirects treat a premium-only slug as live", () => {

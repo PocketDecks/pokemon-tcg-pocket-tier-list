@@ -257,6 +257,7 @@ test("reads the routes of src/App.tsx", () => {
     "/statistics",
     "/privacy",
     "/about",
+    "/premium",
     "/feedback",
     "/deck",
     "/deck/:deckId",

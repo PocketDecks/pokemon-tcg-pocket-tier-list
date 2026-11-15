@@ -27,6 +27,7 @@ const ExpansionPage = lazy(() => import("./pages/expansion-list/ExpansionPage"))
 const StatisticsPage = lazy(() => import("./pages/stats/StatisticsPage"));
 const PrivacyPage = lazy(() => import("./pages/legal/PrivacyPage"));
 const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
+const PremiumPage = lazy(() => import("./pages/premium/PremiumPage"));
 const NotFoundPage = lazy(() => import("./pages/not-found/NotFoundPage"));
 const FeedbackPage = lazy(() => import("./pages/feedback/FeedbackPage"));
 
@@ -133,6 +134,7 @@ const pageRoutes = (
     <Route path="statistics" element={<StatisticsPage />} />
     <Route path="privacy" element={<PrivacyPage />} />
     <Route path="about" element={<AboutPage />} />
+    <Route path="premium" element={<PremiumPage />} />
     <Route path="feedback" element={<FeedbackPage />} />
     <Route path="deck">
       <Route index element={<DeckFinderPage />} />

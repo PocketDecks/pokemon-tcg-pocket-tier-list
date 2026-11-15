@@ -205,6 +205,7 @@ const Header = ({ footer }: Props) => {
         <FooterBarInner>
           <FooterLinks>
             <FooterLink to="/about">{t("footer.about")}</FooterLink>
+            <FooterLink to="/premium">{t("premium.become")}</FooterLink>
             <FooterLink to="/privacy">{t("footer.privacy")}</FooterLink>
             <FooterConsentLink>{t("footer.privacySettings")}</FooterConsentLink>
             <FooterLink to="/feedback" state={{ from: pathname }}>

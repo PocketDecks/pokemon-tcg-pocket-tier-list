@@ -45,6 +45,7 @@ const ROUTES = [
   "/statistics",
   "/deck",
   "/about",
+  "/premium",
   "/privacy",
   ...EXPANSION_ROUTES,
 ];
@@ -110,6 +111,11 @@ const buildRouteMeta = (latest) => ({
     description: "How Top Pocket Decks ranks Pokemon TCG Pocket decks from Limitless tournament data, and who maintains the project.",
     canonical: "https://pocketdecks.top/about/",
   },
+  "/premium": {
+    title: "Become a Supporter | Top Pocket Decks",
+    description: "Support Top Pocket Decks with a £1 monthly Ko-fi tip. Supporters get no ads, the 30-day and all-time windows, deck filters and up to 100 decks.",
+    canonical: "https://pocketdecks.top/premium/",
+  },
   "/privacy": {
     title: "Privacy Policy | Top Pocket Decks",
     description: "How Top Pocket Decks handles analytics, advertising and your account data.",
@@ -172,6 +178,10 @@ const buildJaRouteMeta = (latest) => ({
   "/about": {
     title: "Top Pocket Decksについて 集計方法とデータ | Top Pocket Decks",
     description: "Top Pocket DecksがLimitlessの大会データからポケモンカードゲーム ポケットのデッキをどうランク付けしているかを説明します。",
+  },
+  "/premium": {
+    title: "サポーターになる | Top Pocket Decks",
+    description: "月1ポンドのKo-fiチップでTop Pocket Decksを支援できます。サポーターは広告なし、30日間と全期間の集計、デッキフィルター、最大100デッキを利用できます。",
   },
   "/privacy": {
     title: "プライバシーポリシー | Top Pocket Decks",

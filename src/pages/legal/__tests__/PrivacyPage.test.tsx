@@ -37,16 +37,14 @@ describe("PrivacyPage", () => {
     expect(collection).toMatch(/credited months, status/i);
     expect(collection).toMatch(/timestamps/i);
     expect(collection).toMatch(/account identifier and how it matched/i);
-    expect(collection).toMatch(/only when a payment is not granted automatically/i);
-    expect(collection).toMatch(/email address, name and message/i);
+    expect(collection).toMatch(/email address, name and message only when a payment is not granted automatically/i);
 
     const retention = sectionText("How long we keep information");
     expect(retention).toMatch(/record for every payment/i);
     expect(retention).toMatch(/identifier and type, amount and currency/i);
     expect(retention).toMatch(/credited months, status, timestamps/i);
     expect(retention).toMatch(/matched account identifier and matching method/i);
-    expect(retention).toMatch(/only when a payment is not granted automatically/i);
-    expect(retention).toMatch(/email address, name and message/i);
+    expect(retention).toMatch(/email address, name and message are stored only when a payment is not granted automatically/i);
     expect(screen.getByRole("link", { name: /infoLeonid@protonMail.com/i })).toHaveAttribute(
       "href",
       "mailto:infoLeonid@protonMail.com"

@@ -9,25 +9,53 @@ import Premium from "./Premium";
 import useIsPremium from "../app/use-is-premium";
 import NavIcon from "./NavIcon";
 
-const StyledUserAccount = styled.div<{ $compact: boolean }>`
+const StyledUserAccount = styled.div`
   display: flex;
-  flex-direction: ${(props) => (props.$compact ? "column" : "row")};
+  flex-direction: column;
   align-items: center;
-  gap: ${(props) => (props.$compact ? "1.2rem" : "2rem")};
+  gap: 1.2rem;
 
   @media (max-width: 900px) {
+    flex-direction: row;
     gap: 1rem;
   }
 `;
 
+const SignInIcon = styled(NavIcon)`
+  @media (max-width: 900px) {
+    display: none;
+  }
+`;
+
+const SignInLabel = styled.span`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+
+  @media (max-width: 900px) {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+  }
+`;
+
 const SignInButton = styled.button`
+  position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.8rem;
+  width: 4.4rem;
+  height: 4.4rem;
+  padding: 0;
   font-size: 1.4rem;
   font-weight: 500;
-  padding: 0.8rem 1.6rem;
-  border-radius: 0.8rem;
+  border-radius: 1.2rem;
   border: 1px solid var(--white-22);
   background: transparent;
   color: var(--main);
@@ -42,16 +70,11 @@ const SignInButton = styled.button`
   }
 
   @media (max-width: 900px) {
+    width: auto;
     min-height: 4.4rem;
+    padding: 0.8rem 1.6rem;
+    border-radius: 0.8rem;
   }
-`;
-
-const CompactSignInButton = styled(SignInButton)`
-  width: 4.4rem;
-  height: 4.4rem;
-  padding: 0;
-  justify-content: center;
-  border-radius: 1.2rem;
 `;
 
 const UserInfo = styled.button`
@@ -129,11 +152,7 @@ const EmailText = styled(ContactText)`
   color: var(--link);
 `;
 
-interface Props {
-  compact?: boolean;
-}
-
-const UserAccount = ({ compact = false }: Props) => {
+const UserAccount = () => {
   const { t } = useTranslation();
   const { user, signOut, signInWithGoogle } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -152,7 +171,7 @@ const UserAccount = ({ compact = false }: Props) => {
 
   return (
     <>
-      <StyledUserAccount $compact={compact}>
+      <StyledUserAccount>
         {isPremium && (
           <ContactButton
             onClick={() => setIsContactOpen(true)}
@@ -169,19 +188,14 @@ const UserAccount = ({ compact = false }: Props) => {
             />
           </UserInfo>
         )}
-        {!user && !compact && (
-          <SignInButton onClick={() => signInWithGoogle()}>
-            {t("header.signIn", "Sign in with Google")}
-          </SignInButton>
-        )}
-        {!user && compact && (
-          <CompactSignInButton
+        {!user && (
+          <SignInButton
             onClick={() => signInWithGoogle()}
-            aria-label={t("header.signIn", "Sign in with Google")}
             title={t("header.signIn", "Sign in with Google")}
           >
-            <NavIcon name="account" />
-          </CompactSignInButton>
+            <SignInIcon name="account" />
+            <SignInLabel>{t("header.signIn", "Sign in with Google")}</SignInLabel>
+          </SignInButton>
         )}
         <Premium />
       </StyledUserAccount>

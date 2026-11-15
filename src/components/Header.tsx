@@ -12,7 +12,6 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import UserAccount from "./UserAccount";
 import NavIcon from "./NavIcon";
 import { useUI } from "../contexts/UIContext";
-import useIsMobile from "../ads/useIsMobile";
 
 export const RAIL_WIDTH = "9.2rem";
 
@@ -186,7 +185,6 @@ interface Props {
 const Header = ({ footer }: Props) => {
   const { t } = useTranslation();
   const { isNavOpen, toggleNav } = useUI();
-  const isMobile = useIsMobile();
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const { pathname } = useLocation();
 
@@ -232,18 +230,16 @@ const Header = ({ footer }: Props) => {
         <Navbar />
       </NavArea>
       <Actions>
-        <UserAccount compact={!isMobile} />
-        {isMobile && (
-          <MenuButton
-            ref={menuButtonRef}
-            onClick={toggleNav}
-            aria-expanded={isNavOpen}
-            aria-controls="site-nav"
-            aria-label={isNavOpen ? t("a11y.closeMenu") : t("a11y.openMenu")}
-          >
-            <MenuIcon name={isNavOpen ? "close" : "menu"} size={24} />
-          </MenuButton>
-        )}
+        <UserAccount />
+        <MenuButton
+          ref={menuButtonRef}
+          onClick={toggleNav}
+          aria-expanded={isNavOpen}
+          aria-controls="site-nav"
+          aria-label={isNavOpen ? t("a11y.closeMenu") : t("a11y.openMenu")}
+        >
+          <MenuIcon name={isNavOpen ? "close" : "menu"} size={24} />
+        </MenuButton>
       </Actions>
     </Rail>
   );

@@ -15,6 +15,7 @@ vi.mock("react-i18next", () => ({
         {
           "userAccount.title": "User Account",
           "userAccount.signOut": "Sign out",
+          "header.signIn": "Sign in with Google",
           "premium.contact.title": "Contact us",
           "premium.title": "Supporter",
           "premium.become": "Become a Supporter!",
@@ -63,6 +64,15 @@ beforeEach(() => {
 });
 
 describe("UserAccount", () => {
+  it("renders one sign-in button for every width so prerendered markup fits the rail", () => {
+    vi.mocked(useAuth).mockReturnValue(authValue(null));
+    render(withQueryClient(<UserAccount />));
+
+    const buttons = screen.getAllByRole("button", { name: "Sign in with Google" });
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]).toHaveAttribute("title", "Sign in with Google");
+  });
+
   it("lets a signed-in free user open the Supporter popup from the account controls", async () => {
     const user = userEvent.setup();
     render(withQueryClient(<UserAccount />));

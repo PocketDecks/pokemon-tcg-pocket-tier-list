@@ -3,7 +3,7 @@
     "banner": "Clasamentele sunt actualizate la {{date}}."
   },
   "a11y": {
-    "premiumOnly": "(Premium)",
+    "premiumOnly": "(Susținător)",
     "skipToContent": "Salt la conținut",
     "openMenu": "Deschide meniul",
     "closeMenu": "Închide meniul",
@@ -14,11 +14,11 @@
     "switchToDark": "Comută la modul întunecat"
   },
   "premium": {
-    "title": "Top Pocket Decks Premium",
+    "title": "Top Pocket Decks Susținător",
     "features": {
       "title": "Funcționalități",
       "free": "Gratuit",
-      "premium": "Premium",
+      "premium": "Susținător",
       "removeAds": {
         "title": "Fără reclame",
         "description": "Bucură-te de o experiență complet lipsită de reclame pe tot site-ul.",
@@ -63,7 +63,7 @@
       },
       "updated": {
         "title": "Clasament actualizat",
-        "description": "Afișează lansările publice și cele mai recente date publicate disponibile pentru Premium.",
+        "description": "Afișează lansările publice și cele mai recente date publicate disponibile pentru susținători.",
         "free": "Lansări publice",
         "premium": "Cele mai recente date publicate"
       },
@@ -75,10 +75,10 @@
       }
     },
     "price": "1 £ pe lună. Fiecare liră donată adaugă o lună, iar donațiile ulterioare îți prelungesc accesul.",
-    "priceDetails": "Bacșișurile eligibile în GBP adaugă o lună pentru fiecare liră întreagă, până la 120 de luni per bacșiș; fracțiunile nu adaugă luni. Bacșișurile de 121 £ sau mai mult și cele în alte monede necesită verificare și nu acordă automat Premium.",
+    "priceDetails": "Bacșișurile eligibile în GBP adaugă o lună pentru fiecare liră întreagă, până la 120 de luni per bacșiș; fracțiunile nu adaugă luni. Bacșișurile de 121 £ sau mai mult și cele în alte monede necesită verificare și nu acordă automat acces de susținător.",
     "cta": "Lasă un bacșiș pe Ko-fi",
     "ctaExtend": "Prelungește pe Ko-fi",
-    "emailHint": "Folosește adresa de e-mail a contului tău Google ({{email}}) la plata pe Ko-fi și Premium se activează automat.",
+    "emailHint": "Folosește adresa de e-mail a contului tău Google ({{email}}) la plata pe Ko-fi și accesul de susținător se activează automat.",
     "emailHintNoEmail": "Nu există o adresă de e-mail a contului Google pentru potrivirea automată. Deschide mai jos opțiunea de potrivire prin cod și include codul în mesajul Ko-fi; dacă nu poți obține sau folosi un cod, contactează-ne mai jos.",
     "altCodeToggle": "Plătești de pe altă adresă de e-mail?",
     "altCodeHint": "Lipește acest cod în mesajul Ko-fi.",
@@ -92,8 +92,8 @@
     "signIn": "Conectare cu Google",
     "copy": "Copiază codul",
     "copied": "Copiat",
-    "expires": "Accesul Premium se încheie la {{date}}.",
-    "lifetime": "Accesul Premium nu expiră.",
+    "expires": "Accesul de susținător se încheie la {{date}}.",
+    "lifetime": "Accesul de susținător nu expiră.",
     "refund": "Pentru rambursări sau plăți pierdute, contactează-ne la <0/> și include adresa de e-mail a contului Google și detaliile plății."
   },
   "ads": {
@@ -157,10 +157,9 @@
     "shareQrCopy": "Copiază codul deck-ului",
     "shareQrCopied": "Copiat!",
     "shareQrDownload": "Descarcă QR",
-    "premiumGateTitle": "Acest deck apare doar într-o perioadă Premium",
-    "premiumGateBody": "Figurează în vizualizările de 30 de zile și pentru toată perioada, care fac parte din Premium.",
-    "premiumGateAction": "Vezi Premium",
-    "matchupsPremium": "Matchup-urile acestui deck fac parte din Premium. Conturile gratuite le văd pentru primele 10 deckuri."
+    "premiumGateTitle": "Acest deck apare doar într-o perioadă pentru susținători",
+    "premiumGateBody": "Figurează în vizualizările de 30 de zile și pentru toată perioada, rezervate susținătorilor.",
+    "premiumGateAction": "Devino susținător!"
   },
   "energyDropdown": {
     "all": "Toate tipurile de energie",
@@ -212,7 +211,7 @@
     "deltaColumn": "Schimbare",
     "noTrends": "Datele despre tendințe nu sunt disponibile acum.",
     "noMovement": "Nicio mișcare a pachetelor în această perioadă.",
-    "movementPremium": "Mișcarea este afișată pentru primele 10 deckuri. Premium o afișează pentru fiecare deck.",
+    "movementPremium": "Mișcarea este afișată pentru primele 10 deckuri. Susținătorii o văd pentru fiecare deck.",
     "introGeneric": "Analizați metajocul actual al Pokémon TCG Pocket folosind date istorice în timp real și hărți termice ale matchup-urilor dintre arhetipuri. Aceste date arată cum se schimbă în timp popularitatea deck-urilor și ratele de victorie."
   },
   "bestDeckFinder": {
@@ -331,7 +330,7 @@
     "collect": {
       "heading": "Informațiile pe care le colectăm",
       "usage": "<0>Date de utilizare.</0> Google Analytics înregistrează paginile pe care le vizualizați și datele standard despre dispozitiv și browser. Rulează doar după ce acceptați analiza sau acolo unde bannerul de consimțământ din regiunea dumneavoastră nu cere consimțământ.",
-      "account": "<0>Informații despre cont.</0> Dacă vă conectați cu Google, Firebase Authentication ne furnizează numele, adresa de e-mail și fotografia de profil. Vă afișăm numele și fotografia cât timp sunteți conectat, iar ID-ul contului îl folosim pentru a verifica dacă aveți acces Premium.",
+      "account": "<0>Informații despre cont.</0> Dacă vă conectați cu Google, Firebase Authentication ne furnizează numele, adresa de e-mail și fotografia de profil. Vă afișăm numele și fotografia cât timp sunteți conectat, iar ID-ul contului îl folosim pentru a verifica dacă aveți acces de susținător.",
       "feedback": "<0>Feedback.</0> Dacă trimiteți feedback în timp ce sunteți conectat, salvăm ID-ul contului, mesajul, tema aleasă, pagina de unde l-ați trimis și momentul trimiterii, în Cloud Firestore, o bază de date administrată de Google pentru Firebase. Vă salvăm adresa de e-mail împreună cu mesajul doar dacă bifați caseta prin care cereți un răspuns. Păstrăm și momentul ultimei trimiteri.",
       "payment": "<0>Bacșișuri.</0> Creăm o înregistrare pentru fiecare plată Ko-fi. Aceasta include identificatorul și tipul plății, suma și moneda, lunile acordate, starea și marcajele temporale ale primirii și Ko-fi. Dacă plata este asociată unui cont, înregistrarea include și identificatorul contului și metoda de potrivire. Păstrăm e-mailul, numele și mesajul persoanei care trimite bacșișul numai când plata nu este acordată automat, pentru verificare sau aplicare manuală."
     },
@@ -347,7 +346,7 @@
       "language": "<0>Limba.</0> Site-ul citește setarea de limbă a browserului pentru a alege limba paginii. Nu stochează nimic.",
       "missing": "<0>Cărți lipsă.</0> Cărțile pe care le marcați ca lipsă sunt păstrate doar în memoria paginii. Nu sunt salvate, iar reîncărcarea paginii le șterge.",
       "analytics": "<0>Analiză.</0> Google Analytics folosește propriile cookie-uri pentru a deosebi vizitele. Acolo unde bannerul de consimțământ cere consimțământ, aceste cookie-uri sunt plasate doar după ce acceptați analiza.",
-      "ads": "<0>Publicitate.</0> Vizitatorii din planul gratuit văd reclame de la Google AdSense. Google și partenerii săi pot folosi cookie-uri pentru a afișa reclame în funcție de vizitele dumneavoastră pe acest site și pe altele. Membrii Premium nu văd reclame.",
+      "ads": "<0>Publicitate.</0> Vizitatorii din planul gratuit văd reclame de la Google AdSense. Google și partenerii săi pot folosi cookie-uri pentru a afișa reclame în funcție de vizitele dumneavoastră pe acest site și pe altele. Susținătorii nu văd reclame.",
       "optOut": "Puteți refuza publicitatea personalizată din <0>Setările pentru anunțuri Google</0>. Puteți refuza și cookie-urile publicitare ale unor furnizori la <1>www.aboutads.info</1>."
     },
     "consent": {
@@ -356,18 +355,18 @@
     },
     "legalBasis": {
       "heading": "Temeiul juridic",
-      "body": "Ne bazăm pe consimțământul tău pentru analiză și publicitate atunci când bannerul solicită acest lucru. Folosim datele contului pentru a oferi acces Premium și a verifica bacșișurile care nu acordă automat timp Premium nou."
+      "body": "Ne bazăm pe consimțământul tău pentru analiză și publicitate atunci când bannerul solicită acest lucru. Folosim datele contului pentru a oferi acces de susținător și a verifica bacșișurile care nu acordă automat timp de susținător nou."
     },
     "use": {
       "heading": "Cum folosim informațiile",
       "item1": "Pentru a furniza site-ul și funcțiile sale și pentru a le îmbunătăți.",
-      "item2": "Pentru a vă autentifica, a gestiona feedbackul și a administra accesul Premium.",
+      "item2": "Pentru a vă autentifica, a gestiona feedbackul și a administra accesul Susținător.",
       "item3": "Pentru a înțelege utilizarea site-ului și a măsura performanța, acolo unde analiza este permisă.",
       "item4": "Pentru a afișa publicitate vizitatorilor din planul gratuit, sub rezerva regulilor de consimțământ de mai sus."
     },
     "rights": {
       "heading": "Drepturile dumneavoastră",
-      "body": "În funcție de locul în care vă aflați, puteți avea dreptul de a accesa, corecta sau șterge datele dumneavoastră personale, sau dreptul de a vă opune sau de a restricționa anumite prelucrări. Pentru a vă exercita aceste drepturi, inclusiv o cerere de ștergere a feedbackului sau a informațiilor din cont, contactați-ne prin datele de mai jos. Utilizatorii Premium nu văd reclame."
+      "body": "În funcție de locul în care vă aflați, puteți avea dreptul de a accesa, corecta sau șterge datele dumneavoastră personale, sau dreptul de a vă opune sau de a restricționa anumite prelucrări. Pentru a vă exercita aceste drepturi, inclusiv o cerere de ștergere a feedbackului sau a informațiilor din cont, contactați-ne prin datele de mai jos. Susținătorii nu văd reclame."
     },
     "thirdParty": {
       "heading": "Servicii terțe",
@@ -377,7 +376,7 @@
       "firebase": "Firebase, un serviciu Google, gestionează autentificarea, baza de date pentru feedback, stocarea drepturilor de acces și găzduirea site-ului. Serviciul de găzduire primește detalii tehnice despre fiecare solicitare, precum adresa IP și browserul.",
       "github": "GitHub livrează imaginile cărților de la raw.githubusercontent.com atunci când o carte este afișată, deci primește adresa IP și datele browserului. Site-urile externe primesc vizita doar dacă le accesezi linkurile.",
       "outro": "Site-urile externe primesc adresa IP și datele browserului dacă le accesezi linkurile. Acestea îți folosesc informațiile conform propriilor politici de confidențialitate.",
-      "kofi": "<0>Ko-fi</0> permite trimiterea de bacșișuri opționale pentru Premium. Furnizorul de plăți ales la finalizarea plății procesează tranzacția."
+      "kofi": "<0>Ko-fi</0> permite trimiterea de bacșișuri opționale de susținător. Furnizorul de plăți ales la finalizarea plății procesează tranzacția."
     },
     "retention": {
       "heading": "Cât timp păstrăm informațiile",

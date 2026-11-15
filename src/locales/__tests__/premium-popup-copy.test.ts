@@ -94,7 +94,7 @@ describe("Premium popup copy", () => {
     expect(details).toMatch(/fractions add no months/i);
     expect(details).toMatch(/£121 or more/i);
     expect(details).toMatch(/other currencies/i);
-    expect(details).toMatch(/need review and grant no Premium automatically/i);
+    expect(details).toMatch(/need review and grant no Supporter access automatically/i);
     expect(details.match(/[.!?](?:\s|$)/g)).toHaveLength(2);
     expect(price).not.toContain("{{");
   });

@@ -3,7 +3,7 @@
     "banner": "Les classements sont à jour au {{date}}."
   },
   "a11y": {
-    "premiumOnly": "(Premium)",
+    "premiumOnly": "(Soutien)",
     "skipToContent": "Aller au contenu",
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu",
@@ -14,11 +14,11 @@
     "switchToDark": "Passer au mode sombre"
   },
   "premium": {
-    "title": "Top Pocket Decks Premium",
+    "title": "Top Pocket Decks Soutien",
     "features": {
       "title": "Fonctionnalités",
       "free": "Gratuit",
-      "premium": "Premium",
+      "premium": "Soutien",
       "removeAds": {
         "title": "Supprimer les publicités",
         "description": "Profitez d'une expérience sans publicité sur l'ensemble du site.",
@@ -63,7 +63,7 @@
       },
       "updated": {
         "title": "Mise à jour de la tier list",
-        "description": "Affiche les publications publiques et les données publiées les plus récentes disponibles pour Premium.",
+        "description": "Affiche les publications publiques et les données publiées les plus récentes disponibles pour les soutiens.",
         "free": "Publications publiques",
         "premium": "Données publiées les plus récentes"
       },
@@ -75,10 +75,10 @@
       }
     },
     "price": "1 £ par mois. Chaque livre donnée ajoute un mois, et les dons suivants prolongent votre accès.",
-    "priceDetails": "Les dons admissibles en GBP ajoutent un mois par livre entière, jusqu’à 120 mois par don ; les fractions n’ajoutent aucun mois. Les dons de 121 £ ou plus et ceux dans une autre devise nécessitent une vérification et ne donnent pas automatiquement accès à Premium.",
+    "priceDetails": "Les dons admissibles en GBP ajoutent un mois par livre entière, jusqu’à 120 mois par don ; les fractions n’ajoutent aucun mois. Les dons de 121 £ ou plus et ceux dans une autre devise nécessitent une vérification et ne donnent pas automatiquement accès Soutien.",
     "cta": "Donner un pourboire sur Ko-fi",
     "ctaExtend": "Prolonger sur Ko-fi",
-    "emailHint": "Utilisez l’adresse e-mail de votre compte Google ({{email}}) lors du paiement sur Ko-fi et Premium sera activé automatiquement.",
+    "emailHint": "Utilisez l’adresse e-mail de votre compte Google ({{email}}) lors du paiement sur Ko-fi et l’accès Soutien sera activé automatiquement.",
     "emailHintNoEmail": "Aucune adresse e-mail de compte Google n’est disponible pour le rapprochement automatique. Ouvrez l’option de rapprochement par code ci-dessous et ajoutez votre code au message Ko-fi ; si vous ne pouvez pas obtenir ou utiliser de code, contactez-nous ci-dessous.",
     "altCodeToggle": "Vous payez depuis une autre adresse e-mail ?",
     "altCodeHint": "Collez ce code dans le message Ko-fi.",
@@ -92,8 +92,8 @@
     "signIn": "Se connecter avec Google",
     "copy": "Copier le code",
     "copied": "Copié",
-    "expires": "Votre accès Premium prend fin le {{date}}.",
-    "lifetime": "Votre accès Premium n’expire pas.",
+    "expires": "Votre accès Soutien prend fin le {{date}}.",
+    "lifetime": "Votre accès Soutien n’expire pas.",
     "refund": "Pour demander un remboursement ou signaler un paiement perdu, contactez-nous à <0/> en indiquant l’adresse e-mail de votre compte Google et les détails du paiement."
   },
   "ads": {
@@ -157,10 +157,9 @@
     "shareQrCopy": "Copier le code du deck",
     "shareQrCopied": "Copié !",
     "shareQrDownload": "Télécharger le QR",
-    "premiumGateTitle": "Ce deck n'apparaît que dans une période Premium",
-    "premiumGateBody": "Il figure dans les vues de 30 jours et de toute la période, qui font partie de Premium.",
-    "premiumGateAction": "Découvrir Premium",
-    "matchupsPremium": "Les matchups de ce deck font partie de Premium. Les comptes gratuits les voient pour les 10 meilleurs decks."
+    "premiumGateTitle": "Ce deck n'apparaît que dans une période réservée aux soutiens",
+    "premiumGateBody": "Il figure dans les vues de 30 jours et de toute la période, réservées aux soutiens.",
+    "premiumGateAction": "Devenir soutien !"
   },
   "energyDropdown": {
     "all": "Tous les types d'énergie",
@@ -212,7 +211,7 @@
     "deltaColumn": "Changement",
     "noTrends": "Les données de tendance ne sont pas disponibles pour le moment.",
     "noMovement": "Aucun mouvement de decks sur cette période.",
-    "movementPremium": "Le mouvement est affiché pour les 10 meilleurs decks. Premium l'affiche pour tous les decks.",
+    "movementPremium": "Le mouvement est affiché pour les 10 meilleurs decks. Les soutiens l'affichent pour tous les decks.",
     "introGeneric": "Analysez le métajeu actuel de Pokémon TCG Pocket grâce à des données historiques en direct et des cartes de chaleur des matchups entre archétypes. Ces données montrent comment la popularité des decks et les taux de victoire évoluent au fil du temps."
   },
   "bestDeckFinder": {
@@ -331,7 +330,7 @@
     "collect": {
       "heading": "Informations que nous collectons",
       "usage": "<0>Données d'utilisation.</0> Google Analytics enregistre les pages que vous consultez ainsi que les informations habituelles sur l'appareil et le navigateur. Il ne fonctionne qu'après que vous avez accepté l'analyse, ou là où la bannière de consentement de votre région ne demande pas de consentement.",
-      "account": "<0>Informations de compte.</0> Si vous vous connectez avec Google, Firebase Authentication nous transmet votre nom, votre adresse e-mail et votre photo de profil. Nous affichons votre nom et votre photo lorsque vous êtes connecté, et nous utilisons votre identifiant de compte pour vérifier si vous avez un accès Premium.",
+      "account": "<0>Informations de compte.</0> Si vous vous connectez avec Google, Firebase Authentication nous transmet votre nom, votre adresse e-mail et votre photo de profil. Nous affichons votre nom et votre photo lorsque vous êtes connecté, et nous utilisons votre identifiant de compte pour vérifier si vous avez un accès Soutien.",
       "feedback": "<0>Commentaires.</0> Si vous envoyez un commentaire en étant connecté, nous enregistrons votre identifiant de compte, votre message, le sujet que vous avez choisi, la page depuis laquelle vous l'avez envoyé et l'heure d'envoi, dans Cloud Firestore, une base de données exploitée par Google pour Firebase. Nous n'enregistrons votre adresse e-mail avec le message que si vous cochez la case demandant une réponse. Nous conservons aussi l'heure de votre dernier envoi.",
       "payment": "<0>Dons.</0> Nous créons un enregistrement pour chaque paiement Ko-fi. Il comprend l’identifiant et le type de paiement, le montant et la devise, les mois crédités, le statut, ainsi que les horodatages de réception et de Ko-fi. Lorsqu’un paiement est associé à un compte, l’enregistrement comprend également son identifiant et la méthode de rapprochement. Nous ne conservons l’adresse e-mail, le nom et le message de la personne que lorsque le paiement n’est pas accordé automatiquement, afin de le vérifier ou de l’appliquer manuellement."
     },
@@ -347,7 +346,7 @@
       "language": "<0>Langue.</0> Le site lit le paramètre de langue de votre navigateur pour choisir la langue de la page. Il ne stocke rien.",
       "missing": "<0>Cartes manquantes.</0> Les cartes que vous marquez comme manquantes ne sont conservées que dans la mémoire de la page. Elles ne sont pas enregistrées, et le rechargement de la page les efface.",
       "analytics": "<0>Analyse.</0> Google Analytics utilise ses propres cookies pour distinguer les visites. Lorsque la bannière de consentement demande un consentement, ces cookies ne sont déposés qu'après que vous avez accepté l'analyse.",
-      "ads": "<0>Publicité.</0> Les visiteurs de l'offre gratuite voient des annonces de Google AdSense. Google et ses partenaires peuvent utiliser des cookies pour diffuser des annonces en fonction de vos visites sur ce site et sur d'autres. Les membres Premium ne voient pas de publicité.",
+      "ads": "<0>Publicité.</0> Les visiteurs de l'offre gratuite voient des annonces de Google AdSense. Google et ses partenaires peuvent utiliser des cookies pour diffuser des annonces en fonction de vos visites sur ce site et sur d'autres. Les soutiens ne voient pas de publicité.",
       "optOut": "Vous pouvez refuser la publicité personnalisée dans les <0>Paramètres des annonces Google</0>. Vous pouvez aussi refuser les cookies publicitaires de certains prestataires sur <1>www.aboutads.info</1>."
     },
     "consent": {
@@ -356,18 +355,18 @@
     },
     "legalBasis": {
       "heading": "Base juridique",
-      "body": "Nous nous appuyons sur votre consentement pour l’analyse et la publicité lorsque la bannière le demande. Nous utilisons les informations de votre compte pour fournir l’accès Premium et examiner les dons qui n’accordent pas automatiquement de nouvelle période Premium."
+      "body": "Nous nous appuyons sur votre consentement pour l’analyse et la publicité lorsque la bannière le demande. Nous utilisons les informations de votre compte pour fournir l’accès Soutien et examiner les dons qui n’accordent pas automatiquement de nouvelle période d’accès Soutien."
     },
     "use": {
       "heading": "Comment nous utilisons les informations",
       "item1": "Pour fournir le site et ses fonctionnalités, et pour les améliorer.",
-      "item2": "Pour vous connecter, traiter vos commentaires et gérer l'accès Premium.",
+      "item2": "Pour vous connecter, traiter vos commentaires et gérer l'accès Soutien.",
       "item3": "Pour comprendre l'utilisation du site et mesurer ses performances, lorsque l'analyse est autorisée.",
       "item4": "Pour afficher de la publicité aux visiteurs de l'offre gratuite, sous réserve des règles de consentement ci-dessus."
     },
     "rights": {
       "heading": "Vos droits",
-      "body": "Selon votre lieu de résidence, vous pouvez disposer d'un droit d'accès, de rectification ou de suppression de vos données personnelles, ainsi que d'un droit d'opposition ou de limitation de certains traitements. Pour exercer ces droits, y compris une demande de suppression de vos commentaires ou des informations de votre compte, contactez-nous par les moyens indiqués ci-dessous. Les utilisateurs Premium ne voient pas de publicité."
+      "body": "Selon votre lieu de résidence, vous pouvez disposer d'un droit d'accès, de rectification ou de suppression de vos données personnelles, ainsi que d'un droit d'opposition ou de limitation de certains traitements. Pour exercer ces droits, y compris une demande de suppression de vos commentaires ou des informations de votre compte, contactez-nous par les moyens indiqués ci-dessous. Les soutiens ne voient pas de publicité."
     },
     "thirdParty": {
       "heading": "Services tiers",
@@ -377,7 +376,7 @@
       "firebase": "Firebase, un service de Google, gère la connexion, la base de données des commentaires, le stockage des droits d’accès et l’hébergement du site. Le service d’hébergement reçoit des informations techniques sur chaque requête, comme votre adresse IP et votre navigateur.",
       "github": "GitHub diffuse les images des cartes depuis raw.githubusercontent.com lorsqu’une carte est affichée et reçoit votre adresse IP ainsi que des informations sur votre navigateur. Les sites externes ne reçoivent votre visite que si vous suivez leurs liens.",
       "outro": "Les sites externes reçoivent votre adresse IP et les informations de votre navigateur si vous suivez leurs liens. Ils utilisent vos informations selon leurs propres politiques de confidentialité.",
-      "kofi": "<0>Ko-fi</0> permet d’envoyer des dons facultatifs pour Premium. Le prestataire de paiement choisi au moment du paiement traite la transaction."
+      "kofi": "<0>Ko-fi</0> permet d’envoyer des dons facultatifs de Soutien. Le prestataire de paiement choisi au moment du paiement traite la transaction."
     },
     "retention": {
       "heading": "Durée de conservation des informations",

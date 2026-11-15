@@ -98,23 +98,23 @@ describe("translation key parity", () => {
     expect(consent.body).toContain(canadaNames[locale]);
   });
 
-  const adFreePremiumCopy: Record<string, string> = {
-    de: "Premium-Mitglieder sehen keine Werbung.",
-    en: "Premium users do not see ads.",
-    es: "Los usuarios Premium no ven anuncios.",
-    fr: "Les utilisateurs Premium ne voient pas de publicité.",
-    it: "Gli utenti Premium non vedono annunci.",
-    ja: "Premium 会員には広告は表示されません。",
-    ko: "Premium 사용자에게는 광고가 표시되지 않습니다.",
-    pt: "Os utilizadores Premium não veem anúncios.",
-    ro: "Utilizatorii Premium nu văd reclame.",
-    "zh-CN": "Premium 用户不会看到广告。",
-    "zh-TW": "Premium 使用者不會看到廣告。",
+  const adFreeSupporterCopy: Record<string, string> = {
+    de: "Unterstützer sehen keine Werbung.",
+    en: "Supporters do not see ads.",
+    es: "Los colaboradores no ven anuncios.",
+    fr: "Les soutiens ne voient pas de publicité.",
+    it: "I sostenitori non vedono annunci.",
+    ja: "サポーター会員には広告は表示されません。",
+    ko: "서포터에게는 광고가 표시되지 않습니다.",
+    pt: "Os apoiantes não veem anúncios.",
+    ro: "Susținătorii nu văd reclame.",
+    "zh-CN": "支持者用户不会看到广告。",
+    "zh-TW": "支持者使用者不會看到廣告。",
   };
 
-  it.each(Object.entries(locales))("%s describes Premium ad-free users neutrally", (locale, localeData) => {
+  it.each(Object.entries(locales))("%s describes Supporter ad-free users neutrally", (locale, localeData) => {
     const body = (localeData as { privacyPage: { rights: { body: string } } }).privacyPage.rights.body;
-    expect(body).toContain(adFreePremiumCopy[locale]);
+    expect(body).toContain(adFreeSupporterCopy[locale]);
   });
 });
 

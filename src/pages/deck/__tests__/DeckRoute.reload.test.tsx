@@ -143,9 +143,9 @@ describe("a deck link that only a premium window offers", () => {
     mount(`/deck/${PREMIUM_ONLY}?window=30d`);
 
     expect(
-      await screen.findByRole("heading", { name: "This deck only appears in a Premium window" })
+      await screen.findByRole("heading", { name: "This deck only appears in a Supporter window" })
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "See Premium" })).toHaveAttribute("href", "/about/#premium");
+    expect(screen.getByRole("link", { name: "Become a Supporter!" })).toHaveAttribute("href", "/about/#premium");
     expect(access.loadPremiumArtefact).not.toHaveBeenCalled();
     expect(requested.some((url) => /-(30d|all)\.json$/.test(url))).toBe(false);
   });
@@ -162,6 +162,6 @@ describe("a deck link that only a premium window offers", () => {
     mount("/deck/does-not-exist?window=30d");
 
     expect(await screen.findByText("404")).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "This deck only appears in a Premium window" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "This deck only appears in a Supporter window" })).toBeNull();
   });
 });

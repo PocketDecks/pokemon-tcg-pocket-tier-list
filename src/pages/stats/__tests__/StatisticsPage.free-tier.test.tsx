@@ -181,7 +181,7 @@ describe("StatisticsPage free tier", () => {
     const section = await movementSection();
     await waitFor(() => expect(within(section).getAllByRole("row")).toHaveLength(11));
     expect(within(section).getByText(NOTE)).toBeInTheDocument();
-    expect(within(section).getByRole("link", { name: "See Premium" })).toHaveAttribute(
+    expect(within(section).getByRole("link", { name: "Become a Supporter!" })).toHaveAttribute(
       "href",
       "/about/#premium"
     );

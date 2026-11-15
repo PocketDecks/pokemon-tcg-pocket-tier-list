@@ -124,7 +124,7 @@ describe("DeckDetailPage matchups", () => {
     expect(await screen.findByText("Strong Against")).toBeInTheDocument();
     expect(await screen.findByText("70%")).toBeInTheDocument();
     expect(screen.getByText("30%")).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "See Premium" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Become a Supporter!" })).not.toBeInTheDocument();
   });
 
   it("reads a premium viewer's matchups from the public file too", async () => {

@@ -89,7 +89,7 @@ const openAndTip = async () => {
 
 const expectExpiryState = async (dialog: HTMLElement) => {
   await waitFor(() =>
-    expect(within(dialog).getByText(/Your Premium access ends on/)).toBeInTheDocument()
+    expect(within(dialog).getByText(/Your Supporter access ends on/)).toBeInTheDocument()
   );
   expect(within(dialog).getByRole("link", { name: en.premium.ctaExtend })).toBeInTheDocument();
   expect(firestore.getDoc).toHaveBeenCalledTimes(2);
@@ -181,7 +181,7 @@ describe("Premium entitlement refresh", () => {
       window.dispatchEvent(new Event("focus"));
     });
     expect(firestore.getDoc).toHaveBeenCalledTimes(1);
-    expect(within(reopened).queryByText(/Your Premium access ends on/)).not.toBeInTheDocument();
+    expect(within(reopened).queryByText(/Your Supporter access ends on/)).not.toBeInTheDocument();
   });
 
   it("does not refresh on window focus before the call to action is clicked", async () => {
@@ -200,6 +200,6 @@ describe("Premium entitlement refresh", () => {
     });
     expect(firestore.getDoc).toHaveBeenCalledTimes(1);
     expect(within(dialog).queryByText(en.premium.waiting)).not.toBeInTheDocument();
-    expect(within(dialog).queryByText(/Your Premium access ends on/)).not.toBeInTheDocument();
+    expect(within(dialog).queryByText(/Your Supporter access ends on/)).not.toBeInTheDocument();
   });
 });

@@ -37,7 +37,7 @@ describe("AboutPage", () => {
     expect(tierListLink()).toHaveAttribute("href", "/ja/tier-list/");
   });
 
-  it("keeps the Premium anchor and discloses the GBP limit and review path", () => {
+  it("keeps the Supporter anchor and discloses the GBP limit and review path", () => {
     renderAt("/about#premium");
     expect(document.getElementById("premium")).toBeInTheDocument();
     const link = screen.getByRole("link", { name: /ko-fi/i });
@@ -48,7 +48,7 @@ describe("AboutPage", () => {
     expect(article).toHaveTextContent(/up to 120 months per tip/i);
     expect(article).toHaveTextContent(/GBP £121 or more/i);
     expect(article).toHaveTextContent(/other currencies need review/i);
-    expect(article).toHaveTextContent(/grant no Premium automatically/i);
-    expect(article).toHaveTextContent(/use code matching in the Premium popup or contact us/i);
+    expect(article).toHaveTextContent(/grant no Supporter access automatically/i);
+    expect(article).toHaveTextContent(/use code matching in the Supporter popup or contact us/i);
   });
 });

@@ -276,7 +276,7 @@ describe("Premium", () => {
     vi.mocked(usePremiumExpiry).mockReturnValue(Date.UTC(2027, 0, 2));
     vi.mocked(useAuth).mockReturnValue(signedIn());
     const { dialog } = await openDefaultPopup();
-    expect(within(dialog).getByText("Your Premium access ends on 2 January 2027.")).toBeInTheDocument();
+    expect(within(dialog).getByText("Your Supporter access ends on 2 January 2027.")).toBeInTheDocument();
     const cta = within(dialog).getByRole("link", { name: en.premium.ctaExtend });
     expect(cta).toHaveAttribute("href", KOFI_URL);
     expect(cta).toHaveAttribute("target", "_blank");
@@ -334,7 +334,7 @@ describe("Premium", () => {
     expect(screen.getByRole("button", { name: "Remove ads" })).toHaveFocus();
   });
 
-  it("swaps to the Premium state when the entitlement flips", async () => {
+  it("swaps to the Supporter state when the entitlement flips", async () => {
     vi.mocked(useAuth).mockReturnValue(signedIn());
     const user = userEvent.setup();
     const view = render(linkPopup());
@@ -345,7 +345,7 @@ describe("Premium", () => {
     vi.mocked(usePremiumExpiry).mockReturnValue(Date.UTC(2027, 0, 2));
     view.rerender(linkPopup());
     expect(screen.queryByText(en.premium.waiting)).not.toBeInTheDocument();
-    expect(screen.getByText("Your Premium access ends on 2 January 2027.")).toBeInTheDocument();
+    expect(screen.getByText("Your Supporter access ends on 2 January 2027.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: en.premium.ctaExtend })).toBeInTheDocument();
   });
 });

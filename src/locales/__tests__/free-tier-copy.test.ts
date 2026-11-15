@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest";
 import en from "../en_translation.json";
 
-type Copy = { deckPage: Record<string, string>; statistics: Record<string, string> };
+type Copy = { statistics: Record<string, string> };
 
 const locales = import.meta.glob<Copy>("../*_translation.json", { eager: true, import: "default" });
 const english = en as unknown as Copy;
 const keys = [
-  ["deckPage", "matchupsPremium"],
   ["statistics", "movementPremium"],
 ] as const;
 

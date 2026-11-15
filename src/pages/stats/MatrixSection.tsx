@@ -1,8 +1,6 @@
 import styled from "styled-components";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import useIsPremium from "../../app/use-is-premium";
-import useFreeDeckNames from "../../app/use-free-deck-names";
 import { useMatchups } from "../../app/use-decks";
 import { useTheme } from "../../app/use-theme";
 import { buildTiers } from "../../app/tier-helper";
@@ -54,14 +52,8 @@ const MatrixSection = ({ decks }: { decks: FullDeckType[] }) => {
     const { theme } = useTheme();
     const scale = matrixScale[theme];
     const { matchupsByName, loading, error } = useMatchups();
-    const isPremium = useIsPremium();
-    const freeNames = useFreeDeckNames();
 
     const sortedDecks = useMemo(() => sortByPowerScore(decks), [decks]);
-    const matrixDecks = useMemo(
-        () => (isPremium ? sortedDecks : sortedDecks.filter((deck) => freeNames.has(deck.name))),
-        [sortedDecks, isPremium, freeNames]
-    );
     const tierMap = useMemo(() => {
         const map = new Map<string, string>();
         const tiers = buildTiers(rankedDecks(sortedDecks), (d) => d.powerScore);
@@ -94,7 +86,7 @@ const MatrixSection = ({ decks }: { decks: FullDeckType[] }) => {
                 <MatchupUnavailable>{t("deckPage.matchupsUnavailable")}</MatchupUnavailable>
             ) : (
                 <MatchupMatrix
-                    decks={matrixDecks}
+                    decks={sortedDecks}
                     tierMap={tierMap}
                     matrixColour={matrixColour(scale)}
                     matchupsByName={matchupsByName}

@@ -354,17 +354,6 @@ export const VisuallyHidden = styled.span`
   white-space: nowrap;
 `;
 
-export const MatchupNotice = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.2rem;
-  width: 100%;
-  color: var(--white-72);
-  line-height: 1.5;
-  text-align: center;
-`;
-
 export const MatchupUnavailable = styled.p`
   width: 100%;
   margin: 0;

@@ -166,7 +166,7 @@ describe("run", () => {
 
     expect(writeArtefacts).toHaveBeenCalledTimes(1);
     const files = writeArtefacts.mock.calls[0][0] as Record<string, string>;
-    expect(Object.keys(files)).toHaveLength(24);
+    expect(Object.keys(files)).toHaveLength(22);
     for (const name of [
       "../public/data/best-decks.json",
       "../public/data/best-decks-10d.json",
@@ -219,7 +219,7 @@ describe("run", () => {
     expect(publicKeys).toHaveLength(12);
   });
 
-  it("publishes matchup rows and movement only for the ten free decks of each window", async () => {
+  it("publishes every deck's matchup rows and movement only for the ten free decks of each window", async () => {
     await run();
 
     const files = writeArtefacts.mock.calls[0][0] as Record<string, string>;
@@ -232,8 +232,7 @@ describe("run", () => {
       expect(free.size).toBe(10);
       expect(Object.keys(matchups)).toHaveLength(ARCHETYPES);
       for (const [name, rows] of Object.entries(matchups) as [string, { name: string }[]][]) {
-        if (free.has(name)) expect(rows.length).toBeGreaterThan(1);
-        else expect(rows.map((row) => row.name)).toEqual(["Total"]);
+        expect(rows.length, name).toBeGreaterThan(1);
       }
       expect(share.decks).toHaveLength(ARCHETYPES);
       for (const entry of share.decks as { name: string }[]) {
@@ -244,17 +243,14 @@ describe("run", () => {
     }
   });
 
-  it("keeps the full 10d and 20d matchups and meta share in the premium directory", async () => {
+  it("keeps the full 10d and 20d meta share in the premium directory and no 10d or 20d matchups", async () => {
     await run();
 
     const files = writeArtefacts.mock.calls[0][0] as Record<string, string>;
     for (const window of ["10d", "20d"]) {
-      const matchups = JSON.parse(files[path.join(PREMIUM_TEST_DIR, `matchup-data-${window}.json`)]);
+      expect(files).not.toHaveProperty([path.join(PREMIUM_TEST_DIR, `matchup-data-${window}.json`)]);
       const share = JSON.parse(files[path.join(PREMIUM_TEST_DIR, `meta-share-${window}.json`)]);
 
-      for (const rows of Object.values(matchups) as unknown[][]) {
-        expect(rows.length).toBeGreaterThan(1);
-      }
       for (const entry of share.decks as object[]) {
         expect(Object.keys(entry)).toContain("delta");
       }

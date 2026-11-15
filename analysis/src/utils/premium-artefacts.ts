@@ -19,7 +19,7 @@ import {
   type WindowId,
 } from "../../../src/types/meta-windows";
 import { WindowArtefacts } from "./build-window-artefacts";
-import { trimMatchupData, trimMetaShare } from "./trim-free-window";
+import { trimMetaShare } from "./trim-free-window";
 
 export { PREMIUM_BASES, PREMIUM_WINDOWS, TRIMMED_BASES, TRIMMED_WINDOWS };
 export type { PremiumWindow, TrimmedBase };
@@ -51,6 +51,8 @@ const render = (value: unknown): string => JSON.stringify(value, null, 2);
 type PayloadBase = ArtefactBase;
 type Payloads = Record<PayloadBase, string>;
 
+const isTrimmedBase = (base: ArtefactBase): base is TrimmedBase => TRIMMED_BASES.some((trimmed) => trimmed === base);
+
 const isWindowIn = (list: readonly string[], window: WindowId): boolean => list.includes(window);
 
 const publicPath = (base: PayloadBase, window?: WindowId): string =>
@@ -64,18 +66,14 @@ const serialise = (artefacts: WindowArtefacts): Payloads => ({
   "matchup-data": render(artefacts.matchupData),
 });
 
-const serialiseTrimmed = (artefacts: WindowArtefacts, full: Payloads): Payloads => {
-  const freeNames = freeDeckNames(artefacts.bestDecks);
-  return {
-    "best-decks": full["best-decks"],
-    "meta-share": render(trimMetaShare(artefacts.metaShare, freeNames)),
-    "matchup-data": render(trimMatchupData(artefacts.matchupData, freeNames)),
-  };
-};
+const serialiseTrimmed = (artefacts: WindowArtefacts, full: Payloads): Payloads => ({
+  ...full,
+  "meta-share": render(trimMetaShare(artefacts.metaShare, freeDeckNames(artefacts.bestDecks))),
+});
 
 // Public files hold the free tier. 30d and all-time exist only as premium
-// files; 10d and 20d are public with the free decks' detail and premium in
-// full. The default window is also written un-suffixed for readers that
+// files; 10d and 20d are public, with meta share movement kept for the free
+// decks and the full meta share premium. The default window is also written un-suffixed for readers that
 // predate the selector.
 export const splitWindowArtefacts = (
   artefacts: Record<WindowId, WindowArtefacts>
@@ -94,7 +92,7 @@ export const splitWindowArtefacts = (
     const free = trimmed ? serialiseTrimmed(artefacts[window], full) : full;
     for (const base of ARTEFACT_BASES) {
       publicFiles[publicPath(base, window)] = free[base];
-      if (trimmed && base !== "best-decks") premiumFiles[windowArtefactName(base, window)] = full[base];
+      if (trimmed && isTrimmedBase(base)) premiumFiles[windowArtefactName(base, window)] = full[base];
     }
     if (window === DEFAULT_WINDOW) defaultPublic = free;
   }

@@ -73,8 +73,6 @@ describe("refresh job file lists", () => {
       "analysis/out/premium/matchup-data-all.json",
       "analysis/out/premium/meta-share-30d.json",
       "analysis/out/premium/meta-share-all.json",
-      "analysis/out/premium/matchup-data-10d.json",
-      "analysis/out/premium/matchup-data-20d.json",
       "analysis/out/premium/meta-share-10d.json",
       "analysis/out/premium/meta-share-20d.json",
     ]);

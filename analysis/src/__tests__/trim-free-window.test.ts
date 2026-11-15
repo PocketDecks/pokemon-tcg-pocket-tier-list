@@ -1,21 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { trimMatchupData, trimMetaShare } from "../utils/trim-free-window";
-import {
-  PipelineMatchupData,
-  PipelineMetaShare,
-} from "../../../src/types/pipeline-data";
-
-const rows = (...opponents: string[]) => [
-  ...opponents.map((name) => ({ name, winRate: 0.6, totalGames: 12 })),
-  { name: "Total", winRate: 0.55, totalGames: 100 },
-];
-
-const matchups = (): PipelineMatchupData => ({
-  alpha: rows("beta", "gamma"),
-  beta: rows("alpha"),
-  gamma: rows("alpha", "beta"),
-});
+import { trimMetaShare } from "../utils/trim-free-window";
+import { PipelineMetaShare } from "../../../src/types/pipeline-data";
 
 const share = (): PipelineMetaShare => ({
   generatedAt: "2026-11-07T00:00:00.000Z",
@@ -29,35 +15,6 @@ const share = (): PipelineMetaShare => ({
     firstSeen: "2026-10-01",
     isNew: index === 0,
   })),
-});
-
-describe("trimMatchupData", () => {
-  it("keeps every row for a free deck", () => {
-    const trimmed = trimMatchupData(matchups(), new Set(["alpha"]));
-
-    expect(trimmed.alpha).toEqual(matchups().alpha);
-  });
-
-  it("keeps only the Total row for every other deck", () => {
-    const trimmed = trimMatchupData(matchups(), new Set(["alpha"]));
-
-    expect(trimmed.beta).toEqual([{ name: "Total", winRate: 0.55, totalGames: 100 }]);
-    expect(trimmed.gamma).toEqual([{ name: "Total", winRate: 0.55, totalGames: 100 }]);
-  });
-
-  it("keeps every deck as a key", () => {
-    const trimmed = trimMatchupData(matchups(), new Set(["alpha"]));
-
-    expect(Object.keys(trimmed)).toEqual(["alpha", "beta", "gamma"]);
-  });
-
-  it("does not change its input", () => {
-    const input = matchups();
-
-    trimMatchupData(input, new Set(["alpha"]));
-
-    expect(input).toEqual(matchups());
-  });
 });
 
 describe("trimMetaShare", () => {

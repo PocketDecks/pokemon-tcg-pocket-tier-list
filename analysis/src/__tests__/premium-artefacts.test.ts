@@ -79,12 +79,10 @@ const freeIn = (window: "10d" | "20d"): string[] =>
   window === "10d" ? DECKS.slice(2) : DECKS.slice(0, 10);
 
 describe("premium artefact names", () => {
-  it("lists the ten artefacts", () => {
+  it("lists the eight artefacts", () => {
     expect([...PREMIUM_ARTEFACT_NAMES].sort()).toEqual([
       "best-decks-30d",
       "best-decks-all",
-      "matchup-data-10d",
-      "matchup-data-20d",
       "matchup-data-30d",
       "matchup-data-all",
       "meta-share-10d",
@@ -102,7 +100,7 @@ describe("premium artefact names", () => {
 });
 
 describe("splitWindowArtefacts", () => {
-  it("puts the ten full artefacts in the premium files", () => {
+  it("puts the eight full artefacts in the premium files", () => {
     const { premiumFiles } = splitWindowArtefacts(artefacts());
 
     expect(Object.keys(premiumFiles).sort()).toEqual([...PREMIUM_ARTEFACT_NAMES].sort());
@@ -114,11 +112,12 @@ describe("splitWindowArtefacts", () => {
     expect(Object.keys(publicFiles).some((key) => /-(30d|all).json$/.test(key))).toBe(false);
   });
 
-  it("carries the full 10d and 20d matchups and meta share into the premium files unchanged", () => {
+  it("carries the full 10d and 20d meta share and the 30d matchups into the premium files unchanged", () => {
     const input = artefacts();
     const { premiumFiles } = splitWindowArtefacts(input);
 
-    expect(premiumFiles["matchup-data-20d"]).toBe(render(input["20d"].matchupData));
+    expect(premiumFiles["meta-share-20d"]).toBe(render(input["20d"].metaShare));
+    expect(premiumFiles).not.toHaveProperty("matchup-data-20d");
     expect(premiumFiles["meta-share-10d"]).toBe(render(input["10d"].metaShare));
     expect(premiumFiles["matchup-data-30d"]).toBe(render(input["30d"].matchupData));
   });
@@ -132,15 +131,12 @@ describe("splitWindowArtefacts", () => {
     expect(publicFiles[`${DIR}best-decks.json`]).toBe(render(input["20d"].bestDecks));
   });
 
-  it("trims the public matchups to full rows for the free decks and Total for the rest", () => {
-    const { publicFiles } = splitWindowArtefacts(artefacts());
-    const trimmed = JSON.parse(publicFiles[`${DIR}matchup-data-20d.json`]);
+  it("publishes every deck's matchup rows in the 10d and 20d files", () => {
+    const input = artefacts();
+    const { publicFiles } = splitWindowArtefacts(input);
 
-    for (const name of DECKS) {
-      const names = trimmed[name].map((row: { name: string }) => row.name);
-      if (freeIn("20d").includes(name)) expect(names).toHaveLength(DECKS.length);
-      else expect(names).toEqual(["Total"]);
-    }
+    expect(publicFiles[`${DIR}matchup-data-10d.json`]).toBe(render(input["10d"].matchupData));
+    expect(publicFiles[`${DIR}matchup-data-20d.json`]).toBe(render(input["20d"].matchupData));
   });
 
   it("trims the public meta share to name, share and window games for the other decks", () => {
@@ -156,15 +152,17 @@ describe("splitWindowArtefacts", () => {
     }
   });
 
-  it("chooses the free decks from each window's own ranking", () => {
+  it("chooses the free meta share decks from each window's own ranking", () => {
     const { publicFiles } = splitWindowArtefacts(artefacts());
-    const tenDay = JSON.parse(publicFiles[`${DIR}matchup-data-10d.json`]);
-    const twentyDay = JSON.parse(publicFiles[`${DIR}matchup-data-20d.json`]);
+    const tenDay = JSON.parse(publicFiles[`${DIR}meta-share-10d.json`]);
+    const twentyDay = JSON.parse(publicFiles[`${DIR}meta-share-20d.json`]);
+    const keys = (shared: { decks: { name: string }[] }, name: string) =>
+      Object.keys(shared.decks.find((entry) => entry.name === name) ?? {});
 
-    expect(tenDay["deck-0"]).toHaveLength(1);
-    expect(twentyDay["deck-0"]).toHaveLength(DECKS.length);
-    expect(tenDay["deck-11"]).toHaveLength(DECKS.length);
-    expect(twentyDay["deck-11"]).toHaveLength(1);
+    expect(keys(tenDay, "deck-0")).toEqual(["name", "share", "windowGames"]);
+    expect(keys(twentyDay, "deck-0")).toContain("delta");
+    expect(keys(tenDay, "deck-11")).toContain("delta");
+    expect(keys(twentyDay, "deck-11")).toEqual(["name", "share", "windowGames"]);
   });
 
   it("writes un-suffixed files that match the default window", () => {

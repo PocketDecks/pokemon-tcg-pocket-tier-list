@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes } from "react-router";
 import DeckDetailPage from "../DeckDetailPage";
@@ -57,13 +57,7 @@ const rowsFor = (index: number) => [
   { name: "Total", winRate: 0.55, totalGames: 400 },
 ];
 
-const fullMatchups = Object.fromEntries(names.map((name, index) => [name, rowsFor(index)]));
-const publicMatchups = Object.fromEntries(
-  names.map((name, index) => [
-    name,
-    index < 10 ? rowsFor(index) : [{ name: "Total", winRate: 0.55, totalGames: 400 }],
-  ])
-);
+const matchups = Object.fromEntries(names.map((name, index) => [name, rowsFor(index)]));
 
 const jsonResponse = (body: unknown) =>
   Promise.resolve({ ok: true, json: () => Promise.resolve(body) } as unknown as Response);
@@ -89,9 +83,7 @@ const renderDetailPage = (deck: string) =>
     </QueryClientProvider>
   );
 
-const NOTICE = /Matchups for this deck are part of Premium/;
-
-describe("DeckDetailPage matchups by tier", () => {
+describe("DeckDetailPage matchups", () => {
   beforeAll(async () => {
     await i18n.init();
     await i18n.changeLanguage("en");
@@ -100,14 +92,12 @@ describe("DeckDetailPage matchups by tier", () => {
 
   beforeEach(() => {
     premium.isPremium = false;
-    premium.loadPremiumArtefact.mockImplementation(async (name: string) =>
-      name.startsWith("matchup-data") ? fullMatchups : { generatedAt: "x", windowDays: 20, decks: [] }
-    );
+    premium.loadPremiumArtefact.mockImplementation(async () => ({ generatedAt: "x", windowDays: 20, decks: [] }));
     vi.spyOn(console, "warn").mockImplementation(() => {});
     vi.spyOn(global, "fetch").mockImplementation((input) => {
       const url = String(input);
       if (url.endsWith("best-decks.json")) return jsonResponse(decks);
-      if (url.endsWith("matchup-data.json")) return jsonResponse(publicMatchups);
+      if (url.endsWith("matchup-data.json")) return jsonResponse(matchups);
       if (url.endsWith("meta-share.json")) {
         return jsonResponse({ generatedAt: "x", windowDays: 20, decks: [] });
       }
@@ -120,43 +110,37 @@ describe("DeckDetailPage matchups by tier", () => {
     vi.clearAllMocks();
   });
 
-  it("shows a free viewer the strong and weak matchups of a free deck", async () => {
+  it("shows a free viewer the strong and weak matchups of the best-ranked deck", async () => {
     renderDetailPage(FREE_DECK);
 
     expect(await screen.findByText("Strong Against")).toBeInTheDocument();
     expect(await screen.findByText("70%")).toBeInTheDocument();
     expect(screen.getByText("30%")).toBeInTheDocument();
-    expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
   });
 
-  it("shows a free viewer a Premium notice instead of the matchups of any other deck", async () => {
+  it("shows a free viewer the matchups of a deck outside the top ten", async () => {
     renderDetailPage(OTHER_DECK);
 
-    expect(await screen.findByText(NOTICE)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "See Premium" })).toHaveAttribute("href", "/about/#premium");
-    expect(screen.queryByText("70%")).not.toBeInTheDocument();
-    expect(screen.queryByText("30%")).not.toBeInTheDocument();
-    expect(screen.queryByText("Strong Against")).not.toBeInTheDocument();
-    expect(screen.queryByText("Weak Against")).not.toBeInTheDocument();
+    expect(await screen.findByText("Strong Against")).toBeInTheDocument();
+    expect(await screen.findByText("70%")).toBeInTheDocument();
+    expect(screen.getByText("30%")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "See Premium" })).not.toBeInTheDocument();
   });
 
-  it("shows a premium viewer the matchups of every deck, read from the full artefact", async () => {
+  it("reads a premium viewer's matchups from the public file too", async () => {
     premium.isPremium = true;
     renderDetailPage(OTHER_DECK);
 
     expect(await screen.findByText("70%")).toBeInTheDocument();
     expect(screen.getByText("30%")).toBeInTheDocument();
-    expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
-    expect(premium.loadPremiumArtefact).toHaveBeenCalledWith("matchup-data-20d");
+    expect(premium.loadPremiumArtefact).not.toHaveBeenCalledWith("matchup-data-20d");
   });
 
-  it("holds the notice back while premium is unknown", async () => {
+  it("shows the matchups while premium is unknown", async () => {
     premium.isPremium = null;
     renderDetailPage(OTHER_DECK);
 
-    await waitFor(() => expect(screen.getByText("Key Stats")).toBeInTheDocument());
-    expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
-    expect(screen.queryByText("70%")).not.toBeInTheDocument();
+    expect(await screen.findByText("70%")).toBeInTheDocument();
   });
 
   it("no longer blurs any matchup list", async () => {

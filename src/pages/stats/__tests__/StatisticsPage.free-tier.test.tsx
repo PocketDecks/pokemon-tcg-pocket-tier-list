@@ -81,15 +81,11 @@ const publicShare = {
   ),
 };
 
-const fullMatchups = Object.fromEntries(
+const matchups = Object.fromEntries(
   names.map((name, index) => [
     name,
     [{ name: names[(index + 1) % 12], winRate: 0.6, totalGames: 50 }, { name: "Total", winRate: 0.55, totalGames: 300 }],
   ])
-);
-
-const publicMatchups = Object.fromEntries(
-  names.map((name, index) => [name, index < 10 ? fullMatchups[name] : [{ name: "Total", winRate: 0.55, totalGames: 300 }]])
 );
 
 const withUnresolvableDeck = (index: number) =>
@@ -137,14 +133,12 @@ describe("StatisticsPage free tier", () => {
 
   beforeEach(() => {
     state.isPremium = false;
-    state.loadPremiumArtefact.mockImplementation(async (name: string) =>
-      name.startsWith("matchup-data") ? fullMatchups : fullShare
-    );
+    state.loadPremiumArtefact.mockImplementation(async () => fullShare);
     vi.spyOn(console, "warn").mockImplementation(() => {});
     vi.spyOn(global, "fetch").mockImplementation((input) => {
       const url = String(input);
       if (url.endsWith("best-decks.json")) return jsonResponse(decks);
-      if (url.endsWith("matchup-data.json")) return jsonResponse(publicMatchups);
+      if (url.endsWith("matchup-data.json")) return jsonResponse(matchups);
       if (url.endsWith("meta-share.json")) return jsonResponse(publicShare);
       return jsonResponse(rawCards);
     });
@@ -155,23 +149,23 @@ describe("StatisticsPage free tier", () => {
     vi.clearAllMocks();
   });
 
-  it("limits the matrix to the ten free decks for a free viewer", async () => {
+  it("shows the whole field in the matrix to a free viewer", async () => {
     renderPage();
 
-    expect(await matrixRows()).toBe(10);
+    expect(await matrixRows()).toBe(12);
   });
 
-  it("does not backfill the matrix with a deck outside the free set when a free deck drops out", async () => {
+  it("drops a deck that cannot be resolved from the matrix of a free viewer", async () => {
     vi.spyOn(global, "fetch").mockImplementation((input) => {
       const url = String(input);
       if (url.endsWith("best-decks.json")) return jsonResponse(withUnresolvableDeck(2));
-      if (url.endsWith("matchup-data.json")) return jsonResponse(publicMatchups);
+      if (url.endsWith("matchup-data.json")) return jsonResponse(matchups);
       if (url.endsWith("meta-share.json")) return jsonResponse(publicShare);
       return jsonResponse(rawCards);
     });
     renderPage();
 
-    expect(await matrixRows()).toBe(9);
+    expect(await matrixRows()).toBe(11);
   });
 
   it("shows the whole field in the matrix to a premium viewer", async () => {

@@ -1,20 +1,4 @@
-import {
-  PipelineMatchupData,
-  PipelineMetaShare,
-} from "../../../src/types/pipeline-data";
-
-const TOTAL_ROW = "Total";
-
-export const trimMatchupData = (
-  data: PipelineMatchupData,
-  freeNames: ReadonlySet<string>
-): PipelineMatchupData =>
-  Object.fromEntries(
-    Object.entries(data).map(([name, rows]) => [
-      name,
-      freeNames.has(name) ? rows : rows.filter((row) => row.name === TOTAL_ROW),
-    ])
-  );
+import { PipelineMetaShare } from "../../../src/types/pipeline-data";
 
 export const trimMetaShare = (
   metaShare: PipelineMetaShare,

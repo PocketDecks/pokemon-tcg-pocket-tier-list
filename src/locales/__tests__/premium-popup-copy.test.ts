@@ -135,7 +135,7 @@ describe("Premium popup copy", () => {
       expect(`${path} ${feature.free} ${feature.premium} ${feature.description}`)
         .toMatch(/public|öffentlich|públic|publi|pubbl|公開|公[開开]|공개/i);
       expect(`${feature.free} ${feature.premium} ${feature.description}`)
-        .not.toMatch(/daily|weekly|täglich|wöchentlich|diario|semanal|quotidien|hebdomadaire|毎日|週間|매일|매주|每日|每週/i);
+        .not.toMatch(/daily|weekly|täglich|wöchentlich|di[aá]ri|semana|quotidi|hebdomadaire|giornalier|settimanal|zilnic|săptămân|毎日|毎週|週間|매일|매주|每日|每周|每週/i);
     }
   });
 

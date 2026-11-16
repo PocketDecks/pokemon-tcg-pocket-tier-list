@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  TRACKED_OUTPUTS,
   beginRefresh,
   classifyRefresh,
   discardRefresh,
@@ -110,6 +111,23 @@ describe("refresh scratch worktree", () => {
     const root = fixture();
     beginRefresh(root);
     expect(() => beginRefresh(root)).toThrow(/running or was interrupted/);
+  });
+
+  it("lists the timestamp among the tracked outputs a rollback restores", () => {
+    expect(TRACKED_OUTPUTS).toContain("src/app/last-updated.ts");
+    expect(TRACKED_OUTPUTS).toContain("public/og/deck");
+    expect(TRACKED_OUTPUTS.some((name) => name.startsWith("analysis/out/"))).toBe(false);
+  });
+
+  it("refuses to stage after the checkout HEAD moved since begin", () => {
+    const root = fixture();
+    const scratch = beginRefresh(root);
+    generate(scratch);
+    put(root, "public/data/data-version.json", "newer commit");
+    git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qam", "newer");
+    expect(() => stageRefresh(root)).toThrow(/HEAD moved since begin/);
+    expect(read(root, "public/data/data-version.json")).toBe("newer commit");
+    expect(read(root, "analysis/src/data/limitless-decks.json")).toBe("base");
   });
 
   it("refuses to start or stage over changed outputs", () => {

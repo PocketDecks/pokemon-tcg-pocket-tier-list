@@ -41,7 +41,7 @@ const SCRATCH_NAME = "refresh-scratch";
 
 const isPremium = (name: string): boolean => name.startsWith(`${PREMIUM_DIR}/`);
 // Premium files are ignored by git, so they are compared and moved by hand.
-const TRACKED_OUTPUTS = [
+export const TRACKED_OUTPUTS = [
   ...REFRESH_OUTPUT_FILES.filter((name) => !isPremium(name)),
   ...REFRESH_OUTPUT_TREES,
 ];
@@ -188,6 +188,11 @@ export const stageRefresh = (root: string): string[] => {
   assertMainCheckout(root);
   const scratch = requireScratch(root);
   assertOutputsClean(root);
+  // A commit made in the checkout after begin would be reverted by copying
+  // the scratch worktree's older files over it.
+  if (git(root, "rev-parse", "HEAD").trim() !== git(scratch, "rev-parse", "HEAD").trim()) {
+    throw new Error("refresh stopped: the checkout HEAD moved since begin; run refresh:outputs discard and start again");
+  }
   const changes = changedOutputs(scratch);
   for (const { name, removed } of changes) {
     const destination = path.join(root, name);
@@ -213,5 +218,6 @@ if (require.main === module) {
   else if (action === "classify") console.log(classifyRefresh(root).join("\n"));
   else if (action === "stage") console.log(stageRefresh(root).join("\n"));
   else if (action === "discard") discardRefresh(root);
-  else throw new Error("usage: refresh:outputs <begin|classify|stage|discard>");
+  else if (action === "outputs") console.log(TRACKED_OUTPUTS.join("\n"));
+  else throw new Error("usage: refresh:outputs <begin|classify|stage|discard|outputs>");
 }

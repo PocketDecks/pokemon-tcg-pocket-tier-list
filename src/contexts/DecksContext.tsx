@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from "react";
+import React, { createContext, useContext, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useMissing from "../app/use-missing";
 import useFilters from "../app/use-filters";
@@ -23,6 +23,7 @@ import {
 } from "../app/deck-payload";
 import { getScoreBaseline, type ScoreBaseline } from "../app/score-baseline";
 import {
+  DEFAULT_META_WINDOW,
   isPremiumMetaWindow,
   type ArtefactTier,
   type MetaWindow,
@@ -62,6 +63,7 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
   const { window } = useMetaWindow();
 
   const { data: rawDecks = null, error: decksError } = useDecksData(window);
+  useFallbackWhenDenied(decksError);
   const { data: metaShare } = useMetaShareData(window);
 
   const scoreBaseline = useMemo(
@@ -153,6 +155,7 @@ export const useMatchups = () => {
     retry: 1,
     ...windowQueryOptions(window, isPremium),
   });
+  useFallbackWhenDenied(error);
   return { matchupsByName: data ?? null, loading: isLoading, error: error ?? null };
 };
 
@@ -174,6 +177,15 @@ export const useDeckDetail = (
       extinct: resolved?.extinct ?? false,
     };
   }, [rawDecks, deckId, missingCounts]);
+};
+
+// The server refused a Supporter read even though the entitlement said yes
+// (for example a grant that was revoked in the meantime): show the public window.
+const useFallbackWhenDenied = (error: Error | null) => {
+  const { setWindow } = useMetaWindow();
+  useEffect(() => {
+    if (error instanceof PremiumAccessError) setWindow(DEFAULT_META_WINDOW);
+  }, [error, setWindow]);
 };
 
 const PREMIUM_LOAD_ATTEMPTS = 3;

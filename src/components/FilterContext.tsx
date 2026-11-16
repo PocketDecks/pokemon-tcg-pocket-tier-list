@@ -1,4 +1,4 @@
-import { createContext, useMemo, useState, ReactNode } from "react";
+import { createContext, useCallback, useMemo, useState, ReactNode } from "react";
 import { FREE_DECK_AMOUNT } from "../app/constants";
 import { SortBy } from "../app/sort-by";
 export { SortBy };
@@ -16,6 +16,8 @@ interface FilterContextType {
   setExpansion: (expansion: string | null) => void;
   latestExpansionCards: number | null;
   setLatestExpansionCards: (count: number | null) => void;
+  /** Back to the defaults of the Supporter-only tier list filters. */
+  resetTierListFilters: () => void;
 }
 
 export const FilterContext = createContext<FilterContextType>({
@@ -31,6 +33,7 @@ export const FilterContext = createContext<FilterContextType>({
   setExpansion: () => { },
   latestExpansionCards: null,
   setLatestExpansionCards: () => { },
+  resetTierListFilters: () => { },
 });
 
 interface Props {
@@ -44,6 +47,14 @@ const FilterContextProvider = ({ children }: Props) => {
   const [sortBy, setSortBy] = useState<SortBy>(SortBy.POWER);
   const [expansion, setExpansion] = useState<string | null>(null);
   const [latestExpansionCards, setLatestExpansionCards] = useState<number | null>(null);
+
+  const resetTierListFilters = useCallback(() => {
+    setEnergy(null);
+    setIncludeEx(true);
+    setDeckAmount(FREE_DECK_AMOUNT);
+    setSortBy(SortBy.POWER);
+    setLatestExpansionCards(null);
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -59,6 +70,7 @@ const FilterContextProvider = ({ children }: Props) => {
       setExpansion,
       latestExpansionCards,
       setLatestExpansionCards,
+      resetTierListFilters,
     }),
     [
       energy,
@@ -73,6 +85,7 @@ const FilterContextProvider = ({ children }: Props) => {
       setExpansion,
       latestExpansionCards,
       setLatestExpansionCards,
+      resetTierListFilters,
     ]
   );
 

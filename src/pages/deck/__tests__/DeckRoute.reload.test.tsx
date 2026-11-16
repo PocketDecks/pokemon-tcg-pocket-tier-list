@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import DeckRoute from "../DeckRoute";
 import { DecksProvider } from "../../../contexts/DecksContext";
+import AccessEnded from "../../../contexts/AccessEnded";
 import { MetaWindowProvider } from "../../../contexts/MetaWindowContext";
 import MissingContextProvider from "../../../components/MissingContext";
 import FilterContextProvider from "../../../components/FilterContext";
@@ -63,6 +64,7 @@ const mount = (entry: string) => {
         <MissingContextProvider>
           <FilterContextProvider>
             <MetaWindowProvider>
+              <AccessEnded />
               <DecksProvider>
                 <ContentReadyProvider>
                   <MemoryRouter initialEntries={[entry]}>

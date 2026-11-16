@@ -7,6 +7,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./app/query-client";
 import { AuthProvider } from "./contexts/AuthContext";
 import { EntitlementProvider } from "./contexts/EntitlementContext";
+import AccessEnded from "./contexts/AccessEnded";
 import { DecksProvider } from "./contexts/DecksContext";
 import { MetaWindowProvider } from "./contexts/MetaWindowContext";
 import AdAnchor from "./ads/AdAnchor";
@@ -144,6 +145,7 @@ const App = () => {
           <AuthProvider>
             <EntitlementProvider>
               <MetaWindowProvider>
+                <AccessEnded />
                 <DecksProvider>
                   <ContentReadyProvider>
                     <Routes>

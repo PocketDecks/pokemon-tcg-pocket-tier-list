@@ -1,6 +1,7 @@
 export {
   ARTEFACT_BASES,
   DEFAULT_WINDOW,
+  isPremiumWindow,
   PREMIUM_BASES,
   PREMIUM_WINDOWS,
   TRIMMED_BASES,

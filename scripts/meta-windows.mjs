@@ -6,6 +6,9 @@ export const PREMIUM_WINDOWS = ["30d", "all"];
 
 export const TRIMMED_WINDOWS = WINDOW_IDS.filter((window) => !PREMIUM_WINDOWS.includes(window));
 
+/** Supporter-only windows: they have no public file. */
+export const isPremiumWindow = (window) => PREMIUM_WINDOWS.includes(window);
+
 export const WINDOW_LENGTH_DAYS = { "10d": 10, "20d": 20, "30d": 30, all: null };
 
 // Published order of the public files.

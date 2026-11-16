@@ -40,7 +40,6 @@ interface DecksShared {
   rawDecks: PipelinePartialDeck[] | null;
   metaShare: PipelineMetaShare | null;
   metaShareBySlug: Record<string, MetaShareEntry> | null;
-  isPremium: boolean | null;
 }
 
 /// `ready` is the only state with a deck list; `error` is reported only while
@@ -59,7 +58,6 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const { missingCounts } = useMissing();
   const { energy, includeEx, deckAmount, sortBy, latestExpansionCards } = useFilters();
-  const isPremium = useIsPremium();
   const expansions = useExpansions();
   const { window } = useMetaWindow();
 
@@ -116,7 +114,6 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
       rawDecks,
       metaShare: settledMetaShare,
       metaShareBySlug,
-      isPremium,
     };
     if (decks !== null) {
       return { ...shared, status: "ready", decks, scoreBaseline };
@@ -132,7 +129,6 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
     settledMetaShare,
     metaShareBySlug,
     decksError,
-    isPremium,
   ]);
 
   return (

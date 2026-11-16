@@ -27,8 +27,12 @@ vi.mock("../../../app/use-decks", () => ({
     decks: state.decks,
     status: state.status,
     error: state.error,
-    isPremium: state.premium,
   }),
+}));
+
+vi.mock("../../../app/use-is-premium", () => ({
+  __esModule: true,
+  default: () => state.premium,
 }));
 
 vi.mock("../../../app/use-meta-window", () => ({

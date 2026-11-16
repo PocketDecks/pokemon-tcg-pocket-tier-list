@@ -3,6 +3,7 @@ import { Navigate, useParams } from "react-router";
 import { DECK_ARCHIVE, archiveForHub } from "../../app/deck-archive";
 import { premiumWindowsForSlug } from "../../app/premium-deck-slugs";
 import { useDecks } from "../../app/use-decks";
+import useIsPremium from "../../app/use-is-premium";
 import { useMetaWindow } from "../../app/use-meta-window";
 import { useLocaleHref } from "../../app/locale-link";
 import DeckDetailPage from "./DeckDetailPage";
@@ -13,7 +14,8 @@ import NotFoundPage from "../not-found/NotFoundPage";
 
 const DeckRoute = () => {
   const { deckId = "" } = useParams();
-  const { status, decks, isPremium } = useDecks();
+  const { status, decks } = useDecks();
+  const isPremium = useIsPremium();
   const { window, setWindow } = useMetaWindow();
   const [switchedFor, setSwitchedFor] = useState<string | null>(null);
   const entry = DECK_ARCHIVE.find((candidate) => candidate.variant === deckId);

@@ -3,6 +3,7 @@ import { act, cleanup, render, screen, waitFor, within } from "@testing-library/
 import userEvent from "@testing-library/user-event";
 import { createInstance } from "i18next";
 import { I18nextProvider, initReactI18next } from "react-i18next";
+import { EntitlementProvider } from "../../contexts/EntitlementContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Premium from "../Premium";
 import en from "../../locales/en_translation.json";
@@ -66,7 +67,9 @@ const renderPremium = () =>
   render(
     <I18nextProvider i18n={i18n}>
       <QueryClientProvider client={client}>
-        <Premium variant="link" linkLabel="Remove ads" />
+        <EntitlementProvider>
+          <Premium variant="link" linkLabel="Remove ads" />
+        </EntitlementProvider>
       </QueryClientProvider>
     </I18nextProvider>
   );

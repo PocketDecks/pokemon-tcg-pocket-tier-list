@@ -15,6 +15,8 @@ vi.mock("../../../app/use-decks", () => ({
   useDecks: () => decksState.value,
 }));
 
+vi.mock("../../../app/use-is-premium", () => ({ __esModule: true, default: () => false }));
+
 vi.mock("../DeckDetailPage", () => ({
   __esModule: true,
   default: () => <p>live deck page</p>,

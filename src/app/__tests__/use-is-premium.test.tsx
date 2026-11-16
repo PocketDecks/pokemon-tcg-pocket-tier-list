@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import useIsPremium, { usePremiumExpiry } from "../use-is-premium";
+import { EntitlementProvider } from "../../contexts/EntitlementContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { queryClientOptions } from "../../App";
 
@@ -54,7 +55,9 @@ afterEach(() => {
 const renderProbe = () =>
   render(
     <QueryClientProvider client={queryClient}>
-      <Probe />
+      <EntitlementProvider>
+        <Probe />
+      </EntitlementProvider>
     </QueryClientProvider>
   );
 
@@ -121,7 +124,7 @@ describe("entitlement access", () => {
     vi.setSystemTime(100_000);
     const expiry = Date.now() + 500;
     firestore.getDoc.mockResolvedValue(snapshot({ premium: true, expiresAt: timestamp(expiry) }));
-    queryClient.setQueryData(["entitlement", "u1"], { premium: true, expiresAt: expiry });
+    queryClient.setQueryData(["entitlement", "u1"], { premium: true, expiresAtMs: expiry });
     renderProbe();
     expect(screen.getByText(`true:${expiry}`)).toBeInTheDocument();
 
@@ -136,7 +139,7 @@ describe("entitlement access", () => {
     vi.setSystemTime(100_000);
     const maxTimeout = 2_147_483_647;
     const expiry = Date.now() + maxTimeout + 5_000;
-    queryClient.setQueryData(["entitlement", "u1"], { premium: true, expiresAt: expiry });
+    queryClient.setQueryData(["entitlement", "u1"], { premium: true, expiresAtMs: expiry });
     renderProbe();
     expect(screen.getByText(`true:${expiry}`)).toBeInTheDocument();
 
@@ -160,7 +163,7 @@ describe("entitlement access", () => {
       queries: { ...queryClient.getDefaultOptions().queries, gcTime: Infinity },
     });
     const expiry = Date.now() + 60_000;
-    queryClient.setQueryData(["entitlement", "u1"], { premium: true, expiresAt: expiry });
+    queryClient.setQueryData(["entitlement", "u1"], { premium: true, expiresAtMs: expiry });
     const timerCount = vi.getTimerCount();
     const view = renderProbe();
     expect(screen.getByText(`true:${expiry}`)).toBeInTheDocument();
@@ -191,6 +194,21 @@ describe("entitlement access", () => {
     await screen.findByText("false:none");
   });
 
+  it("logs a failed entitlement read once however many components read it", async () => {
+    firestore.getDoc.mockRejectedValue(new Error("offline"));
+    render(
+      <QueryClientProvider client={queryClient}>
+        <EntitlementProvider>
+          <Probe />
+          <Probe />
+          <Probe />
+        </EntitlementProvider>
+      </QueryClientProvider>
+    );
+    await screen.findAllByText("false:none");
+    expect(console.error).toHaveBeenCalledTimes(1);
+  });
+
   it("does not briefly grant a refetched entitlement that is already expired", async () => {
     const mountedAt = 10_000;
     vi.spyOn(Date, "now").mockReturnValue(mountedAt);
@@ -200,7 +218,9 @@ describe("entitlement access", () => {
     const observed: Array<boolean | null> = [];
     render(
       <QueryClientProvider client={queryClient}>
-        <Probe observe={(value) => observed.push(value)} />
+        <EntitlementProvider>
+          <Probe observe={(value) => observed.push(value)} />
+        </EntitlementProvider>
       </QueryClientProvider>
     );
     await screen.findByText(`true:${mountedAt + DAY}`);

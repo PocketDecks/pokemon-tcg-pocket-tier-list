@@ -1,15 +1,15 @@
 import type {
+  MetaShareEntry,
   PipelineMatchupData,
   PipelineMetaShare,
   PipelinePartialDeck,
 } from "../types/pipeline-data";
 import type { MatchupType } from "./deck-types";
+import { windowDataFile, type WindowId } from "../types/meta-windows";
 import {
   loadTieredArtefact,
   loadWindowArtefact,
-  metaWindowDataFile,
   type ArtefactTier,
-  type MetaWindow,
 } from "./meta-window";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -44,29 +44,55 @@ export const parseBestDecks = (
 };
 
 export const fetchBestDecks = async (
-  window: MetaWindow
+  window: WindowId
 ): Promise<PipelinePartialDeck[]> =>
   parseBestDecks(
     await loadWindowArtefact("best-decks", window),
-    metaWindowDataFile("best-decks", window)
+    windowDataFile("best-decks", window)
   );
 
-// Share data is optional: any failure (network, 404, malformed JSON, wrong
-// shape) degrades to null so deck pages and statistics keep loading.
-export const loadMetaShare = async (
-  window: MetaWindow,
-  tier: ArtefactTier
-): Promise<PipelineMetaShare | null> => {
-  try {
-    const data = await loadTieredArtefact("meta-share", window, tier);
-    if (isRecord(data) && Array.isArray(data.decks)) {
-      return data as unknown as PipelineMetaShare;
-    }
-    return null;
-  } catch {
-    return null;
+const isOptional = (value: unknown, check: (value: unknown) => boolean): boolean =>
+  value === undefined || check(value);
+
+const isString = (value: unknown): value is string => typeof value === "string";
+
+const isMetaShareEntry = (entry: unknown): entry is MetaShareEntry =>
+  isRecord(entry) &&
+  isString(entry.name) &&
+  isFiniteNumber(entry.share) &&
+  isFiniteNumber(entry.windowGames) &&
+  isOptional(entry.sharePrev, isFiniteNumber) &&
+  isOptional(entry.delta, isFiniteNumber) &&
+  isOptional(entry.firstSeen, isString) &&
+  isOptional(entry.isNew, (value) => typeof value === "boolean");
+
+const parseMetaShare = (data: unknown, file: string): PipelineMetaShare => {
+  if (
+    !isRecord(data) ||
+    !isString(data.generatedAt) ||
+    !(data.windowDays === null || isFiniteNumber(data.windowDays)) ||
+    !Array.isArray(data.decks) ||
+    !data.decks.every(isMetaShareEntry)
+  ) {
+    throw new Error(`${file} has an unexpected shape`);
   }
+  return {
+    generatedAt: data.generatedAt,
+    windowDays: data.windowDays,
+    decks: data.decks,
+  };
 };
+
+// A failed load throws. React Query retries it and then reports an error,
+// so a bad response is never cached as "no share data".
+export const loadMetaShare = async (
+  window: WindowId,
+  tier: ArtefactTier
+): Promise<PipelineMetaShare> =>
+  parseMetaShare(
+    await loadTieredArtefact("meta-share", window, tier),
+    windowDataFile("meta-share", window)
+  );
 
 export interface SanitisedMatchupData {
   matchups: PipelineMatchupData;
@@ -109,8 +135,8 @@ export const sanitiseMatchupData = (
   return { matchups, dropped };
 };
 
-export const fetchMatchupData = async (window: MetaWindow): Promise<PipelineMatchupData> => {
-  const file = metaWindowDataFile("matchup-data", window);
+export const fetchMatchupData = async (window: WindowId): Promise<PipelineMatchupData> => {
+  const file = windowDataFile("matchup-data", window);
   const data = await loadWindowArtefact("matchup-data", window);
   if (!isRecord(data)) {
     throw new Error(`${file} has an unexpected shape`);

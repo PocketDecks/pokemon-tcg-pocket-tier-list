@@ -2,6 +2,7 @@ export const WINDOW_IDS: readonly ["10d", "20d", "30d", "all"];
 export const DEFAULT_WINDOW: "20d";
 export const PREMIUM_WINDOWS: readonly ["30d", "all"];
 export const TRIMMED_WINDOWS: readonly ["10d", "20d"];
+export const isPremiumWindow: (window: string) => window is "30d" | "all";
 export const WINDOW_LENGTH_DAYS: {
   readonly "10d": 10;
   readonly "20d": 20;

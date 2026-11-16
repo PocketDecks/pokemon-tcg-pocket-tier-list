@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import { useLocaleHref } from "../../app/locale-link";
-import { EmptyMessage, Overlay, StyledLink } from "./deck-page.styles";
+import SupporterLink from "../../components/SupporterLink";
+import { EmptyMessage, Overlay } from "./deck-page.styles";
 
 const Title = styled.h1`
   font-size: 4rem;
@@ -16,15 +16,22 @@ const Title = styled.h1`
   }
 `;
 
+const GateLink = styled(SupporterLink)`
+  color: var(--main);
+  font-weight: 500;
+  font-size: 2rem;
+  margin-left: 5px;
+  text-decoration: underline;
+`;
+
 const DeckPremiumGate = () => {
   const { t } = useTranslation();
-  const premiumHref = useLocaleHref("/about#premium");
 
   return (
     <Overlay>
       <Title>{t("deckPage.premiumGateTitle")}</Title>
       <EmptyMessage>{t("deckPage.premiumGateBody")}</EmptyMessage>
-      <StyledLink to={premiumHref}>{t("deckPage.premiumGateAction")}</StyledLink>
+      <GateLink>{t("deckPage.premiumGateAction")}</GateLink>
     </Overlay>
   );
 };

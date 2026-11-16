@@ -1,6 +1,7 @@
 import { decideGrant } from "./decision";
 import { entitlementPath as entitlementPathFor, entitlementWrite, isSafeUid, toEntitlement } from "./entitlement";
 import type { DocumentWrite, FirestoreClient } from "./firestore";
+import { isValidMonths, isValidPaymentId } from "./ids";
 import { MAX_MONTHS } from "./months";
 
 export class ManualGrantRefusal extends Error {}
@@ -24,19 +25,14 @@ export interface ManualGrantOutcome {
   dryRun: boolean;
 }
 
-const SAFE_PAYMENT_ID = /^[A-Za-z0-9_-]{1,200}$/;
-const RESERVED_ID = /^__.*__$/;
 const GRANTABLE = new Set(["unmatched", "needs-review"]);
-
-const isValidMonths = (value: unknown): value is number =>
-  typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= MAX_MONTHS;
 
 const refuse = (message: string): never => {
   throw new ManualGrantRefusal(message);
 };
 
 const checkInputs = (input: ManualGrantInput): void => {
-  if (!SAFE_PAYMENT_ID.test(input.paymentId) || RESERVED_ID.test(input.paymentId)) {
+  if (!isValidPaymentId(input.paymentId)) {
     refuse("The payment id is not a valid document id");
   }
   if (!isSafeUid(input.uid)) {
@@ -126,6 +122,5 @@ export const resolveGrantUid = async (
 ): Promise<string | null> => {
   if (target.uid !== undefined) return target.uid;
   if (target.email === undefined) return null;
-  const uid = await client.lookupUidByEmail(target.email.trim().toLowerCase());
-  return isSafeUid(uid) ? uid : null;
+  return client.lookupUidByEmail(target.email.trim().toLowerCase());
 };

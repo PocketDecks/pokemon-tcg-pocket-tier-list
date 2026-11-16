@@ -5,15 +5,7 @@ import getDecks from "./utils/get-decks";
 import { calculateCardScores } from "./utils/calculate-card-scores";
 import { buildTrends, pickTrendNames } from "./utils/build-trends";
 import { modalCopies, tallyCards } from "./utils/tally-cards";
-import {
-  buildDeckPopulation,
-  buildWindowArtefacts,
-  DEFAULT_WINDOW,
-  unmatchedDecksIn,
-  WINDOW_IDS,
-  WindowArtefacts,
-  WindowId,
-} from "./utils/build-window-artefacts";
+import { buildDeckPopulation, buildWindowArtefacts, unmatchedDecksIn, WindowArtefacts } from "./utils/build-window-artefacts";
 import { buildRunFiles } from "./utils/build-run-files";
 import { StagedOgImages, stageOgImages } from "./utils/generate-og-images";
 import { assertPublishable, daysOfDataSince, newestDeckDate, readPreviousArchetypeCount, windowsWithoutComparison } from "./utils/assert-publishable";
@@ -22,13 +14,7 @@ import { STANDARD_SET_CODES } from "./utils/set-codes";
 import listings from "./data/limitless-decks.json";
 import { EXPANSION_RELEASE_DATE, scoringWeights, ScoringWeights } from "./settings";
 import { Deck } from "./utils/types";
-import {
-  loadPremiumSnapshotForVersion,
-  PREMIUM_DIR,
-  PREMIUM_WINDOWS,
-  premiumFilePath,
-  premiumVersionSnapshotDir,
-} from "./utils/premium-artefacts";
+import { loadPremiumSnapshotForVersion, PREMIUM_DIR, premiumFilePath, premiumVersionSnapshotDir } from "./utils/premium-artefacts";
 import {
   inspectMainPremiumVersion,
   resolveCanonicalMainRef,
@@ -41,11 +27,9 @@ import cardsJson from "pokemon-tcg-pocket-cards/data/v5/cards.min.json";
 import type { PokemonTCGPocketCardsV5CoreSchema } from "pokemon-tcg-pocket-cards/data/v5/cards.core";
 import { deckSlug } from "../../src/app/deck-slug";
 import { parseDeckListRef } from "../../src/app/card-ref";
-import { windowArtefactName } from "../../src/types/meta-windows";
+import { windowArtefactName, DEFAULT_WINDOW, WINDOW_IDS, WindowId, isPremiumWindow } from "../../src/types/meta-windows";
 import type { PipelinePartialDeck } from "../../src/types/pipeline-data";
 
-const isPremiumWindow = (window: WindowId): boolean =>
-  (PREMIUM_WINDOWS as readonly string[]).includes(window);
 const previousCount = (window: WindowId, baselineDir: string | null): number | null => {
   if (!isPremiumWindow(window)) {
     return readPreviousArchetypeCount(

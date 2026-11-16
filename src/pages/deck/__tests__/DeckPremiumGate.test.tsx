@@ -27,16 +27,16 @@ describe("DeckPremiumGate", () => {
     ).toBeInTheDocument();
   });
 
-  it("links to the Supporter section of the about page", () => {
+  it("links to the Supporter page", () => {
     renderGate();
 
-    expect(screen.getByRole("link", { name: "Become a Supporter!" })).toHaveAttribute("href", "/about/#premium");
+    expect(screen.getByRole("link", { name: "Become a Supporter!" })).toHaveAttribute("href", "/premium/");
   });
 
   it("keeps the locale prefix on the link", () => {
     renderGate("/ja/deck/x-a1-001");
 
-    expect(screen.getByRole("link")).toHaveAttribute("href", "/ja/about/#premium");
+    expect(screen.getByRole("link")).toHaveAttribute("href", "/ja/premium/");
   });
 
   it("shows no deck statistics", () => {

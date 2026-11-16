@@ -1,3 +1,4 @@
+import { type WindowId } from "../../../src/types/meta-windows";
 import fs from "fs";
 import { PipelinePartialDeck } from "../../../src/types/pipeline-data";
 import {
@@ -7,7 +8,7 @@ import {
   MIN_PUBLISHED_ARCHETYPES,
   MIN_RANKED_ARCHETYPES,
 } from "../settings";
-import type { WindowId } from "./build-window-artefacts";
+
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 

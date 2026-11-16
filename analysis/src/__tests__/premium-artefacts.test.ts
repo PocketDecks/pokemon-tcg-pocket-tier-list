@@ -1,3 +1,4 @@
+import { WINDOW_IDS, WindowId, PREMIUM_WINDOWS } from "../../../src/types/meta-windows";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -6,20 +7,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { PipelineMatchupData, PipelinePartialDeck } from "../../../src/types/pipeline-data";
 import { WindowMetaShare } from "../utils/build-meta-share";
-import { WINDOW_IDS, WindowArtefacts, WindowId } from "../utils/build-window-artefacts";
-import {
-  PREMIUM_ARTEFACT_NAMES,
-  PREMIUM_DIR,
-  PREMIUM_WINDOWS,
-  loadPremiumSnapshotForVersion,
-  premiumFilePath,
-  premiumVersion,
-  prunePremiumSnapshots,
-  previousPremiumDir,
-  renderDataVersion,
-  splitWindowArtefacts,
-  snapshotPremiumVersion,
-} from "../utils/premium-artefacts";
+import { WindowArtefacts } from "../utils/build-window-artefacts";
+import { PREMIUM_ARTEFACT_NAMES, PREMIUM_DIR, loadPremiumSnapshotForVersion, premiumFilePath, premiumVersion, prunePremiumSnapshots, previousPremiumDir, renderDataVersion, splitWindowArtefacts, snapshotPremiumVersion } from "../utils/premium-artefacts";
 
 const DECKS = Array.from({ length: 12 }, (_, index) => `deck-${index}`);
 

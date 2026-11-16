@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import { useSearchParams } from "react-router";
-import { DEFAULT_META_WINDOW } from "./meta-window";
+import { DEFAULT_WINDOW } from "../types/meta-windows";
 import { useMetaWindow } from "./use-meta-window";
 
 const useWindowSearchParam = (): void => {
   const { window } = useMetaWindow();
   const [params, setParams] = useSearchParams();
   const current = params.get("window");
-  const wanted = window === DEFAULT_META_WINDOW ? null : window;
+  const wanted = window === DEFAULT_WINDOW ? null : window;
 
   useEffect(() => {
     if (current === wanted) return;

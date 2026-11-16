@@ -24,6 +24,7 @@ const {
   loadDecks,
   findModulepreloadDrift,
 } = require("../verify-dist-html");
+const { archiveOnlyHubs } = require("../verify-dist-html/hubs");
 const { localeMetaFor } = require("../prerender-routes");
 const { stampHead } = require("../meta-stamp");
 const { makeDist } = require("./verify-dist-html-fixtures");
@@ -334,6 +335,20 @@ test("skips archetype hub pages, which carry no lead-card image preload", () => 
   assert.deepStrictEqual(findDeckImagePreloadIssues(dir, new Set(["umbreon"])), []);
 });
 
+test("a live deck that shares a slug with an archive hub still gets its image preload checked", () => {
+  const archive = [{ hub: "umbreon" }, { hub: "eevee" }];
+  const decks = [{ name: "umbreon" }];
+  assert.deepStrictEqual(archiveOnlyHubs(archive, decks), ["eevee"]);
+  const dir = makeDist({
+    "deck/umbreon/index.html": "<head></head>",
+    "deck/eevee/index.html": "<head></head>",
+    ...CARD_THUMBS,
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(dir, new Set(archiveOnlyHubs(archive, decks))), [
+    `deck${path.sep}umbreon${path.sep}index.html: expected 1 image preload, found 0`,
+  ]);
+});
+
 test("flags an image preload that points at a file missing from dist/thumbs", () => {
   const dir = makeDist({
     "deck/x/index.html": `<head>${IMAGE_PRELOAD}</head>`,
@@ -350,6 +365,38 @@ test("flags an image preload outside /thumbs/", () => {
   });
   assert.deepStrictEqual(findDeckImagePreloadIssues(dir), [
     `deck${path.sep}x${path.sep}index.html: https://raw.githubusercontent.com/a/b1/184.webp is outside /thumbs/`,
+  ]);
+});
+
+test("checks the href of an image preload that has no imagesrcset", () => {
+  const preload = (href) => `<head><link rel="preload" as="image" href="${href}" /></head>`;
+  const built = makeDist({
+    "deck/x/index.html": preload("/thumbs/v3/cards/b1-184-240.webp?v=3"),
+    "thumbs/v3/cards/b1-184-240.webp": "x",
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(built), []);
+
+  const missing = makeDist({
+    "deck/x/index.html": preload("/thumbs/v3/cards/b1-184-240.webp?v=3"),
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(missing), [
+    `deck${path.sep}x${path.sep}index.html: /thumbs/v3/cards/b1-184-240.webp is not built`,
+  ]);
+
+  const outside = makeDist({
+    "deck/x/index.html": preload("https://raw.githubusercontent.com/a/b1/184.webp"),
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(outside), [
+    `deck${path.sep}x${path.sep}index.html: https://raw.githubusercontent.com/a/b1/184.webp is outside /thumbs/`,
+  ]);
+});
+
+test("flags an image preload with neither href nor imagesrcset", () => {
+  const dir = makeDist({
+    "deck/x/index.html": '<head><link rel="preload" as="image" /></head>',
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(dir), [
+    `deck${path.sep}x${path.sep}index.html: image preload has no href or imagesrcset`,
   ]);
 });
 

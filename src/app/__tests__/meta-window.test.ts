@@ -1,24 +1,18 @@
 import { describe, expect, it } from "vitest";
-import {
-  DEFAULT_META_WINDOW,
-  META_WINDOW_LABEL_KEYS,
-  META_WINDOWS,
-  isPremiumMetaWindow,
-  metaWindowDataPath,
-  parseMetaWindow,
-} from "../meta-window";
+import { DEFAULT_WINDOW, WINDOW_IDS, isPremiumWindow } from "../../types/meta-windows";
+import { META_WINDOW_LABEL_KEYS, metaWindowDataPath, parseMetaWindow } from "../meta-window";
 
 describe("meta windows", () => {
   it("defaults to the 20-day window", () => {
-    expect(DEFAULT_META_WINDOW).toBe("20d");
+    expect(DEFAULT_WINDOW).toBe("20d");
   });
 
   it("lists the four windows shortest first", () => {
-    expect(META_WINDOWS).toEqual(["10d", "20d", "30d", "all"]);
+    expect(WINDOW_IDS).toEqual(["10d", "20d", "30d", "all"]);
   });
 
   it("gates 30d and All Time behind Premium", () => {
-    expect(META_WINDOWS.filter(isPremiumMetaWindow)).toEqual(["30d", "all"]);
+    expect(WINDOW_IDS.filter(isPremiumWindow)).toEqual(["30d", "all"]);
   });
 
   it("reads the un-suffixed artefact set for the default window", () => {
@@ -34,7 +28,7 @@ describe("meta windows", () => {
   });
 
   it("has a translation key for every window", () => {
-    for (const metaWindow of META_WINDOWS) {
+    for (const metaWindow of WINDOW_IDS) {
       expect(META_WINDOW_LABEL_KEYS[metaWindow]).toBe(`window.${metaWindow}`);
     }
   });

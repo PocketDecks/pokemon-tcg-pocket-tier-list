@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deckSlug } from "./deck-slug.mjs";
 import { isMainModule } from "./is-main-module.mjs";
-import { PREMIUM_WINDOWS } from "./meta-windows.mjs";
+import { isPremiumWindow } from "./meta-windows.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const PREMIUM_DECK_SLUGS_FILE = path.join(ROOT, "src", "data", "premium-deck-slugs.json");
@@ -31,7 +31,7 @@ export const premiumDeckSlugIssues = (slugs, defaultSlugs) => {
       Array.isArray(windows) &&
       windows.length > 0 &&
       new Set(windows).size === windows.length &&
-      windows.every((window) => PREMIUM_WINDOWS.includes(window));
+      windows.every(isPremiumWindow);
     if (!valid) issues.push(`${slug}: expected a list of premium windows`);
   }
   return issues;

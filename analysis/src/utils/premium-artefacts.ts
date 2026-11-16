@@ -11,18 +11,15 @@ import {
   TRIMMED_BASES,
   TRIMMED_WINDOWS,
   WINDOW_IDS,
+  isPremiumWindow,
   windowArtefactName,
   windowDataFile,
   type ArtefactBase,
-  type PremiumWindow,
   type TrimmedBase,
   type WindowId,
 } from "../../../src/types/meta-windows";
 import { WindowArtefacts } from "./build-window-artefacts";
 import { trimMetaShare } from "./trim-free-window";
-
-export { PREMIUM_BASES, PREMIUM_WINDOWS, TRIMMED_BASES, TRIMMED_WINDOWS };
-export type { PremiumWindow, TrimmedBase };
 
 const premiumWindowNames: readonly string[] = PREMIUM_BASES.flatMap((base) =>
   PREMIUM_WINDOWS.map((window) => windowArtefactName(base, window))
@@ -84,7 +81,7 @@ export const splitWindowArtefacts = (
 
   for (const window of WINDOW_IDS) {
     const full = serialise(artefacts[window]);
-    if (isWindowIn(PREMIUM_WINDOWS, window)) {
+    if (isPremiumWindow(window)) {
       for (const base of ARTEFACT_BASES) premiumFiles[windowArtefactName(base, window)] = full[base];
       continue;
     }

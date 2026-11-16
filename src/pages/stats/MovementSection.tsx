@@ -8,6 +8,7 @@ import type { PipelineMetaShare } from "../../types/pipeline-data";
 import { hasMovement } from "../../app/meta-share-window";
 import DeckArt from "../../components/DeckArt";
 import NavIcon from "../../components/NavIcon";
+import SupporterLink from "../../components/SupporterLink";
 import crownIcon from "../../assets/crown.webp";
 import { Loading, Section, SectionHeader, SectionTitle } from "./stats-section.styles";
 import {
@@ -26,7 +27,7 @@ const ToggleContainer = styled.div`
     border-radius: 0.8rem;
 `;
 
-const ToggleButton = styled.button<{ $active: boolean; $locked?: boolean }>`
+const ToggleButton = styled.button<{ $active: boolean }>`
     display: inline-flex;
     align-items: center;
     gap: 0.6rem;
@@ -36,14 +37,12 @@ const ToggleButton = styled.button<{ $active: boolean; $locked?: boolean }>`
     font-weight: 500;
     background: ${(props) => (props.$active ? "var(--main)" : "transparent")};
     color: ${(props) => (props.$active ? "var(--bg)" : "var(--main)")};
-    opacity: ${(props) => (props.$locked ? 0.5 : 1)};
-    cursor: ${(props) => (props.$locked ? "not-allowed" : "pointer")};
+    cursor: pointer;
     border: none;
     transition: background-color 160ms ease-out, color 160ms ease-out;
 
     &:hover {
-        background: ${(props) =>
-            props.$active ? "var(--main)" : props.$locked ? "transparent" : "var(--line)"};
+        background: ${(props) => (props.$active ? "var(--main)" : "var(--line)")};
     }
 
     @media (max-width: 900px) {
@@ -196,7 +195,7 @@ const ShareValue = styled.span`
     text-align: right;
 `;
 
-const CrownLink = styled(Link)`
+const CrownLink = styled(SupporterLink)`
     flex-shrink: 0;
     display: inline-flex;
     margin-left: 0.4rem;
@@ -213,34 +212,37 @@ const VIEW_LABEL_KEYS: Record<MovementView, string> = {
     new: "statistics.newDecks",
 };
 
-const MovementTableRow = ({ row }: { row: MovementRow }) => (
-    <tr>
-        <td>{row.rank}</td>
-        <td>
-            <DeckCell>
-                <DeckArt size={2.8} src={row.iconSrc} />
-                <Link to={row.href}>{row.displayName}</Link>
-                {row.premium && (
-                    <CrownLink to="/about#premium" aria-label="Premium">
-                        <img src={crownIcon} alt="" />
-                    </CrownLink>
-                )}
-            </DeckCell>
-        </td>
-        <td>
-            <ShareCell>
-                <ShareTrack aria-hidden="true">
-                    <ShareFill $width={row.shareWidth} />
-                </ShareTrack>
-                <ShareValue>{row.shareLabel}</ShareValue>
-            </ShareCell>
-        </td>
-        <Delta $rising={row.rising}>
-            <NavIcon name={row.rising ? "arrowUp" : "arrowDown"} size={14} />
-            {row.deltaLabel}
-        </Delta>
-    </tr>
-);
+const MovementTableRow = ({ row }: { row: MovementRow }) => {
+    const { t } = useTranslation();
+    return (
+        <tr>
+            <td>{row.rank}</td>
+            <td>
+                <DeckCell>
+                    <DeckArt size={2.8} src={row.iconSrc} />
+                    <Link to={row.href}>{row.displayName}</Link>
+                    {row.premium && (
+                        <CrownLink aria-label={t("premium.become")}>
+                            <img src={crownIcon} alt="" />
+                        </CrownLink>
+                    )}
+                </DeckCell>
+            </td>
+            <td>
+                <ShareCell>
+                    <ShareTrack aria-hidden="true">
+                        <ShareFill $width={row.shareWidth} />
+                    </ShareTrack>
+                    <ShareValue>{row.shareLabel}</ShareValue>
+                </ShareCell>
+            </td>
+            <Delta $rising={row.rising}>
+                <NavIcon name={row.rising ? "arrowUp" : "arrowDown"} size={14} />
+                {row.deltaLabel}
+            </Delta>
+        </tr>
+    );
+};
 
 interface Props {
     metaShare: PipelineMetaShare | null;
@@ -280,7 +282,7 @@ const MovementSection = ({ metaShare, decksById, view, onViewChange }: Props) =>
             {limited && (
                 <MovementNote>
                     {t("statistics.movementPremium")}
-                    <Link to="/about#premium">{t("deckPage.premiumGateAction")}</Link>
+                    <SupporterLink>{t("deckPage.premiumGateAction")}</SupporterLink>
                 </MovementNote>
             )}
 

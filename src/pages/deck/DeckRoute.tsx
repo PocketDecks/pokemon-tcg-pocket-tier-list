@@ -10,6 +10,7 @@ import DeckDetailPage from "./DeckDetailPage";
 import DeckHubPage from "./DeckHubPage";
 import DeckPageSkeleton from "./DeckPageSkeleton";
 import DeckPremiumGate from "./DeckPremiumGate";
+import { resolveDeckRoute } from "./resolve-deck-route";
 import NotFoundPage from "../not-found/NotFoundPage";
 
 const DeckRoute = () => {
@@ -21,31 +22,39 @@ const DeckRoute = () => {
   const entry = DECK_ARCHIVE.find((candidate) => candidate.variant === deckId);
   const hubHref = useLocaleHref(`/deck/${entry?.hub ?? ""}`);
   const premiumWindows = premiumWindowsForSlug(deckId);
-  const offered = decks?.some((deck) => deck.id === deckId) ?? false;
-  const needsSwitch =
-    premiumWindows.length > 0 && !offered && isPremium === true && !premiumWindows.includes(window);
-  const awaitingSwitch = needsSwitch && switchedFor !== deckId;
+  const route = resolveDeckRoute({
+    deckId,
+    status,
+    decks,
+    isPremium,
+    premiumWindows,
+    window,
+    switchedFor,
+    entryHub: entry?.hub ?? null,
+    hubHasDecks: archiveForHub(deckId).length > 0,
+  });
+  const { switchTo } = route;
 
   useEffect(() => {
-    if (!awaitingSwitch) return;
+    if (switchTo === null) return;
     setSwitchedFor(deckId);
-    setWindow(premiumWindows[0]);
-  }, [awaitingSwitch, deckId, premiumWindows, setWindow]);
+    setWindow(switchTo);
+  }, [switchTo, deckId, setWindow]);
 
-  if (status === "loading") return <DeckPageSkeleton />;
-  if (premiumWindows.length > 0 && !offered) {
-    if (isPremium === null || awaitingSwitch) return <DeckPageSkeleton />;
-    if (isPremium === false || needsSwitch) return <DeckPremiumGate />;
+  switch (route.kind) {
+    case "skeleton":
+      return <DeckPageSkeleton />;
+    case "gate":
+      return <DeckPremiumGate />;
+    case "detail":
+      return <DeckDetailPage />;
+    case "hub":
+      return <DeckHubPage />;
+    case "redirect":
+      return <Navigate replace to={hubHref} />;
+    case "not-found":
+      return <NotFoundPage />;
   }
-  if (decks === null) {
-    if (entry) return <DeckDetailPage />;
-    if (archiveForHub(deckId).length > 0) return <DeckHubPage />;
-    return <NotFoundPage />;
-  }
-  if (offered) return <DeckDetailPage />;
-  if (entry && entry.hub !== deckId) return <Navigate replace to={hubHref} />;
-  if (archiveForHub(deckId).length > 0) return <DeckHubPage />;
-  return <NotFoundPage />;
 };
 
 export default DeckRoute;

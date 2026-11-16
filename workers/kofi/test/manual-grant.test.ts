@@ -158,6 +158,20 @@ describe("grantManually", () => {
     expect(google.calls).toHaveLength(0);
   });
 
+  it.each([129, 200])("refuses a %i-character payment id without calling Google", async (length) => {
+    const { google, run } = setup();
+    await expect(run({ paymentId: "a".repeat(length) })).rejects.toBeInstanceOf(ManualGrantRefusal);
+    expect(google.calls).toHaveLength(0);
+  });
+
+  it("accepts a 128-character payment id", async () => {
+    const { google, run } = setup();
+    const longId = "a".repeat(128);
+    google.seed(`kofiPayments/${longId}`, { status: "unmatched", months: 2 });
+    const outcome = await run({ paymentId: longId });
+    expect(outcome).toMatchObject({ paymentId: longId, status: "granted", months: 2 });
+  });
+
   it("refuses a second run after success", async () => {
     const { google, run } = setup();
     await run();

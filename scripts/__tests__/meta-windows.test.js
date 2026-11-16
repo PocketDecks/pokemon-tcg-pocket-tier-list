@@ -9,9 +9,16 @@ const {
   TRIMMED_WINDOWS,
   WINDOW_IDS,
   WINDOW_LENGTH_DAYS,
+  isPremiumWindow,
   windowArtefactName,
   windowDataFile,
 } = require("../meta-windows.mjs");
+
+test("only the Supporter windows are premium", () => {
+  assert.deepEqual(WINDOW_IDS.filter(isPremiumWindow), ["30d", "all"]);
+  assert.equal(isPremiumWindow("20d"), false);
+  assert.equal(isPremiumWindow("toString"), false);
+});
 
 test("window model lists", () => {
   assert.deepEqual(WINDOW_IDS, ["10d", "20d", "30d", "all"]);

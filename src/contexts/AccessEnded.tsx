@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { DEFAULT_META_WINDOW, isPremiumMetaWindow } from "../app/meta-window";
+import { DEFAULT_WINDOW, isPremiumWindow } from "../types/meta-windows";
 import { supporterScopeKey } from "../app/query-keys";
 import useFilters from "../app/use-filters";
 import useIsPremium from "../app/use-is-premium";
@@ -26,7 +26,7 @@ const AccessEnded = () => {
     }
     if (isPremium === null) return;
     resetTierListFilters();
-    if (isPremiumMetaWindow(window)) setWindow(DEFAULT_META_WINDOW);
+    if (isPremiumWindow(window)) setWindow(DEFAULT_WINDOW);
     if (wasSupporter.current) {
       wasSupporter.current = false;
       queryClient.removeQueries({ queryKey: supporterScopeKey });

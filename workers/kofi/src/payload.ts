@@ -1,3 +1,4 @@
+import { isValidPaymentId } from "./ids";
 import { parseAmountPence } from "./months";
 
 export interface KofiPayment {
@@ -13,9 +14,6 @@ export interface KofiPayment {
   timestamp: string;
   isSubscriptionPayment: boolean;
 }
-
-const SAFE_ID = /^[A-Za-z0-9_-]{1,128}$/;
-const RESERVED_ID = /^__.*__$/;
 
 const text = (value: unknown): string | null => (typeof value === "string" ? value : null);
 
@@ -40,7 +38,7 @@ export const parseKofiPayload = (body: string): KofiPayment | null => {
   const id =
     transactionId && messageId ? `${transactionId}-${messageId}` : transactionId || messageId;
   if (!verificationToken || !amount || !currency || !id) return null;
-  if (!SAFE_ID.test(id) || RESERVED_ID.test(id)) return null;
+  if (!isValidPaymentId(id)) return null;
 
   const amountPence = parseAmountPence(amount);
   if (amountPence === null) return null;

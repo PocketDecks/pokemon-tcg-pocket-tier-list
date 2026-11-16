@@ -1,14 +1,11 @@
 import { useMemo, useState, type ReactNode } from "react";
-import {
-  DEFAULT_META_WINDOW,
-  parseMetaWindow,
-  type MetaWindow,
-} from "../app/meta-window";
+import { DEFAULT_WINDOW, type WindowId } from "../types/meta-windows";
+import { parseMetaWindow } from "../app/meta-window";
 import { MetaWindowContext } from "./meta-window-state";
 
 export { useMetaWindow } from "./meta-window-state";
 
-const windowFromUrl = (): MetaWindow | null =>
+const windowFromUrl = (): WindowId | null =>
   parseMetaWindow(new URLSearchParams(globalThis.location?.search ?? "").get("window"));
 
 export const MetaWindowProvider = ({
@@ -16,10 +13,10 @@ export const MetaWindowProvider = ({
   initialWindow,
 }: {
   children: ReactNode;
-  initialWindow?: MetaWindow;
+  initialWindow?: WindowId;
 }) => {
-  const [window, setWindow] = useState<MetaWindow>(
-    () => initialWindow ?? windowFromUrl() ?? DEFAULT_META_WINDOW
+  const [window, setWindow] = useState<WindowId>(
+    () => initialWindow ?? windowFromUrl() ?? DEFAULT_WINDOW
   );
   const value = useMemo(() => ({ window, setWindow }), [window]);
 

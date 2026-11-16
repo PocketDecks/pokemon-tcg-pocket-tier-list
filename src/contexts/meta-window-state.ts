@@ -1,13 +1,13 @@
 import { createContext, useContext } from "react";
-import { DEFAULT_META_WINDOW, type MetaWindow } from "../app/meta-window";
+import { DEFAULT_WINDOW, type WindowId } from "../types/meta-windows";
 
 export interface MetaWindowContextValue {
-  window: MetaWindow;
-  setWindow: (window: MetaWindow) => void;
+  window: WindowId;
+  setWindow: (window: WindowId) => void;
 }
 
 export const MetaWindowContext = createContext<MetaWindowContextValue>({
-  window: DEFAULT_META_WINDOW,
+  window: DEFAULT_WINDOW,
   setWindow: () => {},
 });
 

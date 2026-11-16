@@ -115,6 +115,8 @@ describe("POST /admin/grant", () => {
     ["a JSON array", []],
     ["a missing payment", { uid: UID }],
     ["an unsafe payment id", { payment: "../x", uid: UID }],
+    ["a payment id of 129 characters", { payment: "a".repeat(129), uid: UID }],
+    ["a payment id of 200 characters", { payment: "a".repeat(200), uid: UID }],
     ["neither uid nor email", { payment: PAYMENT }],
     ["both uid and email", { payment: PAYMENT, uid: UID, email: EMAIL }],
     ["a non-string uid", { payment: PAYMENT, uid: 5 }],

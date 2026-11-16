@@ -183,7 +183,7 @@ describe("StatisticsPage free tier", () => {
     expect(within(section).getByText(NOTE)).toBeInTheDocument();
     expect(within(section).getByRole("link", { name: "Become a Supporter!" })).toHaveAttribute(
       "href",
-      "/about/#premium"
+      "/premium/"
     );
   });
 

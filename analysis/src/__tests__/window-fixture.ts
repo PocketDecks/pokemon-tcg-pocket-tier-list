@@ -1,10 +1,5 @@
-import {
-  buildDeckPopulation,
-  buildWindowArtefacts,
-  WindowArtefacts,
-  WindowDecks,
-  WindowId,
-} from "../utils/build-window-artefacts";
+import { WindowId } from "../../../src/types/meta-windows";
+import { buildDeckPopulation, buildWindowArtefacts, WindowArtefacts, WindowDecks } from "../utils/build-window-artefacts";
 import { Deck } from "../utils/types";
 
 export const windowArtefacts = (decks: Deck[], window: WindowId, today: Date): WindowArtefacts =>

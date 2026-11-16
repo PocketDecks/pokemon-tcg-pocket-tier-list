@@ -10,8 +10,8 @@ export const parseAmountPence = (amount: string): number | null => {
 
 export const MAX_MONTHS = 120;
 
-export const monthsForPayment = (amountPence: number, currency: string): number => {
-  if (currency.toUpperCase() !== "GBP") return 0;
+/** Whole pounds as months. The caller has already checked the currency is GBP. */
+export const monthsForPayment = (amountPence: number): number => {
   const months = Math.floor(amountPence / 100);
   return months > MAX_MONTHS ? 0 : months;
 };

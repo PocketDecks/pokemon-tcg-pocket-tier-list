@@ -10,7 +10,7 @@ import DeckHeadTags from "./DeckHeadTags";
 import DeckHubLink from "./DeckHubLink";
 import { MIN_MATCHUP_GAMES, WINRATE_THRESHOLD } from "../../app/config";
 import useIsPremium from "../../app/use-is-premium";
-import { isPremiumMetaWindow } from "../../app/meta-window";
+import { isPremiumWindow } from "../../types/meta-windows";
 import { useMetaWindow } from "../../app/use-meta-window";
 import useWindowSearchParam from "../../app/use-window-search-param";
 import ShareDeckCode from "../../components/ShareDeckCode";
@@ -95,7 +95,7 @@ const DeckDetailPage = () => {
     metaShareBySlug?.[deckId ?? ""] ?? null;
   const deckMatchups = deck ? matchupsByName?.[deck.name] : undefined;
   const matchupsPending =
-    matchupsLoading || (isPremium === null && isPremiumMetaWindow(metaWindow));
+    matchupsLoading || (isPremium === null && isPremiumWindow(metaWindow));
 
   // Ready (for showing ads) only once a real deck is resolved, never on the
   // loading or "not enough cards" screens.

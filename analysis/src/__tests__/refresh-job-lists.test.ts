@@ -1,9 +1,10 @@
+import { WINDOW_IDS } from "../../../src/types/meta-windows";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { buildRunFiles } from "../utils/build-run-files";
-import { WINDOW_IDS } from "../utils/build-window-artefacts";
+
 import { PREMIUM_DIR, PREMIUM_ARTEFACT_NAMES } from "../utils/premium-artefacts";
 import { REFRESH_OUTPUT_FILES, REFRESH_OUTPUT_TREES } from "../../scripts/refresh-outputs";
 

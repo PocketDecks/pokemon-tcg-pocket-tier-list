@@ -1,4 +1,4 @@
-import { DEFAULT_META_WINDOW, type MetaWindow } from "./meta-window";
+import { DEFAULT_WINDOW, type WindowId } from "../types/meta-windows";
 
-export const deckHref = (slug: string, window: MetaWindow): string =>
-  window === DEFAULT_META_WINDOW ? `/deck/${slug}` : `/deck/${slug}?window=${window}`;
+export const deckHref = (slug: string, window: WindowId): string =>
+  window === DEFAULT_WINDOW ? `/deck/${slug}` : `/deck/${slug}?window=${window}`;

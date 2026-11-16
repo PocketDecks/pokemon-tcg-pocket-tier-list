@@ -1,6 +1,6 @@
 // The one definition of a Supporter entitlement, shared by the app, the Ko-fi
 // Worker and the analysis grant tool. firestore.rules mirrors it, and
-// scripts/__tests__/firestore-rules.test.js pins the two together.
+// scripts/rules/firestore-rules.test.mjs tests the rules on the emulator.
 
 export const ENTITLEMENT_COLLECTION = "entitlements";
 

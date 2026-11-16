@@ -1,9 +1,5 @@
-import {
-  WINDOW_IDS,
-  WINDOW_LENGTH_DAYS,
-  WindowArtefacts,
-  WindowId,
-} from "../utils/build-window-artefacts";
+import { WINDOW_IDS, WINDOW_LENGTH_DAYS, WindowId } from "../../../src/types/meta-windows";
+import { WindowArtefacts } from "../utils/build-window-artefacts";
 import { windowArtefacts } from "./window-fixture";
 import { Deck } from "../utils/types";
 import { EXPANSION_RELEASE_DATE } from "../settings";

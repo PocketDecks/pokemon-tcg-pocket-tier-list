@@ -1,16 +1,6 @@
-import {
-  DEFAULT_WINDOW,
-  WINDOW_IDS,
-  WindowArtefacts,
-  WindowId,
-} from "./build-window-artefacts";
-import {
-  PREMIUM_WINDOWS,
-  premiumFilePath,
-  premiumVersion,
-  renderDataVersion,
-  splitWindowArtefacts,
-} from "./premium-artefacts";
+import { DEFAULT_WINDOW, WINDOW_IDS, WindowId, PREMIUM_WINDOWS } from "../../../src/types/meta-windows";
+import { WindowArtefacts } from "./build-window-artefacts";
+import { premiumFilePath, premiumVersion, renderDataVersion, splitWindowArtefacts } from "./premium-artefacts";
 import {
   buildPremiumDeckSlugs,
   PREMIUM_DECK_SLUGS_FILE,

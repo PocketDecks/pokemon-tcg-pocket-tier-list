@@ -25,9 +25,6 @@ import {
   scoringWeights,
 } from "../settings";
 
-export { DEFAULT_WINDOW, WINDOW_IDS, WINDOW_LENGTH_DAYS };
-export type { WindowId };
-
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const dayKey = (date: string) => date.split("T")[0];

@@ -1,14 +1,11 @@
+import { WINDOW_IDS, WindowId } from "../../../src/types/meta-windows";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { buildRunFiles } from "../utils/build-run-files";
-import {
-  WINDOW_IDS,
-  WindowArtefacts,
-  WindowId,
-} from "../utils/build-window-artefacts";
+import { WindowArtefacts } from "../utils/build-window-artefacts";
 import { windowArtefacts } from "./window-fixture";
 import { Deck } from "../utils/types";
 import { FREE_DECK_LIMIT } from "../../../src/app/free-tier";

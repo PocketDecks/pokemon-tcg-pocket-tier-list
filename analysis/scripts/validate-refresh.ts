@@ -3,18 +3,13 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import {
-  loadPremiumSnapshotForVersion,
-  PREMIUM_DIR,
-  PREMIUM_WINDOWS,
-  premiumVersionSnapshotDir,
-} from "../src/utils/premium-artefacts";
+import { loadPremiumSnapshotForVersion, PREMIUM_DIR, premiumVersionSnapshotDir } from "../src/utils/premium-artefacts";
 import { inspectMainPremiumVersion, resolveCanonicalMainRef } from "../src/utils/premium-files";
 import {
   REFRESH_WINDOWS,
   validateRefresh,
 } from "../src/utils/validate-refresh";
-import { windowArtefactName } from "../../src/types/meta-windows";
+import { windowArtefactName, isPremiumWindow } from "../../src/types/meta-windows";
 
 const args = process.argv.slice(2);
 const flag = (name: string): string | null => {
@@ -62,7 +57,7 @@ const readPrevious = (): string | null => {
     const metaFile = `public/data/${windowArtefactName("meta-share", window)}.json`;
     let contents: string | undefined;
     let metaContents: string | undefined;
-    if ((PREMIUM_WINDOWS as readonly string[]).includes(window)) {
+    if (isPremiumWindow(window)) {
       contents = premiumSnapshot?.[windowArtefactName("best-decks", window)];
       metaContents = premiumSnapshot?.[windowArtefactName("meta-share", window)];
       if (contents === undefined) continue;

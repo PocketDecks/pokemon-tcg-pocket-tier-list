@@ -1,5 +1,6 @@
+import { type WindowId } from "../../src/types/meta-windows";
 import expansions from "pokemon-tcg-pocket-cards/data/v5/expansions.json";
-import type { WindowId } from "./utils/build-window-artefacts";
+
 
 export const DELUXE_SET_IDS = new Set(["a4b", "b4b"]);
 

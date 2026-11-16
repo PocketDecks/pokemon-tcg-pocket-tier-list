@@ -12,7 +12,7 @@ import {
   rampedFloor,
   readPreviousArchetypeCount,
 } from "./assert-publishable";
-import { PREMIUM_WINDOWS, WINDOW_IDS, windowArtefactName, type WindowId } from "../../../src/types/meta-windows";
+import { isPremiumWindow, WINDOW_IDS, windowArtefactName, type WindowId } from "../../../src/types/meta-windows";
 
 export const REFRESH_WINDOWS = WINDOW_IDS;
 export type RefreshWindow = WindowId;
@@ -33,9 +33,6 @@ export interface RefreshReport {
   orphanImages: string[];
   failures: string[];
 }
-
-const isPremiumWindow = (window: RefreshWindow): boolean =>
-  (PREMIUM_WINDOWS as readonly string[]).includes(window);
 
 const readDecks = (dir: string, window: RefreshWindow): { name: string }[] => {
   const file = path.join(dir, `${windowArtefactName("best-decks", window)}.json`);

@@ -175,19 +175,21 @@ describe("feedback", () => {
         ...token,
       })
       .firestore();
+  const message = (uid, overrides = {}) => ({
+    uid,
+    email: null,
+    category: "idea",
+    message: "A message long enough",
+    contactOk: false,
+    page: "",
+    createdAt: serverTimestamp(),
+    ...overrides,
+  });
   const submit = (db, uid, overrides = {}) => {
     const batch = writeBatch(db);
-    batch.set(doc(collection(db, "feedback")), {
-      uid,
-      email: null,
-      category: "idea",
-      message: "A message long enough",
-      contactOk: false,
-      page: "",
-      createdAt: serverTimestamp(),
-      ...overrides,
-    });
-    batch.set(doc(db, "feedbackThrottle", uid), { lastAt: serverTimestamp() });
+    const feedback = doc(collection(db, "feedback"));
+    batch.set(feedback, message(uid, overrides));
+    batch.set(doc(db, "feedbackThrottle", uid), { lastAt: serverTimestamp(), feedbackId: feedback.id });
     return batch.commit();
   };
 
@@ -200,6 +202,24 @@ describe("feedback", () => {
     const db = google("alice");
     await assertSucceeds(submit(db, "alice"));
     await assertFails(submit(db, "alice"));
+  });
+
+  test("one throttle write cannot cover two messages in the same batch", async () => {
+    const db = google("alice");
+    const batch = writeBatch(db);
+    const first = doc(collection(db, "feedback"));
+    batch.set(first, message("alice"));
+    batch.set(doc(collection(db, "feedback")), message("alice"));
+    batch.set(doc(db, "feedbackThrottle", "alice"), { lastAt: serverTimestamp(), feedbackId: first.id });
+    await assertFails(batch.commit());
+  });
+
+  test("a throttle write without the message id is refused", async () => {
+    const db = google("alice");
+    const batch = writeBatch(db);
+    batch.set(doc(collection(db, "feedback")), message("alice"));
+    batch.set(doc(db, "feedbackThrottle", "alice"), { lastAt: serverTimestamp() });
+    await assertFails(batch.commit());
   });
 
   test("a message sent an hour after the last one is accepted", async () => {

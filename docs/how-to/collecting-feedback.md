@@ -7,7 +7,7 @@ The `/feedback` page lets signed-in visitors send a message, a topic and, if the
 `submitFeedback` in `src/app/feedback-api.ts` writes two documents in one batch:
 
 - `feedback/{autoId}` with `uid`, `email`, `category`, `message`, `contactOk`, `page` and `createdAt`. `email` is `null` unless the visitor ticked the reply box. `page` is the path the visitor came from when they used the footer link, or an empty string.
-- `feedbackThrottle/{uid}` with `lastAt`, the server time of that user's latest submission.
+- `feedbackThrottle/{uid}` with `lastAt`, the server time of that user's latest submission, and `feedbackId`, the id of the message it covers. The rules accept a message only when the throttle write in the same batch names it, so one batch cannot carry two messages.
 
 The page also carries a hidden `website` field. Anything that fills it in is treated as a bot: the page shows the success message and writes nothing.
 
@@ -15,7 +15,7 @@ The page also carries a hidden `website` field. Anything that fills it in is tre
 
 The feedback rules are the `feedback` and `feedbackThrottle` blocks in `firestore.rules`, with the helpers `signedInWithGoogle()`, `feedbackThrottlePath()` and `isValidFeedback()`. They let a user signed in with Google create feedback only as themselves, only with the fields and limits the form uses, and at most once an hour. Nobody can read, edit or delete feedback from the site. You read it in the console.
 
-`yarn test:rules` runs them against the Firestore emulator with the same batch `submitFeedback` commits. After changing the file, the owner publishes it with `firebase deploy --only firestore:rules`, sends one message from the live site and checks that a document appears in `feedback`.
+`yarn test:rules` runs them against the Firestore emulator with the same batch `submitFeedback` commits. After changing the file, the owner publishes it with `firebase deploy --only firestore:rules`, sends one message from the live site and checks that a document appears in `feedback`. The `feedbackId` field must reach the live site and the rules together: deploy the rules right after the site build that writes it goes live, because the older rules refuse a throttle document with that field and the newer rules refuse one without it.
 
 ## Read submissions
 

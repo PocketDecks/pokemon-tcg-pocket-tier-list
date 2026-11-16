@@ -1,9 +1,9 @@
 rules_version = '2';
 
 // The whole rule set for the project, Supporter and feedback blocks alike.
-// The Supporter blocks mirror scripts/entitlement-contract.mjs. scripts/__tests__/firestore-rules.test.js
-// checks the two stay in step, and scripts/rules/firestore-rules.test.mjs runs
-// these rules against the Firestore emulator (yarn test:rules).
+// The Supporter blocks mirror scripts/entitlement-contract.mjs.
+// scripts/rules/firestore-rules.test.mjs runs these rules against the
+// Firestore emulator (yarn test:rules).
 service cloud.firestore {
   match /databases/{database}/documents {
     function entitlementPath() {
@@ -35,7 +35,7 @@ service cloud.firestore {
     function feedbackThrottlePath() {
       return /databases/$(database)/documents/feedbackThrottle/$(request.auth.uid);
     }
-    function isValidFeedback() {
+    function isValidFeedback(feedbackId) {
       let data = request.resource.data;
       return signedInWithGoogle()
         && data.keys().hasOnly(['uid', 'email', 'category', 'message', 'contactOk', 'page', 'createdAt'])
@@ -51,6 +51,7 @@ service cloud.firestore {
         && data.page.size() <= 200
         && data.createdAt == request.time
         && getAfter(feedbackThrottlePath()).data.lastAt == request.time
+        && getAfter(feedbackThrottlePath()).data.feedbackId == feedbackId
         && (!exists(feedbackThrottlePath())
           || get(feedbackThrottlePath()).data.lastAt < request.time - duration.value(1, 'h'));
     }
@@ -81,15 +82,17 @@ service cloud.firestore {
     }
 
     match /feedback/{feedbackId} {
-      allow create: if isValidFeedback();
+      allow create: if isValidFeedback(feedbackId);
       allow read, update, delete: if false;
     }
 
     match /feedbackThrottle/{uid} {
       allow create, update: if signedInWithGoogle()
         && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['lastAt'])
-        && request.resource.data.lastAt == request.time;
+        && request.resource.data.keys().hasOnly(['lastAt', 'feedbackId'])
+        && request.resource.data.keys().hasAll(['lastAt', 'feedbackId'])
+        && request.resource.data.lastAt == request.time
+        && request.resource.data.feedbackId is string;
       allow read, delete: if false;
     }
   }

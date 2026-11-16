@@ -13,7 +13,7 @@ The page also carries a hidden `website` field. Anything that fills it in is tre
 
 ## Add the security rules
 
-The repository does not deploy Firestore rules. The Stripe extension relies on the rules already in the Firebase console, and deploying a rules file from here would replace them. Add these blocks by hand instead.
+`firestore.rules` covers the Supporter blocks only (`entitlements`, `premiumCodes`, `premiumData`), and no workflow deploys it. The rules below exist only in the Firebase console, so running `firebase deploy --only firestore:rules` would remove them. Add these blocks by hand, or copy them into `firestore.rules` before the owner next deploys that file.
 
 1. Open the Firebase console for `pokemon-tcg-pocket-tier-list` and go to Firestore Database, then Rules.
 2. Inside the existing `match /databases/{database}/documents { ... }` block, paste the following next to the rules already there. Do not remove anything.

@@ -1,5 +1,7 @@
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
+import { isValidMonths } from "../src/ids";
+import { MAX_MONTHS } from "../src/months";
 
 export class UsageError extends Error {}
 
@@ -11,17 +13,18 @@ export const resolveUserPath = (
 
 export const DEFAULT_URL = "https://pocketdecks-kofi.pocketdecks.workers.dev";
 
-export interface GrantArgs {
-  help: boolean;
-  paymentId: string;
-  uid?: string;
-  email?: string;
-  keyPath?: string;
-  tokenFile?: string;
-  url: string;
-  months?: number;
-  dryRun: boolean;
-}
+/** Exactly one of these: the account to credit. */
+export type GrantTarget = { uid: string; email?: undefined } | { uid?: undefined; email: string };
+
+/** Exactly one of these: how the grant is sent. */
+type GrantTransport =
+  | { keyPath: string; tokenFile?: undefined; url: string }
+  | { tokenFile: string; keyPath?: undefined; url: string };
+
+export type GrantArgs =
+  | { help: true; url?: undefined }
+  | ({ help: false; paymentId: string; months?: number; dryRun: boolean } & GrantTarget &
+      GrantTransport);
 
 export const USAGE = `Usage:
   yarn --cwd workers/kofi grant --payment <id> (--uid <uid> | --email <email>) --token-file <path> [--url <base>] [--months <n>] [--dry-run]
@@ -34,7 +37,7 @@ Options:
   --token-file  path to a file holding the admin token; sends the grant to the live Worker
   --url         base address of the Worker, default ${DEFAULT_URL}
   --key         path to the kofi-receiver service account JSON key; writes to Firestore directly
-  --months      months to grant, 1 to 120; required when the payment stores none
+  --months      months to grant, 1 to ${MAX_MONTHS}; required when the payment stores none
   --dry-run     read and report only, write nothing
   --help        show this text
 
@@ -57,6 +60,35 @@ const parseUrl = (value: string): string => {
     throw new UsageError("--url must start with https:// (http:// is allowed for localhost only)");
   }
   return `${parsed.origin}${parsed.pathname.replace(/\/+$/, "")}`;
+};
+
+const pickTarget = (uid: string | undefined, email: string | undefined): GrantTarget => {
+  if ((uid === undefined) === (email === undefined)) {
+    throw new UsageError("Give exactly one of --uid and --email");
+  }
+  if (uid !== undefined) {
+    if (!uid) throw new UsageError("--uid must not be empty");
+    return { uid };
+  }
+  if (!email?.trim()) throw new UsageError("--email must not be empty");
+  return { email };
+};
+
+const pickTransport = (
+  key: string | undefined,
+  tokenFile: string | undefined,
+  url: string | undefined,
+): GrantTransport => {
+  if ((key === undefined) === (tokenFile === undefined)) {
+    throw new UsageError("Give exactly one of --key and --token-file");
+  }
+  if (key !== undefined) {
+    if (!key) throw new UsageError("--key must not be empty");
+    if (url !== undefined) throw new UsageError("--url only applies with --token-file");
+    return { keyPath: key, url: DEFAULT_URL };
+  }
+  if (!tokenFile) throw new UsageError("--token-file must not be empty");
+  return { tokenFile, url: url === undefined ? DEFAULT_URL : parseUrl(url) };
 };
 
 export const parseGrantArgs = (argv: string[]): GrantArgs => {
@@ -92,29 +124,17 @@ export const parseGrantArgs = (argv: string[]): GrantArgs => {
     throw new UsageError(error instanceof Error ? error.message : "Invalid arguments");
   }
 
-  if (values.help) {
-    return { help: true, paymentId: "", url: DEFAULT_URL, dryRun: false };
-  }
+  if (values.help) return { help: true };
   if (!values.payment) throw new UsageError("--payment is required");
 
-  const hasUid = values.uid !== undefined;
-  const hasEmail = values.email !== undefined;
-  if (hasUid === hasEmail) throw new UsageError("Give exactly one of --uid and --email");
-  if (hasUid && !values.uid) throw new UsageError("--uid must not be empty");
-  if (hasEmail && !values.email?.trim()) throw new UsageError("--email must not be empty");
-
-  const hasKey = values.key !== undefined;
-  const hasTokenFile = values["token-file"] !== undefined;
-  if (hasKey === hasTokenFile) throw new UsageError("Give exactly one of --key and --token-file");
-  if (hasKey && !values.key) throw new UsageError("--key must not be empty");
-  if (hasTokenFile && !values["token-file"]) throw new UsageError("--token-file must not be empty");
-  if (hasKey && values.url !== undefined) throw new UsageError("--url only applies with --token-file");
+  const target = pickTarget(values.uid, values.email);
+  const transport = pickTransport(values.key, values["token-file"], values.url);
 
   let months: number | undefined;
   if (values.months !== undefined) {
     const parsed = MONTHS.test(values.months) ? Number(values.months) : Number.NaN;
-    if (!Number.isInteger(parsed) || parsed < 1 || parsed > 120) {
-      throw new UsageError("--months must be a whole number from 1 to 120");
+    if (!isValidMonths(parsed)) {
+      throw new UsageError(`--months must be a whole number from 1 to ${MAX_MONTHS}`);
     }
     months = parsed;
   }
@@ -122,11 +142,8 @@ export const parseGrantArgs = (argv: string[]): GrantArgs => {
   return {
     help: false,
     paymentId: values.payment,
-    uid: values.uid,
-    email: values.email,
-    keyPath: values.key,
-    tokenFile: values["token-file"],
-    url: values.url === undefined ? DEFAULT_URL : parseUrl(values.url),
+    ...target,
+    ...transport,
     months,
     dryRun: values["dry-run"] === true,
   };

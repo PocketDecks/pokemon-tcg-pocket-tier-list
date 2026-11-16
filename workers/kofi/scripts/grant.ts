@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { UpstreamError } from "../src/errors";
+import { describeFailure } from "../src/errors";
 import { createFirestoreClient } from "../src/firestore";
 import { createTokenProvider, parseServiceAccount, type ServiceAccount } from "../src/google-auth";
 import {
@@ -8,7 +8,7 @@ import {
   resolveGrantUid,
   type ManualGrantOutcome,
 } from "../src/manual-grant";
-import { parseGrantArgs, resolveUserPath, USAGE, UsageError } from "./grant-args";
+import { type GrantArgs, parseGrantArgs, resolveUserPath, USAGE, UsageError } from "./grant-args";
 import { RemoteGrantError, runRemoteGrant } from "./grant-remote";
 
 const loadServiceAccount = async (path: string): Promise<ServiceAccount> => {
@@ -54,7 +54,7 @@ const report = (outcome: ManualGrantOutcome): string => {
 };
 
 const main = async (): Promise<number> => {
-  let args;
+  let args: GrantArgs;
   try {
     args = parseGrantArgs(process.argv.slice(2));
   } catch (error) {
@@ -84,7 +84,7 @@ const main = async (): Promise<number> => {
       console.log(report(outcome));
       return 0;
     }
-    const account = await loadServiceAccount(args.keyPath ?? "");
+    const account = await loadServiceAccount(args.keyPath);
     const getToken = createTokenProvider({ serviceAccount: account, fetch });
     const client = createFirestoreClient({
       projectId: account.projectId,
@@ -119,9 +119,9 @@ const main = async (): Promise<number> => {
       console.error(`Refused: ${error.message}`);
       return 1;
     }
-    const cause =
-      error instanceof UpstreamError ? error.message : error instanceof Error ? error.name : "unknown";
-    console.error(`Grant failed: ${cause}. A rerun is safe, because it checks the payment status again.`);
+    console.error(
+      `Grant failed: ${describeFailure(error)}. A rerun is safe, because it checks the payment status again.`,
+    );
     return 1;
   }
 };

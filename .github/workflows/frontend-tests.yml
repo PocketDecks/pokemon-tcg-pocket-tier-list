@@ -44,6 +44,9 @@ jobs:
       - name: Run script tests
         run: yarn test:scripts
 
+      - name: Test Firestore rules
+        run: yarn test:rules
+
   kofi-receiver:
     runs-on: ubuntu-latest
 

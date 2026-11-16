@@ -3,7 +3,9 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import i18next from "i18next";
 import { I18nextProvider, initReactI18next } from "react-i18next";
-import SupporterPanel from "../SupporterPanel";
+import { MemoryRouter } from "react-router";
+import PremiumPage from "../../pages/premium/PremiumPage";
+import { ContentReadyProvider } from "../../ads/ContentReadyContext";
 import en from "../../locales/en_translation.json";
 import { KOFI_URL } from "../../app/constants";
 import { withQueryClient } from "../../test-utils/with-query-client";
@@ -35,24 +37,23 @@ const signIn = (uid: string) => ({
   signOut: vi.fn(),
 });
 
-// Same keying as the real mount points in Premium.tsx and PremiumPage.tsx.
-const Mounted = () => {
-  const { user } = mocks.useAuth();
-  return <SupporterPanel key={user?.uid ?? "anon"} />;
-};
-
-const renderPanel = () =>
-  render(<I18nextProvider i18n={i18n}>{withQueryClient(<Mounted />)}</I18nextProvider>);
+const page = () => (
+  <I18nextProvider i18n={i18n}>
+    <MemoryRouter initialEntries={["/premium"]}>
+      <ContentReadyProvider>{withQueryClient(<PremiumPage />)}</ContentReadyProvider>
+    </MemoryRouter>
+  </I18nextProvider>
+);
 
 beforeEach(() => {
   mocks.loadPremiumCode.mockImplementation(async (uid: string) => (uid === "user-1" ? "PD-USER1A" : "PD-USER2B"));
 });
 
-describe("SupporterPanel after an account switch", () => {
+describe("the premium page after an account switch", () => {
   it("drops the code and the waiting state of the previous account", async () => {
     const user = userEvent.setup();
     mocks.useAuth.mockReturnValue(signIn("user-1"));
-    const { rerender } = renderPanel();
+    const { rerender } = render(page());
 
     await user.click(screen.getByRole("link", { name: en.premium.cta }));
     expect(screen.getByRole("link", { name: en.premium.cta })).toHaveAttribute("href", KOFI_URL);
@@ -62,7 +63,7 @@ describe("SupporterPanel after an account switch", () => {
     expect(await screen.findByText("PD-USER1A")).toBeInTheDocument();
 
     mocks.useAuth.mockReturnValue(signIn("user-2"));
-    rerender(<I18nextProvider i18n={i18n}>{withQueryClient(<Mounted />)}</I18nextProvider>);
+    rerender(page());
 
     expect(screen.queryByText(en.premium.waiting)).toBeNull();
     expect(screen.getByRole("button", { name: en.premium.altCodeToggle })).toHaveAttribute("aria-expanded", "false");

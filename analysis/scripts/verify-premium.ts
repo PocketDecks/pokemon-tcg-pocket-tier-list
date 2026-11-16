@@ -53,13 +53,14 @@ export const verifyPremium = async (
     artefacts: {},
   };
 
-  for (const name of PREMIUM_ARTEFACT_NAMES) {
-      const doc = await db
-        .doc(`${PREMIUM_COLLECTION}/${version}/${ARTEFACT_SUBCOLLECTION}/${name}`)
-        .get();
-      snapshot.artefacts[name] = doc.exists
-        ? { payload: String(doc.get("payload")), sha256: String(doc.get("sha256")) }
-        : null;
+  const names = new Set([...PREMIUM_ARTEFACT_NAMES, ...Object.keys(snapshot.versionDocument?.artefacts ?? {})]);
+  for (const name of names) {
+    const doc = await db
+      .doc(`${PREMIUM_COLLECTION}/${version}/${ARTEFACT_SUBCOLLECTION}/${name}`)
+      .get();
+    snapshot.artefacts[name] = doc.exists
+      ? { payload: String(doc.get("payload")), sha256: String(doc.get("sha256")) }
+      : null;
   }
 
   const problems = checkPremiumVersion(snapshot);

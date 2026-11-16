@@ -224,6 +224,7 @@ describe("DecksProvider with a drifted card id", () => {
   });
 
   it("retries a rejected meta-share load twice and then stops", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
     const shareRequest = vi.fn(() => Promise.reject(new Error("network down")));
     vi.spyOn(global, "fetch").mockImplementation((input) => {
       const url = String(input);
@@ -233,24 +234,19 @@ describe("DecksProvider with a drifted card id", () => {
       return jsonResponse(rawCards);
     });
 
-    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-    render(
-      <QueryClientProvider client={client}>
-        <DecksProvider>
-          <DeckNames />
-        </DecksProvider>
-      </QueryClientProvider>
-    );
+    try {
+      renderProvider();
 
-    // React Query marks the query as failed only after its last retry, so
-    // once it is in the error state no further attempt is scheduled.
-    const shareQuery = () =>
-      client.getQueryCache().findAll().find((query) => JSON.stringify(query.queryKey).includes("meta-share"));
-    await waitFor(() => expect(shareQuery()?.state.status).toBe("error"), { timeout: 6000 });
-    expect(shareQuery()?.state.fetchFailureCount).toBe(3);
-    expect(shareRequest).toHaveBeenCalledTimes(3);
-    expect(await screen.findByText(GOOD_DECK)).toBeInTheDocument();
-  }, 10_000);
+      expect(await screen.findByText(GOOD_DECK)).toBeInTheDocument();
+      // Step past every retry backoff, then well beyond where a fourth try would land.
+      await vi.advanceTimersByTimeAsync(60_000);
+
+      expect(shareRequest).toHaveBeenCalledTimes(3);
+      expect(screen.getByText(GOOD_DECK)).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 
   it("treats malformed JSON in a 200 meta-share response as absent", async () => {
     vi.spyOn(global, "fetch").mockImplementation((input) => {

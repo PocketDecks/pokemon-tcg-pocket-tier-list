@@ -41,6 +41,14 @@ const imageCandidates = (tag) =>
     .map((candidate) => candidate.trim().split(/\s+/)[0])
     .filter(Boolean);
 
+// Preloads without imagesrcset point at one file through href.
+const preloadCandidates = (tag) => {
+  const srcset = imageCandidates(tag);
+  if (srcset.length > 0) return srcset;
+  const href = tag.match(/\shref=["']([^"']+)["']/i)?.[1];
+  return href ? [href] : [];
+};
+
 const deckImagePreloadIssues = (
   dist,
   hubSlugs = new Set(archiveOnlyHubs()),
@@ -55,7 +63,9 @@ const deckImagePreloadIssues = (
       return [`${entry}: expected ${expected} image preload${expected === 1 ? "" : "s"}, found ${tags.length}`];
     }
     if (expected === 0) return [];
-    return imageCandidates(tags[0]).flatMap((candidate) => {
+    const candidates = preloadCandidates(tags[0]);
+    if (candidates.length === 0) return [`${entry}: image preload has no href or imagesrcset`];
+    return candidates.flatMap((candidate) => {
       const url = candidate.split("?")[0];
       if (!url.startsWith("/thumbs/")) return [`${entry}: ${candidate} is outside /thumbs/`];
       return dist.has(url) ? [] : [`${entry}: ${url} is not built`];

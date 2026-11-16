@@ -368,6 +368,38 @@ test("flags an image preload outside /thumbs/", () => {
   ]);
 });
 
+test("checks the href of an image preload that has no imagesrcset", () => {
+  const preload = (href) => `<head><link rel="preload" as="image" href="${href}" /></head>`;
+  const built = makeDist({
+    "deck/x/index.html": preload("/thumbs/v3/cards/b1-184-240.webp?v=3"),
+    "thumbs/v3/cards/b1-184-240.webp": "x",
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(built), []);
+
+  const missing = makeDist({
+    "deck/x/index.html": preload("/thumbs/v3/cards/b1-184-240.webp?v=3"),
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(missing), [
+    `deck${path.sep}x${path.sep}index.html: /thumbs/v3/cards/b1-184-240.webp is not built`,
+  ]);
+
+  const outside = makeDist({
+    "deck/x/index.html": preload("https://raw.githubusercontent.com/a/b1/184.webp"),
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(outside), [
+    `deck${path.sep}x${path.sep}index.html: https://raw.githubusercontent.com/a/b1/184.webp is outside /thumbs/`,
+  ]);
+});
+
+test("flags an image preload with neither href nor imagesrcset", () => {
+  const dir = makeDist({
+    "deck/x/index.html": '<head><link rel="preload" as="image" /></head>',
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(dir), [
+    `deck${path.sep}x${path.sep}index.html: image preload has no href or imagesrcset`,
+  ]);
+});
+
 test("flags a deck card without a built card thumbnail", () => {
   const decks = [{ name: "mega-lucario-ex-b3-081", lists: [{ cards: ["2:b1-184", "1:pa-007"] }] }];
   const dir = makeDist({

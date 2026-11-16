@@ -77,7 +77,9 @@ const loadArtefactAtVersion = async (
   }
   const { payload, sha256 } = snapshot.data() as { payload: string; sha256: string };
   if ((await sha256Hex(payload)) !== sha256) {
-    throw new Error(`Premium artefact ${name} failed its hash check`);
+    const message = `Premium artefact ${name} failed its hash check`;
+    console.error(message);
+    throw new Error(message);
   }
   return { found: true, value: JSON.parse(payload) };
 };

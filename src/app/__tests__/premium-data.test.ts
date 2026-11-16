@@ -136,6 +136,16 @@ describe("loadPremiumArtefact", () => {
     expect((failure as Error).message).toMatch(/best-decks-30d.*hash/);
   });
 
+  it("logs a failed hash check once before throwing", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    firestore.getDoc.mockResolvedValue(snapshot('{"tampered":true}', await sha256("{}")));
+
+    await loadPremiumArtefact("best-decks-30d").catch(() => undefined);
+
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenCalledWith(expect.stringMatching(/best-decks-30d.*hash/));
+  });
+
   it("throws when the artefact document does not exist", async () => {
     firestore.getDoc.mockResolvedValue({ exists: () => false });
 

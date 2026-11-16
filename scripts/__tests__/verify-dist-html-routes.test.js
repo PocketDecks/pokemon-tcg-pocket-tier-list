@@ -235,6 +235,19 @@ test("passes a dynamic route whose built deck page hosting serves directly", () 
   assert.deepStrictEqual(findEnglishRoutes(dir, { routes: ["/deck/:deckId"], firebase }), []);
 });
 
+test("flags a slashed route that redirects to a missing destination", () => {
+  const dir = makeDist({ "index.html": "", "app-shell.html": "" });
+  const firebase = {
+    hosting: {
+      redirects: [{ regex: "^/feedback/$", destination: "/missing/", type: 301 }],
+      rewrites: [{ source: "/feedback", destination: "/app-shell.html" }],
+    },
+  };
+  assert.deepStrictEqual(findEnglishRoutes(dir, { routes: SINGLE_FEEDBACK_ROUTE, firebase }), [
+    "/feedback/: redirect to /missing/ does not resolve",
+  ]);
+});
+
 test("lists the routes under every locale prefix", () => {
   assert.deepStrictEqual(appRoutePaths(LOCALE_APP_ROUTES), [
     "/",

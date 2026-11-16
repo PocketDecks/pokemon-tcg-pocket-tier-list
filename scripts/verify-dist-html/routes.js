@@ -70,6 +70,7 @@ const unresolvedAppRoutes = (
       if (slashed.kind === "rewrite" && !files.has(slashed.file)) {
         return [`${slashedRoute}: rewrite target ${slashed.file} is not built`];
       }
+      if (slashed.kind === "redirect") return redirectIssues(firebase, files, slashedRoute, slashed.location);
       return [];
     });
 };

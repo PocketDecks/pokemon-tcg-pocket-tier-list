@@ -147,7 +147,7 @@ describe("a deck link that only a premium window offers", () => {
     expect(
       await screen.findByRole("heading", { name: "This deck only appears in a Supporter window" })
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Become a Supporter!" })).toHaveAttribute("href", "/about/#premium");
+    expect(screen.getByRole("link", { name: "Become a Supporter!" })).toHaveAttribute("href", "/premium/");
     expect(access.loadPremiumArtefact).not.toHaveBeenCalled();
     expect(requested.some((url) => /-(30d|all)\.json$/.test(url))).toBe(false);
   });

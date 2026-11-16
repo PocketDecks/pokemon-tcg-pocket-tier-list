@@ -4,6 +4,7 @@ import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import SupporterPanel from "../../components/SupporterPanel";
 import SeoContent from "../../components/SeoContent";
 import useIsPremium from "../../app/use-is-premium";
+import { useAuth } from "../../app/use-auth";
 
 const Page = styled.div`
   width: 100%;
@@ -40,13 +41,14 @@ const Content = styled.article`
 const PremiumPage = () => {
   const { t } = useTranslation();
   const isPremium = useIsPremium();
+  const { user } = useAuth();
   useMarkContentReady(true);
 
   return (
     <Page>
       <Content>
         <h1>{t(isPremium ? "premium.title" : "premium.become")}</h1>
-        <SupporterPanel />
+        <SupporterPanel key={user?.uid ?? "anon"} />
         <SeoContent>
           <h2>{t("supporter.heading", { ns: "seo" })}</h2>
           <p>{t("supporter.intro", { ns: "seo" })}</p>

@@ -106,7 +106,7 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
           header={heading}
           close={() => setIsOpen(false)}
         >
-          <SupporterPanel />
+          <SupporterPanel key={user?.uid ?? "anon"} />
         </Popup>
       )}
     </>

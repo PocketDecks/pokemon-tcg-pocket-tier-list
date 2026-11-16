@@ -261,6 +261,7 @@ describe("Premium", () => {
     vi.mocked(loadPremiumCode).mockResolvedValue("PD-BBBBBB");
     view.rerender(linkPopup());
     expect(screen.queryByText("PD-AAAAAA")).not.toBeInTheDocument();
+    await expandCodeSection(user);
     await waitFor(() => expect(screen.getByText("PD-BBBBBB")).toBeInTheDocument());
     await act(async () => { resolveFirst("PD-AAAAAA"); });
     expect(screen.queryByText("PD-AAAAAA")).not.toBeInTheDocument();
@@ -295,6 +296,7 @@ describe("Premium", () => {
 
       vi.mocked(useAuth).mockReturnValue(authValue({ uid: "account-b", email: "b@example.com" }));
       view.rerender(linkPopup());
+      await expandCodeSection(user);
       await screen.findByText("PD-BBBBBB");
 
       await act(async () => {

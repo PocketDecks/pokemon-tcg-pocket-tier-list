@@ -1,0 +1,54 @@
+rules_version = '2';
+
+// Mirrors scripts/entitlement-contract.mjs. scripts/__tests__/firestore-rules.test.js
+// checks the two stay in step, and scripts/rules/firestore-rules.test.mjs runs
+// these rules against the Firestore emulator (yarn test:rules).
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function entitlementPath() {
+      return /databases/$(database)/documents/entitlements/$(request.auth.uid);
+    }
+    function signedIn() {
+      return request.auth != null;
+    }
+    function entitlementActive(data) {
+      return data.premium == true
+        && (!('expiresAt' in data)
+          || data.expiresAt == null
+          || (data.expiresAt is timestamp && data.expiresAt > request.time));
+    }
+    function hasEntitlement() {
+      return signedIn()
+        && exists(entitlementPath())
+        && entitlementActive(get(entitlementPath()).data);
+    }
+    function isPremium() {
+      return hasEntitlement();
+    }
+
+    match /entitlements/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /premiumCodes/{code} {
+      allow read: if request.auth != null
+        && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null
+        && code.matches('PD-[A-Z0-9]{6}')
+        && request.resource.data.keys().hasAll(['uid'])
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    match /premiumData/{version} {
+      allow read: if isPremium();
+      allow write: if false;
+      match /artefacts/{name} {
+        allow read: if isPremium();
+        allow write: if false;
+      }
+    }
+  }
+}

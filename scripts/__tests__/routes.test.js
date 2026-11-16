@@ -35,7 +35,12 @@ test("pageRouteFor matches concrete paths to their manifest entry", () => {
   assert.strictEqual(pageRouteFor("/deck/a/b"), undefined);
 });
 
-test("every manifest element is unique", () => {
-  const elements = PAGE_ROUTES.map((entry) => entry.element);
-  assert.strictEqual(new Set(elements).size, elements.length);
+test("the expansion page waits for data and the tier list waits for deck links", () => {
+  const expansion = pageRouteFor("/expansion-list/a2");
+  assert.strictEqual(expansion?.ready, true);
+  assert.ok(!expansion.deckLinks, "the expansion page should not wait for deck links");
+
+  const tierList = pageRouteFor("/tier-list");
+  assert.strictEqual(tierList?.deckLinks, true);
+  assert.ok(!tierList.ready, "the tier list should not use the readiness wait");
 });

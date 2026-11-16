@@ -1,3 +1,4 @@
+import { isSafeUid } from "./entitlement";
 import { UpstreamError } from "./errors";
 
 export type FieldValue = string | number | boolean | Date | null;
@@ -156,7 +157,7 @@ export const createFirestoreClient = (options: {
       if (body.users?.length !== 1) return null;
       const [user] = body.users;
       if (user.emailVerified !== true || user.disabled === true) return null;
-      return typeof user.localId === "string" ? user.localId : null;
+      return isSafeUid(user.localId) ? user.localId : null;
     },
 
     async hasActiveAccount(uid) {

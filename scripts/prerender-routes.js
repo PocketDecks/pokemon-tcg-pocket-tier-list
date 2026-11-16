@@ -28,6 +28,7 @@ const DIST_DIR = process.env.BUILD_DIR
 const { localeRoute, localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
 const { SITE_URL } = require("./meta-stamp");
 const { JA_HOME_LABEL } = require("./deck-friendly-name.mjs");
+const { pageRouteFor, PRERENDER_ROUTES } = require("./routes.mjs");
 const { newestCoveredExpansion } = require("../src/app/expansion-feed.mjs");
 const { expansionCode, isListedExpansion } = require("../src/app/expansion-policy.mjs");
 const { expansionIndexPolicy } = require("../src/app/expansion-index-policy.mjs");
@@ -37,18 +38,7 @@ const LATEST_EXPANSION = newestCoveredExpansion(EXPANSIONS, BEST_DECKS);
 const EXPANSION_ROUTES = EXPANSIONS
   .filter((expansion) => isListedExpansion(expansion))
   .map((expansion) => `/expansion-list/${expansion.id}`);
-const ROUTES = [
-  "/",
-  "/tier-list",
-  "/cards-list",
-  "/expansion-list",
-  "/statistics",
-  "/deck",
-  "/about",
-  "/premium",
-  "/privacy",
-  ...EXPANSION_ROUTES,
-];
+const ROUTES = [...PRERENDER_ROUTES, ...EXPANSION_ROUTES];
 
 const DEFAULT_LOCALE = "en";
 
@@ -141,8 +131,7 @@ const expansionRouteMeta = Object.fromEntries(
 const ROUTE_META = { ...buildRouteMeta(LATEST_EXPANSION), ...expansionRouteMeta };
 
 
-const ROUTE_READY_ROUTES = new Set(["/", "/cards-list", "/statistics", "/deck"]);
-const DECK_ANCHOR_ROUTES = new Set(["/tier-list"]);
+const ROUTE_READY_ROUTES = new Set(PRERENDER_ROUTES.filter((route) => pageRouteFor(route).ready));
 
 const buildJaRouteMeta = (latest) => ({
   "/": {
@@ -283,7 +272,7 @@ const NOT_FOUND_META = {
 };
 
 const captureAfterRouteReady = async (page, route, capture) => {
-  if (ROUTE_READY_ROUTES.has(route) || route.startsWith("/expansion-list/")) {
+  if (pageRouteFor(route)?.ready) {
     await waitForRouteReady(page);
   }
   return capture();
@@ -314,7 +303,7 @@ const main = async () => {
         const url = localeRoute(locale, route);
         await openDocument(page, url);
         const html = await captureAfterRouteReady(page, route, async () => {
-          if (DECK_ANCHOR_ROUTES.has(route)) {
+          if (pageRouteFor(route)?.deckLinks) {
             await page.waitForFunction(
               () =>
                 document.querySelectorAll('a[href^="/deck/"], a[href^="/ja/deck/"]')

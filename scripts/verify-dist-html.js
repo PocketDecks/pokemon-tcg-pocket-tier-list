@@ -18,11 +18,11 @@ const { DELUXE_EXPANSION_IDS, expansionCode, newestExpansion } = require("../src
 const { expansionIndexPolicy } = require("../src/app/expansion-index-policy.mjs");
 const { shouldIndexHub } = require("./deck-archive-policy.mjs");
 const { hubDisplayName } = require("./deck-archetype.mjs");
+const { PAGE_ROUTES } = require("./routes.mjs");
 
 const DIST_DIR = process.env.BUILD_DIR
   ? path.resolve(process.env.BUILD_DIR)
   : path.join(__dirname, "..", "dist");
-const APP_SOURCE_PATH = path.join(__dirname, "..", "src", "App.tsx");
 const FIREBASE_CONFIG_PATH = path.join(__dirname, "..", "firebase.json");
 const DATA_DIR = process.env.BUILD_DIR
   ? path.join(DIST_DIR, "data")
@@ -271,49 +271,22 @@ const shellPageIssues = (dist) =>
     return issues;
   });
 
-// App.tsx holds the page routes once, in the `<>` fragment assigned to `pageRoutes`.
-// Each prefix in LOCALE_PREFIXES mounts that fragment under its own layout route.
-const PAGE_ROUTES_BLOCK = /const pageRoutes = \(\s*<>([\s\S]*?)<\/>\s*\);/;
-
-const readPageRoutePaths = (block) => {
-  const tokens = [...block.matchAll(/<Route\b|<\/Route>/g)];
-  const stack = [];
-  const routes = [];
-  tokens.forEach((token, index) => {
-    if (token[0] === "</Route>") {
-      stack.pop();
-      return;
-    }
-    const end = index + 1 < tokens.length ? tokens[index + 1].index : block.length;
-    const segment = block.slice(token.index, end);
-    const parent = stack[stack.length - 1] ?? "";
-    const own = segment.match(/\spath="([^"]*)"/)?.[1];
-    const full = own === undefined ? parent : `${parent}/${own}`;
-    if (own !== undefined) routes.push(full);
-    if (!/\/>\s*$/.test(segment.trimEnd())) stack.push(full);
-  });
-  return routes;
-};
-
-const readAppRoutePaths = (source) => {
-  const block = source.match(PAGE_ROUTES_BLOCK)?.[1];
-  if (block === undefined) throw new Error("src/App.tsx: no `const pageRoutes = (<>...</>)` block found");
-  const paths = readPageRoutePaths(block);
-  return Object.values(LOCALE_PREFIXES).flatMap((prefix) => [
+// Every page route under each locale prefix in LOCALE_PREFIXES, from scripts/routes.mjs.
+const appRoutePaths = (routes = PAGE_ROUTES.map(({ route }) => route)) =>
+  Object.values(LOCALE_PREFIXES).flatMap((prefix) => [
     prefix || "/",
-    ...paths.map((path) => `${prefix}${path}`),
+    ...routes.filter((route) => route !== "/").map((route) => `${prefix}${route}`),
   ]);
-};
 
 const unresolvedAppRoutes = (
   dist,
   {
-    source = fs.readFileSync(APP_SOURCE_PATH, "utf8"),
+    routes = PAGE_ROUTES.map(({ route }) => route),
     firebase = JSON.parse(fs.readFileSync(FIREBASE_CONFIG_PATH, "utf8")),
   } = {}
 ) => {
   const files = new Set(dist.files().map(posixEntry));
-  return readAppRoutePaths(source)
+  return appRoutePaths(routes)
     .filter((route) => !route.includes("*"))
     .flatMap((route) => {
       if (route.includes("/:")) {
@@ -762,7 +735,7 @@ module.exports = {
   findCspBootstrapIssues: forDir(cspBootstrapIssues),
   findShellPageIssues: forDir(shellPageIssues),
   findTitleCountIssues: forDir(titleCountIssues),
-  readAppRoutePaths,
+  appRoutePaths,
   findUnresolvedAppRoutes: forDir(unresolvedAppRoutes),
   findDeckImagePreloadIssues: forDir(deckImagePreloadIssues),
   findEmptyDeckRoots: forDir(emptyDeckRoots),

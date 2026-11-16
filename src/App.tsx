@@ -1,5 +1,6 @@
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import { lazyRoute as lazy } from "./app/lazy-route";
+import { PAGE_ROUTES, type PageElement } from "../scripts/routes.mjs";
 import { Outlet, Route, Routes, useLocation } from "react-router";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
@@ -113,27 +114,33 @@ export const Layout = () => {
   );
 };
 
-// Every page route lives in this fragment, once. It is mounted under each locale
-// prefix in `App`, and `readAppRoutePaths` in scripts/verify-dist-html.js reads
-// it as text, so keep it a `<>` block of literal `<Route path="...">` elements.
+// Every page route is listed once, in scripts/routes.mjs. This maps each
+// manifest `element` name to its component. The block is mounted under each
+// locale prefix in `App`.
+const PAGE_ELEMENTS: Record<PageElement, ReactNode> = {
+  landing: <LandingPage />,
+  tierList: <TierListPage />,
+  cardsList: <CardsListPage />,
+  expansionList: <ExpansionListPage />,
+  expansion: <ExpansionPage />,
+  statistics: <StatisticsPage />,
+  deckFinder: <DeckFinderPage />,
+  about: <AboutPage />,
+  premium: <PremiumPage />,
+  privacy: <PrivacyPage />,
+  feedback: <FeedbackPage />,
+  deck: <DeckRoute />,
+};
+
 const pageRoutes = (
   <>
-    <Route index element={<LandingPage />} />
-    <Route path="tier-list" element={<TierListPage />} />
-    <Route path="cards-list" element={<CardsListPage />} />
-    <Route path="expansion-list">
-      <Route index element={<ExpansionListPage />} />
-      <Route path=":expansionId" element={<ExpansionPage />} />
-    </Route>
-    <Route path="statistics" element={<StatisticsPage />} />
-    <Route path="privacy" element={<PrivacyPage />} />
-    <Route path="about" element={<AboutPage />} />
-    <Route path="premium" element={<PremiumPage />} />
-    <Route path="feedback" element={<FeedbackPage />} />
-    <Route path="deck">
-      <Route index element={<DeckFinderPage />} />
-      <Route path=":deckId" element={<DeckRoute />} />
-    </Route>
+    {PAGE_ROUTES.map(({ route, element }) =>
+      route === "/" ? (
+        <Route key={route} index element={PAGE_ELEMENTS[element]} />
+      ) : (
+        <Route key={route} path={route.slice(1)} element={PAGE_ELEMENTS[element]} />
+      )
+    )}
     <Route path="*" element={<NotFoundPage />} />
   </>
 );

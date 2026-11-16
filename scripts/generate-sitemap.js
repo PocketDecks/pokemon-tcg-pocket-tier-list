@@ -13,18 +13,9 @@ const { escapeXml, SITE_URL } = require("./meta-stamp");
 const { localizedUrl, ROUTE_LOCALES } = require("./locale-route.mjs");
 const { shouldIndexHub } = require("./deck-archive-policy.mjs");
 const { expansionIndexPolicy } = require("../src/app/expansion-index-policy.mjs");
+const { SITEMAP_ROUTES } = require("./routes.mjs");
 
-const STATIC_ROUTES = [
-  "/",
-  "/tier-list",
-  "/cards-list",
-  "/expansion-list",
-  "/statistics",
-  "/deck",
-  "/about",
-  "/premium",
-  "/privacy",
-];
+const STATIC_ROUTES = SITEMAP_ROUTES;
 
 const DEFAULT_LOCALE = "en";
 

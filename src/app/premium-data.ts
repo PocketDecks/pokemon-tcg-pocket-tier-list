@@ -56,26 +56,20 @@ const loadArtefactAtVersion = async (
   name: string,
   version: string
 ): Promise<{ found: true; value: unknown } | { found: false }> => {
-  const [{ doc, getDoc, getFirestore }, { default: app, auth }] = await Promise.all([
+  const [{ doc, getDoc, getFirestore }, { default: app }] = await Promise.all([
     import("firebase/firestore"),
     import("../config/firebase"),
   ]);
   const reference = doc(getFirestore(app), "premiumData", version, "artefacts", name);
 
+  // Access is decided by the entitlements document in firestore.rules, not by
+  // token claims, so a refreshed token would get the same answer. One read only.
   let snapshot;
   try {
     snapshot = await getDoc(reference);
   } catch (error) {
-    if (!isPermissionDenied(error)) throw error;
-    const user = auth.currentUser;
-    if (!user) throw new PremiumAccessError(name);
-    await user.getIdToken(true);
-    try {
-      snapshot = await getDoc(reference);
-    } catch (retryError) {
-      if (isPermissionDenied(retryError)) throw new PremiumAccessError(name);
-      throw retryError;
-    }
+    if (isPermissionDenied(error)) throw new PremiumAccessError(name);
+    throw error;
   }
 
   if (!snapshot.exists()) {

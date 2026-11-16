@@ -105,35 +105,18 @@ describe("loadPremiumArtefact", () => {
     );
   });
 
-  it("retries once after a forced token refresh on permission-denied", async () => {
-    const payload = '{"ok":true}';
-    firestore.getDoc
-      .mockRejectedValueOnce(permissionDenied())
-      .mockResolvedValueOnce(snapshot(payload, await sha256(payload)));
+  it.each([true, false])(
+    "reads once and throws PremiumAccessError on permission-denied (signed in: %s)",
+    async (signedIn) => {
+      firebase.currentUser.current = signedIn ? { getIdToken: firebase.getIdToken } : null;
+      firestore.getDoc.mockRejectedValue(permissionDenied());
 
-    await expect(loadPremiumArtefact("meta-share-all")).resolves.toEqual({ ok: true });
+      await expect(loadPremiumArtefact("meta-share-all")).rejects.toBeInstanceOf(PremiumAccessError);
 
-    expect(firebase.getIdToken).toHaveBeenCalledWith(true);
-    expect(firestore.getDoc).toHaveBeenCalledTimes(2);
-  });
-
-  it("throws PremiumAccessError when the retry is denied too", async () => {
-    firestore.getDoc.mockRejectedValue(permissionDenied());
-
-    await expect(loadPremiumArtefact("meta-share-all")).rejects.toBeInstanceOf(PremiumAccessError);
-
-    expect(firebase.getIdToken).toHaveBeenCalledTimes(1);
-    expect(firestore.getDoc).toHaveBeenCalledTimes(2);
-  });
-
-  it("throws PremiumAccessError without a retry when nobody is signed in", async () => {
-    firebase.currentUser.current = null;
-    firestore.getDoc.mockRejectedValue(permissionDenied());
-
-    await expect(loadPremiumArtefact("best-decks-all")).rejects.toBeInstanceOf(PremiumAccessError);
-
-    expect(firestore.getDoc).toHaveBeenCalledTimes(1);
-  });
+      expect(firestore.getDoc).toHaveBeenCalledTimes(1);
+      expect(firebase.getIdToken).not.toHaveBeenCalled();
+    }
+  );
 
   it("passes other Firestore failures through unchanged", async () => {
     const failure = Object.assign(new Error("offline"), { code: "unavailable" });

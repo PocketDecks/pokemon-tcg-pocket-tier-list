@@ -17,28 +17,21 @@ describe("parseAmountPence", () => {
 });
 
 describe("monthsForPayment", () => {
+  // The currency is checked by the caller (classifyPayment), so it is not checked here.
   it("gives one month per whole pound", () => {
-    expect(monthsForPayment(100, "GBP")).toBe(1);
-    expect(monthsForPayment(500, "GBP")).toBe(5);
-    expect(monthsForPayment(599, "GBP")).toBe(5);
+    expect(monthsForPayment(100)).toBe(1);
+    expect(monthsForPayment(500)).toBe(5);
+    expect(monthsForPayment(599)).toBe(5);
   });
 
   it("gives nothing under one pound", () => {
-    expect(monthsForPayment(99, "GBP")).toBe(0);
-  });
-
-  it("gives nothing for other currencies", () => {
-    expect(monthsForPayment(500, "USD")).toBe(0);
+    expect(monthsForPayment(99)).toBe(0);
   });
 
   it("grants up to 120 months and nothing above", () => {
-    expect(monthsForPayment(12000, "GBP")).toBe(120);
-    expect(monthsForPayment(12099, "GBP")).toBe(120);
-    expect(monthsForPayment(12100, "GBP")).toBe(0);
-  });
-
-  it("accepts lower-case GBP", () => {
-    expect(monthsForPayment(200, "gbp")).toBe(2);
+    expect(monthsForPayment(12000)).toBe(120);
+    expect(monthsForPayment(12099)).toBe(120);
+    expect(monthsForPayment(12100)).toBe(0);
   });
 });
 

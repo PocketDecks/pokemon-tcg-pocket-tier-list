@@ -3,7 +3,7 @@ import { readBody } from "./body";
 import { extractCode } from "./codes";
 import { decideGrant, type PaymentStatus } from "./decision";
 import { entitlementPath, entitlementWrite, isSafeUid, toEntitlement } from "./entitlement";
-import { UpstreamError } from "./errors";
+import { describeFailure } from "./errors";
 import {
   createFirestoreClient,
   type DocumentWrite,
@@ -59,7 +59,7 @@ const findMatch = async (client: FirestoreClient, payment: KofiPayment): Promise
   const email = payment.email.trim().toLowerCase();
   if (email) {
     const uid = await client.lookupUidByEmail(email);
-    if (isSafeUid(uid)) return { uid, matchedBy: "email" };
+    if (uid) return { uid, matchedBy: "email" };
   }
   return null;
 };
@@ -70,41 +70,70 @@ const paymentDateFor = (timestamp: string, now: Date): Date => {
   return Number.isNaN(skew) || skew > MAX_TIMESTAMP_SKEW_MS ? now : reported;
 };
 
-const processPayment = async (
+/**
+ * What a payment is worth and what it needs in Firestore. A grant opens a
+ * transaction, so `transaction` is set whenever a match was found and the
+ * caller must either record it or roll it back.
+ */
+interface Classification {
+  status: PaymentStatus;
+  match: Match | null;
+  months: number;
+  countsAsTip: boolean;
+  grantWrite: DocumentWrite | null;
+  transaction?: string;
+}
+
+/**
+ * Decides the payment's status. It reads Firestore (the account lookup and
+ * the current entitlement) but writes nothing. If it opens a transaction and
+ * then fails, it rolls that transaction back before rethrowing.
+ */
+const classifyPayment = async (
   client: FirestoreClient,
   payment: KofiPayment,
   now: Date,
-): Promise<{ status: PaymentStatus; duplicate: boolean }> => {
-  const countsAsTip =
-    PREMIUM_TYPES.has(payment.type) && payment.currency.toUpperCase() === "GBP";
-  const months = countsAsTip ? monthsForPayment(payment.amountPence, payment.currency) : 0;
-  const paymentDate = paymentDateFor(payment.timestamp, now);
+): Promise<Classification> => {
+  const countsAsTip = PREMIUM_TYPES.has(payment.type) && payment.currency.toUpperCase() === "GBP";
+  const months = countsAsTip ? monthsForPayment(payment.amountPence) : 0;
+  const base = { months, countsAsTip, match: null, grantWrite: null };
+  if (months === 0) return { ...base, status: "needs-review" };
 
-  let status: PaymentStatus = "needs-review";
-  let match: Match | null = null;
-  let transaction: string | undefined;
-  let grantWrite: DocumentWrite | null = null;
+  const match = await findMatch(client, payment);
+  if (!match) return { ...base, status: "unmatched" };
 
+  const transaction = await client.beginTransaction();
   try {
-    if (months > 0) {
-      match = await findMatch(client, payment);
-      if (!match) {
-        status = "unmatched";
-      } else {
-        transaction = await client.beginTransaction();
-        const existing = toEntitlement(
-          await client.getDocument(entitlementPath(match.uid), transaction),
-        );
-        const decision = decideGrant({ months, existing, now });
-        if (decision.status === "granted") {
-          status = "granted";
-          grantWrite = entitlementWrite(match.uid, decision.expiresAt, "kofi", now);
-        } else {
-          status = "already-lifetime";
-        }
-      }
+    const existing = toEntitlement(await client.getDocument(entitlementPath(match.uid), transaction));
+    const decision = decideGrant({ months, existing, now });
+    if (decision.status === "granted") {
+      return {
+        ...base,
+        match,
+        status: "granted",
+        grantWrite: entitlementWrite(match.uid, decision.expiresAt, "kofi", now),
+        transaction,
+      };
     }
+    return { ...base, match, status: "already-lifetime", transaction };
+  } catch (error) {
+    await client.rollback(transaction).catch(() => undefined);
+    throw error;
+  }
+};
 
+/**
+ * Writes the payment record, the grant (if any) and the tip total in one
+ * commit. Returns true when the payment was already recorded.
+ */
+const recordPayment = async (
+  client: FirestoreClient,
+  payment: KofiPayment,
+  classification: Classification,
+  now: Date,
+): Promise<boolean> => {
+  const { status, match, months, countsAsTip, grantWrite, transaction } = classification;
+  try {
     const fields: Record<string, FieldValue> = {
       type: truncate(payment.type, 32),
       amountPence: payment.amountPence,
@@ -132,7 +161,7 @@ const processPayment = async (
     if (countsAsTip) {
       writes.push({
         kind: "increment",
-        path: `tipTotals/${monthKey(paymentDate)}`,
+        path: `tipTotals/${monthKey(paymentDateFor(payment.timestamp, now))}`,
         increments: { amountPence: payment.amountPence, count: 1 },
       });
     }
@@ -141,13 +170,23 @@ const processPayment = async (
     if (result === "duplicate" && transaction !== undefined) {
       await client.rollback(transaction).catch(() => undefined);
     }
-    return { status, duplicate: result === "duplicate" };
+    return result === "duplicate";
   } catch (error) {
     if (transaction !== undefined) {
       await client.rollback(transaction).catch(() => undefined);
     }
     throw error;
   }
+};
+
+const processPayment = async (
+  client: FirestoreClient,
+  payment: KofiPayment,
+  now: Date,
+): Promise<{ status: PaymentStatus; duplicate: boolean }> => {
+  const classification = await classifyPayment(client, payment, now);
+  const duplicate = await recordPayment(client, payment, classification, now);
+  return { status: classification.status, duplicate };
 };
 
 export const createReceiver = (deps: ReceiverDeps) => {
@@ -202,9 +241,7 @@ export const createReceiver = (deps: ReceiverDeps) => {
       );
       return reply(200, outcome.duplicate ? "Duplicate" : "OK");
     } catch (error) {
-      const cause =
-        error instanceof UpstreamError ? error.message : error instanceof Error ? error.name : "unknown";
-      console.error(`kofi payment ${payment.id} failed: ${cause}`);
+      console.error(`kofi payment ${payment.id} failed: ${describeFailure(error)}`);
       return reply(500, "Upstream failure");
     }
   };

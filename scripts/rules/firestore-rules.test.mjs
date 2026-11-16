@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { after, before, beforeEach, describe, test } from "node:test";
 
 import { assertFails, assertSucceeds, initializeTestEnvironment } from "@firebase/rules-unit-testing";
-import { Timestamp, deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { Timestamp, collection, deleteDoc, doc, getDoc, serverTimestamp, setDoc, updateDoc, writeBatch } from "firebase/firestore";
 
 import { ENTITLEMENT_COLLECTION } from "../entitlement-contract.mjs";
 
@@ -164,6 +164,73 @@ describe("premiumData/**", () => {
   });
 });
 
+describe("feedback", () => {
+  // The same batch src/app/feedback-api.ts commits.
+  const google = (uid, token = {}) =>
+    env
+      .authenticatedContext(uid, {
+        email: `${uid}@example.com`,
+        email_verified: true,
+        firebase: { sign_in_provider: "google.com" },
+        ...token,
+      })
+      .firestore();
+  const submit = (db, uid, overrides = {}) => {
+    const batch = writeBatch(db);
+    batch.set(doc(collection(db, "feedback")), {
+      uid,
+      email: null,
+      category: "idea",
+      message: "A message long enough",
+      contactOk: false,
+      page: "",
+      createdAt: serverTimestamp(),
+      ...overrides,
+    });
+    batch.set(doc(db, "feedbackThrottle", uid), { lastAt: serverTimestamp() });
+    return batch.commit();
+  };
+
+  test("a Google user can send one message as themselves", async () => {
+    await assertSucceeds(submit(google("alice"), "alice"));
+    await assertSucceeds(submit(google("bob"), "bob", { email: "bob@example.com", contactOk: true }));
+  });
+
+  test("a second message within the hour is refused", async () => {
+    const db = google("alice");
+    await assertSucceeds(submit(db, "alice"));
+    await assertFails(submit(db, "alice"));
+  });
+
+  test("a message sent an hour after the last one is accepted", async () => {
+    await seed({ "feedbackThrottle/alice": { lastAt: Timestamp.fromMillis(Date.now() - 2 * HOUR) } });
+    await assertSucceeds(submit(google("alice"), "alice"));
+  });
+
+  test("bad senders and malformed messages are refused", async () => {
+    await assertFails(submit(env.unauthenticatedContext().firestore(), "alice"));
+    await assertFails(submit(google("alice", { firebase: { sign_in_provider: "password" } }), "alice"));
+    await assertFails(submit(google("alice", { email_verified: false }), "alice"));
+    await assertFails(submit(google("alice"), "bob"));
+    await assertFails(submit(google("alice"), "alice", { email: "someone@else.com" }));
+    await assertFails(submit(google("alice"), "alice", { category: "spam" }));
+    await assertFails(submit(google("alice"), "alice", { message: "too short" }));
+    await assertFails(submit(google("alice"), "alice", { message: "x".repeat(2001) }));
+    await assertFails(submit(google("alice"), "alice", { page: "x".repeat(201) }));
+    await assertFails(submit(google("alice"), "alice", { extra: true }));
+  });
+
+  test("nobody can read, edit or delete feedback or throttle documents", async () => {
+    await seed({ "feedback/f1": { uid: "alice" }, "feedbackThrottle/alice": { lastAt: Timestamp.now() } });
+    const db = google("alice");
+    await assertFails(getDoc(doc(db, "feedback/f1")));
+    await assertFails(updateDoc(doc(db, "feedback/f1"), { message: "changed text here" }));
+    await assertFails(deleteDoc(doc(db, "feedback/f1")));
+    await assertFails(getDoc(doc(db, "feedbackThrottle/alice")));
+    await assertFails(deleteDoc(doc(db, "feedbackThrottle/alice")));
+  });
+});
+
 describe("everything else", () => {
   test("unmatched collections are denied", async () => {
     await seed({ "other/doc": { a: 1 } });
@@ -180,6 +247,8 @@ describe("everything else", () => {
       "/premiumCodes/{code}",
       "/premiumData/{version}",
       "/artefacts/{name}",
+      "/feedback/{feedbackId}",
+      "/feedbackThrottle/{uid}",
     ]);
   });
 });

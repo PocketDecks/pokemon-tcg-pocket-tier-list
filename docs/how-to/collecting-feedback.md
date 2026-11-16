@@ -11,63 +11,11 @@ The `/feedback` page lets signed-in visitors send a message, a topic and, if the
 
 The page also carries a hidden `website` field. Anything that fills it in is treated as a bot: the page shows the success message and writes nothing.
 
-## Add the security rules
+## Security rules
 
-`firestore.rules` covers the Supporter blocks only (`entitlements`, `premiumCodes`, `premiumData`), and no workflow deploys it. The rules below exist only in the Firebase console, so running `firebase deploy --only firestore:rules` would remove them. Add these blocks by hand, or copy them into `firestore.rules` before the owner next deploys that file.
+The feedback rules are the `feedback` and `feedbackThrottle` blocks in `firestore.rules`, with the helpers `signedInWithGoogle()`, `feedbackThrottlePath()` and `isValidFeedback()`. They let a user signed in with Google create feedback only as themselves, only with the fields and limits the form uses, and at most once an hour. Nobody can read, edit or delete feedback from the site. You read it in the console.
 
-1. Open the Firebase console for `pokemon-tcg-pocket-tier-list` and go to Firestore Database, then Rules.
-2. Inside the existing `match /databases/{database}/documents { ... }` block, paste the following next to the rules already there. Do not remove anything.
-
-```text
-match /feedback/{feedbackId} {
-  allow create: if isValidFeedback();
-  allow read, update, delete: if false;
-}
-
-match /feedbackThrottle/{uid} {
-  allow create, update: if signedInWithGoogle()
-    && request.auth.uid == uid
-    && request.resource.data.keys().hasOnly(['lastAt'])
-    && request.resource.data.lastAt == request.time;
-  allow read, delete: if false;
-}
-
-function signedInWithGoogle() {
-  return request.auth != null
-    && request.auth.token.firebase.sign_in_provider == 'google.com'
-    && request.auth.token.email_verified == true;
-}
-
-function feedbackThrottlePath() {
-  return /databases/$(database)/documents/feedbackThrottle/$(request.auth.uid);
-}
-
-function isValidFeedback() {
-  let data = request.resource.data;
-  return signedInWithGoogle()
-    && data.keys().hasOnly(['uid', 'email', 'category', 'message', 'contactOk', 'page', 'createdAt'])
-    && data.keys().hasAll(['uid', 'email', 'category', 'message', 'contactOk', 'page', 'createdAt'])
-    && data.uid == request.auth.uid
-    && (data.email == null || data.email == request.auth.token.email)
-    && data.category in ['idea', 'bug', 'data', 'other']
-    && data.message is string
-    && data.message.size() >= 10
-    && data.message.size() <= 2000
-    && data.contactOk is bool
-    && data.page is string
-    && data.page.size() <= 200
-    && data.createdAt == request.time
-    && getAfter(feedbackThrottlePath()).data.lastAt == request.time
-    && (!exists(feedbackThrottlePath())
-      || get(feedbackThrottlePath()).data.lastAt < request.time - duration.value(1, 'h'));
-}
-```
-
-3. Publish the rules.
-
-These rules let a user signed in with Google create feedback only as themselves, only with the fields and limits the form uses, and at most once an hour. Nobody can read, edit or delete feedback from the site. You read it in the console.
-
-The rules have not been run against the Firestore emulator. After publishing, send one message from the live site and check that a document appears in `feedback`. Then send a second message straight away and check that the page says the account has already sent feedback in the last hour.
+`yarn test:rules` runs them against the Firestore emulator with the same batch `submitFeedback` commits. After changing the file, the owner publishes it with `firebase deploy --only firestore:rules`, sends one message from the live site and checks that a document appears in `feedback`.
 
 ## Read submissions
 

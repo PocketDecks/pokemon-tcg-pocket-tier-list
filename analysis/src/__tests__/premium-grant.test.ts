@@ -16,9 +16,8 @@ describe("planPremiumGrant", () => {
     expect(ENTITLEMENT_COLLECTION).toBe("entitlements");
     expect(plan).toEqual({
       path: `entitlements/${uid}`,
-      data: { premium: true, source: "manual", updatedAt: now },
+      data: { premium: true, source: "manual", expiresAt: null, updatedAt: now },
     });
-    expect("expiresAt" in plan.data).toBe(false);
   });
 
   it("expires a dated grant at the end of that day in UTC", () => {
@@ -38,14 +37,13 @@ describe("planPremiumGrant", () => {
     expect(plan.data.expiresAt).toEqual(new Date("2026-11-07T23:59:59.999Z"));
   });
 
-  it("builds a revocation that keeps the source and drops the expiry", () => {
+  it("builds a revocation that keeps the source and clears the expiry", () => {
     const plan = planPremiumGrant({ uid, revoke: true, source: "refund", now });
 
     expect(plan).toEqual({
       path: `entitlements/${uid}`,
-      data: { premium: false, source: "refund", updatedAt: now },
+      data: { premium: false, source: "refund", expiresAt: null, updatedAt: now },
     });
-    expect("expiresAt" in plan.data).toBe(false);
   });
 
   it.each(["", "a/b", "..", "has space", "x".repeat(129), "café"])(

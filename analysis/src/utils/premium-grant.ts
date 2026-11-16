@@ -1,16 +1,18 @@
 import { parseArgs } from "node:util";
 
-export const ENTITLEMENT_COLLECTION = "entitlements";
+import { ENTITLEMENT_COLLECTION, UID_PATTERN } from "../../../scripts/entitlement-contract.mjs";
+
+export { ENTITLEMENT_COLLECTION };
 export const DEFAULT_GRANT_SOURCE = "manual";
 
-const UID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
 const SOURCE_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 export interface EntitlementData {
   premium: boolean;
   source: string;
-  expiresAt?: Date;
+  /** null means no expiry. It is always written, so a merge clears an older date. */
+  expiresAt: Date | null;
   updatedAt: Date;
 }
 
@@ -64,11 +66,11 @@ export const planPremiumGrant = ({
 
   if (revoke) {
     if (until !== undefined) throw new Error("--until cannot be combined with --revoke");
-    return { path, data: { premium: false, source, updatedAt: now } };
+    return { path, data: { premium: false, source, expiresAt: null, updatedAt: now } };
   }
 
   if (until === undefined) {
-    return { path, data: { premium: true, source, updatedAt: now } };
+    return { path, data: { premium: true, source, expiresAt: null, updatedAt: now } };
   }
 
   const expiresAt = endOfDay(until);

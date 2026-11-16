@@ -34,12 +34,16 @@ const run = async (): Promise<void> => {
 
   initializeApp({ projectId, credential: applicationDefault() });
   const db = getFirestore();
-  await db.doc(plan.path).set({
-    premium: data.premium,
-    source: data.source,
-    ...(data.expiresAt ? { expiresAt: Timestamp.fromDate(data.expiresAt) } : {}),
-    updatedAt: Timestamp.fromDate(data.updatedAt),
-  });
+  // Merge, as the Ko-fi Worker does, so fields this tool does not own survive.
+  await db.doc(plan.path).set(
+    {
+      premium: data.premium,
+      source: data.source,
+      expiresAt: data.expiresAt ? Timestamp.fromDate(data.expiresAt) : null,
+      updatedAt: Timestamp.fromDate(data.updatedAt),
+    },
+    { merge: true }
+  );
   console.log(`Done\n${summary}`);
 };
 

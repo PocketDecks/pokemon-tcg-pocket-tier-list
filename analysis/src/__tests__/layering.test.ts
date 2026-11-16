@@ -70,6 +70,12 @@ const PERMITTED_CROSSINGS: Record<string, { specifier: string; reason: string }>
       "entry-point test must call it with an injected database. The script " +
       "is a script by convention, not by dependency direction.",
   },
+  "src/utils/premium-grant.ts": {
+    specifier: "../../../scripts/entitlement-contract.mjs",
+    reason:
+      "the uid pattern and collection name are shared with the app and the " +
+      "Ko-fi Worker, so one module in the root scripts folder owns them.",
+  },
   "src/__tests__/refresh-job-lists.test.ts": {
     specifier: "../../scripts/refresh-outputs",
     reason:

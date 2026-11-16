@@ -78,10 +78,10 @@ yarn grant:premium --uid <uid> --revoke
 - `--uid` is required and is the uid shown for the user in the Firebase console under Authentication.
 - `--until YYYY-MM-DD` sets the last day of access, inclusive, in UTC. It must be in the future. Leave it out for access with no expiry.
 - `--source` labels the grant and defaults to `manual`.
-- `--revoke` writes `premium: false` and drops any expiry. It cannot be combined with `--until`.
+- `--revoke` writes `premium: false` and sets `expiresAt` to null. It cannot be combined with `--until`.
 - `--dry-run` prints the document that would be written without contacting Firebase.
 
-A grant replaces the whole document, so running it again for the same uid updates the expiry or source. Run it with `--dry-run` first when you are unsure of the uid
+A grant merges `premium`, `source`, `expiresAt` and `updatedAt` into the document, the same fields the Ko-fi Worker writes, so running it again for the same uid updates the expiry or source and leaves other fields alone. Run it with `--dry-run` first when you are unsure of the uid
 
 ## First-time set-up
 

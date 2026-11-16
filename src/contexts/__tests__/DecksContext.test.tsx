@@ -233,23 +233,24 @@ describe("DecksProvider with a drifted card id", () => {
       return jsonResponse(rawCards);
     });
 
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     render(
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-      >
+      <QueryClientProvider client={client}>
         <DecksProvider>
           <DeckNames />
         </DecksProvider>
       </QueryClientProvider>
     );
 
-    await waitFor(() => expect(shareRequest).toHaveBeenCalledTimes(3), { timeout: 6000 });
-    expect(await screen.findByText(GOOD_DECK)).toBeInTheDocument();
-
-    // A fourth attempt would follow the 4s backoff after the third failure.
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    // React Query marks the query as failed only after its last retry, so
+    // once it is in the error state no further attempt is scheduled.
+    const shareQuery = () =>
+      client.getQueryCache().findAll().find((query) => JSON.stringify(query.queryKey).includes("meta-share"));
+    await waitFor(() => expect(shareQuery()?.state.status).toBe("error"), { timeout: 6000 });
+    expect(shareQuery()?.state.fetchFailureCount).toBe(3);
     expect(shareRequest).toHaveBeenCalledTimes(3);
-  }, 15_000);
+    expect(await screen.findByText(GOOD_DECK)).toBeInTheDocument();
+  }, 10_000);
 
   it("treats malformed JSON in a 200 meta-share response as absent", async () => {
     vi.spyOn(global, "fetch").mockImplementation((input) => {

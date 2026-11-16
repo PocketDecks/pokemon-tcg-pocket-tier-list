@@ -26,8 +26,8 @@ import {
   PremiumAccessError,
   loadDataVersion,
   loadPremiumArtefact,
-  resetPremiumDataCache,
 } from "../premium-data";
+import { queryClient } from "../query-client";
 
 const sha256 = async (text: string): Promise<string> => {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
@@ -44,7 +44,7 @@ const permissionDenied = () => Object.assign(new Error("denied"), { code: "permi
 let fetchSpy: ReturnType<typeof vi.spyOn>;
 
 beforeEach(() => {
-  resetPremiumDataCache();
+  queryClient.clear();
   firestore.getDoc.mockReset();
   firebase.getIdToken.mockResolvedValue("token");
   firebase.currentUser.current = { getIdToken: firebase.getIdToken };

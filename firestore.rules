@@ -1,0 +1,99 @@
+rules_version = '2';
+
+// The whole rule set for the project, Supporter and feedback blocks alike.
+// The Supporter blocks mirror scripts/entitlement-contract.mjs.
+// scripts/rules/firestore-rules.test.mjs runs these rules against the
+// Firestore emulator (yarn test:rules).
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function entitlementPath() {
+      return /databases/$(database)/documents/entitlements/$(request.auth.uid);
+    }
+    function signedIn() {
+      return request.auth != null;
+    }
+    function entitlementActive(data) {
+      return data.premium == true
+        && (!('expiresAt' in data)
+          || data.expiresAt == null
+          || (data.expiresAt is timestamp && data.expiresAt > request.time));
+    }
+    function hasEntitlement() {
+      return signedIn()
+        && exists(entitlementPath())
+        && entitlementActive(get(entitlementPath()).data);
+    }
+    function isPremium() {
+      return hasEntitlement();
+    }
+
+    function signedInWithGoogle() {
+      return request.auth != null
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && request.auth.token.email_verified == true;
+    }
+    function feedbackThrottlePath() {
+      return /databases/$(database)/documents/feedbackThrottle/$(request.auth.uid);
+    }
+    function isValidFeedback(feedbackId) {
+      let data = request.resource.data;
+      return signedInWithGoogle()
+        && data.keys().hasOnly(['uid', 'email', 'category', 'message', 'contactOk', 'page', 'createdAt'])
+        && data.keys().hasAll(['uid', 'email', 'category', 'message', 'contactOk', 'page', 'createdAt'])
+        && data.uid == request.auth.uid
+        && (data.email == null || data.email == request.auth.token.email)
+        && data.category in ['idea', 'bug', 'data', 'other']
+        && data.message is string
+        && data.message.size() >= 10
+        && data.message.size() <= 2000
+        && data.contactOk is bool
+        && data.page is string
+        && data.page.size() <= 200
+        && data.createdAt == request.time
+        && getAfter(feedbackThrottlePath()).data.lastAt == request.time
+        && getAfter(feedbackThrottlePath()).data.feedbackId == feedbackId
+        && (!exists(feedbackThrottlePath())
+          || get(feedbackThrottlePath()).data.lastAt < request.time - duration.value(1, 'h'));
+    }
+
+    match /entitlements/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /premiumCodes/{code} {
+      allow read: if request.auth != null
+        && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null
+        && code.matches('PD-[A-Z0-9]{6}')
+        && request.resource.data.keys().hasAll(['uid'])
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    match /premiumData/{version} {
+      allow read: if isPremium();
+      allow write: if false;
+      match /artefacts/{name} {
+        allow read: if isPremium();
+        allow write: if false;
+      }
+    }
+
+    match /feedback/{feedbackId} {
+      allow create: if isValidFeedback(feedbackId);
+      allow read, update, delete: if false;
+    }
+
+    match /feedbackThrottle/{uid} {
+      allow create, update: if signedInWithGoogle()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['lastAt', 'feedbackId'])
+        && request.resource.data.keys().hasAll(['lastAt', 'feedbackId'])
+        && request.resource.data.lastAt == request.time
+        && request.resource.data.feedbackId is string;
+      allow read, delete: if false;
+    }
+  }
+}

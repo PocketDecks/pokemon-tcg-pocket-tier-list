@@ -3,8 +3,11 @@ import { lazyRoute as lazy } from "./app/lazy-route";
 import { Outlet, Route, Routes, useLocation } from "react-router";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./app/query-client";
 import { AuthProvider } from "./contexts/AuthContext";
+import { EntitlementProvider } from "./contexts/EntitlementContext";
+import AccessEnded from "./contexts/AccessEnded";
 import { DecksProvider } from "./contexts/DecksContext";
 import { MetaWindowProvider } from "./contexts/MetaWindowContext";
 import AdAnchor from "./ads/AdAnchor";
@@ -31,16 +34,7 @@ const PremiumPage = lazy(() => import("./pages/premium/PremiumPage"));
 const NotFoundPage = lazy(() => import("./pages/not-found/NotFoundPage"));
 const FeedbackPage = lazy(() => import("./pages/feedback/FeedbackPage"));
 
-export const queryClientOptions = {
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 60, // 1 hour
-      gcTime: 1000 * 60 * 60 * 24, // 24 hours
-    },
-  },
-};
-
-const queryClient = new QueryClient(queryClientOptions);
+export { queryClientOptions } from "./app/query-client";
 
 const StyledApp = styled.div`
   width: 100%;
@@ -149,19 +143,22 @@ const App = () => {
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <MetaWindowProvider>
-              <DecksProvider>
-                <ContentReadyProvider>
-                  <Routes>
-                    {ROUTE_LOCALES.map((locale) => (
-                      <Route key={locale} path={LOCALE_PREFIXES[locale] || "/"} element={<Layout />}>
-                        {pageRoutes}
-                      </Route>
-                    ))}
-                  </Routes>
-                </ContentReadyProvider>
-              </DecksProvider>
-            </MetaWindowProvider>
+            <EntitlementProvider>
+              <MetaWindowProvider>
+                <AccessEnded />
+                <DecksProvider>
+                  <ContentReadyProvider>
+                    <Routes>
+                      {ROUTE_LOCALES.map((locale) => (
+                        <Route key={locale} path={LOCALE_PREFIXES[locale] || "/"} element={<Layout />}>
+                          {pageRoutes}
+                        </Route>
+                      ))}
+                    </Routes>
+                  </ContentReadyProvider>
+                </DecksProvider>
+              </MetaWindowProvider>
+            </EntitlementProvider>
           </AuthProvider>
         </QueryClientProvider>
       </ErrorBoundary>

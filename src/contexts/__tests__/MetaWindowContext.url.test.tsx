@@ -48,13 +48,6 @@ describe("MetaWindowProvider initial window from the URL", () => {
     expect(screen.getByTestId("window")).toHaveTextContent("all");
   });
 
-  it("falls back to the default window for a signed-out or free viewer", () => {
-    premium.value = false;
-    renderAt("/deck/x-a1-001?window=30d");
-
-    expect(screen.getByTestId("window")).toHaveTextContent("20d");
-  });
-
   it("ignores a window id it does not know", () => {
     renderAt("/deck/x-a1-001?window=40d");
 

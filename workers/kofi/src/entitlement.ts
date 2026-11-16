@@ -1,6 +1,12 @@
+import {
+  ENTITLEMENT_COLLECTION,
+  entitlementStatus,
+  isSafeUid,
+} from "../../../scripts/entitlement-contract.mjs";
 import type { ExistingEntitlement } from "./decision";
+import type { DocumentWrite } from "./firestore";
 
-export const SAFE_UID = /^[A-Za-z0-9]{1,128}$/;
+export { entitlementStatus, isSafeUid };
 
 const EXPIRED_MS = 0;
 
@@ -16,3 +22,20 @@ export const toEntitlement = (
   if (!document) return null;
   return { premium: document.premium === true, expiresAtMs: expiryOf(document.expiresAt) };
 };
+
+export const entitlementPath = (uid: string): string => `${ENTITLEMENT_COLLECTION}/${uid}`;
+
+/**
+ * The one write both grant paths use. It merges, so any field it does not set
+ * is left as it is.
+ */
+export const entitlementWrite = (
+  uid: string,
+  expiresAt: Date,
+  source: string,
+  now: Date,
+): DocumentWrite => ({
+  kind: "merge",
+  path: entitlementPath(uid),
+  fields: { premium: true, source, expiresAt, updatedAt: now },
+});

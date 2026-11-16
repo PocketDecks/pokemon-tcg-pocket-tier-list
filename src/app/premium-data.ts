@@ -1,3 +1,6 @@
+import { queryClient } from "./query-client";
+import { dataVersionKey } from "./query-keys";
+
 export class PremiumAccessError extends Error {
   constructor(name: string) {
     super(`Premium data ${name} is not available to this account`);
@@ -6,16 +9,6 @@ export class PremiumAccessError extends Error {
 }
 
 const DATA_VERSION_PATTERN = /^[0-9a-f]{16}$/;
-
-let versionRequest: Promise<string> | null = null;
-let versionRefreshRequest: Promise<string> | null = null;
-let versionRequestGeneration = 0;
-
-export const resetPremiumDataCache = (): void => {
-  versionRequestGeneration += 1;
-  versionRequest = null;
-  versionRefreshRequest = null;
-};
 
 const requestDataVersion = async (fresh = false): Promise<string> => {
   const response = await (fresh
@@ -34,34 +27,22 @@ const requestDataVersion = async (fresh = false): Promise<string> => {
   return premium;
 };
 
-export const loadDataVersion = (): Promise<string> => {
-  if (versionRequest === null) {
-    const generation = versionRequestGeneration;
-    versionRequest = requestDataVersion().catch((error: unknown) => {
-      if (versionRequestGeneration === generation) versionRequest = null;
-      throw error;
-    });
-  }
-  return versionRequest;
-};
-
-const refreshDataVersion = (): Promise<string> => {
-  if (versionRefreshRequest !== null) return versionRefreshRequest;
-  versionRequestGeneration += 1;
-  const generation = versionRequestGeneration;
-  versionRequest = null;
-  const request = requestDataVersion(true).catch((error: unknown) => {
-    if (versionRequestGeneration === generation) versionRequest = null;
-    throw error;
+// The version file is public, so it lives under its own key and survives
+// sign-out. Failures are not kept: a failed query is fetched again next time.
+export const loadDataVersion = (): Promise<string> =>
+  queryClient.fetchQuery({
+    queryKey: dataVersionKey,
+    queryFn: () => requestDataVersion(),
+    staleTime: Infinity,
   });
-  versionRequest = request;
-  versionRefreshRequest = request;
-  const settle = () => {
-    if (versionRefreshRequest === request) versionRefreshRequest = null;
-  };
-  void request.then(settle, settle);
-  return request;
-};
+
+// Concurrent callers share the one in-flight request.
+const refreshDataVersion = (): Promise<string> =>
+  queryClient.fetchQuery({
+    queryKey: dataVersionKey,
+    queryFn: () => requestDataVersion(true),
+    staleTime: 0,
+  });
 
 const sha256Hex = async (text: string): Promise<string> => {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));

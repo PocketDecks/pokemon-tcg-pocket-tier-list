@@ -78,61 +78,18 @@ yarn grant:premium --uid <uid> --revoke
 - `--uid` is required and is the uid shown for the user in the Firebase console under Authentication.
 - `--until YYYY-MM-DD` sets the last day of access, inclusive, in UTC. It must be in the future. Leave it out for access with no expiry.
 - `--source` labels the grant and defaults to `manual`.
-- `--revoke` writes `premium: false` and drops any expiry. It cannot be combined with `--until`.
+- `--revoke` writes `premium: false` and sets `expiresAt` to null. It cannot be combined with `--until`.
 - `--dry-run` prints the document that would be written without contacting Firebase.
 
-A grant replaces the whole document, so running it again for the same uid updates the expiry or source. Run it with `--dry-run` first when you are unsure of the uid
+A grant merges `premium`, `source`, `expiresAt` and `updatedAt` into the document, the same fields the Ko-fi Worker writes, so running it again for the same uid updates the expiry or source and leaves other fields alone. Run it with `--dry-run` first when you are unsure of the uid
 
 ## First-time set-up
 
 Do these once, in this order
 
-1. The live Firestore rules in the Firebase console contain the entitlement, `premiumCodes` and `premiumData` blocks shown below, as checked on 11 November 2026. The app and these rules grant premium data access only from an active entitlement; no `stripeRole` fallback is included. The `entitlementActive()` helper treats an absent or explicit-null `expiresAt` as lifetime access, matching the app and the Worker; an expired or malformed expiry is denied. The repository has no `firestore.rules` file to deploy, so the rules are edited in the console.
+1. The Firestore rules live in `firestore.rules` at the repository root and are referenced from `firebase.json`. They have three blocks: `entitlements/{uid}` (a signed-in user reads only their own document, no client writes), `premiumCodes/{code}` and `premiumData/**`. Premium data is readable only while the caller's entitlement is active: `premium` is `true` and `expiresAt` is absent, null or in the future. An expired or malformed expiry is denied, and there is no `stripeRole` fallback. The file matches the console rules as checked on 11 November 2026.
 
-   ```
-   function entitlementPath() {
-     return /databases/$(database)/documents/entitlements/$(request.auth.uid);
-   }
-   function signedIn() {
-     return request.auth != null;
-   }
-   function entitlementActive(data) {
-     return data.premium == true
-       && (!('expiresAt' in data)
-         || data.expiresAt == null
-         || (data.expiresAt is timestamp && data.expiresAt > request.time));
-   }
-   function hasEntitlement() {
-     return signedIn()
-       && exists(entitlementPath())
-       && entitlementActive(get(entitlementPath()).data);
-   }
-   function isPremium() {
-     return hasEntitlement();
-   }
-   match /entitlements/{uid} {
-     allow read: if request.auth != null && request.auth.uid == uid;
-     allow write: if false;
-   }
-   match /premiumCodes/{code} {
-     allow read: if request.auth != null
-       && resource.data.uid == request.auth.uid;
-     allow create: if request.auth != null
-       && code.matches('PD-[A-Z0-9]{6}')
-       && request.resource.data.keys().hasAll(['uid'])
-       && request.resource.data.keys().hasOnly(['uid'])
-       && request.resource.data.uid == request.auth.uid;
-     allow update, delete: if false;
-   }
-   match /premiumData/{version} {
-     allow read: if isPremium();
-     allow write: if false;
-     match /artefacts/{name} {
-       allow read: if isPremium();
-       allow write: if false;
-     }
-   }
-   ```
+   `yarn test:rules` runs them against the Firestore emulator. No workflow deploys them. After changing the file, the owner publishes it with `firebase deploy --only firestore:rules` and checks that the 30-day window still loads while signed in. The file also holds the feedback rules, so it is the whole rule set for the project.
 
    The Admin SDK ignores these rules, so the grant and publish scripts still write. The `premiumCodes` rule lets a signed-in account query and read its own code, and permits the client SDK's `setDoc` only when it creates a correctly shaped code for that same uid. Existing codes cannot be changed or deleted. If a randomly generated code already exists, the attempted overwrite is denied and the client tries another code. Each premium data read evaluates the entitlement lookup, which Firestore bills as one extra document read.
 2. Grant yourself access with `yarn grant:premium --uid <your uid>`, then check the 30-day window loads when you are signed in.

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import useIsPremium from "../use-is-premium";
+import { EntitlementProvider } from "../../contexts/EntitlementContext";
 import { useAuth } from "../../contexts/AuthContext";
 
 const loaded = vi.hoisted(() => ({ firestore: false }));
@@ -38,7 +39,9 @@ describe("Firestore code loading", () => {
     (useAuth as ReturnType<typeof vi.fn>).mockReturnValue({ user: null, loading: false });
     render(
       <QueryClientProvider client={new QueryClient()}>
-        <Probe />
+        <EntitlementProvider>
+          <Probe />
+        </EntitlementProvider>
       </QueryClientProvider>
     );
     await screen.findByText("false");
@@ -49,7 +52,9 @@ describe("Firestore code loading", () => {
     (useAuth as ReturnType<typeof vi.fn>).mockReturnValue({ user: { uid: "u1" }, loading: false });
     render(
       <QueryClientProvider client={new QueryClient()}>
-        <Probe />
+        <EntitlementProvider>
+          <Probe />
+        </EntitlementProvider>
       </QueryClientProvider>
     );
     await screen.findByText("false");

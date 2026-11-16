@@ -5,6 +5,8 @@ import { Trans, useTranslation } from "react-i18next";
 import { CONTACT_EMAIL, KOFI_URL } from "../app/constants";
 import useIsPremium, { usePremiumExpiry } from "../app/use-is-premium";
 import { loadPremiumCode } from "../app/premium-code";
+import { LIFETIME_THRESHOLD_MS } from "../../scripts/entitlement-contract.mjs";
+import { entitlementKey } from "../app/query-keys";
 import { useAuth } from "../contexts/AuthContext";
 
 const Body = styled.div`
@@ -206,8 +208,6 @@ interface TipState {
   wasPremium: boolean;
 }
 
-const LIFETIME_THRESHOLD = Date.UTC(2100, 0, 1);
-
 const SupporterPanel = () => {
   const { t, i18n } = useTranslation();
   const isPremium = useIsPremium();
@@ -218,12 +218,8 @@ const SupporterPanel = () => {
   const [tipState, setTipState] = useState<TipState | null>(null);
   const [codeResult, setCodeResult] = useState<CodeResult | null>(null);
   const [copyFeedback, setCopyFeedback] = useState<CopyFeedback | null>(null);
-  const premiumState =
-    isPremium
-      ? expiresAt === null || expiresAt > LIFETIME_THRESHOLD
-        ? "lifetime"
-        : "expires"
-      : "free";
+  const lifetime = expiresAt === null || expiresAt > LIFETIME_THRESHOLD_MS;
+  const premiumState = isPremium ? (lifetime ? "lifetime" : "expires") : "free";
   const waiting =
     !!tipState &&
     tipState.uid === user?.uid &&
@@ -232,7 +228,7 @@ const SupporterPanel = () => {
 
   useEffect(() => {
     const uid = user?.uid;
-    if (!isAltOpen || !uid || (isPremium && expiresAt === null)) return;
+    if (!isAltOpen || !uid || (isPremium && lifetime)) return;
     let active = true;
     setCodeResult((current) => (current?.uid === uid ? current : null));
     void loadPremiumCode(uid).then(
@@ -246,7 +242,7 @@ const SupporterPanel = () => {
     return () => {
       active = false;
     };
-  }, [expiresAt, isAltOpen, isPremium, user?.uid]);
+  }, [expiresAt, isAltOpen, isPremium, lifetime, user?.uid]);
 
   useEffect(() => {
     if (!tipState) return;
@@ -263,7 +259,7 @@ const SupporterPanel = () => {
     const uid = user?.uid;
     if (!waiting || !uid) return;
     const onFocus = () => {
-      void queryClient.invalidateQueries({ queryKey: ["entitlement", uid] });
+      void queryClient.invalidateQueries({ queryKey: entitlementKey(uid) });
     };
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
@@ -296,7 +292,7 @@ const SupporterPanel = () => {
 
   const checkAgain = () => {
     const uid = user?.uid;
-    if (uid) void queryClient.refetchQueries({ queryKey: ["entitlement", uid] });
+    if (uid) void queryClient.refetchQueries({ queryKey: entitlementKey(uid) });
   };
 
   const copyCode = async () => {

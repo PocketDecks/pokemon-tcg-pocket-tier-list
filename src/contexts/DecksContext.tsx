@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from "react";
+import React, { createContext, useContext, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useMissing from "../app/use-missing";
 import useFilters from "../app/use-filters";
@@ -23,11 +23,13 @@ import {
 } from "../app/deck-payload";
 import { getScoreBaseline, type ScoreBaseline } from "../app/score-baseline";
 import {
+  DEFAULT_META_WINDOW,
   isPremiumMetaWindow,
   type ArtefactTier,
   type MetaWindow,
 } from "../app/meta-window";
 import { PremiumAccessError } from "../app/premium-data";
+import { decksKey, matchupsKey, metaShareKey } from "../app/query-keys";
 import { useMetaWindow } from "../app/use-meta-window";
 
 export type { CardType };
@@ -39,7 +41,6 @@ interface DecksShared {
   rawDecks: PipelinePartialDeck[] | null;
   metaShare: PipelineMetaShare | null;
   metaShareBySlug: Record<string, MetaShareEntry> | null;
-  isPremium: boolean | null;
 }
 
 /// `ready` is the only state with a deck list; `error` is reported only while
@@ -58,11 +59,11 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const { missingCounts } = useMissing();
   const { energy, includeEx, deckAmount, sortBy, latestExpansionCards } = useFilters();
-  const isPremium = useIsPremium();
   const expansions = useExpansions();
   const { window } = useMetaWindow();
 
   const { data: rawDecks = null, error: decksError } = useDecksData(window);
+  useFallbackWhenDenied(decksError);
   const { data: metaShare } = useMetaShareData(window);
 
   const scoreBaseline = useMemo(
@@ -115,7 +116,6 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
       rawDecks,
       metaShare: settledMetaShare,
       metaShareBySlug,
-      isPremium,
     };
     if (decks !== null) {
       return { ...shared, status: "ready", decks, scoreBaseline };
@@ -131,7 +131,6 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
     settledMetaShare,
     metaShareBySlug,
     decksError,
-    isPremium,
   ]);
 
   return (
@@ -151,11 +150,12 @@ export const useMatchups = () => {
   const { window } = useMetaWindow();
   const isPremium = useIsPremium();
   const { data, isLoading, error } = useQuery({
-    queryKey: ["matchups", window],
+    queryKey: matchupsKey(window),
     queryFn: () => fetchMatchupData(window),
     retry: 1,
     ...windowQueryOptions(window, isPremium),
   });
+  useFallbackWhenDenied(error);
   return { matchupsByName: data ?? null, loading: isLoading, error: error ?? null };
 };
 
@@ -179,6 +179,15 @@ export const useDeckDetail = (
   }, [rawDecks, deckId, missingCounts]);
 };
 
+// The server refused a Supporter read even though the entitlement said yes
+// (for example a grant that was revoked in the meantime): show the public window.
+const useFallbackWhenDenied = (error: Error | null) => {
+  const { setWindow } = useMetaWindow();
+  useEffect(() => {
+    if (error instanceof PremiumAccessError) setWindow(DEFAULT_META_WINDOW);
+  }, [error, setWindow]);
+};
+
 const PREMIUM_LOAD_ATTEMPTS = 3;
 
 const retryUnlessDenied = (failureCount: number, error: Error): boolean =>
@@ -194,9 +203,8 @@ const tierOf = (isPremium: boolean | null): ArtefactTier =>
 
 const useDecksData = (window: MetaWindow) => {
   const isPremium = useIsPremium();
-  const tier = isPremiumMetaWindow(window) ? tierOf(isPremium) : "public";
   return useQuery({
-    queryKey: ["decks", window, tier],
+    queryKey: decksKey(window),
     queryFn: () => fetchBestDecks(window),
     ...windowQueryOptions(window, isPremium),
   });
@@ -206,7 +214,7 @@ const useMetaShareData = (window: MetaWindow) => {
   const isPremium = useIsPremium();
   const tier = tierOf(isPremium);
   return useQuery({
-    queryKey: ["meta-share", window, tier],
+    queryKey: metaShareKey(window, tier),
     queryFn: () => loadMetaShare(window, tier),
     ...windowQueryOptions(window, isPremium),
   });

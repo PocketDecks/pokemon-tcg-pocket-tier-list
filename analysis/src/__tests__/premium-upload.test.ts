@@ -155,6 +155,36 @@ describe("checkPremiumVersion version recompute", () => {
   });
 });
 
+describe("checkPremiumVersion with a manifest from an older artefact set", () => {
+  // The 10d and 20d matchups left the premium set after this version was
+  // published; the manifest still lists them and the version hashes them.
+  const stored = {
+    ...files(),
+    "matchup-data-10d": '{"name":"matchup-data-10d"}',
+    "matchup-data-20d": '{"name":"matchup-data-20d"}',
+  };
+  const snapshot = (): PremiumSnapshot => ({
+    version: premiumVersion(stored),
+    versionDocument: {
+      artefacts: Object.fromEntries(Object.entries(stored).map(([name, payload]) => [name, sha256Hex(payload)])),
+    },
+    artefacts: Object.fromEntries(
+      Object.entries(stored).map(([name, payload]) => [name, { payload, sha256: sha256Hex(payload) }])
+    ),
+  });
+
+  it("passes when the manifest holds every artefact the app reads", () => {
+    expect(checkPremiumVersion(snapshot())).toEqual([]);
+  });
+
+  it("still fails when an artefact the app reads is absent from the manifest", () => {
+    const partial = snapshot();
+    delete partial.versionDocument!.artefacts["meta-share-10d"];
+    delete partial.artefacts["meta-share-10d"];
+    expect(checkPremiumVersion(partial)).toContain("artefact meta-share-10d is missing");
+  });
+});
+
 describe("planPremiumUpload live-version protection", () => {
   it("never deletes the version main already points at", () => {
     const existing = [

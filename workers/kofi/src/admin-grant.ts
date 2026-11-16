@@ -1,5 +1,5 @@
 import { readBody } from "./body";
-import { SAFE_UID } from "./entitlement";
+import { isSafeUid } from "./entitlement";
 import { UpstreamError } from "./errors";
 import type { FirestoreClient } from "./firestore";
 import { grantManually, ManualGrantRefusal, resolveGrantUid } from "./manual-grant";
@@ -45,7 +45,7 @@ const parseRequest = (text: string): GrantRequest | null => {
   const { payment, uid, email, months, dryRun } = record;
   if (typeof payment !== "string" || !SAFE_PAYMENT_ID.test(payment)) return null;
   if ((uid === undefined) === (email === undefined)) return null;
-  if (uid !== undefined && (typeof uid !== "string" || !SAFE_UID.test(uid))) return null;
+  if (uid !== undefined && !isSafeUid(uid)) return null;
   if (email !== undefined) {
     if (typeof email !== "string") return null;
     if (email.trim() === "" || email.length > MAX_EMAIL_LENGTH) return null;

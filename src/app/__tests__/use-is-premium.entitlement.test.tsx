@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import useIsPremium from "../use-is-premium";
+import { EntitlementProvider } from "../../contexts/EntitlementContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { queryClientOptions } from "../../App";
 
@@ -60,7 +61,9 @@ afterEach(() => {
 const renderProbe = () =>
   render(
     <QueryClientProvider client={queryClient}>
-      <Probe />
+      <EntitlementProvider>
+        <Probe />
+      </EntitlementProvider>
     </QueryClientProvider>
   );
 
@@ -130,8 +133,10 @@ describe("deduplication", () => {
   it("issues one entitlement read for two consumers", async () => {
     render(
       <QueryClientProvider client={queryClient}>
-        <Probe />
-        <Probe />
+        <EntitlementProvider>
+          <Probe />
+          <Probe />
+        </EntitlementProvider>
       </QueryClientProvider>
     );
     await screen.findAllByText("false");

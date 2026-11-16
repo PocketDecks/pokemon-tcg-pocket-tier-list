@@ -2,7 +2,7 @@ import { handleAdminGrant } from "./admin-grant";
 import { readBody } from "./body";
 import { extractCode } from "./codes";
 import { decideGrant, type PaymentStatus } from "./decision";
-import { SAFE_UID, toEntitlement } from "./entitlement";
+import { entitlementPath, entitlementWrite, isSafeUid, toEntitlement } from "./entitlement";
 import { UpstreamError } from "./errors";
 import {
   createFirestoreClient,
@@ -50,7 +50,7 @@ const findMatch = async (client: FirestoreClient, payment: KofiPayment): Promise
   const code = extractCode(payment.message);
   if (code) {
     const document = await client.getDocument(`premiumCodes/${code}`);
-    if (document && typeof document.uid === "string" && SAFE_UID.test(document.uid)) {
+    if (document && isSafeUid(document.uid)) {
       if (await client.hasActiveAccount(document.uid)) {
         return { uid: document.uid, matchedBy: "code" };
       }
@@ -59,7 +59,7 @@ const findMatch = async (client: FirestoreClient, payment: KofiPayment): Promise
   const email = payment.email.trim().toLowerCase();
   if (email) {
     const uid = await client.lookupUidByEmail(email);
-    if (uid && uid.length <= 128 && !uid.includes("/")) return { uid, matchedBy: "email" };
+    if (isSafeUid(uid)) return { uid, matchedBy: "email" };
   }
   return null;
 };
@@ -83,7 +83,7 @@ const processPayment = async (
   let status: PaymentStatus = "needs-review";
   let match: Match | null = null;
   let transaction: string | undefined;
-  let entitlementWrite: DocumentWrite | null = null;
+  let grantWrite: DocumentWrite | null = null;
 
   try {
     if (months > 0) {
@@ -93,21 +93,12 @@ const processPayment = async (
       } else {
         transaction = await client.beginTransaction();
         const existing = toEntitlement(
-          await client.getDocument(`entitlements/${match.uid}`, transaction),
+          await client.getDocument(entitlementPath(match.uid), transaction),
         );
         const decision = decideGrant({ months, existing, now });
         if (decision.status === "granted") {
           status = "granted";
-          entitlementWrite = {
-            kind: "merge",
-            path: `entitlements/${match.uid}`,
-            fields: {
-              premium: true,
-              source: "kofi",
-              expiresAt: decision.expiresAt,
-              updatedAt: now,
-            },
-          };
+          grantWrite = entitlementWrite(match.uid, decision.expiresAt, "kofi", now);
         } else {
           status = "already-lifetime";
         }
@@ -137,7 +128,7 @@ const processPayment = async (
     const writes: DocumentWrite[] = [
       { kind: "create", path: `kofiPayments/${payment.id}`, fields },
     ];
-    if (entitlementWrite) writes.push(entitlementWrite);
+    if (grantWrite) writes.push(grantWrite);
     if (countsAsTip) {
       writes.push({
         kind: "increment",

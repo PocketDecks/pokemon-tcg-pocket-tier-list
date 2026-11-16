@@ -78,7 +78,7 @@ describe("refresh job file lists", () => {
     ]);
   });
 
-  it("allows every file writeArtefacts stages in generated-output recovery", () => {
+  it("lists every file writeArtefacts writes as a generated output", () => {
     for (const target of writeArtefactKeys()) {
       expect(REFRESH_OUTPUT_FILES).toContain(target);
     }
@@ -101,13 +101,12 @@ describe("refresh job file lists", () => {
     expect(REFRESH_OUTPUT_FILES).toContain("src/app/last-updated.ts");
   });
 
-  it("runs recovery before mutations and stops after pairing or golden failures", () => {
-    expect(job.indexOf("refresh:outputs recover")).toBeLessThan(job.indexOf("sync-pairings"));
-    expect(step("3. From", "4. From")).toMatch(/refresh:outputs begin[\s\S]*?stop if it fails/i);
-    expect(step("3. From", "4. From")).toMatch(/sync-pairings[\s\S]*?checkpoint[\s\S]*?stop[\s\S]*?non-zero/i);
-    expect(step("4. From", "5. Run")).toMatch(/golden:generate[\s\S]*?checkpoint[\s\S]*?stop[\s\S]*?non-zero/i);
-    expect(job).toContain("A killed run needs the recovery in step 1");
-    expect(job).not.toContain("A killed run needs the recovery in step 5");
+  it("generates in a scratch worktree and stops after pairing or golden failures", () => {
+    expect(job.indexOf("refresh:outputs begin")).toBeLessThan(job.indexOf("sync-pairings"));
+    expect(step("3. From", "4. From")).toMatch(/refresh:outputs begin[\s\S]*?scratch worktree[\s\S]*?stop if it fails/i);
+    expect(step("3. From", "4. From")).toMatch(/sync-pairings[\s\S]*?stop on a non-zero exit/i);
+    expect(step("4. From", "5. Run")).toMatch(/golden:generate[\s\S]*?stop on a non-zero exit/i);
+    expect(job).toContain("refresh:outputs discard");
   });
 
   it("runs validate:refresh from analysis and stops on every late step", () => {
@@ -115,7 +114,7 @@ describe("refresh job file lists", () => {
     expect(generation).toMatch(/From `analysis\/`, run `yarn\.cmd validate:refresh`/);
     expect(generation).toContain("analysis/package.json");
     for (const [start, end] of [
-      ["9. Inspect", "10. From"],
+      ["9. From", "10. From"],
       ["11. Run", "12. Push"],
       ["12. Push", "13. Read"],
     ] as const) {
@@ -123,12 +122,11 @@ describe("refresh job file lists", () => {
     }
   });
 
-  it("refuses a download rerun after recovery inside the same run", () => {
+  it("sends a killed download back to step 1 with a discard", () => {
     const download = step("6. From", "7. From");
-    expect(download).toContain("Do not rerun inside the same run after recovery");
-    expect(download).toContain("recovery removes the refresh journal");
-    expect(download).toMatch(/refresh:outputs begin[\s\S]*?step 3/);
-    expect(job).toContain("never rerun after recovery inside the same run");
+    expect(download).toContain("refresh:outputs discard");
+    expect(download).toContain("store:verify");
+    expect(job).toContain("A killed run needs the discard in the Recovery section");
   });
 
   it("ends every numbered step with a full stop", () => {
@@ -137,10 +135,13 @@ describe("refresh job file lists", () => {
     for (const line of lines) expect(line.endsWith(".")).toBe(true);
   });
 
-  it("keeps the silent-day stop and the finish step in the job text", () => {
-    expect(step("9. Inspect", "10. From")).toContain("report a silent day and stop");
-    expect(step("11. Run", "12. Push")).toContain("refresh:outputs finish");
-    expect(job).toContain("Recovery refusals");
+  it("keeps the silent-day stop and one recovery section in the job text", () => {
+    expect(step("9. From", "10. From")).toContain("report a silent day and stop");
+    expect(step("11. Run", "12. Push")).toContain("removes the scratch worktree");
+    expect(job).toContain("## Recovery\n");
+    expect(job).not.toContain("refresh:outputs recover");
+    expect(job).not.toContain("refresh:outputs finish");
+    expect(job).not.toContain("refresh:outputs checkpoint");
   });
 
   it("serves the deployed version document without the 300 s CDN cache", () => {
@@ -172,7 +173,7 @@ describe("refresh job file lists", () => {
 
   it("uses canonical premium retention and documents publication lock recovery", () => {
     const prerequisite = step("## Prerequisite", "## Prompt");
-    const checkout = step("1. From", "2. Create");
+    const checkout = step("1. Work", "2. Create");
     expect(prerequisite).toMatch(/GitHub repository URL[\s\S]*?canonical `main`/i);
     expect(prerequisite).toMatch(/deployed version[\s\S]*?open pull requests?/i);
     expect(prerequisite).toMatch(/publication lock[\s\S]*?crash[\s\S]*?confirm[\s\S]*?owner/i);
@@ -195,17 +196,17 @@ describe("refresh job file lists", () => {
 
   it("names generated hub files in the commit and silent-day instructions", () => {
     expect(REFRESH_OUTPUT_TREES).toContain("public/data/hubs");
-    expect(step("9. Inspect", "10. From")).toContain("hub");
+    expect(step("9. From", "10. From")).toContain("hub");
   });
 
-  it("stops on failed recovery, fetch, branch, and root generator commands", () => {
-    expect(step("1. From", "2. Create")).toMatch(/recover[\s\S]*?stop[\s\S]*?fetch[\s\S]*?(?:stop|stopping) if either command fails/i);
+  it("stops on failed fetch, branch, and root generator commands", () => {
+    expect(step("1. Work", "2. Create")).toMatch(/fetch[\s\S]*?(?:stop|stopping) if either command fails/i);
     expect(step("2. Create", "3. From")).toMatch(/branch[\s\S]*?stop if branch creation or checkout fails/i);
     const generation = step("7. From", "8. Run");
     for (const command of ["build-deck-archive.mjs", "generate-deck-hub-slugs.mjs", "generate-deck-redirects.mjs"]) {
       expect(generation.indexOf(command)).toBeGreaterThanOrEqual(0);
     }
-    expect(generation).toMatch(/checkpointing each command and stopping on its failure/i);
+    expect(generation).toMatch(/stopping on the first failure/i);
   });
 
   it("preserves the raw-store backup and human-review stop rule", () => {
@@ -216,7 +217,7 @@ describe("refresh job file lists", () => {
   });
 
   it("defines silence by the classifier, excluding timestamps and counting premium output", () => {
-    const check = step("9. Inspect", "10. From");
+    const check = step("9. From", "10. From");
     expect(check).toContain("classifier prints no paths");
     expect(check).toContain("excludes `src/app/last-updated.ts`");
     expect(check).toContain("includes ignored premium outputs");

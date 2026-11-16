@@ -86,17 +86,13 @@ describe("decideGrant", () => {
     }
   });
 
-  it("grants from now when the clock is past 2100 and the expiry has passed", () => {
-    const later = new Date("2101-01-01T00:00:00.000Z");
+  it("keeps treating an expiry after 2100 as lifetime once the clock passes 2100", () => {
     const decision = decideGrant({
       months: 1,
       existing: { premium: true, expiresAtMs: Date.parse("2100-06-01T00:00:00.000Z") },
-      now: later,
+      now: new Date("2101-01-01T00:00:00.000Z"),
     });
-    expect(decision.status).toBe("granted");
-    if (decision.status === "granted") {
-      expect(decision.expiresAt.toISOString()).toBe("2101-02-01T00:00:00.000Z");
-    }
+    expect(decision.status).toBe("already-lifetime");
   });
 
   it("still stacks onto an expiry just before 2100", () => {

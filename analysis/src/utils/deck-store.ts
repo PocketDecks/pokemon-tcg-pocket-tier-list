@@ -1,5 +1,4 @@
 import fs from "fs";
-import crypto from "node:crypto";
 import path from "path";
 import { Deck } from "./types";
 import { shardIdForDate } from "./expansion-shards";
@@ -235,22 +234,11 @@ export const verifyStore = (dir: string, options: { placement?: boolean; process
         problems.push({ shard: name.slice(0, -".ndjson".length), message: `untracked shard file ${name}` });
       } else if (
         name.endsWith(".tmp") ||
+        name.endsWith(".tmp.owner") ||
         name.endsWith(".bak") ||
         name.endsWith(".created")
       ) {
         problems.push({ shard: name, message: `stray staging file ${name}` });
-      } else if (name.endsWith(".tmp.owner")) {
-        const target = path.join(dir, name.slice(0, -".tmp.owner".length));
-        let completed = false;
-        try {
-          const proof = JSON.parse(fs.readFileSync(path.join(dir, name), "utf8")) as { version?: number; sha256?: string; targetSha256?: string };
-          const targetHash = crypto.createHash("sha256").update(fs.readFileSync(target)).digest("hex");
-          completed = proof.version === 1
-            && (proof.targetSha256 === targetHash || proof.sha256 === targetHash);
-        } catch {
-          completed = false;
-        }
-        if (!completed) problems.push({ shard: name, message: `unproven writer proof ${name}` });
       }
     }
   }

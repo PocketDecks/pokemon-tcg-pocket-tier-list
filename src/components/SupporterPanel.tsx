@@ -5,6 +5,7 @@ import { Trans, useTranslation } from "react-i18next";
 import { CONTACT_EMAIL, KOFI_URL } from "../app/constants";
 import useIsPremium, { usePremiumExpiry } from "../app/use-is-premium";
 import { loadPremiumCode } from "../app/premium-code";
+import { entitlementKey } from "../app/query-keys";
 import { useAuth } from "../contexts/AuthContext";
 
 const Body = styled.div`
@@ -263,7 +264,7 @@ const SupporterPanel = () => {
     const uid = user?.uid;
     if (!waiting || !uid) return;
     const onFocus = () => {
-      void queryClient.invalidateQueries({ queryKey: ["entitlement", uid] });
+      void queryClient.invalidateQueries({ queryKey: entitlementKey(uid) });
     };
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
@@ -296,7 +297,7 @@ const SupporterPanel = () => {
 
   const checkAgain = () => {
     const uid = user?.uid;
-    if (uid) void queryClient.refetchQueries({ queryKey: ["entitlement", uid] });
+    if (uid) void queryClient.refetchQueries({ queryKey: entitlementKey(uid) });
   };
 
   const copyCode = async () => {

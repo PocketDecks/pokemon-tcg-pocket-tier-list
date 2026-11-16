@@ -28,6 +28,7 @@ import {
   type MetaWindow,
 } from "../app/meta-window";
 import { PremiumAccessError } from "../app/premium-data";
+import { decksKey, matchupsKey, metaShareKey } from "../app/query-keys";
 import { useMetaWindow } from "../app/use-meta-window";
 
 export type { CardType };
@@ -151,7 +152,7 @@ export const useMatchups = () => {
   const { window } = useMetaWindow();
   const isPremium = useIsPremium();
   const { data, isLoading, error } = useQuery({
-    queryKey: ["matchups", window],
+    queryKey: matchupsKey(window),
     queryFn: () => fetchMatchupData(window),
     retry: 1,
     ...windowQueryOptions(window, isPremium),
@@ -194,9 +195,8 @@ const tierOf = (isPremium: boolean | null): ArtefactTier =>
 
 const useDecksData = (window: MetaWindow) => {
   const isPremium = useIsPremium();
-  const tier = isPremiumMetaWindow(window) ? tierOf(isPremium) : "public";
   return useQuery({
-    queryKey: ["decks", window, tier],
+    queryKey: decksKey(window),
     queryFn: () => fetchBestDecks(window),
     ...windowQueryOptions(window, isPremium),
   });
@@ -206,7 +206,7 @@ const useMetaShareData = (window: MetaWindow) => {
   const isPremium = useIsPremium();
   const tier = tierOf(isPremium);
   return useQuery({
-    queryKey: ["meta-share", window, tier],
+    queryKey: metaShareKey(window, tier),
     queryFn: () => loadMetaShare(window, tier),
     ...windowQueryOptions(window, isPremium),
   });

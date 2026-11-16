@@ -13,14 +13,16 @@ const firestore = vi.hoisted(() => ({
 vi.mock("firebase/firestore", () => firestore);
 vi.mock("../../config/firebase", () => ({ __esModule: true, default: { name: "app" } }));
 
-import { loadPremiumCode, resetPremiumCodeCache } from "../premium-code";
+import { loadPremiumCode } from "../premium-code";
+import { queryClient } from "../query-client";
+import { premiumCodeKey } from "../query-keys";
 import { extractCode } from "../../../workers/kofi/src/codes";
 
 const stored = (id: string) => ({ docs: [{ id }] });
 const permissionDenied = () => Object.assign(new Error("denied"), { code: "permission-denied" });
 
 beforeEach(() => {
-  resetPremiumCodeCache();
+  queryClient.clear();
   firestore.getDocs.mockResolvedValue({ docs: [] });
   firestore.setDoc.mockResolvedValue(undefined);
   vi.spyOn(crypto, "getRandomValues").mockImplementation((bytes) => {
@@ -106,16 +108,16 @@ describe("loadPremiumCode", () => {
     expect(firestore.query).toHaveBeenNthCalledWith(2, expect.anything(), ["uid", "==", "user-2"]);
   });
 
-  it("does not cache a request that completes after reset", async () => {
+  it("does not cache a request that completes after the cache is cleared", async () => {
     let resolveQuery!: (value: ReturnType<typeof stored>) => void;
     firestore.getDocs.mockImplementationOnce(() => new Promise((resolve) => (resolveQuery = resolve)));
     const oldRequest = loadPremiumCode("user-1");
     await vi.waitFor(() => expect(resolveQuery).toBeTypeOf("function"));
-    resetPremiumCodeCache();
+    queryClient.removeQueries({ queryKey: premiumCodeKey("user-1") });
     firestore.getDocs.mockResolvedValue(stored("PD-NEW234"));
     await expect(loadPremiumCode("user-1")).resolves.toBe("PD-NEW234");
     resolveQuery(stored("PD-OLD234"));
-    await expect(oldRequest).resolves.toBe("PD-OLD234");
+    await expect(oldRequest).rejects.toBeDefined();
     expect(firestore.getDocs).toHaveBeenCalledTimes(2);
     await expect(loadPremiumCode("user-1")).resolves.toBe("PD-NEW234");
     expect(firestore.getDocs).toHaveBeenCalledTimes(2);

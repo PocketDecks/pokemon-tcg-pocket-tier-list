@@ -7,8 +7,7 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import { auth, googleProvider } from "../config/firebase";
-import { resetPremiumCodeCache } from "../app/premium-code";
-import { resetPremiumDataCache } from "../app/premium-data";
+import { entitlementKey, supporterScopeKey } from "../app/query-keys";
 
 interface AuthContextType {
   user: User | null;
@@ -31,15 +30,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       const uid = user?.uid ?? null;
       if (previousUid.current !== uid) {
-        const isPremiumQuery = (query: { queryKey: readonly unknown[] }) =>
-          query.queryKey.at(-1) === "full" ||
-          ((query.queryKey[0] === "decks" || query.queryKey[0] === "matchups") &&
-            (query.queryKey[1] === "30d" || query.queryKey[1] === "all")) ||
-          query.queryKey[0] === "entitlement";
-        void queryClient.cancelQueries({ predicate: isPremiumQuery });
-        queryClient.removeQueries({ predicate: isPremiumQuery });
-        resetPremiumCodeCache();
-        resetPremiumDataCache();
+        // The first callback only reports who is already signed in; nothing
+        // from another account can be cached yet, and the app's queries are
+        // already mounted. Later changes drop the old account's data. Removing
+        // (rather than resetting) keeps the old account's queryFn from running
+        // again before the new user state arrives.
+        if (previousUid.current !== undefined) {
+          queryClient.removeQueries({ queryKey: supporterScopeKey });
+          queryClient.removeQueries({ queryKey: entitlementKey(previousUid.current) });
+        }
         previousUid.current = uid;
       }
       setUser(user);

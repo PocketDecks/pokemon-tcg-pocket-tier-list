@@ -130,7 +130,7 @@ describe("matchup and meta share tiers", () => {
     expect(requestedUrls).toContain("/data/matchup-data.json");
     expect(requestedUrls).not.toContain("/data/meta-share.json");
     expect(queryKeys()).toContainEqual(["matchups", "20d"]);
-    expect(queryKeys()).toContainEqual(["meta-share", "20d", "full"]);
+    expect(queryKeys()).toContainEqual(["supporter", "meta-share", "20d", "full"]);
   });
 
   it("loads the matchups while premium is unknown and the full meta share once it is known", async () => {

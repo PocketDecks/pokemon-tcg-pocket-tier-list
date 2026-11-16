@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { entitlementKey } from "./query-keys";
 
 interface EntitlementState {
   premium: boolean;
@@ -33,7 +34,7 @@ const getEntitlement = async (uid: string): Promise<EntitlementState> => {
 const useEntitlement = () => {
   const { user, loading } = useAuth();
   const entitlement = useQuery<EntitlementState, Error>({
-    queryKey: ["entitlement", user?.uid ?? null],
+    queryKey: entitlementKey(user?.uid ?? null),
     enabled: !loading && !!user,
     retry: false,
     staleTime: 30_000,

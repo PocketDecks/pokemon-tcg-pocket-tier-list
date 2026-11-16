@@ -3,7 +3,8 @@ import { lazyRoute as lazy } from "./app/lazy-route";
 import { Outlet, Route, Routes, useLocation } from "react-router";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./app/query-client";
 import { AuthProvider } from "./contexts/AuthContext";
 import { DecksProvider } from "./contexts/DecksContext";
 import { MetaWindowProvider } from "./contexts/MetaWindowContext";
@@ -31,16 +32,7 @@ const PremiumPage = lazy(() => import("./pages/premium/PremiumPage"));
 const NotFoundPage = lazy(() => import("./pages/not-found/NotFoundPage"));
 const FeedbackPage = lazy(() => import("./pages/feedback/FeedbackPage"));
 
-export const queryClientOptions = {
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 60, // 1 hour
-      gcTime: 1000 * 60 * 60 * 24, // 24 hours
-    },
-  },
-};
-
-const queryClient = new QueryClient(queryClientOptions);
+export { queryClientOptions } from "./app/query-client";
 
 const StyledApp = styled.div`
   width: 100%;

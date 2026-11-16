@@ -1,5 +1,5 @@
 import { decideGrant } from "./decision";
-import { SAFE_UID, toEntitlement } from "./entitlement";
+import { entitlementPath as entitlementPathFor, entitlementWrite, isSafeUid, toEntitlement } from "./entitlement";
 import type { DocumentWrite, FirestoreClient } from "./firestore";
 import { MAX_MONTHS } from "./months";
 
@@ -39,8 +39,8 @@ const checkInputs = (input: ManualGrantInput): void => {
   if (!SAFE_PAYMENT_ID.test(input.paymentId) || RESERVED_ID.test(input.paymentId)) {
     refuse("The payment id is not a valid document id");
   }
-  if (!SAFE_UID.test(input.uid)) {
-    refuse("The uid must be 1 to 128 letters and digits");
+  if (!isSafeUid(input.uid)) {
+    refuse("The uid must be 1 to 128 letters, digits, hyphens or underscores");
   }
   if (input.months !== undefined && !isValidMonths(input.months)) {
     refuse(`--months must be a whole number from 1 to ${MAX_MONTHS}`);
@@ -66,7 +66,7 @@ export const grantManually = async (input: ManualGrantInput): Promise<ManualGran
   checkInputs(input);
   const { client, paymentId, uid, dryRun, now } = input;
   const paymentPath = `kofiPayments/${paymentId}`;
-  const entitlementPath = `entitlements/${uid}`;
+  const entitlementPath = entitlementPathFor(uid);
 
   const transaction = await client.beginTransaction();
   try {
@@ -105,11 +105,7 @@ export const grantManually = async (input: ManualGrantInput): Promise<ManualGran
 
     const writes: DocumentWrite[] = [];
     if (decision.status === "granted") {
-      writes.push({
-        kind: "merge",
-        path: entitlementPath,
-        fields: { premium: true, source: "kofi", expiresAt: decision.expiresAt, updatedAt: now },
-      });
+      writes.push(entitlementWrite(uid, decision.expiresAt, "kofi", now));
     }
     writes.push({
       kind: "merge",
@@ -131,5 +127,5 @@ export const resolveGrantUid = async (
   if (target.uid !== undefined) return target.uid;
   if (target.email === undefined) return null;
   const uid = await client.lookupUidByEmail(target.email.trim().toLowerCase());
-  return uid && uid.length <= 128 && !uid.includes("/") ? uid : null;
+  return isSafeUid(uid) ? uid : null;
 };

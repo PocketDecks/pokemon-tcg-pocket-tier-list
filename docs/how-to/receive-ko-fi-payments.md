@@ -32,7 +32,7 @@ For each delivery it works through these steps:
    `premiumCodes/{code}`, which holds `{ uid }`. The Worker accepts codes in
    any case and normalises them to upper case, because document IDs are upper
    case. No letter or digit may sit directly before or after one, in any
-   case. The uid must be up to 128 letters and digits, and the Worker asks
+   case. The uid must be up to 128 letters, digits, hyphens or underscores, and the Worker asks
    Identity Toolkit for it by `localId`. It accepts exactly one account that
    is not disabled, with or without a verified email, and otherwise moves on
    to the email. The popup opened from the account menu leads with the email

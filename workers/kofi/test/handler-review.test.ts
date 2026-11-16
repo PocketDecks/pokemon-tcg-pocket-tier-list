@@ -257,7 +257,7 @@ describe("review and matching", () => {
     expect(response.status).toBe(500);
   });
 
-  it.each(["bad/uid", "a".repeat(129), "has space", "uid-with-dash"])(
+  it.each(["bad/uid", "a".repeat(129), "has space", "uid#hash"])(
     "ignores a premium code whose uid is %s",
     async (uid) => {
       const { post, google } = setup();
@@ -325,16 +325,23 @@ describe("review and matching", () => {
 });
 
 describe("review data", () => {
-  it("stacks onto the right entitlement when the uid holds URL characters", async () => {
+  it("stacks onto the entitlement of a uid with a hyphen and an underscore", async () => {
     const { post, google } = setup();
-    google.addUser("ash@example.com", "ash#1");
-    google.seed("entitlements/ash#1", {
+    google.addUser("ash@example.com", "ash-1_x");
+    google.seed("entitlements/ash-1_x", {
       premium: true,
       expiresAt: new Date("2027-03-08T12:00:00.000Z"),
     });
     expect((await post(payment())).status).toBe(200);
-    expect(google.read("entitlements/ash#1")?.expiresAt).toBe("2027-08-08T12:00:00.000Z");
-    expect(google.docPaths()).not.toContain("entitlements/ash");
+    expect(google.read("entitlements/ash-1_x")?.expiresAt).toBe("2027-08-08T12:00:00.000Z");
+  });
+
+  it("leaves a payment unmatched when the email belongs to a uid with a hash", async () => {
+    const { post, google } = setup();
+    google.addUser("ash@example.com", "ash#1");
+    expect((await post(payment())).status).toBe(200);
+    expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ status: "unmatched" });
+    expect(google.docPaths().some((path) => path.startsWith("entitlements/"))).toBe(false);
   });
 
   it("leaves a payment unmatched when the email belongs to a uid with a slash", async () => {

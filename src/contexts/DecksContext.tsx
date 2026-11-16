@@ -64,7 +64,9 @@ export const DecksProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const { data: rawDecks = null, error: decksError } = useDecksData(window);
   useFallbackWhenDenied(decksError);
-  const { data: metaShare } = useMetaShareData(window);
+  const shareQuery = useMetaShareData(window);
+  // Share data is optional: a failed load reads as no share data.
+  const metaShare = shareQuery.isError ? null : (shareQuery.data ?? null);
 
   const scoreBaseline = useMemo(
     () => (rawDecks ? getScoreBaseline(rawDecks) : null),
@@ -217,5 +219,7 @@ const useMetaShareData = (window: MetaWindow) => {
     queryKey: metaShareKey(window, tier),
     queryFn: () => loadMetaShare(window, tier),
     ...windowQueryOptions(window, isPremium),
+    // Two retries for a failed share load; a denied premium read is not retried.
+    retry: retryUnlessDenied,
   });
 };

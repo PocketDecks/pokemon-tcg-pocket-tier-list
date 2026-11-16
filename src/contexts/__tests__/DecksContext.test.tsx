@@ -223,6 +223,30 @@ describe("DecksProvider with a drifted card id", () => {
     expect(await screen.findByText(GOOD_DECK)).toBeInTheDocument();
   });
 
+  it("retries a rejected meta-share load twice and then stops", async () => {
+    const shareRequest = vi.fn(() => Promise.reject(new Error("network down")));
+    vi.spyOn(global, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("meta-share.json")) return shareRequest();
+      if (url.endsWith("best-decks.json")) return jsonResponse(decks);
+
+      return jsonResponse(rawCards);
+    });
+
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <DecksProvider>
+          <DeckNames />
+        </DecksProvider>
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => expect(shareRequest).toHaveBeenCalledTimes(3), { timeout: 6000 });
+    expect(await screen.findByText(GOOD_DECK)).toBeInTheDocument();
+  }, 10_000);
+
   it("treats malformed JSON in a 200 meta-share response as absent", async () => {
     vi.spyOn(global, "fetch").mockImplementation((input) => {
       const url = String(input);

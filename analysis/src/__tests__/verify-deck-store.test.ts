@@ -1,5 +1,4 @@
 import fs from "fs";
-import { createHash } from "node:crypto";
 import os from "os";
 import path from "path";
 import { vi } from "vitest";
@@ -112,67 +111,12 @@ describe("verify-deck-store", () => {
     );
   });
 
-  it("fails on a stray shard staging sidecar", () => {
+  it.each([".tmp", ".tmp.owner", ".bak", ".created"])("fails on a stray shard %s file", (suffix) => {
     healthyStore();
-    fs.writeFileSync(
-      path.join(dir, "shard-2026-09.ndjson.tmp.owner"),
-      JSON.stringify({ version: 1, sha256: "deadbeef" })
-    );
+    fs.writeFileSync(path.join(dir, `shard-2026-09.ndjson${suffix}`), "x");
 
     expect(runVerify({ dir })).toBe(1);
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("unproven writer proof"));
-  });
-
-  it("accepts a completed target with a matching owner proof", () => {
-    healthyStore();
-    const target = path.join(dir, "manifest.json");
-    fs.writeFileSync(`${target}.tmp.owner`, JSON.stringify({
-      version: 1,
-      sha256: createHash("sha256").update(fs.readFileSync(target)).digest("hex"),
-    }));
-
-    expect(runVerify({ dir })).toBe(0);
-  });
-
-  it("fails on an invalid owner proof beside a completed target", () => {
-    healthyStore();
-    const target = path.join(dir, "manifest.json");
-    fs.writeFileSync(`${target}.tmp.owner`, JSON.stringify({ version: 1, sha256: "deadbeef" }));
-
-    expect(runVerify({ dir })).toBe(1);
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("unproven writer proof"));
-  });
-
-  it("accepts an owner proof whose target hash matches the current target", () => {
-    healthyStore();
-    const target = path.join(dir, "manifest.json");
-    fs.writeFileSync(`${target}.tmp.owner`, JSON.stringify({
-      version: 1,
-      targetSha256: createHash("sha256").update(fs.readFileSync(target)).digest("hex"),
-    }));
-
-    expect(runVerify({ dir })).toBe(0);
-  });
-
-  it("fails on an owner proof that is not JSON", () => {
-    healthyStore();
-    const target = path.join(dir, "manifest.json");
-    fs.writeFileSync(`${target}.tmp.owner`, "not json");
-
-    expect(runVerify({ dir })).toBe(1);
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("unproven writer proof"));
-  });
-
-  it("fails on an owner proof with an unsupported version", () => {
-    healthyStore();
-    const target = path.join(dir, "manifest.json");
-    fs.writeFileSync(`${target}.tmp.owner`, JSON.stringify({
-      version: 2,
-      sha256: createHash("sha256").update(fs.readFileSync(target)).digest("hex"),
-    }));
-
-    expect(runVerify({ dir })).toBe(1);
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("unproven writer proof"));
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("stray staging file"));
   });
 
   it("fails on an invalid processed-tournaments entry", () => {

@@ -1,16 +1,9 @@
 import fs from "fs";
-import {
-  buildArtefactProof,
-  proofCoversTarget,
-  readProof,
-  sidecarNames,
-} from "../../../scripts/refresh-sidecars.mjs";
 import { renameWithRetry } from "./rename-with-retry";
 
 type Artefact = {
   target: string;
   temporary: string;
-  proof: string;
   backup: string;
   marker: string;
   content: string;
@@ -25,7 +18,9 @@ const planArtefacts = (files: Record<string, string>): Artefact[] =>
     const hadTarget = fs.existsSync(target);
     return {
       target,
-      ...sidecarNames(target),
+      temporary: `${target}.tmp`,
+      backup: `${target}.bak`,
+      marker: `${target}.created`,
       content: files[target],
       previous: hadTarget ? fs.readFileSync(target, "utf8") : null,
       hadTarget,
@@ -38,31 +33,20 @@ const refuseStale = (artefact: Artefact): never => {
   throw new Error(`Refusing stale staging files for ${artefact.target}`);
 };
 
-const proofMatchesPrevious = (artefact: Artefact): boolean => {
-  const record = readProof(artefact.proof);
-  return record !== undefined && proofCoversTarget(record, artefact.previous ?? "");
-};
-
 const preflight = (artefacts: Artefact[]): void => {
   for (const artefact of artefacts) {
-    const hasTemporary = fs.existsSync(artefact.temporary);
-    const hasBackup = fs.existsSync(artefact.backup);
-    const hasMarker = fs.existsSync(artefact.marker);
-    if (hasTemporary || hasBackup || hasMarker) refuseStale(artefact);
-    if (fs.existsSync(artefact.proof)) {
-      if (!artefact.hadTarget) refuseStale(artefact);
-      if (!proofMatchesPrevious(artefact)) refuseStale(artefact);
-      fs.rmSync(artefact.proof, { force: true });
+    if (
+      fs.existsSync(artefact.temporary) ||
+      fs.existsSync(artefact.backup) ||
+      fs.existsSync(artefact.marker)
+    ) {
+      refuseStale(artefact);
     }
   }
 };
 
 const stage = (artefacts: Artefact[]): void => {
   for (const artefact of artefacts) {
-    fs.writeFileSync(
-      artefact.proof,
-      buildArtefactProof({ content: artefact.content, previous: artefact.previous })
-    );
     fs.writeFileSync(artefact.temporary, artefact.content);
     // A target this write creates leaves a marker, so an interrupted run
     // leaves evidence that the target is new.
@@ -154,12 +138,6 @@ const cleanUpAfterFailure = (artefacts: Artefact[]): void => {
       `Could not remove artefact staging file ${artefact.temporary}:`
     );
   }
-  for (const artefact of artefacts) {
-    if (fs.existsSync(artefact.temporary)) continue;
-    removeOrWarn(artefact.proof, `Could not remove artefact proof ${artefact.proof}:`, {
-      force: true,
-    });
-  }
 };
 
 const cleanUpAfterCommit = (artefacts: Artefact[]): void => {
@@ -170,9 +148,6 @@ const cleanUpAfterCommit = (artefacts: Artefact[]): void => {
   for (const artefact of artefacts) {
     if (!fs.existsSync(artefact.marker)) continue;
     removeOrWarn(artefact.marker, committedWarning("marker", artefact.marker));
-  }
-  for (const artefact of artefacts) {
-    removeOrWarn(artefact.proof, committedWarning("proof", artefact.proof), { force: true });
   }
 };
 

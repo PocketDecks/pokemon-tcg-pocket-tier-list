@@ -60,7 +60,7 @@ const main = () => {
     }
     return;
   }
-  writeFileAtomic(CONFIG_FILE, output, { refreshRecovery: true });
+  writeFileAtomic(CONFIG_FILE, output);
   console.log(`Wrote ${rules.length} archived deck redirects to ${CONFIG_FILE}`);
 };
 

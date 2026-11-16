@@ -279,9 +279,9 @@ const main = () => {
     }
     return;
   }
-  writeFileAtomic(OUT_FILE, output, { refreshRecovery: true });
+  writeFileAtomic(OUT_FILE, output);
   fs.mkdirSync(HUBS_DIR, { recursive: true });
-  for (const [hub, content] of hubs) writeFileAtomic(path.join(HUBS_DIR, `${hub}.json`), hubFileText(content), { refreshRecovery: true });
+  for (const [hub, content] of hubs) writeFileAtomic(path.join(HUBS_DIR, `${hub}.json`), hubFileText(content));
   for (const name of orphanHubFiles(hubs, HUBS_DIR)) fs.rmSync(path.join(HUBS_DIR, name));
   console.log(`Wrote ${archive.length} archived deck variants and ${hubs.size} hub files to ${HUBS_DIR}`);
 };

@@ -219,6 +219,22 @@ test("passes a locale dynamic route once its pages are built", () => {
   );
 });
 
+test("flags a dynamic route whose built deck page hosting redirects to a missing destination", () => {
+  const dir = makeDist({ "index.html": "", "deck/index.html": "", "deck/x/index.html": "" });
+  const firebase = {
+    hosting: { redirects: [{ source: "/deck/**", destination: "/missing/", type: 301 }], rewrites: [] },
+  };
+  assert.deepStrictEqual(findEnglishRoutes(dir, { routes: ["/deck/:deckId"], firebase }), [
+    "/deck/x/: redirect to /missing/ does not resolve",
+  ]);
+});
+
+test("passes a dynamic route whose built deck page hosting serves directly", () => {
+  const dir = makeDist({ "index.html": "", "deck/index.html": "", "deck/x/index.html": "" });
+  const firebase = { hosting: { redirects: [], rewrites: [] } };
+  assert.deepStrictEqual(findEnglishRoutes(dir, { routes: ["/deck/:deckId"], firebase }), []);
+});
+
 test("lists the routes under every locale prefix", () => {
   assert.deepStrictEqual(appRoutePaths(LOCALE_APP_ROUTES), [
     "/",

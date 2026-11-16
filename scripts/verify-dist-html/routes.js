@@ -13,6 +13,21 @@ const appRoutePaths = (routes = PAGE_ROUTES.map(({ route }) => route)) =>
     ...routes.filter((route) => route !== "/").map((route) => `${prefix}${route}`),
   ]);
 
+// A redirect is only fine when its destination is a built file or a rewrite to a built file.
+const redirectIssues = (firebase, files, route, location) => {
+  const destination = resolveHosting(firebase, files, location);
+  if (destination.kind === "rewrite" && !files.has(destination.file)) {
+    return [`${location}: rewrite target ${destination.file} is not built`];
+  }
+  if (
+    destination.kind !== "file" &&
+    !(destination.kind === "rewrite" && files.has(destination.file))
+  ) {
+    return [`${route}: redirect to ${location} does not resolve`];
+  }
+  return [];
+};
+
 const unresolvedAppRoutes = (
   dist,
   {
@@ -27,32 +42,28 @@ const unresolvedAppRoutes = (
       if (route.includes("/:")) {
         const prefix = route.slice(1, route.indexOf("/:"));
         const depth = prefix.split("/").length + 2;
-        const hasPage = [...files].some(
+        const page = [...files].find(
           (file) =>
             file.startsWith(`${prefix}/`) &&
             file.split("/").length === depth &&
             file.endsWith("/index.html")
         );
-        return hasPage ? [] : [`${route}: no prerendered page under /${prefix}/`];
+        if (!page) return [`${route}: no prerendered page under /${prefix}/`];
+        // Hosting has to serve one generated URL under the prefix from its built page.
+        const url = `/${page.slice(0, -"index.html".length)}`;
+        const served = resolveHosting(firebase, files, url);
+        if (served.kind === "redirect") return redirectIssues(firebase, files, url, served.location);
+        if (served.kind !== "file" || served.file !== page) {
+          return [`${url}: does not resolve to its built page ${page}`];
+        }
+        return [];
       }
       const resolved = resolveHosting(firebase, files, route);
       if (resolved.kind === "not-found") return [`${route}: no file, redirect or rewrite`];
-      if (resolved.kind === "redirect") {
-        const destination = resolveHosting(firebase, files, resolved.location);
-        if (destination.kind === "rewrite" && !files.has(destination.file)) {
-          return [`${resolved.location}: rewrite target ${destination.file} is not built`];
-        }
-        if (
-          destination.kind !== "file" &&
-          !(destination.kind === "rewrite" && files.has(destination.file))
-        ) {
-          return [`${route}: redirect to ${resolved.location} does not resolve`];
-        }
-      }
+      if (resolved.kind === "redirect") return redirectIssues(firebase, files, route, resolved.location);
       if (resolved.kind === "rewrite" && !files.has(resolved.file)) {
         return [`${route}: rewrite target ${resolved.file} is not built`];
       }
-      if (resolved.kind === "redirect") return [];
       const slashedRoute = route === "/" ? "/" : `${route}/`;
       const slashed = resolveHosting(firebase, files, slashedRoute);
       if (slashed.kind === "not-found") return [`${slashedRoute}: no file, redirect or rewrite`];

@@ -5,7 +5,8 @@ const path = require("path");
 const { deckNameToIconIds } = require("../deck-name.mjs");
 const { deckSlug } = require("../deck-slug.mjs");
 const { CARD_THUMB_WIDTHS, DECK_THUMB_SIZES, DECK_THUMB_VERSION, deckListCardIds } = require("../deck-thumbs.mjs");
-const { DIST_DIR, deckDetailEntries, deckPageEntries, loadArchive, loadDecks } = require("./shared");
+const { archiveOnlyHubs } = require("./hubs");
+const { DIST_DIR, deckDetailEntries, deckPageEntries, loadDecks } = require("./shared");
 
 const findMissingDeckThumbs = (dir = DIST_DIR, decks = loadDecks()) => {
   const thumbDir = path.join(dir, "thumbs", `v${DECK_THUMB_VERSION}`);
@@ -42,7 +43,7 @@ const imageCandidates = (tag) =>
 
 const deckImagePreloadIssues = (
   dist,
-  hubSlugs = new Set(loadArchive().map((entry) => entry.hub)),
+  hubSlugs = new Set(archiveOnlyHubs()),
   cardlessSlugs = new Set()
 ) =>
   deckDetailEntries(dist)

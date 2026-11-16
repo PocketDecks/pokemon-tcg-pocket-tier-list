@@ -24,6 +24,7 @@ const {
   loadDecks,
   findModulepreloadDrift,
 } = require("../verify-dist-html");
+const { archiveOnlyHubs } = require("../verify-dist-html/hubs");
 const { localeMetaFor } = require("../prerender-routes");
 const { stampHead } = require("../meta-stamp");
 const { makeDist } = require("./verify-dist-html-fixtures");
@@ -332,6 +333,20 @@ test("skips archetype hub pages, which carry no lead-card image preload", () => 
     ...CARD_THUMBS,
   });
   assert.deepStrictEqual(findDeckImagePreloadIssues(dir, new Set(["umbreon"])), []);
+});
+
+test("a live deck that shares a slug with an archive hub still gets its image preload checked", () => {
+  const archive = [{ hub: "umbreon" }, { hub: "eevee" }];
+  const decks = [{ name: "umbreon" }];
+  assert.deepStrictEqual(archiveOnlyHubs(archive, decks), ["eevee"]);
+  const dir = makeDist({
+    "deck/umbreon/index.html": "<head></head>",
+    "deck/eevee/index.html": "<head></head>",
+    ...CARD_THUMBS,
+  });
+  assert.deepStrictEqual(findDeckImagePreloadIssues(dir, new Set(archiveOnlyHubs(archive, decks))), [
+    `deck${path.sep}umbreon${path.sep}index.html: expected 1 image preload, found 0`,
+  ]);
 });
 
 test("flags an image preload that points at a file missing from dist/thumbs", () => {

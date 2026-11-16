@@ -38,9 +38,14 @@ const hubHtmlIssues = (entry, html, expectedRobots, expectedName) => {
   return issues;
 };
 
-const hubPageIssues = (dist, archive = loadArchive(), decks = loadDecks()) => {
+// Archive hubs that no live deck shares a slug with. Only these get a hub page.
+const archiveOnlyHubs = (archive = loadArchive(), decks = loadDecks()) => {
   const liveSlugs = new Set(decks.map((deck) => deckSlug(deck.name)));
-  const hubs = [...new Set(archive.map((entry) => entry.hub))].filter((hub) => !liveSlugs.has(hub));
+  return [...new Set(archive.map((entry) => entry.hub))].filter((hub) => !liveSlugs.has(hub));
+};
+
+const hubPageIssues = (dist, archive = loadArchive(), decks = loadDecks()) => {
+  const hubs = archiveOnlyHubs(archive, decks);
   return hubs.flatMap((hub) => {
     const entries = archive.filter((entry) => entry.hub === hub);
     const indexed = shouldIndexHub(entries);
@@ -57,5 +62,6 @@ const hubPageIssues = (dist, archive = loadArchive(), decks = loadDecks()) => {
 module.exports = {
   metaContent,
   hubHtmlIssues,
+  archiveOnlyHubs,
   hubPageIssues,
 };

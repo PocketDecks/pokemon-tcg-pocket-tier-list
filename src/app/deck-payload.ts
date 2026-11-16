@@ -1,4 +1,5 @@
 import type {
+  MetaShareEntry,
   PipelineMatchupData,
   PipelineMetaShare,
   PipelinePartialDeck,
@@ -51,22 +52,48 @@ export const fetchBestDecks = async (
     metaWindowDataFile("best-decks", window)
   );
 
-// Share data is optional: any failure (network, 404, malformed JSON, wrong
-// shape) degrades to null so deck pages and statistics keep loading.
+const isOptional = (value: unknown, check: (value: unknown) => boolean): boolean =>
+  value === undefined || check(value);
+
+const isString = (value: unknown): value is string => typeof value === "string";
+
+const isMetaShareEntry = (entry: unknown): entry is MetaShareEntry =>
+  isRecord(entry) &&
+  isString(entry.name) &&
+  isFiniteNumber(entry.share) &&
+  isFiniteNumber(entry.windowGames) &&
+  isOptional(entry.sharePrev, isFiniteNumber) &&
+  isOptional(entry.delta, isFiniteNumber) &&
+  isOptional(entry.firstSeen, isString) &&
+  isOptional(entry.isNew, (value) => typeof value === "boolean");
+
+const parseMetaShare = (data: unknown, file: string): PipelineMetaShare => {
+  if (
+    !isRecord(data) ||
+    !isString(data.generatedAt) ||
+    !(data.windowDays === null || isFiniteNumber(data.windowDays)) ||
+    !Array.isArray(data.decks) ||
+    !data.decks.every(isMetaShareEntry)
+  ) {
+    throw new Error(`${file} has an unexpected shape`);
+  }
+  return {
+    generatedAt: data.generatedAt,
+    windowDays: data.windowDays,
+    decks: data.decks,
+  };
+};
+
+// A failed load throws. React Query retries it and then reports an error,
+// so a bad response is never cached as "no share data".
 export const loadMetaShare = async (
   window: MetaWindow,
   tier: ArtefactTier
-): Promise<PipelineMetaShare | null> => {
-  try {
-    const data = await loadTieredArtefact("meta-share", window, tier);
-    if (isRecord(data) && Array.isArray(data.decks)) {
-      return data as unknown as PipelineMetaShare;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-};
+): Promise<PipelineMetaShare> =>
+  parseMetaShare(
+    await loadTieredArtefact("meta-share", window, tier),
+    metaWindowDataFile("meta-share", window)
+  );
 
 export interface SanitisedMatchupData {
   matchups: PipelineMatchupData;

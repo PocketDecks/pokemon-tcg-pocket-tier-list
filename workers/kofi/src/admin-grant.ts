@@ -1,9 +1,9 @@
 import { readBody } from "./body";
 import { isSafeUid } from "./entitlement";
-import { UpstreamError } from "./errors";
+import { describeFailure } from "./errors";
 import type { FirestoreClient } from "./firestore";
+import { isValidMonths, isValidPaymentId } from "./ids";
 import { grantManually, ManualGrantRefusal, resolveGrantUid } from "./manual-grant";
-import { MAX_MONTHS } from "./months";
 import { tokensMatch } from "./token";
 
 export interface AdminGrantDeps {
@@ -20,7 +20,6 @@ interface GrantRequest {
   dryRun: boolean;
 }
 
-const SAFE_PAYMENT_ID = /^[A-Za-z0-9_-]{1,200}$/;
 const MAX_EMAIL_LENGTH = 320;
 const BEARER = /^bearer +(\S+)$/i;
 
@@ -43,19 +42,14 @@ const parseRequest = (text: string): GrantRequest | null => {
   const record = value as Record<string, unknown>;
 
   const { payment, uid, email, months, dryRun } = record;
-  if (typeof payment !== "string" || !SAFE_PAYMENT_ID.test(payment)) return null;
+  if (typeof payment !== "string" || !isValidPaymentId(payment)) return null;
   if ((uid === undefined) === (email === undefined)) return null;
   if (uid !== undefined && !isSafeUid(uid)) return null;
   if (email !== undefined) {
     if (typeof email !== "string") return null;
     if (email.trim() === "" || email.length > MAX_EMAIL_LENGTH) return null;
   }
-  if (
-    months !== undefined &&
-    (typeof months !== "number" || !Number.isInteger(months) || months < 1 || months > MAX_MONTHS)
-  ) {
-    return null;
-  }
+  if (months !== undefined && !isValidMonths(months)) return null;
   if (dryRun !== undefined && typeof dryRun !== "boolean") return null;
 
   return {
@@ -112,9 +106,7 @@ export const handleAdminGrant = async (
       console.log(`kofi admin grant ${parsed.payment} refused`);
       return failure(409, error.message);
     }
-    const cause =
-      error instanceof UpstreamError ? error.message : error instanceof Error ? error.name : "unknown";
-    console.error(`kofi admin grant ${parsed.payment} failed: ${cause}`);
+    console.error(`kofi admin grant ${parsed.payment} failed: ${describeFailure(error)}`);
     return failure(500, "upstream failure");
   }
 };

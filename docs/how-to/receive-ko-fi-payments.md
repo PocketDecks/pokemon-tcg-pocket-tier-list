@@ -292,8 +292,9 @@ it before the transaction. Delete the key file afterwards
 
 The command posts JSON to `/admin/grant` with the header
 `Authorization: Bearer <token>`. The body holds `payment`, exactly one of
-`uid` or `email`, and optionally `months` and `dryRun`. The Worker
-compares the token in constant time before it reads the body or calls
+`uid` or `email`, and optionally `months` and `dryRun`. The payment id
+must be 1 to 128 letters, digits, hyphens or underscores, the same rule
+the webhook applies. The Worker compares the token in constant time before it reads the body or calls
 Google. It trims and lower-cases the email, then asks Identity Toolkit
 for exactly one verified, enabled account
 

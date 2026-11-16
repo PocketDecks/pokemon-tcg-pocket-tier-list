@@ -28,20 +28,19 @@ import {
 
 const PERKS = ["noAds", "windows", "filters", "rankings", "decks", "data", "contact", "earlyAccess", "gratitude"] as const;
 
+// The panel is keyed by account, so this state never outlives the account it was made for.
 interface CodeResult {
-  uid: string;
   code: string | null;
   failed: boolean;
 }
 
 interface CopyFeedback {
-  uid: string;
   code: string;
   status: "copied" | "failed";
 }
 
+// Set when the visitor leaves for Ko-fi; cleared once the new expiry shows up.
 interface TipState {
-  uid: string;
   expiry: number | null;
   wasPremium: boolean;
 }
@@ -53,28 +52,24 @@ const SupporterPanel = () => {
   const { user, signInWithGoogle } = useAuth();
   const queryClient = useQueryClient();
   const [isAltOpen, setIsAltOpen] = useState(false);
-  const [tipState, setTipState] = useState<TipState | null>(null);
+  const [tip, setTip] = useState<TipState | null>(null);
   const [codeResult, setCodeResult] = useState<CodeResult | null>(null);
   const [copyFeedback, setCopyFeedback] = useState<CopyFeedback | null>(null);
   const lifetime = expiresAt === null || expiresAt > LIFETIME_THRESHOLD_MS;
   const premiumState = isPremium ? (lifetime ? "lifetime" : "expires") : "free";
-  const waiting =
-    !!tipState &&
-    tipState.uid === user?.uid &&
-    premiumState !== "lifetime" &&
-    (!isPremium || expiresAt === tipState.expiry);
+  const expiryChanged = !!tip && expiresAt !== tip.expiry;
+  const waiting = !!tip && premiumState !== "lifetime" && (!isPremium || !expiryChanged);
 
   useEffect(() => {
     const uid = user?.uid;
     if (!isAltOpen || !uid || (isPremium && lifetime)) return;
     let active = true;
-    setCodeResult((current) => (current?.uid === uid ? current : null));
     void loadPremiumCode(uid).then(
       (code) => {
-        if (active) setCodeResult({ uid, code, failed: false });
+        if (active) setCodeResult({ code, failed: false });
       },
       () => {
-        if (active) setCodeResult({ uid, code: null, failed: true });
+        if (active) setCodeResult({ code: null, failed: true });
       }
     );
     return () => {
@@ -83,15 +78,8 @@ const SupporterPanel = () => {
   }, [expiresAt, isAltOpen, isPremium, lifetime, user?.uid]);
 
   useEffect(() => {
-    if (!tipState) return;
-    if (
-      tipState.uid === user?.uid &&
-      isPremium &&
-      (!tipState.wasPremium || expiresAt !== tipState.expiry)
-    ) {
-      setTipState(null);
-    }
-  }, [expiresAt, isPremium, tipState, user?.uid]);
+    if (tip && isPremium && (!tip.wasPremium || expiryChanged)) setTip(null);
+  }, [expiryChanged, isPremium, tip]);
 
   useEffect(() => {
     const uid = user?.uid;
@@ -105,12 +93,8 @@ const SupporterPanel = () => {
 
   if (isPremium === null) return null;
 
-  const currentCode = codeResult?.uid === user?.uid ? codeResult : null;
   const copyStatus =
-    copyFeedback &&
-    currentCode &&
-    copyFeedback.uid === currentCode.uid &&
-    copyFeedback.code === currentCode.code
+    copyFeedback && codeResult && copyFeedback.code === codeResult.code
       ? copyFeedback.status
       : null;
   const date = expiresAt === null ? "" : new Intl.DateTimeFormat(i18n.language, {
@@ -134,17 +118,17 @@ const SupporterPanel = () => {
   };
 
   const copyCode = async () => {
-    if (!currentCode?.code) return;
-    const feedback = { uid: currentCode.uid, code: currentCode.code };
+    const code = codeResult?.code;
+    if (!code) return;
     if (!navigator.clipboard?.writeText) {
-      setCopyFeedback({ ...feedback, status: "failed" });
+      setCopyFeedback({ code, status: "failed" });
       return;
     }
     try {
-      await navigator.clipboard.writeText(currentCode.code);
-      setCopyFeedback({ ...feedback, status: "copied" });
+      await navigator.clipboard.writeText(code);
+      setCopyFeedback({ code, status: "copied" });
     } catch {
-      setCopyFeedback({ ...feedback, status: "failed" });
+      setCopyFeedback({ code, status: "failed" });
     }
   };
 
@@ -180,9 +164,7 @@ const SupporterPanel = () => {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => {
-              if (user?.uid) {
-                setTipState({ uid: user.uid, expiry: expiresAt, wasPremium: isPremium });
-              }
+              setTip({ expiry: expiresAt, wasPremium: isPremium });
             }}
           >
             {ctaLabel}
@@ -212,14 +194,14 @@ const SupporterPanel = () => {
               </AltToggle>
               {isAltOpen && (
                 <AltSection>
-                  {currentCode?.failed ? (
+                  {codeResult?.failed ? (
                     <Text role="status">
                       {t(user?.email ? "premium.codeUnavailable" : "premium.codeUnavailableNoEmail")}
                     </Text>
-                  ) : currentCode?.code ? (
+                  ) : codeResult?.code ? (
                     <>
                       <Text>
-                        <code>{currentCode.code}</code>{" "}
+                        <code>{codeResult.code}</code>{" "}
                         <ActionButton aria-live="polite" onClick={() => void copyCode()}>
                           {t(copyStatus === "copied" ? "premium.copied" : "premium.copy")}
                         </ActionButton>

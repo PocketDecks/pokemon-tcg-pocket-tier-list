@@ -23,11 +23,11 @@ import {
 } from "../app/deck-payload";
 import { getScoreBaseline, type ScoreBaseline } from "../app/score-baseline";
 import {
-  DEFAULT_META_WINDOW,
-  isPremiumMetaWindow,
-  type ArtefactTier,
-  type MetaWindow,
-} from "../app/meta-window";
+  DEFAULT_WINDOW,
+  isPremiumWindow,
+  type WindowId,
+} from "../types/meta-windows";
+import type { ArtefactTier } from "../app/meta-window";
 import { PremiumAccessError } from "../app/premium-data";
 import { decksKey, matchupsKey, metaShareKey } from "../app/query-keys";
 import { useMetaWindow } from "../app/use-meta-window";
@@ -186,7 +186,7 @@ export const useDeckDetail = (
 const useFallbackWhenDenied = (error: Error | null) => {
   const { setWindow } = useMetaWindow();
   useEffect(() => {
-    if (error instanceof PremiumAccessError) setWindow(DEFAULT_META_WINDOW);
+    if (error instanceof PremiumAccessError) setWindow(DEFAULT_WINDOW);
   }, [error, setWindow]);
 };
 
@@ -195,15 +195,15 @@ const PREMIUM_LOAD_ATTEMPTS = 3;
 const retryUnlessDenied = (failureCount: number, error: Error): boolean =>
   !(error instanceof PremiumAccessError) && failureCount < PREMIUM_LOAD_ATTEMPTS - 1;
 
-const windowQueryOptions = (window: MetaWindow, isPremium: boolean | null) => ({
-  enabled: !isPremiumMetaWindow(window) || isPremium === true,
-  ...(isPremiumMetaWindow(window) ? { retry: retryUnlessDenied } : {}),
+const windowQueryOptions = (window: WindowId, isPremium: boolean | null) => ({
+  enabled: !isPremiumWindow(window) || isPremium === true,
+  ...(isPremiumWindow(window) ? { retry: retryUnlessDenied } : {}),
 });
 
 const tierOf = (isPremium: boolean | null): ArtefactTier =>
   isPremium === true ? "full" : "public";
 
-const useDecksData = (window: MetaWindow) => {
+const useDecksData = (window: WindowId) => {
   const isPremium = useIsPremium();
   return useQuery({
     queryKey: decksKey(window),
@@ -212,7 +212,7 @@ const useDecksData = (window: MetaWindow) => {
   });
 };
 
-const useMetaShareData = (window: MetaWindow) => {
+const useMetaShareData = (window: WindowId) => {
   const isPremium = useIsPremium();
   const tier = tierOf(isPremium);
   return useQuery({

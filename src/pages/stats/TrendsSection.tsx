@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { META_WINDOW_LENGTH_DAYS } from "../../app/meta-window";
+import { WINDOW_LENGTH_DAYS } from "../../types/meta-windows";
 import { useMetaWindow } from "../../app/use-meta-window";
 import usePipelineTrends from "../../app/use-pipeline-trends";
 import { deckDisplayName } from "../../app/deck-display";
@@ -25,7 +25,7 @@ const TrendsSection = ({ decks, pinnedSeries, onPinnedSeriesChange }: Props) => 
 
     const visibleRows = useMemo(() => {
         if (!rows.length) return [];
-        const days = META_WINDOW_LENGTH_DAYS[metaWindow];
+        const days = WINDOW_LENGTH_DAYS[metaWindow];
         if (days === null) return rows;
 
         // Anchored on the newest data, not the wall clock. Spans N calendar

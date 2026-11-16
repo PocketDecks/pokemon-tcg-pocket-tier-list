@@ -1,4 +1,4 @@
-import type { MetaWindow } from "../../app/meta-window";
+import type { WindowId } from "../../types/meta-windows";
 
 export interface DeckRouteInput {
   deckId: string;
@@ -7,9 +7,9 @@ export interface DeckRouteInput {
   /** null while premium status is still being read. */
   isPremium: boolean | null;
   /** Windows that list this deck, empty when the deck is not Supporter-only. */
-  premiumWindows: readonly MetaWindow[];
+  premiumWindows: readonly WindowId[];
   /** The tier list window the viewer has selected. */
-  window: MetaWindow;
+  window: WindowId;
   /** The deck id a window switch was already made for, if any. */
   switchedFor: string | null;
   /** Hub of the archive entry for this variant, null when the archive has no entry. */
@@ -23,7 +23,7 @@ export type DeckRouteKind = "skeleton" | "gate" | "detail" | "hub" | "redirect" 
 export interface DeckRouteDecision {
   kind: DeckRouteKind;
   /** Window to select before the deck can show. Set only when a switch is still pending. */
-  switchTo: MetaWindow | null;
+  switchTo: WindowId | null;
 }
 
 export const resolveDeckRoute = (input: DeckRouteInput): DeckRouteDecision => {

@@ -5,12 +5,11 @@ import type {
   PipelinePartialDeck,
 } from "../types/pipeline-data";
 import type { MatchupType } from "./deck-types";
+import { windowDataFile, type WindowId } from "../types/meta-windows";
 import {
   loadTieredArtefact,
   loadWindowArtefact,
-  metaWindowDataFile,
   type ArtefactTier,
-  type MetaWindow,
 } from "./meta-window";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -45,11 +44,11 @@ export const parseBestDecks = (
 };
 
 export const fetchBestDecks = async (
-  window: MetaWindow
+  window: WindowId
 ): Promise<PipelinePartialDeck[]> =>
   parseBestDecks(
     await loadWindowArtefact("best-decks", window),
-    metaWindowDataFile("best-decks", window)
+    windowDataFile("best-decks", window)
   );
 
 const isOptional = (value: unknown, check: (value: unknown) => boolean): boolean =>
@@ -87,12 +86,12 @@ const parseMetaShare = (data: unknown, file: string): PipelineMetaShare => {
 // A failed load throws. React Query retries it and then reports an error,
 // so a bad response is never cached as "no share data".
 export const loadMetaShare = async (
-  window: MetaWindow,
+  window: WindowId,
   tier: ArtefactTier
 ): Promise<PipelineMetaShare> =>
   parseMetaShare(
     await loadTieredArtefact("meta-share", window, tier),
-    metaWindowDataFile("meta-share", window)
+    windowDataFile("meta-share", window)
   );
 
 export interface SanitisedMatchupData {
@@ -136,8 +135,8 @@ export const sanitiseMatchupData = (
   return { matchups, dropped };
 };
 
-export const fetchMatchupData = async (window: MetaWindow): Promise<PipelineMatchupData> => {
-  const file = metaWindowDataFile("matchup-data", window);
+export const fetchMatchupData = async (window: WindowId): Promise<PipelineMatchupData> => {
+  const file = windowDataFile("matchup-data", window);
   const data = await loadWindowArtefact("matchup-data", window);
   if (!isRecord(data)) {
     throw new Error(`${file} has an unexpected shape`);

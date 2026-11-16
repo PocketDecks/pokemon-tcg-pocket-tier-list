@@ -1,9 +1,6 @@
 import { useTranslation } from "react-i18next";
-import {
-  META_WINDOWS,
-  META_WINDOW_LABEL_KEYS,
-  isPremiumMetaWindow,
-} from "../app/meta-window";
+import { WINDOW_IDS, isPremiumWindow } from "../types/meta-windows";
+import { META_WINDOW_LABEL_KEYS } from "../app/meta-window";
 import useIsPremium from "../app/use-is-premium";
 import { useMetaWindow } from "../app/use-meta-window";
 import NavIcon from "./NavIcon";
@@ -15,8 +12,8 @@ const WindowToggle = () => {
   const isPremium = useIsPremium();
   const { window, setWindow } = useMetaWindow();
 
-  const options = META_WINDOWS.map((option) => {
-    const locked = isPremiumMetaWindow(option) && !isPremium;
+  const options = WINDOW_IDS.map((option) => {
+    const locked = isPremiumWindow(option) && !isPremium;
     return {
       value: option,
       locked,

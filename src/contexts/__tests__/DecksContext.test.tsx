@@ -245,7 +245,11 @@ describe("DecksProvider with a drifted card id", () => {
 
     await waitFor(() => expect(shareRequest).toHaveBeenCalledTimes(3), { timeout: 6000 });
     expect(await screen.findByText(GOOD_DECK)).toBeInTheDocument();
-  }, 10_000);
+
+    // A fourth attempt would follow the 4s backoff after the third failure.
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    expect(shareRequest).toHaveBeenCalledTimes(3);
+  }, 15_000);
 
   it("treats malformed JSON in a 200 meta-share response as absent", async () => {
     vi.spyOn(global, "fetch").mockImplementation((input) => {

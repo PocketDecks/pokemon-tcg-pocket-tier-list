@@ -44,6 +44,12 @@ jobs:
       - name: Run script tests
         run: yarn test:scripts
 
+      - name: Setup Java for the Firestore emulator
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
       - name: Test Firestore rules
         run: yarn test:rules
 

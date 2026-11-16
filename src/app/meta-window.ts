@@ -7,7 +7,7 @@ import {
   windowDataFile,
   type WindowId,
 } from "../types/meta-windows";
-import { PremiumAccessError, loadPremiumArtefact } from "./premium-data";
+import { loadPremiumArtefact } from "./premium-data";
 
 export const META_WINDOWS = WINDOW_IDS;
 
@@ -64,10 +64,11 @@ export const loadTieredArtefact = async (
   if (tier === "public" || isPremiumMetaWindow(window)) {
     return loadWindowArtefact(base, window);
   }
+  // 10d and 20d have a public file, so any failure of the full read (denied,
+  // offline, hash mismatch) falls back to it. A failed public read still throws.
   try {
     return await loadPremiumArtefact(windowArtefactName(base, window));
-  } catch (error) {
-    if (error instanceof PremiumAccessError) return loadWindowArtefact(base, window);
-    throw error;
+  } catch {
+    return loadWindowArtefact(base, window);
   }
 };

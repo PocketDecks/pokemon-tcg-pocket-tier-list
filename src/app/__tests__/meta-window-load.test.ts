@@ -102,13 +102,23 @@ describe("loadTieredArtefact", () => {
     expect(fetchSpy).toHaveBeenCalledWith("/data/matchup-data-10d.json");
   });
 
-  it("does not hide other failures behind the public file", async () => {
-    const failure = new Error("offline");
-    spies.loadPremiumArtefact.mockRejectedValue(failure);
+  it("falls back to the public file when the full read fails for another reason", async () => {
+    spies.loadPremiumArtefact.mockRejectedValue(new Error("offline"));
 
-    await expect(loadTieredArtefact("matchup-data", "20d", "full")).rejects.toBe(failure);
+    await expect(loadTieredArtefact("meta-share", "20d", "full")).resolves.toEqual([
+      { name: "public" },
+    ]);
 
-    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(fetchSpy).toHaveBeenCalledWith("/data/meta-share.json");
+  });
+
+  it("rejects when the public fallback fails too", async () => {
+    spies.loadPremiumArtefact.mockRejectedValue(new Error("offline"));
+    fetchSpy.mockResolvedValue({ ok: false, status: 500, statusText: "Boom" } as Response);
+
+    await expect(loadTieredArtefact("meta-share", "10d", "full")).rejects.toThrow(
+      "Failed to fetch meta-share-10d.json: 500 Boom"
+    );
   });
 
   it.each(["30d", "all"] as const)(

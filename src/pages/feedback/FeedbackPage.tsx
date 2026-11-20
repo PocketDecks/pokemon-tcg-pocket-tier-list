@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../../app/use-auth";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import Button from "../../components/Button";
+import SignInFailedNotice from "../../components/SignInFailedNotice";
 import NavIcon, { type NavIconName } from "../../components/NavIcon";
 import { submitFeedback } from "../../app/feedback-api";
 import {
@@ -214,6 +215,12 @@ const ErrorText = styled.p`
   color: var(--s);
 `;
 
+const SignInError = styled(SignInFailedNotice)`
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--s);
+`;
+
 const Checkbox = styled.label`
   display: flex;
   align-items: flex-start;
@@ -326,6 +333,7 @@ const FeedbackPage = () => {
             <Button action={() => void signInWithGoogle()}>
               {t("header.signIn", "Sign in with Google")}
             </Button>
+            <SignInError id="feedback-sign-in-error" />
           </Actions>
         </Panel>
       );

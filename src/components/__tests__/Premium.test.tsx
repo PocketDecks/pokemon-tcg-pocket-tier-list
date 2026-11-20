@@ -109,6 +109,18 @@ describe("Premium", () => {
     expect(loadPremiumCode).not.toHaveBeenCalled();
   });
 
+  it("announces a failed sign-in inside the popup and links it to the sign-in button", async () => {
+    vi.mocked(useAuth).mockReturnValue({ ...authValue(null), signInFailed: true });
+    const { dialog } = await openLinkPopup();
+
+    const alert = within(dialog).getByRole("alert");
+    expect(alert).toHaveTextContent(en.userAccount.signInFailed);
+    expect(within(dialog).getByRole("button", { name: en.premium.signIn })).toHaveAttribute(
+      "aria-describedby",
+      alert.id
+    );
+  });
+
   it("lists each perk once and nothing every visitor already gets", async () => {
     const { dialog } = await openLinkPopup();
     const items = within(dialog).getAllByRole("listitem");

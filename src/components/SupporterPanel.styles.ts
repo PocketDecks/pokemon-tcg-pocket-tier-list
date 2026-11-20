@@ -1,4 +1,5 @@
 import styled, { css } from "styled-components";
+import SignInFailedNotice from "./SignInFailedNotice";
 
 export const Body = styled.div`
   display: flex;
@@ -23,6 +24,14 @@ export const Price = styled(Text)`
 export const Hint = styled(Text)`
   font-size: 1.3rem;
   color: var(--text-muted);
+`;
+
+export const SignInError = styled(SignInFailedNotice)`
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--s);
 `;
 
 export const PerksLead = styled(Text)`

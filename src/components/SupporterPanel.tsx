@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
 import { CONTACT_EMAIL, KOFI_URL } from "../app/constants";
@@ -22,6 +22,7 @@ import {
   PerksLead,
   Price,
   Rules,
+  SignInError,
   SmallPrint,
   Text,
 } from "./SupporterPanel.styles";
@@ -49,7 +50,8 @@ const SupporterPanel = () => {
   const { t, i18n } = useTranslation();
   const isPremium = useIsPremium();
   const expiresAt = usePremiumExpiry();
-  const { user, signInWithGoogle } = useAuth();
+  const { user, signInWithGoogle, signInFailed } = useAuth();
+  const signInNoticeId = useId();
   const queryClient = useQueryClient();
   const [isAltOpen, setIsAltOpen] = useState(false);
   const [tip, setTip] = useState<TipState | null>(null);
@@ -151,9 +153,14 @@ const SupporterPanel = () => {
       {!user && premiumState === "free" && (
         <Actions>
           <Text>{t("premium.signInFirst")}</Text>
-          <CtaButton type="button" onClick={() => void signInWithGoogle()}>
+          <CtaButton
+            type="button"
+            onClick={() => void signInWithGoogle()}
+            aria-describedby={signInFailed ? signInNoticeId : undefined}
+          >
             {t("premium.signIn")}
           </CtaButton>
+          <SignInError id={signInNoticeId} alert />
           <Hint>{t("premium.kindNote")}</Hint>
         </Actions>
       )}

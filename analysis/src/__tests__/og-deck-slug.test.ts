@@ -16,9 +16,6 @@ const publishedNames = (): string[] =>
       )
     );
 
-// deckSlug drops punctuation such as the apostrophe in "Team Rocket's", so a
-// slug can differ from its name. What every published name must still give is
-// a lowercase, hyphenated slug that is safe in a URL and a file name.
 const URL_SAFE_SLUG = /^[a-z0-9&]+(-[a-z0-9&]+)*$/;
 
 describe("OG image slugs", () => {

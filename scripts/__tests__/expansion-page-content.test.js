@@ -44,8 +44,6 @@ test("card links on the C1 page resolve to rendered archetype hubs", { skip: !ha
 });
 
 test("an empty set page shows the shrug, stays noindex and renders no card thumbnails", { skip: !hasDist && "dist/ is not built" }, async (t) => {
-  // Take a set that no published deck covers, so the example follows the data
-  // and not a set that a later refresh may start to cover.
   const { coveredCardIdsBySet } = await import("../../src/app/expansion-feed.mjs");
   const decks = JSON.parse(
     fs.readFileSync(path.join(__dirname, "..", "..", "public", "data", "best-decks.json"), "utf8")

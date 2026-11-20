@@ -140,8 +140,6 @@ export const validateRefresh = (
         .filter((name) => name.endsWith(".png"))
         .map((name) => name.slice(0, -4))
     : [];
-  // The generator names each image after the deck's slug, which drops
-  // characters such as apostrophes, so compare slugs rather than raw names.
   const imageSet = new Set(images);
   const slugs = new Set([...union].map(deckSlug));
   const missingImages = [...union].filter((name) => !imageSet.has(deckSlug(name))).sort();

@@ -26,9 +26,6 @@ describe("premiumWindowsForSlug", () => {
     expect(premiumWindowsForSlug("x", { x: ["20d", "30d", "bogus"] })).toEqual(["30d"]);
   });
 
-  // The refresh generates the list, and check:generated confirms it matches the
-  // data. It is empty while every window is identical and fills as they diverge,
-  // so pin its shape and not its contents.
   it("lists only premium windows for every deck in the committed list", () => {
     for (const [slug, windows] of Object.entries(PREMIUM_DECK_SLUGS)) {
       expect(windows.length).toBeGreaterThan(0);

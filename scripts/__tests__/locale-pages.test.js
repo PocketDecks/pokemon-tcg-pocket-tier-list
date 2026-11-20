@@ -52,9 +52,6 @@ const expectedUrl = (entry) => {
 
 const isDeckDetailEntry = (entry) => /^(ja\/)?deck\/[^/]+\//.test(entry.split(path.sep).join("/"));
 
-// A premium-only deck is built as a noindex shell with no canonical, no
-// alternates and no prose. verify-dist-html checks that contract, so the
-// generic page checks below leave these pages out.
 const premiumShellSlugs = new Set(
   Object.keys(
     JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "src", "data", "premium-deck-slugs.json"), "utf8"))

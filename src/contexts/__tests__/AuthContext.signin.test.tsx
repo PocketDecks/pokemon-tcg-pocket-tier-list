@@ -119,4 +119,33 @@ describe("sign-in failure state", () => {
     await act(async () => rejectSecond(rejection("auth/internal-error")));
     expect(screen.getByTestId("failed")).toHaveTextContent("true");
   });
+
+  it("drops a failure from a pending attempt once another tab has signed in", async () => {
+    let rejectPending: (error: Error) => void = () => {};
+    vi.mocked(signInWithPopup).mockReturnValueOnce(new Promise((_resolve, reject) => (rejectPending = reject)));
+    const user = userEvent.setup();
+    renderProbe();
+    await user.click(screen.getByRole("button", { name: "sign in" }));
+
+    act(() => authState.callback?.({ uid: "user-a" }));
+    await act(async () => rejectPending(rejection("auth/internal-error")));
+    act(() => authState.callback?.(null));
+
+    expect(screen.getByTestId("failed")).toHaveTextContent("false");
+  });
+
+  it("ignores a failure from an attempt that a newer click has replaced", async () => {
+    let rejectFirst: (error: Error) => void = () => {};
+    vi.mocked(signInWithPopup)
+      .mockReturnValueOnce(new Promise((_resolve, reject) => (rejectFirst = reject)))
+      .mockReturnValueOnce(new Promise(() => {}));
+    const user = userEvent.setup();
+    renderProbe();
+    await user.click(screen.getByRole("button", { name: "sign in" }));
+    await user.click(screen.getByRole("button", { name: "sign in" }));
+
+    await act(async () => rejectFirst(rejection("auth/internal-error")));
+
+    expect(screen.getByTestId("failed")).toHaveTextContent("false");
+  });
 });

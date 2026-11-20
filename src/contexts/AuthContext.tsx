@@ -38,6 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [signInFailed, setSignInFailed] = useState(false);
+  const attempt = useRef(0);
   const queryClient = useQueryClient();
   const previousUid = useRef<string | null | undefined>(undefined);
 
@@ -56,7 +57,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         }
         previousUid.current = uid;
       }
-      if (user) setSignInFailed(false);
+      if (user) {
+        attempt.current += 1;
+        setSignInFailed(false);
+      }
       setUser(user);
       setLoading(false);
     });
@@ -65,12 +69,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [queryClient]);
 
   const signInWithGoogle = async () => {
+    attempt.current += 1;
+    const current = attempt.current;
     setSignInFailed(false);
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error("Error signing in with Google:", error);
-      if (!isCancelledSignIn(error)) setSignInFailed(true);
+      if (current === attempt.current && !isCancelledSignIn(error)) setSignInFailed(true);
     }
   };
 

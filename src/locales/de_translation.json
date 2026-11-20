@@ -205,7 +205,7 @@
     "title": "Feedback senden",
     "intro": "Einen Fehler gefunden, seltsame Daten entdeckt oder eine Idee? Sag es uns.",
     "signInTitle": "Melde dich an, um Feedback zu senden",
-    "signInBody": "Die Anmeldung hält das Formular frei von Spam. Dein Konto wird nur genutzt, um dir zu antworten, wenn du das möchtest.",
+    "signInBody": "Die Anmeldung hält das Formular frei von Spam. Wir nutzen die E-Mail-Adresse deines Kontos, um auf deine Nachricht zu antworten.",
     "signedInAs": "Angemeldet als {{name}}",
     "categoryLabel": "Worum geht es?",
     "categories": {
@@ -215,13 +215,15 @@
       "stripe": "Ein altes Abo (Stripe)",
       "payment": "Ein Zahlungsproblem",
       "partnership": "Eine Partnerschaft oder Werbung",
+      "translation": "Ein Übersetzungsfehler",
       "other": "Etwas anderes"
     },
     "messageLabel": "Deine Nachricht",
     "messagePlaceholder": "Erzähl uns, was passiert ist oder was dir auf dem Herzen liegt. Bei einer Zahlung oder einem Abo nenne bitte Datum und Betrag.",
     "messageHint": "Mindestens {{min}} Zeichen.",
     "messageTooShort": "Bitte schreib mindestens {{min}} Zeichen.",
-    "contactLabel": "Ihr dürft mir dazu an {{email}} schreiben",
+    "consent": "Ich habe die <0>Datenschutzerklärung</0> gelesen und stimme ihr zu, einschließlich der Verwendung meiner Nachricht und meiner E-Mail-Adresse für eine Antwort.",
+    "consentRequired": "Bitte setze das Häkchen, um dein Feedback zu senden.",
     "submit": "Feedback senden",
     "sending": "Wird gesendet …",
     "successTitle": "Danke, es ist unterwegs",
@@ -297,7 +299,7 @@
       "usage": "<0>Nutzungsdaten.</0> Google Analytics erfasst, welche Seiten Sie aufrufen, sowie übliche Angaben zu Gerät und Browser. Das Tool läuft nur, nachdem Sie Analyse akzeptiert haben, oder dort, wo das Einwilligungsbanner Ihrer Region keine Einwilligung abfragt.",
       "account": "<0>Kontodaten.</0> Wenn Sie sich mit Google anmelden, erhalten wir über Firebase Authentication Ihren Namen, Ihre E-Mail-Adresse und Ihr Profilfoto. Wir zeigen Ihren Namen und Ihr Foto an, solange Sie angemeldet sind, und prüfen anhand Ihrer Konto-ID, ob Sie Unterstützer-Zugang haben.",
       "supporter": "<0>Unterstützer-Zugang.</0> Wenn Sie Unterstützer werden, speichern wir einen Datensatz mit Ihrer Konto-ID, Ihrer E-Mail-Adresse, dem Ende Ihres Zugangs, der Art der Vergabe und dem Zeitpunkt der letzten Änderung. Wenn Sie einen Zahlungscode anfordern, speichern wir ihn mit Ihrer Konto-ID, damit wir eine Zahlung von einer anderen E-Mail-Adresse zuordnen können. Neben uns können nur Sie selbst Ihren Datensatz einsehen.",
-      "feedback": "<0>Feedback.</0> Wenn Sie als angemeldeter Nutzer Feedback senden, speichern wir Ihre Konto-ID, Ihre Nachricht, das gewählte Thema, die Seite, von der aus Sie es gesendet haben, und den Zeitpunkt in Cloud Firestore, einer von Google für Firebase betriebenen Datenbank. Ihre E-Mail-Adresse speichern wir zusammen mit der Nachricht nur, wenn Sie das Kästchen zur Antwort angeklickt haben. Außerdem speichern wir den Zeitpunkt Ihrer letzten Einsendung.",
+      "feedback": "<0>Feedback.</0> Wenn Sie als angemeldeter Nutzer Feedback senden, speichern wir Ihre Konto-ID, Ihre E-Mail-Adresse, Ihre Nachricht, das gewählte Thema, die Seite, von der aus Sie es gesendet haben, und den Zeitpunkt in Cloud Firestore, einer von Google für Firebase betriebenen Datenbank. Ihre E-Mail-Adresse speichern wir, um antworten zu können; im Formular bestätigen Sie mit einem Häkchen, dass Sie diese Datenschutzerklärung gelesen haben und damit einverstanden sind, dass wir Ihre Nachricht und Ihre E-Mail-Adresse dafür verwenden. Außerdem speichern wir den Zeitpunkt Ihrer letzten Einsendung.",
       "payment": "<0>Trinkgelder.</0> Für jede Ko-fi-Zahlung erstellen wir einen Datensatz. Er enthält Zahlungskennung und -typ, Betrag und Währung, gutgeschriebene Monate, Status sowie Eingangs- und Ko-fi-Zeitstempel. Bei einer Zuordnung enthält der Datensatz auch die Konto-ID und die Zuordnungsmethode. E-Mail-Adresse, Name und Nachricht der spendenden Person speichern wir nur, wenn eine Zahlung nicht automatisch freigeschaltet wird, damit wir sie prüfen oder manuell zuordnen können."
     },
     "cookies": {
@@ -321,7 +323,7 @@
     },
     "legalBasis": {
       "heading": "Rechtsgrundlage",
-      "body": "Für Analyse und Werbung stützen wir uns auf Ihre Einwilligung, sofern das Einwilligungsbanner sie abfragt. Wir verwenden Ihre Kontodaten, um Unterstützer-Zugang bereitzustellen und Trinkgelder zu prüfen, die nicht automatisch neue Unterstützer-Zugangszeit gewähren."
+      "body": "Für Analyse und Werbung stützen wir uns auf Ihre Einwilligung, sofern das Einwilligungsbanner sie abfragt. Für Feedback stützen wir uns auf das Häkchen, das Sie im Formular setzen. Wir verwenden Ihre Kontodaten, um Unterstützer-Zugang bereitzustellen und Trinkgelder zu prüfen, die nicht automatisch neue Unterstützer-Zugangszeit gewähren."
     },
     "use": {
       "heading": "Wie wir Informationen verwenden",
@@ -346,7 +348,7 @@
     },
     "retention": {
       "heading": "Wie lange wir Informationen aufbewahren",
-      "body": "Google Analytics speichert Ereignisdaten 14 Monate lang. Es speichert Nutzerdaten 14 Monate lang, und dieser Zeitraum beginnt neu, wenn du zur Website zurückkehrst. Wir bewahren dein Google-Anmeldekonto und gespeicherte Profilfelder auf, bis du deren Löschung über die unten genannten Kontaktdaten verlangst. Feedback-Nachrichten bewahren wir bis zu einer Löschanfrage auf. Deinen Unterstützer-Datensatz und deinen Zahlungscode bewahren wir auf, bis du ihre Löschung verlangst. Google bestimmt die Speicherdauer von Werbedaten. Siehe die <0>Datenschutzerklärung</0> und die <1>Werberichtlinien</1> von Google. Für jede Ko-fi-Zahlung erstellen wir einen Datensatz mit Zahlungskennung und -typ, Betrag und Währung, gutgeschriebenen Monaten, Status, Zeitstempeln und gegebenenfalls der Konto-ID und Zuordnungsmethode. E-Mail-Adresse, Name und Nachricht speichern wir nur, wenn eine Zahlung nicht automatisch freigeschaltet wird, zur Prüfung oder manuellen Zuordnung. Die Website speichert keine eigenen Protokolle von Webanfragen. Firebase und Cloudflare bewahren ihre üblichen Betriebsprotokolle nach eigenen Bedingungen auf."
+      "body": "Google Analytics speichert Ereignisdaten 14 Monate lang. Es speichert Nutzerdaten 14 Monate lang, und dieser Zeitraum beginnt neu, wenn du zur Website zurückkehrst. Wir bewahren dein Google-Anmeldekonto und gespeicherte Profilfelder auf, bis du deren Löschung über die unten genannten Kontaktdaten verlangst. Feedback-Nachrichten und die dazu gespeicherte E-Mail-Adresse bewahren wir bis zu einer Löschanfrage auf. Deinen Unterstützer-Datensatz und deinen Zahlungscode bewahren wir auf, bis du ihre Löschung verlangst. Google bestimmt die Speicherdauer von Werbedaten. Siehe die <0>Datenschutzerklärung</0> und die <1>Werberichtlinien</1> von Google. Für jede Ko-fi-Zahlung erstellen wir einen Datensatz mit Zahlungskennung und -typ, Betrag und Währung, gutgeschriebenen Monaten, Status, Zeitstempeln und gegebenenfalls der Konto-ID und Zuordnungsmethode. E-Mail-Adresse, Name und Nachricht speichern wir nur, wenn eine Zahlung nicht automatisch freigeschaltet wird, zur Prüfung oder manuellen Zuordnung. Die Website speichert keine eigenen Protokolle von Webanfragen. Firebase und Cloudflare bewahren ihre üblichen Betriebsprotokolle nach eigenen Bedingungen auf."
     },
     "children": {
       "heading": "Kinder",

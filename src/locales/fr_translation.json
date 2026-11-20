@@ -205,7 +205,7 @@
     "title": "Envoyer un avis",
     "intro": "Un bug, des données étranges ou une idée ? Dites-le-nous.",
     "signInTitle": "Connectez-vous pour envoyer un avis",
-    "signInBody": "La connexion protège le formulaire du spam. Votre compte sert uniquement à vous répondre si vous le demandez.",
+    "signInBody": "La connexion protège le formulaire du spam. Nous utilisons l'adresse e-mail de votre compte pour répondre à votre message.",
     "signedInAs": "Connecté en tant que {{name}}",
     "categoryLabel": "De quoi s'agit-il ?",
     "categories": {
@@ -215,13 +215,15 @@
       "stripe": "Un ancien abonnement (Stripe)",
       "payment": "Un problème de paiement",
       "partnership": "Un partenariat ou une promotion",
+      "translation": "Une erreur de traduction",
       "other": "Autre chose"
     },
     "messageLabel": "Votre message",
     "messagePlaceholder": "Dites-nous ce qui s’est passé ou ce que vous avez en tête. Pour un paiement ou un abonnement, indiquez la date et le montant.",
     "messageHint": "Au moins {{min}} caractères.",
     "messageTooShort": "Veuillez écrire au moins {{min}} caractères.",
-    "contactLabel": "Vous pouvez m'écrire à {{email}} à ce sujet",
+    "consent": "J'ai lu la <0>Politique de confidentialité</0> et je l'accepte, y compris l'utilisation de mon message et de mon adresse e-mail pour me répondre.",
+    "consentRequired": "Veuillez cocher la case pour envoyer votre avis.",
     "submit": "Envoyer l'avis",
     "sending": "Envoi…",
     "successTitle": "Merci, c'est envoyé",
@@ -297,7 +299,7 @@
       "usage": "<0>Données d'utilisation.</0> Google Analytics enregistre les pages que vous consultez ainsi que les informations habituelles sur l'appareil et le navigateur. Il ne fonctionne qu'après que vous avez accepté l'analyse, ou là où la bannière de consentement de votre région ne demande pas de consentement.",
       "account": "<0>Informations de compte.</0> Si vous vous connectez avec Google, Firebase Authentication nous transmet votre nom, votre adresse e-mail et votre photo de profil. Nous affichons votre nom et votre photo lorsque vous êtes connecté, et nous utilisons votre identifiant de compte pour vérifier si vous avez un accès Soutien.",
       "supporter": "<0>Accès Soutien.</0> Lorsque vous devenez Soutien, nous enregistrons une fiche avec votre identifiant de compte, votre adresse e-mail, la date de fin de votre accès, la façon dont il a été accordé et la date de sa dernière modification. Si vous demandez un code de paiement, nous l'enregistrons avec votre identifiant de compte afin de pouvoir rattacher un paiement fait depuis une autre adresse e-mail. En dehors de nous, vous seul pouvez lire votre propre fiche.",
-      "feedback": "<0>Commentaires.</0> Si vous envoyez un commentaire en étant connecté, nous enregistrons votre identifiant de compte, votre message, le sujet que vous avez choisi, la page depuis laquelle vous l'avez envoyé et l'heure d'envoi, dans Cloud Firestore, une base de données exploitée par Google pour Firebase. Nous n'enregistrons votre adresse e-mail avec le message que si vous cochez la case demandant une réponse. Nous conservons aussi l'heure de votre dernier envoi.",
+      "feedback": "<0>Commentaires.</0> Si vous envoyez un commentaire en étant connecté, nous enregistrons votre identifiant de compte, votre adresse e-mail, votre message, le sujet que vous avez choisi, la page depuis laquelle vous l'avez envoyé et l'heure d'envoi, dans Cloud Firestore, une base de données exploitée par Google pour Firebase. Nous conservons votre adresse e-mail pour pouvoir vous répondre, et le formulaire vous demande de cocher une case confirmant que vous avez lu cette politique et que vous acceptez que nous utilisions votre message et votre adresse e-mail à cette fin. Nous conservons aussi l'heure de votre dernier envoi.",
       "payment": "<0>Dons.</0> Nous créons un enregistrement pour chaque paiement Ko-fi. Il comprend l’identifiant et le type de paiement, le montant et la devise, les mois crédités, le statut, ainsi que les horodatages de réception et de Ko-fi. Lorsqu’un paiement est associé à un compte, l’enregistrement comprend également son identifiant et la méthode de rapprochement. Nous ne conservons l’adresse e-mail, le nom et le message de la personne que lorsque le paiement n’est pas accordé automatiquement, afin de le vérifier ou de l’appliquer manuellement."
     },
     "cookies": {
@@ -321,7 +323,7 @@
     },
     "legalBasis": {
       "heading": "Base juridique",
-      "body": "Nous nous appuyons sur votre consentement pour l’analyse et la publicité lorsque la bannière le demande. Nous utilisons les informations de votre compte pour fournir l’accès Soutien et examiner les dons qui n’accordent pas automatiquement de nouvelle période d’accès Soutien."
+      "body": "Nous nous appuyons sur votre consentement pour l’analyse et la publicité lorsque la bannière le demande. Pour les commentaires, nous nous appuyons sur la case que vous cochez dans le formulaire. Nous utilisons les informations de votre compte pour fournir l’accès Soutien et examiner les dons qui n’accordent pas automatiquement de nouvelle période d’accès Soutien."
     },
     "use": {
       "heading": "Comment nous utilisons les informations",
@@ -346,7 +348,7 @@
     },
     "retention": {
       "heading": "Durée de conservation des informations",
-      "body": "Google Analytics conserve les données d’événements pendant 14 mois. Il conserve les données utilisateur pendant 14 mois, et cette durée repart à zéro lorsque vous revenez sur le site. Nous conservons votre compte Google et les champs de profil enregistrés jusqu’à ce que vous demandiez leur suppression aux coordonnées ci-dessous. Nous conservons les messages de commentaires jusqu’à une demande de suppression. Nous conservons votre fiche Soutien et votre code de paiement jusqu’à ce que vous demandiez leur suppression. Google décide de la durée de conservation des données publicitaires. Consultez la <0>politique de confidentialité</0> et les <1>règles relatives à la publicité</1> de Google. Nous créons un enregistrement pour chaque paiement Ko-fi, avec son identifiant et son type, le montant et la devise, les mois crédités, le statut, les horodatages et, le cas échéant, l’identifiant du compte associé et la méthode de rapprochement. L’adresse e-mail, le nom et le message ne sont conservés que lorsque le paiement n’est pas accordé automatiquement, pour vérification ou traitement manuel. Le site ne conserve aucun journal propre des requêtes web. Firebase et Cloudflare conservent leurs journaux d’exploitation habituels selon leurs propres conditions."
+      "body": "Google Analytics conserve les données d’événements pendant 14 mois. Il conserve les données utilisateur pendant 14 mois, et cette durée repart à zéro lorsque vous revenez sur le site. Nous conservons votre compte Google et les champs de profil enregistrés jusqu’à ce que vous demandiez leur suppression aux coordonnées ci-dessous. Nous conservons les messages de commentaires et l’adresse e-mail enregistrée avec eux jusqu’à une demande de suppression. Nous conservons votre fiche Soutien et votre code de paiement jusqu’à ce que vous demandiez leur suppression. Google décide de la durée de conservation des données publicitaires. Consultez la <0>politique de confidentialité</0> et les <1>règles relatives à la publicité</1> de Google. Nous créons un enregistrement pour chaque paiement Ko-fi, avec son identifiant et son type, le montant et la devise, les mois crédités, le statut, les horodatages et, le cas échéant, l’identifiant du compte associé et la méthode de rapprochement. L’adresse e-mail, le nom et le message ne sont conservés que lorsque le paiement n’est pas accordé automatiquement, pour vérification ou traitement manuel. Le site ne conserve aucun journal propre des requêtes web. Firebase et Cloudflare conservent leurs journaux d’exploitation habituels selon leurs propres conditions."
     },
     "children": {
       "heading": "Enfants",

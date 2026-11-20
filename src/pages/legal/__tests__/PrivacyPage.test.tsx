@@ -64,6 +64,20 @@ describe("PrivacyPage", () => {
     expect(retention).toMatch(/Supporter record and payment code until you ask us to delete them/i);
   });
 
+  it("says every feedback message keeps the sender's email and rests on the agreement box", () => {
+    render(<PrivacyPage />);
+    const collection = sectionText("Information we collect");
+    expect(collection).toMatch(/we store your account ID, your email address, your message, the topic you chose/i);
+    expect(collection).toMatch(/We keep your email address so we can reply/i);
+    expect(collection).toMatch(/tick a box confirming that you have read this policy and agree/i);
+    expect(collection).not.toMatch(/only if you tick the box asking us to reply/i);
+
+    expect(sectionText("Legal basis")).toMatch(/For feedback, we rely on the box you tick on the form/i);
+    expect(sectionText("How long we keep information")).toMatch(
+      /feedback messages, and the email address stored with them, until you ask us to delete them/i
+    );
+  });
+
   it("shows the date of the latest policy change", () => {
     render(<PrivacyPage />);
     expect(screen.getByText("Last updated: 20 November 2026")).toBeInTheDocument();

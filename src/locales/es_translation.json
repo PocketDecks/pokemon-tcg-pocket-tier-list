@@ -205,7 +205,7 @@
     "title": "Enviar comentarios",
     "intro": "¿Has encontrado un error, datos raros o tienes una idea? Cuéntanoslo.",
     "signInTitle": "Inicia sesión para enviar comentarios",
-    "signInBody": "Iniciar sesión mantiene el formulario libre de spam. Solo usamos tu cuenta para responderte si nos lo pides.",
+    "signInBody": "Iniciar sesión mantiene el formulario libre de spam. Usamos el correo de tu cuenta para responder a tu mensaje.",
     "signedInAs": "Sesión iniciada como {{name}}",
     "categoryLabel": "¿De qué se trata?",
     "categories": {
@@ -215,13 +215,15 @@
       "stripe": "Una suscripción antigua (Stripe)",
       "payment": "Un problema con un pago",
       "partnership": "Una colaboración o promoción",
+      "translation": "Un error de traducción",
       "other": "Otra cosa"
     },
     "messageLabel": "Tu mensaje",
     "messagePlaceholder": "Cuéntanos qué ha pasado o qué tienes en mente. Si se trata de un pago o una suscripción, indica la fecha y el importe.",
     "messageHint": "Al menos {{min}} caracteres.",
     "messageTooShort": "Escribe al menos {{min}} caracteres.",
-    "contactLabel": "Podéis escribirme a {{email}} sobre esto",
+    "consent": "He leído la <0>Política de privacidad</0> y la acepto, incluido el uso de mi mensaje y de mi correo electrónico para responderme.",
+    "consentRequired": "Marca la casilla para enviar tus comentarios.",
     "submit": "Enviar comentarios",
     "sending": "Enviando…",
     "successTitle": "Gracias, ya va de camino",
@@ -297,7 +299,7 @@
       "usage": "<0>Datos de uso.</0> Google Analytics registra las páginas que visita y los datos habituales del dispositivo y del navegador. Solo se ejecuta después de que acepte el análisis o, si el banner de consentimiento de su región no lo pide, sin consentimiento.",
       "account": "<0>Información de la cuenta.</0> Si inicia sesión con Google, Firebase Authentication nos proporciona su nombre, su dirección de correo electrónico y su foto de perfil. Mostramos su nombre y su foto mientras tenga la sesión iniciada, y usamos su ID de cuenta para comprobar si tiene acceso de colaborador.",
       "supporter": "<0>Acceso de colaborador.</0> Cuando se convierte en colaborador, guardamos un registro con su ID de cuenta, su dirección de correo electrónico, la fecha en que termina su acceso, cómo se concedió y cuándo cambió por última vez. Si solicita un código de pago, lo guardamos con su ID de cuenta para poder asociar un pago hecho desde otro correo electrónico. Además de nosotros, solo usted puede leer su propio registro.",
-      "feedback": "<0>Comentarios.</0> Si envía comentarios con la sesión iniciada, guardamos su ID de cuenta, su mensaje, el tema que eligió, la página desde la que los envió y la hora de envío en Cloud Firestore, una base de datos que gestiona Google para Firebase. Guardamos su dirección de correo electrónico junto con el mensaje solo si marca la casilla para pedirnos una respuesta. También guardamos la hora de su último envío.",
+      "feedback": "<0>Comentarios.</0> Si envía comentarios con la sesión iniciada, guardamos su ID de cuenta, su dirección de correo electrónico, su mensaje, el tema que eligió, la página desde la que los envió y la hora de envío en Cloud Firestore, una base de datos que gestiona Google para Firebase. Guardamos su dirección de correo electrónico para poder responder, y el formulario le pide que marque una casilla para confirmar que ha leído esta política y que acepta que usemos su mensaje y su correo electrónico con ese fin. También guardamos la hora de su último envío.",
       "payment": "<0>Propinas.</0> Creamos un registro para cada pago de Ko-fi. Incluye el identificador y el tipo de pago, el importe y la moneda, los meses concedidos, el estado y las fechas de recepción y de Ko-fi. Si el pago se vincula a una cuenta, el registro también incluye su identificador y el método de coincidencia. Solo guardamos el correo, el nombre y el mensaje de quien envía la propina cuando el pago no se concede automáticamente, para revisarlo o aplicarlo manualmente."
     },
     "cookies": {
@@ -321,7 +323,7 @@
     },
     "legalBasis": {
       "heading": "Base jurídica",
-      "body": "Nos basamos en su consentimiento para el análisis y la publicidad cuando el aviso de consentimiento lo solicita. Usamos los datos de su cuenta para proporcionar el acceso de colaborador y revisar las propinas que no conceden automáticamente nuevo tiempo de colaborador."
+      "body": "Nos basamos en su consentimiento para el análisis y la publicidad cuando el aviso de consentimiento lo solicita. Para los comentarios, nos basamos en la casilla que marca en el formulario. Usamos los datos de su cuenta para proporcionar el acceso de colaborador y revisar las propinas que no conceden automáticamente nuevo tiempo de colaborador."
     },
     "use": {
       "heading": "Cómo usamos la información",
@@ -346,7 +348,7 @@
     },
     "retention": {
       "heading": "Cuánto tiempo conservamos la información",
-      "body": "Google Analytics conserva los datos de eventos durante 14 meses. Conserva los datos de usuario durante 14 meses, y el periodo se reinicia cuando vuelves al sitio. Guardamos tu cuenta de Google y los datos de perfil almacenados hasta que solicites su eliminación mediante los datos de contacto que aparecen abajo. Conservamos los mensajes de comentarios hasta que solicites eliminarlos. Guardamos tu registro de colaborador y tu código de pago hasta que solicites su eliminación. Google decide cuánto tiempo conserva los datos publicitarios. Consulta la <0>política de privacidad</0> y las <1>políticas de anuncios</1> de Google. Creamos un registro de cada pago de Ko-fi con su identificador y tipo, importe y moneda, meses concedidos, estado, fechas y, cuando corresponde, el identificador de la cuenta vinculada y el método de coincidencia. Solo guardamos el correo, el nombre y el mensaje de quien envía la propina cuando el pago no se concede automáticamente, para revisarlo o aplicarlo manualmente. El sitio no guarda registros propios de las solicitudes web. Firebase y Cloudflare conservan sus registros operativos habituales según sus propias condiciones."
+      "body": "Google Analytics conserva los datos de eventos durante 14 meses. Conserva los datos de usuario durante 14 meses, y el periodo se reinicia cuando vuelves al sitio. Guardamos tu cuenta de Google y los datos de perfil almacenados hasta que solicites su eliminación mediante los datos de contacto que aparecen abajo. Conservamos los mensajes de comentarios y la dirección de correo electrónico guardada con ellos hasta que solicites eliminarlos. Guardamos tu registro de colaborador y tu código de pago hasta que solicites su eliminación. Google decide cuánto tiempo conserva los datos publicitarios. Consulta la <0>política de privacidad</0> y las <1>políticas de anuncios</1> de Google. Creamos un registro de cada pago de Ko-fi con su identificador y tipo, importe y moneda, meses concedidos, estado, fechas y, cuando corresponde, el identificador de la cuenta vinculada y el método de coincidencia. Solo guardamos el correo, el nombre y el mensaje de quien envía la propina cuando el pago no se concede automáticamente, para revisarlo o aplicarlo manualmente. El sitio no guarda registros propios de las solicitudes web. Firebase y Cloudflare conservan sus registros operativos habituales según sus propias condiciones."
     },
     "children": {
       "heading": "Menores",

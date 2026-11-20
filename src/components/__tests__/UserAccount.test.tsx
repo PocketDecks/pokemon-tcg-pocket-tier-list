@@ -171,7 +171,7 @@ describe("UserAccount", () => {
     vi.mocked(useIsPremium).mockReturnValue(true);
     render(accountTree());
 
-    expect(screen.queryByRole("button", { name: "Contact us" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /contact/i })).not.toBeInTheDocument();
   });
 
   it.each([

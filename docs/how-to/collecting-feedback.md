@@ -11,7 +11,7 @@ The `/feedback` page lets signed-in visitors send a message, a topic and, if the
 
 ## Categories
 
-The form offers six: `idea`, `bug`, `data`, `other`, `stripe` (an old subscription) and `payment` (a payment problem). The list lives in `FEEDBACK_CATEGORIES` in `src/app/feedback.ts` and in `isValidFeedback()` in `firestore.rules`, and each one needs a `feedback.categories.<name>` label in every locale. Adding a category means changing all three, and publishing the rules before the site build goes live, because the live rules refuse a category they do not know.
+The form offers six: `idea`, `bug`, `data`, `other`, `stripe` (an old subscription) and `payment` (a payment problem). The list lives in `FEEDBACK_CATEGORIES` in `src/app/feedback.ts` and in `isValidFeedback()` in `firestore.rules`. Each category also needs an icon in `CATEGORY_ICONS` in `src/pages/feedback/FeedbackPage.tsx`, which the compiler enforces, and a `feedback.categories.<name>` label in every locale. Adding a category means changing all four, and publishing the rules before the site build goes live, because the live rules refuse a category they do not know.
 
 The page also carries a hidden `website` field. Anything that fills it in is treated as a bot: the page shows the success message and writes nothing.
 

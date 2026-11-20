@@ -68,7 +68,9 @@ The entitlement keeps the fields the site reads: `premium`, `source` (always
 `kofi`), `expiresAt` and `updatedAt`. It also stores the account's own email in
 lower case as `email`, so the document is easy to recognise in the console.
 The site ignores it, and when the account has no email the Worker leaves the
-stored value as it is
+stored value as it is. The Worker writes the email only when it grants months,
+so a lifetime holder's document is not touched and a changed account email
+appears at the next grant
 
 The Worker names each payment document after `kofi_transaction_id` and
 `message_id` joined by a hyphen, or after whichever one Ko-fi sends when the

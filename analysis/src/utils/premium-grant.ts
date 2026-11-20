@@ -72,10 +72,7 @@ export const planPremiumGrant = ({
 
   if (revoke) {
     if (until !== undefined) throw new Error("--until cannot be combined with --revoke");
-    return {
-      path,
-      data: withEmail({ premium: false, source, expiresAt: null, updatedAt: now }, email),
-    };
+    return { path, data: { premium: false, source, expiresAt: null, updatedAt: now } };
   }
 
   if (until === undefined) {

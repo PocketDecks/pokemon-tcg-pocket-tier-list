@@ -78,6 +78,48 @@ describe("review and matching", () => {
     expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({ status: "granted", months: 3 });
   });
 
+  it("trims and lower-cases the account email that the lookup returns", async () => {
+    const { post, google } = setup();
+    google.addUser("code@example.com", "uidcode", { accountEmail: "  Code@Example.COM " });
+    google.seed("premiumCodes/PD-ABC123", { uid: "uidcode" });
+    await post(payment({ message: "Great work PD-ABC123" }));
+    expect(google.read("entitlements/uidcode")).toMatchObject({ email: "code@example.com" });
+  });
+
+  it("replaces a stored email with the account's current one", async () => {
+    const { post, google } = setup();
+    google.addUser("new@example.com", "uidcode");
+    google.seed("premiumCodes/PD-ABC123", { uid: "uidcode" });
+    google.seed("entitlements/uidcode", {
+      premium: true,
+      source: "kofi",
+      email: "old@example.com",
+      expiresAt: new Date("2027-01-15T00:00:00.000Z"),
+    });
+    await post(payment({ message: "Great work PD-ABC123" }));
+    expect(google.read("entitlements/uidcode")).toMatchObject({
+      email: "new@example.com",
+      expiresAt: "2027-06-15T00:00:00.000Z",
+    });
+  });
+
+  it("keeps a stored email when the account has none", async () => {
+    const { post, google } = setup();
+    google.addUser("code@example.com", "uidcode", { accountEmail: null });
+    google.seed("premiumCodes/PD-ABC123", { uid: "uidcode" });
+    google.seed("entitlements/uidcode", {
+      premium: true,
+      source: "kofi",
+      email: "old@example.com",
+      expiresAt: new Date("2027-01-15T00:00:00.000Z"),
+    });
+    await post(payment({ message: "Great work PD-ABC123" }));
+    expect(google.read("entitlements/uidcode")).toMatchObject({
+      email: "old@example.com",
+      expiresAt: "2027-06-15T00:00:00.000Z",
+    });
+  });
+
   it("prefers a code in the message over the email", async () => {
     const { post, google } = setup();
     google.addUser("ash@example.com", "uid-email");

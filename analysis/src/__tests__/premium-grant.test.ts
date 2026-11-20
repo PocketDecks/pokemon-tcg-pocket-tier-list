@@ -64,6 +64,12 @@ describe("planPremiumGrant", () => {
     });
   });
 
+  it("ignores an email on a revocation, so a revoke leaves the stored email alone", () => {
+    const plan = planPremiumGrant({ uid, revoke: true, email: "ash@example.com", now });
+
+    expect(plan.data).toEqual({ premium: false, source: "manual", expiresAt: null, updatedAt: now });
+  });
+
   it.each(["", "a/b", "..", "has space", "x".repeat(129), "café"])(
     "rejects the uid %j",
     (bad) => {

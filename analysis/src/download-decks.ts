@@ -79,10 +79,7 @@ export const downloadDecks = async (options: { since?: Date } = {}) => {
         recorded.has(tournament.id) ? [] : [{ tournament, decks: downloaded[index] }]
       );
       writeArtefacts({
-        ...planDeckWrites(
-          decksDir(),
-          fresh.flatMap(({ decks }) => decks)
-        ),
+        ...planDeckWrites(decksDir(), fresh.flatMap(({ decks }) => decks)),
         [processedFile()]: JSON.stringify([
           ...processed,
           ...fresh.map(({ tournament }) => ({ id: tournament.id, date: tournament.date })),

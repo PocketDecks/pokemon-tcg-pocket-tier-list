@@ -2,7 +2,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import { vi } from "vitest";
-import { BATCH_SIZE, downloadDecks, parseArgs, parseSince, readProcessed } from "../download-decks";
+import { BATCH_SIZE, CONCURRENCY, downloadDecks, parseArgs, parseSince, readProcessed } from "../download-decks";
 import { EXPANSION_RELEASE_DATE } from "../settings";
 import { readDecks, readManifest, verifyStore } from "../utils/deck-store";
 
@@ -189,7 +189,11 @@ describe("downloadDecks", () => {
       getTournaments.mockResolvedValueOnce(first).mockResolvedValueOnce(second);
       const release = gateDownloads();
       const runs = [downloadDecks(), downloadDecks()];
-      await vi.waitFor(() => expect(getTournamentDecks).toHaveBeenCalledTimes(first.length + second.length));
+      const inFlight = Math.min(first.length, CONCURRENCY) + Math.min(second.length, CONCURRENCY);
+      await Promise.race([
+        vi.waitFor(() => expect(getTournamentDecks).toHaveBeenCalledTimes(inFlight)),
+        ...runs,
+      ]);
       release();
       return runs;
     };
@@ -218,15 +222,53 @@ describe("downloadDecks", () => {
       expect(verifyStore(path.join(dataDir, "decks"), { placement: true })).toEqual([]);
     });
 
+    it("keeps a write from the other run that lands between two batches of one run", async () => {
+      const first = tournaments(BATCH_SIZE + 2);
+      const second = [tournament(BATCH_SIZE), tournament(BATCH_SIZE + 3)];
+      const secondBatchOfFirst = first.slice(BATCH_SIZE);
+      let releaseFirst: () => void = () => undefined;
+      let releaseSecond: () => void = () => undefined;
+      const firstGate = new Promise<void>((resolve) => {
+        releaseFirst = resolve;
+      });
+      const secondGate = new Promise<void>((resolve) => {
+        releaseSecond = resolve;
+      });
+      getTournaments.mockResolvedValueOnce(first).mockResolvedValueOnce(second);
+      getTournamentDecks.mockImplementation(async (t: { id: string }) => {
+        if (second.includes(t as (typeof second)[number])) await secondGate;
+        if (secondBatchOfFirst.includes(t as (typeof first)[number])) await firstGate;
+        return [deck(`${t.id}-player`)];
+      });
+      const runs = [downloadDecks(), downloadDecks()];
+
+      await Promise.race([vi.waitFor(() => expect(processedIds()).toHaveLength(BATCH_SIZE)), ...runs]);
+      releaseSecond();
+      await runs[1];
+      releaseFirst();
+      await runs[0];
+
+      const expected = [...Array.from({ length: BATCH_SIZE + 2 }, (_, n) => `t${n}`), `t${BATCH_SIZE + 3}`];
+      expect(processedIds().sort()).toEqual([...expected].sort());
+      expect(
+        readDecks(path.join(dataDir, "decks"))
+          .map((entry) => entry.id)
+          .sort()
+      ).toEqual(expected.map((id) => `${id}-player`).sort());
+      expect(verifyStore(path.join(dataDir, "decks"), { placement: true })).toEqual([]);
+    });
+
     it("lets a later run resume cleanly after the overlap", async () => {
-      const runs = await startBoth([tournament(0)], [tournament(0), tournament(1)]);
+      const known = [tournament(0), tournament(1), tournament(2)];
+      const runs = await startBoth([known[0]], [tournament(0), known[1]]);
       await Promise.all(runs);
       vi.clearAllMocks();
-      getTournaments.mockResolvedValue([tournament(2)]);
+      getTournaments.mockImplementation(async () => known.filter((t) => !processedIds().includes(t.id)));
       getTournamentDecks.mockImplementation(async (t: { id: string }) => [deck(`${t.id}-player`)]);
 
       await downloadDecks();
 
+      expect(getTournamentDecks).toHaveBeenCalledTimes(1);
       expect(processedIds().sort()).toEqual(["t0", "t1", "t2"]);
     });
   });

@@ -198,6 +198,13 @@ describe("feedback", () => {
     await assertSucceeds(submit(google("bob"), "bob", { email: "bob@example.com", contactOk: true }));
   });
 
+  for (const category of ["idea", "bug", "data", "other", "stripe", "payment"]) {
+    test(`the ${category} category is accepted`, async () => {
+      const uid = `sender-${category}`;
+      await assertSucceeds(submit(google(uid), uid, { category }));
+    });
+  }
+
   test("a second message within the hour is refused", async () => {
     const db = google("alice");
     await assertSucceeds(submit(db, "alice"));

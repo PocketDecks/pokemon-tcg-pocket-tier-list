@@ -28,7 +28,7 @@ export type NavIconName =
   | "menu"
   | "close"
   | "chevronDown"
-  | "mail";
+  | "card";
 
 const paths: Record<NavIconName, ReactNode> = {
   tierList: <path d="M4 6h16M4 12h11M4 18h6" />,
@@ -126,10 +126,10 @@ const paths: Record<NavIconName, ReactNode> = {
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
   close: <path d="M6 6l12 12M18 6L6 18" />,
   chevronDown: <path d="M6 9l6 6 6-6" />,
-  mail: (
+  card: (
     <>
       <rect x="3" y="5.5" width="18" height="13" rx="2.5" />
-      <path d="M4 7.5l8 5.5 8-5.5" />
+      <path d="M3 10h18M7 15h3" />
     </>
   ),
 };

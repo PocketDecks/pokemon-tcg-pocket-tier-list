@@ -6,8 +6,12 @@ The `/feedback` page lets signed-in visitors send a message, a topic and, if the
 
 `submitFeedback` in `src/app/feedback-api.ts` writes two documents in one batch:
 
-- `feedback/{autoId}` with `uid`, `email`, `category`, `message`, `contactOk`, `page` and `createdAt`. `email` is `null` unless the visitor ticked the reply box. `page` is the path the visitor came from when they used the footer link, or an empty string.
+- `feedback/{autoId}` with `uid`, `email`, `category`, `message`, `contactOk`, `page` and `createdAt`. `email` is `null` unless the visitor ticked the reply box. `page` is the path the visitor came from when they used the footer link or the link in the account panel, or an empty string.
 - `feedbackThrottle/{uid}` with `lastAt`, the server time of that user's latest submission, and `feedbackId`, the id of the message it covers. The rules accept a message only when the throttle write in the same batch names it, so one batch cannot carry two messages.
+
+## Categories
+
+The form offers six: `idea`, `bug`, `data`, `other`, `stripe` (an old subscription) and `payment` (a payment problem). The list lives in `FEEDBACK_CATEGORIES` in `src/app/feedback.ts` and in `isValidFeedback()` in `firestore.rules`. Each category also needs an icon in `CATEGORY_ICONS` in `src/pages/feedback/FeedbackPage.tsx`, which the compiler enforces, and a `feedback.categories.<name>` label in every locale. Adding a category means changing all four, and publishing the rules before the site build goes live, because the live rules refuse a category they do not know.
 
 The page also carries a hidden `website` field. Anything that fills it in is treated as a bot: the page shows the success message and writes nothing.
 

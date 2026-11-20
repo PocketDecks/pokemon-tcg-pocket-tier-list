@@ -30,10 +30,6 @@
     },
     "discord": "如果有足够多的支持者想要，我会开一个只属于支持者的 Discord 服务器。",
     "kindNote": "如果你不方便打赏，完全没关系。每次你把等级列表分享给朋友，或推荐给你的社群，帮助都比任何金额更大。能让你在这个网站上的体验好一点，我就很开心了 😊",
-    "contact": {
-      "title": "联系开发者",
-      "description": "向开发者发送电子邮件以提供有关网站的反馈，请求新功能或报告错误。不保证满足功能请求，但我们会阅读所有请求。"
-    },
     "price": "每月 £1。每打赏 £1 增加一个月。",
     "rulesToggle": "打赏如何计算",
     "priceDetails": "符合条件的 GBP 打赏每满 1 英镑增加一个月，每笔最多 120 个月；不足 1 英镑的部分不会增加月数。121 英镑及以上的打赏和其他货币的打赏需要审核，不会自动开通支持者权限。",
@@ -72,7 +68,11 @@
   "userAccount": {
     "title": "用户账户",
     "signOut": "退出登录",
-    "signInFailed": "登录失败，请重试。"
+    "signInFailed": "登录失败，请重试。",
+    "supporterActive": "有效期至 {{date}}",
+    "supporterLifetime": "有效，无到期日",
+    "supporterEnded": "未生效。已于 {{date}} 到期",
+    "supporterNone": "未生效"
   },
   "lastUpdated": "最后更新:",
   "deckPage": {
@@ -212,7 +212,9 @@
       "idea": "一个想法",
       "bug": "有东西坏了",
       "data": "数据看起来不对",
-      "other": "其他"
+      "other": "其他",
+      "stripe": "旧的订阅",
+      "payment": "付款问题"
     },
     "messageLabel": "你的消息",
     "messagePlaceholder": "发生了什么，或者怎样能让网站更好？",

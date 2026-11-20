@@ -108,6 +108,23 @@ describe("FeedbackPage", () => {
     expect(await screen.findByRole("heading", { name: "feedback.successTitle" })).toBeInTheDocument();
   });
 
+  it("offers the old subscription and payment problem categories after the original four", () => {
+    renderPage();
+
+    const radios = screen.getAllByRole("radio").map((radio) => (radio as HTMLInputElement).value);
+    expect(radios).toEqual(["idea", "bug", "data", "other", "stripe", "payment"]);
+  });
+
+  it.each(["stripe", "payment"])("sends a message filed under %s", async (category) => {
+    renderPage();
+    fireEvent.click(screen.getByRole("radio", { name: `feedback.categories.${category}` }));
+    typeMessage("I was charged after the move to Ko-fi.");
+    submit();
+
+    await waitFor(() => expect(submitFeedback).toHaveBeenCalledTimes(1));
+    expect(submitFeedback.mock.calls[0][0]).toMatchObject({ category });
+  });
+
   it("includes the account email when the visitor ticks the reply box", async () => {
     renderPage();
     typeMessage("Please add a dark mode toggle for the matrix.");

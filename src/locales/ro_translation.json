@@ -30,10 +30,6 @@
     },
     "discord": "Dacă își doresc destui susținători, voi deschide un server de Discord doar pentru ei.",
     "kindNote": "Dacă nu poți lăsa un bacșiș, nu e nicio problemă. De fiecare dată când trimiți tier list-ul unui prieten sau îl recomanzi comunității tale, ajuți mai mult decât orice sumă de bani. Mă bucur doar că site-ul ți-a făcut experiența puțin mai bună 😊",
-    "contact": {
-      "title": "Contactează dezvoltatorii",
-      "description": "Trimite un e-mail dezvoltatorilor pentru a oferi feedback despre site, pentru a solicita funcționalități noi sau pentru a raporta erori. Funcționalitățile solicitate nu sunt garantate, dar le citim pe toate."
-    },
     "price": "1 £ pe lună. Fiecare 1 £ bacșiș adaugă o lună.",
     "rulesToggle": "Cum se numără bacșișurile",
     "priceDetails": "Bacșișurile eligibile în GBP adaugă o lună pentru fiecare liră întreagă, până la 120 de luni per bacșiș; fracțiunile nu adaugă luni. Bacșișurile de 121 £ sau mai mult și cele în alte monede necesită verificare și nu acordă automat acces de susținător.",
@@ -72,7 +68,11 @@
   "userAccount": {
     "title": "Cont utilizator",
     "signOut": "Deconectează-te",
-    "signInFailed": "Conectarea a eșuat. Încearcă din nou."
+    "signInFailed": "Conectarea a eșuat. Încearcă din nou.",
+    "supporterActive": "Activ până la {{date}}",
+    "supporterLifetime": "Activ, fără expirare",
+    "supporterEnded": "Inactiv. S-a încheiat la {{date}}",
+    "supporterNone": "Inactiv"
   },
   "lastUpdated": "Ultima actualizare:",
   "deckPage": {
@@ -212,7 +212,9 @@
       "idea": "O idee",
       "bug": "Ceva nu funcționează",
       "data": "Datele par greșite",
-      "other": "Altceva"
+      "other": "Altceva",
+      "stripe": "Un abonament vechi",
+      "payment": "O problemă de plată"
     },
     "messageLabel": "Mesajul tău",
     "messagePlaceholder": "Ce s-a întâmplat sau ce ar face site-ul mai bun?",

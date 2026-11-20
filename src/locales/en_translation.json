@@ -30,10 +30,6 @@
     },
     "discord": "If enough Supporters want one, I'll open a Discord server just for them.",
     "kindNote": "If you can't tip, that's completely fine. Every time you share the tier list with a friend or recommend it to your community, it helps more than any amount of money could. I'm just glad the site made your experience a little better 😊",
-    "contact": {
-      "title": "Contact Developers",
-      "description": "Email the developers to give feedback on the site, request new features, or report bugs. Feature requests are not guaranteed, but we read them all."
-    },
     "price": "£1 a month. Each £1 tip adds a month.",
     "rulesToggle": "How tips count",
     "priceDetails": "Eligible GBP tips add one month per whole £1, up to 120 months per tip; fractions add no months. Tips of £121 or more and tips in other currencies need review and grant no Supporter access automatically.",
@@ -72,7 +68,11 @@
   "userAccount": {
     "title": "User Account",
     "signOut": "Sign out",
-    "signInFailed": "Sign-in failed. Try again."
+    "signInFailed": "Sign-in failed. Try again.",
+    "supporterActive": "Active until {{date}}",
+    "supporterLifetime": "Active, with no expiry",
+    "supporterEnded": "Not active. Ended on {{date}}",
+    "supporterNone": "Not active"
   },
   "lastUpdated": "Last updated:",
   "deckPage": {
@@ -212,7 +212,9 @@
       "idea": "An idea",
       "bug": "Something's broken",
       "data": "Data looks off",
-      "other": "Something else"
+      "other": "Something else",
+      "stripe": "An old subscription",
+      "payment": "A payment problem"
     },
     "messageLabel": "Your message",
     "messagePlaceholder": "What happened, or what would make the site better?",

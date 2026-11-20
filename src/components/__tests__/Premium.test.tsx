@@ -151,16 +151,13 @@ describe("Premium", () => {
     expect(hint.nextElementSibling).toBe(note);
   });
 
-  it.each([
-    [Date.UTC(2027, 0, 2), "dated"],
-    [null, "lifetime"],
-  ])("hides the note and the Discord line for a %2$s supporter", async (expiry, state) => {
+  it("hides the note and the Discord line for a dated supporter", async () => {
     vi.mocked(useIsPremium).mockReturnValue(true);
-    vi.mocked(usePremiumExpiry).mockReturnValue(expiry);
+    vi.mocked(usePremiumExpiry).mockReturnValue(Date.UTC(2027, 0, 2));
     vi.mocked(useAuth).mockReturnValue(signedIn());
     const { dialog } = await openDefaultPopup();
-    expect(within(dialog).queryByText(en.premium.kindNote), state).not.toBeInTheDocument();
-    expect(within(dialog).queryByText(en.premium.discord), state).not.toBeInTheDocument();
+    expect(within(dialog).queryByText(en.premium.kindNote)).not.toBeInTheDocument();
+    expect(within(dialog).queryByText(en.premium.discord)).not.toBeInTheDocument();
   });
 
   it("keeps the tip rules collapsed after the refund line", async () => {
@@ -347,16 +344,14 @@ describe("Premium", () => {
     }
   });
 
-  it("shows lifetime access without a table, CTA or code lookup", async () => {
+  it("shows a lifetime supporter as a plain badge with nothing to open", () => {
     vi.mocked(useIsPremium).mockReturnValue(true);
     vi.mocked(usePremiumExpiry).mockReturnValue(null);
     vi.mocked(useAuth).mockReturnValue(signedIn());
-    const { dialog } = await openDefaultPopup();
-    expect(within(dialog).getByText(en.premium.lifetime)).toBeInTheDocument();
-    expect(within(dialog).queryByRole("table")).not.toBeInTheDocument();
-    expect(within(dialog).queryByRole("link", { name: en.premium.cta })).not.toBeInTheDocument();
-    expect(within(dialog).queryByText(en.premium.refund.replace("<0/>", contact))).not.toBeInTheDocument();
-    expect(within(dialog).queryByText(en.premium.priceDetails)).not.toBeInTheDocument();
+    render(withQueryClient(<Premium />));
+    expect(screen.getByRole("img", { name: en.premium.title })).toBeInTheDocument();
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(loadPremiumCode).not.toHaveBeenCalled();
   });
 
@@ -367,17 +362,17 @@ describe("Premium", () => {
     vi.mocked(useIsPremium).mockReturnValue(true);
     vi.mocked(usePremiumExpiry).mockReturnValue(expiry);
     vi.mocked(useAuth).mockReturnValue(signedIn());
-    const { dialog } = await openDefaultPopup();
 
-    if (expected === "dated") {
-      expect(within(dialog).getByRole("link", { name: en.premium.ctaExtend })).toBeInTheDocument();
-      expect(within(dialog).queryByText(en.premium.lifetime)).not.toBeInTheDocument();
-    } else {
-      expect(within(dialog).getByText(en.premium.lifetime)).toBeInTheDocument();
-      expect(
-        within(dialog).queryByRole("link", { name: en.premium.ctaExtend })
-      ).not.toBeInTheDocument();
+    if (expected === "lifetime") {
+      render(withQueryClient(<Premium />));
+      expect(screen.getByRole("img", { name: en.premium.title })).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: en.premium.title })).not.toBeInTheDocument();
+      return;
     }
+
+    const { dialog } = await openDefaultPopup();
+    expect(within(dialog).getByRole("link", { name: en.premium.ctaExtend })).toBeInTheDocument();
+    expect(within(dialog).queryByText(en.premium.lifetime)).not.toBeInTheDocument();
   });
 
   it("keeps the refund contact in every non-lifetime state", async () => {

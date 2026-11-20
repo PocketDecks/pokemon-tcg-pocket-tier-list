@@ -203,7 +203,7 @@
   },
   "feedback": {
     "title": "Trimite feedback",
-    "intro": "Ai găsit o eroare, date ciudate sau ai o idee? Spune-ne. Citim fiecare mesaj.",
+    "intro": "Ai găsit o eroare, date ciudate sau ai o idee? Spune-ne.",
     "signInTitle": "Conectează-te pentru a trimite feedback",
     "signInBody": "Conectarea ține formularul departe de spam. Contul tău este folosit doar pentru a-ți răspunde, dacă ceri asta.",
     "signedInAs": "Conectat ca {{name}}",
@@ -212,12 +212,13 @@
       "idea": "O idee",
       "bug": "Ceva nu funcționează",
       "data": "Datele par greșite",
-      "other": "Altceva",
-      "stripe": "Un abonament vechi",
-      "payment": "O problemă de plată"
+      "stripe": "Un abonament vechi (Stripe)",
+      "payment": "O problemă de plată",
+      "partnership": "Un parteneriat sau o promovare",
+      "other": "Altceva"
     },
     "messageLabel": "Mesajul tău",
-    "messagePlaceholder": "Ce s-a întâmplat sau ce ar face site-ul mai bun?",
+    "messagePlaceholder": "Spune-ne ce s-a întâmplat sau ce ai în minte. Pentru o plată sau un abonament, scrie data și suma.",
     "messageHint": "Cel puțin {{min}} caractere.",
     "messageTooShort": "Te rugăm să scrii cel puțin {{min}} caractere.",
     "contactLabel": "Îmi puteți scrie la {{email}} despre asta",

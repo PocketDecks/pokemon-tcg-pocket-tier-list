@@ -203,7 +203,7 @@
   },
   "feedback": {
     "title": "Send feedback",
-    "intro": "Found a bug, spotted odd data, or have an idea? Tell us. Every message is read.",
+    "intro": "Found a bug, spotted odd data, or have an idea? Tell us.",
     "signInTitle": "Sign in to send feedback",
     "signInBody": "Signing in keeps the form free of spam. Your account is only used to reply if you ask for one.",
     "signedInAs": "Signed in as {{name}}",
@@ -212,12 +212,13 @@
       "idea": "An idea",
       "bug": "Something's broken",
       "data": "Data looks off",
-      "other": "Something else",
-      "stripe": "An old subscription",
-      "payment": "A payment problem"
+      "stripe": "An old subscription (Stripe)",
+      "payment": "A payment problem",
+      "partnership": "A partnership or promotion",
+      "other": "Something else"
     },
     "messageLabel": "Your message",
-    "messagePlaceholder": "What happened, or what would make the site better?",
+    "messagePlaceholder": "Tell us what happened or what you have in mind. For a payment or subscription, add the date and amount.",
     "messageHint": "At least {{min}} characters.",
     "messageTooShort": "Please write at least {{min}} characters.",
     "contactLabel": "You can email me at {{email}} about this",

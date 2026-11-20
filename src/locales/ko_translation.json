@@ -203,7 +203,7 @@
   },
   "feedback": {
     "title": "피드백 보내기",
-    "intro": "버그나 이상한 데이터를 발견했거나 아이디어가 있나요? 알려 주세요. 모든 메시지를 읽습니다.",
+    "intro": "버그나 이상한 데이터를 발견했거나 아이디어가 있나요? 알려 주세요.",
     "signInTitle": "피드백을 보내려면 로그인하세요",
     "signInBody": "로그인은 스팸을 막기 위한 것입니다. 계정 정보는 답변을 요청한 경우에만 사용합니다.",
     "signedInAs": "{{name}}(으)로 로그인됨",
@@ -212,12 +212,13 @@
       "idea": "아이디어",
       "bug": "문제가 있어요",
       "data": "데이터가 이상해요",
-      "other": "기타",
-      "stripe": "이전 구독",
-      "payment": "결제 문제"
+      "stripe": "이전 구독 (Stripe)",
+      "payment": "결제 문제",
+      "partnership": "제휴 또는 홍보 문의",
+      "other": "기타"
     },
     "messageLabel": "메시지",
-    "messagePlaceholder": "무슨 일이 있었나요? 사이트를 어떻게 개선하면 좋을까요?",
+    "messagePlaceholder": "무슨 일이 있었는지, 또는 전하고 싶은 말을 적어 주세요. 결제나 구독 관련 문의라면 날짜와 금액도 함께 적어 주세요.",
     "messageHint": "{{min}}자 이상 입력하세요.",
     "messageTooShort": "{{min}}자 이상 입력해 주세요.",
     "contactLabel": "이 건에 대해 {{email}}(으)로 연락해도 좋아요",

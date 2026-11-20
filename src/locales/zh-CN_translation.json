@@ -203,7 +203,7 @@
   },
   "feedback": {
     "title": "发送反馈",
-    "intro": "发现了错误、奇怪的数据，或者有新想法？告诉我们。每条消息我们都会阅读。",
+    "intro": "发现了错误、奇怪的数据，或者有新想法？告诉我们。",
     "signInTitle": "登录后即可发送反馈",
     "signInBody": "登录可以让表单远离垃圾信息。只有在你希望得到回复时，我们才会使用你的账号信息。",
     "signedInAs": "已登录为 {{name}}",
@@ -212,12 +212,13 @@
       "idea": "一个想法",
       "bug": "有东西坏了",
       "data": "数据看起来不对",
-      "other": "其他",
-      "stripe": "旧的订阅",
-      "payment": "付款问题"
+      "stripe": "旧的订阅（Stripe）",
+      "payment": "付款问题",
+      "partnership": "合作或推广",
+      "other": "其他"
     },
     "messageLabel": "你的消息",
-    "messagePlaceholder": "发生了什么，或者怎样能让网站更好？",
+    "messagePlaceholder": "告诉我们发生了什么，或者你有什么想法。如果与付款或订阅有关，请附上日期和金额。",
     "messageHint": "至少 {{min}} 个字符。",
     "messageTooShort": "请至少输入 {{min}} 个字符。",
     "contactLabel": "可以就此事发邮件到 {{email}} 联系我",

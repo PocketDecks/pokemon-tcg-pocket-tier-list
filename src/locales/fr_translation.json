@@ -203,7 +203,7 @@
   },
   "feedback": {
     "title": "Envoyer un avis",
-    "intro": "Un bug, des données étranges ou une idée ? Dites-le-nous. Chaque message est lu.",
+    "intro": "Un bug, des données étranges ou une idée ? Dites-le-nous.",
     "signInTitle": "Connectez-vous pour envoyer un avis",
     "signInBody": "La connexion protège le formulaire du spam. Votre compte sert uniquement à vous répondre si vous le demandez.",
     "signedInAs": "Connecté en tant que {{name}}",
@@ -212,12 +212,13 @@
       "idea": "Une idée",
       "bug": "Quelque chose ne marche pas",
       "data": "Les données semblent fausses",
-      "other": "Autre chose",
-      "stripe": "Un ancien abonnement",
-      "payment": "Un problème de paiement"
+      "stripe": "Un ancien abonnement (Stripe)",
+      "payment": "Un problème de paiement",
+      "partnership": "Un partenariat ou une promotion",
+      "other": "Autre chose"
     },
     "messageLabel": "Votre message",
-    "messagePlaceholder": "Que s'est-il passé, ou qu'est-ce qui améliorerait le site ?",
+    "messagePlaceholder": "Dites-nous ce qui s’est passé ou ce que vous avez en tête. Pour un paiement ou un abonnement, indiquez la date et le montant.",
     "messageHint": "Au moins {{min}} caractères.",
     "messageTooShort": "Veuillez écrire au moins {{min}} caractères.",
     "contactLabel": "Vous pouvez m'écrire à {{email}} à ce sujet",

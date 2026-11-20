@@ -203,7 +203,7 @@
   },
   "feedback": {
     "title": "傳送意見回饋",
-    "intro": "發現錯誤、奇怪的資料，或者有新點子？告訴我們。每則訊息我們都會閱讀。",
+    "intro": "發現錯誤、奇怪的資料，或者有新點子？告訴我們。",
     "signInTitle": "登入後即可傳送意見回饋",
     "signInBody": "登入可以讓表單遠離垃圾訊息。只有在你希望得到回覆時，我們才會使用你的帳號資訊。",
     "signedInAs": "已登入為 {{name}}",
@@ -212,12 +212,13 @@
       "idea": "一個點子",
       "bug": "有東西壞了",
       "data": "資料看起來不對",
-      "other": "其他",
-      "stripe": "舊的訂閱",
-      "payment": "付款問題"
+      "stripe": "舊的訂閱（Stripe）",
+      "payment": "付款問題",
+      "partnership": "合作或推廣",
+      "other": "其他"
     },
     "messageLabel": "你的訊息",
-    "messagePlaceholder": "發生了什麼，或者怎樣能讓網站更好？",
+    "messagePlaceholder": "告訴我們發生了什麼事，或者你有什麼想法。如果與付款或訂閱有關，請附上日期和金額。",
     "messageHint": "至少 {{min}} 個字元。",
     "messageTooShort": "請至少輸入 {{min}} 個字元。",
     "contactLabel": "可以就此事寄信到 {{email}} 聯絡我",

@@ -25,6 +25,7 @@ const CATEGORY_ICONS: Record<FeedbackCategory, NavIconName> = {
   other: "chat",
   stripe: "calendar",
   payment: "card",
+  partnership: "megaphone",
 };
 
 const Wrapper = styled.div`

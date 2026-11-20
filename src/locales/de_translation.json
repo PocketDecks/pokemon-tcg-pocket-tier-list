@@ -203,7 +203,7 @@
   },
   "feedback": {
     "title": "Feedback senden",
-    "intro": "Einen Fehler gefunden, seltsame Daten entdeckt oder eine Idee? Sag es uns. Jede Nachricht wird gelesen.",
+    "intro": "Einen Fehler gefunden, seltsame Daten entdeckt oder eine Idee? Sag es uns.",
     "signInTitle": "Melde dich an, um Feedback zu senden",
     "signInBody": "Die Anmeldung hält das Formular frei von Spam. Dein Konto wird nur genutzt, um dir zu antworten, wenn du das möchtest.",
     "signedInAs": "Angemeldet als {{name}}",
@@ -212,12 +212,13 @@
       "idea": "Eine Idee",
       "bug": "Etwas funktioniert nicht",
       "data": "Daten wirken falsch",
-      "other": "Etwas anderes",
-      "stripe": "Ein altes Abo",
-      "payment": "Ein Zahlungsproblem"
+      "stripe": "Ein altes Abo (Stripe)",
+      "payment": "Ein Zahlungsproblem",
+      "partnership": "Eine Partnerschaft oder Werbung",
+      "other": "Etwas anderes"
     },
     "messageLabel": "Deine Nachricht",
-    "messagePlaceholder": "Was ist passiert, oder was würde die Seite besser machen?",
+    "messagePlaceholder": "Erzähl uns, was passiert ist oder was dir auf dem Herzen liegt. Bei einer Zahlung oder einem Abo nenne bitte Datum und Betrag.",
     "messageHint": "Mindestens {{min}} Zeichen.",
     "messageTooShort": "Bitte schreib mindestens {{min}} Zeichen.",
     "contactLabel": "Ihr dürft mir dazu an {{email}} schreiben",

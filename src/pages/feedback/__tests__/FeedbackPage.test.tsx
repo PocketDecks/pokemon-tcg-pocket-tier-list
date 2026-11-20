@@ -108,14 +108,14 @@ describe("FeedbackPage", () => {
     expect(await screen.findByRole("heading", { name: "feedback.successTitle" })).toBeInTheDocument();
   });
 
-  it("offers the old subscription and payment problem categories after the original four", () => {
+  it("lists the categories with Something else last", () => {
     renderPage();
 
     const radios = screen.getAllByRole("radio").map((radio) => (radio as HTMLInputElement).value);
-    expect(radios).toEqual(["idea", "bug", "data", "other", "stripe", "payment"]);
+    expect(radios).toEqual(["idea", "bug", "data", "stripe", "payment", "partnership", "other"]);
   });
 
-  it.each(["stripe", "payment"])("sends a message filed under %s", async (category) => {
+  it.each(["stripe", "payment", "partnership"])("sends a message filed under %s", async (category) => {
     renderPage();
     fireEvent.click(screen.getByRole("radio", { name: `feedback.categories.${category}` }));
     typeMessage("I was charged after the move to Ko-fi.");

@@ -42,7 +42,7 @@ service cloud.firestore {
         && data.keys().hasAll(['uid', 'email', 'category', 'message', 'contactOk', 'page', 'createdAt'])
         && data.uid == request.auth.uid
         && (data.email == null || data.email == request.auth.token.email)
-        && data.category in ['idea', 'bug', 'data', 'other', 'stripe', 'payment']
+        && data.category in ['idea', 'bug', 'data', 'other', 'stripe', 'payment', 'partnership']
         && data.message is string
         && data.message.size() >= 10
         && data.message.size() <= 2000

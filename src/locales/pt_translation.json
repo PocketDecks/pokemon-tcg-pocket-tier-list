@@ -203,7 +203,7 @@
   },
   "feedback": {
     "title": "Enviar feedback",
-    "intro": "Encontrou um bug, dados estranhos ou tem uma ideia? Conte para nós. Lemos todas as mensagens.",
+    "intro": "Encontrou um bug, dados estranhos ou tem uma ideia? Conte para nós.",
     "signInTitle": "Entre para enviar feedback",
     "signInBody": "Entrar mantém o formulário livre de spam. Sua conta só é usada para responder se você pedir.",
     "signedInAs": "Conectado como {{name}}",
@@ -212,12 +212,13 @@
       "idea": "Uma ideia",
       "bug": "Algo está quebrado",
       "data": "Os dados parecem errados",
-      "other": "Outra coisa",
-      "stripe": "Uma assinatura antiga",
-      "payment": "Um problema de pagamento"
+      "stripe": "Uma assinatura antiga (Stripe)",
+      "payment": "Um problema de pagamento",
+      "partnership": "Uma parceria ou divulgação",
+      "other": "Outra coisa"
     },
     "messageLabel": "Sua mensagem",
-    "messagePlaceholder": "O que aconteceu, ou o que deixaria o site melhor?",
+    "messagePlaceholder": "Conte-nos o que aconteceu ou o que tem em mente. Se for sobre um pagamento ou uma assinatura, indique a data e o valor.",
     "messageHint": "Pelo menos {{min}} caracteres.",
     "messageTooShort": "Escreva pelo menos {{min}} caracteres.",
     "contactLabel": "Vocês podem me escrever em {{email}} sobre isso",

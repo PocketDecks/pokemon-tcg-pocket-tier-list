@@ -203,7 +203,7 @@
   },
   "feedback": {
     "title": "Invia un feedback",
-    "intro": "Hai trovato un bug, dati strani o hai un'idea? Diccelo. Leggiamo ogni messaggio.",
+    "intro": "Hai trovato un bug, dati strani o hai un'idea? Diccelo.",
     "signInTitle": "Accedi per inviare un feedback",
     "signInBody": "L'accesso tiene il modulo libero dallo spam. Il tuo account serve solo a risponderti, se lo chiedi.",
     "signedInAs": "Accesso effettuato come {{name}}",
@@ -212,12 +212,13 @@
       "idea": "Un'idea",
       "bug": "Qualcosa non funziona",
       "data": "I dati sembrano strani",
-      "other": "Altro",
-      "stripe": "Un vecchio abbonamento",
-      "payment": "Un problema di pagamento"
+      "stripe": "Un vecchio abbonamento (Stripe)",
+      "payment": "Un problema di pagamento",
+      "partnership": "Una partnership o promozione",
+      "other": "Altro"
     },
     "messageLabel": "Il tuo messaggio",
-    "messagePlaceholder": "Cosa è successo, o cosa migliorerebbe il sito?",
+    "messagePlaceholder": "Raccontaci cos'è successo o cosa hai in mente. Per un pagamento o un abbonamento, indica la data e l'importo.",
     "messageHint": "Almeno {{min}} caratteri.",
     "messageTooShort": "Scrivi almeno {{min}} caratteri.",
     "contactLabel": "Potete scrivermi a {{email}} su questo",

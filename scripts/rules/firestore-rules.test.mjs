@@ -198,7 +198,7 @@ describe("feedback", () => {
     await assertSucceeds(submit(google("bob"), "bob", { email: "bob@example.com", contactOk: true }));
   });
 
-  for (const category of ["idea", "bug", "data", "other", "stripe", "payment"]) {
+  for (const category of ["idea", "bug", "data", "other", "stripe", "payment", "partnership"]) {
     test(`the ${category} category is accepted`, async () => {
       const uid = `sender-${category}`;
       await assertSucceeds(submit(google(uid), uid, { category }));

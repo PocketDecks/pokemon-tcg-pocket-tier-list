@@ -214,7 +214,7 @@
       "data": "Datele par greșite",
       "stripe": "Un abonament vechi (Stripe)",
       "payment": "O problemă de plată",
-      "partnership": "Un parteneriat sau o promovare",
+      "partnership": "O ofertă de parteneriat sau colaborare",
       "translation": "O greșeală de traducere",
       "other": "Altceva"
     },
@@ -222,7 +222,7 @@
     "messagePlaceholder": "Spune-ne ce s-a întâmplat sau ce ai în minte. Pentru o plată sau un abonament, scrie data și suma.",
     "messageHint": "Cel puțin {{min}} caractere.",
     "messageTooShort": "Te rugăm să scrii cel puțin {{min}} caractere.",
-    "consent": "Am citit <0>Politica de confidențialitate</0> și sunt de acord cu ea, inclusiv cu folosirea mesajului și a adresei mele de e-mail pentru a răspunde.",
+    "consent": "Am citit <0>Politica de confidențialitate</0> și sunt de acord ca mesajul și adresa mea de e-mail să fie folosite pentru a-mi răspunde.",
     "consentRequired": "Bifează caseta ca să îți trimiți feedbackul.",
     "submit": "Trimite feedback",
     "sending": "Se trimite…",
@@ -360,7 +360,7 @@
     },
     "contact": {
       "heading": "Contact",
-      "body": "Dacă aveți întrebări despre această Politică de confidențialitate sau doriți să ne cereți ștergerea informațiilor dumneavoastră, contactați-ne la <0/>."
+      "body": "Dacă aveți întrebări despre această Politică de confidențialitate sau doriți să ne cereți ștergerea informațiilor dumneavoastră, contactați-ne prin <0>formularul de feedback</0>."
     },
     "fanNotice": "Top Pocket Decks este un proiect al fanilor și nu este afiliat, susținut sau sponsorizat de Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc. sau DeNA."
   },

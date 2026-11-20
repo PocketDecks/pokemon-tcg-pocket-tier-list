@@ -214,7 +214,7 @@
       "data": "数据看起来不对",
       "stripe": "旧的订阅（Stripe）",
       "payment": "付款问题",
-      "partnership": "合作或推广",
+      "partnership": "合作提案",
       "translation": "翻译错误",
       "other": "其他"
     },
@@ -222,7 +222,7 @@
     "messagePlaceholder": "告诉我们发生了什么，或者你有什么想法。如果与付款或订阅有关，请附上日期和金额。",
     "messageHint": "至少 {{min}} 个字符。",
     "messageTooShort": "请至少输入 {{min}} 个字符。",
-    "consent": "我已阅读并同意<0>隐私政策</0>，包括使用我的消息和电子邮件地址来回复我。",
+    "consent": "我已阅读<0>隐私政策</0>，并同意使用我的消息和电子邮件地址来回复我。",
     "consentRequired": "请勾选复选框后再发送反馈。",
     "submit": "发送反馈",
     "sending": "正在发送…",
@@ -360,7 +360,7 @@
     },
     "contact": {
       "heading": "联系我们",
-      "body": "如果您对本隐私政策有任何疑问，或希望我们删除您的信息，请通过 <0/> 与我们联系。"
+      "body": "如果您对本隐私政策有任何疑问，或希望我们删除您的信息，请通过<0>反馈表单</0>与我们联系。"
     },
     "fanNotice": "Top Pocket Decks 是一个粉丝项目，与 Nintendo、The Pokémon Company、Creatures Inc.、GAME FREAK Inc. 或 DeNA 没有关联，也未获得其认可或赞助。"
   },

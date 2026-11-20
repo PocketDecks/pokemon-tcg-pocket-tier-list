@@ -214,7 +214,7 @@
       "data": "資料看起來不對",
       "stripe": "舊的訂閱（Stripe）",
       "payment": "付款問題",
-      "partnership": "合作或推廣",
+      "partnership": "合作提案",
       "translation": "翻譯錯誤",
       "other": "其他"
     },
@@ -222,7 +222,7 @@
     "messagePlaceholder": "告訴我們發生了什麼事，或者你有什麼想法。如果與付款或訂閱有關，請附上日期和金額。",
     "messageHint": "至少 {{min}} 個字元。",
     "messageTooShort": "請至少輸入 {{min}} 個字元。",
-    "consent": "我已閱讀並同意<0>隱私權政策</0>，包括使用我的訊息和電子郵件地址來回覆我。",
+    "consent": "我已閱讀<0>隱私權政策</0>，並同意使用我的訊息和電子郵件地址來回覆我。",
     "consentRequired": "請勾選核取方塊後再傳送意見回饋。",
     "submit": "傳送意見回饋",
     "sending": "正在傳送…",
@@ -360,7 +360,7 @@
     },
     "contact": {
       "heading": "聯絡我們",
-      "body": "如果您對本隱私權政策有任何疑問，或希望我們刪除您的資訊，請透過 <0/> 與我們聯絡。"
+      "body": "如果您對本隱私權政策有任何疑問，或希望我們刪除您的資訊，請透過<0>意見回饋表單</0>與我們聯絡。"
     },
     "fanNotice": "Top Pocket Decks 是一個粉絲專案，與 Nintendo、The Pokémon Company、Creatures Inc.、GAME FREAK Inc. 或 DeNA 沒有關聯，也未獲得其認可或贊助。"
   },

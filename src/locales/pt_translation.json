@@ -214,7 +214,7 @@
       "data": "Os dados parecem errados",
       "stripe": "Uma assinatura antiga (Stripe)",
       "payment": "Um problema de pagamento",
-      "partnership": "Uma parceria ou divulgação",
+      "partnership": "Uma proposta de parceria ou colaboração",
       "translation": "Um erro de tradução",
       "other": "Outra coisa"
     },
@@ -222,7 +222,7 @@
     "messagePlaceholder": "Conte-nos o que aconteceu ou o que tem em mente. Se for sobre um pagamento ou uma assinatura, indique a data e o valor.",
     "messageHint": "Pelo menos {{min}} caracteres.",
     "messageTooShort": "Escreva pelo menos {{min}} caracteres.",
-    "consent": "Li a <0>Política de Privacidade</0> e concordo com ela, incluindo o uso da minha mensagem e do meu e-mail para responder.",
+    "consent": "Li a <0>Política de Privacidade</0> e concordo que a minha mensagem e o meu e-mail sejam usados para me responder.",
     "consentRequired": "Marque a caixa para enviar seu feedback.",
     "submit": "Enviar feedback",
     "sending": "Enviando…",
@@ -360,7 +360,7 @@
     },
     "contact": {
       "heading": "Contacto",
-      "body": "Se tiver alguma dúvida sobre esta Política de Privacidade, ou quiser pedir-nos que apaguemos as suas informações, contacte-nos em <0/>."
+      "body": "Se tiver alguma dúvida sobre esta Política de Privacidade, ou quiser pedir-nos que apaguemos as suas informações, contacte-nos através do <0>formulário de feedback</0>."
     },
     "fanNotice": "O Top Pocket Decks é um projeto de fãs e não está afiliado, endossado nem patrocinado pela Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc. ou DeNA."
   },

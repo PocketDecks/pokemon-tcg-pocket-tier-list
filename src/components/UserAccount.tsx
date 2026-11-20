@@ -2,12 +2,13 @@ import styled from "styled-components";
 import { CONTACT_EMAIL } from "../app/constants";
 import { useAuth } from "../contexts/AuthContext";
 import Popup from "./Popup";
-import { useState } from "react";
+import { useId, useState } from "react";
 import Button from "./Button";
 import { useTranslation } from "react-i18next";
 import Premium from "./Premium";
 import useIsPremium from "../app/use-is-premium";
 import NavIcon from "./NavIcon";
+import SignInFailedNotice from "./SignInFailedNotice";
 
 const StyledUserAccount = styled.div`
   display: flex;
@@ -74,6 +75,30 @@ const SignInButton = styled.button`
     min-height: 4.4rem;
     padding: 0.8rem 1.6rem;
     border-radius: 0.8rem;
+  }
+`;
+
+const HeaderNotice = styled(SignInFailedNotice)`
+  max-width: 8rem;
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--main);
+
+  @media (max-width: 900px) {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    right: 1.2rem;
+    z-index: 60;
+    width: max-content;
+    max-width: min(24rem, calc(100vw - 2.4rem));
+    padding: 0.8rem 1.2rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 0.8rem;
+    background: var(--bg);
+    font-size: 1.2rem;
+    text-align: left;
   }
 `;
 
@@ -154,7 +179,8 @@ const EmailText = styled(ContactText)`
 
 const UserAccount = () => {
   const { t } = useTranslation();
-  const { user, signOut, signInWithGoogle } = useAuth();
+  const noticeId = useId();
+  const { user, signOut, signInWithGoogle, signInFailed } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
   const isPremium = useIsPremium();
@@ -180,6 +206,7 @@ const UserAccount = () => {
             <ContactIcon name="mail" size={34} />
           </ContactButton>
         )}
+        <Premium />
         {user && (
           <UserInfo onClick={() => setIsOpen(true)}>
             <UserAvatar
@@ -192,12 +219,13 @@ const UserAccount = () => {
           <SignInButton
             onClick={() => signInWithGoogle()}
             title={t("header.signIn", "Sign in with Google")}
+            aria-describedby={signInFailed ? noticeId : undefined}
           >
             <SignInIcon name="account" />
             <SignInLabel>{t("header.signIn", "Sign in with Google")}</SignInLabel>
           </SignInButton>
         )}
-        <Premium />
+        <HeaderNotice id={noticeId} alert />
       </StyledUserAccount>
       {user && (
         <Popup

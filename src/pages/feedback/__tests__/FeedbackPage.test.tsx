@@ -6,6 +6,7 @@ import FeedbackPage from "../FeedbackPage";
 const auth = vi.hoisted(() => ({
   user: null as null | { uid: string; email: string | null; displayName: string | null },
   loading: false,
+  signInFailed: false,
   signInWithGoogle: vi.fn(),
 }));
 
@@ -46,6 +47,7 @@ const submit = () => fireEvent.click(screen.getByRole("button", { name: "feedbac
 beforeEach(() => {
   auth.user = { uid: "user-1", email: "ash@example.com", displayName: "Ash" };
   auth.loading = false;
+  auth.signInFailed = false;
   auth.signInWithGoogle.mockReset();
   submitFeedback.mockReset();
   submitFeedback.mockResolvedValue(undefined);
@@ -61,6 +63,21 @@ describe("FeedbackPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "header.signIn" }));
     expect(auth.signInWithGoogle).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows a notice beside the sign-in button after a failed sign-in", () => {
+    auth.user = null;
+    auth.signInFailed = true;
+    renderPage();
+
+    expect(screen.getByText("userAccount.signInFailed")).toBeInTheDocument();
+  });
+
+  it("shows no sign-in notice before a failure", () => {
+    auth.user = null;
+    renderPage();
+
+    expect(screen.queryByText("userAccount.signInFailed")).not.toBeInTheDocument();
   });
 
   it("blocks a message shorter than the minimum and explains why", () => {

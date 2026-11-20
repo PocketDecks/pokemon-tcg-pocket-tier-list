@@ -71,7 +71,8 @@
   },
   "userAccount": {
     "title": "Conta de Usuário",
-    "signOut": "Sair"
+    "signOut": "Sair",
+    "signInFailed": "Não foi possível entrar. Tente novamente."
   },
   "lastUpdated": "Última atualização:",
   "deckPage": {

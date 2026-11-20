@@ -2,14 +2,13 @@ import styled from "styled-components";
 import { CONTACT_EMAIL } from "../app/constants";
 import { useAuth } from "../contexts/AuthContext";
 import Popup from "./Popup";
-import { useState } from "react";
+import { useId, useState } from "react";
 import Button from "./Button";
 import { useTranslation } from "react-i18next";
 import Premium from "./Premium";
 import useIsPremium from "../app/use-is-premium";
 import NavIcon from "./NavIcon";
-
-const SIGN_IN_NOTICE_ID = "sign-in-notice";
+import SignInFailedNotice from "./SignInFailedNotice";
 
 const StyledUserAccount = styled.div`
   display: flex;
@@ -18,6 +17,7 @@ const StyledUserAccount = styled.div`
   gap: 1.2rem;
 
   @media (max-width: 900px) {
+    position: relative;
     flex-direction: row;
     gap: 1rem;
   }
@@ -79,7 +79,7 @@ const SignInButton = styled.button`
   }
 `;
 
-const SignInNotice = styled.p`
+const HeaderNotice = styled(SignInFailedNotice)`
   max-width: 8rem;
   margin: 0;
   font-size: 1.1rem;
@@ -88,7 +88,16 @@ const SignInNotice = styled.p`
   color: var(--main);
 
   @media (max-width: 900px) {
-    max-width: 16rem;
+    position: absolute;
+    top: calc(100% + 0.8rem);
+    right: 0;
+    z-index: 60;
+    width: max-content;
+    max-width: min(24rem, calc(100vw - 2.4rem));
+    padding: 0.8rem 1.2rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 0.8rem;
+    background: var(--bg);
     font-size: 1.2rem;
     text-align: left;
   }
@@ -171,6 +180,7 @@ const EmailText = styled(ContactText)`
 
 const UserAccount = () => {
   const { t } = useTranslation();
+  const noticeId = useId();
   const { user, signOut, signInWithGoogle, signInFailed } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
@@ -210,17 +220,13 @@ const UserAccount = () => {
           <SignInButton
             onClick={() => signInWithGoogle()}
             title={t("header.signIn", "Sign in with Google")}
-            aria-describedby={signInFailed ? SIGN_IN_NOTICE_ID : undefined}
+            aria-describedby={signInFailed ? noticeId : undefined}
           >
             <SignInIcon name="account" />
             <SignInLabel>{t("header.signIn", "Sign in with Google")}</SignInLabel>
           </SignInButton>
         )}
-        {!user && signInFailed && (
-          <SignInNotice id={SIGN_IN_NOTICE_ID} role="alert">
-            {t("userAccount.signInFailed")}
-          </SignInNotice>
-        )}
+        <HeaderNotice id={noticeId} alert />
       </StyledUserAccount>
       {user && (
         <Popup

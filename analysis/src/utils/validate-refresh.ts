@@ -12,6 +12,7 @@ import {
   rampedFloor,
   readPreviousArchetypeCount,
 } from "./assert-publishable";
+import { deckSlug } from "../../../src/app/deck-slug";
 import { isPremiumWindow, WINDOW_IDS, windowArtefactName, type WindowId } from "../../../src/types/meta-windows";
 
 export const REFRESH_WINDOWS = WINDOW_IDS;
@@ -139,9 +140,12 @@ export const validateRefresh = (
         .filter((name) => name.endsWith(".png"))
         .map((name) => name.slice(0, -4))
     : [];
+  // The generator names each image after the deck's slug, which drops
+  // characters such as apostrophes, so compare slugs rather than raw names.
   const imageSet = new Set(images);
-  const missingImages = [...union].filter((name) => !imageSet.has(name)).sort();
-  const orphanImages = images.filter((name) => !union.has(name)).sort();
+  const slugs = new Set([...union].map(deckSlug));
+  const missingImages = [...union].filter((name) => !imageSet.has(deckSlug(name))).sort();
+  const orphanImages = images.filter((name) => !slugs.has(name)).sort();
 
   if (missingImages.length) {
     failures.push(`${missingImages.length} deck names have no OG image`);

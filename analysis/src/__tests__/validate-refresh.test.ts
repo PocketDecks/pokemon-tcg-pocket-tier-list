@@ -4,6 +4,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
+import { deckSlug } from "../../../src/app/deck-slug";
 import type { PipelinePartialDeck } from "../../../src/types/pipeline-data";
 import { EXPANSION_RELEASE_DATE } from "../settings";
 import { publishFailures, readPreviousArchetypeCount } from "../utils/assert-publishable";
@@ -119,6 +120,22 @@ describe("validateRefresh", () => {
 
     expect(report.missingImages).toEqual([names[0]]);
     expect(report.failures).toEqual(["1 deck names have no OG image"]);
+  });
+
+  it("matches an image to a deck name through its slug", () => {
+    const data = tmp();
+    const premium = tmp();
+    const images = tmp();
+    const apostrophe = "team-rocket's-electrode-b4a-020&dedenne-ex-b3b-024";
+    const names = writeWindows(data, healthy, { "20d": [apostrophe] }, premium);
+    writeImages(images, names.map(deckSlug));
+
+    const report = validateRefresh(data, images, null, premium);
+
+    expect(deckSlug(apostrophe)).not.toBe(apostrophe);
+    expect(report.missingImages).toEqual([]);
+    expect(report.orphanImages).toEqual([]);
+    expect(report.failures).toEqual([]);
   });
 
   it("fails when an image matches no deck name", () => {

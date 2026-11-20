@@ -31,6 +31,8 @@ export const readProcessed = (): unknown[] => {
   return value;
 };
 
+const idOf = (entry: unknown): unknown => (entry as { id?: unknown } | null)?.id;
+
 const SINCE_FLAG = "--since";
 const SINCE_USAGE = `${SINCE_FLAG} takes a date as YYYY-MM-DD, or "release"`;
 
@@ -58,7 +60,7 @@ export const downloadDecks = async (options: { since?: Date } = {}) => {
   const tournaments = await getTournaments(options);
   console.log(`Downloaded tournaments\n${tournaments.length} to process`);
 
-  let processed = readProcessed();
+  readProcessed();
   fs.mkdirSync(decksDir(), { recursive: true });
 
   for (let start = 0; start < tournaments.length; start += BATCH_SIZE) {
@@ -67,17 +69,24 @@ export const downloadDecks = async (options: { since?: Date } = {}) => {
       getTournamentDecks(tournament)
     );
 
-    processed = [
-      ...processed,
-      ...batch.map((tournament) => ({ id: tournament.id, date: tournament.date })),
-    ];
     // The batch read inside planDeckWrites and the write that follows are one
     // read-modify-write, so the lock holds both; a purge rewriting the same
     // shards cannot land between them.
     withStoreLock(decksDir(), () => {
+      const processed = readProcessed();
+      const recorded = new Set(processed.map(idOf));
+      const fresh = batch.flatMap((tournament, index) =>
+        recorded.has(tournament.id) ? [] : [{ tournament, decks: downloaded[index] }]
+      );
       writeArtefacts({
-        ...planDeckWrites(decksDir(), downloaded.flat()),
-        [processedFile()]: JSON.stringify(processed),
+        ...planDeckWrites(
+          decksDir(),
+          fresh.flatMap(({ decks }) => decks)
+        ),
+        [processedFile()]: JSON.stringify([
+          ...processed,
+          ...fresh.map(({ tournament }) => ({ id: tournament.id, date: tournament.date })),
+        ]),
       });
     });
 

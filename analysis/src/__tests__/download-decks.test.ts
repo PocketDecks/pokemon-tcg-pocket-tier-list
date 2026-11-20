@@ -172,6 +172,65 @@ describe("downloadDecks", () => {
     expect(Object.keys(readManifest(store).shards)).toEqual([]);
   });
 
+  describe("two runs at once", () => {
+    const gateDownloads = () => {
+      let release: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      getTournamentDecks.mockImplementation(async (t: { id: string }) => {
+        await gate;
+        return [deck(`${t.id}-player`)];
+      });
+      return release;
+    };
+
+    const startBoth = async (first: ReturnType<typeof tournaments>, second: ReturnType<typeof tournaments>) => {
+      getTournaments.mockResolvedValueOnce(first).mockResolvedValueOnce(second);
+      const release = gateDownloads();
+      const runs = [downloadDecks(), downloadDecks()];
+      await vi.waitFor(() => expect(getTournamentDecks).toHaveBeenCalledTimes(first.length + second.length));
+      release();
+      return runs;
+    };
+
+    it("keeps the tournaments of both runs in the processed list", async () => {
+      const runs = await startBoth([tournament(0), tournament(1)], [tournament(2), tournament(3)]);
+
+      await Promise.all(runs);
+
+      expect(processedIds().sort()).toEqual(["t0", "t1", "t2", "t3"]);
+      expect(
+        readDecks(path.join(dataDir, "decks"))
+          .map((entry) => entry.id)
+          .sort()
+      ).toEqual(["t0-player", "t1-player", "t2-player", "t3-player"]);
+    });
+
+    it("skips a tournament that the other run recorded first", async () => {
+      const runs = await startBoth([tournament(0), tournament(1)], [tournament(1), tournament(2)]);
+
+      await Promise.all(runs);
+
+      expect(processedIds().sort()).toEqual(["t0", "t1", "t2"]);
+      const ids = readDecks(path.join(dataDir, "decks")).map((entry) => entry.id);
+      expect(ids.sort()).toEqual(["t0-player", "t1-player", "t2-player"]);
+      expect(verifyStore(path.join(dataDir, "decks"), { placement: true })).toEqual([]);
+    });
+
+    it("lets a later run resume cleanly after the overlap", async () => {
+      const runs = await startBoth([tournament(0)], [tournament(0), tournament(1)]);
+      await Promise.all(runs);
+      vi.clearAllMocks();
+      getTournaments.mockResolvedValue([tournament(2)]);
+      getTournamentDecks.mockImplementation(async (t: { id: string }) => [deck(`${t.id}-player`)]);
+
+      await downloadDecks();
+
+      expect(processedIds().sort()).toEqual(["t0", "t1", "t2"]);
+    });
+  });
+
   describe("readProcessed", () => {
     const storeDir = () => path.join(dataDir, "decks");
 

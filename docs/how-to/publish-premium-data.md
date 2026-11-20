@@ -63,6 +63,7 @@ An entitlement is the document `entitlements/{uid}`, keyed by the Firebase Authe
 | `source` | string | Free-form label for where the grant came from, such as `manual` |
 | `expiresAt` | timestamp, optional | Access ends at this instant; absent or null means no expiry |
 | `updatedAt` | timestamp | When the document was last written |
+| `email` | string, optional | The account's email in lower case, so the document is easy to recognise in the console. Access does not depend on it |
 
 Only trusted server tools write these documents: the publisher and manual grant command use the Admin SDK, while the Ko-fi Worker uses Firestore REST with an OAuth access token. The security rules deny every client write, and a signed-in user may read only their own document. The app reads that document through `useIsPremium()` and grants access only when it is active. Ko-fi tips grant months through the Worker; an owner can grant or revoke access with `yarn grant:premium`.
 
@@ -81,7 +82,7 @@ yarn grant:premium --uid <uid> --revoke
 - `--revoke` writes `premium: false` and sets `expiresAt` to null. It cannot be combined with `--until`.
 - `--dry-run` prints the document that would be written without contacting Firebase.
 
-A grant merges `premium`, `source`, `expiresAt` and `updatedAt` into the document, the same fields the Ko-fi Worker writes, so running it again for the same uid updates the expiry or source and leaves other fields alone. Run it with `--dry-run` first when you are unsure of the uid
+A grant merges `premium`, `source`, `expiresAt`, `updatedAt` and `email` into the document, the same fields the Ko-fi Worker writes, so running it again for the same uid updates the expiry or source and leaves other fields alone. The email is read from the account when the grant is written, and a uid with no account is refused. A revoke leaves the email as it is. Run it with `--dry-run` first when you are unsure of the uid
 
 ## First-time set-up
 

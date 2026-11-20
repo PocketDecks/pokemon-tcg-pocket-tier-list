@@ -16,7 +16,11 @@ export interface FirestoreClient {
   commit(writes: DocumentWrite[], transaction?: string): Promise<CommitResult>;
   rollback(transaction: string): Promise<void>;
   lookupUidByEmail(email: string): Promise<string | null>;
-  hasActiveAccount(uid: string): Promise<boolean>;
+  findActiveAccount(uid: string): Promise<ActiveAccount | null>;
+}
+
+export interface ActiveAccount {
+  email: string | null;
 }
 
 const encodeValue = (value: FieldValue): Record<string, unknown> => {
@@ -160,16 +164,21 @@ export const createFirestoreClient = (options: {
       return isSafeUid(user.localId) ? user.localId : null;
     },
 
-    async hasActiveAccount(uid) {
+    async findActiveAccount(uid) {
       const response = await send(
         `https://identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts:lookup`,
         { method: "POST", body: JSON.stringify({ localId: [uid] }) },
       );
-      if (response.status === 400) return false;
+      if (response.status === 400) return null;
       if (!response.ok) throw new UpstreamError(`accounts:lookup failed: ${response.status}`);
-      const body = (await response.json()) as { users?: { disabled?: unknown }[] };
-      if (body.users?.length !== 1) return false;
-      return body.users[0].disabled !== true;
+      const body = (await response.json()) as {
+        users?: { disabled?: unknown; email?: unknown }[];
+      };
+      if (body.users?.length !== 1) return null;
+      const [user] = body.users;
+      if (user.disabled === true) return null;
+      const email = typeof user.email === "string" ? user.email.trim().toLowerCase() : "";
+      return { email: email === "" ? null : email };
     },
   };
 };

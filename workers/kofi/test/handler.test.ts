@@ -144,6 +144,7 @@ describe("granting Premium", () => {
     expect(google.read("entitlements/uid-ash")).toEqual({
       premium: true,
       source: "kofi",
+      email: "ash@example.com",
       expiresAt: "2027-04-08T12:00:00.000Z",
       updatedAt: NOW.toISOString(),
     });
@@ -169,6 +170,22 @@ describe("granting Premium", () => {
     const stored = google.read("kofiPayments/txn-1-msg-1");
     expect(stored).not.toHaveProperty("email");
     expect(stored).not.toHaveProperty("fromName");
+  });
+
+  it("adds the account email to an existing entitlement that has none", async () => {
+    const { post, google } = setup();
+    google.addUser("ash@example.com", "uid-ash");
+    google.seed("entitlements/uid-ash", {
+      premium: true,
+      source: "kofi",
+      expiresAt: new Date("2027-01-15T00:00:00.000Z"),
+      updatedAt: new Date("2026-10-01T00:00:00.000Z"),
+    });
+    await post(payment({ amount: "2.00" }));
+    expect(google.read("entitlements/uid-ash")).toMatchObject({
+      email: "ash@example.com",
+      expiresAt: "2027-03-15T00:00:00.000Z",
+    });
   });
 
   it("stacks from a future expiry", async () => {

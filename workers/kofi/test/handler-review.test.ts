@@ -84,7 +84,10 @@ describe("review and matching", () => {
     google.addUser("code@example.com", "uidcode", { emailVerified: false });
     google.seed("premiumCodes/PD-ABC123", { uid: "uidcode" });
     await post(payment({ message: "Great work PD-ABC123" }));
-    expect(google.read("entitlements/uidcode")).toMatchObject({ premium: true });
+    expect(google.read("entitlements/uidcode")).toMatchObject({
+      premium: true,
+      email: "code@example.com",
+    });
     expect(google.read("entitlements/uid-email")).toBeUndefined();
     expect(google.read("kofiPayments/txn-1-msg-1")).toMatchObject({
       uid: "uidcode",

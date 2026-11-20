@@ -20,6 +20,24 @@ describe("planPremiumGrant", () => {
     });
   });
 
+  it("adds the account email in lower case", () => {
+    const plan = planPremiumGrant({ uid, email: " Ash@Example.com ", now });
+
+    expect(plan.data).toEqual({
+      premium: true,
+      source: "manual",
+      expiresAt: null,
+      updatedAt: now,
+      email: "ash@example.com",
+    });
+  });
+
+  it("leaves the email off when it is blank", () => {
+    const plan = planPremiumGrant({ uid, email: "  ", now });
+
+    expect(plan.data).not.toHaveProperty("email");
+  });
+
   it("expires a dated grant at the end of that day in UTC", () => {
     const plan = planPremiumGrant({ uid, until: "2026-12-31", source: "invoice", now });
 

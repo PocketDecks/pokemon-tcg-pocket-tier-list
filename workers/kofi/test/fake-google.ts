@@ -14,6 +14,7 @@ interface StoredDocument {
 
 interface TestUser {
   uid: string;
+  email: string;
   emailVerified: boolean;
   disabled: boolean;
 }
@@ -221,6 +222,7 @@ export const createFakeGoogle = (options: FakeGoogleOptions) => {
     return json(200, {
       users: matches.map((user) => ({
         localId: user.uid,
+        email: user.email,
         emailVerified: user.emailVerified,
         disabled: user.disabled,
       })),
@@ -309,7 +311,12 @@ export const createFakeGoogle = (options: FakeGoogleOptions) => {
       const key = email.toLowerCase();
       users.set(key, [
         ...(users.get(key) ?? []),
-        { uid, emailVerified: flags.emailVerified ?? true, disabled: flags.disabled ?? false },
+        {
+          uid,
+          email: key,
+          emailVerified: flags.emailVerified ?? true,
+          disabled: flags.disabled ?? false,
+        },
       ]);
     },
     failCommits: (status: number | undefined, body?: unknown) => {

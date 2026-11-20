@@ -34,8 +34,9 @@ export const entitlementWrite = (
   expiresAt: Date,
   source: string,
   now: Date,
+  email: string | null = null,
 ): DocumentWrite => ({
   kind: "merge",
   path: entitlementPath(uid),
-  fields: { premium: true, source, expiresAt, updatedAt: now },
+  fields: { premium: true, source, expiresAt, updatedAt: now, ...(email ? { email } : {}) },
 });

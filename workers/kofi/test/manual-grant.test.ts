@@ -77,6 +77,7 @@ describe("grantManually", () => {
     expect(google.read(`entitlements/${UID}`)).toMatchObject({
       premium: true,
       source: "kofi",
+      email: "ash@example.com",
       expiresAt: "2027-04-08T12:00:00.000Z",
       updatedAt: NOW.toISOString(),
     });

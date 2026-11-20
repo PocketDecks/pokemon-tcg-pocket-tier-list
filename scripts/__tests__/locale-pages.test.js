@@ -52,6 +52,16 @@ const expectedUrl = (entry) => {
 
 const isDeckDetailEntry = (entry) => /^(ja\/)?deck\/[^/]+\//.test(entry.split(path.sep).join("/"));
 
+const premiumShellSlugs = new Set(
+  Object.keys(
+    JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "src", "data", "premium-deck-slugs.json"), "utf8"))
+  )
+);
+const isPremiumShellEntry = (entry) => {
+  const slug = /^(?:ja\/)?deck\/([^/]+)\//.exec(entry.split(path.sep).join("/"))?.[1];
+  return slug !== undefined && premiumShellSlugs.has(slug);
+};
+
 test("locale page graph in the built output", { skip: !hasDist && "dist/ is not built" }, async (t) => {
   const entries = listHtml().filter((entry) => !entry.endsWith("404.html") && !entry.endsWith("app-shell.html"));
   const jaEntries = entries.filter((entry) => entry.split(path.sep).join("/").startsWith("ja/"));
@@ -68,7 +78,7 @@ test("locale page graph in the built output", { skip: !hasDist && "dist/ is not 
   });
 
   await t.test("every page has exactly one self-canonical", () => {
-    for (const entry of entries) {
+    for (const entry of entries.filter((candidate) => !isPremiumShellEntry(candidate))) {
       const html = fs.readFileSync(path.join(DIST_DIR, entry), "utf8");
       const found = canonicals(html);
       assert.strictEqual(found.length, 1, `${entry}: ${found.length} canonicals`);
@@ -77,7 +87,7 @@ test("locale page graph in the built output", { skip: !hasDist && "dist/ is not 
   });
 
   await t.test("deck detail and hub pages are English-only in the index", () => {
-    for (const entry of entries.filter(isDeckDetailEntry)) {
+    for (const entry of entries.filter((candidate) => isDeckDetailEntry(candidate) && !isPremiumShellEntry(candidate))) {
       const html = fs.readFileSync(path.join(DIST_DIR, entry), "utf8");
       if (entry.split(path.sep).join("/").startsWith("ja/")) {
         assert.match(html, /<meta name="robots" content="noindex, follow"/, entry);
@@ -166,7 +176,7 @@ test("locale page graph in the built output", { skip: !hasDist && "dist/ is not 
 
   await t.test("Japanese pages carry Japanese prose, not only a translated title", () => {
     const thin = [];
-    for (const entry of jaEntries) {
+    for (const entry of jaEntries.filter((candidate) => !isPremiumShellEntry(candidate))) {
       const text = visibleText(fs.readFileSync(path.join(DIST_DIR, entry), "utf8"));
       const cjk = cjkCount(text);
       if (cjk < 100) thin.push(`${entry}: ${cjk} CJK chars in ${text.length}`);

@@ -41,11 +41,10 @@ test("current names retain their existing slugs", () => {
     fs.readFileSync(path.join(__dirname, "..", "..", "public", "data", "best-decks.json"), "utf8")
   );
   for (const deck of decks) {
-    assert.strictEqual(
-      deckSlug(deck.name),
-      deck.name.toLowerCase().replace(/\s/g, "-"),
-      deck.name
-    );
+    const slug = deckSlug(deck.name);
+    const existing = deck.name.toLowerCase().replace(/\s/g, "-");
+    if (/^[a-z0-9&-]+$/.test(existing)) assert.strictEqual(slug, existing, deck.name);
+    assert.match(slug, /^[a-z0-9&]+(-[a-z0-9&]+)*$/, deck.name);
   }
 });
 

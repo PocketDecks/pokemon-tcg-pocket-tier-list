@@ -83,6 +83,7 @@ describe("buildMetaShare", () => {
     const qualifiedDecks: Deck[] = [
       makeDeck({ name: "New Deck", date: daysAgo(0), totalGames: 15 }),
       makeDeck({ name: "Deck B", date: daysAgo(3), totalGames: 15 }),
+      makeDeck({ name: "Deck B", date: daysAgo(2 * WINDOW_DAYS - 1), totalGames: 15 }),
     ];
     const bestDecks = [makePartial("New Deck"), makePartial("Deck B")];
 
@@ -92,6 +93,30 @@ describe("buildMetaShare", () => {
     expect(fresh.isNew).toBe(true);
     expect(fresh.sharePrev).toBe(0);
     expect(fresh.firstSeen).toBe(daysAgo(0).split("T")[0]);
+  });
+
+  it("does not flag a deck new when the data starts inside the previous window", () => {
+    const qualifiedDecks: Deck[] = [
+      makeDeck({ name: "Deck A", date: daysAgo(2 * WINDOW_DAYS - 2), totalGames: 20 }),
+      makeDeck({ name: "Opener", date: daysAgo(WINDOW_DAYS - 1), totalGames: 20 }),
+    ];
+    const bestDecks = [makePartial("Deck A"), makePartial("Opener")];
+
+    const ms = buildMetaShare(qualifiedDecks, bestDecks, TODAY);
+
+    expect(ms.decks.find((d) => d.name === "Opener")!.isNew).toBe(false);
+  });
+
+  it("flags a deck new once the data covers the whole previous window", () => {
+    const qualifiedDecks: Deck[] = [
+      makeDeck({ name: "Deck A", date: daysAgo(2 * WINDOW_DAYS - 1), totalGames: 20 }),
+      makeDeck({ name: "Opener", date: daysAgo(WINDOW_DAYS - 1), totalGames: 20 }),
+    ];
+    const bestDecks = [makePartial("Deck A"), makePartial("Opener")];
+
+    const ms = buildMetaShare(qualifiedDecks, bestDecks, TODAY);
+
+    expect(ms.decks.find((d) => d.name === "Opener")!.isNew).toBe(true);
   });
 
   it("decks absent from bestDecks are excluded even when they have games", () => {

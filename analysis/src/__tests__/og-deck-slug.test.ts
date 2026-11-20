@@ -16,13 +16,21 @@ const publishedNames = (): string[] =>
       )
     );
 
+const URL_SAFE_SLUG = /^[a-z0-9&]+(-[a-z0-9&]+)*$/;
+
 describe("OG image slugs", () => {
-  it("keep the lowercase, hyphen-for-whitespace form for every published deck name", () => {
+  it("are lowercase, hyphenated and URL-safe for every published deck name", () => {
     const names = publishedNames();
 
     expect(names.length).toBeGreaterThan(0);
     for (const name of names) {
-      expect(deckSlug(name)).toBe(name.toLowerCase().replace(/\s/g, "-"));
+      expect(deckSlug(name)).toMatch(URL_SAFE_SLUG);
     }
+  });
+
+  it("drop the apostrophe from a Team Rocket's deck name", () => {
+    expect(deckSlug("team-rocket's-electrode-b4a-020&dedenne-ex-b3b-024")).toBe(
+      "team-rockets-electrode-b4a-020&dedenne-ex-b3b-024"
+    );
   });
 });

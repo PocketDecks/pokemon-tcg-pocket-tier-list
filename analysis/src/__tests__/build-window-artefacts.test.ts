@@ -244,7 +244,13 @@ describe("buildWindowArtefacts movement across two adjacent windows", () => {
   });
 
   it("keeps a genuinely new archetype at zero previous share", () => {
-    const fresh = entry("Fresh");
+    const covered = [
+      ...movement,
+      makeDeck({ id: "b1", name: "Steady", date: "2026-09-19", winCount: 30, totalGames: 30 }),
+    ];
+    const fresh = windowArtefacts(covered, "10d", TODAY).metaShare.decks.find(
+      (row) => row.name === "Fresh"
+    )!;
 
     expect(fresh.sharePrev).toBe(0);
     expect(fresh.firstSeen).toBe("2026-10-08");
@@ -354,8 +360,9 @@ describe("buildWindowArtefacts movement window boundaries", () => {
 
   it("flags an archetype whose first appearance is the window's opening day", () => {
     const decksOnFirstDay = [
+      makeDeck({ id: "b1", name: "Other", date: "2026-09-21", winCount: 30, totalGames: 30 }),
       makeDeck({ id: "o1", name: "Opening", date: "2026-10-01", winCount: 30, totalGames: 30 }),
-      makeDeck({ id: "o2", name: "Other", date: "2026-10-01", winCount: 30, totalGames: 30 }),
+      makeDeck({ id: "o2", name: "Other", date: "2026-10-10", winCount: 30, totalGames: 30 }),
     ];
 
     const opening = windowArtefacts(decksOnFirstDay, "10d", TODAY).metaShare.decks.find(

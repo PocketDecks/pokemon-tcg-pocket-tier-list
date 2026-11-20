@@ -43,6 +43,22 @@ describe("expansion index policy", () => {
     expect(result.isIndexable("c1")).toBe(false);
   });
 
+  it("skips a thin newer set and indexes the next earlier set that has enough cards", () => {
+    const list = [
+      ...LIST,
+      { id: "b4", name: "Ruler of the Skies", release_date: "2026-07-30" },
+    ];
+    const result = expansionIndexPolicy(list, [
+      { lists: [{ cards: setCards("c1", 6) }] },
+      { lists: [{ cards: setCards("b4a", 2) }] },
+      { lists: [{ cards: setCards("b4", 6) }] },
+    ]);
+    expect(result.newest?.id).toBe("c1");
+    expect(result.previous?.id).toBe("b4");
+    expect(result.isIndexable("b4a")).toBe(false);
+    expect(result.isIndexable("b4")).toBe(true);
+  });
+
   it("indexes the previous covered expansion on its own count when the newest is under the threshold", () => {
     const result = expansionIndexPolicy(LIST, [
       { lists: [{ cards: setCards("c1", 4) }] },

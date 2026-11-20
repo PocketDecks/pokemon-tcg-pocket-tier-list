@@ -3,6 +3,29 @@
   "name": "Team Rocket's Electrode",
   "variants": [
     {
+      "variant": "team-rockets-electrode-b4a-020&dedenne-ex-b3b-024",
+      "name": "team-rocket's-electrode-b4a-020&dedenne-ex-b3b-024",
+      "firstSeen": "2026-11-18",
+      "lastSeen": "2026-11-18",
+      "peakShare": 0.0018927922471229557,
+      "peakDate": "2026-11-18",
+      "cards": [
+        "2:b4a-019",
+        "2:b4a-020",
+        "2:a3-066",
+        "1:b3b-024",
+        "2:pa-007",
+        "1:a2-150",
+        "1:b1-225",
+        "2:pa-005",
+        "1:b3-147",
+        "2:b3b-064",
+        "2:a2-147",
+        "1:b3b-065",
+        "1:b2b-069"
+      ]
+    },
+    {
       "variant": "team-rockets-electrode-b4a-020&pawmot-b3a-016",
       "name": "team-rocket's-electrode-b4a-020&pawmot-b3a-016",
       "firstSeen": "2026-09-24",

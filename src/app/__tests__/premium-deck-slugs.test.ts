@@ -26,7 +26,10 @@ describe("premiumWindowsForSlug", () => {
     expect(premiumWindowsForSlug("x", { x: ["20d", "30d", "bogus"] })).toEqual(["30d"]);
   });
 
-  it("ships an empty committed list while every window is identical", () => {
-    expect(PREMIUM_DECK_SLUGS).toEqual({});
+  it("lists only premium windows for every deck in the committed list", () => {
+    for (const [slug, windows] of Object.entries(PREMIUM_DECK_SLUGS)) {
+      expect(windows.length).toBeGreaterThan(0);
+      expect(premiumWindowsForSlug(slug)).toEqual(windows);
+    }
   });
 });

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import SignInFailedNotice from "../SignInFailedNotice";
 import { useAuth } from "../../app/use-auth";
+import type { User } from "firebase/auth";
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -11,8 +12,15 @@ vi.mock("react-i18next", () => ({
 
 vi.mock("../../app/use-auth", () => ({ useAuth: vi.fn() }));
 
-const authValue = (user: { uid: string } | null, signInFailed: boolean) =>
-  ({ user, signInFailed }) as unknown as ReturnType<typeof useAuth>;
+const authValue = (user: User | null, signInFailed: boolean): ReturnType<typeof useAuth> => ({
+  user,
+  loading: false,
+  signInFailed,
+  signInWithGoogle: vi.fn(),
+  signOut: vi.fn(),
+});
+
+const signedInUser = { uid: "user-1" } as User;
 
 beforeEach(() => {
   vi.mocked(useAuth).mockReturnValue(authValue(null, true));
@@ -27,7 +35,7 @@ describe("SignInFailedNotice", () => {
   });
 
   it("renders nothing once a user is signed in", () => {
-    vi.mocked(useAuth).mockReturnValue(authValue({ uid: "user-1" }, true));
+    vi.mocked(useAuth).mockReturnValue(authValue(signedInUser, true));
     render(<SignInFailedNotice id="notice" alert />);
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();

@@ -53,7 +53,7 @@ export const readProcessed = (): unknown[] => {
   return value;
 };
 
-const idOf = (entry: unknown): unknown => (entry as { id?: unknown } | null)?.id;
+const idOf = (entry: unknown): unknown => (entry as { id?: unknown }).id;
 
 const SINCE_FLAG = "--since";
 const SINCE_USAGE = `${SINCE_FLAG} takes a date as YYYY-MM-DD, or "release"`;
@@ -109,6 +109,7 @@ export const downloadDecks = async ({
       const fresh = batch.flatMap((tournament, index) =>
         recorded.has(tournament.id) ? [] : [{ tournament, decks: downloaded[index] }]
       );
+      if (fresh.length === 0) return;
       writeArtefacts({
         ...planDeckWrites(decksDir(), fresh.flatMap(({ decks }) => decks)),
         [processedFile()]: JSON.stringify([

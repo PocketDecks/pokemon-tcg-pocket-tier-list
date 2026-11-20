@@ -198,6 +198,18 @@ describe("downloadDecks", () => {
     });
   });
 
+  it("leaves the store untouched when every tournament in a batch is already recorded", async () => {
+    getTournaments.mockResolvedValue(tournaments(2));
+    await downloadDecks();
+    const files = [path.join(dataDir, "processed-tournaments.json"), path.join(dataDir, "decks", "manifest.json")];
+    const before = files.map((file) => fs.statSync(file, { bigint: true }).mtimeNs);
+
+    await downloadDecks();
+
+    expect(files.map((file) => fs.statSync(file, { bigint: true }).mtimeNs)).toEqual(before);
+    expect(processedIds()).toEqual(["t0", "t1"]);
+  });
+
   describe("after an interrupted write", () => {
     const seedOrphan = async () => {
       getTournaments.mockResolvedValue(tournaments(1));

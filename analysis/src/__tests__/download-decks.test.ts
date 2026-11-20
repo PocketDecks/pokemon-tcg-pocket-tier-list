@@ -164,12 +164,38 @@ describe("downloadDecks", () => {
     const store = path.join(dataDir, "decks");
     fs.writeFileSync(`${store}.lock`, String(holder));
 
-    await expect(downloadDecks()).rejects.toThrow(/is held by process/);
+    await expect(downloadDecks({ lockWait: { attempts: 1, delayMs: 1 } })).rejects.toThrow(/is held by process/);
 
     // The batch downloads before it takes the lock, and then writes nothing.
     expect(getTournamentDecks).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(path.join(dataDir, "processed-tournaments.json"))).toBe(false);
     expect(Object.keys(readManifest(store).shards)).toEqual([]);
+  });
+
+  describe("waiting for the store lock", () => {
+    const lockFile = () => `${path.join(dataDir, "decks")}.lock`;
+
+    it("retries until the other run releases the lock", async () => {
+      fs.writeFileSync(lockFile(), String(process.ppid));
+      getTournaments.mockResolvedValue(tournaments(2));
+      setTimeout(() => fs.rmSync(lockFile(), { force: true }), 40);
+
+      await downloadDecks({ lockWait: { attempts: 12, delayMs: 5 } });
+
+      expect(processedIds()).toEqual(["t0", "t1"]);
+      expect(readDecks(path.join(dataDir, "decks"))).toHaveLength(2);
+    });
+
+    it("gives up with the lock error once the attempts run out", async () => {
+      fs.writeFileSync(lockFile(), String(process.ppid));
+      getTournaments.mockResolvedValue(tournaments(1));
+      const timer = vi.spyOn(globalThis, "setTimeout");
+
+      await expect(downloadDecks({ lockWait: { attempts: 3, delayMs: 1 } })).rejects.toThrow(/is held by process/);
+
+      expect(timer.mock.calls.filter(([, delay]) => typeof delay === "number" && delay <= 4)).toHaveLength(3);
+      expect(fs.existsSync(path.join(dataDir, "processed-tournaments.json"))).toBe(false);
+    });
   });
 
   describe("two runs at once", () => {

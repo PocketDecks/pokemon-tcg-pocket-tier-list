@@ -9,10 +9,32 @@ import { MANIFEST_FILE, planDeckWrites } from "./utils/deck-store";
 import { decksDir, processedFile } from "./utils/data-paths";
 import { round } from "./utils/round";
 import { writeArtefacts } from "./utils/write-artifacts";
-import { withStoreLock } from "./utils/store-lock";
+import { StoreLockBusyError, SyncResult, withStoreLock } from "./utils/store-lock";
 
 export const BATCH_SIZE = 20;
 export const CONCURRENCY = 3;
+
+export interface LockWait {
+  attempts: number;
+  delayMs: number;
+}
+
+export const LOCK_WAIT: LockWait = { attempts: 8, delayMs: 250 };
+
+const MAX_LOCK_DELAY_MS = 5_000;
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+const withStoreLockWaiting = async <T>(wait: LockWait, fn: () => T & SyncResult<T>): Promise<T> => {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return withStoreLock(decksDir(), fn);
+    } catch (error) {
+      if (!(error instanceof StoreLockBusyError) || attempt >= wait.attempts) throw error;
+      await sleep(Math.min(wait.delayMs * 2 ** attempt, MAX_LOCK_DELAY_MS));
+    }
+  }
+};
 
 export const readProcessed = (): unknown[] => {
   const file = processedFile();
@@ -56,8 +78,11 @@ export const parseArgs = (argv: readonly string[]): { since?: Date } => {
   return { since: parseSince(value) };
 };
 
-export const downloadDecks = async (options: { since?: Date } = {}) => {
-  const tournaments = await getTournaments(options);
+export const downloadDecks = async ({
+  lockWait = LOCK_WAIT,
+  ...filter
+}: { since?: Date; lockWait?: LockWait } = {}) => {
+  const tournaments = await getTournaments(filter);
   console.log(`Downloaded tournaments\n${tournaments.length} to process`);
 
   readProcessed();
@@ -72,7 +97,7 @@ export const downloadDecks = async (options: { since?: Date } = {}) => {
     // The batch read inside planDeckWrites and the write that follows are one
     // read-modify-write, so the lock holds both; a purge rewriting the same
     // shards cannot land between them.
-    withStoreLock(decksDir(), () => {
+    await withStoreLockWaiting(lockWait, () => {
       const processed = readProcessed();
       const recorded = new Set(processed.map(idOf));
       const fresh = batch.flatMap((tournament, index) =>

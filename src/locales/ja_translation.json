@@ -72,7 +72,7 @@
   "userAccount": {
     "title": "ユーザーアカウント",
     "signOut": "サインアウト",
-    "signInFailed": "サインインに失敗しました。もう一度お試しください。"
+    "signInFailed": "ログインに失敗しました。もう一度お試しください。"
   },
   "lastUpdated": "最終更新：",
   "deckPage": {

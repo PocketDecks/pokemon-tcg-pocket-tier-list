@@ -22,14 +22,18 @@ jobs:
           cache-dependency-path: "yarn.lock"
       - run: yarn install --frozen-lockfile
       - run: yarn check:generated
+      # Dependabot runs cannot read repository secrets, and Firebase's getAuth()
+      # throws on an empty apiKey, so no page prerenders and the build fails.
+      # They build with placeholders instead. The deploy step is skipped for
+      # Dependabot, so the placeholders never ship.
       - run: yarn build
         env:
-          VITE_FIREBASE_APIKEY: ${{ secrets.VITE_FIREBASE_APIKEY }}
-          VITE_FIREBASE_AUTHDOMAIN: ${{ secrets.VITE_FIREBASE_AUTHDOMAIN }}
-          VITE_FIREBASE_PROJECTID: ${{ secrets.VITE_FIREBASE_PROJECTID }}
-          VITE_FIREBASE_STORAGEBUCKET: ${{ secrets.VITE_FIREBASE_STORAGEBUCKET }}
-          VITE_FIREBASE_MESSAGINGSENDERID: ${{ secrets.VITE_FIREBASE_MESSAGINGSENDERID }}
-          VITE_FIREBASE_APPID: ${{ secrets.VITE_FIREBASE_APPID }}
+          VITE_FIREBASE_APIKEY: ${{ github.actor == 'dependabot[bot]' && 'dependabot-placeholder' || secrets.VITE_FIREBASE_APIKEY }}
+          VITE_FIREBASE_AUTHDOMAIN: ${{ github.actor == 'dependabot[bot]' && 'placeholder.invalid' || secrets.VITE_FIREBASE_AUTHDOMAIN }}
+          VITE_FIREBASE_PROJECTID: ${{ github.actor == 'dependabot[bot]' && 'placeholder' || secrets.VITE_FIREBASE_PROJECTID }}
+          VITE_FIREBASE_STORAGEBUCKET: ${{ github.actor == 'dependabot[bot]' && 'placeholder.invalid' || secrets.VITE_FIREBASE_STORAGEBUCKET }}
+          VITE_FIREBASE_MESSAGINGSENDERID: ${{ github.actor == 'dependabot[bot]' && '0' || secrets.VITE_FIREBASE_MESSAGINGSENDERID }}
+          VITE_FIREBASE_APPID: ${{ github.actor == 'dependabot[bot]' && 'placeholder' || secrets.VITE_FIREBASE_APPID }}
       - run: yarn test:ci
         env:
           CI: true
@@ -41,6 +45,7 @@ jobs:
       - run: yarn test
         working-directory: analysis
       - uses: FirebaseExtended/action-hosting-deploy@v0
+        if: ${{ github.actor != 'dependabot[bot]' }}
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_POKEMON_TCG_POCKET_TIER_LIST }}"

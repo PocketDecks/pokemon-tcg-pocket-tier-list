@@ -35,6 +35,9 @@ const PrivacyPage = () => {
           <Trans i18nKey="privacyPage.collect.account" components={[strong]} />
         </li>
         <li>
+          <Trans i18nKey="privacyPage.collect.supporter" components={[strong]} />
+        </li>
+        <li>
           <Trans i18nKey="privacyPage.collect.feedback" components={[strong]} />
         </li>
         <li>

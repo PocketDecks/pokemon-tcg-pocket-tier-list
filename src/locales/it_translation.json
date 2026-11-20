@@ -290,12 +290,13 @@
   },
   "privacyPage": {
     "title": "Informativa sulla privacy",
-    "updated": "Ultimo aggiornamento: 9 ottobre 2026",
+    "updated": "Ultimo aggiornamento: 20 novembre 2026",
     "intro": "La presente Informativa sulla privacy spiega quali dati raccoglie Top Pocket Decks (\"noi\" o \"il sito\"), disponibile su pocketdecks.top, e perché. Spiega inoltre chi riceve tali informazioni. Le pratiche descritte di seguito si applicano quando utilizzi il sito.",
     "collect": {
       "heading": "Informazioni che raccogliamo",
       "usage": "<0>Dati di utilizzo.</0> Google Analytics registra le pagine che visualizzi e i dati standard su dispositivo e browser. Viene eseguito solo dopo che hai accettato l'analisi, oppure dove il banner del consenso della tua regione non richiede il consenso.",
       "account": "<0>Informazioni sull'account.</0> Se accedi con Google, Firebase Authentication ci fornisce il tuo nome, l'indirizzo e-mail e la foto del profilo. Mostriamo il tuo nome e la tua foto mentre sei connesso e usiamo il tuo ID account per verificare se hai l'accesso Sostenitore.",
+      "supporter": "<0>Accesso Sostenitore.</0> Quando diventi Sostenitore, salviamo un record con il tuo ID account, il tuo indirizzo e-mail, la data in cui termina il tuo accesso, il modo in cui è stato concesso e il momento dell'ultima modifica. Se richiedi un codice di pagamento, lo salviamo con il tuo ID account per poter associare un pagamento fatto da un'altra e-mail. Oltre a noi, solo tu puoi leggere il tuo record.",
       "feedback": "<0>Feedback.</0> Se invii un feedback mentre sei connesso, salviamo il tuo ID account, il messaggio, l'argomento scelto, la pagina da cui lo hai inviato e l'ora dell'invio in Cloud Firestore, un database gestito da Google per Firebase. Salviamo il tuo indirizzo e-mail insieme al messaggio solo se spunti la casella con cui ci chiedi una risposta. Conserviamo anche l'ora del tuo ultimo invio.",
       "payment": "<0>Mance.</0> Creiamo un record per ogni pagamento Ko-fi. Include identificativo e tipo di pagamento, importo e valuta, mesi accreditati, stato e date di ricezione e di Ko-fi. Se il pagamento è abbinato a un account, il record include anche l’identificativo dell’account e il metodo di abbinamento. Conserviamo l’e-mail, il nome e il messaggio di chi invia la mancia solo quando il pagamento non viene accreditato automaticamente, per verificarlo o applicarlo manualmente."
     },
@@ -345,7 +346,7 @@
     },
     "retention": {
       "heading": "Per quanto tempo conserviamo le informazioni",
-      "body": "Google Analytics conserva i dati degli eventi per 14 mesi. Conserva i dati utente per 14 mesi e il periodo ricomincia quando torni sul sito. Conserviamo il tuo account Google e i campi del profilo salvati finché non ne chiedi la cancellazione usando i recapiti indicati più sotto. Conserviamo i messaggi di feedback finché non ne chiedi la cancellazione. Google decide per quanto tempo conservare i dati pubblicitari. Consulta l’<0>informativa sulla privacy</0> e le <1>norme sulla pubblicità</1> di Google. Creiamo un record per ogni pagamento Ko-fi, con identificativo e tipo, importo e valuta, mesi accreditati, stato, date e, se applicabile, identificativo dell’account abbinato e metodo usato. L’e-mail, il nome e il messaggio vengono conservati solo quando il pagamento non è accreditato automaticamente, per verifica o applicazione manuale. Il sito non conserva registri propri delle richieste web. Firebase e Cloudflare conservano i normali log operativi secondo i propri termini."
+      "body": "Google Analytics conserva i dati degli eventi per 14 mesi. Conserva i dati utente per 14 mesi e il periodo ricomincia quando torni sul sito. Conserviamo il tuo account Google e i campi del profilo salvati finché non ne chiedi la cancellazione usando i recapiti indicati più sotto. Conserviamo i messaggi di feedback finché non ne chiedi la cancellazione. Conserviamo il tuo record Sostenitore e il tuo codice di pagamento finché non ne chiedi la cancellazione. Google decide per quanto tempo conservare i dati pubblicitari. Consulta l’<0>informativa sulla privacy</0> e le <1>norme sulla pubblicità</1> di Google. Creiamo un record per ogni pagamento Ko-fi, con identificativo e tipo, importo e valuta, mesi accreditati, stato, date e, se applicabile, identificativo dell’account abbinato e metodo usato. L’e-mail, il nome e il messaggio vengono conservati solo quando il pagamento non è accreditato automaticamente, per verifica o applicazione manuale. Il sito non conserva registri propri delle richieste web. Firebase e Cloudflare conservano i normali log operativi secondo i propri termini."
     },
     "children": {
       "heading": "Minori",

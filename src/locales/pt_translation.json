@@ -290,12 +290,13 @@
   },
   "privacyPage": {
     "title": "Política de Privacidade",
-    "updated": "Última atualização: 9 de outubro de 2026",
+    "updated": "Última atualização: 20 de novembro de 2026",
     "intro": "Esta Política de Privacidade explica quais dados o Top Pocket Decks (\"nós\" ou \"o site\"), disponível em pocketdecks.top, recolhe e porquê. Também explica quem recebe essas informações. As práticas descritas abaixo aplicam-se quando utiliza o site.",
     "collect": {
       "heading": "Informações que recolhemos",
       "usage": "<0>Dados de utilização.</0> O Google Analytics regista as páginas que visualiza e os dados habituais do dispositivo e do navegador. Só funciona depois de aceitar a análise ou, onde o banner de consentimento da sua região não pedir consentimento, sem que seja necessário.",
       "account": "<0>Informações da conta.</0> Se iniciar sessão com o Google, o Firebase Authentication fornece-nos o seu nome, endereço de e-mail e foto de perfil. Mostramos o seu nome e a sua foto enquanto tiver sessão iniciada, e usamos o seu ID de conta para verificar se tem acesso de apoiante.",
+      "supporter": "<0>Acesso de apoiante.</0> Quando se torna apoiante, guardamos um registo com o seu ID de conta, o seu endereço de e-mail, a data em que o seu acesso termina, a forma como foi concedido e quando foi alterado pela última vez. Se pedir um código de pagamento, guardamo-lo com o seu ID de conta para podermos associar um pagamento feito a partir de outro e-mail. Além de nós, só o próprio pode ler o seu registo.",
       "feedback": "<0>Feedback.</0> Se enviar feedback com sessão iniciada, guardamos o seu ID de conta, a mensagem, o tema escolhido, a página a partir da qual o enviou e a hora do envio no Cloud Firestore, uma base de dados gerida pela Google para o Firebase. Guardamos o seu endereço de e-mail com a mensagem apenas se marcar a caixa que pede uma resposta. Também guardamos a hora do seu último envio.",
       "payment": "<0>Gorjetas.</0> Criamos um registo para cada pagamento do Ko-fi. Inclui o identificador e o tipo de pagamento, o montante e a moeda, os meses creditados, o estado e as datas de receção e do Ko-fi. Quando um pagamento é associado a uma conta, o registo também inclui o identificador da conta e o método de correspondência. Guardamos o e-mail, o nome e a mensagem de quem enviou a gorjeta apenas quando o pagamento não é concedido automaticamente, para análise ou aplicação manual."
     },
@@ -345,7 +346,7 @@
     },
     "retention": {
       "heading": "Durante quanto tempo guardamos as informações",
-      "body": "O Google Analytics guarda dados de eventos durante 14 meses. Guarda dados de utilizador durante 14 meses e o período reinicia quando regressa ao site. Guardamos a sua conta Google e os campos de perfil até pedir a sua eliminação através dos contactos abaixo. Guardamos as mensagens de feedback até pedir que sejam eliminadas. O Google decide durante quanto tempo guarda os dados de publicidade. Consulte a <0>política de privacidade</0> e as <1>políticas de anúncios</1> do Google. Criamos um registo para cada pagamento do Ko-fi com o identificador e tipo, montante e moeda, meses creditados, estado, datas e, se aplicável, o identificador da conta associada e o método de correspondência. O e-mail, o nome e a mensagem são guardados apenas quando o pagamento não é concedido automaticamente, para análise ou aplicação manual. O site não guarda registos próprios de pedidos web. Firebase e Cloudflare guardam os seus registos operacionais habituais segundo os próprios termos."
+      "body": "O Google Analytics guarda dados de eventos durante 14 meses. Guarda dados de utilizador durante 14 meses e o período reinicia quando regressa ao site. Guardamos a sua conta Google e os campos de perfil até pedir a sua eliminação através dos contactos abaixo. Guardamos as mensagens de feedback até pedir que sejam eliminadas. Guardamos o seu registo de apoiante e o código de pagamento até pedir a sua eliminação. O Google decide durante quanto tempo guarda os dados de publicidade. Consulte a <0>política de privacidade</0> e as <1>políticas de anúncios</1> do Google. Criamos um registo para cada pagamento do Ko-fi com o identificador e tipo, montante e moeda, meses creditados, estado, datas e, se aplicável, o identificador da conta associada e o método de correspondência. O e-mail, o nome e a mensagem são guardados apenas quando o pagamento não é concedido automaticamente, para análise ou aplicação manual. O site não guarda registos próprios de pedidos web. Firebase e Cloudflare guardam os seus registos operacionais habituais segundo os próprios termos."
     },
     "children": {
       "heading": "Crianças",

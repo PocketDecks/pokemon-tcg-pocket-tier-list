@@ -50,4 +50,22 @@ describe("PrivacyPage", () => {
       "mailto:infoLeonid@protonMail.com"
     );
   });
+
+  it("discloses the Supporter record, the stored email and the payment code", () => {
+    render(<PrivacyPage />);
+    const collection = sectionText("Information we collect");
+    expect(collection).toMatch(
+      /Supporter access\. When you become a Supporter, we store a record with your account ID, your email address, when your access ends, how it was granted and when it last changed/i
+    );
+    expect(collection).toMatch(/payment code, we store it with your account ID/i);
+    expect(collection).toMatch(/Besides us, only you can read your own record/i);
+
+    const retention = sectionText("How long we keep information");
+    expect(retention).toMatch(/Supporter record and payment code until you ask us to delete them/i);
+  });
+
+  it("shows the date of the latest policy change", () => {
+    render(<PrivacyPage />);
+    expect(screen.getByText("Last updated: 20 November 2026")).toBeInTheDocument();
+  });
 });

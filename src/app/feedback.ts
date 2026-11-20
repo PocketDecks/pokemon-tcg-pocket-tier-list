@@ -1,4 +1,4 @@
-export const FEEDBACK_CATEGORIES = ["idea", "bug", "data", "other"] as const;
+export const FEEDBACK_CATEGORIES = ["idea", "bug", "data", "other", "stripe", "payment"] as const;
 export type FeedbackCategory = (typeof FEEDBACK_CATEGORIES)[number];
 
 export const FEEDBACK_MIN_LENGTH = 10;

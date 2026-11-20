@@ -30,10 +30,6 @@
     },
     "discord": "Se abbastanza sostenitori ne vogliono uno, aprirò un server Discord solo per loro.",
     "kindNote": "Se non puoi lasciare una mancia, va benissimo così. Ogni volta che condividi la tier list con un amico o la consigli alla tua community, aiuti più di qualsiasi somma di denaro. Sono contento che il sito abbia reso un po’ migliore la tua esperienza 😊",
-    "contact": {
-      "title": "Contatta gli Sviluppatori",
-      "description": "Manda un'email agli sviluppatori per dare feedback sul sito, richiedere nuove funzionalità o segnalare bug. Le richieste di funzioni non sono garantite, ma le leggiamo tutte."
-    },
     "price": "1 £ al mese. Ogni 1 £ di mancia aggiunge un mese.",
     "rulesToggle": "Come contano le mance",
     "priceDetails": "Le mance idonee in GBP aggiungono un mese per ogni sterlina intera, fino a 120 mesi per mancia; le frazioni non aggiungono mesi. Le mance da 121 £ in su e quelle in altre valute richiedono una verifica e non attivano l’accesso Sostenitore automaticamente.",
@@ -72,7 +68,11 @@
   "userAccount": {
     "title": "Account Utente",
     "signOut": "Esci",
-    "signInFailed": "Accesso non riuscito. Riprova."
+    "signInFailed": "Accesso non riuscito. Riprova.",
+    "supporterActive": "Attivo fino al {{date}}",
+    "supporterLifetime": "Attivo, senza scadenza",
+    "supporterEnded": "Non attivo. Terminato il {{date}}",
+    "supporterNone": "Non attivo"
   },
   "lastUpdated": "Ultimo aggiornamento:",
   "deckPage": {
@@ -212,7 +212,9 @@
       "idea": "Un'idea",
       "bug": "Qualcosa non funziona",
       "data": "I dati sembrano strani",
-      "other": "Altro"
+      "other": "Altro",
+      "stripe": "Un vecchio abbonamento",
+      "payment": "Un problema di pagamento"
     },
     "messageLabel": "Il tuo messaggio",
     "messagePlaceholder": "Cosa è successo, o cosa migliorerebbe il sito?",

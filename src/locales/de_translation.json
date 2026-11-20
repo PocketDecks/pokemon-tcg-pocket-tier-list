@@ -30,10 +30,6 @@
     },
     "discord": "Wenn genug Unterstützer einen Discord-Server möchten, richte ich einen nur für sie ein.",
     "kindNote": "Wenn du kein Trinkgeld geben kannst, ist das völlig in Ordnung. Jedes Mal, wenn du die Tier-Liste mit einem Freund teilst oder in deiner Community empfiehlst, hilft das mehr als jede Geldsumme. Ich freue mich einfach, wenn die Seite dein Erlebnis ein bisschen besser gemacht hat 😊",
-    "contact": {
-      "title": "Entwickler kontaktieren",
-      "description": "Schreibe den Entwicklern eine E-Mail, um Feedback zur Website zu geben, neue Funktionen anzufordern oder Fehler zu melden. Funktionsanfragen werden nicht garantiert, aber wir lesen sie alle."
-    },
     "price": "£1 im Monat. Jedes £1 Trinkgeld bringt einen Monat.",
     "rulesToggle": "So zählen Trinkgelder",
     "priceDetails": "Berechtigte Trinkgelder in GBP verlängern den Zugang um einen Monat pro ganzem £1, höchstens 120 Monate pro Trinkgeld; Bruchteile bringen keine zusätzlichen Monate. Trinkgelder ab £121 und Trinkgelder in anderen Währungen müssen geprüft werden und schalten den Unterstützer-Zugang nicht automatisch frei.",
@@ -72,7 +68,11 @@
   "userAccount": {
     "title": "Benutzerkonto",
     "signOut": "Abmelden",
-    "signInFailed": "Anmeldung fehlgeschlagen. Bitte erneut versuchen."
+    "signInFailed": "Anmeldung fehlgeschlagen. Bitte erneut versuchen.",
+    "supporterActive": "Aktiv bis {{date}}",
+    "supporterLifetime": "Aktiv, ohne Ablaufdatum",
+    "supporterEnded": "Nicht aktiv. Endete am {{date}}",
+    "supporterNone": "Nicht aktiv"
   },
   "lastUpdated": "Zuletzt aktualisiert:",
   "deckPage": {
@@ -212,7 +212,9 @@
       "idea": "Eine Idee",
       "bug": "Etwas funktioniert nicht",
       "data": "Daten wirken falsch",
-      "other": "Etwas anderes"
+      "other": "Etwas anderes",
+      "stripe": "Ein altes Abo",
+      "payment": "Ein Zahlungsproblem"
     },
     "messageLabel": "Deine Nachricht",
     "messagePlaceholder": "Was ist passiert, oder was würde die Seite besser machen?",

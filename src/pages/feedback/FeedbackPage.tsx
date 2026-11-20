@@ -23,6 +23,8 @@ const CATEGORY_ICONS: Record<FeedbackCategory, NavIconName> = {
   bug: "bug",
   data: "statistics",
   other: "chat",
+  stripe: "calendar",
+  payment: "card",
 };
 
 const Wrapper = styled.div`

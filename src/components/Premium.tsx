@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import Popup from "./Popup";
 import SupporterPanel from "./SupporterPanel";
 import useIsPremium from "../app/use-is-premium";
+import useSupporterState from "../app/use-supporter-state";
 import { useAuth } from "../contexts/AuthContext";
 import premiumIcon from "../assets/premium.webp";
 
@@ -31,6 +32,10 @@ const Trigger = styled.button`
     text-align: left;
     font-size: 1.2rem;
   }
+`;
+
+const Badge = styled(Trigger)`
+  cursor: default;
 `;
 
 const TriggerLabel = styled.span`
@@ -74,6 +79,7 @@ interface Props {
 const Premium = ({ variant = "default", linkLabel }: Props) => {
   const { t } = useTranslation();
   const isPremium = useIsPremium();
+  const { state } = useSupporterState();
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -81,6 +87,14 @@ const Premium = ({ variant = "default", linkLabel }: Props) => {
 
   const isLink = variant === "link";
   const heading = isPremium ? "premium.title" : "premium.become";
+
+  if (!isLink && state === "lifetime") {
+    return (
+      <Badge as="span" role="img" aria-label={t(heading)} title={t(heading)}>
+        <PremiumIcon src={premiumIcon} alt="" />
+      </Badge>
+    );
+  }
 
   return (
     <>

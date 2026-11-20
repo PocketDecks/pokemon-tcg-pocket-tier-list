@@ -30,10 +30,6 @@
     },
     "discord": "如果有足夠多的支持者想要，我會開一個只屬於支持者的 Discord 伺服器。",
     "kindNote": "如果你不方便打賞，完全沒關係。每次你把強度排行榜分享給朋友，或推薦給你的社群，幫助都比任何金額更大。能讓你在這個網站上的體驗好一點，我就很開心了 😊",
-    "contact": {
-      "title": "聯絡開發者",
-      "description": "向開發者發送電子郵件以提供網站反饋、請求新功能或報告錯誤。新功能請求不保證會實現，但我們每一則都會閱讀。"
-    },
     "price": "每月 £1。每打賞 £1 增加一個月。",
     "rulesToggle": "打賞如何計算",
     "priceDetails": "符合條件的 GBP 打賞每滿 1 英鎊增加一個月，每筆最多 120 個月；不足 1 英鎊的部分不會增加月數。121 英鎊以上的打賞及其他貨幣的打賞需要審核，不會自動開通支持者權限。",
@@ -72,7 +68,11 @@
   "userAccount": {
     "title": "使用者帳號",
     "signOut": "登出",
-    "signInFailed": "登入失敗，請再試一次。"
+    "signInFailed": "登入失敗，請再試一次。",
+    "supporterActive": "有效期限至 {{date}}",
+    "supporterLifetime": "有效，無到期日",
+    "supporterEnded": "未生效。已於 {{date}} 到期",
+    "supporterNone": "未生效"
   },
   "lastUpdated": "最後更新：",
   "deckPage": {
@@ -212,7 +212,9 @@
       "idea": "一個點子",
       "bug": "有東西壞了",
       "data": "資料看起來不對",
-      "other": "其他"
+      "other": "其他",
+      "stripe": "舊的訂閱",
+      "payment": "付款問題"
     },
     "messageLabel": "你的訊息",
     "messagePlaceholder": "發生了什麼，或者怎樣能讓網站更好？",

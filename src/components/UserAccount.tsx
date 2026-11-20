@@ -1,12 +1,13 @@
 import styled from "styled-components";
-import { CONTACT_EMAIL } from "../app/constants";
+import { useLocation } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
 import Popup from "./Popup";
 import { useId, useState } from "react";
 import Button from "./Button";
 import { useTranslation } from "react-i18next";
 import Premium from "./Premium";
-import useIsPremium from "../app/use-is-premium";
+import useSupporterState from "../app/use-supporter-state";
+import { LocaleLink } from "../app/locale-link";
 import NavIcon from "./NavIcon";
 import SignInFailedNotice from "./SignInFailedNotice";
 
@@ -146,66 +147,82 @@ const UserAvatar = styled.img`
   }
 `;
 
-const ButtonContainer = styled.div`
-  margin-top: 3rem;
+const SupporterStatus = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 2.4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
 `;
 
-const ContactButton = styled.button`
-  cursor: pointer;
+const StatusLabel = styled.span`
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--white-72);
 `;
 
-const ContactIcon = styled(NavIcon)`
-  width: 3.4rem;
-  height: 3.4rem;
-  transform: translateY(0.1rem);
+const StatusValue = styled.p`
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: var(--main);
+`;
 
-  @media (max-width: 900px) {
-    width: 2.6rem;
-    height: 2.6rem;
+const FeedbackLink = styled(LocaleLink)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 2.4rem;
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--link);
+
+  &:hover {
+    text-decoration: underline;
   }
 `;
 
-const ContactText = styled.p`
-  font-size: 1.8rem;
-  margin: 0;
-  color: var(--main);
-  text-align: center;
+const ButtonContainer = styled.div`
+  margin-top: 2.4rem;
 `;
 
-const EmailText = styled(ContactText)`
-  margin-top: 1rem;
-  color: var(--link);
-`;
+const STATUS_KEYS = {
+  expires: "userAccount.supporterActive",
+  lifetime: "userAccount.supporterLifetime",
+  ended: "userAccount.supporterEnded",
+  none: "userAccount.supporterNone",
+} as const;
 
 const UserAccount = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { pathname } = useLocation();
   const noticeId = useId();
   const { user, signOut, signInWithGoogle, signInFailed } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [isContactOpen, setIsContactOpen] = useState(false);
-  const isPremium = useIsPremium();
+  const { state: supporter, expiresAt } = useSupporterState();
   const hasUser = !!user;
   const [wasSignedIn, setWasSignedIn] = useState(hasUser);
 
   if (wasSignedIn !== hasUser) {
     setWasSignedIn(hasUser);
-    if (!hasUser) {
-      setIsOpen(false);
-      setIsContactOpen(false);
-    }
+    if (!hasUser) setIsOpen(false);
   }
+
+  const date =
+    expiresAt === null || supporter === "lifetime"
+      ? ""
+      : new Intl.DateTimeFormat(i18n.language, {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }).format(new Date(expiresAt));
 
   return (
     <>
       <StyledUserAccount>
-        {isPremium && (
-          <ContactButton
-            onClick={() => setIsContactOpen(true)}
-            aria-label={t("premium.contact.title")}
-          >
-            <ContactIcon name="mail" size={34} />
-          </ContactButton>
-        )}
         <Premium />
         {user && (
           <UserInfo onClick={() => setIsOpen(true)}>
@@ -246,6 +263,20 @@ const UserAccount = () => {
               <Text>{user.email}</Text>
             </DetailsContainer>
           </UserInfoContainer>
+          {supporter !== "loading" && (
+            <SupporterStatus>
+              <StatusLabel>{t("premium.title")}</StatusLabel>
+              <StatusValue>{t(STATUS_KEYS[supporter], { date })}</StatusValue>
+            </SupporterStatus>
+          )}
+          <FeedbackLink
+            to="/feedback"
+            state={{ from: pathname }}
+            onClick={() => setIsOpen(false)}
+          >
+            <NavIcon name="chat" size={20} />
+            {t("feedback.title")}
+          </FeedbackLink>
           <ButtonContainer>
             <Button wide action={signOut}>
               {t("userAccount.signOut")}
@@ -253,17 +284,6 @@ const UserAccount = () => {
           </ButtonContainer>
         </Popup>
       )}
-      <Popup
-        width="40rem"
-        isOpen={isContactOpen}
-        header="premium.contact.title"
-        close={() => {
-          setIsContactOpen(false);
-        }}
-      >
-        <ContactText>{t("premium.contact.description")}</ContactText>
-        <EmailText>{CONTACT_EMAIL}</EmailText>
-      </Popup>
     </>
   );
 };

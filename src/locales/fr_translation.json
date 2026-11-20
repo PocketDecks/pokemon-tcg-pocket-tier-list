@@ -30,10 +30,6 @@
     },
     "discord": "Si assez de soutiens en veulent un, j’ouvrirai un serveur Discord rien que pour eux.",
     "kindNote": "Si vous ne pouvez pas donner de pourboire, ce n’est pas grave du tout. Chaque fois que vous partagez la tier list avec un ami ou que vous la recommandez à votre communauté, cela aide plus que n’importe quelle somme d’argent. Je suis simplement content que le site ait rendu votre expérience un peu meilleure 😊",
-    "contact": {
-      "title": "Contacter les développeurs",
-      "description": "Envoyez un e-mail aux développeurs pour donner votre avis sur le site, demander de nouvelles fonctionnalités ou signaler des bugs. Les demandes de fonctionnalités ne sont pas garanties, mais nous les lisons toutes."
-    },
     "price": "1 £ par mois. Chaque don de 1 £ ajoute un mois.",
     "rulesToggle": "Comment les dons sont comptés",
     "priceDetails": "Les dons admissibles en GBP ajoutent un mois par livre entière, jusqu’à 120 mois par don ; les fractions n’ajoutent aucun mois. Les dons de 121 £ ou plus et ceux dans une autre devise nécessitent une vérification et ne donnent pas automatiquement accès Soutien.",
@@ -72,7 +68,11 @@
   "userAccount": {
     "title": "Compte utilisateur",
     "signOut": "Se déconnecter",
-    "signInFailed": "Connexion impossible. Veuillez réessayer."
+    "signInFailed": "Connexion impossible. Veuillez réessayer.",
+    "supporterActive": "Actif jusqu’au {{date}}",
+    "supporterLifetime": "Actif, sans expiration",
+    "supporterEnded": "Inactif. Terminé le {{date}}",
+    "supporterNone": "Inactif"
   },
   "lastUpdated": "Dernière mise à jour :",
   "deckPage": {
@@ -212,7 +212,9 @@
       "idea": "Une idée",
       "bug": "Quelque chose ne marche pas",
       "data": "Les données semblent fausses",
-      "other": "Autre chose"
+      "other": "Autre chose",
+      "stripe": "Un ancien abonnement",
+      "payment": "Un problème de paiement"
     },
     "messageLabel": "Votre message",
     "messagePlaceholder": "Que s'est-il passé, ou qu'est-ce qui améliorerait le site ?",

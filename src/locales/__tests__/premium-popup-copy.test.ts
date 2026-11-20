@@ -127,14 +127,6 @@ describe("Supporter popup copy", () => {
     }
   });
 
-  it("keeps the developer contact copy in every locale", () => {
-    for (const [, data] of Object.entries(locales)) {
-      for (const field of ["title", "description"]) {
-        expect(data.premium.contact[field].trim()).not.toBe("");
-      }
-    }
-  });
-
   it("translates the new popup copy outside English", () => {
     for (const [path, data] of Object.entries(locales)) {
       if (localeName(path) === "en") continue;

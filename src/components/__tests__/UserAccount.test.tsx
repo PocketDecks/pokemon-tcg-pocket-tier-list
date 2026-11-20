@@ -1,23 +1,28 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router";
 import UserAccount from "../UserAccount";
-import { CONTACT_EMAIL } from "../../app/constants";
 import { useAuth } from "../../contexts/AuthContext";
-import useIsPremium from "../../app/use-is-premium";
+import useIsPremium, { usePremiumExpiry } from "../../app/use-is-premium";
 import { loadPremiumCode } from "../../app/premium-code";
 import { withQueryClient } from "../../test-utils/with-query-client";
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
-    t: (key: string, options?: { email?: string }) =>
+    i18n: { language: "en" },
+    t: (key: string, options?: { email?: string; date?: string }) =>
       (
         {
           "userAccount.title": "User Account",
           "userAccount.signOut": "Sign out",
           "header.signIn": "Sign in with Google",
           "userAccount.signInFailed": "Sign-in failed. Try again.",
-          "premium.contact.title": "Contact us",
+          "feedback.title": "Send feedback",
+          "userAccount.supporterActive": "Active until {{date}}",
+          "userAccount.supporterLifetime": "Active, with no expiry",
+          "userAccount.supporterEnded": "Not active. Ended on {{date}}",
+          "userAccount.supporterNone": "Not active",
           "premium.title": "Supporter",
           "premium.become": "Become a Supporter!",
           "premium.perksLead": "Supporters get:",
@@ -27,7 +32,9 @@ vi.mock("react-i18next", () => ({
           "premium.refund": "For refunds, email us at <0/>.",
           "a11y.closePopup": "Close panel",
         } as Record<string, string>
-      )[key]?.replace("{{email}}", options?.email ?? "") ?? key,
+      )[key]
+        ?.replace("{{email}}", options?.email ?? "")
+        .replace("{{date}}", options?.date ?? "") ?? key,
   }),
   Trans: () => null,
 }));
@@ -42,6 +49,13 @@ vi.mock("../../app/use-is-premium", () => ({
 }));
 
 vi.mock("../../app/premium-code", () => ({ loadPremiumCode: vi.fn() }));
+
+const accountTree = () =>
+  withQueryClient(
+    <MemoryRouter>
+      <UserAccount />
+    </MemoryRouter>
+  );
 
 const signedInUser = {
   uid: "user-1",
@@ -63,11 +77,12 @@ beforeEach(() => {
   vi.mocked(loadPremiumCode).mockResolvedValue("PD-ABC234");
   vi.mocked(useAuth).mockReturnValue(authValue(signedInUser));
   vi.mocked(useIsPremium).mockReturnValue(false);
+  vi.mocked(usePremiumExpiry).mockReturnValue(null);
 });
 
 describe("UserAccount", () => {
   it("places the Supporter icon above the Google profile for a signed-in user", () => {
-    render(withQueryClient(<UserAccount />));
+    render(accountTree());
 
     const supporter = screen.getByRole("button", { name: "Become a Supporter!" });
     const profile = screen.getByRole("button", { name: "Ada Lovelace" });
@@ -76,7 +91,7 @@ describe("UserAccount", () => {
 
   it("shows no alert while sign-in has not failed", () => {
     vi.mocked(useAuth).mockReturnValue(authValue(null));
-    render(withQueryClient(<UserAccount />));
+    render(accountTree());
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sign in with Google" })).not.toHaveAttribute("aria-describedby");
@@ -86,7 +101,7 @@ describe("UserAccount", () => {
     const auth = authValue(null, true);
     vi.mocked(useAuth).mockReturnValue(auth);
     const user = userEvent.setup();
-    render(withQueryClient(<UserAccount />));
+    render(accountTree());
 
     const alert = screen.getByRole("alert");
     expect(alert).toHaveTextContent("Sign-in failed. Try again.");
@@ -101,7 +116,7 @@ describe("UserAccount", () => {
 
   it("renders one sign-in button for every width so prerendered markup fits the rail", () => {
     vi.mocked(useAuth).mockReturnValue(authValue(null));
-    render(withQueryClient(<UserAccount />));
+    render(accountTree());
 
     const buttons = screen.getAllByRole("button", { name: "Sign in with Google" });
     expect(buttons).toHaveLength(1);
@@ -110,7 +125,7 @@ describe("UserAccount", () => {
 
   it("lets a signed-in free user open the Supporter popup from the account controls", async () => {
     const user = userEvent.setup();
-    render(withQueryClient(<UserAccount />));
+    render(accountTree());
 
     await user.click(screen.getByRole("button", { name: "Become a Supporter!" }));
     const dialog = screen.getByRole("dialog", { name: "Become a Supporter!" });
@@ -124,7 +139,7 @@ describe("UserAccount", () => {
 
   it("opens the account panel as a named dialog and closes it on Escape", async () => {
     const user = userEvent.setup();
-    render(withQueryClient(<UserAccount />));
+    render(accountTree());
 
     await user.click(screen.getByRole("button", { name: "Ada Lovelace" }));
 
@@ -138,53 +153,69 @@ describe("UserAccount", () => {
     expect(screen.getByRole("button", { name: "Ada Lovelace" })).toHaveFocus();
   });
 
-  it("opens the contact panel as a named dialog, closes it on Escape and returns focus to its trigger", async () => {
-    vi.mocked(useIsPremium).mockReturnValue(true);
+  it("links the account panel to the feedback form and closes the panel when followed", async () => {
     const user = userEvent.setup();
-    render(withQueryClient(<UserAccount />));
+    render(accountTree());
 
-    const trigger = screen.getByRole("button", { name: "Contact us" });
-    await user.click(trigger);
+    await user.click(screen.getByRole("button", { name: "Ada Lovelace" }));
+    const dialog = screen.getByRole("dialog", { name: "User Account" });
+    const link = within(dialog).getByRole("link", { name: "Send feedback" });
+    expect(link).toHaveAttribute("href", "/feedback/");
 
-    const dialog = screen.getByRole("dialog", { name: "Contact us" });
-    expect(dialog).toHaveAttribute("aria-modal", "true");
-    expect(dialog).toHaveTextContent(CONTACT_EMAIL);
+    await user.click(link);
 
-    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog", { name: "User Account" })).not.toBeInTheDocument();
+  });
 
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(trigger).toHaveFocus();
+  it("has no developer contact icon, even for a supporter", () => {
+    vi.mocked(useIsPremium).mockReturnValue(true);
+    render(accountTree());
+
+    expect(screen.queryByRole("button", { name: "Contact us" })).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ["an active dated grant", true, Date.UTC(2027, 1, 20, 12), "Active until February 20, 2027"],
+    ["a lifetime grant", true, null, "Active, with no expiry"],
+    ["a grant that ends beyond the lifetime threshold", true, Date.UTC(2999, 11, 31), "Active, with no expiry"],
+    ["a lapsed grant", false, Date.UTC(2026, 2, 15, 12), "Not active. Ended on March 15, 2026"],
+    ["no grant at all", false, null, "Not active"],
+  ])("shows %s in the account panel", async (_label, premium, expiry, expected) => {
+    vi.mocked(useIsPremium).mockReturnValue(premium);
+    vi.mocked(usePremiumExpiry).mockReturnValue(expiry);
+    const user = userEvent.setup();
+    render(accountTree());
+
+    await user.click(screen.getByRole("button", { name: "Ada Lovelace" }));
+
+    const dialog = screen.getByRole("dialog", { name: "User Account" });
+    expect(within(dialog).getByText("Supporter")).toBeInTheDocument();
+    expect(within(dialog).getByText(expected)).toBeInTheDocument();
+  });
+
+  it("leaves the status out while the entitlement is still loading", async () => {
+    vi.mocked(useIsPremium).mockReturnValue(null);
+    const user = userEvent.setup();
+    render(accountTree());
+
+    await user.click(screen.getByRole("button", { name: "Ada Lovelace" }));
+
+    const dialog = screen.getByRole("dialog", { name: "User Account" });
+    expect(within(dialog).queryByText("Supporter")).not.toBeInTheDocument();
+    expect(within(dialog).queryByText(/Not active|Active/)).not.toBeInTheDocument();
   });
 
   it("closes the account popup on sign-out so the next sign-in does not reopen it", async () => {
     const user = userEvent.setup();
-    const view = render(withQueryClient(<UserAccount />));
+    const view = render(accountTree());
 
     await user.click(screen.getByRole("button", { name: "Ada Lovelace" }));
     expect(screen.getByRole("dialog", { name: "User Account" })).toBeInTheDocument();
 
     vi.mocked(useAuth).mockReturnValue(authValue(null));
-    view.rerender(withQueryClient(<UserAccount />));
+    view.rerender(accountTree());
     vi.mocked(useAuth).mockReturnValue(authValue(signedInUser));
-    view.rerender(withQueryClient(<UserAccount />));
-
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  });
-
-  it("closes the contact popup on sign-out so the next sign-in does not reopen it", async () => {
-    vi.mocked(useIsPremium).mockReturnValue(true);
-    const user = userEvent.setup();
-    const view = render(withQueryClient(<UserAccount />));
-
-    await user.click(screen.getByRole("button", { name: "Contact us" }));
-    expect(screen.getByRole("dialog", { name: "Contact us" })).toBeInTheDocument();
-
-    vi.mocked(useAuth).mockReturnValue(authValue(null));
-    vi.mocked(useIsPremium).mockReturnValue(false);
-    view.rerender(withQueryClient(<UserAccount />));
-    vi.mocked(useAuth).mockReturnValue(authValue(signedInUser));
-    vi.mocked(useIsPremium).mockReturnValue(true);
-    view.rerender(withQueryClient(<UserAccount />));
+    view.rerender(accountTree());
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });

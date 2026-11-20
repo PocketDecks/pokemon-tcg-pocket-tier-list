@@ -1,5 +1,6 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const authState = vi.hoisted(() => ({
@@ -44,9 +45,11 @@ const rejection = (code: string) => Object.assign(new Error(`Firebase: Error (${
 const renderAccount = () =>
   render(
     withQueryClient(
-      <AuthProvider>
-        <UserAccount />
-      </AuthProvider>
+      <MemoryRouter>
+        <AuthProvider>
+          <UserAccount />
+        </AuthProvider>
+      </MemoryRouter>
     )
   );
 

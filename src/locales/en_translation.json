@@ -71,7 +71,8 @@
   },
   "userAccount": {
     "title": "User Account",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "signInFailed": "Sign-in failed. Try again."
   },
   "lastUpdated": "Last updated:",
   "deckPage": {

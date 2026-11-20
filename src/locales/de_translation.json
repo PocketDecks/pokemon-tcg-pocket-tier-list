@@ -71,7 +71,8 @@
   },
   "userAccount": {
     "title": "Benutzerkonto",
-    "signOut": "Abmelden"
+    "signOut": "Abmelden",
+    "signInFailed": "Anmeldung fehlgeschlagen. Bitte erneut versuchen."
   },
   "lastUpdated": "Zuletzt aktualisiert:",
   "deckPage": {

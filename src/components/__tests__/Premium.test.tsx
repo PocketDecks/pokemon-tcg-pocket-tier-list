@@ -50,6 +50,7 @@ collect(en, "", copy.values);
 const authValue = (user: { uid: string; email: string | null } | null) => ({
   user,
   loading: false,
+  signInFailed: false,
   signInWithGoogle: spies.signInWithGoogle,
   signOut: vi.fn(),
 }) as ReturnType<typeof useAuth>;

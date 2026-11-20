@@ -18,7 +18,7 @@ vi.mock("../../../app/premium-code", () => ({ loadPremiumCode: vi.fn() }));
 vi.mock("../../../contexts/AuthContext", () => ({ useAuth: vi.fn() }));
 
 const authValue = (user: { uid: string; email: string | null } | null) =>
-  ({ user, loading: false, signInWithGoogle: vi.fn(), signOut: vi.fn() }) as ReturnType<typeof useAuth>;
+  ({ user, loading: false, signInFailed: false, signInWithGoogle: vi.fn(), signOut: vi.fn() }) as ReturnType<typeof useAuth>;
 
 const renderPage = () =>
   render(withQueryClient(<MemoryRouter><PremiumPage /></MemoryRouter>));

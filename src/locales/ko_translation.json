@@ -71,7 +71,8 @@
   },
   "userAccount": {
     "title": "사용자 계정",
-    "signOut": "로그아웃"
+    "signOut": "로그아웃",
+    "signInFailed": "로그인하지 못했습니다. 다시 시도해 주세요."
   },
   "lastUpdated": "마지막 업데이트:",
   "deckPage": {

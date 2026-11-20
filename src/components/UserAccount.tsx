@@ -9,6 +9,8 @@ import Premium from "./Premium";
 import useIsPremium from "../app/use-is-premium";
 import NavIcon from "./NavIcon";
 
+const SIGN_IN_NOTICE_ID = "sign-in-notice";
+
 const StyledUserAccount = styled.div`
   display: flex;
   flex-direction: column;
@@ -74,6 +76,21 @@ const SignInButton = styled.button`
     min-height: 4.4rem;
     padding: 0.8rem 1.6rem;
     border-radius: 0.8rem;
+  }
+`;
+
+const SignInNotice = styled.p`
+  max-width: 8rem;
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--main);
+
+  @media (max-width: 900px) {
+    max-width: 16rem;
+    font-size: 1.2rem;
+    text-align: left;
   }
 `;
 
@@ -154,7 +171,7 @@ const EmailText = styled(ContactText)`
 
 const UserAccount = () => {
   const { t } = useTranslation();
-  const { user, signOut, signInWithGoogle } = useAuth();
+  const { user, signOut, signInWithGoogle, signInFailed } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
   const isPremium = useIsPremium();
@@ -193,10 +210,16 @@ const UserAccount = () => {
           <SignInButton
             onClick={() => signInWithGoogle()}
             title={t("header.signIn", "Sign in with Google")}
+            aria-describedby={signInFailed ? SIGN_IN_NOTICE_ID : undefined}
           >
             <SignInIcon name="account" />
             <SignInLabel>{t("header.signIn", "Sign in with Google")}</SignInLabel>
           </SignInButton>
+        )}
+        {!user && signInFailed && (
+          <SignInNotice id={SIGN_IN_NOTICE_ID} role="alert">
+            {t("userAccount.signInFailed")}
+          </SignInNotice>
         )}
       </StyledUserAccount>
       {user && (

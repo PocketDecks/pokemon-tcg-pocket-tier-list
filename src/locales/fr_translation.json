@@ -71,7 +71,8 @@
   },
   "userAccount": {
     "title": "Compte utilisateur",
-    "signOut": "Se déconnecter"
+    "signOut": "Se déconnecter",
+    "signInFailed": "Connexion impossible. Veuillez réessayer."
   },
   "lastUpdated": "Dernière mise à jour :",
   "deckPage": {

@@ -1,0 +1,119 @@
+import { act, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const authState = vi.hoisted(() => ({
+  callback: null as ((user: { uid: string } | null) => void) | null,
+}));
+
+vi.mock("firebase/auth", () => ({
+  onAuthStateChanged: vi.fn((_auth, callback) => {
+    authState.callback = callback;
+    callback(null);
+    return vi.fn();
+  }),
+  signInWithPopup: vi.fn(),
+  signOut: vi.fn(),
+}));
+vi.mock("../../config/firebase", () => ({ auth: {}, googleProvider: {} }));
+
+import { signInWithPopup } from "firebase/auth";
+import { AuthProvider, useAuth } from "../AuthContext";
+
+const Probe = () => {
+  const { signInFailed, signInWithGoogle } = useAuth();
+  return (
+    <>
+      <button onClick={() => signInWithGoogle()}>sign in</button>
+      <output data-testid="failed">{String(signInFailed)}</output>
+    </>
+  );
+};
+
+const renderProbe = () =>
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+
+const rejection = (code: string) => Object.assign(new Error(`Firebase: Error (${code}).`), { code });
+
+beforeEach(() => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.mocked(signInWithPopup).mockReset();
+});
+
+describe("sign-in failure state", () => {
+  it("flags a rejected sign-in", async () => {
+    vi.mocked(signInWithPopup).mockRejectedValue(rejection("auth/internal-error"));
+    const user = userEvent.setup();
+    renderProbe();
+
+    await user.click(screen.getByRole("button", { name: "sign in" }));
+
+    await waitFor(() => expect(screen.getByTestId("failed")).toHaveTextContent("true"));
+  });
+
+  it.each(["auth/popup-closed-by-user", "auth/cancelled-popup-request", "auth/user-cancelled"])(
+    "treats %s as a deliberate cancellation without a failure flag",
+    async (code) => {
+      vi.mocked(signInWithPopup).mockRejectedValue(rejection(code));
+      const user = userEvent.setup();
+      renderProbe();
+
+      await user.click(screen.getByRole("button", { name: "sign in" }));
+
+      await waitFor(() => expect(signInWithPopup).toHaveBeenCalledTimes(1));
+      expect(screen.getByTestId("failed")).toHaveTextContent("false");
+    }
+  );
+
+  it("clears the flag when a retry starts and when it succeeds", async () => {
+    vi.mocked(signInWithPopup).mockRejectedValueOnce(rejection("auth/internal-error"));
+    const user = userEvent.setup();
+    renderProbe();
+    await user.click(screen.getByRole("button", { name: "sign in" }));
+    await waitFor(() => expect(screen.getByTestId("failed")).toHaveTextContent("true"));
+
+    let finish: () => void = () => {};
+    vi.mocked(signInWithPopup).mockReturnValueOnce(new Promise((resolve) => (finish = () => resolve({} as never))));
+    await user.click(screen.getByRole("button", { name: "sign in" }));
+    expect(screen.getByTestId("failed")).toHaveTextContent("false");
+
+    await act(async () => {
+      finish();
+    });
+    expect(screen.getByTestId("failed")).toHaveTextContent("false");
+  });
+
+  it("clears a stale failure once a user signs in", async () => {
+    vi.mocked(signInWithPopup).mockRejectedValue(rejection("auth/internal-error"));
+    const user = userEvent.setup();
+    renderProbe();
+    await user.click(screen.getByRole("button", { name: "sign in" }));
+    await waitFor(() => expect(screen.getByTestId("failed")).toHaveTextContent("true"));
+
+    act(() => authState.callback?.({ uid: "user-a" }));
+
+    expect(screen.getByTestId("failed")).toHaveTextContent("false");
+  });
+
+  it("ignores repeated clicks while a sign-in is pending", async () => {
+    vi.mocked(signInWithPopup).mockReturnValue(new Promise(() => {}));
+    const user = userEvent.setup();
+    renderProbe();
+
+    await user.click(screen.getByRole("button", { name: "sign in" }));
+    await user.click(screen.getByRole("button", { name: "sign in" }));
+
+    expect(signInWithPopup).toHaveBeenCalledTimes(1);
+  });
+});

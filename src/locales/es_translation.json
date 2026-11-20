@@ -71,7 +71,8 @@
   },
   "userAccount": {
     "title": "Cuenta de usuario",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "signInFailed": "No se pudo iniciar sesión. Inténtalo de nuevo."
   },
   "lastUpdated": "Última actualización:",
   "deckPage": {

@@ -71,7 +71,8 @@
   },
   "userAccount": {
     "title": "用户账户",
-    "signOut": "退出登录"
+    "signOut": "退出登录",
+    "signInFailed": "登录失败，请重试。"
   },
   "lastUpdated": "最后更新:",
   "deckPage": {

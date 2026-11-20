@@ -16,6 +16,7 @@ vi.mock("react-i18next", () => ({
           "userAccount.title": "User Account",
           "userAccount.signOut": "Sign out",
           "header.signIn": "Sign in with Google",
+          "userAccount.signInFailed": "Sign-in failed. Try again.",
           "premium.contact.title": "Contact us",
           "premium.title": "Supporter",
           "premium.become": "Become a Supporter!",
@@ -49,10 +50,11 @@ const signedInUser = {
   photoURL: null,
 };
 
-const authValue = (user: typeof signedInUser | null) =>
+const authValue = (user: typeof signedInUser | null, signInFailed = false) =>
   ({
     user,
     loading: false,
+    signInFailed,
     signOut: vi.fn(),
     signInWithGoogle: vi.fn(),
   }) as unknown as ReturnType<typeof useAuth>;
@@ -70,6 +72,31 @@ describe("UserAccount", () => {
     const supporter = screen.getByRole("button", { name: "Become a Supporter!" });
     const profile = screen.getByRole("button", { name: "Ada Lovelace" });
     expect(supporter.compareDocumentPosition(profile) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("shows no alert while sign-in has not failed", () => {
+    vi.mocked(useAuth).mockReturnValue(authValue(null));
+    render(withQueryClient(<UserAccount />));
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sign in with Google" })).not.toHaveAttribute("aria-describedby");
+  });
+
+  it("announces a failed sign-in and keeps the sign-in button usable as the retry", async () => {
+    const auth = authValue(null, true);
+    vi.mocked(useAuth).mockReturnValue(auth);
+    const user = userEvent.setup();
+    render(withQueryClient(<UserAccount />));
+
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent("Sign-in failed. Try again.");
+    const retry = screen.getByRole("button", { name: "Sign in with Google" });
+    expect(retry).toHaveAttribute("aria-describedby", alert.id);
+
+    await user.click(retry);
+
+    expect(auth.signInWithGoogle).toHaveBeenCalledTimes(1);
+    expect(retry).toHaveFocus();
   });
 
   it("renders one sign-in button for every width so prerendered markup fits the rail", () => {

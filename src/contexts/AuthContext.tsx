@@ -12,9 +12,23 @@ import { entitlementKey, supporterScopeKey } from "../app/query-keys";
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  signInFailed: boolean;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
+
+const CANCELLED_SIGN_IN_CODES = new Set([
+  "auth/popup-closed-by-user",
+  "auth/cancelled-popup-request",
+  "auth/user-cancelled",
+]);
+
+const isCancelledSignIn = (error: unknown) =>
+  typeof error === "object" &&
+  error !== null &&
+  "code" in error &&
+  typeof error.code === "string" &&
+  CANCELLED_SIGN_IN_CODES.has(error.code);
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -23,6 +37,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [signInFailed, setSignInFailed] = useState(false);
+  const signingIn = useRef(false);
   const queryClient = useQueryClient();
   const previousUid = useRef<string | null | undefined>(undefined);
 
@@ -41,6 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         }
         previousUid.current = uid;
       }
+      if (user) setSignInFailed(false);
       setUser(user);
       setLoading(false);
     });
@@ -49,10 +66,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [queryClient]);
 
   const signInWithGoogle = async () => {
+    if (signingIn.current) return;
+    signingIn.current = true;
+    setSignInFailed(false);
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error("Error signing in with Google:", error);
+      if (!isCancelledSignIn(error)) setSignInFailed(true);
+    } finally {
+      signingIn.current = false;
     }
   };
 
@@ -67,6 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const value = {
     user,
     loading,
+    signInFailed,
     signInWithGoogle,
     signOut,
   };

@@ -71,7 +71,8 @@
   },
   "userAccount": {
     "title": "Cont utilizator",
-    "signOut": "Deconectează-te"
+    "signOut": "Deconectează-te",
+    "signInFailed": "Autentificarea a eșuat. Încearcă din nou."
   },
   "lastUpdated": "Ultima actualizare:",
   "deckPage": {

@@ -20,6 +20,24 @@ describe("planPremiumGrant", () => {
     });
   });
 
+  it("adds the account email in lower case", () => {
+    const plan = planPremiumGrant({ uid, email: " Ash@Example.com ", now });
+
+    expect(plan.data).toEqual({
+      premium: true,
+      source: "manual",
+      expiresAt: null,
+      updatedAt: now,
+      email: "ash@example.com",
+    });
+  });
+
+  it("leaves the email off when it is blank", () => {
+    const plan = planPremiumGrant({ uid, email: "  ", now });
+
+    expect(plan.data).not.toHaveProperty("email");
+  });
+
   it("expires a dated grant at the end of that day in UTC", () => {
     const plan = planPremiumGrant({ uid, until: "2026-12-31", source: "invoice", now });
 
@@ -44,6 +62,12 @@ describe("planPremiumGrant", () => {
       path: `entitlements/${uid}`,
       data: { premium: false, source: "refund", expiresAt: null, updatedAt: now },
     });
+  });
+
+  it("ignores an email on a revocation, so a revoke leaves the stored email alone", () => {
+    const plan = planPremiumGrant({ uid, revoke: true, email: "ash@example.com", now });
+
+    expect(plan.data).toEqual({ premium: false, source: "manual", expiresAt: null, updatedAt: now });
   });
 
   it.each(["", "a/b", "..", "has space", "x".repeat(129), "café"])(

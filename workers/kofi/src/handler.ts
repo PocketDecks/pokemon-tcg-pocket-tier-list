@@ -29,6 +29,7 @@ export interface ReceiverDeps {
 interface Match {
   uid: string;
   matchedBy: "code" | "email";
+  email: string | null;
 }
 
 const PREMIUM_TYPES = new Set(["Donation", "Subscription"]);
@@ -51,15 +52,14 @@ const findMatch = async (client: FirestoreClient, payment: KofiPayment): Promise
   if (code) {
     const document = await client.getDocument(`premiumCodes/${code}`);
     if (document && isSafeUid(document.uid)) {
-      if (await client.hasActiveAccount(document.uid)) {
-        return { uid: document.uid, matchedBy: "code" };
-      }
+      const account = await client.findActiveAccount(document.uid);
+      if (account) return { uid: document.uid, matchedBy: "code", email: account.email };
     }
   }
   const email = payment.email.trim().toLowerCase();
   if (email) {
     const uid = await client.lookupUidByEmail(email);
-    if (uid) return { uid, matchedBy: "email" };
+    if (uid) return { uid, matchedBy: "email", email };
   }
   return null;
 };
@@ -111,7 +111,7 @@ const classifyPayment = async (
         ...base,
         match,
         status: "granted",
-        grantWrite: entitlementWrite(match.uid, decision.expiresAt, "kofi", now),
+        grantWrite: entitlementWrite(match.uid, decision.expiresAt, "kofi", now, match.email),
         transaction,
       };
     }

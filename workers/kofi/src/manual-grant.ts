@@ -75,7 +75,8 @@ export const grantManually = async (input: ManualGrantInput): Promise<ManualGran
     }
     const months = resolveMonths(payment.months, input.months);
 
-    if (!(await client.hasActiveAccount(uid))) {
+    const account = await client.findActiveAccount(uid);
+    if (!account) {
       return refuse(`No active account exists for uid ${uid}`);
     }
 
@@ -101,7 +102,7 @@ export const grantManually = async (input: ManualGrantInput): Promise<ManualGran
 
     const writes: DocumentWrite[] = [];
     if (decision.status === "granted") {
-      writes.push(entitlementWrite(uid, decision.expiresAt, "kofi", now));
+      writes.push(entitlementWrite(uid, decision.expiresAt, "kofi", now, account.email));
     }
     writes.push({
       kind: "merge",

@@ -77,6 +77,7 @@ describe("grantManually", () => {
     expect(google.read(`entitlements/${UID}`)).toMatchObject({
       premium: true,
       source: "kofi",
+      email: "ash@example.com",
       expiresAt: "2027-04-08T12:00:00.000Z",
       updatedAt: NOW.toISOString(),
     });
@@ -91,6 +92,19 @@ describe("grantManually", () => {
     expect(google.docPaths().some((path) => path.startsWith("tipTotals/"))).toBe(false);
     expect(google.commitWrites).toHaveLength(1);
     expect(google.openTransactions()).toBe(0);
+  });
+
+  it("writes the account's email even when the payment came from another address", async () => {
+    const { google, run } = setup();
+    google.seed(`kofiPayments/${PAYMENT}`, {
+      status: "unmatched",
+      months: 5,
+      amountPence: 500,
+      currency: "GBP",
+      email: "payer@example.com",
+    });
+    await run();
+    expect(google.read(`entitlements/${UID}`)).toMatchObject({ email: "ash@example.com" });
   });
 
   it("stacks onto an active expiry", async () => {

@@ -63,6 +63,7 @@ An entitlement is the document `entitlements/{uid}`, keyed by the Firebase Authe
 | `source` | string | Free-form label for where the grant came from, such as `manual` |
 | `expiresAt` | timestamp, optional | Access ends at this instant; absent or null means no expiry |
 | `updatedAt` | timestamp | When the document was last written |
+| `email` | string, optional | The account's email in lower case, so the document is easy to recognise in the console. Access does not depend on it |
 
 Only trusted server tools write these documents: the publisher and manual grant command use the Admin SDK, while the Ko-fi Worker uses Firestore REST with an OAuth access token. The security rules deny every client write, and a signed-in user may read only their own document. The app reads that document through `useIsPremium()` and grants access only when it is active. Ko-fi tips grant months through the Worker; an owner can grant or revoke access with `yarn grant:premium`.
 
@@ -80,8 +81,9 @@ yarn grant:premium --uid <uid> --revoke
 - `--source` labels the grant and defaults to `manual`.
 - `--revoke` writes `premium: false` and sets `expiresAt` to null. It cannot be combined with `--until`.
 - `--dry-run` prints the document that would be written without contacting Firebase.
+- A real write reads the account's email from Firebase Authentication, so the signed-in credentials need permission to read Authentication. It also sets `GOOGLE_CLOUD_QUOTA_PROJECT` to the Firebase project unless you have set that variable yourself, which replaces any quota project stored with your credentials.
 
-A grant merges `premium`, `source`, `expiresAt` and `updatedAt` into the document, the same fields the Ko-fi Worker writes, so running it again for the same uid updates the expiry or source and leaves other fields alone. Run it with `--dry-run` first when you are unsure of the uid
+A grant merges `premium`, `source`, `expiresAt` and `updatedAt` into the document, plus `email` when the account has one, the same fields the Ko-fi Worker writes, so running it again for the same uid updates the expiry or source and leaves other fields alone. The email is read from the account when the grant is written, and a uid with no account is refused. A revoke leaves the email as it is. Run it with `--dry-run` first when you are unsure of the uid
 
 ## First-time set-up
 
@@ -111,6 +113,8 @@ Each upload is a new version. The newest five stay in Firestore, along with vers
 - A premium user sees the trimmed movement on the 10-day or 20-day window: the read of the full artefact was denied twice, even after a forced token refresh, and the app fell back to the public file. The cause below applies here too.
 - A premium user sees the 20-day window after choosing 30d: the read was denied twice, even after a forced token refresh. Check that `entitlements/{uid}` exists for that uid with `premium: true` and an `expiresAt` that has not passed, and check the console rules.
 - `yarn grant:premium` fails with a message about default credentials: run `gcloud auth application-default login` and try again.
+- `yarn grant:premium` fails with `no account exists for uid ...`: the uid is wrong. Copy it from the User UID column under Authentication in the Firebase console.
+- `yarn grant:premium` fails on the account lookup with a quota project or permission error: the signed-in credentials need permission to use the Firebase project's APIs and to read Authentication. Set `GOOGLE_CLOUD_QUOTA_PROJECT` to a project you can use to override the default.
 - A user who was granted access still sees the free interface: the entitlement is cached in the browser for up to an hour. Ask them to reload the page.
 - The build fails with `Premium window data shipped in the build output`: a 30-day or All Time file has been put back under `public/data/`. Remove it.
 - `scripts/__tests__/free-tier-data.test.js` fails: a public matchup file lacks rows for a deck, or a public 10d or 20d meta share file carries movement for a deck outside the free ten. Rerun the refresh; keep the generated file under pipeline control.

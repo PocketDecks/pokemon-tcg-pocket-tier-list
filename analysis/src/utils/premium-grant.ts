@@ -14,6 +14,7 @@ export interface EntitlementData {
   /** null means no expiry. It is always written, so a merge clears an older date. */
   expiresAt: Date | null;
   updatedAt: Date;
+  email?: string;
 }
 
 export interface PremiumGrantPlan {
@@ -43,17 +44,22 @@ const endOfDay = (value: string): Date => {
   return date;
 };
 
+const withEmail = (data: EntitlementData, email: string | undefined): EntitlementData =>
+  email?.trim() ? { ...data, email: email.trim().toLowerCase() } : data;
+
 export const planPremiumGrant = ({
   uid,
   until,
   source = DEFAULT_GRANT_SOURCE,
   revoke = false,
+  email,
   now,
 }: {
   uid: string;
   until?: string;
   source?: string;
   revoke?: boolean;
+  email?: string;
   now: Date;
 }): PremiumGrantPlan => {
   if (!UID_PATTERN.test(uid)) {
@@ -70,14 +76,17 @@ export const planPremiumGrant = ({
   }
 
   if (until === undefined) {
-    return { path, data: { premium: true, source, expiresAt: null, updatedAt: now } };
+    return {
+      path,
+      data: withEmail({ premium: true, source, expiresAt: null, updatedAt: now }, email),
+    };
   }
 
   const expiresAt = endOfDay(until);
   if (expiresAt.getTime() <= now.getTime()) {
     throw new Error(`--until must be in the future, ${until} has already passed`);
   }
-  return { path, data: { premium: true, source, expiresAt, updatedAt: now } };
+  return { path, data: withEmail({ premium: true, source, expiresAt, updatedAt: now }, email) };
 };
 
 export const parseGrantArgs = (argv: readonly string[]): GrantArgs => {

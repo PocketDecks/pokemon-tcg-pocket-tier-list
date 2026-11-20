@@ -180,6 +180,7 @@ const UserAccount = () => {
             <ContactIcon name="mail" size={34} />
           </ContactButton>
         )}
+        <Premium />
         {user && (
           <UserInfo onClick={() => setIsOpen(true)}>
             <UserAvatar
@@ -197,7 +198,6 @@ const UserAccount = () => {
             <SignInLabel>{t("header.signIn", "Sign in with Google")}</SignInLabel>
           </SignInButton>
         )}
-        <Premium />
       </StyledUserAccount>
       {user && (
         <Popup

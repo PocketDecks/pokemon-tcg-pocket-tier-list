@@ -64,6 +64,14 @@ beforeEach(() => {
 });
 
 describe("UserAccount", () => {
+  it("places the Supporter icon above the Google profile for a signed-in user", () => {
+    render(withQueryClient(<UserAccount />));
+
+    const supporter = screen.getByRole("button", { name: "Become a Supporter!" });
+    const profile = screen.getByRole("button", { name: "Ada Lovelace" });
+    expect(supporter.compareDocumentPosition(profile) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("renders one sign-in button for every width so prerendered markup fits the rail", () => {
     vi.mocked(useAuth).mockReturnValue(authValue(null));
     render(withQueryClient(<UserAccount />));

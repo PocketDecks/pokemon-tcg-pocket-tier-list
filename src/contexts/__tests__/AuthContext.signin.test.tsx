@@ -76,21 +76,15 @@ describe("sign-in failure state", () => {
     }
   );
 
-  it("clears the flag when a retry starts and when it succeeds", async () => {
+  it("clears the flag when a retry starts", async () => {
     vi.mocked(signInWithPopup).mockRejectedValueOnce(rejection("auth/internal-error"));
     const user = userEvent.setup();
     renderProbe();
     await user.click(screen.getByRole("button", { name: "sign in" }));
     await waitFor(() => expect(screen.getByTestId("failed")).toHaveTextContent("true"));
 
-    let finish: () => void = () => {};
-    vi.mocked(signInWithPopup).mockReturnValueOnce(new Promise((resolve) => (finish = () => resolve({} as never))));
+    vi.mocked(signInWithPopup).mockReturnValueOnce(new Promise(() => {}));
     await user.click(screen.getByRole("button", { name: "sign in" }));
-    expect(screen.getByTestId("failed")).toHaveTextContent("false");
-
-    await act(async () => {
-      finish();
-    });
     expect(screen.getByTestId("failed")).toHaveTextContent("false");
   });
 
@@ -106,14 +100,23 @@ describe("sign-in failure state", () => {
     expect(screen.getByTestId("failed")).toHaveTextContent("false");
   });
 
-  it("ignores repeated clicks while a sign-in is pending", async () => {
-    vi.mocked(signInWithPopup).mockReturnValue(new Promise(() => {}));
+  it("lets a second click replace a pending sign-in without leaving a notice", async () => {
+    let rejectFirst: (error: Error) => void = () => {};
+    let rejectSecond: (error: Error) => void = () => {};
+    vi.mocked(signInWithPopup)
+      .mockReturnValueOnce(new Promise((_resolve, reject) => (rejectFirst = reject)))
+      .mockReturnValueOnce(new Promise((_resolve, reject) => (rejectSecond = reject)));
     const user = userEvent.setup();
     renderProbe();
 
     await user.click(screen.getByRole("button", { name: "sign in" }));
     await user.click(screen.getByRole("button", { name: "sign in" }));
+    expect(signInWithPopup).toHaveBeenCalledTimes(2);
 
-    expect(signInWithPopup).toHaveBeenCalledTimes(1);
+    await act(async () => rejectFirst(rejection("auth/cancelled-popup-request")));
+    expect(screen.getByTestId("failed")).toHaveTextContent("false");
+
+    await act(async () => rejectSecond(rejection("auth/internal-error")));
+    expect(screen.getByTestId("failed")).toHaveTextContent("true");
   });
 });

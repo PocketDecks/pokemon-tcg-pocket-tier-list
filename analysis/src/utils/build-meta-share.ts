@@ -79,6 +79,10 @@ export const buildMetaShare = (
       ? null
       : windowDayKeys(anchorMs, window.shareDays, window.shareDays);
   const gamesDays = windowDayKeys(anchorMs, 0, window.gamesDays);
+  const earliestDay = [...firstSeen.values()].sort()[0];
+  const previousStart = previousDays?.[previousDays.length - 1];
+  const hasBaseline =
+    earliestDay !== undefined && previousStart !== undefined && earliestDay <= previousStart;
 
   const sumWindow = (days: string[] | null, name: string): number =>
     days === null
@@ -113,6 +117,7 @@ export const buildMetaShare = (
       windowGames: gamesPlayed,
       firstSeen: seen,
       isNew:
+        hasBaseline &&
         windowStart !== undefined &&
         new Date(`${seen}T00:00:00Z`).getTime() >=
           new Date(`${windowStart}T00:00:00Z`).getTime(),

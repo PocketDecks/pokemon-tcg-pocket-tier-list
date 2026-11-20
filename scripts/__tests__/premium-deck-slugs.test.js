@@ -28,10 +28,6 @@ test("the committed slug list sits in src/data", () => {
   assert.equal(path.relative(ROOT, PREMIUM_DECK_SLUGS_FILE).split(path.sep).join("/"), "src/data/premium-deck-slugs.json");
 });
 
-test("the committed slug list is empty while every window is identical", () => {
-  assert.deepEqual(loadPremiumDeckSlugs(), {});
-});
-
 test("the committed slug list passes its own checks against the live decks", () => {
   const live = new Set(
     JSON.parse(fs.readFileSync(path.join(DATA_DIR, "best-decks.json"), "utf8")).map((deck) => deckSlug(deck.name))

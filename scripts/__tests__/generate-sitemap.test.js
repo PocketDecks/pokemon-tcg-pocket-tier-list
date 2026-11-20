@@ -41,11 +41,13 @@ test("current names retain their existing slugs", () => {
     fs.readFileSync(path.join(__dirname, "..", "..", "public", "data", "best-decks.json"), "utf8")
   );
   for (const deck of decks) {
-    assert.strictEqual(
-      deckSlug(deck.name),
-      deck.name.toLowerCase().replace(/\s/g, "-"),
-      deck.name
-    );
+    const slug = deckSlug(deck.name);
+    const existing = deck.name.toLowerCase().replace(/\s/g, "-");
+    // A name the old formula already turned into a URL-safe slug keeps it. A
+    // name with punctuation, such as the apostrophe in "Team Rocket's", is new
+    // to the slug rules, so it only has to come out URL-safe.
+    if (/^[a-z0-9&-]+$/.test(existing)) assert.strictEqual(slug, existing, deck.name);
+    assert.match(slug, /^[a-z0-9&]+(-[a-z0-9&]+)*$/, deck.name);
   }
 });
 

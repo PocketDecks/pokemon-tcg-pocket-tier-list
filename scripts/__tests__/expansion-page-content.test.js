@@ -43,9 +43,21 @@ test("card links on the C1 page resolve to rendered archetype hubs", { skip: !ha
   }
 });
 
-test("an empty set page shows the shrug, stays noindex and renders no card thumbnails", { skip: !hasDist && "dist/ is not built" }, () => {
-  const html = fs.readFileSync(path.join(DIST_DIR, "expansion-list", "b4a", "index.html"), "utf8");
-  assert.ok(html.includes("¯\\_(ツ)_/¯"), "b4a: shrug missing");
+test("an empty set page shows the shrug, stays noindex and renders no card thumbnails", { skip: !hasDist && "dist/ is not built" }, async (t) => {
+  // Take a set that no published deck covers, so the example follows the data
+  // and not a set that a later refresh may start to cover.
+  const { coveredCardIdsBySet } = await import("../../src/app/expansion-feed.mjs");
+  const decks = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "..", "..", "public", "data", "best-decks.json"), "utf8")
+  );
+  const covered = coveredCardIdsBySet(decks);
+  const [emptySet] = fs
+    .readdirSync(path.join(DIST_DIR, "expansion-list"), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && !covered.has(entry.name))
+    .map((entry) => entry.name);
+  if (!emptySet) return t.skip("every set page has covered cards");
+  const html = fs.readFileSync(path.join(DIST_DIR, "expansion-list", emptySet, "index.html"), "utf8");
+  assert.ok(html.includes("¯\\_(ツ)_/¯"), `${emptySet}: shrug missing`);
   assert.match(html, /<meta name="robots" content="noindex, follow"/);
-  assert.strictEqual((html.match(/\/thumbs\/v3\/cards\//g) ?? []).length, 0, "b4a: card thumbnails rendered");
+  assert.strictEqual((html.match(/\/thumbs\/v3\/cards\//g) ?? []).length, 0, `${emptySet}: card thumbnails rendered`);
 });

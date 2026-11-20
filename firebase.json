@@ -1608,11 +1608,6 @@
         "type": 301
       },
       {
-        "source": "/deck/greninja-a1-089&mega-absol-ex-b1-151{,/**}",
-        "destination": "/deck/greninja/",
-        "type": 301
-      },
-      {
         "source": "/deck/greninja-a1-089&mega-altaria-ex-b1-102{,/**}",
         "destination": "/deck/greninja/",
         "type": 301
@@ -2903,11 +2898,6 @@
         "type": 301
       },
       {
-        "source": "/deck/mega-gardevoir-ex-b2-066&gardevoir-a1-132{,/**}",
-        "destination": "/deck/mega-gardevoir-ex/",
-        "type": 301
-      },
-      {
         "source": "/deck/mega-gardevoir-ex-b2-066&gardevoir-b2-065{,/**}",
         "destination": "/deck/mega-gardevoir-ex/",
         "type": 301
@@ -3258,11 +3248,6 @@
         "type": 301
       },
       {
-        "source": "/deck/mega-sharpedo-ex-b4-035&gyarados-a4-045{,/**}",
-        "destination": "/deck/mega-sharpedo-ex/",
-        "type": 301
-      },
-      {
         "source": "/deck/mega-sharpedo-ex-b4-035&milotic-ex-b3b-015{,/**}",
         "destination": "/deck/mega-sharpedo-ex/",
         "type": 301
@@ -3439,11 +3424,6 @@
       },
       {
         "source": "/deck/milotic-ex-b3b-015&chien-pao-ex-b2a-037{,/**}",
-        "destination": "/deck/milotic-ex/",
-        "type": 301
-      },
-      {
-        "source": "/deck/milotic-ex-b3b-015&eevee-ex-a3b-056{,/**}",
         "destination": "/deck/milotic-ex/",
         "type": 301
       },
@@ -6323,11 +6303,6 @@
         "type": 301
       },
       {
-        "source": "/ja/deck/greninja-a1-089&mega-absol-ex-b1-151{,/**}",
-        "destination": "/ja/deck/greninja/",
-        "type": 301
-      },
-      {
         "source": "/ja/deck/greninja-a1-089&mega-altaria-ex-b1-102{,/**}",
         "destination": "/ja/deck/greninja/",
         "type": 301
@@ -7618,11 +7593,6 @@
         "type": 301
       },
       {
-        "source": "/ja/deck/mega-gardevoir-ex-b2-066&gardevoir-a1-132{,/**}",
-        "destination": "/ja/deck/mega-gardevoir-ex/",
-        "type": 301
-      },
-      {
         "source": "/ja/deck/mega-gardevoir-ex-b2-066&gardevoir-b2-065{,/**}",
         "destination": "/ja/deck/mega-gardevoir-ex/",
         "type": 301
@@ -7973,11 +7943,6 @@
         "type": 301
       },
       {
-        "source": "/ja/deck/mega-sharpedo-ex-b4-035&gyarados-a4-045{,/**}",
-        "destination": "/ja/deck/mega-sharpedo-ex/",
-        "type": 301
-      },
-      {
         "source": "/ja/deck/mega-sharpedo-ex-b4-035&milotic-ex-b3b-015{,/**}",
         "destination": "/ja/deck/mega-sharpedo-ex/",
         "type": 301
@@ -8154,11 +8119,6 @@
       },
       {
         "source": "/ja/deck/milotic-ex-b3b-015&chien-pao-ex-b2a-037{,/**}",
-        "destination": "/ja/deck/milotic-ex/",
-        "type": 301
-      },
-      {
-        "source": "/ja/deck/milotic-ex-b3b-015&eevee-ex-a3b-056{,/**}",
         "destination": "/ja/deck/milotic-ex/",
         "type": 301
       },

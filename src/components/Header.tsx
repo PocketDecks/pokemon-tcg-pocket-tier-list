@@ -86,7 +86,6 @@ const Actions = styled.div`
 
 const MenuButton = styled.button`
   display: none;
-  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 4.4rem;

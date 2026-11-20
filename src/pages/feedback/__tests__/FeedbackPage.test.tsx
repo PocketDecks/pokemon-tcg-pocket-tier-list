@@ -31,9 +31,9 @@ vi.mock("react-i18next", () => ({
   Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
 }));
 
-const renderPage = () =>
+const renderPage = (search = "") =>
   render(
-    <MemoryRouter initialEntries={[{ pathname: "/feedback", state: { from: "/tier-list" } }]}>
+    <MemoryRouter initialEntries={[{ pathname: "/feedback", search, state: { from: "/tier-list" } }]}>
       <FeedbackPage />
     </MemoryRouter>
   );
@@ -138,6 +138,19 @@ describe("FeedbackPage", () => {
 
     await waitFor(() => expect(submitFeedback).toHaveBeenCalledTimes(1));
     expect(submitFeedback.mock.calls[0][0]).toMatchObject({ category });
+  });
+
+  it("preselects the category named in the link", () => {
+    renderPage("?category=payment");
+
+    expect(screen.getByRole("radio", { name: "feedback.categories.payment" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "feedback.categories.idea" })).not.toBeChecked();
+  });
+
+  it.each(["?category=spam", "?category=", ""])("falls back to an idea for the link query %j", (search) => {
+    renderPage(search);
+
+    expect(screen.getByRole("radio", { name: "feedback.categories.idea" })).toBeChecked();
   });
 
   it("offers no optional reply box any more", () => {

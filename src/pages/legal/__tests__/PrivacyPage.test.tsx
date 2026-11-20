@@ -91,6 +91,15 @@ describe("PrivacyPage", () => {
     );
   });
 
+  it("points rights requests and deletion requests at the feedback form", () => {
+    renderPage();
+    expect(sectionText("Your rights")).toMatch(/contact us through the feedback form linked below/i);
+    expect(sectionText("How long we keep information")).toMatch(
+      /ask us to delete them through the feedback form linked below/i
+    );
+    expect(sectionText("Your rights")).not.toMatch(/details below/i);
+  });
+
   it("shows the date of the latest policy change", () => {
     renderPage();
     expect(screen.getByText("Last updated: 20 November 2026")).toBeInTheDocument();

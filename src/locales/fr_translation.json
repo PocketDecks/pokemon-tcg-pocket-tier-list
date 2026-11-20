@@ -51,7 +51,7 @@
     "copied": "Copié",
     "expires": "Votre accès Soutien prend fin le {{date}}.",
     "lifetime": "Votre accès Soutien n’expire pas.",
-    "refund": "Pour un remboursement ou un paiement perdu, écrivez à <0/> avec les détails du paiement."
+    "refund": "Pour un remboursement ou un paiement perdu, utilisez le <0>formulaire de commentaires</0> en indiquant les détails du paiement."
   },
   "ads": {
     "advertisement": "Publicité",
@@ -334,7 +334,7 @@
     },
     "rights": {
       "heading": "Vos droits",
-      "body": "Selon votre lieu de résidence, vous pouvez disposer d'un droit d'accès, de rectification ou de suppression de vos données personnelles, ainsi que d'un droit d'opposition ou de limitation de certains traitements. Pour exercer ces droits, y compris une demande de suppression de vos commentaires ou des informations de votre compte, contactez-nous par les moyens indiqués ci-dessous. Les soutiens ne voient pas de publicité."
+      "body": "Selon votre lieu de résidence, vous pouvez disposer d'un droit d'accès, de rectification ou de suppression de vos données personnelles, ainsi que d'un droit d'opposition ou de limitation de certains traitements. Pour exercer ces droits, y compris une demande de suppression de vos commentaires ou des informations de votre compte, contactez-nous via le formulaire de commentaires accessible ci-dessous. Les soutiens ne voient pas de publicité."
     },
     "thirdParty": {
       "heading": "Services tiers",
@@ -348,7 +348,7 @@
     },
     "retention": {
       "heading": "Durée de conservation des informations",
-      "body": "Google Analytics conserve les données d’événements pendant 14 mois. Il conserve les données utilisateur pendant 14 mois, et cette durée repart à zéro lorsque vous revenez sur le site. Nous conservons votre compte Google et les champs de profil enregistrés jusqu’à ce que vous demandiez leur suppression aux coordonnées ci-dessous. Nous conservons les messages de commentaires et l’adresse e-mail enregistrée avec eux jusqu’à une demande de suppression. Nous conservons votre fiche Soutien et votre code de paiement jusqu’à ce que vous demandiez leur suppression. Google décide de la durée de conservation des données publicitaires. Consultez la <0>politique de confidentialité</0> et les <1>règles relatives à la publicité</1> de Google. Nous créons un enregistrement pour chaque paiement Ko-fi, avec son identifiant et son type, le montant et la devise, les mois crédités, le statut, les horodatages et, le cas échéant, l’identifiant du compte associé et la méthode de rapprochement. L’adresse e-mail, le nom et le message ne sont conservés que lorsque le paiement n’est pas accordé automatiquement, pour vérification ou traitement manuel. Le site ne conserve aucun journal propre des requêtes web. Firebase et Cloudflare conservent leurs journaux d’exploitation habituels selon leurs propres conditions."
+      "body": "Google Analytics conserve les données d’événements pendant 14 mois. Il conserve les données utilisateur pendant 14 mois, et cette durée repart à zéro lorsque vous revenez sur le site. Nous conservons votre compte Google et les champs de profil enregistrés jusqu’à ce que vous demandiez leur suppression via le formulaire de commentaires ci-dessous. Nous conservons les messages de commentaires et l’adresse e-mail enregistrée avec eux jusqu’à une demande de suppression. Nous conservons votre fiche Soutien et votre code de paiement jusqu’à ce que vous demandiez leur suppression. Google décide de la durée de conservation des données publicitaires. Consultez la <0>politique de confidentialité</0> et les <1>règles relatives à la publicité</1> de Google. Nous créons un enregistrement pour chaque paiement Ko-fi, avec son identifiant et son type, le montant et la devise, les mois crédités, le statut, les horodatages et, le cas échéant, l’identifiant du compte associé et la méthode de rapprochement. L’adresse e-mail, le nom et le message ne sont conservés que lorsque le paiement n’est pas accordé automatiquement, pour vérification ou traitement manuel. Le site ne conserve aucun journal propre des requêtes web. Firebase et Cloudflare conservent leurs journaux d’exploitation habituels selon leurs propres conditions."
     },
     "children": {
       "heading": "Enfants",

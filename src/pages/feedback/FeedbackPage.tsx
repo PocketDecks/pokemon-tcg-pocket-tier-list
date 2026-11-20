@@ -282,7 +282,10 @@ const FeedbackPage = () => {
   const { t } = useTranslation();
   const { user, loading, signInWithGoogle } = useAuth();
   const location = useLocation();
-  const [category, setCategory] = useState<FeedbackCategory>("idea");
+  const requestedCategory = new URLSearchParams(location.search).get("category");
+  const [category, setCategory] = useState<FeedbackCategory>(
+    FEEDBACK_CATEGORIES.find((option) => option === requestedCategory) ?? "idea"
+  );
   const [message, setMessage] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [website, setWebsite] = useState("");

@@ -51,7 +51,7 @@
     "copied": "Copiat",
     "expires": "Accesul de susținător se încheie la {{date}}.",
     "lifetime": "Accesul de susținător nu expiră.",
-    "refund": "Pentru rambursări sau plăți pierdute, scrie la <0/> cu detaliile plății."
+    "refund": "Pentru rambursări sau plăți pierdute, folosește <0>formularul de feedback</0> și include detaliile plății."
   },
   "ads": {
     "advertisement": "Reclamă",
@@ -334,7 +334,7 @@
     },
     "rights": {
       "heading": "Drepturile dumneavoastră",
-      "body": "În funcție de locul în care vă aflați, puteți avea dreptul de a accesa, corecta sau șterge datele dumneavoastră personale, sau dreptul de a vă opune sau de a restricționa anumite prelucrări. Pentru a vă exercita aceste drepturi, inclusiv o cerere de ștergere a feedbackului sau a informațiilor din cont, contactați-ne prin datele de mai jos. Susținătorii nu văd reclame."
+      "body": "În funcție de locul în care vă aflați, puteți avea dreptul de a accesa, corecta sau șterge datele dumneavoastră personale, sau dreptul de a vă opune sau de a restricționa anumite prelucrări. Pentru a vă exercita aceste drepturi, inclusiv o cerere de ștergere a feedbackului sau a informațiilor din cont, contactați-ne prin formularul de feedback de mai jos. Susținătorii nu văd reclame."
     },
     "thirdParty": {
       "heading": "Servicii terțe",
@@ -348,7 +348,7 @@
     },
     "retention": {
       "heading": "Cât timp păstrăm informațiile",
-      "body": "Google Analytics păstrează datele despre evenimente timp de 14 luni. Păstrează datele utilizatorilor timp de 14 luni, iar perioada se reia când revii pe site. Păstrăm contul Google și câmpurile de profil salvate până când soliciți ștergerea lor folosind datele de contact de mai jos. Păstrăm mesajele de feedback și adresa de e-mail salvată împreună cu ele până când soliciți ștergerea lor. Păstrăm înregistrarea ta de susținător și codul de plată până când soliciți ștergerea lor. Google decide cât timp păstrează datele publicitare. Consultă <0>politica de confidențialitate</0> și <1>politicile privind anunțurile</1> Google. Creăm o înregistrare pentru fiecare plată Ko-fi, cu identificatorul și tipul, suma și moneda, lunile acordate, starea, marcajele temporale și, dacă este cazul, identificatorul contului asociat și metoda de potrivire. E-mailul, numele și mesajul sunt păstrate numai când plata nu este acordată automat, pentru verificare sau aplicare manuală. Site-ul nu păstrează propriile jurnale de solicitări web. Firebase și Cloudflare păstrează jurnalele operaționale obișnuite conform propriilor condiții."
+      "body": "Google Analytics păstrează datele despre evenimente timp de 14 luni. Păstrează datele utilizatorilor timp de 14 luni, iar perioada se reia când revii pe site. Păstrăm contul Google și câmpurile de profil salvate până când soliciți ștergerea lor prin formularul de feedback de mai jos. Păstrăm mesajele de feedback și adresa de e-mail salvată împreună cu ele până când soliciți ștergerea lor. Păstrăm înregistrarea ta de susținător și codul de plată până când soliciți ștergerea lor. Google decide cât timp păstrează datele publicitare. Consultă <0>politica de confidențialitate</0> și <1>politicile privind anunțurile</1> Google. Creăm o înregistrare pentru fiecare plată Ko-fi, cu identificatorul și tipul, suma și moneda, lunile acordate, starea, marcajele temporale și, dacă este cazul, identificatorul contului asociat și metoda de potrivire. E-mailul, numele și mesajul sunt păstrate numai când plata nu este acordată automat, pentru verificare sau aplicare manuală. Site-ul nu păstrează propriile jurnale de solicitări web. Firebase și Cloudflare păstrează jurnalele operaționale obișnuite conform propriilor condiții."
     },
     "children": {
       "heading": "Copii",

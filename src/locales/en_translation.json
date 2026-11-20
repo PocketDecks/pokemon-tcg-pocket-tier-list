@@ -51,7 +51,7 @@
     "copied": "Copied",
     "expires": "Your Supporter access ends on {{date}}.",
     "lifetime": "Your Supporter access does not expire.",
-    "refund": "For refunds or lost payments, email <0/> with your payment details."
+    "refund": "For refunds or lost payments, use the <0>feedback form</0> and include your payment details."
   },
   "ads": {
     "advertisement": "Advertisement",
@@ -334,7 +334,7 @@
     },
     "rights": {
       "heading": "Your rights",
-      "body": "Depending on your location, you may have the right to access, correct or delete your personal data, or to object to or restrict certain processing. To exercise these rights, including a request to delete your feedback or account information, contact us using the details below. Supporters do not see ads."
+      "body": "Depending on your location, you may have the right to access, correct or delete your personal data, or to object to or restrict certain processing. To exercise these rights, including a request to delete your feedback or account information, contact us through the feedback form linked below. Supporters do not see ads."
     },
     "thirdParty": {
       "heading": "Third-party services",
@@ -348,7 +348,7 @@
     },
     "retention": {
       "heading": "How long we keep information",
-      "body": "Google Analytics keeps event data for 14 months. It keeps user data for 14 months, and that period resets when you return to the site. We keep your Google sign-in account and stored profile fields until you ask us to delete them, using the contact details below. We keep feedback messages, and the email address stored with them, until you ask us to delete them. We keep your Supporter record and payment code until you ask us to delete them. Google decides how long it keeps advertising data. See its <0>privacy policy</0> and <1>ads policies</1>. We create a Ko-fi payment record for every payment, including its identifier and type, amount and currency, credited months, status, timestamps, and matched account identifier and matching method when applicable. The tipper’s email address, name and message are stored only when a payment is not granted automatically, for review or manual application. The site does not keep web request logs of its own. Firebase, the hosting provider, and Cloudflare, the network provider, keep their standard operational logs under their own terms."
+      "body": "Google Analytics keeps event data for 14 months. It keeps user data for 14 months, and that period resets when you return to the site. We keep your Google sign-in account and stored profile fields until you ask us to delete them through the feedback form linked below. We keep feedback messages, and the email address stored with them, until you ask us to delete them. We keep your Supporter record and payment code until you ask us to delete them. Google decides how long it keeps advertising data. See its <0>privacy policy</0> and <1>ads policies</1>. We create a Ko-fi payment record for every payment, including its identifier and type, amount and currency, credited months, status, timestamps, and matched account identifier and matching method when applicable. The tipper’s email address, name and message are stored only when a payment is not granted automatically, for review or manual application. The site does not keep web request logs of its own. Firebase, the hosting provider, and Cloudflare, the network provider, keep their standard operational logs under their own terms."
     },
     "children": {
       "heading": "Children",

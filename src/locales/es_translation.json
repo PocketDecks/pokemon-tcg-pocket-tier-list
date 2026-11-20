@@ -51,7 +51,7 @@
     "copied": "Copiado",
     "expires": "Tu acceso de colaborador termina el {{date}}.",
     "lifetime": "Tu acceso de colaborador no caduca.",
-    "refund": "Para reembolsos o pagos perdidos, escribe a <0/> con los datos del pago."
+    "refund": "Para reembolsos o pagos perdidos, usa el <0>formulario de comentarios</0> e incluye los datos del pago."
   },
   "ads": {
     "advertisement": "Anuncio",
@@ -334,7 +334,7 @@
     },
     "rights": {
       "heading": "Sus derechos",
-      "body": "Según su ubicación, puede tener derecho a acceder a sus datos personales, corregirlos o eliminarlos, o a oponerse o restringir determinados tratamientos. Para ejercer estos derechos, incluida una solicitud para eliminar sus comentarios o los datos de su cuenta, contáctenos con los datos indicados más abajo. Los colaboradores no ven anuncios."
+      "body": "Según su ubicación, puede tener derecho a acceder a sus datos personales, corregirlos o eliminarlos, o a oponerse o restringir determinados tratamientos. Para ejercer estos derechos, incluida una solicitud para eliminar sus comentarios o los datos de su cuenta, contáctenos a través del formulario de comentarios enlazado más abajo. Los colaboradores no ven anuncios."
     },
     "thirdParty": {
       "heading": "Servicios de terceros",
@@ -348,7 +348,7 @@
     },
     "retention": {
       "heading": "Cuánto tiempo conservamos la información",
-      "body": "Google Analytics conserva los datos de eventos durante 14 meses. Conserva los datos de usuario durante 14 meses, y el periodo se reinicia cuando vuelves al sitio. Guardamos tu cuenta de Google y los datos de perfil almacenados hasta que solicites su eliminación mediante los datos de contacto que aparecen abajo. Conservamos los mensajes de comentarios y la dirección de correo electrónico guardada con ellos hasta que solicites eliminarlos. Guardamos tu registro de colaborador y tu código de pago hasta que solicites su eliminación. Google decide cuánto tiempo conserva los datos publicitarios. Consulta la <0>política de privacidad</0> y las <1>políticas de anuncios</1> de Google. Creamos un registro de cada pago de Ko-fi con su identificador y tipo, importe y moneda, meses concedidos, estado, fechas y, cuando corresponde, el identificador de la cuenta vinculada y el método de coincidencia. Solo guardamos el correo, el nombre y el mensaje de quien envía la propina cuando el pago no se concede automáticamente, para revisarlo o aplicarlo manualmente. El sitio no guarda registros propios de las solicitudes web. Firebase y Cloudflare conservan sus registros operativos habituales según sus propias condiciones."
+      "body": "Google Analytics conserva los datos de eventos durante 14 meses. Conserva los datos de usuario durante 14 meses, y el periodo se reinicia cuando vuelves al sitio. Guardamos tu cuenta de Google y los datos de perfil almacenados hasta que solicites su eliminación mediante el formulario de comentarios enlazado abajo. Conservamos los mensajes de comentarios y la dirección de correo electrónico guardada con ellos hasta que solicites eliminarlos. Guardamos tu registro de colaborador y tu código de pago hasta que solicites su eliminación. Google decide cuánto tiempo conserva los datos publicitarios. Consulta la <0>política de privacidad</0> y las <1>políticas de anuncios</1> de Google. Creamos un registro de cada pago de Ko-fi con su identificador y tipo, importe y moneda, meses concedidos, estado, fechas y, cuando corresponde, el identificador de la cuenta vinculada y el método de coincidencia. Solo guardamos el correo, el nombre y el mensaje de quien envía la propina cuando el pago no se concede automáticamente, para revisarlo o aplicarlo manualmente. El sitio no guarda registros propios de las solicitudes web. Firebase y Cloudflare conservan sus registros operativos habituales según sus propias condiciones."
     },
     "children": {
       "heading": "Menores",

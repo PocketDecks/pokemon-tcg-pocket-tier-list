@@ -51,7 +51,7 @@
     "copied": "Copiado",
     "expires": "O seu acesso de apoiante termina em {{date}}.",
     "lifetime": "O seu acesso de apoiante não expira.",
-    "refund": "Para reembolsos ou pagamentos perdidos, escreva para <0/> com os dados do pagamento."
+    "refund": "Para reembolsos ou pagamentos perdidos, use o <0>formulário de feedback</0> e inclua os dados do pagamento."
   },
   "ads": {
     "advertisement": "Anúncio",
@@ -334,7 +334,7 @@
     },
     "rights": {
       "heading": "Os seus direitos",
-      "body": "Consoante o seu local de residência, poderá ter o direito de aceder, corrigir ou apagar os seus dados pessoais, ou de se opor ou restringir determinados tratamentos. Para exercer estes direitos, incluindo um pedido para apagar o seu feedback ou as informações da sua conta, contacte-nos através dos dados indicados abaixo. Os apoiantes não veem anúncios."
+      "body": "Consoante o seu local de residência, poderá ter o direito de aceder, corrigir ou apagar os seus dados pessoais, ou de se opor ou restringir determinados tratamentos. Para exercer estes direitos, incluindo um pedido para apagar o seu feedback ou as informações da sua conta, contacte-nos através do formulário de feedback indicado abaixo. Os apoiantes não veem anúncios."
     },
     "thirdParty": {
       "heading": "Serviços de terceiros",
@@ -348,7 +348,7 @@
     },
     "retention": {
       "heading": "Durante quanto tempo guardamos as informações",
-      "body": "O Google Analytics guarda dados de eventos durante 14 meses. Guarda dados de utilizador durante 14 meses e o período reinicia quando regressa ao site. Guardamos a sua conta Google e os campos de perfil até pedir a sua eliminação através dos contactos abaixo. Guardamos as mensagens de feedback e o endereço de e-mail guardado com elas até pedir a sua eliminação. Guardamos o seu registo de apoiante e o código de pagamento até pedir a sua eliminação. O Google decide durante quanto tempo guarda os dados de publicidade. Consulte a <0>política de privacidade</0> e as <1>políticas de anúncios</1> do Google. Criamos um registo para cada pagamento do Ko-fi com o identificador e tipo, montante e moeda, meses creditados, estado, datas e, se aplicável, o identificador da conta associada e o método de correspondência. O e-mail, o nome e a mensagem são guardados apenas quando o pagamento não é concedido automaticamente, para análise ou aplicação manual. O site não guarda registos próprios de pedidos web. Firebase e Cloudflare guardam os seus registos operacionais habituais segundo os próprios termos."
+      "body": "O Google Analytics guarda dados de eventos durante 14 meses. Guarda dados de utilizador durante 14 meses e o período reinicia quando regressa ao site. Guardamos a sua conta Google e os campos de perfil até pedir a sua eliminação através do formulário de feedback abaixo. Guardamos as mensagens de feedback e o endereço de e-mail guardado com elas até pedir a sua eliminação. Guardamos o seu registo de apoiante e o código de pagamento até pedir a sua eliminação. O Google decide durante quanto tempo guarda os dados de publicidade. Consulte a <0>política de privacidade</0> e as <1>políticas de anúncios</1> do Google. Criamos um registo para cada pagamento do Ko-fi com o identificador e tipo, montante e moeda, meses creditados, estado, datas e, se aplicável, o identificador da conta associada e o método de correspondência. O e-mail, o nome e a mensagem são guardados apenas quando o pagamento não é concedido automaticamente, para análise ou aplicação manual. O site não guarda registos próprios de pedidos web. Firebase e Cloudflare guardam os seus registos operacionais habituais segundo os próprios termos."
     },
     "children": {
       "heading": "Crianças",

@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router";
 import { createInstance } from "i18next";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import Premium from "../Premium";
 import en from "../../locales/en_translation.json";
-import { CONTACT_EMAIL } from "../../app/constants";
 import { withQueryClient } from "../../test-utils/with-query-client";
 
 const mocks = vi.hoisted(() => ({
@@ -39,24 +39,25 @@ beforeEach(() => {
 });
 
 describe("Premium refund contact rendering", () => {
-  it("renders the real contact address as the refund link text", async () => {
+  it("links the refund line to the feedback form with the payment category preselected", async () => {
     const user = userEvent.setup();
     render(
       <I18nextProvider i18n={i18n}>
-        {withQueryClient(<Premium variant="link" linkLabel="Remove ads" />)}
+        {withQueryClient(<MemoryRouter><Premium variant="link" linkLabel="Remove ads" /></MemoryRouter>)}
       </I18nextProvider>
     );
 
     await user.click(screen.getByRole("button", { name: "Remove ads" }));
-    const refundLink = await screen.findByRole("link", { name: CONTACT_EMAIL });
-    expect(refundLink).toHaveAttribute("href", `mailto:${CONTACT_EMAIL}`);
+    const refundLink = await screen.findByRole("link", { name: "feedback form" });
+    expect(refundLink).toHaveAttribute("href", "/feedback/?category=payment");
+    expect(screen.queryByRole("link", { name: /protonMail/i })).not.toBeInTheDocument();
   });
 
   it("interpolates the real English email hint with the signed-in address", async () => {
     const user = userEvent.setup();
     render(
       <I18nextProvider i18n={i18n}>
-        {withQueryClient(<Premium variant="link" linkLabel="Remove ads" />)}
+        {withQueryClient(<MemoryRouter><Premium variant="link" linkLabel="Remove ads" /></MemoryRouter>)}
       </I18nextProvider>
     );
 

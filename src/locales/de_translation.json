@@ -51,7 +51,7 @@
     "copied": "Kopiert",
     "expires": "Dein Unterstützer-Zugang endet am {{date}}.",
     "lifetime": "Dein Unterstützer-Zugang läuft nicht ab.",
-    "refund": "Bei Rückerstattungen oder verlorenen Zahlungen schreib an <0/> und nenne die Zahlungsdetails."
+    "refund": "Bei Rückerstattungen oder verlorenen Zahlungen nutze das <0>Feedback-Formular</0> und nenne die Zahlungsdetails."
   },
   "ads": {
     "advertisement": "Werbung",
@@ -334,7 +334,7 @@
     },
     "rights": {
       "heading": "Ihre Rechte",
-      "body": "Je nach Ihrem Wohnort haben Sie unter Umständen das Recht, Ihre personenbezogenen Daten einzusehen, zu berichtigen oder zu löschen, oder der Verarbeitung bestimmter Daten zu widersprechen oder sie einzuschränken. Um diese Rechte auszuüben, einschließlich eines Antrags auf Löschung Ihres Feedbacks oder Ihrer Kontodaten, kontaktieren Sie uns über die unten genannten Angaben. Unterstützer sehen keine Werbung."
+      "body": "Je nach Ihrem Wohnort haben Sie unter Umständen das Recht, Ihre personenbezogenen Daten einzusehen, zu berichtigen oder zu löschen, oder der Verarbeitung bestimmter Daten zu widersprechen oder sie einzuschränken. Um diese Rechte auszuüben, einschließlich eines Antrags auf Löschung Ihres Feedbacks oder Ihrer Kontodaten, kontaktieren Sie uns über das unten verlinkte Feedback-Formular. Unterstützer sehen keine Werbung."
     },
     "thirdParty": {
       "heading": "Dienste Dritter",
@@ -348,7 +348,7 @@
     },
     "retention": {
       "heading": "Wie lange wir Informationen aufbewahren",
-      "body": "Google Analytics speichert Ereignisdaten 14 Monate lang. Es speichert Nutzerdaten 14 Monate lang, und dieser Zeitraum beginnt neu, wenn du zur Website zurückkehrst. Wir bewahren dein Google-Anmeldekonto und gespeicherte Profilfelder auf, bis du deren Löschung über die unten genannten Kontaktdaten verlangst. Feedback-Nachrichten und die dazu gespeicherte E-Mail-Adresse bewahren wir bis zu einer Löschanfrage auf. Deinen Unterstützer-Datensatz und deinen Zahlungscode bewahren wir auf, bis du ihre Löschung verlangst. Google bestimmt die Speicherdauer von Werbedaten. Siehe die <0>Datenschutzerklärung</0> und die <1>Werberichtlinien</1> von Google. Für jede Ko-fi-Zahlung erstellen wir einen Datensatz mit Zahlungskennung und -typ, Betrag und Währung, gutgeschriebenen Monaten, Status, Zeitstempeln und gegebenenfalls der Konto-ID und Zuordnungsmethode. E-Mail-Adresse, Name und Nachricht speichern wir nur, wenn eine Zahlung nicht automatisch freigeschaltet wird, zur Prüfung oder manuellen Zuordnung. Die Website speichert keine eigenen Protokolle von Webanfragen. Firebase und Cloudflare bewahren ihre üblichen Betriebsprotokolle nach eigenen Bedingungen auf."
+      "body": "Google Analytics speichert Ereignisdaten 14 Monate lang. Es speichert Nutzerdaten 14 Monate lang, und dieser Zeitraum beginnt neu, wenn du zur Website zurückkehrst. Wir bewahren dein Google-Anmeldekonto und gespeicherte Profilfelder auf, bis du deren Löschung über das unten verlinkte Feedback-Formular verlangst. Feedback-Nachrichten und die dazu gespeicherte E-Mail-Adresse bewahren wir bis zu einer Löschanfrage auf. Deinen Unterstützer-Datensatz und deinen Zahlungscode bewahren wir auf, bis du ihre Löschung verlangst. Google bestimmt die Speicherdauer von Werbedaten. Siehe die <0>Datenschutzerklärung</0> und die <1>Werberichtlinien</1> von Google. Für jede Ko-fi-Zahlung erstellen wir einen Datensatz mit Zahlungskennung und -typ, Betrag und Währung, gutgeschriebenen Monaten, Status, Zeitstempeln und gegebenenfalls der Konto-ID und Zuordnungsmethode. E-Mail-Adresse, Name und Nachricht speichern wir nur, wenn eine Zahlung nicht automatisch freigeschaltet wird, zur Prüfung oder manuellen Zuordnung. Die Website speichert keine eigenen Protokolle von Webanfragen. Firebase und Cloudflare bewahren ihre üblichen Betriebsprotokolle nach eigenen Bedingungen auf."
     },
     "children": {
       "heading": "Kinder",

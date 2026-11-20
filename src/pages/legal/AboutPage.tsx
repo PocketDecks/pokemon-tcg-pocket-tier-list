@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import LegalPage from "./LegalPage";
-import { GITHUB_URL, CONTACT_EMAIL, KOFI_URL } from "../../app/constants";
+import { GITHUB_URL, KOFI_URL } from "../../app/constants";
 import { useLocaleHref } from "../../app/locale-link";
 
 const ExternalLink = ({ href, children }: { href: string; children?: ReactNode }) => (
@@ -17,13 +17,14 @@ const InternalLink = ({ href, children }: { href: string; children?: ReactNode }
 const AboutPage = () => {
   const { t } = useTranslation();
   const tierListHref = useLocaleHref("/tier-list");
+  const feedbackHref = useLocaleHref("/feedback");
   const strong = <strong />;
   const limitlessLink = <ExternalLink href="https://limitlesstcg.com/" />;
   const cardsLink = (
     <ExternalLink href="https://github.com/PocketDecks/pokemon-tcg-pocket-cards" />
   );
   const githubLink = <ExternalLink href={GITHUB_URL} />;
-  const mailLink = <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>;
+  const feedbackLink = <InternalLink href={feedbackHref} />;
   const tierListLink = <InternalLink href={tierListHref} />;
   const kofiLink = <ExternalLink href={KOFI_URL} />;
 
@@ -72,7 +73,7 @@ const AboutPage = () => {
 
           <h2>{t("about.contactHeading", { ns: "seo" })}</h2>
           <p>
-              <Trans i18nKey="about.contact" ns="seo" components={[mailLink]} />
+              <Trans i18nKey="about.contact" ns="seo" components={[feedbackLink]} />
           </p>
 
           <p>{t("about.fanNotice", { ns: "seo" })}</p>

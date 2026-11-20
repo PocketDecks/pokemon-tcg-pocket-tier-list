@@ -28,11 +28,12 @@ vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string) => key,
   }),
+  Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
 }));
 
-const renderPage = () =>
+const renderPage = (search = "") =>
   render(
-    <MemoryRouter initialEntries={[{ pathname: "/feedback", state: { from: "/tier-list" } }]}>
+    <MemoryRouter initialEntries={[{ pathname: "/feedback", search, state: { from: "/tier-list" } }]}>
       <FeedbackPage />
     </MemoryRouter>
   );
@@ -43,6 +44,8 @@ const typeMessage = (text: string) =>
   });
 
 const submit = () => fireEvent.click(screen.getByRole("button", { name: "feedback.submit" }));
+
+const agree = () => fireEvent.click(screen.getByRole("checkbox", { name: "feedback.consent" }));
 
 beforeEach(() => {
   auth.user = { uid: "user-1", email: "ash@example.com", displayName: "Ash" };
@@ -83,6 +86,7 @@ describe("FeedbackPage", () => {
   it("blocks a message shorter than the minimum and explains why", () => {
     renderPage();
     typeMessage("too short");
+    agree();
     submit();
 
     expect(screen.getByRole("alert")).toHaveTextContent("feedback.messageTooShort");
@@ -90,52 +94,112 @@ describe("FeedbackPage", () => {
     expect(submitFeedback).not.toHaveBeenCalled();
   });
 
-  it("sends the message without an email unless the visitor asks for a reply", async () => {
+  it("sends the message with the account email and records the agreement", async () => {
     renderPage();
     fireEvent.click(screen.getByRole("radio", { name: "feedback.categories.bug" }));
     typeMessage("  The matchup matrix is empty on Safari.  ");
+    agree();
     submit();
 
     await waitFor(() => expect(submitFeedback).toHaveBeenCalledTimes(1));
     expect(submitFeedback).toHaveBeenCalledWith({
       uid: "user-1",
-      email: null,
+      email: "ash@example.com",
       category: "bug",
       message: "The matchup matrix is empty on Safari.",
-      contactOk: false,
+      contactOk: true,
       page: "/tier-list",
     });
     expect(await screen.findByRole("heading", { name: "feedback.successTitle" })).toBeInTheDocument();
   });
 
-  it("offers the old subscription and payment problem categories after the original four", () => {
+  it("lists the categories with Something else last", () => {
     renderPage();
 
     const radios = screen.getAllByRole("radio").map((radio) => (radio as HTMLInputElement).value);
-    expect(radios).toEqual(["idea", "bug", "data", "other", "stripe", "payment"]);
+    expect(radios).toEqual([
+      "idea",
+      "bug",
+      "data",
+      "stripe",
+      "payment",
+      "partnership",
+      "translation",
+      "other",
+    ]);
   });
 
-  it.each(["stripe", "payment"])("sends a message filed under %s", async (category) => {
+  it.each(["stripe", "payment", "partnership", "translation"])("sends a message filed under %s", async (category) => {
     renderPage();
     fireEvent.click(screen.getByRole("radio", { name: `feedback.categories.${category}` }));
     typeMessage("I was charged after the move to Ko-fi.");
+    agree();
     submit();
 
     await waitFor(() => expect(submitFeedback).toHaveBeenCalledTimes(1));
     expect(submitFeedback.mock.calls[0][0]).toMatchObject({ category });
   });
 
-  it("includes the account email when the visitor ticks the reply box", async () => {
+  it("preselects the category named in the link", () => {
+    renderPage("?category=payment");
+
+    expect(screen.getByRole("radio", { name: "feedback.categories.payment" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "feedback.categories.idea" })).not.toBeChecked();
+  });
+
+  it.each(["?category=spam", "?category=", ""])("falls back to an idea for the link query %j", (search) => {
+    renderPage(search);
+
+    expect(screen.getByRole("radio", { name: "feedback.categories.idea" })).toBeChecked();
+  });
+
+  it("offers no optional reply box any more", () => {
     renderPage();
-    typeMessage("Please add a dark mode toggle for the matrix.");
-    fireEvent.click(screen.getByRole("checkbox", { name: "feedback.contactLabel" }));
+
+    expect(screen.getAllByRole("checkbox")).toHaveLength(1);
+    expect(screen.getByRole("checkbox", { name: "feedback.consent" })).not.toBeChecked();
+  });
+
+  it("blocks the submission until the agreement box is ticked", async () => {
+    renderPage();
+    typeMessage("The tier list did not load this morning.");
+    submit();
+
+    expect(screen.getByRole("alert")).toHaveTextContent("feedback.consentRequired");
+    expect(screen.getByRole("checkbox", { name: "feedback.consent" })).toHaveAttribute(
+      "aria-invalid",
+      "true"
+    );
+    expect(submitFeedback).not.toHaveBeenCalled();
+
+    agree();
+    expect(screen.queryByText("feedback.consentRequired")).not.toBeInTheDocument();
     submit();
 
     await waitFor(() => expect(submitFeedback).toHaveBeenCalledTimes(1));
-    expect(submitFeedback.mock.calls[0][0]).toMatchObject({
-      email: "ash@example.com",
-      contactOk: true,
-    });
+  });
+
+  it("reports both problems when the message is short and the box is unticked", () => {
+    renderPage();
+    typeMessage("too short");
+    submit();
+
+    const alerts = screen.getAllByRole("alert").map((alert) => alert.textContent);
+    expect(alerts).toEqual(
+      expect.arrayContaining(["feedback.messageTooShort", "feedback.consentRequired"])
+    );
+    expect(submitFeedback).not.toHaveBeenCalled();
+  });
+
+  it("does not send when the account has no email address", async () => {
+    auth.user = { uid: "user-1", email: null, displayName: "Ash" };
+    renderPage();
+    typeMessage("The tier list did not load this morning.");
+    agree();
+    submit();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("feedback.error");
+    expect(submitFeedback).not.toHaveBeenCalled();
   });
 
   it("drops submissions that fill the hidden honeypot field", async () => {
@@ -144,6 +208,7 @@ describe("FeedbackPage", () => {
     fireEvent.change(screen.getByLabelText("Website"), {
       target: { value: "https://spam.example" },
     });
+    agree();
     submit();
 
     expect(await screen.findByRole("heading", { name: "feedback.successTitle" })).toBeInTheDocument();
@@ -154,6 +219,7 @@ describe("FeedbackPage", () => {
     submitFeedback.mockRejectedValueOnce(new Error("permission-denied"));
     renderPage();
     typeMessage("The tier list did not load this morning.");
+    agree();
     submit();
 
     expect(await screen.findByRole("alert")).toHaveTextContent("feedback.error");
@@ -166,6 +232,7 @@ describe("FeedbackPage", () => {
     submitFeedback.mockRejectedValueOnce(Object.assign(new Error("denied"), { code: "permission-denied" }));
     renderPage();
     typeMessage("The tier list did not load this morning.");
+    agree();
     submit();
 
     expect(await screen.findByRole("alert")).toHaveTextContent("feedback.rateLimited");

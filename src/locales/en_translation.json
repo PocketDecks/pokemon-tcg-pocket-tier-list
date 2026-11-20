@@ -51,7 +51,7 @@
     "copied": "Copied",
     "expires": "Your Supporter access ends on {{date}}.",
     "lifetime": "Your Supporter access does not expire.",
-    "refund": "For refunds or lost payments, email <0/> with your payment details."
+    "refund": "For refunds or lost payments, use the <0>feedback form</0> and include your payment details."
   },
   "ads": {
     "advertisement": "Advertisement",
@@ -203,24 +203,27 @@
   },
   "feedback": {
     "title": "Send feedback",
-    "intro": "Found a bug, spotted odd data, or have an idea? Tell us. Every message is read.",
+    "intro": "Found a bug, spotted odd data, or have an idea? Tell us.",
     "signInTitle": "Sign in to send feedback",
-    "signInBody": "Signing in keeps the form free of spam. Your account is only used to reply if you ask for one.",
+    "signInBody": "Signing in keeps the form free of spam. We use your account email to reply to your message.",
     "signedInAs": "Signed in as {{name}}",
     "categoryLabel": "What is it about?",
     "categories": {
       "idea": "An idea",
       "bug": "Something's broken",
       "data": "Data looks off",
-      "other": "Something else",
-      "stripe": "An old subscription",
-      "payment": "A payment problem"
+      "stripe": "An old subscription (Stripe)",
+      "payment": "A payment problem",
+      "partnership": "A partnership or collaboration offer",
+      "translation": "A translation mistake",
+      "other": "Something else"
     },
     "messageLabel": "Your message",
-    "messagePlaceholder": "What happened, or what would make the site better?",
+    "messagePlaceholder": "Tell us what happened or what you have in mind. For a payment or subscription, add the date and amount.",
     "messageHint": "At least {{min}} characters.",
     "messageTooShort": "Please write at least {{min}} characters.",
-    "contactLabel": "You can email me at {{email}} about this",
+    "consent": "I have read the <0>Privacy Policy</0> and agree to my message and email address being used to reply to me.",
+    "consentRequired": "Please tick the box to send your feedback.",
     "submit": "Send feedback",
     "sending": "Sending…",
     "successTitle": "Thanks, it's on its way",
@@ -289,13 +292,14 @@
   },
   "privacyPage": {
     "title": "Privacy Policy",
-    "updated": "Last updated: 9 October 2026",
+    "updated": "Last updated: 20 November 2026",
     "intro": "This Privacy Policy explains what Top Pocket Decks (\"we\", \"us\" or \"the site\"), available at pocketdecks.top, collects and why. It also explains who receives that information. The practices below apply when you use the site.",
     "collect": {
       "heading": "Information we collect",
       "usage": "<0>Usage data.</0> Google Analytics records the pages you view and standard device and browser details. It runs only after you accept analytics, or where your region's consent banner does not ask for consent.",
       "account": "<0>Account information.</0> If you sign in with Google, Firebase Authentication gives us your name, email address and profile photo. We show your name and photo while you are signed in, and we use your account ID to check whether you have Supporter access.",
-      "feedback": "<0>Feedback.</0> If you send feedback while signed in, we store your account ID, your message, the topic you chose, the page you sent it from and the time you sent it in Cloud Firestore, a database run by Google for Firebase. We store your email address with the message only if you tick the box asking us to reply. We also store the time of your last submission.",
+      "supporter": "<0>Supporter access.</0> When you become a Supporter, we store a record with your account ID, your email address, when your access ends, how it was granted and when it last changed. If you ask for a payment code, we store it with your account ID so we can match a payment from a different email. Besides us, only you can read your own record.",
+      "feedback": "<0>Feedback.</0> If you send feedback while signed in, we store your account ID, your email address, your message, the topic you chose, the page you sent it from and the time you sent it in Cloud Firestore, a database run by Google for Firebase. We keep your email address so we can reply, and the form asks you to tick a box confirming that you have read this policy and agree to us using your message and email address for that. We also store the time of your last submission.",
       "payment": "<0>Tips.</0> We create a record for every Ko-fi payment. It includes the payment identifier and type, amount and currency, credited months, status, and received and Ko-fi timestamps. When a payment matches an account, the record also includes its account identifier and how it matched. We store the tipper’s email address, name and message only when a payment is not granted automatically, so we can review it or apply it manually."
     },
     "cookies": {
@@ -319,7 +323,7 @@
     },
     "legalBasis": {
       "heading": "Legal basis",
-      "body": "We rely on your consent for analytics and advertising where the consent banner asks for it. We use your account details to provide Supporter access and review tips that do not automatically grant new Supporter time."
+      "body": "We rely on your consent for analytics and advertising where the consent banner asks for it. For feedback, we rely on the box you tick on the form. We use your account details to provide Supporter access and review tips that do not automatically grant new Supporter time."
     },
     "use": {
       "heading": "How we use information",
@@ -330,7 +334,7 @@
     },
     "rights": {
       "heading": "Your rights",
-      "body": "Depending on your location, you may have the right to access, correct or delete your personal data, or to object to or restrict certain processing. To exercise these rights, including a request to delete your feedback or account information, contact us using the details below. Supporters do not see ads."
+      "body": "Depending on your location, you may have the right to access, correct or delete your personal data, or to object to or restrict certain processing. To exercise these rights, including a request to delete your feedback or account information, contact us through the feedback form linked below. Supporters do not see ads."
     },
     "thirdParty": {
       "heading": "Third-party services",
@@ -344,7 +348,7 @@
     },
     "retention": {
       "heading": "How long we keep information",
-      "body": "Google Analytics keeps event data for 14 months. It keeps user data for 14 months, and that period resets when you return to the site. We keep your Google sign-in account and stored profile fields until you ask us to delete them, using the contact details below. We keep feedback messages until you ask us to delete them. Google decides how long it keeps advertising data. See its <0>privacy policy</0> and <1>ads policies</1>. We create a Ko-fi payment record for every payment, including its identifier and type, amount and currency, credited months, status, timestamps, and matched account identifier and matching method when applicable. The tipper’s email address, name and message are stored only when a payment is not granted automatically, for review or manual application. The site does not keep web request logs of its own. Firebase, the hosting provider, and Cloudflare, the network provider, keep their standard operational logs under their own terms."
+      "body": "Google Analytics keeps event data for 14 months. It keeps user data for 14 months, and that period resets when you return to the site. We keep your Google sign-in account and stored profile fields until you ask us to delete them through the feedback form linked below. We keep feedback messages, and the email address stored with them, until you ask us to delete them. We keep your Supporter record and payment code until you ask us to delete them. Google decides how long it keeps advertising data. See its <0>privacy policy</0> and <1>ads policies</1>. We create a Ko-fi payment record for every payment, including its identifier and type, amount and currency, credited months, status, timestamps, and matched account identifier and matching method when applicable. The tipper’s email address, name and message are stored only when a payment is not granted automatically, for review or manual application. The site does not keep web request logs of its own. Firebase, the hosting provider, and Cloudflare, the network provider, keep their standard operational logs under their own terms."
     },
     "children": {
       "heading": "Children",
@@ -356,7 +360,7 @@
     },
     "contact": {
       "heading": "Contact",
-      "body": "If you have any questions about this Privacy Policy, or want to ask us to delete your information, contact us at <0/>."
+      "body": "If you have any questions about this Privacy Policy, or want to ask us to delete your information, contact us through the <0>feedback form</0>."
     },
     "fanNotice": "Top Pocket Decks is a fan-made project and is not affiliated with, endorsed by, or sponsored by Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc., or DeNA."
   },

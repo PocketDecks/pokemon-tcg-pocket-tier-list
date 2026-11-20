@@ -2,17 +2,19 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router";
 import Premium from "../Premium";
 import useIsPremium, { usePremiumExpiry } from "../../app/use-is-premium";
 import { loadPremiumCode } from "../../app/premium-code";
 import { useAuth } from "../../contexts/AuthContext";
 import en from "../../locales/en_translation.json";
-import { CONTACT_EMAIL, KOFI_URL } from "../../app/constants";
+import { KOFI_URL } from "../../app/constants";
 import { withQueryClient } from "../../test-utils/with-query-client";
+
+const refundText = en.premium.refund.replace(/<\/?0>/g, "");
 
 const spies = vi.hoisted(() => ({ signInWithGoogle: vi.fn() }));
 const copy = vi.hoisted(() => ({ values: {} as Record<string, string> }));
-const contact = vi.hoisted(() => "infoLeonid@protonMail.com");
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -23,7 +25,7 @@ vi.mock("react-i18next", () => ({
         .replace("{{email}}", options?.email ?? ""),
   }),
   Trans: ({ i18nKey }: { i18nKey: string; components?: ReactNode[] }) =>
-    (copy.values[i18nKey] ?? i18nKey).replace("<0/>", contact),
+    (copy.values[i18nKey] ?? i18nKey).replace(/<\/?0>/g, ""),
 }));
 
 vi.mock("../../app/use-is-premium", () => ({
@@ -70,7 +72,7 @@ beforeEach(() => {
   });
 });
 
-const linkPopup = () => withQueryClient(<Premium variant="link" linkLabel="Remove ads" />);
+const linkPopup = () => withQueryClient(<MemoryRouter><Premium variant="link" linkLabel="Remove ads" /></MemoryRouter>);
 
 const heading = () => (vi.mocked(useIsPremium)() ? en.premium.title : en.premium.become);
 
@@ -83,7 +85,7 @@ const openLinkPopup = async () => {
 
 const openDefaultPopup = async () => {
   const user = userEvent.setup();
-  render(withQueryClient(<Premium />));
+  render(withQueryClient(<MemoryRouter><Premium /></MemoryRouter>));
   await user.click(screen.getByRole("button", { name: heading() }));
   return { user, dialog: screen.getByRole("dialog", { name: heading() }) };
 };
@@ -100,7 +102,7 @@ describe("Premium", () => {
     expect(within(dialog).getByText(en.premium.price)).toBeInTheDocument();
     expect(within(dialog).getByText(en.premium.perksLead)).toBeInTheDocument();
     expect(within(dialog).queryByRole("table")).not.toBeInTheDocument();
-    expect(within(dialog).getByText(en.premium.refund.replace("<0/>", contact))).toBeInTheDocument();
+    expect(within(dialog).getByText(refundText)).toBeInTheDocument();
     expect(within(dialog).getByText(en.premium.signInFirst)).toBeInTheDocument();
     await user.click(within(dialog).getByRole("button", { name: en.premium.signIn }));
     expect(spies.signInWithGoogle).toHaveBeenCalledOnce();
@@ -162,7 +164,7 @@ describe("Premium", () => {
 
   it("keeps the tip rules collapsed after the refund line", async () => {
     const { dialog } = await openLinkPopup();
-    const refund = within(dialog).getByText(en.premium.refund.replace("<0/>", contact));
+    const refund = within(dialog).getByText(refundText);
     const details = within(dialog).getByText(en.premium.rulesToggle).closest("details");
     expect(details).not.toBeNull();
     expect(details).not.toHaveAttribute("open");
@@ -334,7 +336,7 @@ describe("Premium", () => {
       expect(cta).toHaveAttribute("rel", "noopener noreferrer");
       expect(within(dialog).getByText(emailHintFor("player@example.com"))).toBeInTheDocument();
       expect(within(dialog).getByText(en.premium.price)).toBeInTheDocument();
-      const refund = within(dialog).getByText(en.premium.refund.replace("<0/>", contact));
+      const refund = within(dialog).getByText(refundText);
       const rules = within(dialog).getByText(en.premium.rulesToggle);
       expect(rules.compareDocumentPosition(refund) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
       expect(within(dialog).queryByRole("listitem")).not.toBeInTheDocument();
@@ -348,7 +350,7 @@ describe("Premium", () => {
     vi.mocked(useIsPremium).mockReturnValue(true);
     vi.mocked(usePremiumExpiry).mockReturnValue(null);
     vi.mocked(useAuth).mockReturnValue(signedIn());
-    render(withQueryClient(<Premium />));
+    render(withQueryClient(<MemoryRouter><Premium /></MemoryRouter>));
     expect(screen.getByRole("img", { name: en.premium.title })).toBeInTheDocument();
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -364,7 +366,7 @@ describe("Premium", () => {
     vi.mocked(useAuth).mockReturnValue(signedIn());
 
     if (expected === "lifetime") {
-      render(withQueryClient(<Premium />));
+      render(withQueryClient(<MemoryRouter><Premium /></MemoryRouter>));
       expect(screen.getByRole("img", { name: en.premium.title })).toBeInTheDocument();
       expect(screen.queryByRole("button", { name: en.premium.title })).not.toBeInTheDocument();
       return;
@@ -377,7 +379,7 @@ describe("Premium", () => {
 
   it("keeps the refund contact in every non-lifetime state", async () => {
     const { dialog } = await openLinkPopup();
-    expect(within(dialog).getByText(en.premium.refund.replace("<0/>", CONTACT_EMAIL))).toBeInTheDocument();
+    expect(within(dialog).getByText(refundText)).toBeInTheDocument();
   });
 
   it("closes the popup on Escape and restores focus to the trigger", async () => {

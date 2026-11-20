@@ -73,9 +73,25 @@ describe("translation key parity", () => {
     }
   });
 
-  it("contains no removed payment processor or wind-down copy", () => {
+  const withoutOldSubscriptionLabel = (localeData: unknown) => {
+    const copy = structuredClone(localeData) as {
+      feedback?: { categories?: Record<string, string> };
+    };
+    if (copy.feedback?.categories) delete copy.feedback.categories.stripe;
+    return copy;
+  };
+
+  it("names Stripe in the old subscription feedback label of every locale", () => {
+    for (const [path, localeData] of Object.entries(locales)) {
+      const label = (localeData as { feedback: { categories: Record<string, string> } }).feedback
+        .categories.stripe;
+      expect(label, path).toMatch(/Stripe/);
+    }
+  });
+
+  it("contains no removed payment processor or wind-down copy outside that label", () => {
     const localeDataSet = [
-      ...Object.entries(locales),
+      ...Object.entries(locales).map(([path, data]) => [path, withoutOldSubscriptionLabel(data)]),
       ["en_seo", enSeo],
       ["ja_seo", jaSeo],
     ];

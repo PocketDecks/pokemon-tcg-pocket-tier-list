@@ -1,7 +1,8 @@
 import { useEffect, useId, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
-import { CONTACT_EMAIL, KOFI_URL } from "../app/constants";
+import { KOFI_URL } from "../app/constants";
+import { useLocaleHref } from "../app/locale-link";
 import useIsPremium, { usePremiumExpiry } from "../app/use-is-premium";
 import { loadPremiumCode } from "../app/premium-code";
 import { LIFETIME_THRESHOLD_MS } from "../../scripts/entitlement-contract.mjs";
@@ -52,6 +53,7 @@ const SupporterPanel = () => {
   const expiresAt = usePremiumExpiry();
   const { user, signInWithGoogle, signInFailed } = useAuth();
   const signInNoticeId = useId();
+  const paymentFeedbackHref = useLocaleHref("/feedback?category=payment");
   const queryClient = useQueryClient();
   const [isAltOpen, setIsAltOpen] = useState(false);
   const [tip, setTip] = useState<TipState | null>(null);
@@ -104,11 +106,7 @@ const SupporterPanel = () => {
     month: "long",
     year: "numeric",
   }).format(new Date(expiresAt));
-  const mailLink = (
-    <InlineLink href={`mailto:${CONTACT_EMAIL}`} key="email">
-      {CONTACT_EMAIL}
-    </InlineLink>
-  );
+  const feedbackLink = <InlineLink href={paymentFeedbackHref} key="feedback" />;
   const ctaLabel = t(premiumState === "expires" ? "premium.ctaExtend" : "premium.cta");
   const emailHint = user?.email
     ? t("premium.emailHint", { email: user.email })
@@ -230,7 +228,7 @@ const SupporterPanel = () => {
             <p>{t("premium.priceDetails")}</p>
           </Rules>
           <Hint as="span">
-            <Trans i18nKey="premium.refund" components={[mailLink]} />
+            <Trans i18nKey="premium.refund" components={[feedbackLink]} />
           </Hint>
         </SmallPrint>
       )}

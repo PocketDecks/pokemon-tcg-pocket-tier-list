@@ -32,6 +32,17 @@ describe("AboutPage", () => {
     expect(tierListLink()).toHaveAttribute("href", "/tier-list/");
   });
 
+  it("sends questions to the feedback form", () => {
+    renderAt("/about");
+    expect(screen.getByRole("link", { name: "feedback form" })).toHaveAttribute("href", "/feedback/");
+    expect(screen.queryByRole("link", { name: /protonMail/i })).not.toBeInTheDocument();
+  });
+
+  it("keeps the feedback link inside the Japanese tree", () => {
+    renderAt("/ja/about");
+    expect(screen.getByRole("link", { name: "feedback form" })).toHaveAttribute("href", "/ja/feedback/");
+  });
+
   it("keeps the tier list link inside the Japanese tree", () => {
     renderAt("/ja/about");
     expect(tierListLink()).toHaveAttribute("href", "/ja/tier-list/");

@@ -1,7 +1,8 @@
 import { ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import LegalPage from "./LegalPage";
-import { CONTACT_EMAIL, KOFI_URL } from "../../app/constants";
+import { KOFI_URL } from "../../app/constants";
+import { LocaleLink } from "../../app/locale-link";
 
 const ExternalLink = ({ href, children }: { href: string; children?: ReactNode }) => (
   <a href={href} target="_blank" rel="noopener noreferrer">
@@ -14,7 +15,7 @@ const PrivacyPage = () => {
   const strong = <strong />;
   const adsSettingsLink = <ExternalLink href="https://www.google.com/settings/ads" />;
   const aboutAdsLink = <ExternalLink href="https://www.aboutads.info" />;
-  const mailLink = <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>;
+  const feedbackLink = <LocaleLink to="/feedback" />;
   const googlePrivacyLink = <ExternalLink href="https://policies.google.com/privacy" />;
   const googleAdsPoliciesLink = <ExternalLink href="https://policies.google.com/technologies/ads" />;
   const kofiLink = <ExternalLink href={KOFI_URL} />;
@@ -33,6 +34,9 @@ const PrivacyPage = () => {
         </li>
         <li>
           <Trans i18nKey="privacyPage.collect.account" components={[strong]} />
+        </li>
+        <li>
+          <Trans i18nKey="privacyPage.collect.supporter" components={[strong]} />
         </li>
         <li>
           <Trans i18nKey="privacyPage.collect.feedback" components={[strong]} />
@@ -129,7 +133,7 @@ const PrivacyPage = () => {
 
       <h2>{t("privacyPage.contact.heading")}</h2>
       <p>
-        <Trans i18nKey="privacyPage.contact.body" components={[mailLink]} />
+        <Trans i18nKey="privacyPage.contact.body" components={[feedbackLink]} />
       </p>
 
       <p>{t("privacyPage.fanNotice")}</p>

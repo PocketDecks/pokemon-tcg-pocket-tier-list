@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router";
 import i18next from "i18next";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import Premium from "../Premium";
 import en from "../../locales/en_translation.json";
-import { CONTACT_EMAIL, KOFI_URL } from "../../app/constants";
+import { KOFI_URL } from "../../app/constants";
 import { withQueryClient } from "../../test-utils/with-query-client";
 
 const mocks = vi.hoisted(() => ({
@@ -42,7 +43,7 @@ const openWithFailedCode = async () => {
   const user = userEvent.setup();
   render(
     <I18nextProvider i18n={i18n}>
-      {withQueryClient(<Premium variant="link" linkLabel="Remove ads" />)}
+      {withQueryClient(<MemoryRouter><Premium variant="link" linkLabel="Remove ads" /></MemoryRouter>)}
     </I18nextProvider>
   );
   await user.click(screen.getByRole("button", { name: "Remove ads" }));
@@ -66,9 +67,9 @@ describe("Premium code failure with the real English resources", () => {
     const cta = within(dialog).getByRole("link", { name: en.premium.cta });
     expect(cta).toHaveAttribute("href", KOFI_URL);
     expect(within(dialog).getByText(en.premium.emailHint.replace("{{email}}", "player@example.com"))).toBeInTheDocument();
-    expect(within(dialog).getByRole("link", { name: CONTACT_EMAIL })).toHaveAttribute(
+    expect(within(dialog).getByRole("link", { name: "feedback form" })).toHaveAttribute(
       "href",
-      `mailto:${CONTACT_EMAIL}`
+      "/feedback/?category=payment"
     );
   });
 

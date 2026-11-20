@@ -1,12 +1,13 @@
 import { useRef, useState, type FormEvent } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { useAuth } from "../../app/use-auth";
 import { useMarkContentReady } from "../../ads/ContentReadyContext";
 import Button from "../../components/Button";
 import SignInFailedNotice from "../../components/SignInFailedNotice";
 import NavIcon, { type NavIconName } from "../../components/NavIcon";
+import { LocaleLink } from "../../app/locale-link";
 import { submitFeedback } from "../../app/feedback-api";
 import {
   FEEDBACK_CATEGORIES,
@@ -25,6 +26,8 @@ const CATEGORY_ICONS: Record<FeedbackCategory, NavIconName> = {
   other: "chat",
   stripe: "calendar",
   payment: "card",
+  partnership: "megaphone",
+  translation: "globe",
 };
 
 const Wrapper = styled.div`
@@ -241,6 +244,17 @@ const Checkbox = styled.label`
   }
 `;
 
+const ConsentField = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+`;
+
+const ConsentLink = styled(LocaleLink)`
+  color: var(--link);
+  text-decoration: underline;
+`;
+
 const HoneyPot = styled.div`
   position: absolute;
   left: -10000px;
@@ -268,13 +282,18 @@ const FeedbackPage = () => {
   const { t } = useTranslation();
   const { user, loading, signInWithGoogle } = useAuth();
   const location = useLocation();
-  const [category, setCategory] = useState<FeedbackCategory>("idea");
+  const requestedCategory = new URLSearchParams(location.search).get("category");
+  const [category, setCategory] = useState<FeedbackCategory>(
+    FEEDBACK_CATEGORIES.find((option) => option === requestedCategory) ?? "idea"
+  );
   const [message, setMessage] = useState("");
-  const [contactOk, setContactOk] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [showLengthError, setShowLengthError] = useState(false);
+  const [showConsentError, setShowConsentError] = useState(false);
   const messageRef = useRef<HTMLTextAreaElement>(null);
+  const consentRef = useRef<HTMLInputElement>(null);
 
   useMarkContentReady(true);
 
@@ -285,32 +304,38 @@ const FeedbackPage = () => {
 
   const reset = () => {
     setMessage("");
-    setContactOk(false);
+    setAgreed(false);
     setCategory("idea");
     setShowLengthError(false);
+    setShowConsentError(false);
     setStatus("idle");
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!user || status === "sending") return;
-    if (tooShort) {
-      setShowLengthError(true);
-      messageRef.current?.focus();
+    if (tooShort || !agreed) {
+      if (tooShort) setShowLengthError(true);
+      if (!agreed) setShowConsentError(true);
+      (tooShort ? messageRef.current : consentRef.current)?.focus();
       return;
     }
     if (website) {
       setStatus("sent");
       return;
     }
+    if (!user.email) {
+      setStatus("error");
+      return;
+    }
     setStatus("sending");
     try {
       await submitFeedback({
         uid: user.uid,
-        email: contactOk ? user.email ?? null : null,
+        email: user.email,
         category,
         message: message.trim(),
-        contactOk: contactOk && !!user.email,
+        contactOk: true,
         page: fromPage,
       });
       setStatus("sent");
@@ -350,9 +375,7 @@ const FeedbackPage = () => {
           <PanelTitle>{t("feedback.successTitle")}</PanelTitle>
           <PanelText>
             {t("feedback.successBody")}
-            {contactOk && user.email
-              ? ` ${t("feedback.successReply", { email: user.email })}`
-              : ""}
+            {user.email ? ` ${t("feedback.successReply", { email: user.email })}` : ""}
           </PanelText>
           <Actions>
             <Button action={reset}>{t("feedback.sendAnother")}</Button>
@@ -418,16 +441,35 @@ const FeedbackPage = () => {
             )}
           </Field>
 
-          {user.email && (
+          <ConsentField>
             <Checkbox>
               <input
+                ref={consentRef}
                 type="checkbox"
-                checked={contactOk}
-                onChange={(event) => setContactOk(event.target.checked)}
+                checked={agreed}
+                aria-required="true"
+                aria-invalid={showConsentError && !agreed}
+                aria-describedby={showConsentError && !agreed ? "feedback-consent-error" : undefined}
+                onChange={(event) => {
+                  setAgreed(event.target.checked);
+                  if (event.target.checked) setShowConsentError(false);
+                }}
               />
-              {t("feedback.contactLabel", { email: user.email })}
+              <span>
+                <Trans
+                  i18nKey="feedback.consent"
+                  components={[
+                    <ConsentLink key="privacy" to="/privacy" target="_blank" rel="noopener noreferrer" />,
+                  ]}
+                />
+              </span>
             </Checkbox>
-          )}
+            {showConsentError && !agreed && (
+              <ErrorText id="feedback-consent-error" role="alert">
+                {t("feedback.consentRequired")}
+              </ErrorText>
+            )}
+          </ConsentField>
 
           <HoneyPot aria-hidden="true">
             <label>

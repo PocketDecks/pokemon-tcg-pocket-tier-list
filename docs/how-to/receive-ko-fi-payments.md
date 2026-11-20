@@ -41,7 +41,7 @@ For each delivery it works through these steps:
    optional backup for anyone who must pay from a different email. It lives
    in a collapsed section, is requested only when that section is expanded,
    and is pasted into the Ko-fi message. If codes are unavailable, the popup
-   shows a short line and keeps the email path and contact address visible.
+   shows a short line and keeps the email path and the feedback-form link visible.
    The Worker trims the payer email, lower-cases it and asks the Identity
    Toolkit admin endpoint for the matching account. It accepts exactly one
    account that has a verified email and is not disabled. With no match, or a

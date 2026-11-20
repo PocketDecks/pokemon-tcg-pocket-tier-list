@@ -177,10 +177,10 @@ describe("feedback", () => {
       .firestore();
   const message = (uid, overrides = {}) => ({
     uid,
-    email: null,
+    email: `${uid}@example.com`,
     category: "idea",
     message: "A message long enough",
-    contactOk: false,
+    contactOk: true,
     page: "",
     createdAt: serverTimestamp(),
     ...overrides,
@@ -195,10 +195,10 @@ describe("feedback", () => {
 
   test("a Google user can send one message as themselves", async () => {
     await assertSucceeds(submit(google("alice"), "alice"));
-    await assertSucceeds(submit(google("bob"), "bob", { email: "bob@example.com", contactOk: true }));
+    await assertSucceeds(submit(google("bob"), "bob"));
   });
 
-  for (const category of ["idea", "bug", "data", "other", "stripe", "payment"]) {
+  for (const category of ["idea", "bug", "data", "other", "stripe", "payment", "partnership", "translation"]) {
     test(`the ${category} category is accepted`, async () => {
       const uid = `sender-${category}`;
       await assertSucceeds(submit(google(uid), uid, { category }));
@@ -245,6 +245,16 @@ describe("feedback", () => {
     await assertFails(submit(google("alice"), "alice", { message: "x".repeat(2001) }));
     await assertFails(submit(google("alice"), "alice", { page: "x".repeat(201) }));
     await assertFails(submit(google("alice"), "alice", { extra: true }));
+  });
+
+  test("a message without the sender's own email is refused", async () => {
+    await assertFails(submit(google("alice"), "alice", { email: null }));
+    await assertFails(submit(google("bob"), "bob", { email: "alice@example.com" }));
+  });
+
+  test("a message that does not record the agreement is refused", async () => {
+    await assertFails(submit(google("alice"), "alice", { contactOk: false }));
+    await assertFails(submit(google("bob"), "bob", { contactOk: "yes" }));
   });
 
   test("nobody can read, edit or delete feedback or throttle documents", async () => {

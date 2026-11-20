@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router";
 import { createInstance } from "i18next";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import { EntitlementProvider } from "../../contexts/EntitlementContext";
@@ -68,7 +69,9 @@ const renderPremium = () =>
     <I18nextProvider i18n={i18n}>
       <QueryClientProvider client={client}>
         <EntitlementProvider>
-          <Premium variant="link" linkLabel="Remove ads" />
+          <MemoryRouter>
+            <Premium variant="link" linkLabel="Remove ads" />
+          </MemoryRouter>
         </EntitlementProvider>
       </QueryClientProvider>
     </I18nextProvider>

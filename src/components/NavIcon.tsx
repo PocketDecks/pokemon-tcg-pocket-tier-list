@@ -28,7 +28,9 @@ export type NavIconName =
   | "menu"
   | "close"
   | "chevronDown"
-  | "card";
+  | "card"
+  | "megaphone"
+  | "globe";
 
 const paths: Record<NavIconName, ReactNode> = {
   tierList: <path d="M4 6h16M4 12h11M4 18h6" />,
@@ -130,6 +132,18 @@ const paths: Record<NavIconName, ReactNode> = {
     <>
       <rect x="3" y="5.5" width="18" height="13" rx="2.5" />
       <path d="M3 10h18M7 15h3" />
+    </>
+  ),
+  megaphone: (
+    <>
+      <path d="M3.5 10.5v3l11 4.5V6l-11 4.5z" />
+      <path d="M6.5 14.5l1 4h2.5l-.8-3.2M18 9.5v5" />
+    </>
+  ),
+  globe: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5S9.6 5.9 12 3.5z" />
     </>
   ),
 };

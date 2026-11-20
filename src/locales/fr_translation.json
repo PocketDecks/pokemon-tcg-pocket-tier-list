@@ -51,7 +51,7 @@
     "copied": "Copié",
     "expires": "Votre accès Soutien prend fin le {{date}}.",
     "lifetime": "Votre accès Soutien n’expire pas.",
-    "refund": "Pour un remboursement ou un paiement perdu, écrivez à <0/> avec les détails du paiement."
+    "refund": "Pour un remboursement ou un paiement perdu, utilisez le <0>formulaire de commentaires</0> en indiquant les détails du paiement."
   },
   "ads": {
     "advertisement": "Publicité",
@@ -203,24 +203,27 @@
   },
   "feedback": {
     "title": "Envoyer un avis",
-    "intro": "Un bug, des données étranges ou une idée ? Dites-le-nous. Chaque message est lu.",
+    "intro": "Un bug, des données étranges ou une idée ? Dites-le-nous.",
     "signInTitle": "Connectez-vous pour envoyer un avis",
-    "signInBody": "La connexion protège le formulaire du spam. Votre compte sert uniquement à vous répondre si vous le demandez.",
+    "signInBody": "La connexion protège le formulaire du spam. Nous utilisons l'adresse e-mail de votre compte pour répondre à votre message.",
     "signedInAs": "Connecté en tant que {{name}}",
     "categoryLabel": "De quoi s'agit-il ?",
     "categories": {
       "idea": "Une idée",
       "bug": "Quelque chose ne marche pas",
       "data": "Les données semblent fausses",
-      "other": "Autre chose",
-      "stripe": "Un ancien abonnement",
-      "payment": "Un problème de paiement"
+      "stripe": "Un ancien abonnement (Stripe)",
+      "payment": "Un problème de paiement",
+      "partnership": "Une proposition de partenariat ou de collaboration",
+      "translation": "Une erreur de traduction",
+      "other": "Autre chose"
     },
     "messageLabel": "Votre message",
-    "messagePlaceholder": "Que s'est-il passé, ou qu'est-ce qui améliorerait le site ?",
+    "messagePlaceholder": "Dites-nous ce qui s’est passé ou ce que vous avez en tête. Pour un paiement ou un abonnement, indiquez la date et le montant.",
     "messageHint": "Au moins {{min}} caractères.",
     "messageTooShort": "Veuillez écrire au moins {{min}} caractères.",
-    "contactLabel": "Vous pouvez m'écrire à {{email}} à ce sujet",
+    "consent": "J'ai lu la <0>Politique de confidentialité</0> et j'accepte que mon message et mon adresse e-mail soient utilisés pour me répondre.",
+    "consentRequired": "Veuillez cocher la case pour envoyer votre avis.",
     "submit": "Envoyer l'avis",
     "sending": "Envoi…",
     "successTitle": "Merci, c'est envoyé",
@@ -289,13 +292,14 @@
   },
   "privacyPage": {
     "title": "Politique de confidentialité",
-    "updated": "Dernière mise à jour : 9 octobre 2026",
+    "updated": "Dernière mise à jour : 20 novembre 2026",
     "intro": "La présente politique de confidentialité explique les données que collecte Top Pocket Decks (« nous » ou « le site »), accessible à l'adresse pocketdecks.top, et pourquoi. Elle indique aussi qui reçoit ces informations. Les pratiques décrites ci-dessous s'appliquent lorsque vous utilisez le site.",
     "collect": {
       "heading": "Informations que nous collectons",
       "usage": "<0>Données d'utilisation.</0> Google Analytics enregistre les pages que vous consultez ainsi que les informations habituelles sur l'appareil et le navigateur. Il ne fonctionne qu'après que vous avez accepté l'analyse, ou là où la bannière de consentement de votre région ne demande pas de consentement.",
       "account": "<0>Informations de compte.</0> Si vous vous connectez avec Google, Firebase Authentication nous transmet votre nom, votre adresse e-mail et votre photo de profil. Nous affichons votre nom et votre photo lorsque vous êtes connecté, et nous utilisons votre identifiant de compte pour vérifier si vous avez un accès Soutien.",
-      "feedback": "<0>Commentaires.</0> Si vous envoyez un commentaire en étant connecté, nous enregistrons votre identifiant de compte, votre message, le sujet que vous avez choisi, la page depuis laquelle vous l'avez envoyé et l'heure d'envoi, dans Cloud Firestore, une base de données exploitée par Google pour Firebase. Nous n'enregistrons votre adresse e-mail avec le message que si vous cochez la case demandant une réponse. Nous conservons aussi l'heure de votre dernier envoi.",
+      "supporter": "<0>Accès Soutien.</0> Lorsque vous devenez Soutien, nous enregistrons une fiche avec votre identifiant de compte, votre adresse e-mail, la date de fin de votre accès, la façon dont il a été accordé et la date de sa dernière modification. Si vous demandez un code de paiement, nous l'enregistrons avec votre identifiant de compte afin de pouvoir rattacher un paiement fait depuis une autre adresse e-mail. En dehors de nous, vous seul pouvez lire votre propre fiche.",
+      "feedback": "<0>Commentaires.</0> Si vous envoyez un commentaire en étant connecté, nous enregistrons votre identifiant de compte, votre adresse e-mail, votre message, le sujet que vous avez choisi, la page depuis laquelle vous l'avez envoyé et l'heure d'envoi, dans Cloud Firestore, une base de données exploitée par Google pour Firebase. Nous conservons votre adresse e-mail pour pouvoir vous répondre, et le formulaire vous demande de cocher une case confirmant que vous avez lu cette politique et que vous acceptez que nous utilisions votre message et votre adresse e-mail à cette fin. Nous conservons aussi l'heure de votre dernier envoi.",
       "payment": "<0>Dons.</0> Nous créons un enregistrement pour chaque paiement Ko-fi. Il comprend l’identifiant et le type de paiement, le montant et la devise, les mois crédités, le statut, ainsi que les horodatages de réception et de Ko-fi. Lorsqu’un paiement est associé à un compte, l’enregistrement comprend également son identifiant et la méthode de rapprochement. Nous ne conservons l’adresse e-mail, le nom et le message de la personne que lorsque le paiement n’est pas accordé automatiquement, afin de le vérifier ou de l’appliquer manuellement."
     },
     "cookies": {
@@ -319,7 +323,7 @@
     },
     "legalBasis": {
       "heading": "Base juridique",
-      "body": "Nous nous appuyons sur votre consentement pour l’analyse et la publicité lorsque la bannière le demande. Nous utilisons les informations de votre compte pour fournir l’accès Soutien et examiner les dons qui n’accordent pas automatiquement de nouvelle période d’accès Soutien."
+      "body": "Nous nous appuyons sur votre consentement pour l’analyse et la publicité lorsque la bannière le demande. Pour les commentaires, nous nous appuyons sur la case que vous cochez dans le formulaire. Nous utilisons les informations de votre compte pour fournir l’accès Soutien et examiner les dons qui n’accordent pas automatiquement de nouvelle période d’accès Soutien."
     },
     "use": {
       "heading": "Comment nous utilisons les informations",
@@ -330,7 +334,7 @@
     },
     "rights": {
       "heading": "Vos droits",
-      "body": "Selon votre lieu de résidence, vous pouvez disposer d'un droit d'accès, de rectification ou de suppression de vos données personnelles, ainsi que d'un droit d'opposition ou de limitation de certains traitements. Pour exercer ces droits, y compris une demande de suppression de vos commentaires ou des informations de votre compte, contactez-nous par les moyens indiqués ci-dessous. Les soutiens ne voient pas de publicité."
+      "body": "Selon votre lieu de résidence, vous pouvez disposer d'un droit d'accès, de rectification ou de suppression de vos données personnelles, ainsi que d'un droit d'opposition ou de limitation de certains traitements. Pour exercer ces droits, y compris une demande de suppression de vos commentaires ou des informations de votre compte, contactez-nous via le formulaire de commentaires accessible ci-dessous. Les soutiens ne voient pas de publicité."
     },
     "thirdParty": {
       "heading": "Services tiers",
@@ -344,7 +348,7 @@
     },
     "retention": {
       "heading": "Durée de conservation des informations",
-      "body": "Google Analytics conserve les données d’événements pendant 14 mois. Il conserve les données utilisateur pendant 14 mois, et cette durée repart à zéro lorsque vous revenez sur le site. Nous conservons votre compte Google et les champs de profil enregistrés jusqu’à ce que vous demandiez leur suppression aux coordonnées ci-dessous. Nous conservons les messages de commentaires jusqu’à une demande de suppression. Google décide de la durée de conservation des données publicitaires. Consultez la <0>politique de confidentialité</0> et les <1>règles relatives à la publicité</1> de Google. Nous créons un enregistrement pour chaque paiement Ko-fi, avec son identifiant et son type, le montant et la devise, les mois crédités, le statut, les horodatages et, le cas échéant, l’identifiant du compte associé et la méthode de rapprochement. L’adresse e-mail, le nom et le message ne sont conservés que lorsque le paiement n’est pas accordé automatiquement, pour vérification ou traitement manuel. Le site ne conserve aucun journal propre des requêtes web. Firebase et Cloudflare conservent leurs journaux d’exploitation habituels selon leurs propres conditions."
+      "body": "Google Analytics conserve les données d’événements pendant 14 mois. Il conserve les données utilisateur pendant 14 mois, et cette durée repart à zéro lorsque vous revenez sur le site. Nous conservons votre compte Google et les champs de profil enregistrés jusqu’à ce que vous demandiez leur suppression via le formulaire de commentaires ci-dessous. Nous conservons les messages de commentaires et l’adresse e-mail enregistrée avec eux jusqu’à une demande de suppression. Nous conservons votre fiche Soutien et votre code de paiement jusqu’à ce que vous demandiez leur suppression. Google décide de la durée de conservation des données publicitaires. Consultez la <0>politique de confidentialité</0> et les <1>règles relatives à la publicité</1> de Google. Nous créons un enregistrement pour chaque paiement Ko-fi, avec son identifiant et son type, le montant et la devise, les mois crédités, le statut, les horodatages et, le cas échéant, l’identifiant du compte associé et la méthode de rapprochement. L’adresse e-mail, le nom et le message ne sont conservés que lorsque le paiement n’est pas accordé automatiquement, pour vérification ou traitement manuel. Le site ne conserve aucun journal propre des requêtes web. Firebase et Cloudflare conservent leurs journaux d’exploitation habituels selon leurs propres conditions."
     },
     "children": {
       "heading": "Enfants",
@@ -356,7 +360,7 @@
     },
     "contact": {
       "heading": "Contact",
-      "body": "Pour toute question concernant la présente politique de confidentialité, ou pour nous demander de supprimer vos informations, contactez-nous à l'adresse <0/>."
+      "body": "Pour toute question concernant la présente politique de confidentialité, ou pour nous demander de supprimer vos informations, contactez-nous via le <0>formulaire de commentaires</0>."
     },
     "fanNotice": "Top Pocket Decks est un projet de fans. Il n'est ni affilié à, ni approuvé, ni parrainé par Nintendo, The Pokémon Company, Creatures Inc., GAME FREAK Inc. ou DeNA."
   },

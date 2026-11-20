@@ -17,7 +17,6 @@ const StyledUserAccount = styled.div`
   gap: 1.2rem;
 
   @media (max-width: 900px) {
-    position: relative;
     flex-direction: row;
     gap: 1rem;
   }
@@ -89,8 +88,8 @@ const HeaderNotice = styled(SignInFailedNotice)`
 
   @media (max-width: 900px) {
     position: absolute;
-    top: calc(100% + 0.8rem);
-    right: 0;
+    top: calc(100% + 0.4rem);
+    right: 1.2rem;
     z-index: 60;
     width: max-content;
     max-width: min(24rem, calc(100vw - 2.4rem));

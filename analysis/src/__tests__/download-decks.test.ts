@@ -198,6 +198,29 @@ describe("downloadDecks", () => {
     });
   });
 
+  describe("after an interrupted write", () => {
+    const seedOrphan = async () => {
+      getTournaments.mockResolvedValue(tournaments(1));
+      await downloadDecks();
+      fs.writeFileSync(path.join(dataDir, "processed-tournaments.json"), "[]");
+    };
+
+    it.each([
+      ["a staged processed list", () => path.join(dataDir, "processed-tournaments.json.tmp")],
+      ["a shard backup", () => path.join(dataDir, "decks", "manifest.json.bak")],
+    ])("names %s instead of reporting a duplicate deck", async (_label, stagingFile) => {
+      await seedOrphan();
+      fs.writeFileSync(stagingFile(), "");
+      getTournaments.mockResolvedValue(tournaments(1));
+
+      const error = await downloadDecks().catch((thrown: Error) => thrown);
+
+      expect((error as Error).message).toMatch(/interrupted write left staging files/);
+      expect((error as Error).message).not.toMatch(/already exists/);
+      expect(processedIds()).toEqual([]);
+    });
+  });
+
   describe("two runs at once", () => {
     const gateDownloads = () => {
       let release: () => void = () => undefined;

@@ -5,7 +5,7 @@ import { EXPANSION_RELEASE_DATE } from "./settings";
 import { getTournaments } from "./utils/get-tournaments";
 import getTournamentDecks from "./utils/get-tournament-decks";
 import { mapWithConcurrency } from "./utils/limitless-client";
-import { MANIFEST_FILE, planDeckWrites } from "./utils/deck-store";
+import { MANIFEST_FILE, findStagingFiles, planDeckWrites } from "./utils/deck-store";
 import { decksDir, processedFile } from "./utils/data-paths";
 import { round } from "./utils/round";
 import { writeArtefacts } from "./utils/write-artifacts";
@@ -98,6 +98,12 @@ export const downloadDecks = async ({
     // read-modify-write, so the lock holds both; a purge rewriting the same
     // shards cannot land between them.
     await withStoreLockWaiting(lockWait, () => {
+      const stale = findStagingFiles(decksDir(), processedFile());
+      if (stale.length > 0) {
+        throw new Error(
+          `An interrupted write left staging files (${stale.join(", ")}); run store:verify and clear them before rerunning`
+        );
+      }
       const processed = readProcessed();
       const recorded = new Set(processed.map(idOf));
       const fresh = batch.flatMap((tournament, index) =>

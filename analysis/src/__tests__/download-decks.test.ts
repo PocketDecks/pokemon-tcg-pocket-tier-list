@@ -176,11 +176,16 @@ describe("downloadDecks", () => {
     const lockFile = () => `${path.join(dataDir, "decks")}.lock`;
 
     it("retries until the other run releases the lock", async () => {
-      fs.writeFileSync(lockFile(), String(process.ppid));
+      const file = lockFile();
+      fs.writeFileSync(file, String(process.ppid));
       getTournaments.mockResolvedValue(tournaments(2));
-      setTimeout(() => fs.rmSync(lockFile(), { force: true }), 40);
+      const release = setTimeout(() => fs.rmSync(file, { force: true }), 40);
 
-      await downloadDecks({ lockWait: { retries: 12, delayMs: 5 } });
+      try {
+        await downloadDecks({ lockWait: { retries: 12, delayMs: 5 } });
+      } finally {
+        clearTimeout(release);
+      }
 
       expect(processedIds()).toEqual(["t0", "t1"]);
       expect(readDecks(path.join(dataDir, "decks"))).toHaveLength(2);

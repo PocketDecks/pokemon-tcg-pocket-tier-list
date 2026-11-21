@@ -16,11 +16,22 @@ A tournament counts only when its listing and its details describe standard play
 
 Decks live in `analysis/data/decks/`, one NDJSON file per expansion set, with `manifest.json` recording each shard's file, deck count and date range. `analysis/src/utils/expansion-shards.ts` routes a deck to the shard of the newest set released on or before its date. `DECKS_DIR` overrides the directory and `ANALYSIS_DATA_DIR` overrides the whole data directory (`analysis/src/utils/data-paths.ts`). `analysis/src/utils/deck-store.ts` is the reader, and `get-decks.ts` reads back only the shards whose date range reaches `EXPANSION_RELEASE_DATE`, so a run does not parse the whole store.
 
-The downloader commits a batch at a time: it writes the decks it fetched and the tournaments it processed together, so a run that throws rolls the batch back and leaves a consistent store, and a rerun resumes from the batches already committed. A hard kill is different: the write renames each target to `.bak` and then its `.tmp` into place, one file at a time, so a kill between two renames can leave the shard and manifest on the new batch while `processed-tournaments.json` still holds the old list. A rerun then refuses the decks it has already written. A `.tmp` beside a target means the save did not finish, so delete every target that has a `.created` marker beside it together with that marker, move the `.bak` files back over their targets, and delete the `.tmp` files; with no `.tmp` left the save finished, so delete the `.bak` files and every `.created` marker and keep the new ones. If the download still refuses with `Deck ... already exists in shard` or `Shard ... exists at ... but the manifest has no entry for it`, delete `analysis/data/decks/` and `analysis/data/processed-tournaments.json` together and rerun the download, which rebuilds both from the API.
+The downloader commits a batch at a time: it writes the decks it fetched and the tournaments it processed together, so a run that throws rolls the batch back and leaves a consistent store, and a rerun resumes from the batches already committed. A hard kill is different: the write renames each target to `.bak` and then its `.tmp` into place, one file at a time, so a kill between two renames can leave the shard and manifest on the new batch while `processed-tournaments.json` still holds the old list. A rerun then refuses the decks it has already written. The downloader refuses to write while staging files remain, so recover as described in [Recovering from an interrupted write](#recovering-from-an-interrupted-write). If the download still refuses with `Deck ... already exists in shard` or `Shard ... exists at ... but the manifest has no entry for it`, delete `analysis/data/decks/` and `analysis/data/processed-tournaments.json` together and rerun the download, which rebuilds both from the API.
+
+At the start of a run, under the store lock, the downloader checks that the deck store and `processed-tournaments.json` exist together, so a concurrent run's write cannot cause a false "must exist together" error. Before each batch is planned and written it also re-reads `processed-tournaments.json` under the lock and drops the tournaments another run has already recorded, together with their decks, so concurrent runs can neither lose nor duplicate tournaments.
 
 `yarn store:migrate` converts a legacy single-file `data/decks.json` into the shards, refusing a store that already holds decks. `yarn store:verify` reads the manifest and every shard it names, and reports a manifest count that disagrees with the file, a missing shard file, a manifest date range that disagrees with the shard's contents, a deck id in two shards, a deck filed in the wrong shard for its date, an untracked `.ndjson` file, and a stray `.tmp`, `.bak` or `.created` file. An empty `.created` marker beside a target records that the target did not exist before the write, so a recovery deletes it rather than restoring it. It exits 1 when the store directory is absent or holds no shards, unless `--allow-empty` is passed.
 
 `yarn store:purge-formats` removes the non-standard tournaments already in the store. The downloader now skips them at download time, so a rerun never clears them. It reads the decks in every shard that the pipeline's read cut-off reaches, groups them by tournament id, fetches one listing bounded to `LISTING_LIMIT` (`10,000`) rows for all tournaments, then one details request per tournament the listing omits or accepts, and applies the same format rule. By default it is a dry run: it prints one line per tournament it would remove, with id, date, name, reason and deck count, plus a total, and writes nothing. `--apply` rewrites each affected shard without those decks, updates that shard's manifest `count`, `minDate` and `maxDate` from the remaining decks, and commits through `writeArtefacts`, so an interrupted write recovers the documented way. It leaves `processed-tournaments.json` untouched, so a removed tournament is not downloaded again, and it refuses before writing anything if a shard would end up empty. `--dir` points it at another store location. The purge takes the store lock described in the [Store lock](#store-lock) section.
+
+### Recovering from an interrupted write
+
+Under the lock, before each batch, the downloader refuses to write if any staging file (`.tmp`, `.tmp.owner`, `.bak` or `.created`) exists in the deck store directory or beside `processed-tournaments.json`. This applies even to a stray file for a shard the batch would not touch, and the error lists the files. `yarn store:verify` only reports these files and repairs nothing. The processed list is the last file a write commits, so its staging file shows how far the write got. To recover:
+
+1. Check whether `processed-tournaments.json.tmp` exists.
+2. If it does, the commit did not finish. For each `X.bak`, move it back over `X`. Delete each target `X` that has an `X.created` marker, since the interrupted write created it, then delete the remaining `.tmp`, `.tmp.owner` and `.created` files. Do not delete the `.bak` files instead: that leaves decks stored without their tournaments in the processed list, and the next run then fails with `Deck ... already exists`.
+3. If it does not exist, the write either finished or had not started renaming files, so every target is intact and only leftovers remain. Delete the `.bak`, `.created`, `.tmp` and `.tmp.owner` files.
+4. Run `yarn store:verify`, then rerun the download.
 
 ## Store lock
 
@@ -35,8 +46,14 @@ The downloader commits a batch at a time: it writes the decks it fetched and the
 
 - Before it takes the lock, a run writes a claim file into the `analysis/data/decks.lock.claims/` directory, named `<pid>-<uuid>` and holding its pid.
 - A claim whose pid is running blocks other runs; a claim whose pid has gone is removed by the next run; a claim with no pid in its name or contents blocks for five seconds after its last write, then is removed.
-- Two runs that start together can each see the other's claim and both refuse.
+- Two runs that start together can each see the other's claim and both refuse; `yarn download` then waits and retries, as described in [Waiting for the lock](#waiting-for-the-lock).
 - A claim that names this process's own pid and that this process created and has not removed belongs to a store lock call still running in the same process: a nested call is refused, the refusal says so, and the claim clears when the outer call ends.
+
+### Waiting for the lock
+
+- When another live run holds the store lock, `yarn download` waits and retries instead of refusing at once. It retries up to 8 times, with delays that start at 250 ms and double each time, capped at five seconds, about 22.75 seconds in total.
+- It prints one warning on the first retry. If the lock is still held after the last retry, it fails with the original `Store lock ... is held by process N` message.
+- Only genuine contention is retried: any other lock error fails at once. A lock left by a dead process is still reclaimed straight away.
 
 ### Stale-lock reclaim
 
@@ -59,7 +76,7 @@ The downloader commits a batch at a time: it writes the decks it fetched and the
 - A refusal that names a pid means that pid is running, or that the probe for it failed with something other than "no such process", so the run could not show it had gone.
 - If that pid now belongs to an unrelated process, the claim or lock is stale and will not clear on its own, so delete it by hand only after confirming that no download or purge is running.
 - For a claim naming a pid, the refusal says another run is starting, so retry shortly, only when that claim is younger than five seconds and no lock file exists yet; a claim with no pid always says so.
-- The refusal for a young claim with no pid, and the refusal that the lock kept changing during acquisition, name no process; both are transient, so wait a few seconds, retry the run and delete nothing.
+- The refusal for a young claim with no pid, and the refusal that the lock kept changing during acquisition, name no process; both are transient, so `yarn download` retries them as described in [Waiting for the lock](#waiting-for-the-lock). If they persist, wait a few seconds, rerun the download and delete nothing.
 
 ### Constraints
 

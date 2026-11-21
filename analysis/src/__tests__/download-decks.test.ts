@@ -5,6 +5,7 @@ import { vi } from "vitest";
 import { BATCH_SIZE, CONCURRENCY, downloadDecks, lockDelays, parseArgs, parseSince, readProcessed } from "../download-decks";
 import { EXPANSION_RELEASE_DATE } from "../settings";
 import { readDecks, readManifest, verifyStore } from "../utils/deck-store";
+import { withStoreLock } from "../utils/store-lock";
 
 const { getTournamentDecks, getTournaments } = vi.hoisted(() => ({
   getTournamentDecks: vi.fn(),
@@ -12,6 +13,10 @@ const { getTournamentDecks, getTournaments } = vi.hoisted(() => ({
 }));
 
 vi.mock("../utils/get-tournament-decks", () => ({ default: getTournamentDecks }));
+vi.mock("../utils/store-lock", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../utils/store-lock")>();
+  return { ...actual, withStoreLock: vi.fn(actual.withStoreLock) };
+});
 vi.mock("../utils/get-tournaments", () => ({ getTournaments }));
 
 const DATE = "2026-09-02T00:00:00.000Z";
@@ -191,6 +196,17 @@ describe("downloadDecks", () => {
       expect(readDecks(path.join(dataDir, "decks"))).toHaveLength(2);
     });
 
+    it("tries once and does not wait when no retries are allowed", async () => {
+      fs.writeFileSync(lockFile(), String(process.ppid));
+      getTournaments.mockResolvedValue(tournaments(1));
+      const timer = vi.spyOn(globalThis, "setTimeout");
+
+      await expect(downloadDecks({ lockWait: { retries: 0, delayMs: 1 } })).rejects.toThrow(/is held by process/);
+
+      expect(withStoreLock).toHaveBeenCalledTimes(1);
+      expect(timer.mock.calls.filter(([, delay]) => delay === 1)).toEqual([]);
+    });
+
     it("says once that it is waiting for the lock", async () => {
       fs.writeFileSync(lockFile(), String(process.ppid));
       getTournaments.mockResolvedValue(tournaments(1));
@@ -268,6 +284,7 @@ describe("downloadDecks", () => {
 
       const delays = timer.mock.calls.map(([, delay]) => delay).filter((delay) => [1, 2, 4, 8].includes(delay as number));
       expect(delays).toEqual([1, 2, 4]);
+      expect(withStoreLock).toHaveBeenCalledTimes(4);
       expect(fs.existsSync(path.join(dataDir, "processed-tournaments.json"))).toBe(false);
     });
   });

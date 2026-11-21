@@ -38,18 +38,19 @@ const interruptedWriteMessage = (stale: string[]): string => {
 
 const withStoreLockWaiting = async <T>(wait: LockWait, fn: () => T & SyncResult<T>): Promise<T> => {
   const delays = lockDelays(wait);
-  for (let attempt = 0; ; attempt += 1) {
+  for (const [attempt, delay] of delays.entries()) {
     try {
       return withStoreLock(decksDir(), fn);
     } catch (error) {
-      if (!(error instanceof StoreLockBusyError) || attempt >= delays.length) throw error;
+      if (!(error instanceof StoreLockBusyError)) throw error;
       if (attempt === 0) {
-        const seconds = Math.ceil(delays.reduce((total, delay) => total + delay, 0) / 1000);
+        const seconds = Math.ceil(delays.reduce((total, wait) => total + wait, 0) / 1000);
         console.warn(`The store lock is busy; waiting up to ${seconds}s for it`);
       }
-      await sleep(delays[attempt]);
+      await sleep(delay);
     }
   }
+  return withStoreLock(decksDir(), fn);
 };
 
 export const readProcessed = (): unknown[] => {

@@ -93,7 +93,9 @@ export const downloadDecks = async ({
   const tournaments = await getTournaments(filter);
   console.log(`Downloaded tournaments\n${tournaments.length} to process`);
 
-  readProcessed();
+  await withStoreLockWaiting(lockWait, () => {
+    readProcessed();
+  });
   fs.mkdirSync(decksDir(), { recursive: true });
 
   for (let start = 0; start < tournaments.length; start += BATCH_SIZE) {

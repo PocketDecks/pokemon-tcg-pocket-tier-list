@@ -103,10 +103,10 @@ Three workflows in `.github/workflows/` cover deployment and checks:
 - `firebase-hosting-pull-request.yml`, named "Deploy to Firebase Hosting on
   PR", triggers on every pull request. It installs with `--frozen-lockfile`,
   runs `yarn build`, the frontend test suite, the script tests and the analysis
-  typecheck and test suite, then calls `FirebaseExtended/action-hosting-deploy@v0`
-  without a `channelId`. That creates an ephemeral preview channel and posts
-  its URL on the pull request. The `if` condition skips forks, so first-time
-  contributors do not get a failed check.
+  typecheck and test suite, then calls the Firebase Hosting deploy action pinned
+  by commit SHA without a `channelId`. That creates an ephemeral preview
+  channel and posts its URL on the pull request. The `if` condition skips
+  forks, so first-time contributors do not get a failed check.
 - `firebase-hosting-merge.yml`, named "Deploy to Firebase Hosting on merge",
   triggers on pushes to `main`, runs the same test gates, and deploys to
   `channelId: live`.
@@ -114,6 +114,9 @@ Three workflows in `.github/workflows/` cover deployment and checks:
   `yarn test:ci` and `yarn test:scripts` on pushes to and pull requests
   against `main`. It reports independently; the deploy workflows run those
   gates before invoking Firebase.
+
+The merge workflow serialises live deploys, with one active run and at most one
+pending run; a newer pending run replaces the older one.
 
 Both deploy workflows inject the Firebase web configuration as
 `VITE_FIREBASE_*` environment variables from repository secrets.

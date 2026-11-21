@@ -30,6 +30,23 @@ The deploy workflows run `yarn build` separately. That script chains
 typecheck and lint ahead of `vite build`, so a warning you ignore locally
 will still stop a deployment.
 
+## Upgrading packages
+
+The root and analysis npm update entry opens version pull requests only for
+`pokemon-tcg-pocket-cards`. Dependabot also opens one grouped weekly pull
+request for GitHub Actions. The separate `/workers/kofi` npm entry keeps its
+weekly grouped updates.
+
+GitHub's Dependabot options say the `allow` setting limits which dependencies
+are maintained for version and security updates. The root and analysis allow
+list therefore limits npm security pull requests to
+`pokemon-tcg-pocket-cards`. Other vulnerable npm packages in those directories
+will not get Dependabot pull requests under this configuration. The owner must
+change the allow list to include them.
+
+An upgrade outside these configured entries is done by hand, when the owner
+chooses to.
+
 ## Adding a test
 
 Tests live in a `__tests__` directory beside the code they cover, which

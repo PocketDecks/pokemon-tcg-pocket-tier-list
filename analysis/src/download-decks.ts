@@ -29,7 +29,7 @@ export const lockDelays = ({ retries, delayMs }: LockWait): number[] =>
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 const interruptedWriteMessage = (stale: string[]): string => {
-  const unfinished = stale.includes(`${processedFile()}.tmp`);
+  const unfinished = stale.some((file) => file.endsWith(".tmp"));
   const advice = unfinished
     ? "the last commit did not finish: restore each .bak over its target, remove targets that have a .created marker, then delete the remaining staging files"
     : "the last write finished or never started renaming, so every target is intact: delete them";

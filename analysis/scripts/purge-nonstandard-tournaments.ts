@@ -8,13 +8,15 @@ import path from "path";
 import {
   MANIFEST_FILE,
   Manifest,
+  findStagingFiles,
+  interruptedWriteMessage,
   readManifest,
   readShard,
   toLines,
 } from "../src/utils/deck-store";
 import { EXPANSION_RELEASE_DATE } from "../src/settings";
 import { Deck, Tournament } from "../src/utils/types";
-import { decksDir } from "../src/utils/data-paths";
+import { decksDir, processedFile as defaultProcessedFile } from "../src/utils/data-paths";
 import { fetchLimitless, mapWithConcurrency } from "../src/utils/limitless-client";
 import {
   isStandardListing,
@@ -41,6 +43,7 @@ interface DetailsResponse extends TournamentDetails {
 export interface PurgeOptions {
   dir: string;
   apply?: boolean;
+  checkpoint?: string;
 }
 
 export interface PurgeEntry {
@@ -117,7 +120,11 @@ const stringField = (value: unknown): string | undefined =>
 export const purgeNonStandardTournaments = async ({
   dir,
   apply = false,
+  checkpoint,
 }: PurgeOptions): Promise<PurgeEntry[]> => {
+  const checkpointFile = checkpoint ?? (
+    path.resolve(dir) === path.resolve(decksDir()) ? defaultProcessedFile() : undefined
+  );
   // The snapshot is read under the lock, so a download cannot append between
   // the manifest read and the shard read. The lock comes off before the network
   // calls, which take minutes and would block every other writer.
@@ -206,6 +213,9 @@ export const purgeNonStandardTournaments = async ({
   // it; the lock held over the compare and the write together stops a download
   // landing between the two.
   return withStoreLock(dir, () => {
+    const stale = findStagingFiles(dir, checkpointFile);
+    if (stale.length > 0) throw new Error(interruptedWriteMessage(stale));
+
     const manifest = readManifest(dir);
     const nextManifest: Manifest = { schema: 1, shards: { ...manifest.shards } };
     const files: Record<string, string> = {};

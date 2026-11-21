@@ -2,9 +2,10 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import { vi } from "vitest";
-import { BATCH_SIZE, downloadDecks, parseArgs, parseSince, readProcessed } from "../download-decks";
+import { BATCH_SIZE, CONCURRENCY, downloadDecks, lockDelays, parseArgs, parseSince, readProcessed } from "../download-decks";
 import { EXPANSION_RELEASE_DATE } from "../settings";
 import { readDecks, readManifest, verifyStore } from "../utils/deck-store";
+import { writeArtefacts } from "../utils/write-artifacts";
 
 const { getTournamentDecks, getTournaments } = vi.hoisted(() => ({
   getTournamentDecks: vi.fn(),
@@ -50,6 +51,7 @@ describe("downloadDecks", () => {
     vi.stubEnv("DECKS_DIR", "");
     vi.stubEnv("LIMITLESS_API_KEY", "test-key");
     vi.spyOn(console, "log").mockImplementation(() => undefined);
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
     getTournamentDecks.mockImplementation(async (t: { id: string }) => [deck(`${t.id}-player`)]);
   });
 
@@ -75,7 +77,7 @@ describe("downloadDecks", () => {
 
     await downloadDecks({ since });
 
-    expect(getTournaments).toHaveBeenCalledWith({ since });
+    expect(getTournaments).toHaveBeenCalledWith({ since, processed: [] });
     expect(processedIds()).toEqual(["t0", "t1"]);
   });
 
@@ -156,7 +158,7 @@ describe("downloadDecks", () => {
     expect(Object.keys(readManifest(path.join(dataDir, "decks")).shards)).toEqual([]);
   });
 
-  it("refuses a batch when another run holds the store lock", async () => {
+  it("refuses to start when another run holds the store lock", async () => {
     const holder = process.ppid;
     expect(holder).not.toBe(process.pid);
     expect(() => process.kill(holder, 0)).not.toThrow();
@@ -164,12 +166,363 @@ describe("downloadDecks", () => {
     const store = path.join(dataDir, "decks");
     fs.writeFileSync(`${store}.lock`, String(holder));
 
-    await expect(downloadDecks()).rejects.toThrow(/is held by process/);
+    await expect(downloadDecks({ lockWait: { retries: 1, delayMs: 1 } })).rejects.toThrow(/is held by process/);
 
-    // The batch downloads before it takes the lock, and then writes nothing.
-    expect(getTournamentDecks).toHaveBeenCalledTimes(1);
+    expect(getTournamentDecks).not.toHaveBeenCalled();
     expect(fs.existsSync(path.join(dataDir, "processed-tournaments.json"))).toBe(false);
     expect(Object.keys(readManifest(store).shards)).toEqual([]);
+  });
+
+  describe("waiting for the store lock", () => {
+    const lockFile = () => `${path.join(dataDir, "decks")}.lock`;
+
+    it("retries until the other run releases the lock", async () => {
+      const file = lockFile();
+      fs.writeFileSync(file, String(process.ppid));
+      getTournaments.mockResolvedValue(tournaments(2));
+      const release = setTimeout(() => fs.rmSync(file, { force: true }), 40);
+
+      try {
+        await downloadDecks({ lockWait: { retries: 12, delayMs: 5 } });
+      } finally {
+        clearTimeout(release);
+      }
+
+      expect(processedIds()).toEqual(["t0", "t1"]);
+      expect(readDecks(path.join(dataDir, "decks"))).toHaveLength(2);
+    });
+
+    it("tries once and does not wait when no retries are allowed", async () => {
+      fs.writeFileSync(lockFile(), String(process.ppid));
+      getTournaments.mockResolvedValue(tournaments(1));
+
+      await expect(downloadDecks({ lockWait: { retries: 0, delayMs: 1 } })).rejects.toThrow(/is held by process/);
+    });
+
+    it("says once that it is waiting for the lock", async () => {
+      fs.writeFileSync(lockFile(), String(process.ppid));
+      getTournaments.mockResolvedValue(tournaments(1));
+
+      await expect(downloadDecks({ lockWait: { retries: 3, delayMs: 1 } })).rejects.toThrow(/is held by process/);
+
+      expect(console.warn).toHaveBeenCalledTimes(1);
+      expect(console.warn).toHaveBeenCalledWith(expect.stringMatching(/store lock is busy; waiting up to \d+s/));
+    });
+
+    it("stays quiet when the lock is free", async () => {
+      getTournaments.mockResolvedValue(tournaments(1));
+
+      await downloadDecks({ lockWait: { retries: 3, delayMs: 1 } });
+
+      expect(console.warn).not.toHaveBeenCalled();
+    });
+
+    it("holds back every download until the lock is free", async () => {
+      fs.writeFileSync(lockFile(), String(process.ppid));
+      getTournaments.mockResolvedValue(tournaments(1));
+      const file = lockFile();
+      const release = setTimeout(() => fs.rmSync(file, { force: true }), 80);
+
+      try {
+        const run = downloadDecks({ lockWait: { retries: 12, delayMs: 5 } });
+        await new Promise((resolve) => setTimeout(resolve, 40));
+        expect(getTournamentDecks).not.toHaveBeenCalled();
+        await run;
+      } finally {
+        clearTimeout(release);
+      }
+
+      expect(getTournamentDecks).toHaveBeenCalledTimes(1);
+      expect(processedIds()).toEqual(["t0"]);
+    });
+
+    it("looks for staging files only while it holds the lock", async () => {
+      getTournaments.mockResolvedValue(tournaments(1));
+      let open: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        open = resolve;
+      });
+      getTournamentDecks.mockImplementation(async (t: { id: string }) => {
+        await gate;
+        return [deck(`${t.id}-player`)];
+      });
+      const lock = lockFile();
+      const staging = path.join(dataDir, "processed-tournaments.json.tmp");
+      const run = downloadDecks({ lockWait: { retries: 12, delayMs: 5 } });
+      await vi.waitFor(() => expect(getTournamentDecks).toHaveBeenCalledTimes(1));
+      fs.writeFileSync(lock, String(process.ppid));
+      fs.writeFileSync(staging, "");
+      const release = setTimeout(() => {
+        fs.rmSync(lock, { force: true });
+        fs.rmSync(staging, { force: true });
+      }, 60);
+
+      try {
+        open();
+        await run;
+      } finally {
+        clearTimeout(release);
+      }
+
+      expect(processedIds()).toEqual(["t0"]);
+    });
+
+    it("gives up with the lock error once the attempts run out", async () => {
+      fs.writeFileSync(lockFile(), String(process.ppid));
+      getTournaments.mockResolvedValue(tournaments(1));
+
+      await expect(downloadDecks({ lockWait: { retries: 3, delayMs: 1 } })).rejects.toThrow(/is held by process/);
+
+      expect(fs.existsSync(path.join(dataDir, "processed-tournaments.json"))).toBe(false);
+    });
+  });
+
+  it("leaves the store untouched when every tournament in a batch is already recorded", async () => {
+    getTournaments.mockResolvedValue(tournaments(2));
+    await downloadDecks();
+    const files = [path.join(dataDir, "processed-tournaments.json"), path.join(dataDir, "decks", "manifest.json")];
+    const before = files.map((file) => fs.statSync(file).ino);
+
+    await downloadDecks();
+
+    expect(files.map((file) => fs.statSync(file).ino)).toEqual(before);
+    expect(processedIds()).toEqual(["t0", "t1"]);
+  });
+
+  describe("after an interrupted write", () => {
+    const seedOrphan = async () => {
+      getTournaments.mockResolvedValue(tournaments(1));
+      await downloadDecks();
+      fs.writeFileSync(path.join(dataDir, "processed-tournaments.json"), "[]");
+    };
+
+    it("checks again before every later batch", async () => {
+      const listing = tournaments(BATCH_SIZE + 1);
+      getTournaments.mockResolvedValue(listing);
+      let open: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        open = resolve;
+      });
+      getTournamentDecks.mockImplementation(async (t: { id: string }) => {
+        if (t === listing[BATCH_SIZE]) await gate;
+        return [deck(`${t.id}-player`)];
+      });
+      const outcome = downloadDecks().catch((thrown: Error) => thrown);
+      await vi.waitFor(() => expect(processedIds()).toHaveLength(BATCH_SIZE));
+      fs.writeFileSync(path.join(dataDir, "decks", "stray.ndjson.bak"), "");
+
+      open();
+      const error = await outcome;
+
+      expect((error as Error).message).toMatch(/interrupted write left staging files/);
+      expect(processedIds()).toHaveLength(BATCH_SIZE);
+    });
+
+    it.each([
+      [
+        "a staged processed list",
+        () => path.join(dataDir, "processed-tournaments.json.tmp"),
+      ],
+      [
+        "a staged manifest with no staged processed list",
+        () => path.join(dataDir, "decks", "manifest.json.tmp"),
+      ],
+      [
+        "a shard backup",
+        () => path.join(dataDir, "decks", "manifest.json.bak"),
+      ],
+      [
+        "a created marker",
+        () => path.join(dataDir, "decks", "manifest.json.created"),
+      ],
+    ])("names %s without prescribing recovery when completion is unknown", async (_label, stagingFile) => {
+      await seedOrphan();
+      fs.writeFileSync(stagingFile(), "");
+      getTournaments.mockResolvedValue(tournaments(1));
+
+      const error = await downloadDecks().catch((thrown: Error) => thrown);
+
+      expect((error as Error).message).toMatch(/interrupted write left staging files/);
+      expect((error as Error).message).toMatch(/commit completion is unknown: do not restore or delete staging files/);
+      expect((error as Error).message).toMatch(/; afterwards run store:verify$/);
+      expect((error as Error).message).not.toMatch(/already exists/);
+      expect(processedIds()).toEqual([]);
+    });
+
+    it("keeps recovery advice unknown when a completion marker remains", async () => {
+      await seedOrphan();
+      const manifest = path.join(dataDir, "decks", "manifest.json");
+      const realRmSync = fs.rmSync;
+      vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+        if (target === `${manifest}.bak`) throw new Error("injected backup cleanup failure");
+        return realRmSync(target, options);
+      });
+
+      writeArtefacts({ [manifest]: "committed manifest" });
+
+      expect(fs.readFileSync(manifest, "utf8")).toBe("committed manifest");
+      expect(fs.existsSync(`${manifest}.bak`)).toBe(true);
+      expect(fs.existsSync(`${manifest}.committed`)).toBe(true);
+
+      const error = await downloadDecks().catch((thrown: Error) => thrown);
+
+      expect((error as Error).message).toMatch(/commit completion is unknown: do not restore or delete staging files/);
+      expect((error as Error).message).not.toMatch(/delete the remaining cleanup files/);
+      expect(fs.existsSync(`${manifest}.bak`)).toBe(true);
+      expect(fs.existsSync(`${manifest}.committed`)).toBe(true);
+    });
+
+    it("does not use a marker on one shard to classify another shard backup", async () => {
+      await seedOrphan();
+      const store = path.join(dataDir, "decks");
+      const backup = path.join(store, "b4a.ndjson.bak");
+      const marker = path.join(store, "c1.ndjson.committed");
+      fs.writeFileSync(backup, "old shard backup");
+      fs.writeFileSync(marker, "new shard marker");
+      const before = fs.readdirSync(store).sort().map((file) => [file, fs.readFileSync(path.join(store, file), "utf8")]);
+      getTournaments.mockResolvedValue(tournaments(1));
+
+      const error = await downloadDecks().catch((thrown: Error) => thrown);
+
+      expect((error as Error).message).toMatch(/commit completion is unknown: do not restore or delete staging files/);
+      expect((error as Error).message).not.toMatch(/delete the remaining cleanup files/);
+      expect(fs.readdirSync(store).sort().map((file) => [file, fs.readFileSync(path.join(store, file), "utf8")])).toEqual(before);
+    });
+
+    it("does not prescribe recovery after a failed rollback", async () => {
+      await seedOrphan();
+      const manifest = path.join(dataDir, "decks", "manifest.json");
+      const realRenameSync = fs.renameSync;
+      vi.spyOn(fs, "renameSync").mockImplementation((source, target) => {
+        if (source === `${manifest}.tmp` && target === manifest) {
+          throw new Error("injected commit failure");
+        }
+        if (source === `${manifest}.bak` && target === manifest) {
+          throw new Error("injected backup restore failure");
+        }
+        return realRenameSync(source, target);
+      });
+
+      const manifestContents = fs.readFileSync(manifest, "utf8");
+      let writeFailure: unknown;
+      try {
+        writeArtefacts({ [manifest]: manifestContents });
+      } catch (error) {
+        writeFailure = error;
+      }
+      expect((writeFailure as Error).message).toContain("injected commit failure");
+      expect((writeFailure as Error).message).toContain(`rollback failed for ${manifest}`);
+      expect((writeFailure as Error).message).toContain(`${manifest}.bak`);
+      expect((writeFailure as Error).message).toContain(`${manifest}.tmp`);
+      expect(fs.existsSync(`${manifest}.bak`)).toBe(true);
+      expect(fs.readFileSync(`${manifest}.tmp`, "utf8")).toBe(manifestContents);
+      expect(fs.existsSync(`${manifest}.committed`)).toBe(false);
+
+      const error = await downloadDecks().catch((thrown: Error) => thrown);
+
+      expect((error as Error).message).toMatch(/commit completion is unknown: do not restore or delete staging files/);
+    });
+  });
+
+  describe("two runs at once", () => {
+    const gateDownloads = () => {
+      let release: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      getTournamentDecks.mockImplementation(async (t: { id: string }) => {
+        await gate;
+        return [deck(`${t.id}-player`)];
+      });
+      return release;
+    };
+
+    const startBoth = async (first: ReturnType<typeof tournaments>, second: ReturnType<typeof tournaments>) => {
+      getTournaments.mockResolvedValueOnce(first).mockResolvedValueOnce(second);
+      const release = gateDownloads();
+      const runs = [downloadDecks(), downloadDecks()];
+      const inFlight = Math.min(first.length, CONCURRENCY) + Math.min(second.length, CONCURRENCY);
+      await Promise.race([
+        vi.waitFor(() => expect(getTournamentDecks).toHaveBeenCalledTimes(inFlight)),
+        ...runs,
+      ]);
+      release();
+      return runs;
+    };
+
+    it("keeps the tournaments of both runs in the processed list", async () => {
+      const runs = await startBoth([tournament(0), tournament(1)], [tournament(2), tournament(3)]);
+
+      await Promise.all(runs);
+
+      expect(processedIds().sort()).toEqual(["t0", "t1", "t2", "t3"]);
+      expect(
+        readDecks(path.join(dataDir, "decks"))
+          .map((entry) => entry.id)
+          .sort()
+      ).toEqual(["t0-player", "t1-player", "t2-player", "t3-player"]);
+    });
+
+    it("skips a tournament that the other run recorded first", async () => {
+      const runs = await startBoth([tournament(0), tournament(1)], [tournament(1), tournament(2)]);
+
+      await Promise.all(runs);
+
+      expect(processedIds().sort()).toEqual(["t0", "t1", "t2"]);
+      const ids = readDecks(path.join(dataDir, "decks")).map((entry) => entry.id);
+      expect(ids.sort()).toEqual(["t0-player", "t1-player", "t2-player"]);
+      expect(verifyStore(path.join(dataDir, "decks"), { placement: true })).toEqual([]);
+    });
+
+    it("keeps a write from the other run that lands between two batches of one run", async () => {
+      const first = tournaments(BATCH_SIZE + 2);
+      const second = [tournament(BATCH_SIZE), tournament(BATCH_SIZE + 3)];
+      const secondBatchOfFirst = first.slice(BATCH_SIZE);
+      let releaseFirst: () => void = () => undefined;
+      let releaseSecond: () => void = () => undefined;
+      const firstGate = new Promise<void>((resolve) => {
+        releaseFirst = resolve;
+      });
+      const secondGate = new Promise<void>((resolve) => {
+        releaseSecond = resolve;
+      });
+      getTournaments.mockResolvedValueOnce(first).mockResolvedValueOnce(second);
+      getTournamentDecks.mockImplementation(async (t: { id: string }) => {
+        if (second.includes(t as (typeof second)[number])) await secondGate;
+        if (secondBatchOfFirst.includes(t as (typeof first)[number])) await firstGate;
+        return [deck(`${t.id}-player`)];
+      });
+      const runs = [downloadDecks(), downloadDecks()];
+
+      await Promise.race([vi.waitFor(() => expect(processedIds()).toHaveLength(BATCH_SIZE)), ...runs]);
+      releaseSecond();
+      await runs[1];
+      releaseFirst();
+      await runs[0];
+
+      const expected = [...Array.from({ length: BATCH_SIZE + 2 }, (_, n) => `t${n}`), `t${BATCH_SIZE + 3}`];
+      expect(processedIds().sort()).toEqual([...expected].sort());
+      expect(
+        readDecks(path.join(dataDir, "decks"))
+          .map((entry) => entry.id)
+          .sort()
+      ).toEqual(expected.map((id) => `${id}-player`).sort());
+      expect(verifyStore(path.join(dataDir, "decks"), { placement: true })).toEqual([]);
+    });
+
+    it("lets a later run resume cleanly after the overlap", async () => {
+      const known = [tournament(0), tournament(1), tournament(2)];
+      const runs = await startBoth([known[0]], [tournament(0), known[1]]);
+      await Promise.all(runs);
+      vi.clearAllMocks();
+      getTournaments.mockImplementation(async () => known.filter((t) => !processedIds().includes(t.id)));
+      getTournamentDecks.mockImplementation(async (t: { id: string }) => [deck(`${t.id}-player`)]);
+
+      await downloadDecks();
+
+      expect(getTournamentDecks).toHaveBeenCalledTimes(1);
+      expect(processedIds().sort()).toEqual(["t0", "t1", "t2"]);
+    });
   });
 
   describe("readProcessed", () => {
@@ -205,6 +558,17 @@ describe("downloadDecks", () => {
 
       expect(readProcessed()).toEqual([{ id: "t0" }]);
     });
+  });
+});
+
+describe("lockDelays", () => {
+  it("doubles from the base delay and stops at the cap", () => {
+    expect(lockDelays({ retries: 8, delayMs: 250 })).toEqual([250, 500, 1000, 2000, 4000, 5000, 5000, 5000]);
+  });
+
+  it("gives one delay per retry", () => {
+    expect(lockDelays({ retries: 0, delayMs: 5 })).toEqual([]);
+    expect(lockDelays({ retries: 3, delayMs: 1 })).toEqual([1, 2, 4]);
   });
 });
 

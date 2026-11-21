@@ -33,7 +33,7 @@ const interruptedWriteMessage = (stale: string[]): string => {
   const advice = unfinished
     ? "the last commit did not finish: restore each .bak over its target, remove targets that have a .created marker, then delete the remaining staging files"
     : "the last write finished or never started renaming, so every target is intact: delete them";
-  return `An interrupted write left staging files (${stale.join(", ")}); ${advice}, then run store:verify`;
+  return `An interrupted write left staging files (${stale.join(", ")}); ${advice}; afterwards run store:verify`;
 };
 
 const withStoreLockWaiting = async <T>(wait: LockWait, fn: () => T & SyncResult<T>): Promise<T> => {
@@ -45,7 +45,7 @@ const withStoreLockWaiting = async <T>(wait: LockWait, fn: () => T & SyncResult<
       if (!(error instanceof StoreLockBusyError) || attempt >= delays.length) throw error;
       if (attempt === 0) {
         const seconds = Math.ceil(delays.reduce((total, delay) => total + delay, 0) / 1000);
-        console.warn(`The store lock is held by another run; waiting up to ${seconds}s for it`);
+        console.warn(`The store lock is busy; waiting up to ${seconds}s for it`);
       }
       await sleep(delays[attempt]);
     }

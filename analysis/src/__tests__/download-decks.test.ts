@@ -198,7 +198,7 @@ describe("downloadDecks", () => {
       await expect(downloadDecks({ lockWait: { retries: 3, delayMs: 1 } })).rejects.toThrow(/is held by process/);
 
       expect(console.warn).toHaveBeenCalledTimes(1);
-      expect(console.warn).toHaveBeenCalledWith(expect.stringMatching(/held by another run; waiting up to \d+s/));
+      expect(console.warn).toHaveBeenCalledWith(expect.stringMatching(/store lock is busy; waiting up to \d+s/));
     });
 
     it("stays quiet when the lock is free", async () => {
@@ -307,7 +307,7 @@ describe("downloadDecks", () => {
 
       expect((error as Error).message).toMatch(/interrupted write left staging files/);
       expect((error as Error).message).toMatch(advice);
-      expect((error as Error).message).toMatch(/store:verify/);
+      expect((error as Error).message).toMatch(/; afterwards run store:verify$/);
       expect((error as Error).message).not.toMatch(/already exists/);
       expect(processedIds()).toEqual([]);
     });

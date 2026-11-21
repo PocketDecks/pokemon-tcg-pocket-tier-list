@@ -85,3 +85,11 @@ test("non-pushing workflows disable checkout credentials", () => {
     });
   assert.deepStrictEqual(offenders, [], `Credentials persist in: ${offenders.join(", ")}`);
 });
+
+test("the preview job excludes forks and Dependabot", () => {
+  const workflow = loadYaml(".github", "workflows", "firebase-hosting-pull-request.yml");
+  const job = Object.values(workflow.jobs)[0];
+  const condition = job.if;
+  assert.ok(condition.includes("github.event.pull_request.head.repo.full_name == github.repository"));
+  assert.ok(condition.includes("github.actor != 'dependabot[bot]'"));
+});

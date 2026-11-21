@@ -151,33 +151,44 @@ describe("downloadDecks startup", () => {
     );
     vi.stubGlobal("fetch", fetchMock);
 
+    let cancelPolling: () => void = () => undefined;
     try {
       await ready;
       let lockAttempted = false;
       vi.spyOn(console, "warn").mockImplementation((message?: unknown) => {
         if (String(message).includes("store lock is busy")) lockAttempted = true;
       });
+      let pollTimer: ReturnType<typeof setTimeout> | undefined;
+      const stopPolling = () => {
+        if (pollTimer !== undefined) {
+          clearTimeout(pollTimer);
+          pollTimer = undefined;
+        }
+      };
+      cancelPolling = stopPolling;
+      const lockPoll = new Promise<"lock">((resolve) => {
+        const poll = () => {
+          if (lockAttempted) resolve("lock");
+          else pollTimer = setTimeout(poll, 1);
+        };
+        poll();
+      });
       let failure: unknown;
       const run = downloadDecks({ lockWait: { retries: 12, delayMs: 2 } }).catch((error: unknown) => {
         failure = error;
       });
       const reachedLock = await Promise.race([
-        new Promise<"lock">((resolve) => {
-          const poll = () => {
-            if (lockAttempted) resolve("lock");
-            else setTimeout(poll, 1);
-          };
-          poll();
-        }),
+        lockPoll,
         run.then(() => "settled" as const),
         new Promise<"timeout">((resolve) => setTimeout(() => resolve("timeout"), 2000)),
-      ]);
+      ]).finally(stopPolling);
       const requestsBeforeRelease = fetchMock.mock.calls.length;
       const released = waitForMessage(writer, "released");
       writer.send("release");
       await released;
       await run;
 
+      expect(pollTimer).toBeUndefined();
       expect(reachedLock).toBe("lock");
       expect(requestsBeforeRelease).toBe(0);
       expect(failure).toBeUndefined();
@@ -189,6 +200,7 @@ describe("downloadDecks startup", () => {
       ).toEqual(["known", "fresh"]);
       expect(readDecks(store).map((entry) => entry.id)).toEqual(["fresh-player"]);
     } finally {
+      cancelPolling();
       if (writer.exitCode === null) writer.kill();
     }
   });

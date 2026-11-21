@@ -93,3 +93,41 @@ test("the preview job excludes forks and Dependabot", () => {
   assert.ok(condition.includes("github.event.pull_request.head.repo.full_name == github.repository"));
   assert.ok(condition.includes("github.actor != 'dependabot[bot]'"));
 });
+
+test("pairings workflow tests its changes and preserves failed checks", () => {
+  const steps = loadYaml(".github", "workflows", "sync-pairings.yml").jobs.sync.steps;
+  assert.ok(!steps.some((step) => step.run?.includes("golden:generate")));
+  assert.ok(
+    !steps.some((step) =>
+      String(step.run ?? "").split(String.fromCharCode(10)).some(
+        (line) => line.includes("git add") && line.includes("deck-name-golden.json")
+      )
+    )
+  );
+  const typecheckIndex = steps.findIndex((step) => step.id === "typecheck");
+  const testsIndex = steps.findIndex((step) => step.id === "tests");
+  const pullRequestIndex = steps.findIndex((step) => step.run?.includes("gh pr create"));
+  assert.ok(typecheckIndex >= 0 && typecheckIndex < pullRequestIndex);
+  assert.ok(testsIndex >= 0 && testsIndex < pullRequestIndex);
+  assert.strictEqual(steps[typecheckIndex].workingDirectory ?? steps[typecheckIndex]["working-directory"], "analysis");
+  assert.strictEqual(steps[testsIndex].workingDirectory ?? steps[testsIndex]["working-directory"], "analysis");
+  assert.strictEqual(steps[typecheckIndex]["continue-on-error"], true);
+  assert.strictEqual(steps[testsIndex]["continue-on-error"], true);
+  assert.ok(steps[typecheckIndex].run.includes("yarn typecheck"));
+  assert.ok(steps[testsIndex].run.includes("yarn test"));
+  const pullRequest = steps[pullRequestIndex];
+  assert.ok(pullRequest.run.includes("--draft"));
+  assert.strictEqual(pullRequest.env.TYPECHECK, "${{ steps.typecheck.outcome }}");
+  assert.strictEqual(pullRequest.env.TESTS, "${{ steps.tests.outcome }}");
+  assert.ok(pullRequest.run.includes("gh pr ready --undo"));
+  assert.ok(pullRequest.run.includes("GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"));
+  assert.ok(pullRequest.run.includes("Analysis $FAILED_CHECKS failed."));
+  assert.ok(pullRequest.run.includes("Analysis typecheck and tests ran in this job before the PR opened."));
+  const failureIndex = steps.findIndex(
+    (step) =>
+      step.if?.includes("steps.typecheck.outcome") &&
+      step.if?.includes("steps.tests.outcome")
+  );
+  assert.ok(failureIndex > pullRequestIndex);
+  assert.match(steps[failureIndex].run, /exit 1/);
+});

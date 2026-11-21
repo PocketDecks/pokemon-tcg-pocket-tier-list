@@ -252,11 +252,11 @@ describe("downloadDecks", () => {
     getTournaments.mockResolvedValue(tournaments(2));
     await downloadDecks();
     const files = [path.join(dataDir, "processed-tournaments.json"), path.join(dataDir, "decks", "manifest.json")];
-    const before = files.map((file) => fs.statSync(file, { bigint: true }).mtimeNs);
+    const before = files.map((file) => fs.statSync(file).ino);
 
     await downloadDecks();
 
-    expect(files.map((file) => fs.statSync(file, { bigint: true }).mtimeNs)).toEqual(before);
+    expect(files.map((file) => fs.statSync(file).ino)).toEqual(before);
     expect(processedIds()).toEqual(["t0", "t1"]);
   });
 

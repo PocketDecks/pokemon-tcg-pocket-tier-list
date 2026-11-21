@@ -379,6 +379,51 @@ describe("premium retention discovery", () => {
     }
   });
 
+  it("warns that no remote points at the canonical repository and prunes nothing", async () => {
+    const warnings: string[] = [];
+    const warn = vi.spyOn(console, "warn").mockImplementation((message?: unknown) => {
+      warnings.push(String(message));
+    });
+    try {
+      const result = await discover({
+        repoRoot: "fake-repo",
+        runGit: fakeGit(versions.canonical, { noCanonical: true }),
+        fetcher: successfulFetch([]),
+      });
+
+      expect(result).toBeUndefined();
+      expect(warnings.join("\n")).toContain("no remote points at PocketDecks/pokemon-tcg-pocket-tier-list");
+      expect(warnings.join("\n")).toContain("no older version is deleted");
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it.each([
+    ["is not valid JSON", "{"],
+    ["has no valid premium version", '{ "premium": "deadbeef" }'],
+  ])("warns when the version committed on canonical main %s and prunes nothing", async (_name, contents) => {
+    const warnings: string[] = [];
+    const warn = vi.spyOn(console, "warn").mockImplementation((message?: unknown) => {
+      warnings.push(String(message));
+    });
+    const base = fakeGit(versions.canonical);
+    const runGit: PremiumGitRunner = (args, cwd) =>
+      args[0] === "show" && args[1] === "refs/remotes/pocketdecks/main:public/data/data-version.json"
+        ? contents
+        : base(args, cwd);
+    try {
+      const result = await discover({ repoRoot: "fake-repo", runGit, fetcher: successfulFetch([]) });
+
+      expect(result).toBeUndefined();
+      expect(warnings.join("\n")).toContain(
+        "no readable premium version is committed on refs/remotes/pocketdecks/main"
+      );
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it("falls back to the canonical PR ref when the fork version file is unreadable", async () => {
     const fetcher = (async (input, init) => {
       const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);

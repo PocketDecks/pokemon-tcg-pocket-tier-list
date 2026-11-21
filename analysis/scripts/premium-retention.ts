@@ -156,8 +156,17 @@ export const discoverPremiumRetentionSources = async ({
         .split(/\r?\n/)
         .filter((ref) => /^refs\/(?:heads\/automated\/|remotes\/[^/]+\/automated\/)/.test(ref));
       const versions: string[] = [];
+      const inspectBranch = (branchRef: string) => {
+        try {
+          return inspectPremiumVersionAtRef(repoRoot, branchRef, git);
+        } catch (error) {
+          throw new Error(
+            `could not read the premium version on ${branchRef}: ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
+      };
       for (const branchRef of refs) {
-        const status = inspectPremiumVersionAtRef(repoRoot, branchRef, git);
+        const status = inspectBranch(branchRef);
         if (status.status === "found") versions.push(status.version);
         else if (status.status === "unreadable") {
           console.warn(`skipping automated branch ${branchRef}: ${status.reason}`);

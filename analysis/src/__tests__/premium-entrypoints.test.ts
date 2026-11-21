@@ -14,7 +14,7 @@ import {
   sha256Hex,
   snapshotPremiumVersion,
 } from "../utils/premium-artefacts";
-import { readPremiumVersionAtRef } from "../utils/premium-files";
+import { inspectMainPremiumVersion, readPremiumVersionAtRef } from "../utils/premium-files";
 
 const premiumPayloads = (): Record<string, string> =>
   Object.fromEntries(PREMIUM_ARTEFACT_NAMES.map((name) => [name, `{"name":"${name}"}`]));
@@ -325,6 +325,63 @@ describe("premium entry points", () => {
     expect(writes[writes.length - 1]?.path).toBe(`premiumData/${version}`);
     expect(fs.existsSync(path.join(snapshotDir, "..", "premium-previous", version, `${PREMIUM_ARTEFACT_NAMES[0]}.json`))).toBe(true);
     expect(fs.existsSync(staleSnapshot)).toBe(false);
+  });
+
+  it("retains versions on automated refresh branches", async () => {
+    const writes: Write[] = [];
+    const deletes: unknown[] = [];
+    const files = premiumPayloads();
+    const existing = [
+      { version: "recent-a", createdAt: 8 },
+      { version: "recent-b", createdAt: 7 },
+      { version: "recent-c", createdAt: 6 },
+      { version: "recent-d", createdAt: 5 },
+      { version: "automated", createdAt: 2 },
+      { version: "orphan", createdAt: 1 },
+    ];
+
+    await publishPremium({
+      db: fakeFilesDb(writes, deletes, existing),
+      dryRun: false,
+      projectId: "test-project",
+      files,
+      version: premiumVersion(files),
+      discoverRetentionSources: async () => ({
+        ...retentionSources(),
+        automatedBranchVersions: ["automated"],
+      }),
+      snapshotDir: testSnapshotDir(),
+    }, () => {});
+
+    expect(deletes).toEqual([{ path: "premiumData/orphan", documentReference: true }]);
+  });
+
+  it("keeps the local snapshot of an automated branch version and removes an unreferenced one", async () => {
+    const writes: Write[] = [];
+    const deletes: unknown[] = [];
+    const files = premiumPayloads();
+    const snapshotDir = testSnapshotDir();
+    const cache = path.join(snapshotDir, "..", "premium-previous");
+    const automated = path.join(cache, "aaaaaaaaaaaaaaaa");
+    const stale = path.join(cache, "eeeeeeeeeeeeeeee");
+    fs.mkdirSync(automated, { recursive: true });
+    fs.mkdirSync(stale, { recursive: true });
+
+    await publishPremium({
+      db: fakeFilesDb(writes, deletes),
+      dryRun: false,
+      projectId: "test-project",
+      files,
+      version: premiumVersion(files),
+      discoverRetentionSources: async () => ({
+        ...retentionSources(),
+        automatedBranchVersions: ["aaaaaaaaaaaaaaaa"],
+      }),
+      snapshotDir,
+    }, () => {});
+
+    expect(fs.existsSync(automated)).toBe(true);
+    expect(fs.existsSync(stale)).toBe(false);
   });
 
   it("keeps the new version snapshot when pruning the cloud fails", async () => {
@@ -689,6 +746,7 @@ describe("premium entry points", () => {
       fs.writeFileSync(path.join(repo, "public/data/data-version.json"), contents);
       git("add", "-A"); git("commit", "-q", "-m", "invalid"); git("update-ref", "refs/remotes/pocketdecks/main", "HEAD");
       expect(readPremiumVersionAtRef(repo)).toBeUndefined();
+      expect(inspectMainPremiumVersion(repo)).toMatchObject({ status: "unreadable" });
     } finally { fs.rmSync(repo, { recursive: true, force: true }); }
   });
 });

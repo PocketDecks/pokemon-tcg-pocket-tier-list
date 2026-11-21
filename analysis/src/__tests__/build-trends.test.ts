@@ -68,15 +68,15 @@ describe("buildTrends", () => {
     expect(trends[1]["Deck A"]).toBeCloseTo(100);
   });
 
-  it("includes data days after the run clock", () => {
+  it("includes data days after any run clock", () => {
     const trends = buildTrends(
       [
-        makeDeck({ name: "Deck A", date: "2026-10-13T00:00:00.000Z", totalGames: 10 }),
+        makeDeck({ name: "Deck A", date: "2099-01-01T00:00:00.000Z", totalGames: 10 }),
         makeDeck({ name: "Deck A", date: "2024-01-01T00:00:00.000Z", totalGames: 10 }),
       ],
       ["Deck A"]
     );
 
-    expect(trends.map((trend) => trend.date)).toEqual(["2024-01-01", "2026-10-13"]);
+    expect(trends.map((trend) => trend.date)).toEqual(["2024-01-01", "2099-01-01"]);
   });
 });

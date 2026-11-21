@@ -309,6 +309,20 @@ describe("run", () => {
     });
   });
 
+  it("stages an image for a deck only the premium windows offer", async () => {
+    getDecks.mockReturnValue([
+      ...makeDecks(),
+      ...makeDecks("2026-09-01T02:00:00.000Z")
+        .slice(0, 1)
+        .map((deck) => ({ ...deck, id: "old-deck", name: "old-arch" })),
+    ]);
+
+    await run();
+
+    const staged = stageOgImages.mock.calls[0][0] as { slug: string }[];
+    expect(staged.map((deck) => deck.slug)).toContain("old-arch");
+  });
+
   it("stages one image per archetype before anything is written", async () => {
     await run();
 
@@ -510,6 +524,16 @@ describe("run", () => {
     expect(writeArtefacts).toHaveBeenCalledTimes(1);
   });
 
+  it("treats a canonical main with no committed version as a first publish", async () => {
+    vi.mocked(inspectMainPremiumVersion).mockReturnValue({ status: "absent" });
+
+    await expect(run()).resolves.toBeUndefined();
+
+    const windows = vi.mocked(assertPublishable).mock.calls[0][0].windows;
+    expect(windows.filter((window) => ["30d", "all"].includes(window.id)).map((window) => window.previousArchetypeCount)).toEqual([null, null]);
+    expect(writeArtefacts).toHaveBeenCalledTimes(1);
+  });
+
   it("refuses when the canonical main remote cannot be resolved", async () => {
     vi.mocked(resolveCanonicalMainRef).mockReturnValueOnce(undefined);
 
@@ -529,6 +553,9 @@ describe("run", () => {
 
     const failure = (await run().catch((error: Error) => error)) as Error;
     expect(failure.message).toMatch(/refusing to publish against an unreadable baseline/);
+    expect(failure.message).toContain(
+      "Fetch the canonical remote's main, or repair public/data/data-version.json on main"
+    );
     expect(writeArtefacts).not.toHaveBeenCalled();
     expect(discard).toHaveBeenCalledTimes(1);
   });

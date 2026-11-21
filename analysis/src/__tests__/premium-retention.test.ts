@@ -83,12 +83,14 @@ const fakeGit = (
   throw new Error(`unexpected git call: ${args.join(" ")}`);
 };
 
+const lsTreeRef = (args: string[]): string => args[args.indexOf("--") - 1];
+
 const automatedBranchesGit = (branches: Record<string, string>): PremiumGitRunner => {
   const base = fakeGit();
   const versionFile = ":public/data/data-version.json";
   return (args, cwd) => {
     if (args[0] === "for-each-ref") return Object.keys(branches).map((ref) => `${ref}\n`).join("");
-    if (args[0] === "ls-tree" && branches[args[3]] !== undefined) return "public/data/data-version.json\n";
+    if (args[0] === "ls-tree" && branches[lsTreeRef(args)] !== undefined) return "public/data/data-version.json\n";
     if (args[0] === "show" && args[1].endsWith(versionFile)) {
       const branch = branches[args[1].slice(0, -versionFile.length)];
       if (branch !== undefined) return branch;
@@ -165,7 +167,7 @@ const automatedBranchInspectionFailure = (): PremiumGitRunner => {
     "refs/remotes/pocketdecks/automated/refresh": `{ "premium": "${versions.secondHead}" }\n`,
   });
   return (args, cwd) => {
-    if (args[0] === "ls-tree" && args[3].includes("/automated/")) throw new Error("exit status 128");
+    if (args[0] === "ls-tree" && lsTreeRef(args).includes("/automated/")) throw new Error("exit status 128");
     return git(args, cwd);
   };
 };
@@ -300,6 +302,78 @@ describe("premium retention discovery", () => {
       expect(result?.automatedBranchVersions).toEqual([versions.secondHead]);
       expect(warnings.join("\n")).toContain("refs/remotes/pocketdecks/automated/broken");
       expect(warnings.join("\n")).not.toContain("refs/remotes/pocketdecks/automated/refresh");
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it.each([
+    ["an empty object", "{}"],
+    ["a malformed hash", '{ "premium": "deadbeef" }'],
+    ["an array", "[]"],
+  ])("skips an automated branch whose version file is %s and names the ref", async (_name, contents) => {
+    const warnings: string[] = [];
+    const warn = vi.spyOn(console, "warn").mockImplementation((message?: unknown) => {
+      warnings.push(String(message));
+    });
+    try {
+      const result = await discover({
+        repoRoot: "fake-repo",
+        runGit: automatedBranchesGit({
+          "refs/remotes/pocketdecks/automated/broken": contents,
+          "refs/remotes/pocketdecks/automated/refresh": `{ "premium": "${versions.secondHead}" }\n`,
+        }),
+        fetcher: successfulFetch([]),
+      });
+
+      expect(result?.automatedBranchVersions).toEqual([versions.secondHead]);
+      expect(warnings.join("\n")).toContain("skipping automated branch refs/remotes/pocketdecks/automated/broken");
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it("reads only refs under automated/ and ignores every other branch", async () => {
+    const warnings: string[] = [];
+    const warn = vi.spyOn(console, "warn").mockImplementation((message?: unknown) => {
+      warnings.push(String(message));
+    });
+    try {
+      const result = await discover({
+        repoRoot: "fake-repo",
+        runGit: automatedBranchesGit({
+          "refs/heads/main": "{",
+          "refs/heads/automated-lookalike": "{",
+          "refs/remotes/origin/feature": "{",
+          "refs/remotes/pocketdecks/automated/refresh": `{ "premium": "${versions.secondHead}" }\n`,
+        }),
+        fetcher: successfulFetch([]),
+      });
+
+      expect(result?.automatedBranchVersions).toEqual([versions.secondHead]);
+      expect(warnings).toEqual([]);
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it("names the branch when git cannot read an automated ref and prunes nothing", async () => {
+    const warnings: string[] = [];
+    const warn = vi.spyOn(console, "warn").mockImplementation((message?: unknown) => {
+      warnings.push(String(message));
+    });
+    try {
+      const result = await discover({
+        repoRoot: "fake-repo",
+        runGit: automatedBranchInspectionFailure(),
+        fetcher: successfulFetch([]),
+      });
+
+      expect(result).toBeUndefined();
+      expect(warnings.join("\n")).toContain(
+        "could not read the premium version on refs/remotes/pocketdecks/automated/refresh"
+      );
+      expect(warnings.join("\n")).toContain("no older version is deleted");
     } finally {
       warn.mockRestore();
     }

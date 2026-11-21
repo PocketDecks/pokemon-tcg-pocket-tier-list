@@ -308,6 +308,28 @@ describe("downloadDecks", () => {
       fs.writeFileSync(path.join(dataDir, "processed-tournaments.json"), "[]");
     };
 
+    it("checks again before every later batch", async () => {
+      const listing = tournaments(BATCH_SIZE + 1);
+      getTournaments.mockResolvedValue(listing);
+      let open: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        open = resolve;
+      });
+      getTournamentDecks.mockImplementation(async (t: { id: string }) => {
+        if (t === listing[BATCH_SIZE]) await gate;
+        return [deck(`${t.id}-player`)];
+      });
+      const outcome = downloadDecks().catch((thrown: Error) => thrown);
+      await vi.waitFor(() => expect(processedIds()).toHaveLength(BATCH_SIZE));
+      fs.writeFileSync(path.join(dataDir, "decks", "stray.ndjson.bak"), "");
+
+      open();
+      const error = await outcome;
+
+      expect((error as Error).message).toMatch(/interrupted write left staging files/);
+      expect(processedIds()).toHaveLength(BATCH_SIZE);
+    });
+
     it.each([
       [
         "a staged processed list",

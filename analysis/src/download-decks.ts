@@ -25,6 +25,14 @@ const MAX_LOCK_DELAY_MS = 5_000;
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
+const interruptedWriteMessage = (stale: string[]): string => {
+  const unfinished = stale.includes(`${processedFile()}.tmp`);
+  const advice = unfinished
+    ? "the last commit did not finish: restore each .bak over its target, remove targets that have a .created marker, then delete the remaining staging files"
+    : "the last commit finished: delete them";
+  return `An interrupted write left staging files (${stale.join(", ")}); ${advice}, then run store:verify`;
+};
+
 const withStoreLockWaiting = async <T>(wait: LockWait, fn: () => T & SyncResult<T>): Promise<T> => {
   for (let attempt = 0; ; attempt += 1) {
     try {
@@ -99,11 +107,7 @@ export const downloadDecks = async ({
     // shards cannot land between them.
     await withStoreLockWaiting(lockWait, () => {
       const stale = findStagingFiles(decksDir(), processedFile());
-      if (stale.length > 0) {
-        throw new Error(
-          `An interrupted write left staging files (${stale.join(", ")}); run store:verify and clear them before rerunning`
-        );
-      }
+      if (stale.length > 0) throw new Error(interruptedWriteMessage(stale));
       const processed = readProcessed();
       const recorded = new Set(processed.map(idOf));
       const fresh = batch.flatMap((tournament, index) =>

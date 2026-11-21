@@ -218,9 +218,13 @@ describe("downloadDecks", () => {
     };
 
     it.each([
-      ["a staged processed list", () => path.join(dataDir, "processed-tournaments.json.tmp")],
-      ["a shard backup", () => path.join(dataDir, "decks", "manifest.json.bak")],
-    ])("names %s instead of reporting a duplicate deck", async (_label, stagingFile) => {
+      [
+        "a staged processed list",
+        () => path.join(dataDir, "processed-tournaments.json.tmp"),
+        /did not finish: restore each \.bak over its target, remove targets that have a \.created marker/,
+      ],
+      ["a shard backup", () => path.join(dataDir, "decks", "manifest.json.bak"), /finished: delete them/],
+    ])("names %s and the way to recover instead of reporting a duplicate deck", async (_label, stagingFile, advice) => {
       await seedOrphan();
       fs.writeFileSync(stagingFile(), "");
       getTournaments.mockResolvedValue(tournaments(1));
@@ -228,6 +232,8 @@ describe("downloadDecks", () => {
       const error = await downloadDecks().catch((thrown: Error) => thrown);
 
       expect((error as Error).message).toMatch(/interrupted write left staging files/);
+      expect((error as Error).message).toMatch(advice);
+      expect((error as Error).message).toMatch(/store:verify/);
       expect((error as Error).message).not.toMatch(/already exists/);
       expect(processedIds()).toEqual([]);
     });

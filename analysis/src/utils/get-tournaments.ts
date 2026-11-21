@@ -7,14 +7,19 @@ import { isStandardListing } from "./tournament-format";
 
 const GAME = "POCKET";
 
+const readProcessedFile = (): Tournament[] =>
+  JSON.parse(fs.readFileSync(processedFile(), "utf-8"));
+
 const readProcessedTournaments = (): Tournament[] => {
   if (!fs.existsSync(processedFile())) return [];
-  try {
-    return JSON.parse(fs.readFileSync(processedFile(), "utf-8"));
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
-    throw error;
+  for (let read = 0; read < 2; read += 1) {
+    try {
+      return readProcessedFile();
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
   }
+  return [];
 };
 
 export interface TournamentFilter {

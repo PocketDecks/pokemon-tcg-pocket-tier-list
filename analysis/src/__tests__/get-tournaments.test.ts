@@ -139,9 +139,28 @@ describe("getTournaments", () => {
     vi.mocked(fs.readFileSync).mockImplementation(() => {
       throw Object.assign(new Error("ENOENT: no such file or directory"), { code: "ENOENT" });
     });
-    global.fetch = respond([{ id: "1", players: 150 }]);
+    global.fetch = respond([
+      { id: "1", players: 150 },
+      { id: "2", players: 150 },
+    ]);
 
-    expect((await getTournaments()).map((tournament) => tournament.id)).toEqual(["1"]);
+    expect((await getTournaments()).map((tournament) => tournament.id)).toEqual(["1", "2"]);
+    expect(fs.readFileSync).toHaveBeenCalledTimes(2);
+  });
+
+  it("re-reads a processed file that is briefly absent during a rename", async () => {
+    let reads = 0;
+    vi.mocked(fs.readFileSync).mockImplementation(() => {
+      if (reads++ > 0) return JSON.stringify([{ id: "1" }]);
+      throw Object.assign(new Error("ENOENT: no such file or directory"), { code: "ENOENT" });
+    });
+    global.fetch = respond([
+      { id: "1", players: 150 },
+      { id: "2", players: 150 },
+    ]);
+
+    expect((await getTournaments()).map((tournament) => tournament.id)).toEqual(["2"]);
+    expect(fs.readFileSync).toHaveBeenCalledTimes(2);
   });
 
   it("still fails on a read error other than a missing file", async () => {

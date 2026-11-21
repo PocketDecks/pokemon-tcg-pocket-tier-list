@@ -137,8 +137,8 @@ const removeOrWarn = (file: string, warning: string, options?: fs.RmOptions): bo
 };
 
 const committedWarning = (kind: string, file: string): string =>
-  `Could not remove artefact ${kind} ${file}. The committed ` +
-  `target remains active. Verify it and remove the ${kind} before rerunning:`;
+  `Could not remove artefact ${kind} ${file}. The committed target remains active. ` +
+  "Follow docs/reference/analysis-pipeline.md#recovering-from-an-interrupted-write before rerunning:";
 
 const cleanUpAfterFailure = (artefacts: Artefact[]): void => {
   for (const artefact of artefacts) {

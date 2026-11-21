@@ -89,6 +89,30 @@ describe("writeArtefacts", () => {
     expect(fs.existsSync(`${second}.bak`)).toBe(true);
   });
 
+  it("points backup-cleanup warnings to the recovery procedure", () => {
+    const directory = makeTempDirectory();
+    const target = path.join(directory, "manifest.json");
+    const backup = `${target}.bak`;
+    const committed = `${target}.committed`;
+    fs.writeFileSync(target, "old manifest");
+    const warning = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const realRmSync = fs.rmSync;
+    vi.spyOn(fs, "rmSync").mockImplementation((file, options) => {
+      if (file === backup) throw new Error("injected backup cleanup failure");
+      return realRmSync(file, options);
+    });
+
+    writeArtefacts({ [target]: "new manifest" });
+
+    expect(fs.readFileSync(target, "utf8")).toBe("new manifest");
+    expect(fs.readFileSync(backup, "utf8")).toBe("old manifest");
+    expect(fs.readFileSync(committed, "utf8")).toBe("");
+    expect(warning).toHaveBeenCalledWith(
+      `Could not remove artefact backup ${backup}. The committed target remains active. Follow docs/reference/analysis-pipeline.md#recovering-from-an-interrupted-write before rerunning:`,
+      expect.any(Error)
+    );
+  });
+
   it("retains failed rollback cleanup and reports its location", () => {
     const directory = makeTempDirectory();
     const first = path.join(directory, "first.json");

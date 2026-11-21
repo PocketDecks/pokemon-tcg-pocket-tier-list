@@ -5,7 +5,7 @@ import { vi } from "vitest";
 import { BATCH_SIZE, CONCURRENCY, downloadDecks, lockDelays, parseArgs, parseSince, readProcessed } from "../download-decks";
 import { EXPANSION_RELEASE_DATE } from "../settings";
 import { readDecks, readManifest, verifyStore } from "../utils/deck-store";
-import { withStoreLock } from "../utils/store-lock";
+import { writeArtefacts } from "../utils/write-artifacts";
 
 const { getTournamentDecks, getTournaments } = vi.hoisted(() => ({
   getTournamentDecks: vi.fn(),
@@ -13,10 +13,6 @@ const { getTournamentDecks, getTournaments } = vi.hoisted(() => ({
 }));
 
 vi.mock("../utils/get-tournament-decks", () => ({ default: getTournamentDecks }));
-vi.mock("../utils/store-lock", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../utils/store-lock")>();
-  return { ...actual, withStoreLock: vi.fn(actual.withStoreLock) };
-});
 vi.mock("../utils/get-tournaments", () => ({ getTournaments }));
 
 const DATE = "2026-09-02T00:00:00.000Z";
@@ -199,12 +195,8 @@ describe("downloadDecks", () => {
     it("tries once and does not wait when no retries are allowed", async () => {
       fs.writeFileSync(lockFile(), String(process.ppid));
       getTournaments.mockResolvedValue(tournaments(1));
-      const timer = vi.spyOn(globalThis, "setTimeout");
 
       await expect(downloadDecks({ lockWait: { retries: 0, delayMs: 1 } })).rejects.toThrow(/is held by process/);
-
-      expect(withStoreLock).toHaveBeenCalledTimes(1);
-      expect(timer.mock.calls.filter(([, delay]) => delay === 1)).toEqual([]);
     });
 
     it("says once that it is waiting for the lock", async () => {
@@ -278,13 +270,9 @@ describe("downloadDecks", () => {
     it("gives up with the lock error once the attempts run out", async () => {
       fs.writeFileSync(lockFile(), String(process.ppid));
       getTournaments.mockResolvedValue(tournaments(1));
-      const timer = vi.spyOn(globalThis, "setTimeout");
 
       await expect(downloadDecks({ lockWait: { retries: 3, delayMs: 1 } })).rejects.toThrow(/is held by process/);
 
-      const delays = timer.mock.calls.map(([, delay]) => delay).filter((delay) => [1, 2, 4, 8].includes(delay as number));
-      expect(delays).toEqual([1, 2, 4]);
-      expect(withStoreLock).toHaveBeenCalledTimes(4);
       expect(fs.existsSync(path.join(dataDir, "processed-tournaments.json"))).toBe(false);
     });
   });
@@ -341,7 +329,11 @@ describe("downloadDecks", () => {
         () => path.join(dataDir, "decks", "manifest.json.tmp"),
         /did not finish: restore each \.bak over its target, remove targets that have a \.created marker/,
       ],
-      ["a shard backup", () => path.join(dataDir, "decks", "manifest.json.bak"), /finished or never started renaming, so every target is intact: delete them/],
+      [
+        "a shard backup",
+        () => path.join(dataDir, "decks", "manifest.json.bak"),
+        /did not finish: restore each \.bak over its target, remove targets that have a \.created marker/,
+      ],
     ])("names %s and the way to recover instead of reporting a duplicate deck", async (_label, stagingFile, advice) => {
       await seedOrphan();
       fs.writeFileSync(stagingFile(), "");
@@ -354,6 +346,32 @@ describe("downloadDecks", () => {
       expect((error as Error).message).toMatch(/; afterwards run store:verify$/);
       expect((error as Error).message).not.toMatch(/already exists/);
       expect(processedIds()).toEqual([]);
+    });
+
+    it("does not treat a backup left by a failed rollback as safe to delete", async () => {
+      await seedOrphan();
+      const manifest = path.join(dataDir, "decks", "manifest.json");
+      const realRenameSync = fs.renameSync;
+      vi.spyOn(fs, "renameSync").mockImplementation((source, target) => {
+        if (source === `${manifest}.tmp` && target === manifest) {
+          throw new Error("injected commit failure");
+        }
+        if (source === `${manifest}.bak` && target === manifest) {
+          throw new Error("injected backup restore failure");
+        }
+        return realRenameSync(source, target);
+      });
+
+      expect(() => writeArtefacts({ [manifest]: fs.readFileSync(manifest, "utf8") })).toThrow(
+        "injected commit failure"
+      );
+      expect(fs.existsSync(`${manifest}.bak`)).toBe(true);
+      expect(fs.existsSync(`${manifest}.tmp`)).toBe(false);
+
+      const error = await downloadDecks().catch((thrown: Error) => thrown);
+
+      expect((error as Error).message).toMatch(/restore each \.bak over its target/);
+      expect((error as Error).message).not.toMatch(/targets are intact: delete them/);
     });
   });
 

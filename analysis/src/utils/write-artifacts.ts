@@ -13,6 +13,8 @@ type Artefact = {
   retainTemporary: boolean;
 };
 
+const COMMITTED_SUFFIX = ".committed";
+
 const planArtefacts = (files: Record<string, string>): Artefact[] =>
   Object.keys(files).map((target) => {
     const hadTarget = fs.existsSync(target);
@@ -38,7 +40,8 @@ const preflight = (artefacts: Artefact[]): void => {
     if (
       fs.existsSync(artefact.temporary) ||
       fs.existsSync(artefact.backup) ||
-      fs.existsSync(artefact.marker)
+      fs.existsSync(artefact.marker) ||
+      fs.existsSync(`${artefact.target}${COMMITTED_SUFFIX}`)
     ) {
       refuseStale(artefact);
     }
@@ -118,11 +121,13 @@ const rollback = (artefacts: Artefact[]): void => {
   }
 };
 
-const removeOrWarn = (file: string, warning: string, options?: fs.RmOptions): void => {
+const removeOrWarn = (file: string, warning: string, options?: fs.RmOptions): boolean => {
   try {
     fs.rmSync(file, options);
+    return true;
   } catch (cleanupError) {
     console.warn(warning, cleanupError);
+    return false;
   }
 };
 
@@ -154,6 +159,8 @@ const cleanUpAfterCommit = (artefacts: Artefact[]): void => {
 export const writeArtefacts = (files: Record<string, string>): void => {
   const artefacts = planArtefacts(files);
   preflight(artefacts);
+  if (artefacts.length === 0) return;
+  const committed = `${artefacts[0].target}${COMMITTED_SUFFIX}`;
   try {
     stage(artefacts);
     commit(artefacts);
@@ -162,5 +169,10 @@ export const writeArtefacts = (files: Record<string, string>): void => {
     cleanUpAfterFailure(artefacts);
     throw error;
   }
+  fs.writeFileSync(committed, "");
   cleanUpAfterCommit(artefacts);
+  const leftovers = artefacts.some(
+    (artefact) => fs.existsSync(artefact.backup) || fs.existsSync(artefact.marker)
+  );
+  if (!leftovers) removeOrWarn(committed, committedWarning("commit marker", committed));
 };

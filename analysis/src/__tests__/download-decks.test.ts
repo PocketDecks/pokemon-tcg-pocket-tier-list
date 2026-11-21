@@ -322,19 +322,20 @@ describe("downloadDecks", () => {
       [
         "a staged processed list",
         () => path.join(dataDir, "processed-tournaments.json.tmp"),
-        /did not finish: restore each \.bak over its target, remove targets that have a \.created marker/,
       ],
       [
         "a staged manifest with no staged processed list",
         () => path.join(dataDir, "decks", "manifest.json.tmp"),
-        /did not finish: restore each \.bak over its target, remove targets that have a \.created marker/,
       ],
       [
         "a shard backup",
         () => path.join(dataDir, "decks", "manifest.json.bak"),
-        /did not finish: restore each \.bak over its target, remove targets that have a \.created marker/,
       ],
-    ])("names %s and the way to recover instead of reporting a duplicate deck", async (_label, stagingFile, advice) => {
+      [
+        "a created marker",
+        () => path.join(dataDir, "decks", "manifest.json.created"),
+      ],
+    ])("names %s without prescribing recovery when completion is unknown", async (_label, stagingFile) => {
       await seedOrphan();
       fs.writeFileSync(stagingFile(), "");
       getTournaments.mockResolvedValue(tournaments(1));
@@ -342,13 +343,36 @@ describe("downloadDecks", () => {
       const error = await downloadDecks().catch((thrown: Error) => thrown);
 
       expect((error as Error).message).toMatch(/interrupted write left staging files/);
-      expect((error as Error).message).toMatch(advice);
+      expect((error as Error).message).toMatch(/commit completion is unknown: do not restore or delete staging files/);
       expect((error as Error).message).toMatch(/; afterwards run store:verify$/);
       expect((error as Error).message).not.toMatch(/already exists/);
       expect(processedIds()).toEqual([]);
     });
 
-    it("does not treat a backup left by a failed rollback as safe to delete", async () => {
+    it("recognizes cleanup interrupted after a completed commit", async () => {
+      await seedOrphan();
+      const manifest = path.join(dataDir, "decks", "manifest.json");
+      const realRmSync = fs.rmSync;
+      vi.spyOn(fs, "rmSync").mockImplementation((target, options) => {
+        if (target === `${manifest}.bak`) throw new Error("injected backup cleanup failure");
+        return realRmSync(target, options);
+      });
+
+      writeArtefacts({ [manifest]: "committed manifest" });
+
+      expect(fs.readFileSync(manifest, "utf8")).toBe("committed manifest");
+      expect(fs.existsSync(`${manifest}.bak`)).toBe(true);
+      expect(fs.existsSync(`${manifest}.committed`)).toBe(true);
+
+      const error = await downloadDecks().catch((thrown: Error) => thrown);
+
+      expect((error as Error).message).toMatch(
+        /the commit completed: verify the store, then delete the remaining cleanup files/
+      );
+      expect((error as Error).message).not.toMatch(/commit completion is unknown/);
+    });
+
+    it("does not prescribe recovery after a failed rollback", async () => {
       await seedOrphan();
       const manifest = path.join(dataDir, "decks", "manifest.json");
       const realRenameSync = fs.renameSync;
@@ -367,11 +391,11 @@ describe("downloadDecks", () => {
       );
       expect(fs.existsSync(`${manifest}.bak`)).toBe(true);
       expect(fs.existsSync(`${manifest}.tmp`)).toBe(false);
+      expect(fs.existsSync(`${manifest}.committed`)).toBe(false);
 
       const error = await downloadDecks().catch((thrown: Error) => thrown);
 
-      expect((error as Error).message).toMatch(/restore each \.bak over its target/);
-      expect((error as Error).message).not.toMatch(/targets are intact: delete them/);
+      expect((error as Error).message).toMatch(/commit completion is unknown: do not restore or delete staging files/);
     });
   });
 

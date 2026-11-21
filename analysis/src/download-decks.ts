@@ -29,10 +29,11 @@ export const lockDelays = ({ retries, delayMs }: LockWait): number[] =>
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 const interruptedWriteMessage = (stale: string[]): string => {
-  const needsRecovery = stale.some((file) => file.endsWith(".tmp") || file.endsWith(".bak"));
-  const advice = needsRecovery
-    ? "the last commit did not finish: restore each .bak over its target, remove targets that have a .created marker, then delete the remaining staging files"
-    : "the last write finished or never started renaming, so every target is intact: delete them";
+  const completed = stale.some((file) => file.endsWith(".committed"));
+  const incompleteCleanup = stale.some((file) => file.endsWith(".tmp") || file.endsWith(".tmp.owner"));
+  const advice = completed && !incompleteCleanup
+    ? "the commit completed: verify the store, then delete the remaining cleanup files"
+    : "commit completion is unknown: do not restore or delete staging files; keep the write blocked and inspect the store";
   return `An interrupted write left staging files (${stale.join(", ")}); ${advice}; afterwards run store:verify`;
 };
 

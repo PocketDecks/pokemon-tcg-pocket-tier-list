@@ -145,7 +145,7 @@ export const planDeckWrites = (dir: string, incoming: readonly StoredDeck[]): Re
   return files;
 };
 
-const STAGING_SUFFIXES = [".tmp", ".tmp.owner", ".bak", ".created"];
+const STAGING_SUFFIXES = [".tmp", ".tmp.owner", ".bak", ".created", ".committed"];
 
 const isStagingName = (name: string): boolean => STAGING_SUFFIXES.some((suffix) => name.endsWith(suffix));
 

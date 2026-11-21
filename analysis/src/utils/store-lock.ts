@@ -15,6 +15,8 @@ const ownClaimsKey = Symbol.for("pokemon-tcg-pocket.store-lock.own-claims");
 const sharedWithOwnClaims = globalThis as typeof globalThis & { [ownClaimsKey]?: Set<string> };
 const ownClaims: Set<string> = (sharedWithOwnClaims[ownClaimsKey] ??= new Set<string>());
 
+export class StoreLockBusyError extends Error {}
+
 const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
 const isRunning = (pid: number): boolean => {
@@ -266,14 +268,14 @@ const removeStaleClaims = (lockFile: string, ownClaim: string): void => {
     if (held !== undefined) {
       if (isRunning(held)) {
         const lockAbsent = lockIsAbsent(lockFile);
-        throw new Error(claimHeldMessage(candidate, held, lockAbsent && isYoung(candidate)));
+        throw new StoreLockBusyError(claimHeldMessage(candidate, held, lockAbsent && isYoung(candidate)));
       }
     } else {
       const age = lockAgeMs(candidate);
       if (age === undefined) continue;
       if (age < LOCK_CONTENT_GRACE_MS) {
         const lockAbsent = lockIsAbsent(lockFile);
-        throw new Error(claimHeldMessage(candidate, undefined, lockAbsent));
+        throw new StoreLockBusyError(claimHeldMessage(candidate, undefined, lockAbsent));
       }
     }
 
@@ -328,14 +330,14 @@ const createClaim = (lockFile: string): string => {
     return claim;
   }
 
-  throw new Error(changingMessage(lockFile));
+  throw new StoreLockBusyError(changingMessage(lockFile));
 };
 
 const reclaimStale = (lockFile: string, inspected: string): void => {
   const current = readLockContents(lockFile);
   if (current === undefined) return;
   if (current !== inspected) {
-    if (blocksReclaim(lockFile, current)) throw new Error(heldMessage(lockFile, current));
+    if (blocksReclaim(lockFile, current)) throw new StoreLockBusyError(heldMessage(lockFile, current));
     return;
   }
 
@@ -362,7 +364,7 @@ const reclaimStale = (lockFile: string, inspected: string): void => {
     throw new Error(displacedMessage(lockFile, readLockContents(lockFile), moved));
   }
   fs.rmSync(moved, { force: true });
-  if (blocksReclaim(lockFile, movedContents)) throw new Error(heldMessage(lockFile, movedContents));
+  if (blocksReclaim(lockFile, movedContents)) throw new StoreLockBusyError(heldMessage(lockFile, movedContents));
 };
 
 const acquire = (lockFile: string): string => {
@@ -374,12 +376,12 @@ const acquire = (lockFile: string): string => {
       const contents = readLockContents(lockFile);
       if (contents === undefined) continue;
 
-      if (blocksReclaim(lockFile, contents)) throw new Error(heldMessage(lockFile, contents));
+      if (blocksReclaim(lockFile, contents)) throw new StoreLockBusyError(heldMessage(lockFile, contents));
 
       reclaimStale(lockFile, contents);
     }
 
-    throw new Error(changingMessage(lockFile));
+    throw new StoreLockBusyError(changingMessage(lockFile));
   } catch (error) {
     throw failedWithCleanup(error, () => removeClaim(lockFile, claim));
   }

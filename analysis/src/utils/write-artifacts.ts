@@ -13,6 +13,10 @@ type Artefact = {
   retainTemporary: boolean;
 };
 
+const COMMITTED_SUFFIX = ".committed";
+
+const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+
 const planArtefacts = (files: Record<string, string>): Artefact[] =>
   Object.keys(files).map((target) => {
     const hadTarget = fs.existsSync(target);
@@ -38,7 +42,8 @@ const preflight = (artefacts: Artefact[]): void => {
     if (
       fs.existsSync(artefact.temporary) ||
       fs.existsSync(artefact.backup) ||
-      fs.existsSync(artefact.marker)
+      fs.existsSync(artefact.marker) ||
+      fs.existsSync(`${artefact.target}${COMMITTED_SUFFIX}`)
     ) {
       refuseStale(artefact);
     }
@@ -108,27 +113,32 @@ const rollbackOne = (artefact: Artefact): void => {
   }
 };
 
-const rollback = (artefacts: Artefact[]): void => {
+const rollback = (artefacts: Artefact[]): string[] => {
+  const failures: string[] = [];
   for (const artefact of [...artefacts].reverse()) {
     try {
       rollbackOne(artefact);
     } catch (rollbackError) {
       console.warn(`Could not roll back artefact ${artefact.target}:`, rollbackError);
+      failures.push(`rollback failed for ${artefact.target}: ${errorMessage(rollbackError)}`);
     }
   }
+  return failures;
 };
 
-const removeOrWarn = (file: string, warning: string, options?: fs.RmOptions): void => {
+const removeOrWarn = (file: string, warning: string, options?: fs.RmOptions): boolean => {
   try {
     fs.rmSync(file, options);
+    return true;
   } catch (cleanupError) {
     console.warn(warning, cleanupError);
+    return false;
   }
 };
 
 const committedWarning = (kind: string, file: string): string =>
-  `Could not remove artefact ${kind} ${file}. The committed ` +
-  `target remains active. Verify it and remove the ${kind} before rerunning:`;
+  `Could not remove artefact ${kind} ${file}. The committed target remains active. ` +
+  "Follow docs/reference/analysis-pipeline.md#recovering-from-an-interrupted-write before rerunning:";
 
 const cleanUpAfterFailure = (artefacts: Artefact[]): void => {
   for (const artefact of artefacts) {
@@ -139,6 +149,12 @@ const cleanUpAfterFailure = (artefacts: Artefact[]): void => {
     );
   }
 };
+
+const recoveryFiles = (artefacts: Artefact[], committed: string): string[] =>
+  [
+    ...artefacts.flatMap((artefact) => [artefact.temporary, artefact.backup, artefact.marker]),
+    committed,
+  ].filter((file) => fs.existsSync(file));
 
 const cleanUpAfterCommit = (artefacts: Artefact[]): void => {
   for (const artefact of artefacts) {
@@ -154,13 +170,41 @@ const cleanUpAfterCommit = (artefacts: Artefact[]): void => {
 export const writeArtefacts = (files: Record<string, string>): void => {
   const artefacts = planArtefacts(files);
   preflight(artefacts);
+  if (artefacts.length === 0) return;
+  const committed = `${artefacts[0].target}${COMMITTED_SUFFIX}`;
+  let markerAttempted = false;
   try {
     stage(artefacts);
     commit(artefacts);
+    markerAttempted = true;
+    fs.writeFileSync(committed, "");
   } catch (error) {
-    rollback(artefacts);
+    if (markerAttempted && fs.existsSync(committed)) {
+      try {
+        fs.rmSync(committed, { force: true });
+      } catch (markerError) {
+        const remaining = recoveryFiles(artefacts, committed);
+        throw new Error(
+          `${errorMessage(error)}; could not remove completion marker ${committed}: ` +
+            `${errorMessage(markerError)}; targets remain installed and commit completion is unknown; ` +
+            `do not restore or delete staging files (${remaining.join(", ")}); inspect the store`
+        );
+      }
+    }
+    const rollbackFailures = rollback(artefacts);
+    if (rollbackFailures.length > 0) {
+      const remaining = recoveryFiles(artefacts, committed);
+      throw new Error(
+        `${errorMessage(error)}; ${rollbackFailures.join("; ")}; commit completion is unknown; ` +
+          `do not restore or delete staging files (${remaining.join(", ")}); inspect the store`
+      );
+    }
     cleanUpAfterFailure(artefacts);
     throw error;
   }
   cleanUpAfterCommit(artefacts);
+  const leftovers = artefacts.some(
+    (artefact) => fs.existsSync(artefact.backup) || fs.existsSync(artefact.marker)
+  );
+  if (!leftovers) removeOrWarn(committed, committedWarning("commit marker", committed));
 };

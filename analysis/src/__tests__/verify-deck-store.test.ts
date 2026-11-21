@@ -99,7 +99,7 @@ describe("verify-deck-store", () => {
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining("duplicate processed tournament"));
   });
 
-  it.each([".tmp", ".tmp.owner", ".bak", ".created"])("fails on a leftover processed-tournaments %s file", (suffix) => {
+  it.each([".tmp", ".tmp.owner", ".bak", ".created", ".committed"])("fails on a leftover processed-tournaments %s file", (suffix) => {
     healthyStore();
     const processed = path.join(dir, "processed-tournaments.json");
     fs.writeFileSync(processed, JSON.stringify([{ id: "t1", date: "2026-09-01" }]));
@@ -111,7 +111,7 @@ describe("verify-deck-store", () => {
     );
   });
 
-  it.each([".tmp", ".tmp.owner", ".bak", ".created"])("fails on a stray shard %s file", (suffix) => {
+  it.each([".tmp", ".tmp.owner", ".bak", ".created", ".committed"])("fails on a stray shard %s file", (suffix) => {
     healthyStore();
     fs.writeFileSync(path.join(dir, `shard-2026-09.ndjson${suffix}`), "x");
 

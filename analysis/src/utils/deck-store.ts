@@ -145,6 +145,29 @@ export const planDeckWrites = (dir: string, incoming: readonly StoredDeck[]): Re
   return files;
 };
 
+const STAGING_SUFFIXES = [".tmp", ".tmp.owner", ".bak", ".created", ".committed"];
+
+const isStagingName = (name: string): boolean => STAGING_SUFFIXES.some((suffix) => name.endsWith(suffix));
+
+export const findStagingFiles = (dir: string, processed?: string): string[] => {
+  const inStore = fs.existsSync(dir)
+    ? fs
+        .readdirSync(dir)
+        .filter(isStagingName)
+        .sort()
+        .map((name) => path.join(dir, name))
+    : [];
+  const besideProcessed = processed
+    ? STAGING_SUFFIXES.map((suffix) => `${processed}${suffix}`).filter((file) => fs.existsSync(file))
+    : [];
+  return [...inStore, ...besideProcessed];
+};
+
+export const interruptedWriteMessage = (stale: string[]): string =>
+  `An interrupted write left staging files (${stale.join(", ")}); ` +
+  "commit completion is unknown: do not restore or delete staging files; " +
+  "keep the write blocked and inspect the store; afterwards run store:verify";
+
 export interface StoreProblem {
   shard: string;
   message: string;
@@ -154,7 +177,7 @@ const verifyProcessedFile = (processed: string, hasShards: boolean): StoreProble
   const problems: StoreProblem[] = [];
   const base = path.basename(processed);
   const parent = path.dirname(processed);
-  for (const suffix of [".tmp", ".tmp.owner", ".bak", ".created"]) {
+  for (const suffix of STAGING_SUFFIXES) {
     if (fs.existsSync(path.join(parent, `${base}${suffix}`))) {
       problems.push({ shard: base, message: `interrupted processed-tournaments write: ${base}${suffix}` });
     }
@@ -232,12 +255,7 @@ export const verifyStore = (dir: string, options: { placement?: boolean; process
     for (const name of fs.readdirSync(dir).sort()) {
       if (name.endsWith(".ndjson") && !tracked.has(name)) {
         problems.push({ shard: name.slice(0, -".ndjson".length), message: `untracked shard file ${name}` });
-      } else if (
-        name.endsWith(".tmp") ||
-        name.endsWith(".tmp.owner") ||
-        name.endsWith(".bak") ||
-        name.endsWith(".created")
-      ) {
+      } else if (isStagingName(name)) {
         problems.push({ shard: name, message: `stray staging file ${name}` });
       }
     }

@@ -7,7 +7,11 @@ const PORT = 4173;
 const ORIGIN = `http://127.0.0.1:${PORT}`;
 const PRERENDER_USER_AGENT = "prerender-routes";
 const ROUTE_READY_TIMEOUT = 20000;
-const CARD_DB_ORIGIN = "https://raw.githubusercontent.com/chase-mew/pokemon-tcg-pocket-cards";
+const CARD_DB_ORIGIN = "https://raw.githubusercontent.com/PocketDecks/pokemon-tcg-pocket-cards/";
+const CARD_IMAGE_STUB = Buffer.from(
+  "UklGRkAAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAIAAAAAAFZQOCAYAAAAMAEAnQEqAQABAAFAJiWkAANwAP79NmgA",
+  "base64"
+);
 const MAX_CONSOLE_MESSAGES = 10;
 const DIAGNOSTIC_TEXT_LIMIT = 500;
 const pageDiagnostics = new WeakMap();
@@ -154,6 +158,7 @@ const createPrerenderPage = async (target, pageErrors = []) => {
   const page = await target.newPage();
   const diagnostics = {
     pageErrors: [],
+    completedPageErrors: [],
     consoleMessages: [],
     failedRequests: [],
     sharedPageErrors: pageErrors,
@@ -168,7 +173,11 @@ const createPrerenderPage = async (target, pageErrors = []) => {
     pageErrors.push(message);
     owners.push(diagnostics.currentAttempt?.token ?? null);
     diagnostics.pageErrors.push(message);
-    diagnostics.currentAttempt?.pageErrors.push(message);
+    if (diagnostics.currentAttempt) {
+      diagnostics.currentAttempt.pageErrors.push(message);
+    } else {
+      diagnostics.completedPageErrors.push(message);
+    }
   });
   page.on("console", (message) => {
     diagnostics.consoleMessages.push({
@@ -189,8 +198,18 @@ const createPrerenderPage = async (target, pageErrors = []) => {
   await page.setRequestInterception(true);
   page.on("request", (req) => {
     const url = req.url();
-    if (url.startsWith(ORIGIN) || url.startsWith(CARD_DB_ORIGIN)) req.continue();
-    else req.abort();
+    if (url.startsWith(ORIGIN)) return req.continue();
+    if (url.startsWith(CARD_DB_ORIGIN)) {
+      const extension = path.extname(new URL(url).pathname).toLowerCase();
+      return req.respond({
+        status: 200,
+        headers: {
+          "content-type": MIME[extension] || "application/octet-stream",
+        },
+        body: CARD_IMAGE_STUB,
+      });
+    }
+    return req.abort();
   });
   return page;
 };
@@ -220,7 +239,7 @@ const runWithRouteRetry = async (page, route, work, { beforeRetry } = {}) => {
       });
   };
   try {
-    return await retryOnce(runAttempt, {
+    const result = await retryOnce(runAttempt, {
       onRetry: async (error) => {
         if (diagnostics && attempts[0]) {
           removePageErrorsForAttempt(diagnostics, attempts[0].token);
@@ -229,11 +248,18 @@ const runWithRouteRetry = async (page, route, work, { beforeRetry } = {}) => {
         await beforeRetry?.(error);
       },
     });
+    if (diagnostics && attempts.length) {
+      diagnostics.completedPageErrors.push(...attempts.at(-1).pageErrors);
+    }
+    return result;
   } catch (cause) {
     throw buildRouteError({
       route,
       cause,
-      pageErrors: attempts.flatMap((attempt) => attempt.pageErrors),
+      pageErrors: [
+        ...(diagnostics?.completedPageErrors ?? []),
+        ...attempts.flatMap((attempt) => attempt.pageErrors),
+      ],
       consoleMessages: diagnostics?.consoleMessages,
       failedRequests: diagnostics?.failedRequests,
     });

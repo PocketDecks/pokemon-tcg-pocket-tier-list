@@ -20,10 +20,28 @@ const makeFakePage = (url) => {
       listeners.set(event, eventListeners);
     },
     emit: (event, ...args) => {
-      for (const listener of listeners.get(event) ?? []) listener(...args);
+      return (listeners.get(event) ?? []).map((listener) => listener(...args));
     },
+    handlersFor: (event) => listeners.get(event) ?? [],
     setUserAgent: async () => {},
     setRequestInterception: async () => {},
+  };
+};
+
+const makeFakeRequest = (url) => {
+  const calls = { continued: 0, aborted: 0, responses: [] };
+  return {
+    url: () => url,
+    continue: async () => {
+      calls.continued += 1;
+    },
+    abort: async () => {
+      calls.aborted += 1;
+    },
+    respond: async (response) => {
+      calls.responses.push(response);
+    },
+    calls,
   };
 };
 
@@ -300,4 +318,70 @@ test("waitForRouteReady reloads once after its first timeout", async () => {
   assert.strictEqual(warnings.length, 1);
   assert.ok(warnings[0].includes(route));
   assert.ok(warnings[0].includes("route wait timed out"));
+});
+
+test("waitForRouteReady retains page errors from the successful document load", async () => {
+  const route = "/deck/page-error/";
+  const pageErrors = [];
+  const page = makeFakePage(`http://127.0.0.1:4173${route}`);
+  await createPrerenderPage({ newPage: async () => page }, pageErrors);
+  page.goto = async () => {
+    page.emit("pageerror", new Error("fixture page exploded"));
+  };
+  page.waitForSelector = async () => {};
+  page.waitForFunction = async () => {
+    throw new Error("route wait timed out");
+  };
+  page.reload = async () => {};
+  const { result } = await captureWarnings(() =>
+    assert.rejects(
+      async () => {
+        await openDocument(page, route);
+        await waitForRouteReady(page);
+      },
+      (error) => {
+        assert.ok(error.message.includes(route));
+        assert.ok(error.message.includes("fixture page exploded"));
+        assert.strictEqual(error.cause.message, "route wait timed out");
+        return true;
+      }
+    )
+  );
+  assert.strictEqual(result, undefined);
+});
+
+test("request interception continues local files, stubs card images and aborts other hosts", async () => {
+  const page = makeFakePage("http://127.0.0.1:4173/deck/cards/");
+  await createPrerenderPage({ newPage: async () => page }, []);
+  const [requestHandler] = page.handlersFor("request");
+  const localRequest = makeFakeRequest("http://127.0.0.1:4173/assets/app.js");
+  await requestHandler(localRequest);
+  assert.strictEqual(localRequest.calls.continued, 1);
+  assert.strictEqual(localRequest.calls.aborted, 0);
+  const cardRequest = makeFakeRequest(
+    "https://raw.githubusercontent.com/PocketDecks/pokemon-tcg-pocket-cards/refs/heads/main/images/webp/cards/a1/001.webp"
+  );
+  await requestHandler(cardRequest);
+  assert.strictEqual(cardRequest.calls.continued, 0);
+  assert.strictEqual(cardRequest.calls.aborted, 0);
+  assert.strictEqual(cardRequest.calls.responses.length, 1);
+  assert.strictEqual(cardRequest.calls.responses[0].status, 200);
+  assert.strictEqual(cardRequest.calls.responses[0].headers["content-type"], "image/webp");
+  assert.ok(Buffer.isBuffer(cardRequest.calls.responses[0].body));
+  assert.ok(cardRequest.calls.responses[0].body.length > 0);
+  for (const traversalUrl of [
+    "https://raw.githubusercontent.com/PocketDecks/pokemon-tcg-pocket-cards/../../../../etc/passwd",
+    "https://raw.githubusercontent.com/PocketDecks/pokemon-tcg-pocket-cards/%2e%2e/%2e%2e/etc/passwd",
+  ]) {
+    const traversalRequest = makeFakeRequest(traversalUrl);
+    await requestHandler(traversalRequest);
+    assert.strictEqual(traversalRequest.calls.continued, 0);
+    assert.strictEqual(traversalRequest.calls.aborted, 0);
+    assert.strictEqual(traversalRequest.calls.responses.length, 1);
+  }
+  const externalRequest = makeFakeRequest("https://example.invalid/other.js");
+  await requestHandler(externalRequest);
+  assert.strictEqual(externalRequest.calls.aborted, 1);
+  assert.strictEqual(externalRequest.calls.continued, 0);
+  assert.strictEqual(externalRequest.calls.responses.length, 0);
 });

@@ -8,6 +8,9 @@ const ORIGIN = `http://127.0.0.1:${PORT}`;
 const PRERENDER_USER_AGENT = "prerender-routes";
 const ROUTE_READY_TIMEOUT = 20000;
 const CARD_DB_ORIGIN = "https://raw.githubusercontent.com/chase-mew/pokemon-tcg-pocket-cards";
+const MAX_CONSOLE_MESSAGES = 10;
+const DIAGNOSTIC_TEXT_LIMIT = 500;
+const pageDiagnostics = new WeakMap();
 
 const MIME = {
   ".html": "text/html",
@@ -23,6 +26,41 @@ const MIME = {
   ".map": "application/json",
   ".woff": "font/woff",
   ".woff2": "font/woff2",
+};
+
+const capDiagnosticText = (value) =>
+  String(value ?? "").slice(0, DIAGNOSTIC_TEXT_LIMIT);
+
+const buildRouteError = ({
+  route,
+  cause,
+  pageErrors = [],
+  consoleMessages = [],
+  failedRequests = [],
+}) => {
+  const sections = [`Route: ${route}`, `Cause: ${cause?.message ?? String(cause)}`];
+  if (pageErrors.length) sections.push(`Page errors:\n${pageErrors.join("\n")}`);
+  if (consoleMessages.length) {
+    sections.push(
+      `Console messages:\n${consoleMessages
+        .slice(-MAX_CONSOLE_MESSAGES)
+        .map(({ type, text }) => `[${type}] ${capDiagnosticText(text)}`)
+        .join("\n")}`
+    );
+  }
+  if (failedRequests.length) {
+    sections.push(
+      `Failed requests:\n${failedRequests
+        .map(
+          ({ url, errorText }) =>
+            `${capDiagnosticText(url)}: ${capDiagnosticText(errorText)}`
+        )
+        .join("\n")}`
+    );
+  }
+  const error = new Error(sections.join("\n"));
+  error.cause = cause;
+  return error;
 };
 
 const startServer = (distDir, templateHtml) =>
@@ -89,10 +127,33 @@ const launchBrowser = () =>
 
 const createPrerenderPage = async (target, pageErrors) => {
   const page = await target.newPage();
+  const diagnostics = {
+    pageErrors: [],
+    consoleMessages: [],
+    failedRequests: [],
+  };
+  pageDiagnostics.set(page, diagnostics);
   await page.setUserAgent(PRERENDER_USER_AGENT);
-  page.on("pageerror", (err) =>
-    pageErrors.push(`${page.url()}: ${err.message}`)
-  );
+  page.on("pageerror", (err) => {
+    const message = `${page.url()}: ${err.message}`;
+    pageErrors.push(message);
+    diagnostics.pageErrors.push(message);
+  });
+  page.on("console", (message) => {
+    diagnostics.consoleMessages.push({
+      type: message.type(),
+      text: message.text(),
+    });
+    if (diagnostics.consoleMessages.length > MAX_CONSOLE_MESSAGES) {
+      diagnostics.consoleMessages.shift();
+    }
+  });
+  page.on("requestfailed", (request) => {
+    diagnostics.failedRequests.push({
+      url: request.url(),
+      errorText: request.failure()?.errorText ?? "Request failed",
+    });
+  });
 
   await page.setRequestInterception(true);
   page.on("request", (req) => {
@@ -104,8 +165,21 @@ const createPrerenderPage = async (target, pageErrors) => {
 };
 
 const openDocument = async (page, route) => {
-  await page.goto(`${ORIGIN}${route}`, { waitUntil: "networkidle0" });
-  await page.waitForSelector("#app-root > *, #root > *");
+  try {
+    await page.goto(`${ORIGIN}${route}`, { waitUntil: "networkidle0" });
+    await page.waitForSelector("#app-root > *, #root > *", {
+      timeout: ROUTE_READY_TIMEOUT,
+    });
+  } catch (cause) {
+    const diagnostics = pageDiagnostics.get(page);
+    throw buildRouteError({
+      route,
+      cause,
+      pageErrors: diagnostics?.pageErrors,
+      consoleMessages: diagnostics?.consoleMessages,
+      failedRequests: diagnostics?.failedRequests,
+    });
+  }
 };
 
 const waitForRouteReady = (page) =>
@@ -164,6 +238,7 @@ const mapWithConcurrency = async (items, concurrency, worker) => {
 };
 
 module.exports = {
+  buildRouteError,
   captureDocument,
   createPrerenderPage,
   launchBrowser,

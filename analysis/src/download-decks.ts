@@ -5,7 +5,7 @@ import { EXPANSION_RELEASE_DATE } from "./settings";
 import { getTournaments } from "./utils/get-tournaments";
 import getTournamentDecks from "./utils/get-tournament-decks";
 import { mapWithConcurrency } from "./utils/limitless-client";
-import { MANIFEST_FILE, findStagingFiles, planDeckWrites } from "./utils/deck-store";
+import { MANIFEST_FILE, findStagingFiles, interruptedWriteMessage, planDeckWrites } from "./utils/deck-store";
 import { decksDir, processedFile } from "./utils/data-paths";
 import { round } from "./utils/round";
 import { writeArtefacts } from "./utils/write-artifacts";
@@ -27,15 +27,6 @@ export const lockDelays = ({ retries, delayMs }: LockWait): number[] =>
   Array.from({ length: retries }, (_, retry) => Math.min(delayMs * 2 ** retry, MAX_LOCK_DELAY_MS));
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
-
-const interruptedWriteMessage = (stale: string[]): string => {
-  const completed = stale.some((file) => file.endsWith(".committed"));
-  const incompleteCleanup = stale.some((file) => file.endsWith(".tmp") || file.endsWith(".tmp.owner"));
-  const advice = completed && !incompleteCleanup
-    ? "the commit completed: verify the store, then delete the remaining cleanup files"
-    : "commit completion is unknown: do not restore or delete staging files; keep the write blocked and inspect the store";
-  return `An interrupted write left staging files (${stale.join(", ")}); ${advice}; afterwards run store:verify`;
-};
 
 const withStoreLockWaiting = async <T>(wait: LockWait, fn: () => T & SyncResult<T>): Promise<T> => {
   const delays = lockDelays(wait);

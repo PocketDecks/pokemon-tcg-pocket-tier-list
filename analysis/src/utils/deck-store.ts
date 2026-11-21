@@ -149,7 +149,7 @@ const STAGING_SUFFIXES = [".tmp", ".tmp.owner", ".bak", ".created", ".committed"
 
 const isStagingName = (name: string): boolean => STAGING_SUFFIXES.some((suffix) => name.endsWith(suffix));
 
-export const findStagingFiles = (dir: string, processed: string): string[] => {
+export const findStagingFiles = (dir: string, processed?: string): string[] => {
   const inStore = fs.existsSync(dir)
     ? fs
         .readdirSync(dir)
@@ -157,9 +157,16 @@ export const findStagingFiles = (dir: string, processed: string): string[] => {
         .sort()
         .map((name) => path.join(dir, name))
     : [];
-  const besideProcessed = STAGING_SUFFIXES.map((suffix) => `${processed}${suffix}`).filter((file) => fs.existsSync(file));
+  const besideProcessed = processed
+    ? STAGING_SUFFIXES.map((suffix) => `${processed}${suffix}`).filter((file) => fs.existsSync(file))
+    : [];
   return [...inStore, ...besideProcessed];
 };
+
+export const interruptedWriteMessage = (stale: string[]): string =>
+  `An interrupted write left staging files (${stale.join(", ")}); ` +
+  "commit completion is unknown: do not restore or delete staging files; " +
+  "keep the write blocked and inspect the store; afterwards run store:verify";
 
 export interface StoreProblem {
   shard: string;

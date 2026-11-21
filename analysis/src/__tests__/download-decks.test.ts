@@ -349,7 +349,7 @@ describe("downloadDecks", () => {
       expect(processedIds()).toEqual([]);
     });
 
-    it("recognizes cleanup interrupted after a completed commit", async () => {
+    it("keeps recovery advice unknown when a completion marker remains", async () => {
       await seedOrphan();
       const manifest = path.join(dataDir, "decks", "manifest.json");
       const realRmSync = fs.rmSync;
@@ -366,10 +366,27 @@ describe("downloadDecks", () => {
 
       const error = await downloadDecks().catch((thrown: Error) => thrown);
 
-      expect((error as Error).message).toMatch(
-        /the commit completed: verify the store, then delete the remaining cleanup files/
-      );
-      expect((error as Error).message).not.toMatch(/commit completion is unknown/);
+      expect((error as Error).message).toMatch(/commit completion is unknown: do not restore or delete staging files/);
+      expect((error as Error).message).not.toMatch(/delete the remaining cleanup files/);
+      expect(fs.existsSync(`${manifest}.bak`)).toBe(true);
+      expect(fs.existsSync(`${manifest}.committed`)).toBe(true);
+    });
+
+    it("does not use a marker on one shard to classify another shard backup", async () => {
+      await seedOrphan();
+      const store = path.join(dataDir, "decks");
+      const backup = path.join(store, "b4a.ndjson.bak");
+      const marker = path.join(store, "c1.ndjson.committed");
+      fs.writeFileSync(backup, "old shard backup");
+      fs.writeFileSync(marker, "new shard marker");
+      const before = fs.readdirSync(store).sort().map((file) => [file, fs.readFileSync(path.join(store, file), "utf8")]);
+      getTournaments.mockResolvedValue(tournaments(1));
+
+      const error = await downloadDecks().catch((thrown: Error) => thrown);
+
+      expect((error as Error).message).toMatch(/commit completion is unknown: do not restore or delete staging files/);
+      expect((error as Error).message).not.toMatch(/delete the remaining cleanup files/);
+      expect(fs.readdirSync(store).sort().map((file) => [file, fs.readFileSync(path.join(store, file), "utf8")])).toEqual(before);
     });
 
     it("does not prescribe recovery after a failed rollback", async () => {

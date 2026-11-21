@@ -192,6 +192,38 @@ describe("purge-nonstandard-tournaments", () => {
     expect(verifyStore(dir, { placement: true })).toEqual([]);
   });
 
+  it("refuses an apply while an unrelated store backup remains", async () => {
+    const store = path.join(dir, "custom-store");
+    const checkpoint = path.join(dir, "custom-data", "processed-tournaments.json");
+    standardStore(store);
+    const backup = path.join(store, "unrelated.ndjson.bak");
+    fs.writeFileSync(backup, "old shard backup");
+    const before = readTree(store);
+    global.fetch = stubFetch();
+    const options = { dir: store, checkpoint, apply: true };
+
+    await expect(purgeNonStandardTournaments(options)).rejects.toThrow(/interrupted write left staging files/);
+
+    expect(readTree(store)).toEqual(before);
+    expect(fs.readFileSync(backup, "utf8")).toBe("old shard backup");
+  });
+
+  it("checks the checkpoint paired with a custom store path", async () => {
+    const store = path.join(dir, "custom-store");
+    const checkpoint = path.join(dir, "custom-data", "processed-tournaments.json");
+    standardStore(store);
+    fs.mkdirSync(path.dirname(checkpoint), { recursive: true });
+    fs.writeFileSync(`${checkpoint}.bak`, "old checkpoint backup");
+    const before = readTree(store);
+    global.fetch = stubFetch();
+    const options = { dir: store, checkpoint, apply: true };
+
+    await expect(purgeNonStandardTournaments(options)).rejects.toThrow(/interrupted write left staging files/);
+
+    expect(readTree(store)).toEqual(before);
+    expect(fs.readFileSync(`${checkpoint}.bak`, "utf8")).toBe("old checkpoint backup");
+  });
+
   it("refuses and writes nothing when a shard would be emptied", async () => {
     customOnlyStore(dir);
     const before = readTree(dir);

@@ -15,13 +15,16 @@ export const BATCH_SIZE = 20;
 export const CONCURRENCY = 3;
 
 export interface LockWait {
-  attempts: number;
+  retries: number;
   delayMs: number;
 }
 
-export const LOCK_WAIT: LockWait = { attempts: 8, delayMs: 250 };
+export const LOCK_WAIT: LockWait = { retries: 8, delayMs: 250 };
 
 const MAX_LOCK_DELAY_MS = 5_000;
+
+export const lockDelays = ({ retries, delayMs }: LockWait): number[] =>
+  Array.from({ length: retries }, (_, retry) => Math.min(delayMs * 2 ** retry, MAX_LOCK_DELAY_MS));
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
@@ -34,12 +37,13 @@ const interruptedWriteMessage = (stale: string[]): string => {
 };
 
 const withStoreLockWaiting = async <T>(wait: LockWait, fn: () => T & SyncResult<T>): Promise<T> => {
+  const delays = lockDelays(wait);
   for (let attempt = 0; ; attempt += 1) {
     try {
       return withStoreLock(decksDir(), fn);
     } catch (error) {
-      if (!(error instanceof StoreLockBusyError) || attempt >= wait.attempts) throw error;
-      await sleep(Math.min(wait.delayMs * 2 ** attempt, MAX_LOCK_DELAY_MS));
+      if (!(error instanceof StoreLockBusyError) || attempt >= delays.length) throw error;
+      await sleep(delays[attempt]);
     }
   }
 };

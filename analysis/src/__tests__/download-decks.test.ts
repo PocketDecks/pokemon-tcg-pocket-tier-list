@@ -2,7 +2,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import { vi } from "vitest";
-import { BATCH_SIZE, CONCURRENCY, downloadDecks, parseArgs, parseSince, readProcessed } from "../download-decks";
+import { BATCH_SIZE, CONCURRENCY, downloadDecks, lockDelays, parseArgs, parseSince, readProcessed } from "../download-decks";
 import { EXPANSION_RELEASE_DATE } from "../settings";
 import { readDecks, readManifest, verifyStore } from "../utils/deck-store";
 
@@ -164,7 +164,7 @@ describe("downloadDecks", () => {
     const store = path.join(dataDir, "decks");
     fs.writeFileSync(`${store}.lock`, String(holder));
 
-    await expect(downloadDecks({ lockWait: { attempts: 1, delayMs: 1 } })).rejects.toThrow(/is held by process/);
+    await expect(downloadDecks({ lockWait: { retries: 1, delayMs: 1 } })).rejects.toThrow(/is held by process/);
 
     expect(getTournamentDecks).not.toHaveBeenCalled();
     expect(fs.existsSync(path.join(dataDir, "processed-tournaments.json"))).toBe(false);
@@ -179,7 +179,7 @@ describe("downloadDecks", () => {
       getTournaments.mockResolvedValue(tournaments(2));
       setTimeout(() => fs.rmSync(lockFile(), { force: true }), 40);
 
-      await downloadDecks({ lockWait: { attempts: 12, delayMs: 5 } });
+      await downloadDecks({ lockWait: { retries: 12, delayMs: 5 } });
 
       expect(processedIds()).toEqual(["t0", "t1"]);
       expect(readDecks(path.join(dataDir, "decks"))).toHaveLength(2);
@@ -192,7 +192,7 @@ describe("downloadDecks", () => {
       const release = setTimeout(() => fs.rmSync(file, { force: true }), 80);
 
       try {
-        const run = downloadDecks({ lockWait: { attempts: 12, delayMs: 5 } });
+        const run = downloadDecks({ lockWait: { retries: 12, delayMs: 5 } });
         await new Promise((resolve) => setTimeout(resolve, 40));
         expect(getTournamentDecks).not.toHaveBeenCalled();
         await run;
@@ -216,7 +216,7 @@ describe("downloadDecks", () => {
       });
       const lock = lockFile();
       const staging = path.join(dataDir, "processed-tournaments.json.tmp");
-      const run = downloadDecks({ lockWait: { attempts: 12, delayMs: 5 } });
+      const run = downloadDecks({ lockWait: { retries: 12, delayMs: 5 } });
       await vi.waitFor(() => expect(getTournamentDecks).toHaveBeenCalledTimes(1));
       fs.writeFileSync(lock, String(process.ppid));
       fs.writeFileSync(staging, "");
@@ -240,9 +240,10 @@ describe("downloadDecks", () => {
       getTournaments.mockResolvedValue(tournaments(1));
       const timer = vi.spyOn(globalThis, "setTimeout");
 
-      await expect(downloadDecks({ lockWait: { attempts: 3, delayMs: 1 } })).rejects.toThrow(/is held by process/);
+      await expect(downloadDecks({ lockWait: { retries: 3, delayMs: 1 } })).rejects.toThrow(/is held by process/);
 
-      expect(timer.mock.calls.filter(([, delay]) => typeof delay === "number" && delay <= 4)).toHaveLength(3);
+      const delays = timer.mock.calls.map(([, delay]) => delay).filter((delay) => [1, 2, 4, 8].includes(delay as number));
+      expect(delays).toEqual([1, 2, 4]);
       expect(fs.existsSync(path.join(dataDir, "processed-tournaments.json"))).toBe(false);
     });
   });
@@ -422,6 +423,17 @@ describe("downloadDecks", () => {
 
       expect(readProcessed()).toEqual([{ id: "t0" }]);
     });
+  });
+});
+
+describe("lockDelays", () => {
+  it("doubles from the base delay and stops at the cap", () => {
+    expect(lockDelays({ retries: 8, delayMs: 250 })).toEqual([250, 500, 1000, 2000, 4000, 5000, 5000, 5000]);
+  });
+
+  it("gives one delay per retry", () => {
+    expect(lockDelays({ retries: 0, delayMs: 5 })).toEqual([]);
+    expect(lockDelays({ retries: 3, delayMs: 1 })).toEqual([1, 2, 4]);
   });
 });
 

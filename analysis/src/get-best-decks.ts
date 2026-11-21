@@ -57,7 +57,8 @@ const resolvePremiumBaselineDir = (repoRoot: string): string | null => {
   if (mainVersionStatus.status === "unreadable") {
     throw new Error(
       `Could not read the premium version committed on canonical main at ${mainRef} ` +
-      `(${mainVersionStatus.reason}); refusing to publish against an unreadable baseline`
+      `(${mainVersionStatus.reason}); refusing to publish against an unreadable baseline. ` +
+      "Fetch the canonical remote's main, or repair public/data/data-version.json on main"
     );
   }
   const mainVersion = mainVersionStatus.status === "found" ? mainVersionStatus.version : undefined;

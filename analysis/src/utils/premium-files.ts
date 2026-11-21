@@ -87,7 +87,7 @@ export const inspectPremiumVersionAtRef = (
   ref: string,
   git: PremiumGitRunner = defaultGitRunner
 ): MainPremiumVersionStatus => {
-  const paths = git(["ls-tree", "-r", "--name-only", ref, "--", VERSION_FILE], repoRoot)
+  const paths = git(["ls-tree", "-r", "--name-only", "--full-tree", ref, "--", VERSION_FILE], repoRoot)
     .split(/\r?\n/)
     .filter(Boolean);
   if (!paths.includes(VERSION_FILE)) return { status: "absent" };

@@ -132,6 +132,13 @@ const readPullRequestVersion = async (
   throw new Error(`open pull request #${number ?? "?"} version could not be read: ${hardFailure ?? "no readable head"}`);
 };
 
+const noRetentionSources = (reason: string): undefined => {
+  console.warn(
+    `premium retention discovery could not read every source (${reason}); no older version is deleted`
+  );
+  return undefined;
+};
+
 export const discoverPremiumRetentionSources = async ({
   repoRoot,
   fetcher = fetch,
@@ -143,21 +150,32 @@ export const discoverPremiumRetentionSources = async ({
 }): Promise<PremiumRetentionSources | undefined> => {
   try {
     const ref = resolveCanonicalMainRef(repoRoot, runGit);
-    if (!ref) return undefined;
+    if (!ref) return noRetentionSources("no remote points at PocketDecks/pokemon-tcg-pocket-tier-list");
     const remote = ref.match(/^refs\/remotes\/([^/]+)\/main$/)?.[1];
-    if (!remote) return undefined;
+    if (!remote) return noRetentionSources(`${ref} is not a remote-tracking branch`);
     const git = runGit ?? defaultGitRunner;
     git(["fetch", remote, "refs/heads/main:refs/remotes/" + remote + "/main"], repoRoot);
     const canonicalMainVersion = readPremiumVersionAtRef(repoRoot, ref, git);
-    if (!canonicalMainVersion) return undefined;
+    if (!canonicalMainVersion) {
+      return noRetentionSources(`no readable premium version is committed on ${ref}`);
+    }
 
     const automatedBranchVersions = (() => {
       const refs = git(["for-each-ref", "--format=%(refname)", "refs/heads/automated/", "refs/remotes/"], repoRoot)
         .split(/\r?\n/)
         .filter((ref) => /^refs\/(?:heads\/automated\/|remotes\/[^/]+\/automated\/)/.test(ref));
       const versions: string[] = [];
+      const inspectBranch = (branchRef: string) => {
+        try {
+          return inspectPremiumVersionAtRef(repoRoot, branchRef, git);
+        } catch (error) {
+          throw new Error(
+            `could not read the premium version on ${branchRef}: ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
+      };
       for (const branchRef of refs) {
-        const status = inspectPremiumVersionAtRef(repoRoot, branchRef, git);
+        const status = inspectBranch(branchRef);
         if (status.status === "found") versions.push(status.version);
         else if (status.status === "unreadable") {
           console.warn(`skipping automated branch ${branchRef}: ${status.reason}`);

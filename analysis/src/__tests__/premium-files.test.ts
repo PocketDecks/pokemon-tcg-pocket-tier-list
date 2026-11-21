@@ -127,6 +127,23 @@ describe("readPremiumVersionAtRef", () => {
     expect(readPremiumVersionAtRef(dir, "pocketdecks/main")).toBe("bbbbbbbbbbbbbbbb");
   });
 
+  it("finds the version file when git runs from a folder below the repository root", () => {
+    const { dir, git } = makeRepo();
+    commitVersion(dir, git, "aaaaaaaaaaaaaaaa");
+    git("update-ref", "refs/remotes/pocketdecks/main", "HEAD");
+    const fromBelowRoot = (args: string[]): string =>
+      execFileSync("git", args, {
+        cwd: path.join(dir, "public"),
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+
+    expect(inspectPremiumVersionAtRef(dir, "refs/remotes/pocketdecks/main", fromBelowRoot)).toEqual({
+      status: "found",
+      version: "aaaaaaaaaaaaaaaa",
+    });
+  });
+
   it("does not choose a canonical baseline when matching remote URLs are ambiguous", () => {
     const { dir, git } = makeRepo();
     commitVersion(dir, git, "aaaaaaaaaaaaaaaa");

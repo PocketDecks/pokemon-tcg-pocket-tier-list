@@ -15,6 +15,8 @@ type Artefact = {
 
 const COMMITTED_SUFFIX = ".committed";
 
+const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+
 const planArtefacts = (files: Record<string, string>): Artefact[] =>
   Object.keys(files).map((target) => {
     const hadTarget = fs.existsSync(target);
@@ -111,14 +113,17 @@ const rollbackOne = (artefact: Artefact): void => {
   }
 };
 
-const rollback = (artefacts: Artefact[]): void => {
+const rollback = (artefacts: Artefact[]): string[] => {
+  const failures: string[] = [];
   for (const artefact of [...artefacts].reverse()) {
     try {
       rollbackOne(artefact);
     } catch (rollbackError) {
       console.warn(`Could not roll back artefact ${artefact.target}:`, rollbackError);
+      failures.push(`rollback failed for ${artefact.target}: ${errorMessage(rollbackError)}`);
     }
   }
+  return failures;
 };
 
 const removeOrWarn = (file: string, warning: string, options?: fs.RmOptions): boolean => {
@@ -145,6 +150,12 @@ const cleanUpAfterFailure = (artefacts: Artefact[]): void => {
   }
 };
 
+const recoveryFiles = (artefacts: Artefact[], committed: string): string[] =>
+  [
+    ...artefacts.flatMap((artefact) => [artefact.temporary, artefact.backup, artefact.marker]),
+    committed,
+  ].filter((file) => fs.existsSync(file));
+
 const cleanUpAfterCommit = (artefacts: Artefact[]): void => {
   for (const artefact of artefacts) {
     if (!fs.existsSync(artefact.backup)) continue;
@@ -161,15 +172,36 @@ export const writeArtefacts = (files: Record<string, string>): void => {
   preflight(artefacts);
   if (artefacts.length === 0) return;
   const committed = `${artefacts[0].target}${COMMITTED_SUFFIX}`;
+  let markerAttempted = false;
   try {
     stage(artefacts);
     commit(artefacts);
+    markerAttempted = true;
+    fs.writeFileSync(committed, "");
   } catch (error) {
-    rollback(artefacts);
+    if (markerAttempted && fs.existsSync(committed)) {
+      try {
+        fs.rmSync(committed, { force: true });
+      } catch (markerError) {
+        const remaining = recoveryFiles(artefacts, committed);
+        throw new Error(
+          `${errorMessage(error)}; could not remove completion marker ${committed}: ` +
+            `${errorMessage(markerError)}; targets remain installed and commit completion is unknown; ` +
+            `do not restore or delete staging files (${remaining.join(", ")}); inspect the store`
+        );
+      }
+    }
+    const rollbackFailures = rollback(artefacts);
+    if (rollbackFailures.length > 0) {
+      const remaining = recoveryFiles(artefacts, committed);
+      throw new Error(
+        `${errorMessage(error)}; ${rollbackFailures.join("; ")}; commit completion is unknown; ` +
+          `do not restore or delete staging files (${remaining.join(", ")}); inspect the store`
+      );
+    }
     cleanUpAfterFailure(artefacts);
     throw error;
   }
-  fs.writeFileSync(committed, "");
   cleanUpAfterCommit(artefacts);
   const leftovers = artefacts.some(
     (artefact) => fs.existsSync(artefact.backup) || fs.existsSync(artefact.marker)

@@ -403,11 +403,19 @@ describe("downloadDecks", () => {
         return realRenameSync(source, target);
       });
 
-      expect(() => writeArtefacts({ [manifest]: fs.readFileSync(manifest, "utf8") })).toThrow(
-        "injected commit failure"
-      );
+      const manifestContents = fs.readFileSync(manifest, "utf8");
+      let writeFailure: unknown;
+      try {
+        writeArtefacts({ [manifest]: manifestContents });
+      } catch (error) {
+        writeFailure = error;
+      }
+      expect((writeFailure as Error).message).toContain("injected commit failure");
+      expect((writeFailure as Error).message).toContain(`rollback failed for ${manifest}`);
+      expect((writeFailure as Error).message).toContain(`${manifest}.bak`);
+      expect((writeFailure as Error).message).toContain(`${manifest}.tmp`);
       expect(fs.existsSync(`${manifest}.bak`)).toBe(true);
-      expect(fs.existsSync(`${manifest}.tmp`)).toBe(false);
+      expect(fs.readFileSync(`${manifest}.tmp`, "utf8")).toBe(manifestContents);
       expect(fs.existsSync(`${manifest}.committed`)).toBe(false);
 
       const error = await downloadDecks().catch((thrown: Error) => thrown);

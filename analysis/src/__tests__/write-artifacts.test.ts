@@ -89,7 +89,7 @@ describe("writeArtefacts", () => {
     expect(fs.existsSync(`${second}.bak`)).toBe(true);
   });
 
-  it("retains failed rollback cleanup and rethrows the commit error", () => {
+  it("retains failed rollback cleanup and reports its location", () => {
     const directory = makeTempDirectory();
     const first = path.join(directory, "first.json");
     const second = path.join(directory, "second.json");
@@ -108,16 +108,24 @@ describe("writeArtefacts", () => {
       return realRmSync(target, options);
     });
 
-    expect(() =>
-      writeArtefacts({ [first]: "new first", [second]: "new second" })
-    ).toThrow("injected commit failure");
+    let failure: unknown;
+    try {
+      writeArtefacts({ [first]: "new first", [second]: "new second" });
+    } catch (error) {
+      failure = error;
+    }
 
+    expect(failure).toBeInstanceOf(Error);
+    expect((failure as Error).message).toContain("injected commit failure");
+    expect((failure as Error).message).toContain(`rollback failed for ${first}`);
+    expect((failure as Error).message).toContain("commit completion is unknown");
+    expect((failure as Error).message).toContain("do not restore or delete staging files");
     expect(fs.readFileSync(first, "utf8")).toBe("new first");
     expect(fs.readFileSync(`${first}.bak`, "utf8")).toBe("old first");
     expect(fs.readFileSync(second, "utf8")).toBe("old second");
   });
 
-  it("retains a backup when rollback rename fails", () => {
+  it("retains a backup and reports its path when rollback rename fails", () => {
     const directory = makeTempDirectory();
     const target = path.join(directory, "target.json");
     fs.writeFileSync(target, "old");
@@ -132,12 +140,132 @@ describe("writeArtefacts", () => {
       return realRenameSync(source, destination);
     });
 
-    expect(() => writeArtefacts({ [target]: "new" })).toThrow(
-      "injected commit failure"
-    );
+    let failure: unknown;
+    try {
+      writeArtefacts({ [target]: "new" });
+    } catch (error) {
+      failure = error;
+    }
 
+    expect(failure).toBeInstanceOf(Error);
+    expect((failure as Error).message).toContain("injected commit failure");
+    expect((failure as Error).message).toContain(`rollback failed for ${target}`);
+    expect((failure as Error).message).toContain("commit completion is unknown");
+    expect((failure as Error).message).toContain("do not restore or delete staging files");
     expect(fs.existsSync(`${target}.bak`)).toBe(true);
     expect(fs.readFileSync(`${target}.bak`, "utf8")).toBe("old");
+  });
+
+  it("restores a single target when the completion marker cannot be created", () => {
+    const directory = makeTempDirectory();
+    const target = path.join(directory, "target.json");
+    const marker = `${target}.committed`;
+    fs.writeFileSync(target, "old");
+    const realWriteFileSync = fs.writeFileSync;
+    let stateAtFailure: { target: string; backup: string; marker: string | null } | undefined;
+    vi.spyOn(fs, "writeFileSync").mockImplementation((file, data, options) => {
+      if (file === marker) {
+        stateAtFailure = {
+          target: fs.readFileSync(target, "utf8"),
+          backup: fs.readFileSync(`${target}.bak`, "utf8"),
+          marker: fs.existsSync(marker) ? fs.readFileSync(marker, "utf8") : null,
+        };
+        throw new Error("injected marker creation failure");
+      }
+      return realWriteFileSync(file, data, options);
+    });
+
+    expect(() => writeArtefacts({ [target]: "new" })).toThrow("injected marker creation failure");
+
+    expect(stateAtFailure).toEqual({ target: "new", backup: "old", marker: null });
+    expect(fs.readFileSync(target, "utf8")).toBe("old");
+    expect(fs.existsSync(`${target}.bak`)).toBe(false);
+    expect(fs.existsSync(`${target}.tmp`)).toBe(false);
+    expect(fs.existsSync(marker)).toBe(false);
+  });
+
+  it("restores multiple targets after a partial completion marker write", () => {
+    const directory = makeTempDirectory();
+    const first = path.join(directory, "first.json");
+    const second = path.join(directory, "second.json");
+    const marker = `${first}.committed`;
+    fs.writeFileSync(first, "old first");
+    fs.writeFileSync(second, "old second");
+    const realWriteFileSync = fs.writeFileSync;
+    let stateAtFailure:
+      | { first: string; firstBackup: string; second: string; secondBackup: string; marker: string }
+      | undefined;
+    vi.spyOn(fs, "writeFileSync").mockImplementation((file, data, options) => {
+      if (file === marker) {
+        realWriteFileSync(file, "partial marker", options);
+        stateAtFailure = {
+          first: fs.readFileSync(first, "utf8"),
+          firstBackup: fs.readFileSync(`${first}.bak`, "utf8"),
+          second: fs.readFileSync(second, "utf8"),
+          secondBackup: fs.readFileSync(`${second}.bak`, "utf8"),
+          marker: fs.readFileSync(marker, "utf8"),
+        };
+        throw new Error("injected partial marker failure");
+      }
+      return realWriteFileSync(file, data, options);
+    });
+
+    expect(() => writeArtefacts({ [first]: "new first", [second]: "new second" })).toThrow(
+      "injected partial marker failure"
+    );
+
+    expect(stateAtFailure).toEqual({
+      first: "new first",
+      firstBackup: "old first",
+      second: "new second",
+      secondBackup: "old second",
+      marker: "partial marker",
+    });
+    expect(readFiles([first, second])).toEqual([
+      [first, "old first"],
+      [second, "old second"],
+    ]);
+    expect(fs.existsSync(`${first}.bak`)).toBe(false);
+    expect(fs.existsSync(`${second}.bak`)).toBe(false);
+    expect(fs.existsSync(`${first}.tmp`)).toBe(false);
+    expect(fs.existsSync(`${second}.tmp`)).toBe(false);
+    expect(fs.existsSync(marker)).toBe(false);
+  });
+
+  it("reports installed targets when a partial completion marker cannot be removed", () => {
+    const directory = makeTempDirectory();
+    const target = path.join(directory, "target.json");
+    const marker = `${target}.committed`;
+    fs.writeFileSync(target, "old");
+    const realWriteFileSync = fs.writeFileSync;
+    vi.spyOn(fs, "writeFileSync").mockImplementation((file, data, options) => {
+      if (file === marker) {
+        realWriteFileSync(file, "partial marker", options);
+        throw new Error("injected marker write failure");
+      }
+      return realWriteFileSync(file, data, options);
+    });
+    const realRmSync = fs.rmSync;
+    vi.spyOn(fs, "rmSync").mockImplementation((file, options) => {
+      if (file === marker) throw new Error("injected marker cleanup failure");
+      return realRmSync(file, options);
+    });
+
+    let failure: unknown;
+    try {
+      writeArtefacts({ [target]: "new" });
+    } catch (error) {
+      failure = error;
+    }
+
+    expect(failure).toBeInstanceOf(Error);
+    expect((failure as Error).message).toContain(`could not remove completion marker ${marker}`);
+    expect((failure as Error).message).toContain("targets remain installed");
+    expect((failure as Error).message).toContain("commit completion is unknown");
+    expect((failure as Error).message).toContain("do not restore or delete staging files");
+    expect(fs.readFileSync(target, "utf8")).toBe("new");
+    expect(fs.readFileSync(`${target}.bak`, "utf8")).toBe("old");
+    expect(fs.readFileSync(marker, "utf8")).toBe("partial marker");
   });
 
   it("restores every target when a rollback rename needs a retry", () => {

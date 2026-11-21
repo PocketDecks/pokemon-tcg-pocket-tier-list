@@ -297,7 +297,7 @@ describe("downloadDecks", () => {
         () => path.join(dataDir, "processed-tournaments.json.tmp"),
         /did not finish: restore each \.bak over its target, remove targets that have a \.created marker/,
       ],
-      ["a shard backup", () => path.join(dataDir, "decks", "manifest.json.bak"), /finished: delete them/],
+      ["a shard backup", () => path.join(dataDir, "decks", "manifest.json.bak"), /finished or never started renaming, so every target is intact: delete them/],
     ])("names %s and the way to recover instead of reporting a duplicate deck", async (_label, stagingFile, advice) => {
       await seedOrphan();
       fs.writeFileSync(stagingFile(), "");

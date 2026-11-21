@@ -39,3 +39,29 @@ test("third-party actions use lowercase commit SHAs", () => {
     });
   assert.deepStrictEqual(offenders, [], `Unpinned references: ${offenders.join(", ")}`);
 });
+
+test("Dependabot has one weekly grouped GitHub Actions update", () => {
+  const dependabot = loadYaml(".github", "dependabot.yml");
+  const entries = dependabot.updates.filter(
+    (entry) => entry["package-ecosystem"] === "github-actions"
+  );
+  assert.strictEqual(entries.length, 1);
+  const [entry] = entries;
+  assert.strictEqual(entry.directory, "/");
+  assert.strictEqual(entry.schedule?.interval, "weekly");
+  assert.strictEqual(entry["open-pull-requests-limit"], 1);
+  assert.ok(Object.keys(entry.groups ?? {}).length > 0);
+});
+
+test("the root npm allow list stays limited to card data", () => {
+  const dependabot = loadYaml(".github", "dependabot.yml");
+  const entry = dependabot.updates.find(
+    (update) =>
+      update["package-ecosystem"] === "npm" &&
+      (update.directories?.includes("/") || update.directory === "/")
+  );
+  assert.ok(entry);
+  assert.deepStrictEqual(entry.allow, [
+    { "dependency-name": "pokemon-tcg-pocket-cards" },
+  ]);
+});

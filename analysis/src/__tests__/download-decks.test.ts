@@ -204,6 +204,37 @@ describe("downloadDecks", () => {
       expect(processedIds()).toEqual(["t0"]);
     });
 
+    it("looks for staging files only while it holds the lock", async () => {
+      getTournaments.mockResolvedValue(tournaments(1));
+      let open: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        open = resolve;
+      });
+      getTournamentDecks.mockImplementation(async (t: { id: string }) => {
+        await gate;
+        return [deck(`${t.id}-player`)];
+      });
+      const lock = lockFile();
+      const staging = path.join(dataDir, "processed-tournaments.json.tmp");
+      const run = downloadDecks({ lockWait: { attempts: 12, delayMs: 5 } });
+      await vi.waitFor(() => expect(getTournamentDecks).toHaveBeenCalledTimes(1));
+      fs.writeFileSync(lock, String(process.ppid));
+      fs.writeFileSync(staging, "");
+      const release = setTimeout(() => {
+        fs.rmSync(lock, { force: true });
+        fs.rmSync(staging, { force: true });
+      }, 60);
+
+      try {
+        open();
+        await run;
+      } finally {
+        clearTimeout(release);
+      }
+
+      expect(processedIds()).toEqual(["t0"]);
+    });
+
     it("gives up with the lock error once the attempts run out", async () => {
       fs.writeFileSync(lockFile(), String(process.ppid));
       getTournaments.mockResolvedValue(tournaments(1));

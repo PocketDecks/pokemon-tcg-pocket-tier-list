@@ -19,7 +19,7 @@ export interface LockWait {
   delayMs: number;
 }
 
-export const LOCK_WAIT: LockWait = { retries: 8, delayMs: 250 };
+const LOCK_WAIT: LockWait = { retries: 8, delayMs: 250 };
 
 const MAX_LOCK_DELAY_MS = 5_000;
 

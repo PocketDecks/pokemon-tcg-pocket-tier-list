@@ -65,3 +65,23 @@ test("the root npm allow list stays limited to card data", () => {
     { "dependency-name": "pokemon-tcg-pocket-cards" },
   ]);
 });
+
+test("non-pushing workflows disable checkout credentials", () => {
+  const offenders = fs
+    .readdirSync(workflowDirectory)
+    .filter((name) => name.endsWith(".yml") && name !== "sync-pairings.yml")
+    .flatMap((name) => {
+      const workflow = loadYaml(".github", "workflows", name);
+      return Object.values(workflow.jobs ?? {}).flatMap((job) =>
+        (job.steps ?? [])
+          .filter(
+            (step) =>
+              typeof step.uses === "string" &&
+              step.uses.split("@")[0] === "actions/checkout" &&
+              step.with?.["persist-credentials"] !== false
+          )
+          .map((step) => `${name}: ${step.uses}`)
+      );
+    });
+  assert.deepStrictEqual(offenders, [], `Credentials persist in: ${offenders.join(", ")}`);
+});

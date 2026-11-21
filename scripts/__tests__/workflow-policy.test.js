@@ -18,3 +18,24 @@ test("the merge workflow limits live deploys to one active run", () => {
     }
   );
 });
+
+const workflowDirectory = path.join(root, ".github", "workflows");
+
+test("third-party actions use lowercase commit SHAs", () => {
+  const offenders = fs
+    .readdirSync(workflowDirectory)
+    .filter((name) => name.endsWith(".yml"))
+    .flatMap((name) => {
+      const workflow = loadYaml(".github", "workflows", name);
+      return Object.values(workflow.jobs ?? {}).flatMap((job) =>
+        (job.steps ?? [])
+          .filter((step) => {
+            const uses = step.uses;
+            if (typeof uses !== "string" || uses.startsWith("./")) return false;
+            return uses.split("/")[0] !== "actions" && !/@[0-9a-f]{40}$/.test(uses);
+          })
+          .map((step) => step.uses)
+      );
+    });
+  assert.deepStrictEqual(offenders, [], `Unpinned references: ${offenders.join(", ")}`);
+});

@@ -44,7 +44,7 @@ jobs:
         working-directory: analysis
       - run: yarn test
         working-directory: analysis
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - uses: FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a
         if: ${{ github.actor != 'dependabot[bot]' }}
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"

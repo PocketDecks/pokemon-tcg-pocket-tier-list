@@ -77,7 +77,7 @@ describe("downloadDecks", () => {
 
     await downloadDecks({ since });
 
-    expect(getTournaments).toHaveBeenCalledWith({ since });
+    expect(getTournaments).toHaveBeenCalledWith({ since, processed: [] });
     expect(processedIds()).toEqual(["t0", "t1"]);
   });
 

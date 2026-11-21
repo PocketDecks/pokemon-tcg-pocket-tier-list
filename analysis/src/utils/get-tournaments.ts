@@ -25,16 +25,17 @@ const readProcessedTournaments = (): Tournament[] => {
 export interface TournamentFilter {
   // Keeps tournaments dated at or after this instant.
   since?: Date;
+  processed?: readonly unknown[];
 }
 
 // Lists unprocessed tournaments with enough players to count.
-export const getTournaments = async ({ since }: TournamentFilter = {}) => {
+export const getTournaments = async ({ since, processed }: TournamentFilter = {}) => {
   const tournaments = await fetchLimitless<Tournament[]>("/tournaments", {
     limit: 10000,
     game: GAME,
   });
   const processedTournamentIds = new Set(
-    readProcessedTournaments().map((t: Tournament) => t.id)
+    (processed ?? readProcessedTournaments()).map((entry) => (entry as Tournament).id)
   );
   // The API pages its listing, so an id can arrive twice. The downloader
   // checkpoints by appending, so a repeat would download a tournament twice

@@ -91,12 +91,14 @@ export const downloadDecks = async ({
   lockWait = LOCK_WAIT,
   ...filter
 }: { since?: Date; lockWait?: LockWait } = {}) => {
-  const tournaments = await getTournaments(filter);
+  const processed = await withStoreLockWaiting(lockWait, () => {
+    const stale = findStagingFiles(decksDir(), processedFile());
+    if (stale.length > 0) throw new Error(interruptedWriteMessage(stale));
+    return readProcessed();
+  });
+  const tournaments = await getTournaments({ ...filter, processed });
   console.log(`Downloaded tournaments\n${tournaments.length} to process`);
 
-  await withStoreLockWaiting(lockWait, () => {
-    readProcessed();
-  });
   fs.mkdirSync(decksDir(), { recursive: true });
 
   for (let start = 0; start < tournaments.length; start += BATCH_SIZE) {

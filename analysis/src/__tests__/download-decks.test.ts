@@ -50,6 +50,7 @@ describe("downloadDecks", () => {
     vi.stubEnv("DECKS_DIR", "");
     vi.stubEnv("LIMITLESS_API_KEY", "test-key");
     vi.spyOn(console, "log").mockImplementation(() => undefined);
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
     getTournamentDecks.mockImplementation(async (t: { id: string }) => [deck(`${t.id}-player`)]);
   });
 
@@ -183,6 +184,24 @@ describe("downloadDecks", () => {
 
       expect(processedIds()).toEqual(["t0", "t1"]);
       expect(readDecks(path.join(dataDir, "decks"))).toHaveLength(2);
+    });
+
+    it("says once that it is waiting for the lock", async () => {
+      fs.writeFileSync(lockFile(), String(process.ppid));
+      getTournaments.mockResolvedValue(tournaments(1));
+
+      await expect(downloadDecks({ lockWait: { retries: 3, delayMs: 1 } })).rejects.toThrow(/is held by process/);
+
+      expect(console.warn).toHaveBeenCalledTimes(1);
+      expect(console.warn).toHaveBeenCalledWith(expect.stringMatching(/held by another run; waiting up to \d+s/));
+    });
+
+    it("stays quiet when the lock is free", async () => {
+      getTournaments.mockResolvedValue(tournaments(1));
+
+      await downloadDecks({ lockWait: { retries: 3, delayMs: 1 } });
+
+      expect(console.warn).not.toHaveBeenCalled();
     });
 
     it("holds back every download until the lock is free", async () => {

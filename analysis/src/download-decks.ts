@@ -43,6 +43,10 @@ const withStoreLockWaiting = async <T>(wait: LockWait, fn: () => T & SyncResult<
       return withStoreLock(decksDir(), fn);
     } catch (error) {
       if (!(error instanceof StoreLockBusyError) || attempt >= delays.length) throw error;
+      if (attempt === 0) {
+        const seconds = Math.ceil(delays.reduce((total, delay) => total + delay, 0) / 1000);
+        console.warn(`The store lock is held by another run; waiting up to ${seconds}s for it`);
+      }
       await sleep(delays[attempt]);
     }
   }

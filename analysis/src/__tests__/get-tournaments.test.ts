@@ -134,4 +134,22 @@ describe("getTournaments", () => {
 
     expect((await getTournaments()).map((tournament) => tournament.id)).toEqual(["1"]);
   });
+
+  it("treats a processed file that vanishes between the check and the read as nothing processed", async () => {
+    vi.mocked(fs.readFileSync).mockImplementation(() => {
+      throw Object.assign(new Error("ENOENT: no such file or directory"), { code: "ENOENT" });
+    });
+    global.fetch = respond([{ id: "1", players: 150 }]);
+
+    expect((await getTournaments()).map((tournament) => tournament.id)).toEqual(["1"]);
+  });
+
+  it("still fails on a read error other than a missing file", async () => {
+    vi.mocked(fs.readFileSync).mockImplementation(() => {
+      throw Object.assign(new Error("EACCES: permission denied"), { code: "EACCES" });
+    });
+    global.fetch = respond([{ id: "1", players: 150 }]);
+
+    await expect(getTournaments()).rejects.toThrow("EACCES");
+  });
 });

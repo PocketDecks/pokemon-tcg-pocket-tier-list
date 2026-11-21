@@ -9,7 +9,12 @@ const GAME = "POCKET";
 
 const readProcessedTournaments = (): Tournament[] => {
   if (!fs.existsSync(processedFile())) return [];
-  return JSON.parse(fs.readFileSync(processedFile(), "utf-8"));
+  try {
+    return JSON.parse(fs.readFileSync(processedFile(), "utf-8"));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
+    throw error;
+  }
 };
 
 export interface TournamentFilter {

@@ -6,6 +6,8 @@ const {
   mapWithConcurrency,
   openDocument,
   readTemplate,
+  retryOnce,
+  waitForRouteReady,
 } = require("../prerender-shared");
 
 const makeFakePage = (url) => {
@@ -152,4 +154,150 @@ test("openDocument adds route, page, console and request details to failures", a
   assert.deepStrictEqual(pageErrors, [
     `http://127.0.0.1:4173${route}: app error`,
   ]);
+});
+
+const captureWarnings = async (work) => {
+  const originalWarn = console.warn;
+  const warnings = [];
+  console.warn = (...args) => warnings.push(args.map(String).join(" "));
+  try {
+    return { result: await work(), warnings };
+  } finally {
+    console.warn = originalWarn;
+  }
+};
+
+test("retryOnce returns the first result without retrying", async () => {
+  let calls = 0;
+  const warnings = [];
+  const result = await retryOnce(
+    async () => {
+      calls += 1;
+      return "ready";
+    },
+    { onRetry: (error) => warnings.push(error) }
+  );
+  assert.strictEqual(result, "ready");
+  assert.strictEqual(calls, 1);
+  assert.deepStrictEqual(warnings, []);
+});
+
+test("retryOnce runs one retry after the first failure", async () => {
+  let calls = 0;
+  const warnings = [];
+  const result = await retryOnce(
+    async () => {
+      calls += 1;
+      if (calls === 1) throw new Error("first failure");
+      return "ready";
+    },
+    { onRetry: (error) => warnings.push(error.message) }
+  );
+  assert.strictEqual(result, "ready");
+  assert.strictEqual(calls, 2);
+  assert.deepStrictEqual(warnings, ["first failure"]);
+});
+
+test("retryOnce rejects with the second failure", async () => {
+  let calls = 0;
+  const first = new Error("first failure");
+  const second = new Error("second failure");
+  const warnings = [];
+  await assert.rejects(
+    retryOnce(
+      async () => {
+        calls += 1;
+        throw calls === 1 ? first : second;
+      },
+      { onRetry: (error) => warnings.push(error) }
+    ),
+    (error) => error === second
+  );
+  assert.strictEqual(calls, 2);
+  assert.deepStrictEqual(warnings, [first]);
+});
+
+test("openDocument retries and removes only its failed page errors", async () => {
+  const route = "/deck/retry/";
+  const pageErrors = [];
+  const page = makeFakePage(`http://127.0.0.1:4173${route}`);
+  const otherPage = makeFakePage("http://127.0.0.1:4173/other/");
+  await createPrerenderPage({ newPage: async () => page }, pageErrors);
+  await createPrerenderPage({ newPage: async () => otherPage }, pageErrors);
+  otherPage.emit("pageerror", new Error("other page error"));
+  let gotoCalls = 0;
+  page.goto = async () => {
+    gotoCalls += 1;
+    if (gotoCalls === 1) {
+      page.emit("pageerror", new Error("first page error"));
+      throw new Error("connection reset");
+    }
+  };
+  page.waitForSelector = async () => {};
+  const { warnings } = await captureWarnings(() => openDocument(page, route));
+  assert.strictEqual(gotoCalls, 2);
+  assert.deepStrictEqual(pageErrors, [
+    "http://127.0.0.1:4173/other/: other page error",
+  ]);
+  assert.strictEqual(warnings.length, 1);
+  assert.ok(warnings[0].includes(route));
+  assert.ok(warnings[0].includes("connection reset"));
+});
+
+test("openDocument includes both page attempts when retry also fails", async () => {
+  const route = "/deck/retry-fails/";
+  const pageErrors = [];
+  const page = makeFakePage(`http://127.0.0.1:4173${route}`);
+  await createPrerenderPage({ newPage: async () => page }, pageErrors);
+  let gotoCalls = 0;
+  page.goto = async () => {
+    gotoCalls += 1;
+    page.emit("pageerror", new Error(`page error ${gotoCalls}`));
+    throw new Error(`navigation attempt ${gotoCalls} failed`);
+  };
+  const { warnings } = await captureWarnings(() =>
+    assert.rejects(openDocument(page, route), (error) => {
+      assert.ok(error.message.includes(route));
+      assert.ok(error.message.includes("page error 1"));
+      assert.ok(error.message.includes("page error 2"));
+      assert.strictEqual(error.cause.message, "navigation attempt 2 failed");
+      return true;
+    })
+  );
+  assert.strictEqual(gotoCalls, 2);
+  assert.strictEqual(warnings.length, 1);
+  assert.deepStrictEqual(pageErrors, [
+    `http://127.0.0.1:4173${route}: page error 2`,
+  ]);
+});
+
+test("waitForRouteReady reloads once after its first timeout", async () => {
+  const route = "/deck/ready/";
+  const pageErrors = [];
+  const page = makeFakePage(`http://127.0.0.1:4173${route}`);
+  await createPrerenderPage({ newPage: async () => page }, pageErrors);
+  let waits = 0;
+  let reloads = 0;
+  let reloadOptions;
+  page.waitForFunction = async () => {
+    waits += 1;
+    if (waits === 1) {
+      page.emit("pageerror", new Error("route not ready on first wait"));
+      throw new Error("route wait timed out");
+    }
+    return true;
+  };
+  page.reload = async (options) => {
+    reloads += 1;
+    reloadOptions = options;
+  };
+  const { result, warnings } = await captureWarnings(() => waitForRouteReady(page));
+  assert.strictEqual(result, true);
+  assert.strictEqual(waits, 2);
+  assert.strictEqual(reloads, 1);
+  assert.deepStrictEqual(reloadOptions, { waitUntil: "networkidle0" });
+  assert.deepStrictEqual(pageErrors, []);
+  assert.strictEqual(warnings.length, 1);
+  assert.ok(warnings[0].includes(route));
+  assert.ok(warnings[0].includes("route wait timed out"));
 });

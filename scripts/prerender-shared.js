@@ -11,6 +11,7 @@ const CARD_DB_ORIGIN = "https://raw.githubusercontent.com/chase-mew/pokemon-tcg-
 const MAX_CONSOLE_MESSAGES = 10;
 const DIAGNOSTIC_TEXT_LIMIT = 500;
 const pageDiagnostics = new WeakMap();
+const sharedPageErrorOwners = new WeakMap();
 
 const MIME = {
   ".html": "text/html",
@@ -30,6 +31,30 @@ const MIME = {
 
 const capDiagnosticText = (value) =>
   String(value ?? "").slice(0, DIAGNOSTIC_TEXT_LIMIT);
+
+const getPageErrorOwners = (pageErrors) => {
+  let owners = sharedPageErrorOwners.get(pageErrors);
+  if (!owners) {
+    owners = Array(pageErrors.length).fill(null);
+    sharedPageErrorOwners.set(pageErrors, owners);
+  } else if (owners.length < pageErrors.length) {
+    owners.push(...Array(pageErrors.length - owners.length).fill(null));
+  } else if (owners.length > pageErrors.length) {
+    owners.length = pageErrors.length;
+  }
+  return owners;
+};
+
+const removePageErrorsForAttempt = (diagnostics, token) => {
+  const pageErrors = diagnostics.sharedPageErrors;
+  const owners = getPageErrorOwners(pageErrors);
+  for (let index = pageErrors.length - 1; index >= 0; index -= 1) {
+    if (owners[index] === token) {
+      pageErrors.splice(index, 1);
+      owners.splice(index, 1);
+    }
+  }
+};
 
 const buildRouteError = ({
   route,
@@ -125,19 +150,25 @@ const launchBrowser = () =>
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
-const createPrerenderPage = async (target, pageErrors) => {
+const createPrerenderPage = async (target, pageErrors = []) => {
   const page = await target.newPage();
   const diagnostics = {
     pageErrors: [],
     consoleMessages: [],
     failedRequests: [],
+    sharedPageErrors: pageErrors,
+    currentAttempt: null,
   };
+  getPageErrorOwners(pageErrors);
   pageDiagnostics.set(page, diagnostics);
   await page.setUserAgent(PRERENDER_USER_AGENT);
   page.on("pageerror", (err) => {
     const message = `${page.url()}: ${err.message}`;
+    const owners = getPageErrorOwners(pageErrors);
     pageErrors.push(message);
+    owners.push(diagnostics.currentAttempt?.token ?? null);
     diagnostics.pageErrors.push(message);
+    diagnostics.currentAttempt?.pageErrors.push(message);
   });
   page.on("console", (message) => {
     diagnostics.consoleMessages.push({
@@ -164,29 +195,82 @@ const createPrerenderPage = async (target, pageErrors) => {
   return page;
 };
 
-const openDocument = async (page, route) => {
+const retryOnce = async (work, { onRetry } = {}) => {
   try {
-    await page.goto(`${ORIGIN}${route}`, { waitUntil: "networkidle0" });
-    await page.waitForSelector("#app-root > *, #root > *", {
-      timeout: ROUTE_READY_TIMEOUT,
+    return await work();
+  } catch (error) {
+    if (onRetry) await onRetry(error);
+    return work();
+  }
+};
+
+const runWithRouteRetry = async (page, route, work, { beforeRetry } = {}) => {
+  const diagnostics = pageDiagnostics.get(page);
+  const attempts = [];
+  const runAttempt = () => {
+    const attempt = { token: Symbol(), pageErrors: [] };
+    attempts.push(attempt);
+    if (diagnostics) diagnostics.currentAttempt = attempt;
+    return Promise.resolve()
+      .then(work)
+      .finally(() => {
+        if (diagnostics?.currentAttempt === attempt) {
+          diagnostics.currentAttempt = null;
+        }
+      });
+  };
+  try {
+    return await retryOnce(runAttempt, {
+      onRetry: async (error) => {
+        if (diagnostics && attempts[0]) {
+          removePageErrorsForAttempt(diagnostics, attempts[0].token);
+        }
+        console.warn(`Retrying route ${route}: ${error?.message ?? String(error)}`);
+        await beforeRetry?.(error);
+      },
     });
   } catch (cause) {
-    const diagnostics = pageDiagnostics.get(page);
     throw buildRouteError({
       route,
       cause,
-      pageErrors: diagnostics?.pageErrors,
+      pageErrors: attempts.flatMap((attempt) => attempt.pageErrors),
       consoleMessages: diagnostics?.consoleMessages,
       failedRequests: diagnostics?.failedRequests,
     });
   }
 };
 
+const openDocument = (page, route) =>
+  runWithRouteRetry(page, route, async () => {
+    await page.goto(`${ORIGIN}${route}`, { waitUntil: "networkidle0" });
+    await page.waitForSelector("#app-root > *, #root > *", {
+      timeout: ROUTE_READY_TIMEOUT,
+    });
+  });
+
 const waitForRouteReady = (page) =>
-  page.waitForFunction(
-    () => document.documentElement.dataset.routeReady === window.location.pathname,
-    { timeout: ROUTE_READY_TIMEOUT }
-  );
+  (() => {
+    let reloadForRetry = false;
+    const pageUrl = typeof page.url === "function" ? page.url() : "";
+    const route = pageUrl ? new URL(pageUrl).pathname : "unknown route";
+    return runWithRouteRetry(
+      page,
+      route,
+      async () => {
+        if (reloadForRetry) {
+          reloadForRetry = false;
+          await page.reload({ waitUntil: "networkidle0" });
+        }
+        return page.waitForFunction(
+          () =>
+            document.documentElement.dataset.routeReady ===
+            window.location.pathname,
+          { timeout: ROUTE_READY_TIMEOUT }
+        );
+      },
+      { beforeRetry: () => { reloadForRetry = true; } }
+    );
+  })();
 
 const captureDocument = async (page, template) => {
   await page.evaluate(() => {
@@ -247,6 +331,7 @@ module.exports = {
   ORIGIN,
   PORT,
   readTemplate,
+  retryOnce,
   resetPrerenderAppState,
   resetPrerenderTheme,
   startServer,

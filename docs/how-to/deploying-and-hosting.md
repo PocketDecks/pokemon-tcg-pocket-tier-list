@@ -101,7 +101,7 @@ inconsistent.
 Five workflows in `.github/workflows/` handle deployment, tests and pairings
 updates:
 
-- `firebase-hosting-pull-request.yml`, named "Deploy to Firebase Hosting on
+- `preview.yml`, named "Deploy to Firebase Hosting on
   PR", triggers on every pull request. It installs with `--frozen-lockfile`,
   runs `yarn build`, the frontend test suite, the script tests and the analysis
   typecheck and test suite, then calls the Firebase Hosting deploy action pinned
@@ -110,10 +110,10 @@ updates:
   forks, so first-time contributors do not get a failed check.
   The workflow runs the checks for same-repository Dependabot pull requests but
   skips the deploy step, so they receive no preview URL.
-- `firebase-hosting-merge.yml`, named "Deploy to Firebase Hosting on merge",
+- `deploy.yml`, named "Deploy to Firebase Hosting on merge",
   triggers on pushes to `main`, runs the same test gates, and deploys to
   `channelId: live`.
-- `frontend-tests.yml`, named "Frontend Tests", runs typecheck, lint,
+- `ci.yml`, named "Frontend Tests", runs typecheck, lint,
   `yarn test:ci` and `yarn test:scripts` on pushes to and pull requests
   against `main`. It reports independently; the deploy workflows run those
   gates before invoking Firebase.

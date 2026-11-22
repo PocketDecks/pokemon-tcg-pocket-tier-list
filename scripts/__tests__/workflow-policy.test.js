@@ -99,7 +99,7 @@ const runPairingsPullRequestStep = (step, openPr, outcomes = {}) =>
 
 test("the merge workflow queues all pending live deploys", () => {
   assert.deepStrictEqual(
-    loadYaml(".github", "workflows", "firebase-hosting-merge.yml").concurrency,
+    loadYaml(".github", "workflows", "deploy.yml").concurrency,
     {
       group: "hosting-live",
       "cancel-in-progress": false,
@@ -109,7 +109,7 @@ test("the merge workflow queues all pending live deploys", () => {
 });
 
 test("live deploys check freshness after checkout and gate later steps", () => {
-  const steps = loadYaml(".github", "workflows", "firebase-hosting-merge.yml")
+  const steps = loadYaml(".github", "workflows", "deploy.yml")
     .jobs.build_and_deploy.steps;
   const checkoutIndex = steps.findIndex((step) =>
     step.uses?.startsWith("actions/checkout@")
@@ -144,7 +144,7 @@ test("live deploys check freshness after checkout and gate later steps", () => {
 });
 
 test("live deploys queue pending runs and skip commits that are no longer latest", () => {
-  const steps = loadYaml(".github", "workflows", "firebase-hosting-merge.yml")
+  const steps = loadYaml(".github", "workflows", "deploy.yml")
     .jobs.build_and_deploy.steps;
   const latestIndex = steps.findIndex((step) => step.id === "latest");
   const deployIndex = steps.findIndex((step) =>
@@ -169,7 +169,7 @@ test("live deploys queue pending runs and skip commits that are no longer latest
 });
 
 test("freshness checks fail closed when git fetch fails", () => {
-  const steps = loadYaml(".github", "workflows", "firebase-hosting-merge.yml")
+  const steps = loadYaml(".github", "workflows", "deploy.yml")
     .jobs.build_and_deploy.steps;
   for (const id of ["early_latest", "latest"]) {
     const step = steps.find((entry) => entry.id === id);
@@ -213,11 +213,11 @@ test("Firebase deploy actions use full commit SHAs and match across workflows", 
       .find((step) => step.uses?.startsWith(prefix))?.uses;
   };
   const mergeDeploy = actionUse(
-    "firebase-hosting-merge.yml",
+    "deploy.yml",
     "FirebaseExtended/action-hosting-deploy@"
   );
   const pullRequestDeploy = actionUse(
-    "firebase-hosting-pull-request.yml",
+    "preview.yml",
     "FirebaseExtended/action-hosting-deploy@"
   );
   assert.match(
@@ -287,7 +287,7 @@ test("non-pushing workflows disable checkout credentials", () => {
 });
 
 test("only same-repository human pull requests can deploy a preview", () => {
-  const workflow = loadYaml(".github", "workflows", "firebase-hosting-pull-request.yml");
+  const workflow = loadYaml(".github", "workflows", "preview.yml");
   const job = Object.values(workflow.jobs)[0];
   const deploy = job.steps.find((step) =>
     step.uses?.startsWith("FirebaseExtended/action-hosting-deploy@")

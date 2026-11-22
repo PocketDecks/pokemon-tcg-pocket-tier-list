@@ -12,14 +12,9 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
+      - uses: ./.github/actions/setup
         with:
-          # 24.19.0 broke the deploy action's preview-link posting, so the
-          # pin only moves after a full deploy test.
-          node-version: 24.22.1
-          cache: "yarn"
-          cache-dependency-path: "yarn.lock"
-      - run: yarn install --frozen-lockfile
+          workspace: root
       - run: yarn check:generated
       # Dependabot runs cannot read repository secrets, and Firebase's getAuth()
       # throws on an empty apiKey, so no page prerenders and the build fails.
@@ -37,8 +32,9 @@ jobs:
         env:
           CI: true
       - run: yarn test:scripts
-      - run: yarn install --frozen-lockfile
-        working-directory: analysis
+      - uses: ./.github/actions/setup
+        with:
+          workspace: analysis
       - run: yarn typecheck
         working-directory: analysis
       - run: yarn test

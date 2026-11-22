@@ -97,6 +97,95 @@ const runPairingsPullRequestStep = (step, openPr, outcomes = {}) =>
     },
   });
 
+test("shared setup action reads .nvmrc and caches the install lockfiles", () => {
+  const actionPath = path.join(root, ".github", "actions", "setup", "action.yml");
+  assert.ok(fs.existsSync(actionPath));
+  const action = loadYaml(".github", "actions", "setup", "action.yml");
+  assert.strictEqual(action.runs.using, "composite");
+  const nodeSetup = action.runs.steps.find((step) =>
+    step.uses?.startsWith("actions/setup-node@")
+  );
+  assert.ok(nodeSetup);
+  assert.strictEqual(nodeSetup.with["node-version-file"], ".nvmrc");
+  assert.strictEqual(nodeSetup.with.cache, "yarn");
+  assert.deepStrictEqual(
+    nodeSetup.with["cache-dependency-path"].trim().split(/\s+/),
+    ["yarn.lock", "analysis/yarn.lock", "workers/kofi/yarn.lock"]
+  );
+  const actionText = fs.readFileSync(actionPath, "utf8");
+  assert.match(actionText, /24\.19\.0 broke the deploy action's preview-link posting/);
+  assert.match(actionText, /pin only moves after a full deploy test\./);
+  const install = action.runs.steps.find(
+    (step) => step.name === "Install dependencies"
+  );
+  assert.ok(install);
+  const runInstall = (workspace) =>
+    runWorkflowCommand({
+      command: install.run,
+      commandShims: {
+        yarn: 'printf "%s\\n" "$*" >> "$GH_LOG"',
+      },
+      env: { WORKSPACE: workspace },
+    });
+  for (const [workspace, command] of [
+    ["root", "install --frozen-lockfile"],
+    ["analysis", "--cwd analysis install --frozen-lockfile"],
+    ["kofi", "--cwd workers/kofi install --frozen-lockfile"],
+  ]) {
+    const result = runInstall(workspace);
+    assert.strictEqual(result.status, 0, result.stderr);
+    assert.strictEqual(result.ghLog.trim(), command);
+  }
+  const invalid = runInstall("other");
+  assert.notStrictEqual(invalid.status, 0);
+  assert.strictEqual(invalid.ghLog, "");
+});
+
+test("every job uses shared setup after checkout", () => {
+  const expected = {
+    "ci.yml": {
+      frontend: ["root"],
+      analysis: ["analysis"],
+      kofi: ["kofi"],
+    },
+    "preview.yml": { preview: ["root", "analysis"] },
+    "deploy.yml": { deploy: ["root", "analysis"] },
+    "sync-pairings.yml": { sync: ["analysis"] },
+  };
+  for (const [file, jobs] of Object.entries(expected)) {
+    const workflow = loadYaml(".github", "workflows", file);
+    for (const [jobId, workspaces] of Object.entries(jobs)) {
+      const steps = workflow.jobs[jobId]?.steps ?? [];
+      const checkoutIndex = steps.findIndex((step) =>
+        step.uses?.startsWith("actions/checkout@")
+      );
+      const setupIndexes = steps
+        .map((step, index) =>
+          step.uses === "./.github/actions/setup" ? index : -1
+        )
+        .filter((index) => index >= 0);
+      assert.ok(checkoutIndex >= 0, `${file}/${jobId} checkout`);
+      assert.deepStrictEqual(
+        setupIndexes.map((index) => steps[index].with?.workspace),
+        workspaces,
+        `${file}/${jobId} setup`
+      );
+      assert.ok(
+        setupIndexes.every((index) => index > checkoutIndex),
+        `${file}/${jobId} setup after checkout`
+      );
+      if (file === "deploy.yml") {
+        for (const index of setupIndexes) {
+          assert.strictEqual(
+            steps[index].if,
+            "steps.early_latest.outputs.is_latest == 'true'"
+          );
+        }
+      }
+    }
+  }
+});
+
 test("workflow names and job IDs match the layout", () => {
   const workflows = [
     { file: "ci.yml", name: "CI", jobs: ["analysis", "frontend", "kofi"] },
@@ -116,8 +205,11 @@ test("CI runs the analysis checks with read-only permissions", () => {
   const analysis = workflow.jobs.analysis;
   assert.ok(analysis, "ci.yml must contain the analysis job");
   assert.deepStrictEqual(workflow.permissions, { contents: "read" });
+  const setup = analysis.steps.find(
+    (step) => step.uses === "./.github/actions/setup"
+  );
+  assert.strictEqual(setup?.with?.workspace, "analysis");
   const runBodies = analysis.steps.map((step) => String(step.run ?? "")).join("\n");
-  assert.match(runBodies, /yarn install --frozen-lockfile/);
   assert.match(runBodies, /yarn typecheck/);
   assert.match(runBodies, /yarn test/);
 });
@@ -227,7 +319,23 @@ test("third-party actions use lowercase commit SHAs", () => {
           .map((step) => step.uses)
       );
     });
-  assert.deepStrictEqual(offenders, [], `Unpinned references: ${offenders.join(", ")}`);
+  const actionOffenders = loadYaml(
+    ".github",
+    "actions",
+    "setup",
+    "action.yml"
+  ).runs.steps
+    .filter((step) => {
+      const uses = step.uses;
+      if (typeof uses !== "string" || uses.startsWith("./")) return false;
+      return uses.split("/")[0] !== "actions" && !/@[0-9a-f]{40}$/.test(uses);
+    })
+    .map((step) => step.uses);
+  assert.deepStrictEqual(
+    [...offenders, ...actionOffenders],
+    [],
+    `Unpinned references: ${[...offenders, ...actionOffenders].join(", ")}`
+  );
 });
 
 test("Firebase deploy actions use full commit SHAs and match across workflows", () => {
@@ -259,7 +367,7 @@ test("Dependabot has one weekly grouped GitHub Actions update", () => {
   );
   assert.strictEqual(entries.length, 1);
   const [entry] = entries;
-  assert.strictEqual(entry.directory, "/");
+  assert.deepStrictEqual(entry.directories, ["/", "/.github/actions/setup"]);
   assert.strictEqual(entry.schedule?.interval, "weekly");
   assert.strictEqual(entry["open-pull-requests-limit"], 1);
   const group = entry.groups?.["github-actions"];

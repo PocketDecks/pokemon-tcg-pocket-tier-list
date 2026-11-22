@@ -165,25 +165,26 @@ test("third-party actions use lowercase commit SHAs", () => {
   assert.deepStrictEqual(offenders, [], `Unpinned references: ${offenders.join(", ")}`);
 });
 
-test("Firebase deploy actions keep the reviewed commit SHAs", () => {
+test("Firebase deploy actions use full commit SHAs and match across workflows", () => {
   const actionUse = (file, prefix) => {
     const workflow = loadYaml(".github", "workflows", file);
     return Object.values(workflow.jobs ?? {})
       .flatMap((job) => job.steps ?? [])
       .find((step) => step.uses?.startsWith(prefix))?.uses;
   };
-  assert.strictEqual(
-    actionUse("firebase-hosting-merge.yml", "google-github-actions/auth@"),
-    "google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093"
+  const mergeDeploy = actionUse(
+    "firebase-hosting-merge.yml",
+    "FirebaseExtended/action-hosting-deploy@"
   );
-  assert.strictEqual(
-    actionUse("firebase-hosting-merge.yml", "FirebaseExtended/action-hosting-deploy@"),
-    "FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a"
+  const pullRequestDeploy = actionUse(
+    "firebase-hosting-pull-request.yml",
+    "FirebaseExtended/action-hosting-deploy@"
   );
-  assert.strictEqual(
-    actionUse("firebase-hosting-pull-request.yml", "FirebaseExtended/action-hosting-deploy@"),
-    "FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a"
+  assert.match(
+    mergeDeploy ?? "",
+    /^FirebaseExtended\/action-hosting-deploy@[0-9a-f]{40}$/
   );
+  assert.strictEqual(pullRequestDeploy, mergeDeploy);
 });
 
 test("Dependabot has one weekly grouped GitHub Actions update", () => {

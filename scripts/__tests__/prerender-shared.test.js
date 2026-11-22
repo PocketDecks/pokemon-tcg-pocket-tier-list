@@ -291,6 +291,67 @@ test("openDocument keeps earlier route errors when a retry succeeds", async () =
   ]);
 });
 
+test("a revisited route preserves earlier errors and readiness uses its opened route", async () => {
+  const pageErrors = [];
+  let currentUrl = "http://127.0.0.1:4173/x/";
+  let reportedUrl = currentUrl;
+  const page = makeFakePage(currentUrl);
+  page.url = () => reportedUrl;
+  await createPrerenderPage({ newPage: async () => page }, pageErrors);
+  let xVisits = 0;
+  let xSelectorCalls = 0;
+  page.goto = async (url) => {
+    currentUrl = url;
+    reportedUrl = url;
+    const route = new URL(url).pathname;
+    page.emit("framenavigated", page.mainFrame());
+    if (route === "/x/") {
+      xVisits += 1;
+      if (xVisits === 1) page.emit("pageerror", new Error("first x visit error"));
+      if (xVisits === 2) page.emit("pageerror", new Error("revisited x error"));
+    } else {
+      page.emit("pageerror", new Error("y visit error"));
+    }
+  };
+  page.waitForSelector = async () => {
+    if (xVisits === 2) {
+      xSelectorCalls += 1;
+      if (xSelectorCalls === 1) throw new Error("selector failed");
+    }
+  };
+
+  await captureWarnings(() => openDocument(page, "/x/"));
+  await captureWarnings(() => openDocument(page, "/y/"));
+  await captureWarnings(() => openDocument(page, "/x/"));
+
+  let readinessCalls = 0;
+  let reloads = 0;
+  page.waitForFunction = async () => {
+    readinessCalls += 1;
+    if (readinessCalls === 1) {
+      page.emit("pageerror", new Error("readiness failed"));
+      throw new Error("readiness failed");
+    }
+    return true;
+  };
+  page.reload = async () => {
+    reloads += 1;
+    reportedUrl = currentUrl;
+    page.emit("framenavigated", page.mainFrame());
+  };
+  reportedUrl = "http://127.0.0.1:4173/y/";
+  await captureWarnings(() => waitForRouteReady(page));
+
+  assert.strictEqual(xVisits, 3);
+  assert.strictEqual(xSelectorCalls, 1);
+  assert.strictEqual(readinessCalls, 2);
+  assert.strictEqual(reloads, 1);
+  assert.deepStrictEqual(pageErrors, [
+    "http://127.0.0.1:4173/x/: first x visit error",
+    "http://127.0.0.1:4173/y/: y visit error",
+  ]);
+});
+
 test("openDocument reports console and request diagnostics only from its route", async () => {
   let currentUrl = "http://127.0.0.1:4173/";
   const page = makeFakePage(currentUrl);

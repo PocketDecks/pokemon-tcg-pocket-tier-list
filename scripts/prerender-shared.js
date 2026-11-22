@@ -171,6 +171,7 @@ const createPrerenderPage = async (target, pageErrors = []) => {
   const diagnostics = {
     pageId: Symbol(),
     currentDocumentId: Symbol(),
+    currentRoute: null,
     pageErrorRecords: [],
     routeDocumentIds: new Map(),
     consoleMessages: [],
@@ -338,19 +339,27 @@ const runWithRouteRetry = async (
   }
 };
 
-const openDocument = (page, route) =>
-  runWithRouteRetry(page, route, async () => {
+const openDocument = (page, route) => {
+  const diagnostics = pageDiagnostics.get(page);
+  if (diagnostics) {
+    diagnostics.currentRoute = route;
+    diagnostics.routeDocumentIds.set(route, new Set());
+  }
+  return runWithRouteRetry(page, route, async () => {
     await page.goto(`${ORIGIN}${route}`, { waitUntil: "networkidle0" });
     await page.waitForSelector("#app-root > *, #root > *", {
       timeout: ROUTE_READY_TIMEOUT,
     });
   });
+};
 
 const waitForRouteReady = (page) =>
   (() => {
     let reloadForRetry = false;
+    const diagnostics = pageDiagnostics.get(page);
     const pageUrl = typeof page.url === "function" ? page.url() : "";
-    const route = pageUrl ? new URL(pageUrl).pathname : "unknown route";
+    const route = diagnostics?.currentRoute ??
+      (pageUrl ? new URL(pageUrl).pathname : "unknown route");
     return runWithRouteRetry(
       page,
       route,

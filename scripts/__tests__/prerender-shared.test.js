@@ -503,6 +503,38 @@ test("openDocument reports console and request diagnostics only from its route",
   });
 });
 
+test("waitForRouteReady keeps a main-page error when a child frame navigates on retry", async () => {
+  const pageErrors = [];
+  const route = "/child-frame/";
+  const page = makeFakePage(`http://127.0.0.1:4173${route}`);
+  await createPrerenderPage({ newPage: async () => page }, pageErrors);
+  page.goto = async () => {
+    page.emit("framenavigated", page.mainFrame());
+  };
+  page.waitForSelector = async () => {};
+  await openDocument(page, route);
+
+  let readinessCalls = 0;
+  const childFrame = {};
+  page.waitForFunction = async () => {
+    readinessCalls += 1;
+    if (readinessCalls === 1) {
+      page.emit("pageerror", new Error("main page error"));
+      throw new Error("route readiness failed");
+    }
+    return true;
+  };
+  page.reload = async () => {
+    page.emit("framenavigated", childFrame);
+  };
+
+  await captureWarnings(() => waitForRouteReady(page));
+
+  assert.deepStrictEqual(pageErrors, [
+    `http://127.0.0.1:4173${route}: main page error`,
+  ]);
+});
+
 test("openDocument excludes earlier route errors from retries and preserves shared page error history", async () => {
   const pageErrors = [];
   let currentUrl = "http://127.0.0.1:4173/a/";

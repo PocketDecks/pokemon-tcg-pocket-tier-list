@@ -4,6 +4,7 @@ updates:
     directories:
       - "/"
       - "/analysis"
+    target-branch: "main"
     schedule:
       interval: "daily"
     allow:

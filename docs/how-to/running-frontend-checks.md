@@ -33,17 +33,14 @@ will still stop a deployment.
 
 ## Upgrading packages
 
-The root and analysis npm update entry opens version pull requests only for
-`pokemon-tcg-pocket-cards`. Dependabot also opens one grouped weekly pull
-request for GitHub Actions. The separate `/workers/kofi` npm entry keeps its
-weekly grouped updates.
+The root and analysis npm entry targets `main` for version updates. Its `allow`
+list limits version pull requests to `pokemon-tcg-pocket-cards`.
 
-GitHub's Dependabot options say the `allow` setting limits which dependencies
-are maintained for version and security updates. The root and analysis allow
-list therefore limits npm security pull requests to
-`pokemon-tcg-pocket-cards`. Other vulnerable npm packages in those directories
-will not get Dependabot pull requests under this configuration. The owner must
-change the allow list to include them.
+GitHub ignores options in an entry with `target-branch` for security updates.
+Security updates use the repository default branch, so the version-update
+`allow` list does not filter them. Dependabot can open security pull requests
+for vulnerable packages in both directories. The separate `/workers/kofi` npm
+entry keeps its weekly grouped version updates
 
 An upgrade outside these configured entries is done by hand, when the owner
 chooses to.

@@ -214,14 +214,17 @@ test("Dependabot has one weekly grouped GitHub Actions update", () => {
   assert.ok(includes("google-github-actions/auth"));
 });
 
-test("the root npm allow list stays limited to card data", () => {
+test("root and analysis npm updates target main and allow card data", () => {
   const dependabot = loadYaml(".github", "dependabot.yml");
   const entry = dependabot.updates.find(
     (update) =>
       update["package-ecosystem"] === "npm" &&
-      (update.directories?.includes("/") || update.directory === "/")
+      update.directories?.includes("/") &&
+      update.directories?.includes("/analysis")
   );
   assert.ok(entry);
+  assert.deepStrictEqual(entry.directories, ["/", "/analysis"]);
+  assert.strictEqual(entry["target-branch"], "main");
   assert.deepStrictEqual(entry.allow, [
     { "dependency-name": "pokemon-tcg-pocket-cards" },
   ]);

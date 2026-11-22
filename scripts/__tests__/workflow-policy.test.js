@@ -333,6 +333,7 @@ test("pairings syncs share one non-cancelling concurrency group", () => {
     {
       group: "sync-pairings",
       "cancel-in-progress": false,
+      queue: "max",
     }
   );
 });

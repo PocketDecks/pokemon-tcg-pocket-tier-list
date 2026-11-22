@@ -184,8 +184,7 @@ const createPrerenderPage = async (target, pageErrors = []) => {
   getPageErrorOwners(pageErrors);
   pageDiagnostics.set(page, diagnostics);
   await page.setUserAgent(PRERENDER_USER_AGENT);
-  page.on("framenavigated", (frame) => {
-    if (frame !== page.mainFrame()) return;
+  page.on("domcontentloaded", () => {
     diagnostics.currentDocumentId = Symbol();
     diagnostics.currentAttempt?.documentIds.add(diagnostics.currentDocumentId);
     diagnostics.currentAttempt?.routeDocumentIds.add(diagnostics.currentDocumentId);

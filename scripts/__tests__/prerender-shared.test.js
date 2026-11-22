@@ -148,7 +148,7 @@ test("openDocument adds route, page, console and request details to failures", a
   const page = makeFakePage(`http://127.0.0.1:4173${route}`);
   await createPrerenderPage({ newPage: async () => page }, pageErrors);
   page.goto = async () => {
-    page.emit("framenavigated", page.mainFrame());
+    page.emit("domcontentloaded");
     for (let index = 0; index < 12; index += 1) {
       page.emit("console", {
         type: () => "warning",
@@ -250,7 +250,7 @@ test("openDocument retries and removes only its failed page errors", async () =>
   let gotoCalls = 0;
   page.goto = async () => {
     gotoCalls += 1;
-    page.emit("framenavigated", page.mainFrame());
+    page.emit("domcontentloaded");
     if (gotoCalls === 1) {
       page.emit("pageerror", new Error("first page error"));
       throw new Error("connection reset");
@@ -278,7 +278,7 @@ test("openDocument keeps earlier route errors when a retry succeeds", async () =
   page.goto = async () => {
     gotoCalls += 1;
     currentUrl = "http://127.0.0.1:4173/b/";
-    page.emit("framenavigated", page.mainFrame());
+    page.emit("domcontentloaded");
     if (gotoCalls === 1) throw new Error("connection reset");
   };
   page.waitForSelector = async () => {};
@@ -304,7 +304,7 @@ test("a revisited route preserves earlier errors and readiness uses its opened r
     currentUrl = url;
     reportedUrl = url;
     const route = new URL(url).pathname;
-    page.emit("framenavigated", page.mainFrame());
+    page.emit("domcontentloaded");
     if (route === "/x/") {
       xVisits += 1;
       if (xVisits === 1) page.emit("pageerror", new Error("first x visit error"));
@@ -337,7 +337,7 @@ test("a revisited route preserves earlier errors and readiness uses its opened r
   page.reload = async () => {
     reloads += 1;
     reportedUrl = currentUrl;
-    page.emit("framenavigated", page.mainFrame());
+    page.emit("domcontentloaded");
   };
   reportedUrl = "http://127.0.0.1:4173/y/";
   await captureWarnings(() => waitForRouteReady(page));
@@ -352,6 +352,32 @@ test("a revisited route preserves earlier errors and readiness uses its opened r
   ]);
 });
 
+test("same-document navigation does not clear errors from the first document", async () => {
+  const pageErrors = [];
+  const route = "/same/";
+  const page = makeFakePage(`http://127.0.0.1:4173${route}`);
+  page.url = () => `http://127.0.0.1:4173${route}`;
+  await createPrerenderPage({ newPage: async () => page }, pageErrors);
+  let gotoCalls = 0;
+  page.goto = async () => {
+    gotoCalls += 1;
+    page.emit("framenavigated", page.mainFrame());
+    if (gotoCalls === 1) {
+      page.emit("domcontentloaded");
+      page.emit("pageerror", new Error("first document error"));
+    }
+  };
+  page.waitForSelector = async () => {
+    if (gotoCalls === 1) throw new Error("selector failed");
+  };
+
+  await captureWarnings(() => openDocument(page, route));
+
+  assert.deepStrictEqual(pageErrors, [
+    `http://127.0.0.1:4173${route}: first document error`,
+  ]);
+});
+
 test("openDocument reports console and request diagnostics only from its route", async () => {
   let currentUrl = "http://127.0.0.1:4173/";
   const page = makeFakePage(currentUrl);
@@ -359,7 +385,7 @@ test("openDocument reports console and request diagnostics only from its route",
   await createPrerenderPage({ newPage: async () => page });
   page.goto = async (url) => {
     currentUrl = url;
-    page.emit("framenavigated", page.mainFrame());
+    page.emit("domcontentloaded");
     const route = new URL(url).pathname;
     page.emit("console", {
       type: () => "error",
@@ -392,7 +418,7 @@ test("openDocument reports only page errors from its route", async () => {
   page.emit("pageerror", new Error("earlier route error"));
   page.goto = async (url) => {
     currentUrl = url;
-    page.emit("framenavigated", page.mainFrame());
+    page.emit("domcontentloaded");
     page.emit("pageerror", new Error("current route error"));
     throw new Error("navigation failed");
   };
@@ -416,7 +442,7 @@ test("openDocument caps failed request diagnostics", async () => {
   let gotoCalls = 0;
   page.goto = async () => {
     gotoCalls += 1;
-    page.emit("framenavigated", page.mainFrame());
+    page.emit("domcontentloaded");
     for (let index = 0; index < 12; index += 1) {
       const number = (gotoCalls - 1) * 12 + index;
       page.emit("requestfailed", {
@@ -444,7 +470,7 @@ test("openDocument retains old document errors when its replacement reports an e
   let gotoCalls = 0;
   page.goto = async () => {
     gotoCalls += 1;
-    page.emit("framenavigated", page.mainFrame());
+    page.emit("domcontentloaded");
     page.emit("pageerror", new Error(`document error ${gotoCalls}`));
     if (gotoCalls === 1) throw new Error("connection reset");
   };
@@ -473,7 +499,7 @@ test("a clean reload clears errors from discarded route documents only", async (
   page.goto = async (url) => {
     gotoCalls += 1;
     currentUrl = url;
-    page.emit("framenavigated", page.mainFrame());
+    page.emit("domcontentloaded");
     page.emit("pageerror", new Error(`document ${gotoCalls} error`));
   };
   page.waitForSelector = async () => {
@@ -486,7 +512,7 @@ test("a clean reload clears errors from discarded route documents only", async (
   };
   page.reload = async () => {
     reloads += 1;
-    page.emit("framenavigated", page.mainFrame());
+    page.emit("domcontentloaded");
   };
 
   await captureWarnings(async () => {
@@ -514,7 +540,7 @@ test("openDocument includes both page attempts when retry also fails", async () 
   let gotoCalls = 0;
   page.goto = async () => {
     gotoCalls += 1;
-    page.emit("framenavigated", page.mainFrame());
+    page.emit("domcontentloaded");
     page.emit("pageerror", new Error(`page error ${gotoCalls}`));
     throw new Error(`navigation attempt ${gotoCalls} failed`);
   };
@@ -557,7 +583,7 @@ test("waitForRouteReady reloads once after its first timeout", async () => {
   page.reload = async (options) => {
     reloads += 1;
     reloadOptions = options;
-    page.emit("framenavigated", page.mainFrame());
+    page.emit("domcontentloaded");
   };
   const { result, warnings } = await captureWarnings(() => waitForRouteReady(page));
   assert.strictEqual(result, true);
@@ -583,7 +609,7 @@ test("waitForRouteReady retains page errors from the successful document load", 
     throw new Error("route wait timed out");
   };
   page.reload = async () => {
-    page.emit("framenavigated", page.mainFrame());
+    page.emit("domcontentloaded");
   };
   const { result } = await captureWarnings(() =>
     assert.rejects(

@@ -11,7 +11,7 @@ permissions:
 concurrency:
   group: hosting-live
   cancel-in-progress: false
-  queue: single
+  queue: max
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
@@ -19,7 +19,18 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - name: Check main freshness after checkout
+        id: early_latest
+        run: |
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          if [ "$GITHUB_SHA" = "$(git rev-parse refs/remotes/origin/main)" ]; then
+            echo "is_latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_latest=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping stale job for $GITHUB_SHA."
+          fi
       - uses: actions/setup-node@v7
+        if: steps.early_latest.outputs.is_latest == 'true'
         with:
           # 24.19.0 broke the deploy action's preview-link posting, so the
           # pin only moves after a full deploy test.
@@ -29,8 +40,11 @@ jobs:
       # Node is pinned for the whole job: firebase-tools still hits a
       # node-fetch@v2 premature-close bug on newer runner defaults.
       - run: yarn install --frozen-lockfile
+        if: steps.early_latest.outputs.is_latest == 'true'
       - run: yarn check:generated
+        if: steps.early_latest.outputs.is_latest == 'true'
       - run: yarn build
+        if: steps.early_latest.outputs.is_latest == 'true'
         env:
           VITE_FIREBASE_APIKEY: ${{ secrets.VITE_FIREBASE_APIKEY }}
           VITE_FIREBASE_AUTHDOMAIN: ${{ secrets.VITE_FIREBASE_AUTHDOMAIN }}
@@ -39,22 +53,30 @@ jobs:
           VITE_FIREBASE_MESSAGINGSENDERID: ${{ secrets.VITE_FIREBASE_MESSAGINGSENDERID }}
           VITE_FIREBASE_APPID: ${{ secrets.VITE_FIREBASE_APPID }}
       - run: yarn test:ci
+        if: steps.early_latest.outputs.is_latest == 'true'
         env:
           CI: true
       - run: yarn test:scripts
+        if: steps.early_latest.outputs.is_latest == 'true'
       - run: yarn install --frozen-lockfile
+        if: steps.early_latest.outputs.is_latest == 'true'
         working-directory: analysis
       - run: yarn typecheck
+        if: steps.early_latest.outputs.is_latest == 'true'
         working-directory: analysis
       - run: yarn test
+        if: steps.early_latest.outputs.is_latest == 'true'
         working-directory: analysis
       - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093
+        if: steps.early_latest.outputs.is_latest == 'true'
         with:
           credentials_json: ${{ secrets.FIREBASE_PREMIUM_VERIFIER }}
       - run: yarn verify:premium
+        if: steps.early_latest.outputs.is_latest == 'true'
         working-directory: analysis
       - name: Check whether this commit is still current
         id: latest
+        if: steps.early_latest.outputs.is_latest == 'true'
         run: |
           git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
           if [ "$GITHUB_SHA" = "$(git rev-parse refs/remotes/origin/main)" ]; then
@@ -64,7 +86,7 @@ jobs:
             echo "Skipping stale deployment for $GITHUB_SHA."
           fi
       - uses: FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a
-        if: "${{ steps.latest.outputs.is_latest == 'true' }}"
+        if: "${{ steps.early_latest.outputs.is_latest == 'true' && steps.latest.outputs.is_latest == 'true' }}"
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_POKEMON_TCG_POCKET_TIER_LIST }}"

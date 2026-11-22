@@ -115,8 +115,12 @@ Three workflows in `.github/workflows/` cover deployment and checks:
   against `main`. It reports independently; the deploy workflows run those
   gates before invoking Firebase.
 
-The merge workflow serialises live deploys, with one active run and at most one
-pending run; a newer pending run replaces the older one.
+The merge workflow uses `queue: max`. It keeps the active run and allows up to
+100 pending live runs. After checkout, it checks whether the commit is still
+the tip of `main`. A stale commit skips setup, dependency installation, builds
+and tests. A second check runs before deployment, so a run that becomes stale
+during validation skips the deploy action. The newest `main` commit stays
+eligible for deployment when its gates pass.
 Every push to main must trigger this workflow. Do not use [skip ci] or push with GITHUB_TOKEN.
 
 Both deploy workflows inject the Firebase web configuration as

@@ -64,15 +64,53 @@ const runPairingsPullRequestStep = (step, openPr, outcomes = {}) =>
     },
   });
 
-test("the merge workflow limits live deploys to one active run", () => {
+test("the merge workflow queues all pending live deploys", () => {
   assert.deepStrictEqual(
     loadYaml(".github", "workflows", "firebase-hosting-merge.yml").concurrency,
     {
       group: "hosting-live",
       "cancel-in-progress": false,
-      queue: "single",
+      queue: "max",
     }
   );
+});
+
+test("live deploys check freshness after checkout and gate later steps", () => {
+  const steps = loadYaml(".github", "workflows", "firebase-hosting-merge.yml")
+    .jobs.build_and_deploy.steps;
+  const checkoutIndex = steps.findIndex((step) =>
+    step.uses?.startsWith("actions/checkout@")
+  );
+  const earlyIndex = steps.findIndex((step) => step.id === "early_latest");
+  const latestIndex = steps.findIndex((step) => step.id === "latest");
+  const deployIndex = steps.findIndex((step) =>
+    step.uses?.startsWith("FirebaseExtended/action-hosting-deploy@")
+  );
+  assert.strictEqual(earlyIndex, checkoutIndex + 1);
+  assert.ok(earlyIndex < latestIndex);
+  assert.ok(steps.slice(earlyIndex + 1).every((step) =>
+    step.if?.includes("steps.early_latest.outputs.is_latest == 'true'")
+  ));
+
+  const runEarlyCheck = (githubSha, initialMainSha, fetchedMainSha) =>
+    runWorkflowCommand({
+      command: steps[earlyIndex].run,
+      commandShims: {
+        git: 'if [ "$1" = fetch ]; then echo "$INITIAL_MAIN_SHA" > "$GITHUB_OUTPUT.ref"; echo "$FETCHED_MAIN_SHA" > "$GITHUB_OUTPUT.ref"; elif [ "$1" = rev-parse ]; then if [ ! -f "$GITHUB_OUTPUT.ref" ]; then echo "$INITIAL_MAIN_SHA" > "$GITHUB_OUTPUT.ref"; fi; cat "$GITHUB_OUTPUT.ref"; fi',
+      },
+      env: {
+        GITHUB_SHA: githubSha,
+        INITIAL_MAIN_SHA: initialMainSha,
+        FETCHED_MAIN_SHA: fetchedMainSha,
+      },
+    });
+  const stale = runEarlyCheck("sha-a", "sha-a", "sha-b");
+  assert.strictEqual(stale.status, 0, stale.stderr);
+  assert.strictEqual(stale.workflowOutput.trim(), "is_latest=false");
+  const current = runEarlyCheck("sha-b", "sha-a", "sha-b");
+  assert.strictEqual(current.status, 0, current.stderr);
+  assert.strictEqual(current.workflowOutput.trim(), "is_latest=true");
+  assert.ok(deployIndex > latestIndex);
 });
 
 test("live deploys queue pending runs and skip commits that are no longer latest", () => {
@@ -86,10 +124,10 @@ test("live deploys queue pending runs and skip commits that are no longer latest
   assert.strictEqual(deployIndex, latestIndex + 1);
   assert.ok(steps[latestIndex].run.includes("GITHUB_SHA"));
   assert.ok(steps[latestIndex].run.includes("refs/remotes/origin/main"));
-  assert.strictEqual(
-    steps[deployIndex].if,
-    "${{ steps.latest.outputs.is_latest == 'true' }}"
+  assert.ok(
+    steps[deployIndex].if.includes("steps.early_latest.outputs.is_latest == 'true'")
   );
+  assert.ok(steps[deployIndex].if.includes("steps.latest.outputs.is_latest == 'true'"));
   const runLatestCheck = (githubSha, mainSha) =>
     runWorkflowCommand({
       command: steps[latestIndex].run,

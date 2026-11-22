@@ -2,8 +2,7 @@
 
 <div align="center">
 
-[![frontend tests](https://img.shields.io/github/actions/workflow/status/chase-mew/pokemon-tcg-pocket-tier-list/ci.yml?branch=main)](https://github.com/chase-mew/pokemon-tcg-pocket-tier-list/actions/workflows/ci.yml)
-[![analysis tests](https://img.shields.io/github/actions/workflow/status/chase-mew/pokemon-tcg-pocket-tier-list/ci.yml?branch=main)](https://github.com/chase-mew/pokemon-tcg-pocket-tier-list/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/chase-mew/pokemon-tcg-pocket-tier-list/ci.yml?branch=main)](https://github.com/chase-mew/pokemon-tcg-pocket-tier-list/actions/workflows/ci.yml)
 [![licence](https://img.shields.io/github/license/chase-mew/pokemon-tcg-pocket-tier-list)](LICENSE)
 [![node](https://img.shields.io/badge/node-24.22.1-green)](https://nodejs.org)
 [![card data size](https://img.shields.io/badge/card%20data-453.9%20kB%20gzipped-blue)](https://bundlephobia.com/package/pokemon-tcg-pocket-cards@5.3.0)

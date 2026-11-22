@@ -13,7 +13,9 @@ export default tseslint.config(
   {
     ignores: [
       "dist/**",
-      "analysis/**",
+      "analysis/out/**",
+      "analysis/data/**",
+      "analysis/data-backup/**",
       "public/**",
       ".agents/**",
       ".hermes/**",
@@ -53,6 +55,12 @@ export default tseslint.config(
         ...globals.browser,
         ...globals.node,
       },
+    },
+  },
+  {
+    files: ["analysis/**/*.ts", "analysis/**/*.cjs"],
+    languageOptions: {
+      globals: globals.node,
     },
   },
   {

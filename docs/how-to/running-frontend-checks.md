@@ -25,6 +25,7 @@ the affected suites.
 runs typecheck, lint and tests against Node 24.22.1. It triggers on pull
 requests to `main` and on pushes to `main`. The analysis pipeline has its own
 workflow in `analysis-tests.yml`, which does not cover `src/`.
+Root `yarn lint` also covers `analysis/`.
 
 The deploy workflows run `yarn build` separately. That script chains
 typecheck and lint ahead of `vite build`, so a warning you ignore locally

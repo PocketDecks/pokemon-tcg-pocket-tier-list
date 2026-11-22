@@ -266,6 +266,30 @@ test("openDocument retries and removes only its failed page errors", async () =>
   assert.ok(warnings[0].includes("connection reset"));
 });
 
+test("openDocument keeps earlier route errors when a retry succeeds", async () => {
+  const pageErrors = [];
+  let currentUrl = "http://127.0.0.1:4173/a/";
+  const page = makeFakePage(currentUrl);
+  page.url = () => currentUrl;
+  await createPrerenderPage({ newPage: async () => page }, pageErrors);
+  page.emit("pageerror", new Error("earlier route error"));
+  let gotoCalls = 0;
+  page.goto = async () => {
+    gotoCalls += 1;
+    currentUrl = "http://127.0.0.1:4173/b/";
+    page.emit("framenavigated", page.mainFrame());
+    if (gotoCalls === 1) throw new Error("connection reset");
+  };
+  page.waitForSelector = async () => {};
+
+  await captureWarnings(() => openDocument(page, "/b/"));
+
+  assert.strictEqual(gotoCalls, 2);
+  assert.deepStrictEqual(pageErrors, [
+    "http://127.0.0.1:4173/a/: earlier route error",
+  ]);
+});
+
 test("openDocument retains old document errors when its replacement reports an error", async () => {
   const route = "/deck/retry-error/";
   const pageErrors = [];

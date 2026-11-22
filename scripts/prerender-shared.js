@@ -239,12 +239,19 @@ const retryOnce = async (work, { onRetry } = {}) => {
   }
 };
 
-const runWithRouteRetry = async (page, route, work, { beforeRetry } = {}) => {
+const runWithRouteRetry = async (
+  page,
+  route,
+  work,
+  { beforeRetry, seedCurrentDocument = false } = {}
+) => {
   const diagnostics = pageDiagnostics.get(page);
   const attempts = [];
   const runAttempt = () => {
     const attempt = {
-      documentIds: new Set(diagnostics ? [diagnostics.currentDocumentId] : []),
+      documentIds: new Set(
+        diagnostics && seedCurrentDocument ? [diagnostics.currentDocumentId] : []
+      ),
       pageErrors: [],
     };
     attempts.push(attempt);
@@ -321,7 +328,10 @@ const waitForRouteReady = (page) =>
           { timeout: ROUTE_READY_TIMEOUT }
         );
       },
-      { beforeRetry: () => { reloadForRetry = true; } }
+      {
+        beforeRetry: () => { reloadForRetry = true; },
+        seedCurrentDocument: true,
+      }
     );
   })();
 

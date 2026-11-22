@@ -25,6 +25,22 @@ yarn test:ci
 yarn test:scripts
 ```
 
+CI also runs typecheck and tests in `analysis/` and `workers/kofi/`. For changes under `analysis/`, run:
+
+```bash
+cd analysis
+yarn typecheck
+yarn test
+```
+
+For changes under `workers/kofi/`, run:
+
+```bash
+yarn --cwd workers/kofi typecheck
+yarn --cwd workers/kofi test:ci
+yarn --cwd workers/kofi wrangler deploy --dry-run --outdir dist-dry
+```
+
 [How to run the frontend checks](docs/how-to/running-frontend-checks.md) explains what each check covers and what CI runs on a pull request. Add tests for behaviour changes, and update the relevant guide when you change a workflow or a data contract.
 
 ## Commit and pull request titles

@@ -1,10 +1,9 @@
 name: Sync pairings
 
-# The local cron misses new archetypes when the machine is off. This CI job
-# runs the stateless scraper weekly; scoring stays local with the raw deck store.
+# The local cron misses new archetypes when the machine is off.
 on:
   schedule:
-    # Mondays 10:00 UTC, once weekend decklists are up.
+    # After weekend decklists are up.
     - cron: "0 10 * * 1"
   workflow_dispatch:
 
@@ -24,17 +23,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v7
+      - uses: ./.github/actions/setup
         with:
-          node-version: "24.22.1"
-          cache: "yarn"
-          cache-dependency-path: "analysis/yarn.lock"
-
-      - name: Install dependencies
-        run: |
-          cd analysis
-          yarn install --frozen-lockfile
+          workspace: analysis
 
       - name: Prepare dated branch
         run: |
@@ -81,7 +72,7 @@ jobs:
 
           git add analysis/src/data/limitless-decks.json
           git commit -m "chore(data): sync deck listings from Limitless"
-          # Fetch the branch so --force-with-lease checks against the real remote, not a stale local ref.
+          # Fetch so --force-with-lease checks the real remote.
           git fetch origin "$BRANCH" || true
           git push --force-with-lease origin "$BRANCH"
 

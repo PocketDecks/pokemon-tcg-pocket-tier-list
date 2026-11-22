@@ -37,7 +37,9 @@ updates:
       - "automated"
     open-pull-requests-limit: 1
   - package-ecosystem: "github-actions"
-    directory: "/"
+    directories:
+      - "/"
+      - "/.github/actions/setup"
     schedule:
       interval: "weekly"
     groups:
@@ -45,7 +47,7 @@ updates:
         patterns:
           - "*"
     commit-message:
-      prefix: "ci(deps)"
+      prefix: "build(deps)"
     labels:
       - "automated"
     open-pull-requests-limit: 1

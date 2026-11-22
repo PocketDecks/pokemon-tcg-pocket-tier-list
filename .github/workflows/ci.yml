@@ -1,4 +1,4 @@
-name: Frontend Tests
+name: CI
 
 on:
   push:
@@ -8,11 +8,15 @@ on:
     branches:
       - main
 
+concurrency:
+  group: "ci-${{ github.event_name == 'pull_request' && github.ref || github.sha }}"
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
 jobs:
-  test:
+  frontend:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,15 +24,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v7
+      - uses: ./.github/actions/setup
         with:
-          node-version: "24.22.1"
-          cache: "yarn"
-          cache-dependency-path: "yarn.lock"
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+          workspace: root
 
       - name: Typecheck
         run: yarn typecheck
@@ -53,7 +51,7 @@ jobs:
       - name: Test Firestore rules
         run: yarn test:rules
 
-  kofi-receiver:
+  analysis:
     runs-on: ubuntu-latest
 
     steps:
@@ -61,15 +59,31 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v7
+      - uses: ./.github/actions/setup
         with:
-          node-version: "24.22.1"
-          cache: "yarn"
-          cache-dependency-path: workers/kofi/yarn.lock
+          workspace: analysis
 
-      - name: Install Ko-fi receiver dependencies
-        run: yarn --cwd workers/kofi install --frozen-lockfile
+      - name: Typecheck
+        run: |
+          cd analysis
+          yarn typecheck
+
+      - name: Run tests
+        run: |
+          cd analysis
+          yarn test
+
+  kofi:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+        with:
+          workspace: kofi
 
       - name: Typecheck Ko-fi receiver
         run: yarn --cwd workers/kofi typecheck

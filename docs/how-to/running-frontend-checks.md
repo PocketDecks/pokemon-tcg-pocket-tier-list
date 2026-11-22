@@ -21,10 +21,13 @@ the affected suites.
 
 ## What CI runs
 
-`.github/workflows/frontend-tests.yml` installs with `--frozen-lockfile`, then
-runs typecheck, lint and tests against Node 24.22.1. It triggers on pull
-requests to `main` and on pushes to `main`. The analysis pipeline has its own
-workflow in `analysis-tests.yml`, which does not cover `src/`.
+`.github/workflows/ci.yml` is named `CI`. Its `frontend`, `analysis` and
+`kofi` jobs run on pushes to and pull requests against `main`. `frontend` runs
+root typecheck, lint, tests, script tests and Firestore rules. `analysis` runs
+typecheck and tests in `analysis/`. `kofi` runs its typecheck, tests and the
+Wrangler dry-run bundle. All three jobs use the Node version in `.nvmrc` through
+`.github/actions/setup`.
+
 Root `yarn lint` also covers `analysis/`.
 
 The deploy workflows run `yarn build` separately. That script chains

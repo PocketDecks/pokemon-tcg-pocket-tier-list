@@ -1,0 +1,35 @@
+name: Shared setup
+description: Set up Node.js from .nvmrc and install root, analysis or kofi dependencies.
+inputs:
+  workspace:
+    description: Select root, analysis or kofi.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v7
+      with:
+        node-version-file: .nvmrc
+        cache: yarn
+        cache-dependency-path: ${{ inputs.workspace == 'root' && 'yarn.lock' || inputs.workspace == 'analysis' && 'analysis/yarn.lock' || 'workers/kofi/yarn.lock' }}
+    - name: Install dependencies
+      shell: bash
+      env:
+        WORKSPACE: ${{ inputs.workspace }}
+      run: |
+        case "$WORKSPACE" in
+          root)
+            yarn install --frozen-lockfile
+            ;;
+          analysis)
+            yarn --cwd analysis install --frozen-lockfile
+            ;;
+          kofi)
+            yarn --cwd workers/kofi install --frozen-lockfile
+            ;;
+          *)
+            echo "Unsupported workspace: $WORKSPACE" >&2
+            exit 1
+            ;;
+        esac

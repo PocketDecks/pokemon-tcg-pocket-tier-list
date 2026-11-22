@@ -12,8 +12,10 @@ const {
 
 const makeFakePage = (url) => {
   const listeners = new Map();
+  const mainFrame = {};
   return {
     url: () => url,
+    mainFrame: () => mainFrame,
     on: (event, listener) => {
       const eventListeners = listeners.get(event) ?? [];
       eventListeners.push(listener);
@@ -171,6 +173,7 @@ test("openDocument adds route, page, console and request details to failures", a
   });
   assert.deepStrictEqual(pageErrors, [
     `http://127.0.0.1:4173${route}: app error`,
+    `http://127.0.0.1:4173${route}: app error`,
   ]);
 });
 
@@ -246,6 +249,7 @@ test("openDocument retries and removes only its failed page errors", async () =>
   let gotoCalls = 0;
   page.goto = async () => {
     gotoCalls += 1;
+    page.emit("framenavigated", page.mainFrame());
     if (gotoCalls === 1) {
       page.emit("pageerror", new Error("first page error"));
       throw new Error("connection reset");
@@ -262,14 +266,38 @@ test("openDocument retries and removes only its failed page errors", async () =>
   assert.ok(warnings[0].includes("connection reset"));
 });
 
-test("openDocument includes both page attempts when retry also fails", async () => {
-  const route = "/deck/retry-fails/";
+test("openDocument retains old document errors when its replacement reports an error", async () => {
+  const route = "/deck/retry-error/";
   const pageErrors = [];
   const page = makeFakePage(`http://127.0.0.1:4173${route}`);
   await createPrerenderPage({ newPage: async () => page }, pageErrors);
   let gotoCalls = 0;
   page.goto = async () => {
     gotoCalls += 1;
+    page.emit("framenavigated", page.mainFrame());
+    page.emit("pageerror", new Error(`document error ${gotoCalls}`));
+    if (gotoCalls === 1) throw new Error("connection reset");
+  };
+  page.waitForSelector = async () => {};
+  await captureWarnings(() => openDocument(page, route));
+  assert.deepStrictEqual(pageErrors, [
+    `http://127.0.0.1:4173${route}: document error 1`,
+    `http://127.0.0.1:4173${route}: document error 2`,
+  ]);
+});
+
+test("openDocument includes both page attempts when retry also fails", async () => {
+  const route = "/deck/retry-fails/";
+  const pageErrors = [];
+  const page = makeFakePage(`http://127.0.0.1:4173${route}`);
+  const otherPage = makeFakePage("http://127.0.0.1:4173/other/");
+  await createPrerenderPage({ newPage: async () => page }, pageErrors);
+  await createPrerenderPage({ newPage: async () => otherPage }, pageErrors);
+  otherPage.emit("pageerror", new Error("other page error"));
+  let gotoCalls = 0;
+  page.goto = async () => {
+    gotoCalls += 1;
+    page.emit("framenavigated", page.mainFrame());
     page.emit("pageerror", new Error(`page error ${gotoCalls}`));
     throw new Error(`navigation attempt ${gotoCalls} failed`);
   };
@@ -285,6 +313,8 @@ test("openDocument includes both page attempts when retry also fails", async () 
   assert.strictEqual(gotoCalls, 2);
   assert.strictEqual(warnings.length, 1);
   assert.deepStrictEqual(pageErrors, [
+    "http://127.0.0.1:4173/other/: other page error",
+    `http://127.0.0.1:4173${route}: page error 1`,
     `http://127.0.0.1:4173${route}: page error 2`,
   ]);
 });
@@ -308,6 +338,7 @@ test("waitForRouteReady reloads once after its first timeout", async () => {
   page.reload = async (options) => {
     reloads += 1;
     reloadOptions = options;
+    page.emit("framenavigated", page.mainFrame());
   };
   const { result, warnings } = await captureWarnings(() => waitForRouteReady(page));
   assert.strictEqual(result, true);
@@ -332,7 +363,9 @@ test("waitForRouteReady retains page errors from the successful document load", 
   page.waitForFunction = async () => {
     throw new Error("route wait timed out");
   };
-  page.reload = async () => {};
+  page.reload = async () => {
+    page.emit("framenavigated", page.mainFrame());
+  };
   const { result } = await captureWarnings(() =>
     assert.rejects(
       async () => {
@@ -348,6 +381,9 @@ test("waitForRouteReady retains page errors from the successful document load", 
     )
   );
   assert.strictEqual(result, undefined);
+  assert.deepStrictEqual(pageErrors, [
+    `http://127.0.0.1:4173${route}: fixture page exploded`,
+  ]);
 });
 
 test("request interception continues local files, stubs card images and aborts other hosts", async () => {

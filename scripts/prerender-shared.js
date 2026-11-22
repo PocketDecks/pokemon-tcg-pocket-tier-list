@@ -49,15 +49,22 @@ const getPageErrorOwners = (pageErrors) => {
   return owners;
 };
 
-const removePageErrorsForAttempt = (diagnostics, token) => {
+const removePageErrorsForDocuments = (diagnostics, documentIds) => {
   const pageErrors = diagnostics.sharedPageErrors;
   const owners = getPageErrorOwners(pageErrors);
   for (let index = pageErrors.length - 1; index >= 0; index -= 1) {
-    if (owners[index] === token) {
+    const owner = owners[index];
+    if (
+      owner?.pageId === diagnostics.pageId &&
+      documentIds.has(owner.documentId)
+    ) {
       pageErrors.splice(index, 1);
       owners.splice(index, 1);
     }
   }
+  diagnostics.pageErrorRecords = diagnostics.pageErrorRecords.filter(
+    ({ documentId }) => !documentIds.has(documentId)
+  );
 };
 
 const buildRouteError = ({
@@ -157,8 +164,9 @@ const launchBrowser = () =>
 const createPrerenderPage = async (target, pageErrors = []) => {
   const page = await target.newPage();
   const diagnostics = {
-    pageErrors: [],
-    completedPageErrors: [],
+    pageId: Symbol(),
+    currentDocumentId: Symbol(),
+    pageErrorRecords: [],
     consoleMessages: [],
     failedRequests: [],
     sharedPageErrors: pageErrors,
@@ -167,17 +175,25 @@ const createPrerenderPage = async (target, pageErrors = []) => {
   getPageErrorOwners(pageErrors);
   pageDiagnostics.set(page, diagnostics);
   await page.setUserAgent(PRERENDER_USER_AGENT);
+  page.on("framenavigated", (frame) => {
+    if (frame !== page.mainFrame()) return;
+    diagnostics.currentDocumentId = Symbol();
+    diagnostics.currentAttempt?.documentIds.add(diagnostics.currentDocumentId);
+  });
   page.on("pageerror", (err) => {
     const message = `${page.url()}: ${err.message}`;
     const owners = getPageErrorOwners(pageErrors);
     pageErrors.push(message);
-    owners.push(diagnostics.currentAttempt?.token ?? null);
-    diagnostics.pageErrors.push(message);
-    if (diagnostics.currentAttempt) {
-      diagnostics.currentAttempt.pageErrors.push(message);
-    } else {
-      diagnostics.completedPageErrors.push(message);
-    }
+    const pageError = {
+      message,
+      documentId: diagnostics.currentDocumentId,
+    };
+    owners.push({
+      pageId: diagnostics.pageId,
+      documentId: pageError.documentId,
+    });
+    diagnostics.pageErrorRecords.push(pageError);
+    diagnostics.currentAttempt?.pageErrors.push(pageError);
   });
   page.on("console", (message) => {
     diagnostics.consoleMessages.push({
@@ -227,7 +243,10 @@ const runWithRouteRetry = async (page, route, work, { beforeRetry } = {}) => {
   const diagnostics = pageDiagnostics.get(page);
   const attempts = [];
   const runAttempt = () => {
-    const attempt = { token: Symbol(), pageErrors: [] };
+    const attempt = {
+      documentIds: new Set(diagnostics ? [diagnostics.currentDocumentId] : []),
+      pageErrors: [],
+    };
     attempts.push(attempt);
     if (diagnostics) diagnostics.currentAttempt = attempt;
     return Promise.resolve()
@@ -241,25 +260,33 @@ const runWithRouteRetry = async (page, route, work, { beforeRetry } = {}) => {
   try {
     const result = await retryOnce(runAttempt, {
       onRetry: async (error) => {
-        if (diagnostics && attempts[0]) {
-          removePageErrorsForAttempt(diagnostics, attempts[0].token);
-        }
         console.warn(`Retrying route ${route}: ${error?.message ?? String(error)}`);
         await beforeRetry?.(error);
       },
     });
-    if (diagnostics && attempts.length) {
-      diagnostics.completedPageErrors.push(...attempts.at(-1).pageErrors);
+    if (diagnostics && attempts.length > 1 && attempts.at(-1).pageErrors.length === 0) {
+      const previousDocumentIds = new Set(
+        attempts.slice(0, -1).flatMap((attempt) => [...attempt.documentIds])
+      );
+      const currentDocumentId = diagnostics.currentDocumentId;
+      const replacementLoaded =
+        attempts.at(-1).documentIds.has(currentDocumentId) &&
+        !previousDocumentIds.has(currentDocumentId);
+      if (replacementLoaded) {
+        previousDocumentIds.delete(currentDocumentId);
+        removePageErrorsForDocuments(diagnostics, previousDocumentIds);
+      }
     }
     return result;
   } catch (cause) {
     throw buildRouteError({
       route,
       cause,
-      pageErrors: [
-        ...(diagnostics?.completedPageErrors ?? []),
-        ...attempts.flatMap((attempt) => attempt.pageErrors),
-      ],
+      pageErrors: diagnostics
+        ? diagnostics.pageErrorRecords.map(({ message }) => message)
+        : attempts.flatMap((attempt) =>
+            attempt.pageErrors.map(({ message }) => message)
+          ),
       consoleMessages: diagnostics?.consoleMessages,
       failedRequests: diagnostics?.failedRequests,
     });

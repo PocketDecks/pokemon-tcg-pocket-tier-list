@@ -98,7 +98,8 @@ inconsistent.
 
 ## Which workflow does what
 
-Three workflows in `.github/workflows/` cover deployment and checks:
+Five workflows in `.github/workflows/` handle deployment, tests and pairings
+updates:
 
 - `firebase-hosting-pull-request.yml`, named "Deploy to Firebase Hosting on
   PR", triggers on every pull request. It installs with `--frozen-lockfile`,
@@ -114,6 +115,12 @@ Three workflows in `.github/workflows/` cover deployment and checks:
   `yarn test:ci` and `yarn test:scripts` on pushes to and pull requests
   against `main`. It reports independently; the deploy workflows run those
   gates before invoking Firebase.
+- `analysis-tests.yml`, named "Analysis Tests", runs the analysis typecheck and
+  test suite on pushes to and pull requests against `main`
+- `sync-pairings.yml`, named "Sync pairings", runs every Monday at 10:00 UTC and
+  on manual dispatch. It runs `yarn sync-pairings`, typechecks and tests
+  `analysis/`, then opens or updates a pull request when
+  `analysis/src/data/limitless-decks.json` changes
 
 The merge workflow uses `queue: max`. It keeps the active run and allows up to
 100 pending live runs. After checkout, it checks whether the commit is still
@@ -121,16 +128,19 @@ the tip of `main`. A stale commit skips setup, dependency installation, builds
 and tests. A second check runs before deployment, so a run that becomes stale
 during validation skips the deploy action. The newest `main` commit stays
 eligible for deployment when its gates pass.
-Every push to main must trigger this workflow. Do not use [skip ci] or push with GITHUB_TOKEN.
+If the newest commit fails its checks, nothing deploys and live stays on the
+last deployed commit.
+Every push to main must trigger this workflow. Do not use `[skip ci]` or push
+with `GITHUB_TOKEN`
 
 Both deploy workflows inject the Firebase web configuration as
 `VITE_FIREBASE_*` environment variables from repository secrets.
 
-All three workflows pin Node to `24.22.1` through `actions/setup-node@v7`,
+All five workflows pin Node to `24.22.1` through `actions/setup-node@v7`,
 and the pin is deliberate. Node `24.19.0` broke the deploy action's
 preview-link posting, and newer runner defaults trip a premature-close bug in
 the `node-fetch@v2` dependency inside `firebase-tools`. Do not bump the pin
-without testing a full deploy.
+without testing a full deploy
 
 ## Running the build path locally
 

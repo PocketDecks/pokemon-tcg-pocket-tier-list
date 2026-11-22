@@ -39,7 +39,7 @@ const loadAll = async (urls: string[]): Promise<Map<string, Awaited<ReturnType<t
           return await loadImage(url);
         } catch (error) {
           const reason = error instanceof Error ? error.message : String(error);
-          throw new Error(`OG image: failed to load card image ${url}: ${reason}`);
+          throw new Error(`OG image: failed to load card image ${url}: ${reason}`, { cause: error });
         }
       })
     );
@@ -106,7 +106,7 @@ export const stageOgImages = async (decks: OgDeckInput[]): Promise<StagedOgImage
     let logo: Awaited<ReturnType<typeof loadImage>> | null = null;
     try {
       logo = await loadImage(logoPath);
-    } catch (err) {
+    } catch {
       console.warn(`OG image: logo not found at ${logoPath}`);
     }
 

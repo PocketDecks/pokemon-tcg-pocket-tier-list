@@ -4,6 +4,7 @@ updates:
     directories:
       - "/"
       - "/analysis"
+    target-branch: "main"
     schedule:
       interval: "daily"
     allow:
@@ -32,6 +33,19 @@ updates:
           - "version-update:semver-major"
     commit-message:
       prefix: "build(deps)"
+    labels:
+      - "automated"
+    open-pull-requests-limit: 1
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "ci(deps)"
     labels:
       - "automated"
     open-pull-requests-limit: 1

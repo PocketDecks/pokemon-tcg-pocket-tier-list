@@ -414,7 +414,7 @@ describe("withStoreLock", () => {
     const ran = vi.fn(() => "ran");
     fs.mkdirSync(path.dirname(claim), { recursive: true });
     fs.writeFileSync(claim, "unrelated");
-    let message = "";
+    let message: string;
     vi.mocked(randomUUID).mockReturnValue(fixed);
     try {
       message = thrownMessage(() => withStoreLock(fixture.store, ran));

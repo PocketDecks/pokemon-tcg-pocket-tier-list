@@ -26,7 +26,7 @@ const report = (overrides: Partial<RefreshReport> = {}): RefreshReport => ({
 });
 
 const stub = (overrides: Partial<RefreshReport> = {}) =>
-  vi.fn((..._args: Parameters<typeof validateRefresh>) => report(overrides));
+  vi.fn<(...args: Parameters<typeof validateRefresh>) => RefreshReport>(() => report(overrides));
 
 const run = (args: string[], overrides: Parameters<typeof runValidateRefreshCli>[0] = {}) => {
   const logs: string[] = [];

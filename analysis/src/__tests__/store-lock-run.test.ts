@@ -8,7 +8,7 @@ import { lockFileFor, withStoreLock } from "../utils/store-lock";
 const { getDecks, writeArtefacts, DECKS_DIR, MAIN_VERSION, readMainVersion } = vi.hoisted(() => ({
   getDecks: vi.fn(() => []),
   writeArtefacts: vi.fn(),
-  DECKS_DIR: `${require("node:os").tmpdir()}/store-lock-run-store`,
+  DECKS_DIR: `${process.getBuiltinModule("node:os").tmpdir()}/store-lock-run-store`,
   MAIN_VERSION: "0123456789abcdef",
   readMainVersion: vi.fn(() => "0123456789abcdef"),
 }));

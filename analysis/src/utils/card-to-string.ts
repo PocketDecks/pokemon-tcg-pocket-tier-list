@@ -5,7 +5,8 @@ export const cardIdentity = (card: Card): string => {
     throw new Error("Card object is required");
   }
 
-  let { name, set, number } = card;
+  const { name, number } = card;
+  let { set } = card;
 
   if (!name?.trim()) {
     throw new Error("Card name is required");

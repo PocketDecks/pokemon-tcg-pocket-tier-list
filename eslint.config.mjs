@@ -13,12 +13,16 @@ export default tseslint.config(
   {
     ignores: [
       "dist/**",
-      "analysis/**",
+      "analysis/out/**",
+      "analysis/dist/**",
+      "analysis/data/**",
+      "analysis/data-backup/**",
       "public/**",
       ".agents/**",
       ".hermes/**",
       "private/**",
       "coverage/**",
+      "/coverage/",
       "node_modules/**",
       "workers/kofi/node_modules/**",
       "workers/kofi/.wrangler/**",
@@ -53,6 +57,12 @@ export default tseslint.config(
         ...globals.browser,
         ...globals.node,
       },
+    },
+  },
+  {
+    files: ["analysis/**/*.ts", "analysis/**/*.cjs"],
+    languageOptions: {
+      globals: globals.node,
     },
   },
   {

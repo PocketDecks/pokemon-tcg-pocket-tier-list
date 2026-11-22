@@ -1,5 +1,6 @@
 import { getPairings } from "../utils/get-pairings";
 import { LimitlessError } from "../utils/limitless-client";
+import type { Tournament } from "../utils/types";
 import { vi } from "vitest";
 
 const respond = (status: number, body: unknown) =>
@@ -21,7 +22,7 @@ describe("getPairings", () => {
     vi.unstubAllEnvs();
   });
 
-  const mockTournament = { id: "tournament1" };
+  const mockTournament: Tournament = { id: "tournament1", date: "2024-01-01" };
 
   it("should transform pairings correctly", async () => {
     const mockPairings = [
@@ -45,7 +46,7 @@ describe("getPairings", () => {
 
     global.fetch = respond(200, mockPairings);
 
-    const result = await getPairings(mockTournament as any);
+    const result = await getPairings(mockTournament);
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual({
       winner: "tournament1-player1",
@@ -64,14 +65,14 @@ describe("getPairings", () => {
       { winner: "", player1: "player1", player2: "player2" },
     ]);
 
-    const result = await getPairings(mockTournament as any);
+    const result = await getPairings(mockTournament);
     expect(result).toEqual([{ winner: "tournament1-player1", loser: "tournament1-player2" }]);
   });
 
   it("rejects with the HTTP status when the request fails", async () => {
     global.fetch = respond(404, {});
 
-    const failure = await getPairings(mockTournament as any).catch((error) => error);
+    const failure = await getPairings(mockTournament).catch((error) => error);
     expect(failure).toBeInstanceOf(LimitlessError);
     expect(failure.status).toBe(404);
   });

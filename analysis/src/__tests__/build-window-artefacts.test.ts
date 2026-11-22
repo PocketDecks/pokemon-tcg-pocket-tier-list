@@ -1,4 +1,4 @@
-import { WINDOW_IDS, WINDOW_LENGTH_DAYS, WindowId } from "../../../src/types/meta-windows";
+import { WINDOW_IDS, WINDOW_LENGTH_DAYS } from "../../../src/types/meta-windows";
 import { WindowArtefacts } from "../utils/build-window-artefacts";
 import { windowArtefacts } from "./window-fixture";
 import { Deck } from "../utils/types";
@@ -24,11 +24,6 @@ const makeDeck = (overrides: Partial<Deck>): Deck => ({
   losses: [],
   ...overrides,
 });
-
-const artefactsByWindow = (decks: Deck[], today: Date) =>
-  Object.fromEntries(
-    WINDOW_IDS.map((w) => [w, windowArtefacts(decks, w, today)])
-  ) as Record<WindowId, WindowArtefacts>;
 
 const beta = (artefacts: WindowArtefacts, name = "Alpha") =>
   artefacts.matchupData[name].find((row) => row.name === "Beta")!;

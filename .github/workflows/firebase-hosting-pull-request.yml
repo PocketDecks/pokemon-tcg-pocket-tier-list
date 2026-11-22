@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           # 24.19.0 broke the deploy action's preview-link posting, so the
@@ -44,7 +46,7 @@ jobs:
         working-directory: analysis
       - run: yarn test
         working-directory: analysis
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - uses: FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a
         if: ${{ github.actor != 'dependabot[bot]' }}
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"

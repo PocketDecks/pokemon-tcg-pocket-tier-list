@@ -156,7 +156,7 @@ export const prunePremiumSnapshots = (
       if (detail.isSymbolicLink()) return;
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
-      throw new Error(`cannot inspect snapshot cache path ${current}: ${String(error)}`);
+      throw new Error(`cannot inspect snapshot cache path ${current}: ${String(error)}`, { cause: error });
     }
     if (path.dirname(current) === current) break;
   }
@@ -166,7 +166,7 @@ export const prunePremiumSnapshots = (
     entries = fs.readdirSync(cache, { withFileTypes: true });
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
-    throw new Error(`cannot list snapshot cache ${cache}: ${String(error)}`);
+    throw new Error(`cannot list snapshot cache ${cache}: ${String(error)}`, { cause: error });
   }
   const protectedSet = new Set(protectedVersions);
   for (const entry of entries) {
@@ -181,7 +181,7 @@ export const prunePremiumSnapshots = (
       }
     } catch (error) {
       const code = (error as NodeJS.ErrnoException).code;
-      if (code !== "ENOENT") throw new Error(`cannot remove snapshot ${target}: ${String(error)}`);
+      if (code !== "ENOENT") throw new Error(`cannot remove snapshot ${target}: ${String(error)}`, { cause: error });
     }
   }
 };

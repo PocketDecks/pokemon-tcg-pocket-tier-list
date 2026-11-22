@@ -13,7 +13,6 @@ import getId from "./get-id";
 import { tallyCards } from "./tally-cards";
 import { Deck } from "./types";
 import {
-  DEFAULT_WINDOW,
   WINDOW_IDS,
   WINDOW_LENGTH_DAYS,
   type WindowId,

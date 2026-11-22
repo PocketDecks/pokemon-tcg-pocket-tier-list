@@ -142,7 +142,10 @@ const commitOgImages = (staged: StagedOgImages): void => {
     const location = staged.staging
       ? ` The rendered set is kept at ${staged.staging}; the previous set is ${staged.backup}.`
       : "";
-    throw new Error(`The JSON artefacts are published but the OG images are not: ${reason}.${location} Finish the image swap by hand before rerunning; step 1 will stop on the retained staging directory until then.`);
+    throw new Error(
+      `The JSON artefacts are published but the OG images are not: ${reason}.${location} Finish the image swap by hand before rerunning; step 1 will stop on the retained staging directory until then.`,
+      { cause: error }
+    );
   }
 };
 

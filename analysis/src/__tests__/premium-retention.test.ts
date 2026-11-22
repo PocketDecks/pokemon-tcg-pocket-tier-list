@@ -219,7 +219,7 @@ describe("premium retention discovery", () => {
 
   it("protects a pull request whose fork was deleted via the canonical PR ref", async () => {
     const calls: string[] = [];
-    const fetcher = (async (input, init) => {
+    const fetcher = (async (input) => {
       const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
       calls.push(url.toString());
       if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
@@ -245,7 +245,7 @@ describe("premium retention discovery", () => {
   });
 
   it("skips a pull request whose head has no premium version file", async () => {
-    const fetcher = (async (input, init) => {
+    const fetcher = (async (input) => {
       const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
       if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
       if (url.pathname === `/repos/${canonicalRepository}/pulls`) {
@@ -425,7 +425,7 @@ describe("premium retention discovery", () => {
   });
 
   it("falls back to the canonical PR ref when the fork version file is unreadable", async () => {
-    const fetcher = (async (input, init) => {
+    const fetcher = (async (input) => {
       const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
       if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
       if (url.pathname === `/repos/${canonicalRepository}/pulls`) {
@@ -453,7 +453,7 @@ describe("premium retention discovery", () => {
       number,
     });
     let pageTwoReads = 0;
-    const fetcher = (async (input, init) => {
+    const fetcher = (async (input) => {
       const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
       if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
       if (url.pathname.endsWith("/contents/public/data/data-version.json")) return response(apiVersionFile(versions.firstHead));
@@ -489,7 +489,7 @@ describe("premium retention discovery", () => {
   it("refuses to prune when the pull request list changes during pagination", async () => {
     const numbered = { ...pull("contributor/refresh", "1".repeat(40)), number: 7 };
     let pageOneReads = 0;
-    const fetcher = (async (input, init) => {
+    const fetcher = (async (input) => {
       const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
       if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
       if (url.pathname.endsWith("/contents/public/data/data-version.json")) return response(apiVersionFile(versions.firstHead));
@@ -512,7 +512,7 @@ describe("premium retention discovery", () => {
     ["page is not numeric", `${apiRoot}?state=open&base=main&per_page=100&page=next`],
     ["base is not main", `${apiRoot}?state=open&base=release&per_page=100&page=2`],
   ])("rejects a pagination link whose %s", async (_name, link) => {
-    const fetcher = (async (input, init) => {
+    const fetcher = (async (input) => {
       const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
       if (url.origin === "https://pocketdecks.top") return response({ premium: versions.deployed });
       if (url.pathname === `/repos/${canonicalRepository}/pulls`) return response([], 200, `<${link}>; rel="next"`);

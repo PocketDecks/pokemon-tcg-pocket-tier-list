@@ -25,10 +25,25 @@ the affected suites.
 runs typecheck, lint and tests against Node 24.22.1. It triggers on pull
 requests to `main` and on pushes to `main`. The analysis pipeline has its own
 workflow in `analysis-tests.yml`, which does not cover `src/`.
+Root `yarn lint` also covers `analysis/`.
 
 The deploy workflows run `yarn build` separately. That script chains
 typecheck and lint ahead of `vite build`, so a warning you ignore locally
 will still stop a deployment.
+
+## Upgrading packages
+
+The root and analysis npm entry targets `main` for version updates. Its `allow`
+list limits version pull requests to `pokemon-tcg-pocket-cards`.
+
+GitHub ignores options in an entry with `target-branch` for security updates.
+Security updates use the repository default branch, so the version-update
+`allow` list does not filter them. Dependabot can open security pull requests
+for vulnerable packages in both directories. The separate `/workers/kofi` npm
+entry keeps its weekly grouped version updates
+
+An upgrade outside these configured entries is done by hand, when the owner
+chooses to.
 
 ## Adding a test
 

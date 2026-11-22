@@ -123,7 +123,8 @@ export const beginRefresh = (root: string): string => {
     if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
     throw new Error(
       `refresh stopped: ${scratch} exists, so a refresh is running or was interrupted. ` +
-        "If none is running, run `yarn refresh:outputs discard` and start again"
+        "If none is running, run `yarn refresh:outputs discard` and start again",
+      { cause: error }
     );
   }
   try {

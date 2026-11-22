@@ -19,7 +19,7 @@ const accountEmail = async (uid: string): Promise<string | undefined> => {
     return email ? email.toLowerCase() : undefined;
   } catch (error) {
     if ((error as { code?: string }).code === "auth/user-not-found") {
-      throw new Error(`no account exists for uid ${uid}`);
+      throw new Error(`no account exists for uid ${uid}`, { cause: error });
     }
     throw error;
   }

@@ -42,9 +42,6 @@ const writeArtefactKeys = (): string[] => {
 const step = (start: string, end: string): string =>
   job.split(start)[1].split(end)[0];
 
-const namedPaths = (section: string): string[] =>
-  [...section.matchAll(/`([^`]+)`/g)].map((match) => match[1]);
-
 describe("refresh job file lists", () => {
   it("lists the generated outputs in a fixed order", () => {
     expect(REFRESH_OUTPUT_FILES).toEqual([

@@ -97,6 +97,20 @@ const runPairingsPullRequestStep = (step, openPr, outcomes = {}) =>
     },
   });
 
+test("workflow names and job IDs match the layout", () => {
+  const workflows = [
+    { file: "ci.yml", name: "CI", jobs: ["analysis", "frontend", "kofi"] },
+    { file: "preview.yml", name: "Preview", jobs: ["preview"] },
+    { file: "deploy.yml", name: "Deploy", jobs: ["deploy"] },
+    { file: "sync-pairings.yml", name: "Sync pairings", jobs: ["sync"] },
+  ];
+  for (const { file, name, jobs } of workflows) {
+    const workflow = loadYaml(".github", "workflows", file);
+    assert.strictEqual(workflow.name, name, `${file} name`);
+    assert.deepStrictEqual(Object.keys(workflow.jobs).sort(), jobs);
+  }
+});
+
 test("CI runs the analysis checks with read-only permissions", () => {
   const workflow = loadYaml(".github", "workflows", "ci.yml");
   const analysis = workflow.jobs.analysis;
@@ -121,7 +135,7 @@ test("the merge workflow queues all pending live deploys", () => {
 
 test("live deploys check freshness after checkout and gate later steps", () => {
   const steps = loadYaml(".github", "workflows", "deploy.yml")
-    .jobs.build_and_deploy.steps;
+    .jobs.deploy.steps;
   const checkoutIndex = steps.findIndex((step) =>
     step.uses?.startsWith("actions/checkout@")
   );
@@ -156,7 +170,7 @@ test("live deploys check freshness after checkout and gate later steps", () => {
 
 test("live deploys queue pending runs and skip commits that are no longer latest", () => {
   const steps = loadYaml(".github", "workflows", "deploy.yml")
-    .jobs.build_and_deploy.steps;
+    .jobs.deploy.steps;
   const latestIndex = steps.findIndex((step) => step.id === "latest");
   const deployIndex = steps.findIndex((step) =>
     step.uses?.startsWith("FirebaseExtended/action-hosting-deploy@")
@@ -181,7 +195,7 @@ test("live deploys queue pending runs and skip commits that are no longer latest
 
 test("freshness checks fail closed when git fetch fails", () => {
   const steps = loadYaml(".github", "workflows", "deploy.yml")
-    .jobs.build_and_deploy.steps;
+    .jobs.deploy.steps;
   for (const id of ["early_latest", "latest"]) {
     const step = steps.find((entry) => entry.id === id);
     const result = runFreshnessCheck(step, {

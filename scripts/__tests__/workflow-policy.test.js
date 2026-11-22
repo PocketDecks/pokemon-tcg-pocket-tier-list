@@ -70,7 +70,7 @@ test("the merge workflow limits live deploys to one active run", () => {
     {
       group: "hosting-live",
       "cancel-in-progress": false,
-      queue: "max",
+      queue: "single",
     }
   );
 });

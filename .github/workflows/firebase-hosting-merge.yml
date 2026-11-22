@@ -11,7 +11,7 @@ permissions:
 concurrency:
   group: hosting-live
   cancel-in-progress: false
-  queue: max
+  queue: single
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest

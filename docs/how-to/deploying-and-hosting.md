@@ -117,6 +117,7 @@ Three workflows in `.github/workflows/` cover deployment and checks:
 
 The merge workflow serialises live deploys, with one active run and at most one
 pending run; a newer pending run replaces the older one.
+Every push to main must trigger this workflow. Do not use [skip ci] or push with GITHUB_TOKEN.
 
 Both deploy workflows inject the Firebase web configuration as
 `VITE_FIREBASE_*` environment variables from repository secrets.

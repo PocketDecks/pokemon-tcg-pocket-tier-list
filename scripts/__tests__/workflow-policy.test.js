@@ -243,10 +243,21 @@ test("CI runs the analysis checks with read-only permissions", () => {
 });
 
 test("CI cancels only pull request runs", () => {
-  assert.deepStrictEqual(loadYaml(".github", "workflows", "ci.yml").concurrency, {
-    group: "ci-${{ github.ref }}",
-    "cancel-in-progress": "${{ github.event_name == 'pull_request' }}",
-  });
+  const concurrency = loadYaml(".github", "workflows", "ci.yml").concurrency;
+  const [, prefix, expression] = concurrency.group.match(/^(.*?)\$\{\{(.*)\}\}$/);
+  const group = (event, ref, sha) =>
+    prefix + evaluateChain(expression, {
+      "github.event_name": event,
+      "github.ref": ref,
+      "github.sha": sha,
+    });
+  assert.strictEqual(
+    group("pull_request", "refs/pull/189/merge", "sha-a"),
+    "ci-refs/pull/189/merge"
+  );
+  assert.strictEqual(group("push", "refs/heads/main", "sha-a"), "ci-sha-a");
+  assert.strictEqual(group("push", "refs/heads/main", "sha-b"), "ci-sha-b");
+  assert.strictEqual(concurrency["cancel-in-progress"], "${{ github.event_name == 'pull_request' }}");
 });
 
 test("Preview cancels older runs for the same pull request", () => {

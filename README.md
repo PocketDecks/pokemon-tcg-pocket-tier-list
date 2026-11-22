@@ -24,7 +24,7 @@ A web application that tracks and displays the current best decks for the Pokém
 
 ### Prerequisites
 
-- Node.js 24.22.1, the version the CI workflows pin. The site and the analysis pipeline both run on that version.
+- Node.js at the version in `.nvmrc`. The site and the analysis pipeline both run on that version.
 - npm or yarn
 
 ### Installation

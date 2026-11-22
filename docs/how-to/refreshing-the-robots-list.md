@@ -1,4 +1,4 @@
-# How-to guide: Refreshing the pinned robots list
+# How to refresh the pinned robots list
 
 `public/robots.txt` is generated from a pinned copy of the ai.robots.txt list. The build never fetches the network, so a refresh is a reviewed diff in this repository.
 

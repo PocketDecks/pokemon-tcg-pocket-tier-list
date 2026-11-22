@@ -1,4 +1,4 @@
-# Pipeline output contract
+# Pipeline output contract reference
 
 The five JSON files in `public/data/` carry everything the analysis pipeline
 computes to the frontend. `analysis/src/get-best-decks.ts` writes all of them

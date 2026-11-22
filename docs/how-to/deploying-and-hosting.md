@@ -1,4 +1,4 @@
-# How-to guide: Deploying and hosting
+# How to deploy and host
 
 The site deploys itself. Pushing to `main` publishes to Firebase Hosting's live
 channel; opening a pull request publishes a preview channel. You deploy by hand

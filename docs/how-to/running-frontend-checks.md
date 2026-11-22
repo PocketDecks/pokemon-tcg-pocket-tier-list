@@ -1,4 +1,4 @@
-# How-to guide: Running the frontend checks
+# How to run the frontend checks
 
 The frontend has three checks: types, lint and tests. CI runs all three on
 every pull request, so running them locally first saves a round trip.

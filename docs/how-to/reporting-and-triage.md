@@ -1,4 +1,4 @@
-# How-to guide: Reporting and triage
+# How to report and triage
 
 The repository takes three kinds of report through issue forms: an application
 bug, a data or pipeline defect, and an improvement or policy change. Each form

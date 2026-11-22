@@ -1,4 +1,4 @@
-# Frontend architecture
+# Frontend architecture reference
 
 The frontend is a single-page React application built with Vite and TypeScript.
 This page maps its structure: where the app mounts, how routes resolve, which

@@ -45,7 +45,7 @@ jobs:
         run: yarn test:scripts
 
       - name: Setup Java for the Firestore emulator
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"

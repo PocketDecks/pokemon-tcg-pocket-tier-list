@@ -53,6 +53,36 @@ jobs:
       - name: Test Firestore rules
         run: yarn test:rules
 
+  analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24.22.1"
+          cache: "yarn"
+          cache-dependency-path: "analysis/yarn.lock"
+
+      - name: Install dependencies
+        run: |
+          cd analysis
+          yarn install --frozen-lockfile
+
+      - name: Typecheck
+        run: |
+          cd analysis
+          yarn typecheck
+
+      - name: Run tests
+        run: |
+          cd analysis
+          yarn test
+
   kofi-receiver:
     runs-on: ubuntu-latest
 

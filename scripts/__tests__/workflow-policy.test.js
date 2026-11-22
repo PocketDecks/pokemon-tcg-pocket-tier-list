@@ -97,6 +97,17 @@ const runPairingsPullRequestStep = (step, openPr, outcomes = {}) =>
     },
   });
 
+test("CI runs the analysis checks with read-only permissions", () => {
+  const workflow = loadYaml(".github", "workflows", "ci.yml");
+  const analysis = workflow.jobs.analysis;
+  assert.ok(analysis, "ci.yml must contain the analysis job");
+  assert.deepStrictEqual(workflow.permissions, { contents: "read" });
+  const runBodies = analysis.steps.map((step) => String(step.run ?? "")).join("\n");
+  assert.match(runBodies, /yarn install --frozen-lockfile/);
+  assert.match(runBodies, /yarn typecheck/);
+  assert.match(runBodies, /yarn test/);
+});
+
 test("the merge workflow queues all pending live deploys", () => {
   assert.deepStrictEqual(
     loadYaml(".github", "workflows", "deploy.yml").concurrency,

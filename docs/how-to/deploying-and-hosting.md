@@ -98,7 +98,7 @@ inconsistent.
 
 ## Which workflow does what
 
-Five workflows in `.github/workflows/` handle deployment, tests and pairings
+Four workflows in `.github/workflows/` handle deployment, tests and pairings
 updates:
 
 - `preview.yml`, named "Deploy to Firebase Hosting on
@@ -113,12 +113,10 @@ updates:
 - `deploy.yml`, named "Deploy to Firebase Hosting on merge",
   triggers on pushes to `main`, runs the same test gates, and deploys to
   `channelId: live`.
-- `ci.yml`, named "Frontend Tests", runs typecheck, lint,
-  `yarn test:ci` and `yarn test:scripts` on pushes to and pull requests
-  against `main`. It reports independently; the deploy workflows run those
+- `ci.yml`, named "Frontend Tests", runs typecheck, lint, `yarn test:ci` and
+  `yarn test:scripts` on pushes to and pull requests against `main`. It also
+  runs the analysis typecheck and test suite. The deploy workflows run those
   gates before invoking Firebase.
-- `analysis-tests.yml`, named "Analysis Tests", runs the analysis typecheck and
-  test suite on pushes to and pull requests against `main`.
 - `sync-pairings.yml`, named "Sync pairings", runs every Monday at 10:00 UTC and
   on manual dispatch. It runs `yarn sync-pairings`, typechecks and tests
   `analysis/`, then opens or updates a pull request when

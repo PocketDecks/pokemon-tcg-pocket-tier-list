@@ -25,7 +25,7 @@ the affected suites.
 `kofi` jobs run on pushes to and pull requests against `main`. `frontend` runs
 root typecheck, lint, tests, script tests and Firestore rules. `analysis` runs
 typecheck and tests in `analysis/`. `kofi` runs its typecheck, tests and the
-Wrangler dry-run bundle. All three jobs use the version in `.nvmrc` through
+Wrangler dry-run bundle. All three jobs use the Node version in `.nvmrc` through
 `.github/actions/setup`.
 
 Root `yarn lint` also covers `analysis/`.

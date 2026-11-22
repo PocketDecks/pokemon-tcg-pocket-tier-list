@@ -108,6 +108,8 @@ updates:
   by commit SHA without a `channelId`. That creates an ephemeral preview
   channel and posts its URL on the pull request. The `if` condition skips
   forks, so first-time contributors do not get a failed check.
+  The workflow runs the checks for same-repository Dependabot pull requests but
+  skips the deploy step, so they receive no preview URL.
 - `firebase-hosting-merge.yml`, named "Deploy to Firebase Hosting on merge",
   triggers on pushes to `main`, runs the same test gates, and deploys to
   `channelId: live`.

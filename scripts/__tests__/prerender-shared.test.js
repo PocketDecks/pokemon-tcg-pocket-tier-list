@@ -387,6 +387,8 @@ test("openDocument includes both page attempts when retry also fails", async () 
       assert.ok(error.message.includes(route));
       assert.ok(error.message.includes("page error 1"));
       assert.ok(error.message.includes("page error 2"));
+      assert.ok(error.message.includes("navigation attempt 1 failed"));
+      assert.ok(error.message.includes("navigation attempt 2 failed"));
       assert.strictEqual(error.cause.message, "navigation attempt 2 failed");
       return true;
     })

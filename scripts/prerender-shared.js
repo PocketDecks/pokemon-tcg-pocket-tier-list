@@ -70,11 +70,16 @@ const removePageErrorsForDocuments = (diagnostics, documentIds) => {
 const buildRouteError = ({
   route,
   cause,
+  firstAttemptCause,
   pageErrors = [],
   consoleMessages = [],
   failedRequests = [],
 }) => {
-  const sections = [`Route: ${route}`, `Cause: ${cause?.message ?? String(cause)}`];
+  const sections = [`Route: ${route}`];
+  if (firstAttemptCause !== undefined) {
+    sections.push(`First attempt cause: ${firstAttemptCause?.message ?? String(firstAttemptCause)}`);
+  }
+  sections.push(`Cause: ${cause?.message ?? String(cause)}`);
   if (pageErrors.length) sections.push(`Page errors:\n${pageErrors.join("\n")}`);
   if (consoleMessages.length) {
     sections.push(
@@ -257,6 +262,7 @@ const runWithRouteRetry = async (
   const diagnostics = pageDiagnostics.get(page);
   const consoleMessageStart = diagnostics?.consoleMessageSequence ?? 0;
   const failedRequestStart = diagnostics?.failedRequestSequence ?? 0;
+  let firstAttemptCause;
   const attempts = [];
   const runAttempt = () => {
     const attempt = {
@@ -278,6 +284,7 @@ const runWithRouteRetry = async (
   try {
     const result = await retryOnce(runAttempt, {
       onRetry: async (error) => {
+        firstAttemptCause = error;
         console.warn(`Retrying route ${route}: ${error?.message ?? String(error)}`);
         await beforeRetry?.(error);
       },
@@ -300,6 +307,7 @@ const runWithRouteRetry = async (
     throw buildRouteError({
       route,
       cause,
+      firstAttemptCause,
       pageErrors: diagnostics
         ? diagnostics.pageErrorRecords.map(({ message }) => message)
         : attempts.flatMap((attempt) =>

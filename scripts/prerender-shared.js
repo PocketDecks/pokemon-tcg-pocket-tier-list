@@ -322,7 +322,9 @@ const runWithRouteRetry = async (
       cause,
       firstAttemptCause,
       pageErrors: diagnostics
-        ? diagnostics.pageErrorRecords.map(({ message }) => message)
+        ? diagnostics.pageErrorRecords
+            .filter(({ documentId }) => routeDocumentIds.has(documentId))
+            .map(({ message }) => message)
         : attempts.flatMap((attempt) =>
             attempt.pageErrors.map(({ message }) => message)
           ),

@@ -148,6 +148,7 @@ test("openDocument adds route, page, console and request details to failures", a
   const page = makeFakePage(`http://127.0.0.1:4173${route}`);
   await createPrerenderPage({ newPage: async () => page }, pageErrors);
   page.goto = async () => {
+    page.emit("framenavigated", page.mainFrame());
     for (let index = 0; index < 12; index += 1) {
       page.emit("console", {
         type: () => "warning",
@@ -319,6 +320,33 @@ test("openDocument reports console and request diagnostics only from its route",
     assert.ok(!error.message.includes("/a/asset.js"));
     return true;
   });
+});
+
+test("openDocument reports only page errors from its route", async () => {
+  const pageErrors = [];
+  let currentUrl = "http://127.0.0.1:4173/a/";
+  const page = makeFakePage(currentUrl);
+  page.url = () => currentUrl;
+  await createPrerenderPage({ newPage: async () => page }, pageErrors);
+  page.emit("pageerror", new Error("earlier route error"));
+  page.goto = async (url) => {
+    currentUrl = url;
+    page.emit("framenavigated", page.mainFrame());
+    page.emit("pageerror", new Error("current route error"));
+    throw new Error("navigation failed");
+  };
+
+  await assert.rejects(openDocument(page, "/b/"), (error) => {
+    assert.ok(error.message.includes("/b/: current route error"));
+    assert.ok(!error.message.includes("/a/: earlier route error"));
+    return true;
+  });
+
+  assert.deepStrictEqual(pageErrors, [
+    "http://127.0.0.1:4173/a/: earlier route error",
+    "http://127.0.0.1:4173/b/: current route error",
+    "http://127.0.0.1:4173/b/: current route error",
+  ]);
 });
 
 test("openDocument caps failed request diagnostics", async () => {

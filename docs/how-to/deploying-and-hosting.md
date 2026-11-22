@@ -130,6 +130,9 @@ the tip of `main`. A stale commit skips setup, dependency installation, builds
 and tests. A second check runs before deployment, so a run that becomes stale
 during validation skips the deploy action. The newest `main` commit stays
 eligible for deployment when its gates pass.
+When 100 runs are already pending, GitHub cancels any additional run, so the
+newest commit may not deploy. Rerun the workflow for the newest commit or push
+again to start a new run.
 If the newest commit fails its checks, nothing deploys and live stays on the
 last deployed commit.
 Every push to main must trigger this workflow. Do not use `[skip ci]` or push

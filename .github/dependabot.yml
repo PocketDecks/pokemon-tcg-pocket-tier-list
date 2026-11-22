@@ -47,7 +47,7 @@ updates:
         patterns:
           - "*"
     commit-message:
-      prefix: "ci(deps)"
+      prefix: "build(deps)"
     labels:
       - "automated"
     open-pull-requests-limit: 1

@@ -127,6 +127,27 @@ test("third-party actions use lowercase commit SHAs", () => {
   assert.deepStrictEqual(offenders, [], `Unpinned references: ${offenders.join(", ")}`);
 });
 
+test("Firebase deploy actions keep the reviewed commit SHAs", () => {
+  const actionUse = (file, prefix) => {
+    const workflow = loadYaml(".github", "workflows", file);
+    return Object.values(workflow.jobs ?? {})
+      .flatMap((job) => job.steps ?? [])
+      .find((step) => step.uses?.startsWith(prefix))?.uses;
+  };
+  assert.strictEqual(
+    actionUse("firebase-hosting-merge.yml", "google-github-actions/auth@"),
+    "google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093"
+  );
+  assert.strictEqual(
+    actionUse("firebase-hosting-merge.yml", "FirebaseExtended/action-hosting-deploy@"),
+    "FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a"
+  );
+  assert.strictEqual(
+    actionUse("firebase-hosting-pull-request.yml", "FirebaseExtended/action-hosting-deploy@"),
+    "FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a"
+  );
+});
+
 test("Dependabot has one weekly grouped GitHub Actions update", () => {
   const dependabot = loadYaml(".github", "dependabot.yml");
   const entries = dependabot.updates.filter(
@@ -226,14 +247,8 @@ test("only same-repository human pull requests can deploy a preview", () => {
 
 test("pairings workflow tests its changes and preserves failed checks", () => {
   const steps = loadYaml(".github", "workflows", "sync-pairings.yml").jobs.sync.steps;
-  assert.ok(!steps.some((step) => step.run?.includes("golden:generate")));
-  assert.ok(
-    !steps.some((step) =>
-      String(step.run ?? "").split(String.fromCharCode(10)).some(
-        (line) => line.includes("git add") && line.includes("deck-name-golden.json")
-      )
-    )
-  );
+  const runBodies = steps.map((step) => String(step.run ?? "")).join("\n");
+  assert.doesNotMatch(runBodies, /golden:generate|generate-deck-name-golden\.ts/);
   const typecheckIndex = steps.findIndex((step) => step.id === "typecheck");
   const testsIndex = steps.findIndex((step) => step.id === "tests");
   const pullRequestIndex = steps.findIndex((step) => step.run?.includes("gh pr create"));
@@ -247,6 +262,11 @@ test("pairings workflow tests its changes and preserves failed checks", () => {
   assert.ok(steps[testsIndex].run.includes("yarn test"));
   const pullRequest = steps[pullRequestIndex];
   assert.ok(pullRequest.run.includes("--draft"));
+  const stagedPaths = pullRequest.run
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith("git add "));
+  assert.deepStrictEqual(stagedPaths, ["git add analysis/src/data/limitless-decks.json"]);
   assert.strictEqual(pullRequest.env.TYPECHECK, "${{ steps.typecheck.outcome }}");
   assert.strictEqual(pullRequest.env.TESTS, "${{ steps.tests.outcome }}");
   assert.ok(pullRequest.run.includes('gh pr ready "$PR_NUMBER"'));
@@ -294,4 +314,29 @@ test("pairings reruns ready an automated draft and preserve a human draft", () =
   assert.strictEqual(humanDraft.status, 0, humanDraft.stderr);
   assert.doesNotMatch(humanDraft.ghLog, /pr ready/);
   assert.doesNotMatch(humanDraft.ghLog, /pr create/);
+});
+
+test("pairings failures draft new PRs and undo ready automated PRs", () => {
+  const step = loadYaml(".github", "workflows", "sync-pairings.yml").jobs.sync.steps.find(
+    (entry) => entry.run?.includes("gh pr create")
+  );
+  const failedNewPr = runPairingsPullRequestStep(step, null, {
+    typecheck: "failure",
+    tests: "success",
+  });
+  assert.strictEqual(failedNewPr.status, 0, failedNewPr.stderr);
+  assert.match(failedNewPr.ghLog, /pr create --draft/);
+  assert.match(failedNewPr.ghLog, /Analysis typecheck failed\./);
+
+  const failedReadyPr = runPairingsPullRequestStep(step, {
+    number: 44,
+    isDraft: false,
+    labels: [{ name: "automated" }],
+  }, {
+    typecheck: "success",
+    tests: "failure",
+  });
+  assert.strictEqual(failedReadyPr.status, 0, failedReadyPr.stderr);
+  assert.match(failedReadyPr.ghLog, /pr ready --undo 44/);
+  assert.doesNotMatch(failedReadyPr.ghLog, /pr create/);
 });

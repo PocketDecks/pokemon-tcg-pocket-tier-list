@@ -109,18 +109,13 @@ updates:
 - `deploy.yml`, named `Deploy`, runs the `deploy` job on pushes to `main`. It
   runs the build and test gates, verifies premium data, and deploys to
   `channelId: live`.
-- `ci.yml`, named `CI`, runs the `frontend`, `analysis` and `kofi` jobs on
-  pushes to and pull requests against `main`. `frontend` runs root typecheck,
-  lint, tests, script tests and Firestore rules. `analysis` runs typecheck and
-  tests in `analysis/`. `kofi` runs its typecheck, tests and Wrangler dry-run
-  bundle.
+- `ci.yml`, named `CI`, runs the checks on pushes to and pull requests against
+  `main`. See [Running the frontend checks](running-frontend-checks.md#what-ci-runs)
+  for the job breakdown.
 - `sync-pairings.yml`, named `Sync pairings`, runs the `sync` job every Monday
   at 10:00 UTC and on manual dispatch. It runs `yarn sync-pairings`, typechecks
   and tests `analysis/`, then opens or updates a pull request when
   `analysis/src/data/limitless-decks.json` changes.
-
-The job IDs are the required check names: `frontend`, `analysis`, `kofi`,
-`preview`, `deploy` and `sync`.
 
 Running `firebase init hosting:github` again recreates the generated Hosting
 workflows; its merge workflow adds a second live deployment beside `deploy.yml`.
@@ -144,7 +139,7 @@ Both deploy workflows inject the Firebase web configuration as
 `VITE_FIREBASE_*` environment variables from repository secrets.
 
 Each job uses `.github/actions/setup`, which reads Node from `.nvmrc` and keys
-the Yarn cache on the root, analysis and Ko-fi lockfiles. Node `24.19.0` broke
+the Yarn cache on the lockfile for the selected workspace. Node `24.19.0` broke
 the deploy action's preview-link posting, and newer runner defaults trip a
 premature-close bug in the `node-fetch@v2` dependency inside `firebase-tools`.
 Do not change the pin without testing a full deploy.

@@ -10,8 +10,6 @@ runs:
     - name: Setup Node.js
       uses: actions/setup-node@v7
       with:
-        # 24.19.0 broke the deploy action's preview-link posting, so the
-        # pin only moves after a full deploy test.
         node-version-file: .nvmrc
         cache: yarn
         cache-dependency-path: ${{ inputs.workspace == 'root' && 'yarn.lock' || inputs.workspace == 'analysis' && 'analysis/yarn.lock' || 'workers/kofi/yarn.lock' }}

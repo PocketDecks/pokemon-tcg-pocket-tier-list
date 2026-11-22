@@ -30,8 +30,6 @@ jobs:
         if: steps.early_latest.outputs.is_latest == 'true'
         with:
           workspace: root
-      # Node is pinned for the whole job: firebase-tools still hits a
-      # node-fetch@v2 premature-close bug on newer runner defaults.
       - run: yarn check:generated
         if: steps.early_latest.outputs.is_latest == 'true'
       - run: yarn build

@@ -1,6 +1,6 @@
 name: Sync pairings
 
-# The local cron misses archetypes when the machine is off.
+# The local cron misses new archetypes when the machine is off.
 on:
   schedule:
     # After weekend decklists are up.

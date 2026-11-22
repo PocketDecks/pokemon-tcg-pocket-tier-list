@@ -19,10 +19,8 @@ jobs:
         with:
           workspace: root
       - run: yarn check:generated
-      # Dependabot runs cannot read repository secrets, and Firebase's getAuth()
-      # throws on an empty apiKey, so no page prerenders and the build fails.
-      # They build with placeholders instead. The deploy step is skipped for
-      # Dependabot, so the placeholders never ship.
+      # Firebase's getAuth() throws on an empty apiKey, which Dependabot cannot supply.
+      # Dependabot builds with placeholders and never deploys them.
       - run: yarn build
         env:
           VITE_FIREBASE_APIKEY: ${{ github.actor == 'dependabot[bot]' && 'dependabot-placeholder' || secrets.VITE_FIREBASE_APIKEY }}

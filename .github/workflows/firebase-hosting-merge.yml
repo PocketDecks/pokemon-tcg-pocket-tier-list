@@ -11,6 +11,7 @@ permissions:
 concurrency:
   group: hosting-live
   cancel-in-progress: false
+  queue: max
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
@@ -52,7 +53,18 @@ jobs:
           credentials_json: ${{ secrets.FIREBASE_PREMIUM_VERIFIER }}
       - run: yarn verify:premium
         working-directory: analysis
+      - name: Check whether this commit is still current
+        id: latest
+        run: |
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          if [ "$GITHUB_SHA" = "$(git rev-parse refs/remotes/origin/main)" ]; then
+            echo "is_latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_latest=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping stale deployment for $GITHUB_SHA."
+          fi
       - uses: FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a
+        if: "${{ steps.latest.outputs.is_latest == 'true' }}"
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_POKEMON_TCG_POCKET_TIER_LIST }}"

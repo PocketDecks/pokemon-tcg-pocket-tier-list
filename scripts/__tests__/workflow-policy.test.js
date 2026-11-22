@@ -1,5 +1,7 @@
 const assert = require("node:assert/strict");
+const { spawnSync } = require("node:child_process");
 const fs = require("node:fs");
+const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
 const yaml = require("js-yaml");
@@ -9,14 +11,99 @@ const root = path.resolve(__dirname, "../..");
 const loadYaml = (...segments) =>
   yaml.load(fs.readFileSync(path.join(root, ...segments), "utf8"));
 
+const runWorkflowCommand = ({ command, commandShims = {}, env = {} }) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "workflow-policy-"));
+  const bin = path.join(directory, "bin");
+  const ghLog = path.join(directory, "gh.log");
+  const workflowOutput = path.join(directory, "workflow-output");
+  fs.mkdirSync(bin);
+  try {
+    for (const [name, script] of Object.entries(commandShims)) {
+      fs.writeFileSync(path.join(bin, name), `#!/bin/sh\n${script}\n`, {
+        mode: 0o755,
+      });
+    }
+    const result = spawnSync("bash", ["-e", "-o", "pipefail", "-c", command], {
+      cwd: root,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        ...env,
+        GH_LOG: ghLog,
+        GITHUB_OUTPUT: workflowOutput,
+        PATH: `${bin}${path.delimiter}${process.env.PATH}`,
+      },
+    });
+    return {
+      ...result,
+      ghLog: fs.existsSync(ghLog) ? fs.readFileSync(ghLog, "utf8") : "",
+      workflowOutput: fs.existsSync(workflowOutput)
+        ? fs.readFileSync(workflowOutput, "utf8")
+        : "",
+    };
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+};
+
+const runPairingsPullRequestStep = (step, openPr, outcomes = {}) =>
+  runWorkflowCommand({
+    command: step.run,
+    commandShims: {
+      git: `if [ "$1" = status ]; then printf '%s\\n' ' M analysis/src/data/limitless-decks.json'; fi`,
+      gh: `printf '%s\\n' "$*" >> "$GH_LOG"\nif [ "$1" = pr ] && [ "$2" = list ]; then printf '%s\\n' "$MOCK_PRS"; fi`,
+    },
+    env: {
+      BRANCH: "automated/pairings-2026-11-22",
+      TYPECHECK: outcomes.typecheck ?? "success",
+      TESTS: outcomes.tests ?? "success",
+      MOCK_PRS: JSON.stringify(openPr ? [openPr] : []),
+      GITHUB_SERVER_URL: "https://github.com",
+      GITHUB_REPOSITORY: "PocketDecks/pokemon-tcg-pocket-tier-list",
+      GITHUB_RUN_ID: "1",
+    },
+  });
+
 test("the merge workflow limits live deploys to one active run", () => {
   assert.deepStrictEqual(
     loadYaml(".github", "workflows", "firebase-hosting-merge.yml").concurrency,
     {
       group: "hosting-live",
       "cancel-in-progress": false,
+      queue: "max",
     }
   );
+});
+
+test("live deploys queue pending runs and skip commits that are no longer latest", () => {
+  const steps = loadYaml(".github", "workflows", "firebase-hosting-merge.yml")
+    .jobs.build_and_deploy.steps;
+  const latestIndex = steps.findIndex((step) => step.id === "latest");
+  const deployIndex = steps.findIndex((step) =>
+    step.uses?.startsWith("FirebaseExtended/action-hosting-deploy@")
+  );
+  assert.ok(latestIndex >= 0);
+  assert.strictEqual(deployIndex, latestIndex + 1);
+  assert.ok(steps[latestIndex].run.includes("GITHUB_SHA"));
+  assert.ok(steps[latestIndex].run.includes("refs/remotes/origin/main"));
+  assert.strictEqual(
+    steps[deployIndex].if,
+    "${{ steps.latest.outputs.is_latest == 'true' }}"
+  );
+  const runLatestCheck = (githubSha, mainSha) =>
+    runWorkflowCommand({
+      command: steps[latestIndex].run,
+      commandShims: {
+        git: `if [ "$1" = rev-parse ]; then printf '%s\\n' "$MOCK_MAIN_SHA"; fi`,
+      },
+      env: { GITHUB_SHA: githubSha, MOCK_MAIN_SHA: mainSha },
+    });
+  const current = runLatestCheck("current-sha", "current-sha");
+  assert.strictEqual(current.status, 0, current.stderr);
+  assert.strictEqual(current.workflowOutput, "is_latest=true\n");
+  const stale = runLatestCheck("old-sha", "current-sha");
+  assert.strictEqual(stale.status, 0, stale.stderr);
+  assert.strictEqual(stale.workflowOutput, "is_latest=false\n");
 });
 
 const workflowDirectory = path.join(root, ".github", "workflows");
@@ -50,7 +137,17 @@ test("Dependabot has one weekly grouped GitHub Actions update", () => {
   assert.strictEqual(entry.directory, "/");
   assert.strictEqual(entry.schedule?.interval, "weekly");
   assert.strictEqual(entry["open-pull-requests-limit"], 1);
-  assert.ok(Object.keys(entry.groups ?? {}).length > 0);
+  const group = entry.groups?.["github-actions"];
+  assert.ok(group);
+  const includes = (dependency) => {
+    const matches = (pattern) => pattern === "*" || pattern === dependency;
+    return (
+      group.patterns.some(matches) &&
+      !(group["exclude-patterns"] ?? []).some(matches)
+    );
+  };
+  assert.ok(includes("actions/checkout"));
+  assert.ok(includes("google-github-actions/auth"));
 });
 
 test("the root npm allow list stays limited to card data", () => {
@@ -86,12 +183,45 @@ test("non-pushing workflows disable checkout credentials", () => {
   assert.deepStrictEqual(offenders, [], `Credentials persist in: ${offenders.join(", ")}`);
 });
 
-test("the preview job excludes forks and Dependabot", () => {
+test("only same-repository human pull requests can deploy a preview", () => {
   const workflow = loadYaml(".github", "workflows", "firebase-hosting-pull-request.yml");
   const job = Object.values(workflow.jobs)[0];
-  const condition = job.if;
-  assert.ok(condition.includes("github.event.pull_request.head.repo.full_name == github.repository"));
-  assert.ok(condition.includes("github.actor != 'dependabot[bot]'"));
+  const deploy = job.steps.find((step) =>
+    step.uses?.startsWith("FirebaseExtended/action-hosting-deploy@")
+  );
+  const evaluate = (condition, context) => {
+    const expression = condition.replace(/^\$\{\{\s*|\s*\}\}$/g, "").trim();
+    return expression.split(/\s*&&\s*/).every((term) => {
+      const match = term.match(/^([a-zA-Z0-9_.]+)\s*(==|!=)\s*([a-zA-Z0-9_.]+|'[^']*')$/);
+      assert.ok(match, `Unsupported condition term: ${term}`);
+      const right = match[3].startsWith("'")
+        ? match[3].slice(1, -1)
+        : context[match[3]];
+      return match[2] === "=="
+        ? context[match[1]] === right
+        : context[match[1]] !== right;
+    });
+  };
+  const repository = "PocketDecks/pokemon-tcg-pocket-tier-list";
+  const events = [
+    { repo: repository, actor: "octocat", job: true, deploy: true },
+    { repo: "octocat/pokemon-tcg-pocket-tier-list", actor: "octocat", job: false, deploy: false },
+    { repo: repository, actor: "dependabot[bot]", job: true, deploy: false },
+  ];
+  for (const event of events) {
+    const context = {
+      "github.event.pull_request.head.repo.full_name": event.repo,
+      "github.repository": repository,
+      "github.actor": event.actor,
+    };
+    const jobAllowed = evaluate(job.if, context);
+    assert.strictEqual(jobAllowed, event.job, `${event.actor} job condition`);
+    assert.strictEqual(
+      jobAllowed && evaluate(deploy.if, context),
+      event.deploy,
+      `${event.actor} deploy condition`
+    );
+  }
 });
 
 test("pairings workflow tests its changes and preserves failed checks", () => {
@@ -119,15 +249,49 @@ test("pairings workflow tests its changes and preserves failed checks", () => {
   assert.ok(pullRequest.run.includes("--draft"));
   assert.strictEqual(pullRequest.env.TYPECHECK, "${{ steps.typecheck.outcome }}");
   assert.strictEqual(pullRequest.env.TESTS, "${{ steps.tests.outcome }}");
-  assert.ok(pullRequest.run.includes("gh pr ready --undo"));
+  assert.ok(pullRequest.run.includes('gh pr ready "$PR_NUMBER"'));
+  assert.ok(pullRequest.run.includes("any(.labels[]; .name == \"automated\")"));
   assert.ok(pullRequest.run.includes("GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"));
   assert.ok(pullRequest.run.includes("Analysis $FAILED_CHECKS failed."));
   assert.ok(pullRequest.run.includes("Analysis typecheck and tests ran in this job before the PR opened."));
+  const titles = [...pullRequest.run.matchAll(/--title "([^"]+)"/g)].map(
+    (match) => match[1]
+  );
+  assert.strictEqual(titles.length, 2);
+  assert.ok(titles.every((title) => title.startsWith("chore(data): Sync deck pairings (")));
+  assert.ok(titles.every((title) => title.includes("$(date -u +%F)")));
   const failureIndex = steps.findIndex(
     (step) =>
       step.if?.includes("steps.typecheck.outcome") &&
       step.if?.includes("steps.tests.outcome")
   );
   assert.ok(failureIndex > pullRequestIndex);
-  assert.match(steps[failureIndex].run, /exit 1/);
+  const failure = runWorkflowCommand({
+    command: steps[failureIndex].run,
+    env: { TYPECHECK: "failure", TESTS: "failure" },
+  });
+  assert.strictEqual(failure.status, 1, failure.stderr);
+});
+
+test("pairings reruns ready an automated draft and preserve a human draft", () => {
+  const step = loadYaml(".github", "workflows", "sync-pairings.yml").jobs.sync.steps.find(
+    (entry) => entry.run?.includes("gh pr create")
+  );
+  const automated = runPairingsPullRequestStep(step, {
+    number: 42,
+    isDraft: true,
+    labels: [{ name: "automated" }],
+  });
+  assert.strictEqual(automated.status, 0, automated.stderr);
+  assert.match(automated.ghLog, /pr ready 42/);
+  assert.doesNotMatch(automated.ghLog, /pr create/);
+
+  const humanDraft = runPairingsPullRequestStep(step, {
+    number: 43,
+    isDraft: true,
+    labels: [{ name: "review-needed" }],
+  });
+  assert.strictEqual(humanDraft.status, 0, humanDraft.stderr);
+  assert.doesNotMatch(humanDraft.ghLog, /pr ready/);
+  assert.doesNotMatch(humanDraft.ghLog, /pr create/);
 });

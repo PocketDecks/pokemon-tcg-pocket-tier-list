@@ -6,7 +6,7 @@ name: Deploy
 permissions:
   contents: read
 concurrency:
-  group: hosting-live
+  group: deploy-live
   cancel-in-progress: false
   queue: max
 jobs:

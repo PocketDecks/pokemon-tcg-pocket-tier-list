@@ -214,11 +214,28 @@ test("CI runs the analysis checks with read-only permissions", () => {
   assert.match(runBodies, /yarn test/);
 });
 
-test("the merge workflow queues all pending live deploys", () => {
+test("CI cancels only pull request runs", () => {
+  assert.deepStrictEqual(loadYaml(".github", "workflows", "ci.yml").concurrency, {
+    group: "ci-${{ github.ref }}",
+    "cancel-in-progress": "${{ github.event_name == 'pull_request' }}",
+  });
+});
+
+test("Preview cancels older runs for the same pull request", () => {
+  assert.deepStrictEqual(
+    loadYaml(".github", "workflows", "preview.yml").concurrency,
+    {
+      group: "preview-${{ github.event.pull_request.number }}",
+      "cancel-in-progress": true,
+    }
+  );
+});
+
+test("Deploy keeps the live run queue", () => {
   assert.deepStrictEqual(
     loadYaml(".github", "workflows", "deploy.yml").concurrency,
     {
-      group: "hosting-live",
+      group: "deploy-live",
       "cancel-in-progress": false,
       queue: "max",
     }

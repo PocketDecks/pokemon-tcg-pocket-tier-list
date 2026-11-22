@@ -3,6 +3,7 @@ const assert = require("node:assert");
 const {
   buildRouteError,
   createPrerenderPage,
+  getTrackedRoutes,
   mapWithConcurrency,
   openDocument,
   readTemplate,
@@ -470,6 +471,24 @@ test("waitForRouteReady keeps a live-page error when its retry reloads no docume
   assert.deepStrictEqual(pageErrors, [
     `http://127.0.0.1:4173${route}: live page error`,
   ]);
+});
+
+test("openDocument keeps document tracking for the current route only", async () => {
+  let currentUrl = "http://127.0.0.1:4173/first/";
+  const page = makeFakePage(currentUrl);
+  page.url = () => currentUrl;
+  await createPrerenderPage({ newPage: async () => page });
+  page.goto = async (url) => {
+    currentUrl = url;
+    page.emit("framenavigated", page.mainFrame());
+  };
+  page.waitForSelector = async () => {};
+
+  await openDocument(page, "/first/");
+  await openDocument(page, "/second/");
+  await openDocument(page, "/current/");
+
+  assert.deepStrictEqual(getTrackedRoutes(page), ["/current/"]);
 });
 
 test("openDocument reports console and request diagnostics only from its route", async () => {

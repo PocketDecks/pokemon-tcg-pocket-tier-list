@@ -343,6 +343,7 @@ const openDocument = (page, route) => {
   const diagnostics = pageDiagnostics.get(page);
   if (diagnostics) {
     diagnostics.currentRoute = route;
+    diagnostics.routeDocumentIds.clear();
     diagnostics.routeDocumentIds.set(route, new Set());
   }
   return runWithRouteRetry(page, route, async () => {
@@ -431,10 +432,14 @@ const mapWithConcurrency = async (items, concurrency, worker) => {
   if (failure !== null) throw failure;
 };
 
+const getTrackedRoutes = (page) =>
+  [...(pageDiagnostics.get(page)?.routeDocumentIds.keys() ?? [])];
+
 module.exports = {
   buildRouteError,
   captureDocument,
   createPrerenderPage,
+  getTrackedRoutes,
   launchBrowser,
   mapWithConcurrency,
   openDocument,

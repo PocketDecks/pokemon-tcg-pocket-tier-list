@@ -98,33 +98,37 @@ inconsistent.
 
 ## Which workflow does what
 
-Four workflows in `.github/workflows/` handle deployment, tests and pairings
+Four workflows in `.github/workflows/` handle deployment, checks and pairings
 updates:
 
-- `preview.yml`, named "Deploy to Firebase Hosting on
-  PR", triggers on every pull request. It installs with `--frozen-lockfile`,
-  runs `yarn build`, the frontend test suite, the script tests and the analysis
-  typecheck and test suite, then calls the Firebase Hosting deploy action pinned
-  by commit SHA without a `channelId`. That creates an ephemeral preview
-  channel and posts its URL on the pull request. The `if` condition skips
-  forks, so first-time contributors do not get a failed check.
-  The workflow runs the checks for same-repository Dependabot pull requests but
-  skips the deploy step, so they receive no preview URL.
-- `deploy.yml`, named "Deploy to Firebase Hosting on merge",
-  triggers on pushes to `main`, runs the same test gates, and deploys to
+- `preview.yml`, named `Preview`, runs the `preview` job for pull requests from
+  the same repository. It runs `yarn check:generated`, `yarn build`, the root
+  test suites and the analysis typecheck and test suite. Same-repository
+  Dependabot pull requests run the checks but skip the deploy step. Other
+  same-repository pull requests receive a preview URL.
+- `deploy.yml`, named `Deploy`, runs the `deploy` job on pushes to `main`. It
+  runs the build and test gates, verifies premium data, and deploys to
   `channelId: live`.
-- `ci.yml`, named "Frontend Tests", runs typecheck, lint, `yarn test:ci` and
-  `yarn test:scripts` on pushes to and pull requests against `main`. It also
-  runs the analysis typecheck and test suite. The deploy workflows run those
-  gates before invoking Firebase.
-- `sync-pairings.yml`, named "Sync pairings", runs every Monday at 10:00 UTC and
-  on manual dispatch. It runs `yarn sync-pairings`, typechecks and tests
-  `analysis/`, then opens or updates a pull request when
+- `ci.yml`, named `CI`, runs the `frontend`, `analysis` and `kofi` jobs on
+  pushes to and pull requests against `main`. `frontend` runs root typecheck,
+  lint, tests, script tests and Firestore rules. `analysis` runs typecheck and
+  tests in `analysis/`. `kofi` runs its typecheck, tests and Wrangler dry-run
+  bundle.
+- `sync-pairings.yml`, named `Sync pairings`, runs the `sync` job every Monday
+  at 10:00 UTC and on manual dispatch. It runs `yarn sync-pairings`, typechecks
+  and tests `analysis/`, then opens or updates a pull request when
   `analysis/src/data/limitless-decks.json` changes.
 
-The merge workflow uses `queue: max`. It keeps the active run and allows up to
-100 pending live runs. After checkout, it checks whether the commit is still
-the tip of `main`. A stale commit skips setup, dependency installation, builds
+The job IDs are the required check names: `frontend`, `analysis`, `kofi`,
+`preview`, `deploy` and `sync`.
+
+Running `firebase init hosting:github` again recreates the generated Hosting
+workflows; its merge workflow adds a second live deployment beside `deploy.yml`.
+
+The Deploy workflow uses the `deploy-live` concurrency group, `queue: max` and
+`cancel-in-progress: false`. It keeps the active run and allows up to 100
+pending live runs. After checkout, it checks whether the commit is still the
+tip of `main`. A stale commit skips setup, dependency installation, builds
 and tests. A second check runs before deployment, so a run that becomes stale
 during validation skips the deploy action. The newest `main` commit stays
 eligible for deployment when its gates pass.
@@ -139,11 +143,11 @@ with `GITHUB_TOKEN`.
 Both deploy workflows inject the Firebase web configuration as
 `VITE_FIREBASE_*` environment variables from repository secrets.
 
-All five workflows pin Node to `24.22.1` through `actions/setup-node@v7`,
-and the pin is deliberate. Node `24.19.0` broke the deploy action's
-preview-link posting, and newer runner defaults trip a premature-close bug in
-the `node-fetch@v2` dependency inside `firebase-tools`. Do not bump the pin
-without testing a full deploy.
+Each job uses `.github/actions/setup`, which reads Node from `.nvmrc` and keys
+the Yarn cache on the root, analysis and Ko-fi lockfiles. Node `24.19.0` broke
+the deploy action's preview-link posting, and newer runner defaults trip a
+premature-close bug in the `node-fetch@v2` dependency inside `firebase-tools`.
+Do not change the pin without testing a full deploy.
 
 ## Running the build path locally
 

@@ -21,11 +21,15 @@ the affected suites.
 
 ## What CI runs
 
-`.github/workflows/ci.yml` installs with `--frozen-lockfile`, then
-runs the frontend typecheck, lint and test suites against Node 24.22.1. It
-triggers on pull requests to `main` and on pushes to `main`. The analysis job
-runs its typecheck and test suite from `analysis/`.
-Root `yarn lint` also covers `analysis/`.
+`.github/workflows/ci.yml` is named `CI`. Its `frontend`, `analysis` and
+`kofi` jobs run on pushes to and pull requests against `main`. `frontend` runs
+root typecheck, lint, tests, script tests and Firestore rules. `analysis` runs
+typecheck and tests in `analysis/`. `kofi` runs its typecheck, tests and the
+Wrangler dry-run bundle. All three jobs use Node 24.22.1 from `.nvmrc` through
+`.github/actions/setup`.
+
+The job IDs are the required check names: `frontend`, `analysis`, `kofi`,
+`preview`, `deploy` and `sync`. Root `yarn lint` also covers `analysis/`.
 
 The deploy workflows run `yarn build` separately. That script chains
 typecheck and lint ahead of `vite build`, so a warning you ignore locally

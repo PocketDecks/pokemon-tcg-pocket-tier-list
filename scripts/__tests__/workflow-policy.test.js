@@ -128,20 +128,24 @@ test("live deploys queue pending runs and skip commits that are no longer latest
     steps[deployIndex].if.includes("steps.early_latest.outputs.is_latest == 'true'")
   );
   assert.ok(steps[deployIndex].if.includes("steps.latest.outputs.is_latest == 'true'"));
-  const runLatestCheck = (githubSha, mainSha) =>
+  const runLatestCheck = (githubSha, initialMainSha, fetchedMainSha) =>
     runWorkflowCommand({
       command: steps[latestIndex].run,
       commandShims: {
-        git: `if [ "$1" = rev-parse ]; then printf '%s\\n' "$MOCK_MAIN_SHA"; fi`,
+        git: 'if [ "$1" = fetch ]; then echo "$INITIAL_MAIN_SHA" > "$GITHUB_OUTPUT.ref"; echo "$FETCHED_MAIN_SHA" > "$GITHUB_OUTPUT.ref"; elif [ "$1" = rev-parse ]; then if [ ! -f "$GITHUB_OUTPUT.ref" ]; then echo "$INITIAL_MAIN_SHA" > "$GITHUB_OUTPUT.ref"; fi; cat "$GITHUB_OUTPUT.ref"; fi',
       },
-      env: { GITHUB_SHA: githubSha, MOCK_MAIN_SHA: mainSha },
+      env: {
+        GITHUB_SHA: githubSha,
+        INITIAL_MAIN_SHA: initialMainSha,
+        FETCHED_MAIN_SHA: fetchedMainSha,
+      },
     });
-  const current = runLatestCheck("current-sha", "current-sha");
+  const current = runLatestCheck("sha-b", "sha-a", "sha-b");
   assert.strictEqual(current.status, 0, current.stderr);
-  assert.strictEqual(current.workflowOutput, "is_latest=true\n");
-  const stale = runLatestCheck("old-sha", "current-sha");
+  assert.strictEqual(current.workflowOutput.trim(), "is_latest=true");
+  const stale = runLatestCheck("sha-a", "sha-a", "sha-b");
   assert.strictEqual(stale.status, 0, stale.stderr);
-  assert.strictEqual(stale.workflowOutput, "is_latest=false\n");
+  assert.strictEqual(stale.workflowOutput.trim(), "is_latest=false");
 });
 
 const workflowDirectory = path.join(root, ".github", "workflows");

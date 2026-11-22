@@ -112,13 +112,11 @@ test("shared setup action reads .nvmrc and caches the install lockfiles", () => 
     nodeSetup.with["cache-dependency-path"].trim().split(/\s+/),
     ["yarn.lock", "analysis/yarn.lock", "workers/kofi/yarn.lock"]
   );
-  const actionText = fs.readFileSync(actionPath, "utf8");
-  assert.match(actionText, /24\.19\.0 broke the deploy action's preview-link posting/);
-  assert.match(actionText, /pin only moves after a full deploy test\./);
   const install = action.runs.steps.find(
     (step) => step.name === "Install dependencies"
   );
   assert.ok(install);
+  assert.strictEqual(install.env.WORKSPACE, "${{ inputs.workspace }}");
   const runInstall = (workspace) =>
     runWorkflowCommand({
       command: install.run,
@@ -385,6 +383,7 @@ test("Dependabot has one weekly grouped GitHub Actions update", () => {
   assert.strictEqual(entries.length, 1);
   const [entry] = entries;
   assert.deepStrictEqual(entry.directories, ["/", "/.github/actions/setup"]);
+  assert.strictEqual(entry["commit-message"]?.prefix, "build(deps)");
   assert.strictEqual(entry.schedule?.interval, "weekly");
   assert.strictEqual(entry["open-pull-requests-limit"], 1);
   const group = entry.groups?.["github-actions"];

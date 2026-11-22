@@ -261,17 +261,19 @@ describe("writeArtefacts", () => {
     const target = path.join(directory, "target.json");
     const marker = `${target}.committed`;
     fs.writeFileSync(target, "old");
+    const markerWriteFailure = new Error("injected marker write failure");
+    const markerCleanupFailure = new Error("injected marker cleanup failure");
     const realWriteFileSync = fs.writeFileSync;
     vi.spyOn(fs, "writeFileSync").mockImplementation((file, data, options) => {
       if (file === marker) {
         realWriteFileSync(file, "partial marker", options);
-        throw new Error("injected marker write failure");
+        throw markerWriteFailure;
       }
       return realWriteFileSync(file, data, options);
     });
     const realRmSync = fs.rmSync;
     vi.spyOn(fs, "rmSync").mockImplementation((file, options) => {
-      if (file === marker) throw new Error("injected marker cleanup failure");
+      if (file === marker) throw markerCleanupFailure;
       return realRmSync(file, options);
     });
 
@@ -282,11 +284,14 @@ describe("writeArtefacts", () => {
       failure = error;
     }
 
-    expect(failure).toBeInstanceOf(Error);
-    expect((failure as Error).message).toContain(`could not remove completion marker ${marker}`);
-    expect((failure as Error).message).toContain("targets remain installed");
-    expect((failure as Error).message).toContain("commit completion is unknown");
-    expect((failure as Error).message).toContain("do not restore or delete staging files");
+    expect(failure).toBeInstanceOf(AggregateError);
+    const aggregate = failure as AggregateError;
+    expect(aggregate.errors).toEqual([markerWriteFailure, markerCleanupFailure]);
+    expect(aggregate.cause).toBe(markerCleanupFailure);
+    expect(aggregate.message).toContain(`could not remove completion marker ${marker}`);
+    expect(aggregate.message).toContain("targets remain installed");
+    expect(aggregate.message).toContain("commit completion is unknown");
+    expect(aggregate.message).toContain("do not restore or delete staging files");
     expect(fs.readFileSync(target, "utf8")).toBe("new");
     expect(fs.readFileSync(`${target}.bak`, "utf8")).toBe("old");
     expect(fs.readFileSync(marker, "utf8")).toBe("partial marker");

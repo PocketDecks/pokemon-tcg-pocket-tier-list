@@ -184,7 +184,8 @@ export const writeArtefacts = (files: Record<string, string>): void => {
         fs.rmSync(committed, { force: true });
       } catch (markerError) {
         const remaining = recoveryFiles(artefacts, committed);
-        throw new Error(
+        throw new AggregateError(
+          [error, markerError],
           `${errorMessage(error)}; could not remove completion marker ${committed}: ` +
             `${errorMessage(markerError)}; targets remain installed and commit completion is unknown; ` +
             `do not restore or delete staging files (${remaining.join(", ")}); inspect the store`,

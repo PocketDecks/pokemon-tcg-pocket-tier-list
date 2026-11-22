@@ -378,6 +378,73 @@ test("same-document navigation does not clear errors from the first document", a
   ]);
 });
 
+test("a retry without a new document keeps errors from its earlier attempt", async () => {
+  const pageErrors = [];
+  const route = "/same/";
+  const page = makeFakePage(`http://127.0.0.1:4173${route}`);
+  page.url = () => `http://127.0.0.1:4173${route}`;
+  await createPrerenderPage({ newPage: async () => page }, pageErrors);
+  let gotoCalls = 0;
+  page.goto = async () => {
+    gotoCalls += 1;
+    if (gotoCalls === 1) {
+      page.emit("domcontentloaded");
+      page.emit("pageerror", new Error("first document error"));
+      page.emit("domcontentloaded");
+    } else {
+      page.emit("framenavigated", page.mainFrame());
+    }
+  };
+  page.waitForSelector = async () => {
+    if (gotoCalls === 1) throw new Error("selector failed");
+  };
+
+  await captureWarnings(() => openDocument(page, route));
+
+  assert.deepStrictEqual(pageErrors, [
+    `http://127.0.0.1:4173${route}: first document error`,
+  ]);
+});
+
+test("readiness keeps prior errors when its retry does not load a new document", async () => {
+  const pageErrors = [];
+  const route = "/same/";
+  let currentUrl = `http://127.0.0.1:4173${route}`;
+  const page = makeFakePage(currentUrl);
+  page.url = () => currentUrl;
+  await createPrerenderPage({ newPage: async () => page }, pageErrors);
+  let gotoCalls = 0;
+  page.goto = async () => {
+    gotoCalls += 1;
+    page.emit("domcontentloaded");
+    page.emit("pageerror", new Error(`document ${gotoCalls} error`));
+  };
+  page.waitForSelector = async () => {
+    if (gotoCalls === 1) throw new Error("selector failed");
+  };
+
+  await captureWarnings(() => openDocument(page, route));
+
+  const expectedErrors = [
+    `http://127.0.0.1:4173${route}: document 1 error`,
+    `http://127.0.0.1:4173${route}: document 2 error`,
+  ];
+  assert.deepStrictEqual(pageErrors, expectedErrors);
+  let readinessCalls = 0;
+  page.waitForFunction = async () => {
+    readinessCalls += 1;
+    if (readinessCalls === 1) throw new Error("readiness failed");
+    return true;
+  };
+  page.reload = async () => {
+    page.emit("framenavigated", page.mainFrame());
+  };
+
+  await captureWarnings(() => waitForRouteReady(page));
+
+  assert.deepStrictEqual(pageErrors, expectedErrors);
+});
+
 test("openDocument reports console and request diagnostics only from its route", async () => {
   let currentUrl = "http://127.0.0.1:4173/";
   const page = makeFakePage(currentUrl);

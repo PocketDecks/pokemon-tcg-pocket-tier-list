@@ -437,6 +437,41 @@ test("readiness keeps prior errors when its retry does not load a new document",
   assert.deepStrictEqual(pageErrors, expectedErrors);
 });
 
+test("waitForRouteReady keeps a live-page error when its retry reloads no document", async () => {
+  const pageErrors = [];
+  const route = "/self-reload/";
+  const page = makeFakePage(`http://127.0.0.1:4173${route}`);
+  await createPrerenderPage({ newPage: async () => page }, pageErrors);
+  page.goto = async () => {
+    page.emit("framenavigated", page.mainFrame());
+  };
+  page.waitForSelector = async () => {};
+  await openDocument(page, route);
+
+  let readinessCalls = 0;
+  let reloads = 0;
+  page.waitForFunction = async () => {
+    readinessCalls += 1;
+    if (readinessCalls === 1) {
+      page.emit("framenavigated", page.mainFrame());
+      page.emit("pageerror", new Error("live page error"));
+      page.emit("domcontentloaded");
+      throw new Error("route readiness failed");
+    }
+    return true;
+  };
+  page.reload = async () => {
+    reloads += 1;
+  };
+
+  await captureWarnings(() => waitForRouteReady(page));
+
+  assert.strictEqual(reloads, 1);
+  assert.deepStrictEqual(pageErrors, [
+    `http://127.0.0.1:4173${route}: live page error`,
+  ]);
+});
+
 test("openDocument reports console and request diagnostics only from its route", async () => {
   let currentUrl = "http://127.0.0.1:4173/";
   const page = makeFakePage(currentUrl);

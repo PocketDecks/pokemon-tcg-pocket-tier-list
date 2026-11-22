@@ -367,6 +367,53 @@ test("openDocument retains old document errors when its replacement reports an e
   ]);
 });
 
+test("a clean reload clears errors from discarded route documents only", async () => {
+  const pageErrors = [];
+  let currentUrl = "http://127.0.0.1:4173/a/";
+  const page = makeFakePage(currentUrl);
+  const otherPage = makeFakePage("http://127.0.0.1:4173/other/");
+  page.url = () => currentUrl;
+  await createPrerenderPage({ newPage: async () => page }, pageErrors);
+  await createPrerenderPage({ newPage: async () => otherPage }, pageErrors);
+  page.emit("pageerror", new Error("earlier route error"));
+  otherPage.emit("pageerror", new Error("other page error"));
+
+  let gotoCalls = 0;
+  let readinessCalls = 0;
+  let reloads = 0;
+  page.goto = async (url) => {
+    gotoCalls += 1;
+    currentUrl = url;
+    page.emit("framenavigated", page.mainFrame());
+    page.emit("pageerror", new Error(`document ${gotoCalls} error`));
+  };
+  page.waitForSelector = async () => {
+    if (gotoCalls === 1) throw new Error("selector failed");
+  };
+  page.waitForFunction = async () => {
+    readinessCalls += 1;
+    if (readinessCalls === 1) throw new Error("route readiness failed");
+    return true;
+  };
+  page.reload = async () => {
+    reloads += 1;
+    page.emit("framenavigated", page.mainFrame());
+  };
+
+  await captureWarnings(async () => {
+    await openDocument(page, "/b/");
+    return waitForRouteReady(page);
+  });
+
+  assert.strictEqual(gotoCalls, 2);
+  assert.strictEqual(readinessCalls, 2);
+  assert.strictEqual(reloads, 1);
+  assert.deepStrictEqual(pageErrors, [
+    "http://127.0.0.1:4173/a/: earlier route error",
+    "http://127.0.0.1:4173/other/: other page error",
+  ]);
+});
+
 test("openDocument includes both page attempts when retry also fails", async () => {
   const route = "/deck/retry-fails/";
   const pageErrors = [];

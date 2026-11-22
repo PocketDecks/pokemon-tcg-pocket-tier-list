@@ -172,6 +172,7 @@ const createPrerenderPage = async (target, pageErrors = []) => {
     pageId: Symbol(),
     currentDocumentId: Symbol(),
     pageErrorRecords: [],
+    routeDocumentIds: new Map(),
     consoleMessages: [],
     consoleMessageSequence: 0,
     failedRequests: [],
@@ -186,6 +187,7 @@ const createPrerenderPage = async (target, pageErrors = []) => {
     if (frame !== page.mainFrame()) return;
     diagnostics.currentDocumentId = Symbol();
     diagnostics.currentAttempt?.documentIds.add(diagnostics.currentDocumentId);
+    diagnostics.currentAttempt?.routeDocumentIds.add(diagnostics.currentDocumentId);
   });
   page.on("pageerror", (err) => {
     const message = `${page.url()}: ${err.message}`;
@@ -260,6 +262,13 @@ const runWithRouteRetry = async (
   { beforeRetry, seedCurrentDocument = false } = {}
 ) => {
   const diagnostics = pageDiagnostics.get(page);
+  const routeDocumentIds = diagnostics
+    ? diagnostics.routeDocumentIds.get(route) ?? new Set()
+    : null;
+  if (diagnostics && !diagnostics.routeDocumentIds.has(route)) {
+    diagnostics.routeDocumentIds.set(route, routeDocumentIds);
+  }
+  const routeDocumentIdsAtStart = new Set(routeDocumentIds ?? []);
   const consoleMessageStart = diagnostics?.consoleMessageSequence ?? 0;
   const failedRequestStart = diagnostics?.failedRequestSequence ?? 0;
   let firstAttemptCause;
@@ -269,8 +278,12 @@ const runWithRouteRetry = async (
       documentIds: new Set(
         diagnostics && seedCurrentDocument ? [diagnostics.currentDocumentId] : []
       ),
+      routeDocumentIds,
       pageErrors: [],
     };
+    for (const documentId of attempt.documentIds) {
+      routeDocumentIds?.add(documentId);
+    }
     attempts.push(attempt);
     if (diagnostics) diagnostics.currentAttempt = attempt;
     return Promise.resolve()
@@ -290,16 +303,16 @@ const runWithRouteRetry = async (
       },
     });
     if (diagnostics && attempts.length > 1 && attempts.at(-1).pageErrors.length === 0) {
-      const previousDocumentIds = new Set(
-        attempts.slice(0, -1).flatMap((attempt) => [...attempt.documentIds])
-      );
       const currentDocumentId = diagnostics.currentDocumentId;
       const replacementLoaded =
         attempts.at(-1).documentIds.has(currentDocumentId) &&
-        !previousDocumentIds.has(currentDocumentId);
+        !routeDocumentIdsAtStart.has(currentDocumentId);
       if (replacementLoaded) {
-        previousDocumentIds.delete(currentDocumentId);
-        removePageErrorsForDocuments(diagnostics, previousDocumentIds);
+        const discardedDocumentIds = new Set(routeDocumentIds);
+        discardedDocumentIds.delete(currentDocumentId);
+        removePageErrorsForDocuments(diagnostics, discardedDocumentIds);
+        routeDocumentIds.clear();
+        routeDocumentIds.add(currentDocumentId);
       }
     }
     return result;

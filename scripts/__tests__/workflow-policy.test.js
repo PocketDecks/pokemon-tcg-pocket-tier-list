@@ -46,6 +46,39 @@ const runWorkflowCommand = ({ command, commandShims = {}, env = {} }) => {
   }
 };
 
+const freshnessGitShim = `ref="$GITHUB_OUTPUT.ref"
+if [ ! -f "$ref" ]; then
+  printf '%s\\n' "$INITIAL_MAIN_SHA" > "$ref"
+fi
+case "$*" in
+  "fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main")
+    if [ "$FETCH_FAIL" = "true" ]; then exit 17; fi
+    printf '%s\\n' "$FETCHED_MAIN_SHA" > "$ref"
+    ;;
+  "rev-parse refs/remotes/origin/main")
+    cat "$ref"
+    ;;
+  *)
+    printf 'unexpected git command: %s\\n' "$*" >&2
+    exit 97
+    ;;
+esac`;
+
+const runFreshnessCheck = (
+  step,
+  { githubSha, initialMainSha, fetchedMainSha, fetchFail = false }
+) =>
+  runWorkflowCommand({
+    command: step.run,
+    commandShims: { git: freshnessGitShim },
+    env: {
+      GITHUB_SHA: githubSha,
+      INITIAL_MAIN_SHA: initialMainSha,
+      FETCHED_MAIN_SHA: fetchedMainSha,
+      FETCH_FAIL: fetchFail ? "true" : "false",
+    },
+  });
+
 const runPairingsPullRequestStep = (step, openPr, outcomes = {}) =>
   runWorkflowCommand({
     command: step.run,
@@ -88,21 +121,18 @@ test("live deploys check freshness after checkout and gate later steps", () => {
   );
   assert.strictEqual(earlyIndex, checkoutIndex + 1);
   assert.ok(earlyIndex < latestIndex);
-  assert.ok(steps.slice(earlyIndex + 1).every((step) =>
-    step.if?.includes("steps.early_latest.outputs.is_latest == 'true'")
-  ));
+  const earlyIf = "steps.early_latest.outputs.is_latest == 'true'";
+  const deployIf =
+    "${{ steps.early_latest.outputs.is_latest == 'true' && steps.latest.outputs.is_latest == 'true' }}";
+  for (const step of steps.slice(earlyIndex + 1, deployIndex + 1)) {
+    assert.strictEqual(step.if, step === steps[deployIndex] ? deployIf : earlyIf);
+  }
 
   const runEarlyCheck = (githubSha, initialMainSha, fetchedMainSha) =>
-    runWorkflowCommand({
-      command: steps[earlyIndex].run,
-      commandShims: {
-        git: 'if [ "$1" = fetch ]; then echo "$INITIAL_MAIN_SHA" > "$GITHUB_OUTPUT.ref"; echo "$FETCHED_MAIN_SHA" > "$GITHUB_OUTPUT.ref"; elif [ "$1" = rev-parse ]; then if [ ! -f "$GITHUB_OUTPUT.ref" ]; then echo "$INITIAL_MAIN_SHA" > "$GITHUB_OUTPUT.ref"; fi; cat "$GITHUB_OUTPUT.ref"; fi',
-      },
-      env: {
-        GITHUB_SHA: githubSha,
-        INITIAL_MAIN_SHA: initialMainSha,
-        FETCHED_MAIN_SHA: fetchedMainSha,
-      },
+    runFreshnessCheck(steps[earlyIndex], {
+      githubSha,
+      initialMainSha,
+      fetchedMainSha,
     });
   const stale = runEarlyCheck("sha-a", "sha-a", "sha-b");
   assert.strictEqual(stale.status, 0, stale.stderr);
@@ -124,21 +154,11 @@ test("live deploys queue pending runs and skip commits that are no longer latest
   assert.strictEqual(deployIndex, latestIndex + 1);
   assert.ok(steps[latestIndex].run.includes("GITHUB_SHA"));
   assert.ok(steps[latestIndex].run.includes("refs/remotes/origin/main"));
-  assert.ok(
-    steps[deployIndex].if.includes("steps.early_latest.outputs.is_latest == 'true'")
-  );
-  assert.ok(steps[deployIndex].if.includes("steps.latest.outputs.is_latest == 'true'"));
   const runLatestCheck = (githubSha, initialMainSha, fetchedMainSha) =>
-    runWorkflowCommand({
-      command: steps[latestIndex].run,
-      commandShims: {
-        git: 'if [ "$1" = fetch ]; then echo "$INITIAL_MAIN_SHA" > "$GITHUB_OUTPUT.ref"; echo "$FETCHED_MAIN_SHA" > "$GITHUB_OUTPUT.ref"; elif [ "$1" = rev-parse ]; then if [ ! -f "$GITHUB_OUTPUT.ref" ]; then echo "$INITIAL_MAIN_SHA" > "$GITHUB_OUTPUT.ref"; fi; cat "$GITHUB_OUTPUT.ref"; fi',
-      },
-      env: {
-        GITHUB_SHA: githubSha,
-        INITIAL_MAIN_SHA: initialMainSha,
-        FETCHED_MAIN_SHA: fetchedMainSha,
-      },
+    runFreshnessCheck(steps[latestIndex], {
+      githubSha,
+      initialMainSha,
+      fetchedMainSha,
     });
   const current = runLatestCheck("sha-b", "sha-a", "sha-b");
   assert.strictEqual(current.status, 0, current.stderr);
@@ -146,6 +166,22 @@ test("live deploys queue pending runs and skip commits that are no longer latest
   const stale = runLatestCheck("sha-a", "sha-a", "sha-b");
   assert.strictEqual(stale.status, 0, stale.stderr);
   assert.strictEqual(stale.workflowOutput.trim(), "is_latest=false");
+});
+
+test("freshness checks fail closed when git fetch fails", () => {
+  const steps = loadYaml(".github", "workflows", "firebase-hosting-merge.yml")
+    .jobs.build_and_deploy.steps;
+  for (const id of ["early_latest", "latest"]) {
+    const step = steps.find((entry) => entry.id === id);
+    const result = runFreshnessCheck(step, {
+      githubSha: "sha-a",
+      initialMainSha: "sha-a",
+      fetchedMainSha: "sha-b",
+      fetchFail: true,
+    });
+    assert.doesNotMatch(result.workflowOutput, /is_latest=true/);
+    assert.notStrictEqual(result.status, 0, `${id} must fail when git fetch fails`);
+  }
 });
 
 const workflowDirectory = path.join(root, ".github", "workflows");

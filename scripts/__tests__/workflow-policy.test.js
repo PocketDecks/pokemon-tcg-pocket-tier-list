@@ -8,28 +8,6 @@ const yaml = require("js-yaml");
 
 const root = path.resolve(__dirname, "../..");
 
-const expressionValue = (term, context) => {
-  if (/^'[^']*'$/.test(term)) return term.slice(1, -1);
-  assert.ok(Object.hasOwn(context, term), `Unknown expression term: ${term}`);
-  return context[term];
-};
-
-const evaluateChain = (expression, context) => {
-  const body = String(expression).replace(/^\$\{\{\s*|\s*\}\}$/g, "").trim();
-  for (const clause of body.split(/\s*\|\|\s*/)) {
-    const [condition, result] = clause.split(/\s*&&\s*/);
-    if (result === undefined) return expressionValue(condition, context);
-    const match = condition.match(/^([\w.]+)\s*==\s*('[^']*'|[\w.]+)$/);
-    assert.ok(match, `Unsupported condition: ${condition}`);
-    if (
-      expressionValue(match[1], context) === expressionValue(match[2], context)
-    ) {
-      return expressionValue(result, context);
-    }
-  }
-  assert.fail(`No value for ${body}`);
-};
-
 const loadYaml = (...segments) =>
   yaml.load(fs.readFileSync(path.join(root, ...segments), "utf8"));
 
@@ -130,18 +108,10 @@ test("shared setup action reads .nvmrc and caches the install lockfiles", () => 
   assert.ok(nodeSetup);
   assert.strictEqual(nodeSetup.with["node-version-file"], ".nvmrc");
   assert.strictEqual(nodeSetup.with.cache, "yarn");
-  const cachePath = nodeSetup.with["cache-dependency-path"];
-  for (const [workspace, lockfile] of [
-    ["root", "yarn.lock"],
-    ["analysis", "analysis/yarn.lock"],
-    ["kofi", "workers/kofi/yarn.lock"],
-  ]) {
-    assert.strictEqual(
-      evaluateChain(cachePath, { "inputs.workspace": workspace }),
-      lockfile,
-      `${workspace} cache lockfile`
-    );
-  }
+  assert.strictEqual(
+    nodeSetup.with["cache-dependency-path"],
+    "${{ inputs.workspace == 'root' && 'yarn.lock' || inputs.workspace == 'analysis' && 'analysis/yarn.lock' || 'workers/kofi/yarn.lock' }}"
+  );
   const install = action.runs.steps.find(
     (step) => step.name === "Install dependencies"
   );
@@ -243,21 +213,10 @@ test("CI runs the analysis checks with read-only permissions", () => {
 });
 
 test("CI cancels only pull request runs", () => {
-  const concurrency = loadYaml(".github", "workflows", "ci.yml").concurrency;
-  const [, prefix, expression] = concurrency.group.match(/^(.*?)\$\{\{(.*)\}\}$/);
-  const group = (event, ref, sha) =>
-    prefix + evaluateChain(expression, {
-      "github.event_name": event,
-      "github.ref": ref,
-      "github.sha": sha,
-    });
-  assert.strictEqual(
-    group("pull_request", "refs/pull/189/merge", "sha-a"),
-    "ci-refs/pull/189/merge"
-  );
-  assert.strictEqual(group("push", "refs/heads/main", "sha-a"), "ci-sha-a");
-  assert.strictEqual(group("push", "refs/heads/main", "sha-b"), "ci-sha-b");
-  assert.strictEqual(concurrency["cancel-in-progress"], "${{ github.event_name == 'pull_request' }}");
+  assert.deepStrictEqual(loadYaml(".github", "workflows", "ci.yml").concurrency, {
+    group: "ci-${{ github.event_name == 'pull_request' && github.ref || github.sha }}",
+    "cancel-in-progress": "${{ github.event_name == 'pull_request' }}",
+  });
 });
 
 test("Preview cancels older runs for the same pull request", () => {

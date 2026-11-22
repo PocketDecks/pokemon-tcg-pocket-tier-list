@@ -187,7 +187,8 @@ export const writeArtefacts = (files: Record<string, string>): void => {
         throw new Error(
           `${errorMessage(error)}; could not remove completion marker ${committed}: ` +
             `${errorMessage(markerError)}; targets remain installed and commit completion is unknown; ` +
-            `do not restore or delete staging files (${remaining.join(", ")}); inspect the store`
+            `do not restore or delete staging files (${remaining.join(", ")}); inspect the store`,
+          { cause: markerError }
         );
       }
     }
@@ -196,7 +197,8 @@ export const writeArtefacts = (files: Record<string, string>): void => {
       const remaining = recoveryFiles(artefacts, committed);
       throw new Error(
         `${errorMessage(error)}; ${rollbackFailures.join("; ")}; commit completion is unknown; ` +
-          `do not restore or delete staging files (${remaining.join(", ")}); inspect the store`
+          `do not restore or delete staging files (${remaining.join(", ")}); inspect the store`,
+        { cause: error }
       );
     }
     cleanUpAfterFailure(artefacts);

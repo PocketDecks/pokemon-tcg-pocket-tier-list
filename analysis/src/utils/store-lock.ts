@@ -98,7 +98,8 @@ const writePidAndClose = (fd: number): void => {
     if (writeFailure === undefined) throw closeError;
     throw new AggregateError(
       [writeFailure.error, closeError],
-      `${errorMessage(writeFailure.error)}; closing the store lock file also failed`
+      `${errorMessage(writeFailure.error)}; closing the store lock file also failed`,
+      { cause: closeError }
     );
   }
   if (writeFailure !== undefined) throw writeFailure.error;
@@ -361,7 +362,7 @@ const reclaimStale = (lockFile: string, inspected: string): void => {
     fs.linkSync(moved, lockFile);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
-    throw new Error(displacedMessage(lockFile, readLockContents(lockFile), moved));
+    throw new Error(displacedMessage(lockFile, readLockContents(lockFile), moved), { cause: error });
   }
   fs.rmSync(moved, { force: true });
   if (blocksReclaim(lockFile, movedContents)) throw new StoreLockBusyError(heldMessage(lockFile, movedContents));

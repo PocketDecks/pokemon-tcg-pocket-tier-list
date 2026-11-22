@@ -1,14 +1,17 @@
+import fs from "node:fs";
 import path from "node:path";
 import { vi } from "vitest";
 import { Deck } from "../utils/types";
 
 const { writeArtefacts, stageOgImages, getDecks, withStoreLock, commit, discard, mkdirSync, PREMIUM_TEST_DIR, PREVIOUS_TEST_DIR, DECKS_TEST_DIR } = vi.hoisted(() => {
-  const base = require("node:path").join(require("node:os").tmpdir(), "get-best-decks-premium");
+  const nodePath = process.getBuiltinModule("node:path");
+  const nodeOs = process.getBuiltinModule("node:os");
+  const base = nodePath.join(nodeOs.tmpdir(), "get-best-decks-premium");
   return ({
   mkdirSync: vi.fn(),
-  PREMIUM_TEST_DIR: require("node:path").join(base, "out"),
-  PREVIOUS_TEST_DIR: require("node:path").join(base, "premium-previous"),
-  DECKS_TEST_DIR: `${require("node:os").tmpdir()}/get-best-decks-store`,
+  PREMIUM_TEST_DIR: nodePath.join(base, "out"),
+  PREVIOUS_TEST_DIR: nodePath.join(base, "premium-previous"),
+  DECKS_TEST_DIR: nodePath.join(nodeOs.tmpdir(), "get-best-decks-store"),
   writeArtefacts: vi.fn(),
   stageOgImages: vi.fn(),
   getDecks: vi.fn(),
@@ -69,7 +72,6 @@ import { UNMATCHED_DECK } from "../utils/get-deck-name";
 import { assertPublishable, daysOfDataSince, readPreviousArchetypeCount } from "../utils/assert-publishable";
 import { EXPANSION_RELEASE_DATE } from "../settings";
 import {
-  loadPremiumSnapshotForVersion,
   PREMIUM_ARTEFACT_NAMES,
   premiumVersion,
   renderDataVersion,
@@ -104,7 +106,6 @@ const DEFAULT_BASELINE = premiumGeneration(30, 35, "default-baseline");
 const DEFAULT_VERSION = premiumVersion(DEFAULT_BASELINE);
 
 const writePremiumGeneration = (dir: string, files: Record<string, string>): void => {
-  const fs = require("node:fs") as typeof import("node:fs");
   fs.mkdirSync(dir, { recursive: true });
   for (const [name, content] of Object.entries(files)) {
     fs.writeFileSync(path.join(dir, `${name}.json`), content);
@@ -137,7 +138,6 @@ const makeDecks = (date = DECK_DATE): Deck[] =>
 describe("run", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    const fs = require("node:fs") as typeof import("node:fs");
     fs.rmSync(PREVIOUS_TEST_DIR, { recursive: true, force: true });
     snapshotPremiumVersion(DEFAULT_BASELINE, DEFAULT_VERSION, PREMIUM_TEST_DIR);
     vi.mocked(inspectMainPremiumVersion).mockReturnValue({ status: "found", version: DEFAULT_VERSION });
@@ -157,7 +157,6 @@ describe("run", () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
-    const fs = require("node:fs") as typeof import("node:fs");
     fs.rmSync(PREVIOUS_TEST_DIR, { recursive: true, force: true });
   });
 

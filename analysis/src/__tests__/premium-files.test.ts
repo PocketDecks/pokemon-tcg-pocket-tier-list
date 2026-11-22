@@ -157,7 +157,7 @@ describe("readPremiumVersionAtRef", () => {
 describe("inspectMainPremiumVersion", () => {
   const showVersion = (version: string | null) => {
     const content = version === null ? "{}" : renderDataVersion(version);
-    return (args: string[], _cwd: string): string => {
+    return (args: string[]): string => {
       if (args[0] === "ls-tree") return "public/data/data-version.json\n";
       return content;
     };

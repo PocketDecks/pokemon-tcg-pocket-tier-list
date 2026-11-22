@@ -170,7 +170,8 @@ export const discoverPremiumRetentionSources = async ({
           return inspectPremiumVersionAtRef(repoRoot, branchRef, git);
         } catch (error) {
           throw new Error(
-            `could not read the premium version on ${branchRef}: ${error instanceof Error ? error.message : String(error)}`
+            `could not read the premium version on ${branchRef}: ${error instanceof Error ? error.message : String(error)}`,
+            { cause: error }
           );
         }
       };

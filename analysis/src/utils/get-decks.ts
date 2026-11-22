@@ -11,7 +11,8 @@ const readDecksFromStore = (): Deck[] => {
     return readDecks(decksDir(), EXPANSION_RELEASE_DATE);
   } catch (error) {
     throw new Error(
-      `Failed to read decks store: ${error instanceof Error ? error.message : String(error)}`
+      `Failed to read decks store: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error }
     );
   }
 };

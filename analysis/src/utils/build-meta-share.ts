@@ -2,7 +2,6 @@ import { Deck } from "./types";
 import {
   MetaShareEntry,
   PipelineMetaShare,
-  PipelinePartialDeck,
 } from "../../../src/types/pipeline-data";
 
 const DAY_MS = 24 * 60 * 60 * 1000;

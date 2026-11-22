@@ -1,5 +1,6 @@
 import getTournamentDecks from "../utils/get-tournament-decks";
 import { getPairings } from "../utils/get-pairings";
+import type { Tournament } from "../utils/types";
 import { vi } from "vitest";
 
 vi.mock("../utils/get-pairings");
@@ -41,7 +42,7 @@ const respondByUrl = (routes: Record<string, unknown>) =>
   });
 
 describe("getTournamentDecks", () => {
-  const mockTournament = { id: "tournament1", date: "2024-01-01" };
+  const mockTournament: Tournament = { id: "tournament1", date: "2024-01-01" };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -56,7 +57,7 @@ describe("getTournamentDecks", () => {
   it("names the tournament when the standings payload is not an array", async () => {
     global.fetch = respondByUrl({ "/details": {}, "/standings": { error: "rate limited" } });
 
-    await expect(getTournamentDecks(mockTournament as any)).rejects.toThrow(
+    await expect(getTournamentDecks(mockTournament)).rejects.toThrow(
       "Tournament tournament1: standings response was object, expected an array"
     );
   });
@@ -73,7 +74,7 @@ describe("getTournamentDecks", () => {
       { winner: "tournament1-player1", loser: "tournament1-player2" },
     ]);
 
-    const result = await getTournamentDecks(mockTournament as any);
+    const result = await getTournamentDecks(mockTournament);
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual(
       expect.objectContaining({
@@ -109,7 +110,7 @@ describe("getTournamentDecks", () => {
       { winner: "tournament1-a", loser: "tournament1-z" },
     ]);
 
-    const [deck] = await getTournamentDecks(mockTournament as any);
+    const [deck] = await getTournamentDecks(mockTournament);
     expect(deck.wins).toEqual(["tournament1-x", "tournament1-z"]);
     expect(deck.losses).toEqual(["tournament1-y"]);
   });
@@ -124,7 +125,7 @@ describe("getTournamentDecks", () => {
     });
     vi.mocked(getPairings).mockResolvedValue([]);
 
-    const result = await getTournamentDecks(mockTournament as any);
+    const result = await getTournamentDecks(mockTournament);
     expect(result.map((deck) => deck.id)).toEqual(["tournament1-good"]);
   });
 
@@ -137,7 +138,7 @@ describe("getTournamentDecks", () => {
       "/standings": [standing("good", [card("Mew", 2)], [card("Potion", 2, "5")]), row],
     });
 
-    await expect(getTournamentDecks(mockTournament as any)).rejects.toThrow(
+    await expect(getTournamentDecks(mockTournament)).rejects.toThrow(
       `Tournament tournament1: standings row 1 was ${kind}, expected an object`
     );
   });
@@ -154,7 +155,7 @@ describe("getTournamentDecks", () => {
     });
     vi.mocked(getPairings).mockResolvedValue([]);
 
-    const result = await getTournamentDecks(mockTournament as any);
+    const result = await getTournamentDecks(mockTournament);
     expect(result.map((deck) => deck.id)).toEqual(["tournament1-good"]);
     expect(warn).toHaveBeenCalledTimes(1);
     expect(warn.mock.calls[0][0]).toContain("skipped 2 decks with malformed cards");
@@ -172,7 +173,7 @@ describe("getTournamentDecks", () => {
     });
     vi.mocked(getPairings).mockResolvedValue([]);
 
-    const result = await getTournamentDecks(mockTournament as any);
+    const result = await getTournamentDecks(mockTournament);
     expect(result).toHaveLength(1);
     expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
@@ -184,7 +185,7 @@ describe("getTournamentDecks", () => {
       "/standings": [{ player: "ghost", record: { wins: 1, losses: 1 } }],
     });
 
-    expect(await getTournamentDecks(mockTournament as any)).toEqual([]);
+    expect(await getTournamentDecks(mockTournament)).toEqual([]);
     expect(getPairings).not.toHaveBeenCalled();
   });
 
@@ -193,7 +194,7 @@ describe("getTournamentDecks", () => {
     const fetchMock = respondByUrl({ "/details": { specialRules: ["MONOTYPE"] } });
     global.fetch = fetchMock;
 
-    expect(await getTournamentDecks(mockTournament as any)).toEqual([]);
+    expect(await getTournamentDecks(mockTournament)).toEqual([]);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock.mock.calls[0][0]).toContain("/tournaments/tournament1/details");
     expect(getPairings).not.toHaveBeenCalled();
@@ -208,7 +209,7 @@ describe("getTournamentDecks", () => {
     global.fetch = fetchMock;
     vi.mocked(getPairings).mockResolvedValue([]);
 
-    await getTournamentDecks(mockTournament as any);
+    await getTournamentDecks(mockTournament);
 
     expect(fetchMock.mock.calls.map((call) => call[0])).toEqual([
       expect.stringContaining("/tournaments/tournament1/details"),

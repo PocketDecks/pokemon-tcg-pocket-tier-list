@@ -112,7 +112,6 @@ const deferred = (): { promise: Promise<void>; resolve: () => void } => {
 };
 
 it("prunes an orphan parent returned by the Firestore SDK adapter", async () => {
-  const writes: Write[] = [];
   const deletes: unknown[] = [];
   const snapshotDir = testSnapshotDir();
   let lock: Record<string, unknown> | undefined;

@@ -288,6 +288,16 @@ test("only same-repository human pull requests can deploy a preview", () => {
   }
 });
 
+test("pairings syncs share one non-cancelling concurrency group", () => {
+  assert.deepStrictEqual(
+    loadYaml(".github", "workflows", "sync-pairings.yml").concurrency,
+    {
+      group: "sync-pairings",
+      "cancel-in-progress": false,
+    }
+  );
+});
+
 test("pairings workflow tests its changes and preserves failed checks", () => {
   const steps = loadYaml(".github", "workflows", "sync-pairings.yml").jobs.sync.steps;
   const runBodies = steps.map((step) => String(step.run ?? "")).join("\n");

@@ -12,6 +12,10 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: sync-pairings
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest

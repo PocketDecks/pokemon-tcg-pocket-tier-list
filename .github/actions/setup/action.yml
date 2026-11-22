@@ -14,10 +14,7 @@ runs:
         # pin only moves after a full deploy test.
         node-version-file: .nvmrc
         cache: yarn
-        cache-dependency-path: |
-          yarn.lock
-          analysis/yarn.lock
-          workers/kofi/yarn.lock
+        cache-dependency-path: ${{ inputs.workspace == 'root' && 'yarn.lock' || inputs.workspace == 'analysis' && 'analysis/yarn.lock' || 'workers/kofi/yarn.lock' }}
     - name: Install dependencies
       shell: bash
       env:

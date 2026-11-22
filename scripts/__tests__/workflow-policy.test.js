@@ -8,6 +8,28 @@ const yaml = require("js-yaml");
 
 const root = path.resolve(__dirname, "../..");
 
+const expressionValue = (term, context) => {
+  if (/^'[^']*'$/.test(term)) return term.slice(1, -1);
+  assert.ok(Object.hasOwn(context, term), `Unknown expression term: ${term}`);
+  return context[term];
+};
+
+const evaluateChain = (expression, context) => {
+  const body = String(expression).replace(/^\$\{\{\s*|\s*\}\}$/g, "").trim();
+  for (const clause of body.split(/\s*\|\|\s*/)) {
+    const [condition, result] = clause.split(/\s*&&\s*/);
+    if (result === undefined) return expressionValue(condition, context);
+    const match = condition.match(/^([\w.]+)\s*==\s*('[^']*'|[\w.]+)$/);
+    assert.ok(match, `Unsupported condition: ${condition}`);
+    if (
+      expressionValue(match[1], context) === expressionValue(match[2], context)
+    ) {
+      return expressionValue(result, context);
+    }
+  }
+  assert.fail(`No value for ${body}`);
+};
+
 const loadYaml = (...segments) =>
   yaml.load(fs.readFileSync(path.join(root, ...segments), "utf8"));
 
@@ -108,10 +130,18 @@ test("shared setup action reads .nvmrc and caches the install lockfiles", () => 
   assert.ok(nodeSetup);
   assert.strictEqual(nodeSetup.with["node-version-file"], ".nvmrc");
   assert.strictEqual(nodeSetup.with.cache, "yarn");
-  assert.deepStrictEqual(
-    nodeSetup.with["cache-dependency-path"].trim().split(/\s+/),
-    ["yarn.lock", "analysis/yarn.lock", "workers/kofi/yarn.lock"]
-  );
+  const cachePath = nodeSetup.with["cache-dependency-path"];
+  for (const [workspace, lockfile] of [
+    ["root", "yarn.lock"],
+    ["analysis", "analysis/yarn.lock"],
+    ["kofi", "workers/kofi/yarn.lock"],
+  ]) {
+    assert.strictEqual(
+      evaluateChain(cachePath, { "inputs.workspace": workspace }),
+      lockfile,
+      `${workspace} cache lockfile`
+    );
+  }
   const install = action.runs.steps.find(
     (step) => step.name === "Install dependencies"
   );

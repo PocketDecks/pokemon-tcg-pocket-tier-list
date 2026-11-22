@@ -147,17 +147,17 @@ test("openDocument adds route, page, console and request details to failures", a
   const pageErrors = [];
   const page = makeFakePage(`http://127.0.0.1:4173${route}`);
   await createPrerenderPage({ newPage: async () => page }, pageErrors);
-  for (let index = 0; index < 12; index += 1) {
-    page.emit("console", {
-      type: () => "warning",
-      text: () => `console-message-${index}-` + "x".repeat(700),
-    });
-  }
-  page.emit("requestfailed", {
-    url: () => "https://assets.invalid/card.webp",
-    failure: () => ({ errorText: "net::ERR_FAILED" }),
-  });
   page.goto = async () => {
+    for (let index = 0; index < 12; index += 1) {
+      page.emit("console", {
+        type: () => "warning",
+        text: () => `console-message-${index}-` + "x".repeat(700),
+      });
+    }
+    page.emit("requestfailed", {
+      url: () => "https://assets.invalid/card.webp",
+      failure: () => ({ errorText: "net::ERR_FAILED" }),
+    });
     page.emit("pageerror", new Error("app error"));
     throw new Error("navigation timed out");
   };
@@ -288,6 +288,63 @@ test("openDocument keeps earlier route errors when a retry succeeds", async () =
   assert.deepStrictEqual(pageErrors, [
     "http://127.0.0.1:4173/a/: earlier route error",
   ]);
+});
+
+test("openDocument reports console and request diagnostics only from its route", async () => {
+  let currentUrl = "http://127.0.0.1:4173/";
+  const page = makeFakePage(currentUrl);
+  page.url = () => currentUrl;
+  await createPrerenderPage({ newPage: async () => page });
+  page.goto = async (url) => {
+    currentUrl = url;
+    page.emit("framenavigated", page.mainFrame());
+    const route = new URL(url).pathname;
+    page.emit("console", {
+      type: () => "error",
+      text: () => `${route} console error`,
+    });
+    page.emit("requestfailed", {
+      url: () => `${url}asset.js`,
+      failure: () => ({ errorText: `${route} request failed` }),
+    });
+    if (route === "/b/") throw new Error("route B failed");
+  };
+  page.waitForSelector = async () => {};
+  await openDocument(page, "/a/");
+
+  await assert.rejects(openDocument(page, "/b/"), (error) => {
+    assert.ok(error.message.includes("/b/ console error"));
+    assert.ok(error.message.includes("/b/asset.js"));
+    assert.ok(!error.message.includes("/a/ console error"));
+    assert.ok(!error.message.includes("/a/asset.js"));
+    return true;
+  });
+});
+
+test("openDocument caps failed request diagnostics", async () => {
+  const page = makeFakePage("http://127.0.0.1:4173/many/");
+  await createPrerenderPage({ newPage: async () => page });
+  let gotoCalls = 0;
+  page.goto = async () => {
+    gotoCalls += 1;
+    page.emit("framenavigated", page.mainFrame());
+    for (let index = 0; index < 12; index += 1) {
+      const number = (gotoCalls - 1) * 12 + index;
+      page.emit("requestfailed", {
+        url: () => `http://127.0.0.1:4173/many/request-${number}.js`,
+        failure: () => ({ errorText: "request failed" }),
+      });
+    }
+    throw new Error("route failed");
+  };
+
+  await assert.rejects(openDocument(page, "/many/"), (error) => {
+    const requests = error.message.split("Failed requests:\n")[1].split("\n");
+    assert.strictEqual(requests.length, 10);
+    assert.ok(requests[0].includes("request-14.js"));
+    assert.ok(requests.at(-1).includes("request-23.js"));
+    return true;
+  });
 });
 
 test("openDocument retains old document errors when its replacement reports an error", async () => {

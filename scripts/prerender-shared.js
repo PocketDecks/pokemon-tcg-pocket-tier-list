@@ -168,7 +168,9 @@ const createPrerenderPage = async (target, pageErrors = []) => {
     currentDocumentId: Symbol(),
     pageErrorRecords: [],
     consoleMessages: [],
+    consoleMessageSequence: 0,
     failedRequests: [],
+    failedRequestSequence: 0,
     sharedPageErrors: pageErrors,
     currentAttempt: null,
   };
@@ -196,19 +198,26 @@ const createPrerenderPage = async (target, pageErrors = []) => {
     diagnostics.currentAttempt?.pageErrors.push(pageError);
   });
   page.on("console", (message) => {
+    diagnostics.consoleMessageSequence += 1;
     diagnostics.consoleMessages.push({
       type: message.type(),
       text: message.text(),
+      sequence: diagnostics.consoleMessageSequence,
     });
     if (diagnostics.consoleMessages.length > MAX_CONSOLE_MESSAGES) {
       diagnostics.consoleMessages.shift();
     }
   });
   page.on("requestfailed", (request) => {
+    diagnostics.failedRequestSequence += 1;
     diagnostics.failedRequests.push({
       url: request.url(),
       errorText: request.failure()?.errorText ?? "Request failed",
+      sequence: diagnostics.failedRequestSequence,
     });
+    if (diagnostics.failedRequests.length > MAX_CONSOLE_MESSAGES) {
+      diagnostics.failedRequests.shift();
+    }
   });
 
   await page.setRequestInterception(true);
@@ -246,6 +255,8 @@ const runWithRouteRetry = async (
   { beforeRetry, seedCurrentDocument = false } = {}
 ) => {
   const diagnostics = pageDiagnostics.get(page);
+  const consoleMessageStart = diagnostics?.consoleMessageSequence ?? 0;
+  const failedRequestStart = diagnostics?.failedRequestSequence ?? 0;
   const attempts = [];
   const runAttempt = () => {
     const attempt = {
@@ -294,8 +305,12 @@ const runWithRouteRetry = async (
         : attempts.flatMap((attempt) =>
             attempt.pageErrors.map(({ message }) => message)
           ),
-      consoleMessages: diagnostics?.consoleMessages,
-      failedRequests: diagnostics?.failedRequests,
+      consoleMessages: diagnostics?.consoleMessages.filter(
+        ({ sequence }) => sequence > consoleMessageStart
+      ),
+      failedRequests: diagnostics?.failedRequests.filter(
+        ({ sequence }) => sequence > failedRequestStart
+      ),
     });
   }
 };

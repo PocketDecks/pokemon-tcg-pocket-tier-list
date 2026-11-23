@@ -2,6 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
+import { windowArtefactName, windowDataFile, WINDOW_IDS, isPremiumWindow } from "../../src/types/meta-windows";
+import { PREMIUM_ARTEFACT_NAMES, PREMIUM_DIR } from "../src/utils/premium-artefacts";
+
+const REPO_ROOT = path.resolve(__dirname, "..", "..");
+const PREMIUM_RELATIVE_DIR = path.relative(REPO_ROOT, PREMIUM_DIR).split(path.sep).join("/");
+
 export type JobStatus = "published" | "silent" | "needs-person" | "failed";
 
 export interface CommandSpec {
@@ -41,22 +47,20 @@ export const MANUAL_REPAIR_MARKERS = [
   "interrupted processed-tournaments",
 ] as const;
 
-export const defaultRunner: Runner = ({ file, args, cwd, logPath }) => {
-  const isYarn = file === "yarn" || file === "yarn.cmd";
-  const commandFile = isYarn ? process.execPath : file;
-  const commandArgs = isYarn
-    ? [process.env.npm_execpath ?? "", "--silent", ...args]
-    : args;
-  const result = spawnSync(commandFile, commandArgs, {
-    cwd,
+export const defaultRunner: Runner = (command) => {
+  const spec = command.file === "yarn"
+    ? commandSpecFor(process.execPath, process.env.npm_execpath ?? "", command.args, command.cwd)
+    : command;
+  const result = spawnSync(spec.file, spec.args, {
+    cwd: spec.cwd,
     encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,
   });
   const stdout = result.stdout ?? "";
   const stderr = result.stderr ?? "";
-  if (logPath) {
-    fs.mkdirSync(path.dirname(logPath), { recursive: true });
-    fs.appendFileSync(logPath, `$ ${commandFile} ${commandArgs.join(" ")}\n--- stdout ---\n${stdout}\n--- stderr ---\n${stderr}\n`);
+  if (command.logPath) {
+    fs.mkdirSync(path.dirname(command.logPath), { recursive: true });
+    fs.appendFileSync(command.logPath, `$ ${spec.file} ${spec.args.join(" ")}\n--- stdout ---\n${stdout}\n--- stderr ---\n${stderr}\n`);
   }
   return {
     status: result.status,
@@ -110,28 +114,55 @@ export interface PublishingValues {
   premiumVersion: string;
 }
 
-export const readPublishingValues = (root: string, validateOutput = ""): PublishingValues => {
-  const listings = JSON.parse(fs.readFileSync(path.join(root, "analysis", "src", "data", "limitless-decks.json"), "utf8")) as {
-    sets?: Record<string, unknown>;
+export const readRequiredNodeVersion = (root: string): string => {
+  const file = path.join(root, ".nvmrc");
+  let value: string;
+  try {
+    value = fs.readFileSync(file, "utf8").trim().replace(/^v/, "");
+  } catch (error) {
+    throw new Error(`cannot read ${file}: ${String(error)}`, { cause: error });
+  }
+  if (!value) throw new Error(`${file} has no Node version`);
+  return value;
+};
+
+export const readPublishingValues = (scratchRoot: string, validateOutput: string): PublishingValues => {
+  const dataDir = path.join(scratchRoot, "analysis", "data");
+  const processed = JSON.parse(fs.readFileSync(path.join(dataDir, "processed-tournaments.json"), "utf8")) as unknown;
+  if (!Array.isArray(processed)) throw new Error("processed-tournaments.json is not an array");
+  const manifest = JSON.parse(fs.readFileSync(path.join(dataDir, "decks", "manifest.json"), "utf8")) as {
+    schema?: number;
+    shards?: Record<string, { count?: number }>;
   };
-  const sets = listings.sets;
-  if (!sets || typeof sets !== "object") throw new Error("limitless-decks.json has no sets object");
-  const entries = Object.values(sets);
-  const decks = entries.reduce<number>((total, entry) => {
-    const list = (entry as { decks?: unknown }).decks;
-    return total + (Array.isArray(list) ? list.length : 0);
-  }, 0);
-  const windows = ["10d", "20d", "30d", "all"]
-    .map((window) => {
-      const file = window === "all" ? "best-decks.json" : `best-decks-${window}.json`;
-      const value = JSON.parse(fs.readFileSync(path.join(root, "public", "data", file), "utf8")) as unknown;
-      return `${window}: ${Array.isArray(value) ? value.length : 0}`;
-    })
-    .join(", ");
-  const parity = validateOutput.split(/\r?\n/).find((line) => /image|png|slug/i.test(line))?.trim() ?? "validate:refresh reported image parity";
-  const version = JSON.parse(fs.readFileSync(path.join(root, "public", "data", "data-version.json"), "utf8")) as { premium?: string };
-  if (!version.premium) throw new Error("data-version.json has no premium version");
-  return { tournaments: entries.length, decks, windows, imageParity: parity, premiumVersion: version.premium };
+  if (manifest.schema !== 1 || !manifest.shards || typeof manifest.shards !== "object") {
+    throw new Error("decks/manifest.json has no shard counts");
+  }
+  const decks = Object.values(manifest.shards).reduce(
+    (total, shard) => total + (typeof shard.count === "number" ? shard.count : 0),
+    0
+  );
+  const windows = WINDOW_IDS.map((window) => {
+    const name = windowArtefactName("best-decks", window);
+    const premium = isPremiumWindow(window);
+    if (premium && !PREMIUM_ARTEFACT_NAMES.includes(name)) throw new Error(`${name} is not a premium artefact`);
+    const file = premium
+      ? path.join(scratchRoot, PREMIUM_RELATIVE_DIR, `${name}.json`)
+      : path.join(scratchRoot, "public", "data", windowDataFile("best-decks", window));
+    const value = JSON.parse(fs.readFileSync(file, "utf8")) as unknown;
+    return `${window}: ${Array.isArray(value) ? value.length : 0}`;
+  }).join(", ");
+  const parity = validateOutput
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find((line) => /^union:/i.test(line));
+  if (!parity) throw new Error("validate:refresh printed no image parity line");
+  return {
+    tournaments: processed.length,
+    decks,
+    windows,
+    imageParity: parity,
+    premiumVersion: readPremiumVersion(scratchRoot),
+  };
 };
 
 export const readPremiumVersion = (root: string): string => {
@@ -148,7 +179,7 @@ export const buildPrBody = (input: PublishingValues): string =>
     `- Premium data version \`${input.premiumVersion}\` in \`data-version.json\``,
   ].join("\n");
 
-export const commandSpecFor = (platform: string, execPath: string, npmExecPath: string, args: string[], cwd?: string): CommandSpec => {
+export const commandSpecFor = (execPath: string, npmExecPath: string, args: string[], cwd?: string): CommandSpec => {
   const yarnScript = npmExecPath.replace(/\\/g, "/");
   if (!/(^|\/)yarn\.(js|cjs)$/.test(yarnScript)) {
     throw new Error(`npm_execpath must point at yarn.js or yarn.cjs, got ${npmExecPath}`);
@@ -173,11 +204,40 @@ export const copyRawStore = (root: string, date: string): string => {
   return target;
 };
 
+export interface RecordingRunner {
+  runner: Runner;
+  commands: () => CommandSpec[];
+}
+
+export const createRecordingRunner = (scratch: string, headSha = "dry-run-head"): RecordingRunner => {
+  const commands: CommandSpec[] = [];
+  const runner: Runner = (command) => {
+    commands.push(command);
+    const text = command.args.join(" ");
+    if (text.startsWith("remote -v")) {
+      return { status: 0, stdout: `pocket\thttps://github.com/${CANONICAL_REPO}.git (fetch)\n`, stderr: "" };
+    }
+    if (text.startsWith("rev-parse --abbrev-ref")) return { status: 0, stdout: "feature/dry-run\n", stderr: "" };
+    if (text.startsWith("config user.email")) return { status: 0, stdout: "bot@example.invalid\n", stderr: "" };
+    if (text.startsWith("rev-parse HEAD")) return { status: 0, stdout: headSha, stderr: "" };
+    if (text.startsWith("refresh:outputs begin")) return { status: 0, stdout: `${scratch}\n`, stderr: "" };
+    if (text.startsWith("refresh:outputs classify")) return { status: 0, stdout: "public/data/best-decks.json\n", stderr: "" };
+    if (text.startsWith("validate:refresh")) {
+      return { status: 0, stdout: "union: 3 deck names, 3 OG images, 0 missing, 0 orphan\n", stderr: "" };
+    }
+    if (text.startsWith("pr view") && command.args.includes("headRefOid,url")) {
+      return { status: 0, stdout: `${JSON.stringify({ headRefOid: headSha, url: "https://github.com/pr/dry-run" })}\n`, stderr: "" };
+    }
+    if (text.startsWith("pr view")) return { status: 1, stdout: "", stderr: "" };
+    return { status: 0, stdout: "", stderr: "" };
+  };
+  return { runner, commands: () => commands };
+};
+
 export interface JobOptions {
   root: string;
   runner: Runner;
   date?: string;
-  dryRun?: boolean;
   sleep?: (ms: number) => Promise<void>;
 }
 
@@ -204,16 +264,15 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
     logPath = path.join(logDir, `${name}.log`);
     return { file, args, cwd, logPath };
   };
-  const yarn = (args: string[], cwd: string, name: string): CommandSpec =>
-    make(process.platform === "win32" ? "yarn.cmd" : "yarn", args, cwd, name);
+  const yarn = (args: string[], cwd: string, name: string): CommandSpec => make("yarn", args, cwd, name);
   const git = (args: string[], name: string): CommandSpec => make("git", args, root, name);
 
-  const failure = (
+  function failure(
     status: JobStatus,
     at: string,
     spec: CommandSpec,
     lines: string[]
-  ): never => {
+  ): never {
     throw new JobStop({
       status,
       step: at,
@@ -222,36 +281,21 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
       headSha: "",
       logPath: spec.logPath ?? logPath,
     });
-  };
+  }
 
   try {
-    if (options.dryRun) {
-      const planned: CommandSpec[] = [
-        git(["remote", "-v"], "remote-list"),
-        git(["fetch", "canonical", "refs/heads/main:refs/remotes/canonical/main"], "fetch-main"),
-        git(["fetch", "canonical", branch], "fetch-dated"),
-        git(["checkout", branch], "checkout-dated"),
-        yarn(["refresh:outputs", "begin"], path.join(root, "analysis"), "begin"),
-        yarn(["sync-pairings"], path.join(root, "analysis"), "sync"),
-        yarn(["golden:generate"], path.join(root, "analysis"), "golden"),
-        yarn(["store:verify"], path.join(root, "analysis"), "verify"),
-        yarn(["download"], path.join(root, "analysis"), "download"),
-        yarn(["card-printings:generate"], path.join(root, "analysis"), "printings"),
-        yarn(["start"], path.join(root, "analysis"), "start"),
-        yarn(["validate:refresh"], path.join(root, "analysis"), "validate"),
-        yarn(["refresh:outputs", "classify"], path.join(root, "analysis"), "classify"),
-        yarn(["publish:premium", "--dry-run"], path.join(root, "analysis"), "premium-dry"),
-        yarn(["publish:premium"], path.join(root, "analysis"), "premium-publish"),
-        yarn(["verify:premium"], path.join(root, "analysis"), "premium-verify"),
-        yarn(["refresh:outputs", "stage"], path.join(root, "analysis"), "stage"),
-        git(["commit", "-m", REFRESH_SUBJECT], "commit"),
-        git(["push", "canonical", branch], "push"),
-        make("gh", ["pr", "view", branch, "--json", "number", "--jq", ".number"], root, "pr-view"),
-        make("gh", ["pr", "create", "--base", "main", "--head", branch, "--title", REFRESH_SUBJECT, "--body", "<pr-body>"], root, "pr-create"),
-        make("gh", ["pr", "view", branch, "--json", "headRefOid,url"], root, "pr-readback"),
-      ];
-      for (const spec of planned) console.log(formatCommand(spec));
-      return { status: "silent", step: "dry-run", command: "", firstErrorLines: [], headSha: "", logPath };
+    const nodeSpec = make("node", ["--version"], root, "node-version");
+    let requiredNode: string;
+    try {
+      requiredNode = readRequiredNodeVersion(root);
+    } catch (error) {
+      failure("needs-person", "prerequisite", nodeSpec, [String(error)]);
+    }
+    if (process.version.replace(/^v/, "") !== requiredNode) {
+      failure("needs-person", "prerequisite", nodeSpec, [
+        `Node ${process.version} does not match .nvmrc ${requiredNode}`,
+        "Run the refresh with the Node version in .nvmrc",
+      ]);
     }
 
     const remotes = options.runner(git(["remote", "-v"], "remote-list"));
@@ -357,7 +401,8 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
     simple("step 7", nodeSpecFor(process.execPath, "scripts/build-deck-archive.mjs", scratch));
     simple("step 7", nodeSpecFor(process.execPath, "scripts/generate-deck-hub-slugs.mjs", scratch));
     simple("step 7", nodeSpecFor(process.execPath, "scripts/generate-deck-redirects.mjs", scratch));
-    simple("step 7", yarn(["validate:refresh"], scratchAnalysis, "validate"));
+    const validate = simple("step 7", yarn(["validate:refresh"], scratchAnalysis, "validate"));
+    const validateOutput = `${validate.stdout}\n${validate.stderr}`;
     simple("step 8", yarn(["test"], scratchAnalysis, "analysis-test"));
     simple("step 8", yarn(["typecheck"], scratchAnalysis, "analysis-typecheck"));
     simple("step 8", yarn(["typecheck"], scratch, "root-typecheck"));
@@ -373,9 +418,9 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
       return { status: "silent", step: "step 9", command: formatCommand(classifyCommand), firstErrorLines: [], headSha: "", logPath };
     }
 
-    let values: PublishingValues = { tournaments: 0, decks: 0, windows: "", imageParity: "", premiumVersion: "" };
+    let values: PublishingValues;
     try {
-      values = readPublishingValues(root, "");
+      values = readPublishingValues(scratch, validateOutput);
     } catch (error) {
       failure("failed", "step 9", yarn(["validate:refresh"], scratchAnalysis, "validate"), [String(error)]);
     }
@@ -383,15 +428,14 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
     simple("step 10", yarn(["publish:premium", "--dry-run"], scratchAnalysis, "premium-dry"));
     simple("step 10", yarn(["publish:premium"], scratchAnalysis, "premium-publish"));
     simple("step 10", yarn(["verify:premium"], scratchAnalysis, "premium-verify"));
-    if (!values) failure("failed", "step 10", yarn(["verify:premium"], scratchAnalysis, "premium-verify"), ["missing publishing values"]);
-    values.premiumVersion = readPremiumVersion(root);
+    values.premiumVersion = readPremiumVersion(scratch);
     simple("step 11", yarn(["refresh:outputs", "stage"], path.join(root, "analysis"), "stage"));
     simple("step 11", git(["commit", "-m", REFRESH_SUBJECT], "commit"));
 
     simple("step 12", git(["push", remote, branch], "push"));
     const localHead = simple("step 12", git(["rev-parse", "HEAD"], "head"));
     const headSha = localHead.stdout.trim();
-    const body = buildPrBody(values as PublishingValues);
+    const body = buildPrBody(values);
     const existing = options.runner(make("gh", ["pr", "view", branch, "--json", "number", "--jq", ".number"], root, "pr-view"));
     const prCommand = existing.status === 0 && existing.stdout.trim()
       ? make("gh", ["pr", "edit", existing.stdout.trim(), "--body", body], root, "pr-edit")
@@ -413,9 +457,27 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
 const invokedDirectly = process.argv[1] ? path.resolve(process.argv[1]) === __filename : false;
 
 if (invokedDirectly) {
-  const dryRun = process.argv.slice(2).includes("--dry-run");
-  void runJob({ root: path.resolve(__dirname, "..", ".."), runner: defaultRunner, dryRun }).then((outcome) => {
-    console.log(JSON.stringify(outcome));
+  const root = path.resolve(__dirname, "..", "..");
+  const exitFor = (outcome: JobOutcome): void => {
     process.exitCode = outcome.status === "published" || outcome.status === "silent" ? 0 : outcome.status === "needs-person" ? 2 : 1;
-  });
+  };
+  if (process.argv.slice(2).includes("--dry-run")) {
+    const recorder = createRecordingRunner(root);
+    void runJob({ root, runner: recorder.runner }).then((outcome) => {
+      for (const spec of recorder.commands()) console.log(formatCommand(spec));
+      console.log(JSON.stringify({
+        dryRun: true,
+        status: outcome.status,
+        step: outcome.step,
+        commandCount: recorder.commands().length,
+      }));
+      exitFor(outcome);
+    });
+  } else {
+    void runJob({ root, runner: defaultRunner }).then((outcome) => {
+      console.log(JSON.stringify(outcome));
+      exitFor(outcome);
+    });
+  }
 }
+

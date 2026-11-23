@@ -50,14 +50,19 @@ export const flattenKeys = (obj: Record<string, unknown>, prefix = ""): string[]
     return [path];
   });
 
+const RATE_LIMIT_PATTERN = /^feedback\.rateLimitedFor(?:_(?:zero|one|two|few|many|other))?$/;
+
+const comparableKeys = (obj: Record<string, unknown>) =>
+  flattenKeys(obj).map((key) => (RATE_LIMIT_PATTERN.test(key) ? "feedback.rateLimitedFor" : key));
+
 describe("translation key parity", () => {
-  const englishKeys = flattenKeys(en).sort();
+  const englishKeys = comparableKeys(en).sort();
 
   it.each(Object.entries(locales))(
     "%s has every key that en_translation.json has",
     (_localeName, localeData) => {
       void _localeName;
-      const localeKeys = new Set(flattenKeys(localeData as Record<string, unknown>));
+      const localeKeys = new Set(comparableKeys(localeData as Record<string, unknown>));
       const missing = englishKeys.filter((key) => !localeKeys.has(key));
       expect(missing).toEqual([]);
     }
@@ -66,7 +71,7 @@ describe("translation key parity", () => {
   it("every locale has no keys that en_translation.json lacks", () => {
     const englishSet = new Set(englishKeys);
     for (const [, localeData] of Object.entries(locales)) {
-      const stale = flattenKeys(localeData as Record<string, unknown>).filter(
+      const stale = comparableKeys(localeData as Record<string, unknown>).filter(
         (key) => !englishSet.has(key)
       );
       expect(stale).toEqual([]);

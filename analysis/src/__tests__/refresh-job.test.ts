@@ -8,12 +8,24 @@ import {
   MANUAL_REPAIR_MARKERS,
   REFRESH_SUBJECT,
   buildPrBody,
+  commandSpecFor,
+  createRecordingRunner,
+  defaultRunner,
   findCanonicalRemote,
   humanCommits,
   isSilentDay,
+  readPublishingValues,
   runJob,
 } from "../../scripts/refresh-job";
 import type { CommandResult, CommandSpec, Runner } from "../../scripts/refresh-job";
+
+const repoRoot = path.resolve(__dirname, "..", "..", "..");
+const realText = (relative: string): string => fs.readFileSync(path.join(repoRoot, relative), "utf8");
+const realJson = <T>(relative: string): T => JSON.parse(realText(relative)) as T;
+
+const PARITY = "union: 3 deck names, 3 OG images, 0 missing, 0 orphan";
+const WINDOWS = "10d: 1, 20d: 1, 30d: 1, all: 1";
+const VERSION = realJson<{ premium: string }>("public/data/data-version.json").premium;
 
 const ok = (stdout = "", overrides: Partial<CommandResult> = {}): CommandResult => ({
   status: 0,
@@ -22,20 +34,55 @@ const ok = (stdout = "", overrides: Partial<CommandResult> = {}): CommandResult 
   ...overrides,
 });
 
+const writeFixture = (root: string, relative: string, value: string): void => {
+  const target = path.join(root, relative);
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.writeFileSync(target, value);
+};
+
 const fixtureRoot = (): string => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "refresh-job-"));
-  fs.mkdirSync(path.join(root, "analysis", "src", "data"), { recursive: true });
-  fs.mkdirSync(path.join(root, "public", "data"), { recursive: true });
-  fs.writeFileSync(path.join(root, "analysis", "src", "data", "limitless-decks.json"), JSON.stringify({ updatedAt: "2026-11-20T05:08:52.718Z", currentSet: "C1", sets: { c1: { decks: [{ id: 1 }, { id: 2 }] } } }));
-  for (const file of ["best-decks-10d.json", "best-decks-20d.json", "best-decks-30d.json", "best-decks.json"]) fs.writeFileSync(path.join(root, "public", "data", file), JSON.stringify([{ id: "a" }]));
-  fs.writeFileSync(path.join(root, "public", "data", "data-version.json"), JSON.stringify({ premium: "version-1" }));
-  fs.mkdirSync(path.join(root, "public", "og", "deck"), { recursive: true });
-  fs.writeFileSync(path.join(root, "public", "og", "deck", "a.png"), "png");
+  const listings = realJson<{ sets: Record<string, { decks: unknown[] }> }>("analysis/src/data/limitless-decks.json");
+  const [setId] = Object.keys(listings.sets);
+  const trimmedListings = {
+    ...listings,
+    sets: { [setId]: { decks: listings.sets[setId].decks.slice(0, 2) } },
+  };
+  writeFixture(root, "analysis/src/data/limitless-decks.json", JSON.stringify(trimmedListings));
+
+  const processed = realJson<{ id: string; date: string }[]>("analysis/src/__fixtures__/decks.json")
+    .slice(0, 1)
+    .map(({ id, date }) => ({ id, date }));
+  writeFixture(root, "analysis/data/processed-tournaments.json", JSON.stringify(processed));
+  writeFixture(
+    root,
+    "analysis/data/decks/manifest.json",
+    JSON.stringify({
+      schema: 1,
+      shards: {
+        c1: { file: "c1.ndjson", count: processed.length, minDate: processed[0].date, maxDate: processed[0].date },
+      },
+    })
+  );
+
+  for (const file of ["best-decks-10d.json", "best-decks-20d.json", "best-decks.json"]) {
+    const decks = realJson<unknown[]>(`public/data/${file}`).slice(0, 1);
+    writeFixture(root, `public/data/${file}`, JSON.stringify(decks));
+  }
+  const premiumDecks = realJson<unknown[]>("public/data/best-decks-20d.json").slice(0, 1);
+  for (const file of ["best-decks-30d.json", "best-decks-all.json"]) {
+    writeFixture(root, `analysis/out/premium/${file}`, JSON.stringify(premiumDecks));
+  }
+  writeFixture(root, "public/data/data-version.json", realText("public/data/data-version.json"));
+  writeFixture(root, ".nvmrc", realText(".nvmrc"));
   return root;
 };
 
-const scratchRoot = (): string => {
+const scratchRoot = (source: string): string => {
   const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "refresh-scratch-"));
+  for (const relative of ["public", "analysis/data", "analysis/out"]) {
+    fs.cpSync(path.join(source, relative), path.join(scratch, relative), { recursive: true });
+  }
   fs.mkdirSync(path.join(scratch, "analysis"), { recursive: true });
   return scratch;
 };
@@ -47,14 +94,12 @@ interface Harness {
   scratch: string;
   calls: CommandSpec[];
   runner: Runner;
-  sleeps: number[];
 }
 
 const harness = (overrides: (command: CommandSpec, calls: CommandSpec[]) => CommandResult | undefined): Harness => {
   const root = fixtureRoot();
-  const scratch = scratchRoot();
+  const scratch = scratchRoot(root);
   const calls: CommandSpec[] = [];
-  const sleeps: number[] = [];
   const runner: Runner = (command) => {
     calls.push(command);
     const text = commandText(command);
@@ -66,14 +111,20 @@ const harness = (overrides: (command: CommandSpec, calls: CommandSpec[]) => Comm
     if (text.startsWith("rev-parse --abbrev-ref")) return ok("feature/x\n");
     if (text.startsWith("config user.email")) return ok("bot@example.invalid\n");
     if (text.startsWith("refresh:outputs begin")) return ok(`${scratch}\n`);
+    if (text.startsWith("validate:refresh")) return ok(`${PARITY}\n`);
     if (text.startsWith("refresh:outputs classify")) return ok("\n");
     if (text.startsWith("pr view")) return ok("", { status: 1 });
     if (text.startsWith("pr create")) return ok("https://github.com/pr/1\n");
     if (text.startsWith("rev-parse HEAD")) return ok("headsha\n");
-    return overrides(command, calls) ?? ok();
+    return ok();
   };
-  return { root, scratch, calls, runner, sleeps };
+  return { root, scratch, calls, runner };
 };
+
+const publishingClassify = (command: CommandSpec): CommandResult | undefined =>
+  commandText(command).startsWith("refresh:outputs classify")
+    ? ok("analysis/src/data/limitless-decks.json\n")
+    : undefined;
 
 describe("refresh job decisions with a fake runner", () => {
   it("finds the canonical remote by its GitHub URL", () => {
@@ -94,7 +145,7 @@ describe("refresh job decisions with a fake runner", () => {
   });
 
   it("builds a PR body from fixed fields", () => {
-    expect(buildPrBody({ tournaments: 2, decks: 7, windows: "10d: 1, 20d: 1, 30d: 1, all: 1", imageParity: "checked", premiumVersion: "v1" })).toContain("Premium data version `v1`");
+    expect(buildPrBody({ tournaments: 2, decks: 7, windows: WINDOWS, imageParity: PARITY, premiumVersion: "v1" })).toContain("Premium data version `v1`");
   });
 
   it("keeps manual repair markers sourced from the store files", () => {
@@ -137,9 +188,8 @@ describe("refresh job decisions with a fake runner", () => {
 
   it("edits an existing pull request instead of creating another", async () => {
     const h = harness((c) => {
-      if (commandText(c).startsWith("pr view")) return ok("42\n");
-      if (commandText(c).startsWith("refresh:outputs classify")) return ok("analysis/src/data/limitless-decks.json\n");
-      return undefined;
+      if (commandText(c).startsWith("pr view") && c.args.includes("--jq")) return ok("42\n");
+      return publishingClassify(c);
     });
     await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
     expect(h.calls.some((c) => commandText(c).startsWith("pr edit 42"))).toBe(true);
@@ -172,34 +222,106 @@ describe("refresh job decisions with a fake runner", () => {
     expect(outcome.status).toBe("silent");
   });
 
-  it("takes the PR body values from the generated files", async () => {
+  it("reads publishing values from trimmed real files at their real paths", () => {
+    const root = fixtureRoot();
+    const scratch = scratchRoot(root);
+    expect(readPublishingValues(scratch, `${PARITY}\n`)).toEqual({
+      tournaments: 1,
+      decks: 1,
+      windows: WINDOWS,
+      imageParity: PARITY,
+      premiumVersion: VERSION,
+    });
+    expect(() => readPublishingValues(scratch, "no parity here\n")).toThrow(/no image parity line/);
+  });
+
+  it("takes the PR body values from the generated scratch outputs", async () => {
     const bodies: string[] = [];
     const h = harness((c) => {
       if (commandText(c).startsWith("pr create")) bodies.push(c.args.join(" "));
-      if (commandText(c).startsWith("refresh:outputs classify")) return ok("analysis/src/data/limitless-decks.json\n");
-      return undefined;
+      return publishingClassify(c);
     });
     await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
-    expect(bodies.join(" ")).toContain("Tournament data: 1 tournaments processed, 2 decks");
-    expect(bodies.join(" ")).toContain("version-1");
+    expect(bodies.join(" ")).toContain(`Tournament data: 1 tournaments processed, 1 decks`);
+    expect(bodies.join(" ")).toContain(`Ranked archetypes: ${WINDOWS}`);
+    expect(bodies.join(" ")).toContain(`Image parity: ${PARITY}`);
+    expect(bodies.join(" ")).toContain(VERSION);
+  });
+
+  it("fails the run when validate:refresh prints no parity line", async () => {
+    const h = harness((c) => {
+      if (commandText(c).startsWith("validate:refresh")) return ok("no parity here\n");
+      return publishingClassify(c);
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("failed");
+    expect(outcome.step).toBe("step 9");
+    expect(outcome.firstErrorLines.join(" ")).toContain("no image parity line");
+  });
+
+  it("stops for a person when Node does not match .nvmrc", async () => {
+    const h = harness(() => undefined);
+    writeFixture(h.root, ".nvmrc", "0.0.0\n");
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("prerequisite");
+    expect(outcome.firstErrorLines.join(" ")).toContain("does not match .nvmrc");
+  });
+
+  it("stops for a person when .nvmrc cannot be read", async () => {
+    const h = harness(() => undefined);
+    fs.rmSync(path.join(h.root, ".nvmrc"));
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("prerequisite");
+    expect(outcome.firstErrorLines.join(" ")).toContain("cannot read");
   });
 
   it("reaches step 13 on a full publishing day with real file shapes", async () => {
     const h = harness((c) => {
-      if (commandText(c).startsWith("refresh:outputs classify")) return ok("analysis/src/data/limitless-decks.json\n");
       if (commandText(c).startsWith("pr create")) return ok("https://github.com/pr/2\n");
-      if (commandText(c).startsWith("pr view") && c.args.includes("--json") && c.args.includes("headRefOid,url")) return ok(JSON.stringify({ headRefOid: "headsha", url: "https://github.com/pr/2" }) + "\n");
-      return undefined;
+      if (commandText(c).includes("headRefOid,url")) return ok(`${JSON.stringify({ headRefOid: "headsha", url: "https://github.com/pr/2" })}\n`);
+      return publishingClassify(c);
     });
     const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
     expect(outcome.status).toBe("published");
     expect(outcome.step).toBe("step 13");
   });
 
-  it("spawns Yarn through process.execPath and never yarn.cmd", () => {
+  it("records the whole plan through runJob for --dry-run", async () => {
+    const root = fixtureRoot();
+    const recorder = createRecordingRunner(root, "headsha");
+    const outcome = await runJob({ root, runner: recorder.runner, date: "2026-11-23" });
+    const texts = recorder.commands().map(commandText);
+    expect(outcome.status).toBe("published");
+    expect(texts).toContain("remote -v");
+    expect(texts).toContain("refresh:outputs begin");
+    expect(texts).toContain("validate:refresh");
+    expect(texts).toContain("publish:premium --dry-run");
+    expect(texts).toContain("refresh:outputs stage");
+    expect(texts.some((text) => text.startsWith("pr create"))).toBe(true);
+    expect(recorder.commands().every((command) => command.file !== "yarn.cmd")).toBe(true);
+  });
+
+  it("spawns Yarn through the validated command spec", () => {
     const source = fs.readFileSync(path.resolve(__dirname, "../../scripts/refresh-job.ts"), "utf8");
-    expect(source).toContain("process.execPath");
-    expect(source).toContain("process.env.npm_execpath");
+    expect(source).toContain("commandSpecFor(process.execPath");
     expect(source).not.toContain('spawnSync("yarn.cmd"');
+    expect(commandSpecFor(process.execPath, "/usr/local/bin/yarn.js", ["test"])).toEqual({
+      file: process.execPath,
+      args: ["/usr/local/bin/yarn.js", "--silent", "test"],
+      cwd: undefined,
+    });
+  });
+
+  it("refuses a non-yarn exec path before spawning", () => {
+    const previous = process.env.npm_execpath;
+    process.env.npm_execpath = "/usr/local/bin/npm-cli.js";
+    try {
+      expect(() => defaultRunner({ file: "yarn", args: ["test"] })).toThrow(/npm_execpath/);
+    } finally {
+      if (previous === undefined) delete process.env.npm_execpath;
+      else process.env.npm_execpath = previous;
+    }
   });
 });

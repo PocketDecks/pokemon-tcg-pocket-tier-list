@@ -1,6 +1,6 @@
 # Acknowledgements
 
-Chase Manning started the project and wrote its first commits.
+Chase Manning started the project in November 2024 and wrote most of its commits.
 
 Tournament results come from [Limitless](https://limitlesstcg.com/). Card data comes from [pokemon-tcg-pocket-cards](https://github.com/PocketDecks/pokemon-tcg-pocket-cards).
 

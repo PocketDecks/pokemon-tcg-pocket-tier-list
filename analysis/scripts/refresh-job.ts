@@ -34,6 +34,7 @@ export interface JobOutcome {
   firstErrorLines: string[];
   headSha: string;
   logPath: string;
+  reviewUrl: string;
 }
 
 export const CANONICAL_REPO = "PocketDecks/pokemon-tcg-pocket-tier-list";
@@ -196,6 +197,9 @@ export const storeLockRetry = (output: string): boolean =>
 export const isMissingRemoteBranch = (output: string): boolean =>
   /couldn't find remote ref/i.test(output);
 
+export const isMainFetchRejection = (output: string): boolean =>
+  /\[rejected\][^\n]*\(non-fast-forward\)/i.test(output);
+
 export const needsPersonForRefusal = (output: string): boolean =>
   MANUAL_REPAIR_MARKERS.some((marker) => output.toLowerCase().includes(marker));
 
@@ -222,12 +226,22 @@ const firstErrorReport = (entries: string[]): string[] => {
     .filter(Boolean);
   const isInstruction = (line: string): boolean => /^yarn(?:\.cmd)?\s/.test(line);
   const instruction = lines.filter(isInstruction);
-  const error = lines.filter((line) =>
-    !isInstruction(line) &&
-    (needsPersonForRefusal(line) || storeLockRetry(line) || /error|ENOENT|ENOBUFS|exception|refused/i.test(line))
+  const instructionSet = new Set(instruction);
+  const decided = lines.filter((line) =>
+    !instructionSet.has(line) && (needsPersonForRefusal(line) || storeLockRetry(line))
   );
-  const rest = lines.filter((line) => !instruction.includes(line) && !error.includes(line));
-  const chosen = [...instruction, ...error, ...rest.slice(-MAX_ERROR_LINES)];
+  const decidedSet = new Set(decided);
+  const otherError = lines.filter((line) =>
+    !instructionSet.has(line) && !decidedSet.has(line) && /error|ENOENT|ENOBUFS|exception|refused/i.test(line)
+  );
+  const errorSet = new Set([...decided, ...otherError]);
+  const progress = lines.filter((line) => !instructionSet.has(line) && !errorSet.has(line));
+  const chosen = [
+    ...instruction,
+    ...decided,
+    ...otherError.slice(-MAX_ERROR_LINES),
+    ...progress.slice(-MAX_ERROR_LINES),
+  ];
   const report: string[] = [];
   let budget = MAX_ERROR_REPORT_CHARS;
   for (const line of chosen) {
@@ -330,6 +344,7 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
       firstErrorLines: firstErrorReport(lines),
       headSha: "",
       logPath: spec.logPath ?? logPath,
+      reviewUrl: "",
     });
   }
 
@@ -368,10 +383,13 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
       const pull = options.runner(git(["pull", "--ff-only", remote, "main"], "pull-main"));
       if (pull.status !== 0) failure("failed", "step 1", git(["pull", "--ff-only", remote, "main"], "pull-main"), [pull.stderr]);
     } else {
-      const fetchMain = options.runner(git(["fetch", remote, "refs/heads/main:refs/remotes/" + remote + "/main"], "fetch-main"));
-      if (fetchMain.status !== 0) failure("failed", "step 1", git(["fetch", remote, "refs/heads/main:refs/remotes/" + remote + "/main"], "fetch-main"), [fetchMain.stderr]);
-      const forceBranch = options.runner(git(["branch", "-f", "main", `refs/remotes/${remote}/main`], "force-main"));
-      if (forceBranch.status !== 0) failure("failed", "step 1", git(["branch", "-f", "main", `refs/remotes/${remote}/main`], "force-main"), [forceBranch.stderr]);
+      const mainCommand = git(["fetch", remote, "refs/heads/main:refs/heads/main"], "fetch-main");
+      const fetchMain = options.runner(mainCommand);
+      if (fetchMain.status !== 0) {
+        const output = fetchMain.stderr || fetchMain.stdout || fetchMain.error || "";
+        const rejected = isMainFetchRejection(output);
+        failure(rejected ? "needs-person" : "failed", "step 1", mainCommand, rejected ? ["main", output] : [output]);
+      }
     }
 
     const fetchCommand = git(["fetch", remote, branch], "fetch-dated");
@@ -487,7 +505,7 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
     if (classify.status !== 0) failure("failed", "step 9", classifyCommand, [classify.stderr]);
     if (isSilentDay(classify.stdout)) {
       simple("step 9", yarn(["refresh:outputs", "discard"], path.join(root, "analysis"), "discard"));
-      return { status: "silent", step: "step 9", command: formatCommand(classifyCommand), firstErrorLines: [], headSha: "", logPath };
+      return { status: "silent", step: "step 9", command: formatCommand(classifyCommand), firstErrorLines: [], headSha: "", logPath, reviewUrl: "" };
     }
 
     let values: PublishingValues;
@@ -526,14 +544,14 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
     simple("step 12", prCommand);
 
     const readBack = simple("step 13", make("gh", ["pr", "view", branch, "--json", "headRefOid,url"], root, "pr-readback"));
-    const parsed = JSON.parse(readBack.stdout) as { headRefOid: string };
+    const parsed = JSON.parse(readBack.stdout) as { headRefOid: string; url: string };
     if (parsed.headRefOid !== headSha) {
       failure("failed", "step 13", make("gh", ["pr", "view", branch, "--json", "headRefOid,url"], root, "pr-readback"), [headSha, parsed.headRefOid]);
     }
-    return { status: "published", step: "step 13", command: "", firstErrorLines: [], headSha, logPath };
+    return { status: "published", step: "step 13", command: "", firstErrorLines: [], headSha, logPath, reviewUrl: parsed.url };
   } catch (error) {
     if (error instanceof JobStop) return error.outcome;
-    return { status: "failed", step, command: commandText, firstErrorLines: [String(error)], headSha: "", logPath };
+    return { status: "failed", step, command: commandText, firstErrorLines: [String(error)], headSha: "", logPath, reviewUrl: "" };
   }
 };
 
@@ -553,6 +571,7 @@ if (invokedDirectly) {
         status: outcome.status,
         step: outcome.step,
         commandCount: recorder.commands().length,
+        reviewUrl: outcome.reviewUrl,
       }));
       exitFor(outcome);
     });

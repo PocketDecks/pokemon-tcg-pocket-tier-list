@@ -536,7 +536,14 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
         if (remoteAutomationLog.status !== 0) failure("failed", "step 9", remoteAutomationCommand, [remoteAutomationLog.stderr]);
         automationCommits.push(...commitSummaries(remoteAutomationLog.stdout));
       }
-      if (automationCommits.length > 0) {
+      const uniqueHashes = new Set<string>();
+      const distinctCommits = automationCommits.filter((line) => {
+        const hash = line.split(" ", 1)[0];
+        if (uniqueHashes.has(hash)) return false;
+        uniqueHashes.add(hash);
+        return true;
+      });
+      if (distinctCommits.length > 0) {
         const base = remoteExists ? `refs/remotes/${remote}/${branch}` : "main";
         const unpublishedCommand = git(["log", "--format=%h%x1f%an%x1f%ae%x1f%s", `${base}..${branch}`], "unpublished-log");
         const unpublishedLog = options.runner(unpublishedCommand);
@@ -549,7 +556,7 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
         const prCheck = options.runner(prCheckCommand);
         const checked = prState(prCheck.stdout);
         if (prCheck.status !== 0 || !checked || checked.state !== "OPEN") {
-          failure("needs-person", "step 9", prCheckCommand, [`no open pull request for ${branch}`, ...automationCommits]);
+          failure("needs-person", "step 9", prCheckCommand, [`no open pull request for ${branch}`, ...distinctCommits]);
         }
       }
       simple("step 9", yarn(["refresh:outputs", "discard"], path.join(root, "analysis"), "discard"));

@@ -2,6 +2,10 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const PERMITTED_CROSSINGS: Record<string, { specifier: string; reason: string }> = {
+  "src/__tests__/refresh-job.test.ts": {
+    specifier: "../../scripts/refresh-job",
+    reason: "the job decisions live in the script, so the test calls the exported functions the runner uses",
+  },
   "src/__tests__/deck-name-golden.test.ts": {
     specifier: "../../scripts/generate-deck-name-golden",
     reason:

@@ -14,6 +14,7 @@ import {
   FEEDBACK_MAX_LENGTH,
   FEEDBACK_MIN_LENGTH,
   FEEDBACK_PAGE_MAX_LENGTH,
+  FEEDBACK_THROTTLE_MS,
   type FeedbackCategory,
 } from "../../app/feedback";
 
@@ -333,7 +334,7 @@ const FeedbackPage = () => {
     try {
       const lastAt = await readFeedbackThrottle(user.uid);
       if (lastAt !== null) {
-        const remaining = lastAt + 3_600_000 - Date.now();
+        const remaining = lastAt + FEEDBACK_THROTTLE_MS - Date.now();
         if (remaining > 0) {
           setRateLimitMinutes(Math.max(1, Math.ceil(remaining / 60_000)));
           setStatus("limited");

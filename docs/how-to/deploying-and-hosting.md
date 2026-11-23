@@ -102,38 +102,62 @@ Four workflows in `.github/workflows/` handle deployment, checks and pairings
 updates:
 
 - `preview.yml`, named `Preview`, runs the `preview` job for pull requests from
-  the same repository. It runs `yarn check:generated`, `yarn build`, the root
-  test suites and the analysis typecheck and test suite. Same-repository
-  Dependabot pull requests run the checks but skip the deploy step. Other
-  same-repository pull requests receive a preview URL.
-- `deploy.yml`, named `Deploy`, runs the `deploy` job on pushes to `main`. It
-  runs the build and test gates, verifies premium data, and deploys to
-  `channelId: live`.
+  the same repository. It checks generated files, runs `yarn build:site` and
+  deploys a preview channel. Same-repository Dependabot pull requests build
+  with placeholder Firebase values and skip the deploy step. Other
+  same-repository pull requests receive a preview URL
+- `deploy.yml`, named `Deploy`, starts when CI completes on a push to `main`
+  with a successful conclusion. It checks out the triggering commit, runs
+  `yarn build:site`, verifies premium data and deploys to `channelId: live`
 - `ci.yml`, named `CI`, runs the checks on pushes to and pull requests against
-  `main`. See [Running the frontend checks](running-frontend-checks.md#what-ci-runs)
-  for the job breakdown.
+  `main`, and accepts manual dispatch. See [Running the frontend checks](running-frontend-checks.md#what-ci-runs)
+  for the job breakdown
 - `sync-pairings.yml`, named `Sync pairings`, runs the `sync` job every Monday
   at 10:00 UTC and on manual dispatch. It runs `yarn sync-pairings`, typechecks
   and tests `analysis/`, then opens or updates a pull request when
-  `analysis/src/data/limitless-decks.json` changes.
+  `analysis/src/data/limitless-decks.json` changes and dispatches CI on that
+  branch
 
 Running `firebase init hosting:github` again recreates the generated Hosting
 workflows; its merge workflow adds a second live deployment beside `deploy.yml`.
 
 The Deploy workflow uses the `deploy-live` concurrency group, `queue: max` and
 `cancel-in-progress: false`. It keeps the active run and allows up to 100
-pending live runs. After checkout, it checks whether the commit is still the
-tip of `main`. A stale commit skips setup, dependency installation, builds
-and tests. A second check runs before deployment, so a run that becomes stale
-during validation skips the deploy action. The newest `main` commit stays
-eligible for deployment when its gates pass.
-When 100 runs are already pending, GitHub cancels any additional run, so the
-newest commit may not deploy. Rerun the workflow for the newest commit or push
-again to start a new run.
-If the newest commit fails its checks, nothing deploys and live stays on the
-last deployed commit.
-Every push to main must trigger this workflow. Do not use `[skip ci]` or push
-with `GITHUB_TOKEN`.
+pending live runs. After checkout, it compares the triggering commit with the
+tip of `main`, then repeats that check before deploying. A stale commit skips
+setup, dependency installation, the build and premium verification. The newest
+`main` commit stays eligible for deployment when its CI run succeeds. When 100
+runs are already pending, GitHub cancels any additional run, so the newest
+commit may not deploy. Rerun Deploy for that commit or push again to start a
+new run. If the newest commit fails its checks, nothing deploys and live stays
+on the last deployed commit
+
+A push to `main` starts CI, and a successful CI run for a push starts Deploy.
+Deploy checks out the CI run's head SHA rather than its own, and uses that SHA
+in both freshness checks. Do not use `[skip ci]` or push with `GITHUB_TOKEN`.
+Manual dispatch of CI does not start Deploy, because Deploy only accepts a
+completed push run
+
+The `frontend`, `analysis`, `kofi` and `actionlint` jobs in `ci.yml` are the
+required checks on pull requests into `main`. Preview does not gate merging. A
+sync branch needs those checks before its PR can merge, so the sync job
+dispatches CI with `gh workflow run ci.yml --ref` after it pushes the branch
+
+Every workflow job has a `timeout-minutes` limit: `frontend` 15, `analysis` 10,
+`kofi` 10, `actionlint` 5, `preview` 25, `deploy` 25 and `sync` 15. The
+Firestore rules step inside `frontend` has its own five-minute limit, since an
+emulator hang is the likeliest stall
+
+The `actionlint` job downloads release v1.7.12 for `linux_amd64`, verifies the
+archive against `actionlint_1.7.12_checksums.txt` with `sha256sum -c` and runs
+it with shellcheck on the runner. `.github/actionlint.yaml` ignores the
+unsupported `queue` key in `deploy.yml` and `sync-pairings.yml` while upstream
+PR #654 remains unmerged
+
+Every third-party action in `.github/` is pinned to a 40-character commit SHA
+with a `# vX.Y.Z` comment. Dependabot's `github-actions` entry reads those
+comments and proposes updates. When you apply an update, keep the SHA and its
+comment in step, and check both directories listed in `.github/dependabot.yml`
 
 Both deploy workflows inject the Firebase web configuration as
 `VITE_FIREBASE_*` environment variables from repository secrets.

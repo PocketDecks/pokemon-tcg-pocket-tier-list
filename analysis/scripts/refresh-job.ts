@@ -405,7 +405,7 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
     }
 
     const downloadCommand = yarn(["download"], scratchAnalysis, "download");
-    const outputOf = (result: CommandResult): string => `${result.stdout}\n${result.stderr}`;
+    const outputOf = (result: CommandResult): string => `${result.stdout}\n${result.stderr}${result.error ? `\n${result.error}` : ""}`;
     const stopWithBackup = (output: string): never => {
       copyRawStore(root, date);
       failure("needs-person", "step 6", downloadCommand, [output]);

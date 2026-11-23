@@ -122,8 +122,7 @@ jobs:
       - name: Install actionlint
         run: |
           curl -fsSLO "https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz"
-          curl -fsSLO "https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_checksums.txt"
-          sha256sum -c actionlint_1.7.12_checksums.txt --ignore-missing
+          printf '%s  %s\n' "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8" "actionlint_1.7.12_linux_amd64.tar.gz" | sha256sum -c -
           tar -xzf actionlint_1.7.12_linux_amd64.tar.gz actionlint
 
       - name: Run actionlint

@@ -109,7 +109,7 @@ describe("refresh job file lists", () => {
 
   it("runs validate:refresh from analysis and stops on every late step", () => {
     const generation = step("7. From", "8. Run");
-    expect(generation).toMatch(/From `analysis\/`, run `yarn\.cmd validate:refresh`/);
+    expect(generation).toMatch(/From `analysis\/`, run `yarn validate:refresh`/);
     expect(generation).toContain("analysis/package.json");
     for (const [start, end] of [
       ["9. From", "10. From"],
@@ -170,7 +170,7 @@ describe("refresh job file lists", () => {
   });
 
   it("uses canonical premium retention and documents publication lock recovery", () => {
-    const prerequisite = step("## Prerequisite", "## Prompt");
+    const prerequisite = step("## Prerequisite", "## Steps the job runs");
     const checkout = step("1. Work", "2. Create");
     expect(prerequisite).toMatch(/GitHub repository URL[\s\S]*?canonical `main`/i);
     expect(prerequisite).toMatch(/deployed version[\s\S]*?open pull requests?/i);
@@ -188,8 +188,8 @@ describe("refresh job file lists", () => {
 
   it("names the publishability guard beside the generation command", () => {
     const generation = step("7. From", "8. Run");
-    expect(generation).toContain("yarn.cmd start");
-    expect(generation.indexOf("yarn.cmd start")).toBeLessThan(generation.indexOf("assertPublishable"));
+    expect(generation).toContain("yarn start");
+    expect(generation.indexOf("yarn start")).toBeLessThan(generation.indexOf("assertPublishable"));
   });
 
   it("names generated hub files in the commit and silent-day instructions", () => {
@@ -221,6 +221,6 @@ describe("refresh job file lists", () => {
     expect(check).toContain("includes ignored premium outputs");
     expect(check).toContain("hub files count as output");
     expect(job).not.toContain("A run with no tracked output changes is silent");
-    expect(job).toContain("A run is silent only when `yarn.cmd refresh:outputs classify` prints no paths");
+    expect(job).toContain("A run is silent only when `yarn refresh:outputs classify` prints no paths");
   });
 });

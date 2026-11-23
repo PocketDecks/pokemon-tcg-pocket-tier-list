@@ -283,9 +283,20 @@ describe("refresh job file lists", () => {
     expect(silent).toContain("checks the local and remote dated branches");
     expect(silent).toContain("--json state` shows `MERGED");
     expect(silent).toContain("git log refs/remotes/<remote>/<branch>..<branch>` prints nothing");
-    expect(silent).toContain("git checkout main");
-    expect(silent).toContain("git branch -D <branch>");
-    expect(silent).toContain("git push <remote> --delete <branch>");
+    const merged = silent.slice(silent.indexOf("For a merged pull request"), silent.indexOf("On Windows 11"));
+    const sequence = [
+      "yarn refresh:outputs discard",
+      "git checkout main",
+      "git branch -D <branch>",
+      "git push <remote> --delete <branch>",
+    ];
+    let cursor = merged.indexOf(sequence[0]);
+    expect(cursor).toBeGreaterThanOrEqual(0);
+    for (const step of sequence.slice(1)) {
+      const next = merged.indexOf(step, cursor + 1);
+      expect(next, `${step} must follow the earlier recovery steps`).toBeGreaterThan(cursor);
+      cursor = next;
+    }
     expect(silent).toContain("yarn.cmd refresh:outputs discard");
     expect(silent).not.toContain("delete the local dated branch and start again");
     expect(publish).not.toContain("the next run reuses it");

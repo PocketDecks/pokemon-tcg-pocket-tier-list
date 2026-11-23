@@ -135,7 +135,7 @@ export const planDeckWrites = (dir: string, incoming: readonly StoredDeck[]): Re
     const knownIds = new Set(parseLines(previousText).map((deck) => deck.id));
     const duplicate = group.find((deck) => knownIds.has(deck.id));
     if (duplicate) {
-      throw new Error(`Deck ${duplicate.id} already exists in shard ${id}`);
+      throw new Error(duplicateDeckMessage(duplicate.id, id));
     }
     files[target] = previousText + toLines(group);
     manifest.shards[id] = widen(existing, group, file, (existing?.count ?? 0) + group.length);
@@ -168,6 +168,12 @@ export const interruptedWriteMessage = (stale: string[]): string =>
   "commit completion is unknown: do not restore or delete staging files; " +
   "keep the write blocked and inspect the store; afterwards run store:verify";
 
+export const duplicateDeckMessage = (id: string, shard: string): string =>
+  `Deck ${id} already exists in shard ${shard}`;
+
+export const interruptedProcessedMessage = (base: string, suffix: string): string =>
+  `interrupted processed-tournaments write: ${base}${suffix}`;
+
 export interface StoreProblem {
   shard: string;
   message: string;
@@ -179,7 +185,7 @@ const verifyProcessedFile = (processed: string, hasShards: boolean): StoreProble
   const parent = path.dirname(processed);
   for (const suffix of STAGING_SUFFIXES) {
     if (fs.existsSync(path.join(parent, `${base}${suffix}`))) {
-      problems.push({ shard: base, message: `interrupted processed-tournaments write: ${base}${suffix}` });
+      problems.push({ shard: base, message: interruptedProcessedMessage(base, suffix) });
     }
   }
   if (!fs.existsSync(processed)) {

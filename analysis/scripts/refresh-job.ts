@@ -325,7 +325,7 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
     if (staged.status !== 0) failure("failed", "step 1", indexCommand, [staged.stderr]);
     const stagedPaths = staged.stdout.split(/\r?\n/).map((entry) => entry.trim()).filter(Boolean);
     if (stagedPaths.length > 0) {
-      failure("needs-person", "step 1", indexCommand, [`index has entries outside generated paths: ${stagedPaths.join(", ")}`]);
+      failure("needs-person", "step 1", indexCommand, [`index already holds entries: ${stagedPaths.join(", ")}`]);
     }
 
     const remotes = options.runner(git(["remote", "-v"], "remote-list"));
@@ -432,6 +432,7 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
       } else if (decision === "rerun") {
         download = options.runner(downloadCommand);
         output = outputOf(download);
+        if (download.status === null || download.signal) stopForDiscard(output);
         if (classifyDownloadFailure(output) === "needs-person") stopWithBackup(output);
         if (download.status !== 0) failure("failed", "step 6", downloadCommand, [output]);
       } else {

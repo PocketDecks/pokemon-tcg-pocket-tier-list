@@ -211,6 +211,34 @@ export const classifyDownloadFailure = (output: string): DownloadDecision => {
   return "fail";
 };
 
+const MAX_ERROR_LINES = 5;
+const MAX_ERROR_LINE_CHARS = 500;
+const MAX_ERROR_REPORT_CHARS = 3_000;
+
+const firstErrorReport = (entries: string[]): string[] => {
+  const lines = entries
+    .flatMap((entry) => entry.split(/\r?\n/))
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const isInstruction = (line: string): boolean => /^yarn(?:\.cmd)?\s/.test(line);
+  const instruction = lines.filter(isInstruction);
+  const error = lines.filter((line) =>
+    !isInstruction(line) &&
+    (needsPersonForRefusal(line) || storeLockRetry(line) || /error|ENOENT|ENOBUFS|exception|refused/i.test(line))
+  );
+  const rest = lines.filter((line) => !instruction.includes(line) && !error.includes(line));
+  const chosen = [...instruction, ...error, ...rest.slice(-MAX_ERROR_LINES)];
+  const report: string[] = [];
+  let budget = MAX_ERROR_REPORT_CHARS;
+  for (const line of chosen) {
+    if (report.length === MAX_ERROR_LINES || budget <= 0) break;
+    const text = line.slice(0, Math.min(MAX_ERROR_LINE_CHARS, budget));
+    report.push(text);
+    budget -= text.length + 1;
+  }
+  return report;
+};
+
 export const copyRawStore = (root: string, date: string): string => {
   const target = path.join(root, "analysis", "data-backup", date);
   fs.cpSync(path.join(root, "analysis", "data"), target, { recursive: true });
@@ -299,7 +327,7 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
       status,
       step: at,
       command: formatCommand(spec),
-      firstErrorLines: lines.slice(0, 5),
+      firstErrorLines: firstErrorReport(lines),
       headSha: "",
       logPath: spec.logPath ?? logPath,
     });

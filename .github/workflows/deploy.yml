@@ -13,7 +13,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Check main freshness after checkout
@@ -57,7 +57,7 @@ jobs:
       - run: yarn test
         if: steps.early_latest.outputs.is_latest == 'true'
         working-directory: analysis
-      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         if: steps.early_latest.outputs.is_latest == 'true'
         with:
           credentials_json: ${{ secrets.FIREBASE_PREMIUM_VERIFIER }}
@@ -75,7 +75,7 @@ jobs:
             echo "is_latest=false" >> "$GITHUB_OUTPUT"
             echo "Skipping stale deployment for $GITHUB_SHA."
           fi
-      - uses: FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a
+      - uses: FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a # v0.11.0
         if: "${{ steps.early_latest.outputs.is_latest == 'true' && steps.latest.outputs.is_latest == 'true' }}"
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"

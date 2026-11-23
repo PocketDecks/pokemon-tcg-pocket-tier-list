@@ -31,7 +31,6 @@ reviews:
     - "!public/data/**"
     - "!public/og/**"
     - "!src/app/__fixtures__/**"
-    - "!.agents/**"
     - "!**/yarn.lock"
 
   path_instructions:

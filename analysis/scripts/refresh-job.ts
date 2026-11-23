@@ -192,6 +192,9 @@ export const nodeSpecFor = (execPath: string, script: string, cwd?: string): Com
 export const storeLockRetry = (output: string): boolean =>
   LOCK_RETRY_MARKERS.some((marker) => output.toLowerCase().includes(marker));
 
+export const isMissingRemoteBranch = (output: string): boolean =>
+  /couldn't find remote ref|not found|no such ref/i.test(output);
+
 export const needsPersonForRefusal = (output: string): boolean =>
   MANUAL_REPAIR_MARKERS.some((marker) => output.toLowerCase().includes(marker));
 
@@ -207,6 +210,7 @@ export const copyRawStore = (root: string, date: string): string => {
 export interface RecordingRunner {
   runner: Runner;
   commands: () => CommandSpec[];
+  publishingValues: PublishingValues;
 }
 
 export const createRecordingRunner = (scratch: string, headSha = "dry-run-head"): RecordingRunner => {
@@ -231,7 +235,14 @@ export const createRecordingRunner = (scratch: string, headSha = "dry-run-head")
     if (text.startsWith("pr view")) return { status: 1, stdout: "", stderr: "" };
     return { status: 0, stdout: "", stderr: "" };
   };
-  return { runner, commands: () => commands };
+  const publishingValues: PublishingValues = {
+    tournaments: 0,
+    decks: 0,
+    windows: WINDOW_IDS.map((window) => `${window}: 0`).join(", "),
+    imageParity: "union: 0 deck names, 0 OG images, 0 missing, 0 orphan",
+    premiumVersion: "dry-run",
+  };
+  return { runner, commands: () => commands, publishingValues };
 };
 
 export interface JobOptions {
@@ -239,6 +250,7 @@ export interface JobOptions {
   runner: Runner;
   date?: string;
   sleep?: (ms: number) => Promise<void>;
+  publishingValues?: PublishingValues;
 }
 
 class JobStop extends Error {
@@ -316,18 +328,34 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
       if (forceBranch.status !== 0) failure("failed", "step 1", git(["branch", "-f", "main", `refs/remotes/${remote}/main`], "force-main"), [forceBranch.stderr]);
     }
 
-    const fetchBranch = options.runner(git(["fetch", remote, branch], "fetch-dated"));
+    const fetchCommand = git(["fetch", remote, branch], "fetch-dated");
+    const fetchBranch = options.runner(fetchCommand);
+    const remoteExists = fetchBranch.status === 0;
+    if (!remoteExists && !isMissingRemoteBranch(fetchBranch.stderr)) {
+      failure("failed", "step 2", fetchCommand, [fetchBranch.stderr || fetchBranch.error || "git fetch failed"]);
+    }
+    const localCommand = git(["rev-parse", "--verify", "--quiet", `refs/heads/${branch}`], "local-dated");
+    const localBranch = options.runner(localCommand);
+    const localExists = localBranch.status === 0;
     const config = options.runner(git(["config", "user.email"], "git-email"));
     const automationEmail = config.stdout.trim();
-    const localLog = options.runner(git(["log", `--format=%h%x1f%an%x1f%ae%x1f%s`, `main..${branch}`], "local-log"));
-    const remoteLog = options.runner(git(["log", `--format=%h%x1f%an%x1f%ae%x1f%s`, `main..refs/remotes/${remote}/${branch}`], "remote-log"));
-    const humans = [
-      ...humanCommits(localLog.stdout, automationEmail),
-      ...humanCommits(remoteLog.stdout, automationEmail),
-    ];
-    if (humans.length > 0) failure("needs-person", "step 2", git(["log", "--format=%h%x1f%an%x1f%ae%x1f%s", `main..${branch}`], "local-log"), humans);
+    const humans: string[] = [];
+    let humanCommand = localCommand;
+    if (localExists) {
+      humanCommand = git(["log", `--format=%h%x1f%an%x1f%ae%x1f%s`, `main..${branch}`], "local-log");
+      const localLog = options.runner(humanCommand);
+      if (localLog.status !== 0) failure("failed", "step 2", humanCommand, [localLog.stderr]);
+      humans.push(...humanCommits(localLog.stdout, automationEmail));
+    }
+    if (remoteExists) {
+      humanCommand = git(["log", `--format=%h%x1f%an%x1f%ae%x1f%s`, `main..refs/remotes/${remote}/${branch}`], "remote-log");
+      const remoteLog = options.runner(humanCommand);
+      if (remoteLog.status !== 0) failure("failed", "step 2", humanCommand, [remoteLog.stderr]);
+      humans.push(...humanCommits(remoteLog.stdout, automationEmail));
+    }
+    if (humans.length > 0) failure("needs-person", "step 2", humanCommand, humans);
 
-    if (fetchBranch.status === 0) {
+    if (localExists || remoteExists) {
       const checkout = options.runner(git(["checkout", branch], "checkout-dated"));
       if (checkout.status !== 0) failure("failed", "step 2", git(["checkout", branch], "checkout-dated"), [checkout.stderr]);
     } else {
@@ -365,10 +393,6 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
       if (download.status === null || download.signal) {
         failure("needs-person", "step 6", downloadCommand, ["yarn refresh:outputs discard", firstOutput]);
       }
-      if (needsPersonForRefusal(firstOutput)) {
-        copyRawStore(root, date);
-        failure("needs-person", "step 6", downloadCommand, [firstOutput]);
-      }
       if (storeLockRetry(firstOutput)) {
         await sleep(10_000);
         download = options.runner(downloadCommand);
@@ -383,6 +407,9 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
           }
           failure("failed", "step 6", downloadCommand, [retryOutput]);
         }
+      } else if (needsPersonForRefusal(firstOutput)) {
+        copyRawStore(root, date);
+        failure("needs-person", "step 6", downloadCommand, [firstOutput]);
       } else if (thrownDownloadError(firstOutput)) {
         download = options.runner(downloadCommand);
         const rerunOutput = `${download.stdout}\n${download.stderr}`;
@@ -419,18 +446,29 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
     }
 
     let values: PublishingValues;
-    try {
-      values = readPublishingValues(scratch, validateOutput);
-    } catch (error) {
-      failure("failed", "step 9", yarn(["validate:refresh"], scratchAnalysis, "validate"), [String(error)]);
+    if (options.publishingValues) {
+      values = { ...options.publishingValues };
+    } else {
+      try {
+        values = readPublishingValues(scratch, validateOutput);
+      } catch (error) {
+        failure("failed", "step 9", yarn(["validate:refresh"], scratchAnalysis, "validate"), [String(error)]);
+      }
     }
 
     simple("step 10", yarn(["publish:premium", "--dry-run"], scratchAnalysis, "premium-dry"));
     simple("step 10", yarn(["publish:premium"], scratchAnalysis, "premium-publish"));
     simple("step 10", yarn(["verify:premium"], scratchAnalysis, "premium-verify"));
-    values.premiumVersion = readPremiumVersion(scratch);
-    simple("step 11", yarn(["refresh:outputs", "stage"], path.join(root, "analysis"), "stage"));
-    simple("step 11", git(["commit", "-m", REFRESH_SUBJECT], "commit"));
+    if (!options.publishingValues) values.premiumVersion = readPremiumVersion(scratch);
+    const stage = simple("step 11", yarn(["refresh:outputs", "stage"], path.join(root, "analysis"), "stage"));
+    const generatedPaths = stage.stdout.split(/\r?\n/).map((entry) => entry.trim()).filter(Boolean);
+    const indexed = simple("step 11", git(["diff", "--cached", "--name-only"], "index-paths"));
+    const indexPaths = indexed.stdout.split(/\r?\n/).map((entry) => entry.trim()).filter(Boolean);
+    const outside = indexPaths.filter((entry) => !generatedPaths.includes(entry));
+    if (outside.length > 0) {
+      failure("needs-person", "step 11", git(["commit", "-m", REFRESH_SUBJECT, "--", ...generatedPaths], "commit"), [`index has entries outside generated paths: ${outside.join(", ")}`]);
+    }
+    simple("step 11", git(["commit", "-m", REFRESH_SUBJECT, "--", ...generatedPaths], "commit"));
 
     simple("step 12", git(["push", remote, branch], "push"));
     const localHead = simple("step 12", git(["rev-parse", "HEAD"], "head"));
@@ -463,7 +501,7 @@ if (invokedDirectly) {
   };
   if (process.argv.slice(2).includes("--dry-run")) {
     const recorder = createRecordingRunner(root);
-    void runJob({ root, runner: recorder.runner }).then((outcome) => {
+    void runJob({ root, runner: recorder.runner, publishingValues: recorder.publishingValues }).then((outcome) => {
       for (const spec of recorder.commands()) console.log(formatCommand(spec));
       console.log(JSON.stringify({
         dryRun: true,

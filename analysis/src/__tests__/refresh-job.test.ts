@@ -1,12 +1,12 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import util from "node:util";
 import { describe, expect, it, vi } from "vitest";
 import { spawnSync } from "node:child_process";
 
 import {
   CANONICAL_REPO,
-  LOCK_RETRY_MARKERS,
   REFRESH_SUBJECT,
   buildPrBody,
   classifyDownloadFailure,
@@ -21,7 +21,6 @@ import {
   readPublishingValues,
   runJob,
   storeLockRetry,
-  thrownDownloadError,
 } from "../../scripts/refresh-job";
 import type { CommandResult, CommandSpec, DownloadDecision, Runner } from "../../scripts/refresh-job";
 import { duplicateDeckMessage, interruptedProcessedMessage, interruptedWriteMessage } from "../utils/deck-store";
@@ -152,6 +151,18 @@ const interruptedOutput = `Error: ${interruptedWriteMessage(["analysis/data/deck
 const manyProgressLines = (): string =>
   Array.from({ length: 20_000 }, (_, index) => `progress batch ${index} written`).join("\n");
 
+class LimitlessError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "LimitlessError";
+  }
+}
+
+const realErrorTier = (): string =>
+  Array.from({ length: 4 }, () =>
+    util.format(new LimitlessError("fetch failed", { cause: new Error("ECONNRESET") }))
+  ).join("\n");
+
 const messageCases = [
   { name: "held lock", message: heldMessage("/data/store", "4242\n"), expected: "needs-person" as DownloadDecision },
   { name: "displaced lock", message: displacedMessage("/data/store", "4242\n", "/data/store.reclaim"), expected: "fail" as DownloadDecision },
@@ -194,24 +205,10 @@ describe("refresh job decisions with a fake runner", () => {
     expect(classifyDownloadFailure(message)).toBe(expected);
   });
 
-  it("shows the old order loses the interrupted write and the dual-marker claim", () => {
-    const oldManualMarkers = [
-      "remove the lock file",
-      "remove that claim file",
-      "already exists in shard",
-      "interrupted processed-tournaments",
-    ];
-    const oldOrder = (output: string): DownloadDecision => {
-      if (oldManualMarkers.some((marker) => output.toLowerCase().includes(marker))) return "needs-person";
-      if (LOCK_RETRY_MARKERS.some((marker) => output.toLowerCase().includes(marker))) return "retry";
-      if (thrownDownloadError(output)) return "rerun";
-      return "fail";
-    };
+  it("classifies the dual-marker claim as retry and the interrupted write as needs-person", () => {
     const dual = claimHeldMessage("/data/claim", 4242, true);
     expect(classifyDownloadFailure(dual)).toBe("retry");
-    expect(oldOrder(dual)).toBe("needs-person");
     expect(classifyDownloadFailure(interruptedOutput)).toBe("needs-person");
-    expect(oldOrder(interruptedOutput)).toBe("rerun");
   });
 
   it("matches only the missing remote ref refusal", () => {
@@ -552,6 +549,36 @@ describe("refresh job decisions with a fake runner", () => {
     expect(JSON.stringify(outcome).length).toBeLessThan(4000);
   });
 
+  it("keeps the refusal ahead of real stack frames in the error report", async () => {
+    const message = duplicateDeckMessage("123", "c1");
+    let downloads = 0;
+    const h = harness((c) => {
+      if (!commandText(c).startsWith("download")) return undefined;
+      downloads += 1;
+      return downloads === 1
+        ? ok("thrown write error\n", { status: 1 })
+        : ok(`${realErrorTier()}\n${message}\n`, { status: 1 });
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.firstErrorLines[0]).toBe(message);
+    expect(outcome.firstErrorLines.some((line) => line.includes("LimitlessError"))).toBe(true);
+    expect(JSON.stringify(outcome).length).toBeLessThan(4000);
+  });
+
+  it("keeps the discard instruction and refusal ahead of real stack frames", async () => {
+    const message = duplicateDeckMessage("123", "c1");
+    const h = harness((c) => {
+      if (!commandText(c).startsWith("download")) return undefined;
+      return ok(`${realErrorTier()}\n${message}\n`, { status: null, signal: "SIGTERM" });
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.firstErrorLines[0]).toBe("yarn refresh:outputs discard");
+    expect(outcome.firstErrorLines[1]).toBe(message);
+    expect(JSON.stringify(outcome).length).toBeLessThan(4000);
+  });
+
   it("bounds a long stderr from a simple step", async () => {
     const h = harness((c) => (commandText(c).startsWith("sync-pairings")
       ? ok("", { status: 1, stderr: `${manyProgressLines()}\nfatal: unable to access remote ${"x".repeat(10_000)}\n` })
@@ -589,6 +616,36 @@ describe("refresh job decisions with a fake runner", () => {
     expect(recorder.commands().some((c) => commandText(c).startsWith("publish:premium"))).toBe(true);
   });
 
+  it("stops for a person when the main update is rejected", async () => {
+    const rejection = " ! [rejected] main       -> main  (non-fast-forward)\n";
+    const h = harness((c) => (commandText(c).startsWith("fetch pocket refs/heads/main:refs/heads/main")
+      ? ok("", { status: 1, stderr: rejection })
+      : undefined));
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 1");
+    expect(outcome.firstErrorLines.join(" ")).toContain("main");
+    expect(outcome.firstErrorLines.join(" ")).toContain("non-fast-forward");
+  });
+
+  it("fails another main fetch refusal", async () => {
+    const h = harness((c) => (commandText(c).startsWith("fetch pocket refs/heads/main:refs/heads/main")
+      ? ok("", { status: 1, stderr: "fatal: unable to access remote\n" })
+      : undefined));
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("failed");
+    expect(outcome.step).toBe("step 1");
+    expect(outcome.firstErrorLines.join(" ")).toContain("unable to access remote");
+  });
+
+  it("updates main with one fetch and no forced branch move", async () => {
+    const h = harness(() => undefined);
+    await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    const texts = h.calls.map(commandText);
+    expect(texts).toContain("fetch pocket refs/heads/main:refs/heads/main");
+    expect(texts.some((text) => text.startsWith("branch -f main"))).toBe(false);
+  });
+
   it("stops for a person when Node does not match .nvmrc", async () => {
     const h = harness(() => undefined);
     writeFixture(h.root, ".nvmrc", "0.0.0\n");
@@ -616,6 +673,7 @@ describe("refresh job decisions with a fake runner", () => {
     const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
     expect(outcome.status).toBe("published");
     expect(outcome.step).toBe("step 13");
+    expect(outcome.reviewUrl).toBe("https://github.com/pr/2");
   });
 
   it("records the whole plan through runJob for --dry-run", async () => {

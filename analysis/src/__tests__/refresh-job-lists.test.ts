@@ -94,9 +94,24 @@ describe("refresh job file lists", () => {
     for (const name of PREMIUM_ARTEFACT_NAMES) expect(REFRESH_OUTPUT_FILES).toContain(`analysis/out/premium/${name}.json`);
   });
 
+  it("states the review URL and the operator check-state duty", () => {
+    const after = step("## After the job", "## Prerequisite");
+    const checkout = step("1. Work", "2. Create");
+    const body = step("12. Push", "13. Reads");
+    const readback = step("13. Reads", "## Freshness");
+    expect(checkout).toContain("refs/heads/main:refs/heads/main");
+    expect(checkout).not.toContain("branch -f main");
+    expect(body).toContain("buildPrBody");
+    expect(body).not.toContain("EN-UK");
+    expect(readback).toContain("returns the review URL in the published outcome and the JSON line");
+    expect(readback).toContain("does not query check states");
+    expect(after).toContain("Report the current check states on the pull request yourself");
+    expect(job).toContain("the line that decided the stop");
+  });
+
   it("states the bounded JSON error report rule", () => {
     expect(job).toContain("each line is capped at 500 characters");
-    expect(job).toContain("the last progress lines when no error line matches");
+    expect(job).toContain("then the last other error lines, then the last progress lines");
     expect(job).toContain("At most five lines reach the JSON line");
     expect(job).toContain("the full output stays in the dated log");
   });

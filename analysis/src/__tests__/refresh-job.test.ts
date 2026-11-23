@@ -864,6 +864,22 @@ describe("refresh job decisions with a fake runner", () => {
     expect(outcome.firstErrorLines.join(" ")).toContain("no open pull request");
   });
 
+  it("stops for a person when a silent-day pull request view returns non-JSON", async () => {
+    const h = harness((c) => {
+      const text = commandText(c);
+      if (text.startsWith("log --format")) {
+        if (text.includes("main..automated/") || text.includes("main..refs/remotes/pocket/automated/")) return ok(autoCommit);
+        return ok("");
+      }
+      if (text.startsWith("pr view")) return ok("not json\n");
+      return undefined;
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 9");
+    expect(outcome.firstErrorLines.join(" ")).toContain("no open pull request");
+  });
+
   const publishWithPrState = async (state: string): Promise<Harness> => {
     const h = harness((c) => {
       const text = commandText(c);

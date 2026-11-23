@@ -2,6 +2,10 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const PERMITTED_CROSSINGS: Record<string, { specifier: string; reason: string }> = {
+  "src/__tests__/refresh-job-locale.test.ts": {
+    specifier: "../../scripts/refresh-job",
+    reason: "the locale guard sits at the runner's spawn boundary, so the test calls the real defaultRunner against a throwaway git repository",
+  },
   "src/__tests__/refresh-job.test.ts": {
     specifier: "../../scripts/refresh-job",
     reason: "the job decisions live in the script, so the test calls the exported functions the runner uses",

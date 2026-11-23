@@ -97,10 +97,13 @@ describe("refresh job file lists", () => {
   it("states the review URL and the operator check-state duty", () => {
     const after = step("## After the job", "## Prerequisite");
     const checkout = step("1. Work", "2. Create");
+    const branch = step("2. Create", "3. From");
     const body = step("12. Push", "13. Reads");
     const readback = step("13. Reads", "## Freshness");
     expect(checkout).toContain("refs/heads/main:refs/heads/main");
     expect(checkout).not.toContain("branch -f main");
+    expect(checkout).toContain("LC_ALL=C");
+    expect(branch).toContain("same C locale");
     expect(body).toContain("buildPrBody");
     expect(body).not.toContain("EN-UK");
     expect(readback).toContain("returns the review URL in the published outcome and the JSON line");

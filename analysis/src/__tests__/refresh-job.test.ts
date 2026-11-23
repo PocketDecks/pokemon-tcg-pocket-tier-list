@@ -579,6 +579,31 @@ describe("refresh job decisions with a fake runner", () => {
     expect(JSON.stringify(outcome).length).toBeLessThan(4000);
   });
 
+  it("keeps a real lock retry message ahead of eight error-tier lines", async () => {
+    const message = claimHeldMessage("/data/claim", undefined, false);
+    const h = harness((c) => {
+      if (!commandText(c).startsWith("download")) return undefined;
+      return ok(`${realErrorTier()}\n${message}\n`, { status: null, signal: "SIGTERM" });
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.firstErrorLines).toContain(message);
+    expect(JSON.stringify(outcome).length).toBeLessThan(4000);
+  });
+
+  it("keeps the last of seven other error lines", async () => {
+    const last = "Error: frame 6 final";
+    const frames = Array.from({ length: 7 }, (_, index) => `Error: frame ${index}${index === 6 ? " final" : ""}`);
+    const h = harness((c) => (commandText(c).startsWith("sync-pairings")
+      ? ok("", { status: 1, stderr: `${frames.join("\n")}\n` })
+      : undefined));
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("failed");
+    expect(outcome.step).toBe("step 3");
+    expect(outcome.firstErrorLines).toContain(last);
+    expect(JSON.stringify(outcome).length).toBeLessThan(4000);
+  });
+
   it("bounds a long stderr from a simple step", async () => {
     const h = harness((c) => (commandText(c).startsWith("sync-pairings")
       ? ok("", { status: 1, stderr: `${manyProgressLines()}\nfatal: unable to access remote ${"x".repeat(10_000)}\n` })
@@ -614,6 +639,15 @@ describe("refresh job decisions with a fake runner", () => {
     expect(outcome.status).toBe("published");
     expect(outcome.step).toBe("step 13");
     expect(recorder.commands().some((c) => commandText(c).startsWith("publish:premium"))).toBe(true);
+  });
+
+  it("pins every git command to the C locale", async () => {
+    const h = harness(() => undefined);
+    await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    const gitCalls = h.calls.filter((c) => c.file === "git");
+    expect(gitCalls.length).toBeGreaterThan(0);
+    for (const call of gitCalls) expect(call.env).toEqual({ LC_ALL: "C", LANGUAGE: "" });
+    expect(h.calls.some((c) => c.file !== "git" && c.env)).toBe(false);
   });
 
   it("stops for a person when the main update is rejected", async () => {

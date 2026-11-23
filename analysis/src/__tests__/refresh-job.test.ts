@@ -280,7 +280,7 @@ describe("refresh job decisions with a fake runner", () => {
 
   it("edits an existing pull request instead of creating another", async () => {
     const h = harness((c) => {
-      if (commandText(c).startsWith("pr view") && c.args.includes("--jq")) return ok("42\n");
+      if (commandText(c).startsWith("pr view") && c.args.includes("number,state")) return ok('{"number":42,"state":"OPEN"}\n');
       return publishingClassify(c);
     });
     await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
@@ -752,7 +752,7 @@ describe("refresh job decisions with a fake runner", () => {
       const h = harness((c) => {
         const text = commandText(c);
         if (text.includes("headRefOid,url")) return ok(`${JSON.stringify({ headRefOid: "headsha", url: "https://github.com/pr/2" })}\n`);
-        if (existing && text.startsWith("pr view") && c.args.includes("--jq")) return ok("42\n");
+        if (existing && text.startsWith("pr view") && text.includes("number,state")) return ok('{"number":42,"state":"OPEN"}\n');
         return publishingClassify(c);
       });
       const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
@@ -773,7 +773,7 @@ describe("refresh job decisions with a fake runner", () => {
     const h = harness((c) => {
       const text = commandText(c);
       if (text.startsWith("log --format")) return ok(autoCommit);
-      if (text.startsWith("pr view")) return ok("42\n");
+      if (text.startsWith("pr view")) return ok('{"number":42,"state":"OPEN"}\n');
       return undefined;
     });
     const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
@@ -814,7 +814,7 @@ describe("refresh job decisions with a fake runner", () => {
         if (text.includes("main..automated/") || text.includes("main..refs/remotes/pocket/automated/")) return ok(autoCommit);
         return ok("");
       }
-      if (text.startsWith("pr view")) return ok("42\n");
+      if (text.startsWith("pr view")) return ok('{"number":42,"state":"OPEN"}\n');
       return undefined;
     });
     const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
@@ -828,5 +828,89 @@ describe("refresh job decisions with a fake runner", () => {
     const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
     expect(outcome.status).toBe("silent");
     expect(h.calls.some((c) => c.file === "gh")).toBe(false);
+  });
+
+  const prJson = (number: number, state: string): string => `${JSON.stringify({ number, state })}\n`;
+
+  const silentWithPrState = async (state: string): Promise<Awaited<ReturnType<typeof runJob>>> => {
+    const h = harness((c) => {
+      const text = commandText(c);
+      if (text.startsWith("log --format")) {
+        if (text.includes("main..automated/") || text.includes("main..refs/remotes/pocket/automated/")) return ok(autoCommit);
+        return ok("");
+      }
+      if (text.startsWith("pr view")) return ok(prJson(42, state));
+      return undefined;
+    });
+    return runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+  };
+
+  it("treats an OPEN pull request as published on a silent day", async () => {
+    const outcome = await silentWithPrState("OPEN");
+    expect(outcome.status).toBe("silent");
+  });
+
+  it("stops for a person on a silent day when the pull request is CLOSED", async () => {
+    const outcome = await silentWithPrState("CLOSED");
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 9");
+    expect(outcome.firstErrorLines.join(" ")).toContain("no open pull request");
+  });
+
+  it("stops for a person on a silent day when the pull request is MERGED", async () => {
+    const outcome = await silentWithPrState("MERGED");
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 9");
+    expect(outcome.firstErrorLines.join(" ")).toContain("no open pull request");
+  });
+
+  const publishWithPrState = async (state: string): Promise<Harness> => {
+    const h = harness((c) => {
+      const text = commandText(c);
+      if (text.includes("headRefOid,url")) return ok(`${JSON.stringify({ headRefOid: "headsha", url: "https://github.com/pr/2" })}\n`);
+      if (text.startsWith("pr view") && text.includes("number,state")) return ok(prJson(42, state));
+      return publishingClassify(c);
+    });
+    await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    return h;
+  };
+
+  it("edits an OPEN pull request on a publishing day", async () => {
+    const h = await publishWithPrState("OPEN");
+    expect(h.calls.some((c) => commandText(c).startsWith("pr edit 42"))).toBe(true);
+    expect(h.calls.some((c) => commandText(c).startsWith("pr create"))).toBe(false);
+  });
+
+  it("creates a pull request when the only one is CLOSED", async () => {
+    const h = await publishWithPrState("CLOSED");
+    expect(h.calls.some((c) => commandText(c).startsWith("pr create"))).toBe(true);
+    expect(h.calls.some((c) => commandText(c).startsWith("pr edit"))).toBe(false);
+  });
+
+  it("creates a pull request when the only one is MERGED", async () => {
+    const h = await publishWithPrState("MERGED");
+    expect(h.calls.some((c) => commandText(c).startsWith("pr create"))).toBe(true);
+    expect(h.calls.some((c) => commandText(c).startsWith("pr edit"))).toBe(false);
+  });
+
+  it("logs main..branch and stops as needs-person when the remote dated branch is absent", async () => {
+    const branch = "automated/pipeline-update-2026-11-23";
+    const h = harness((c) => {
+      const text = commandText(c);
+      if (text.startsWith(`fetch pocket ${branch}`)) return ok("", { status: 1, stderr: `error: couldn't find remote ref refs/heads/${branch}\n` });
+      if (text.startsWith("rev-parse --verify --quiet refs/heads/")) return ok(`${branch}\n`);
+      if (text.startsWith("log --format")) {
+        if (text.includes("refs/remotes/pocket/automated/")) return ok("", { status: 128, stderr: `fatal: bad revision 'refs/remotes/pocket/${branch}'\n` });
+        return ok(autoCommit);
+      }
+      return undefined;
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 9");
+    expect(outcome.firstErrorLines.join(" ")).toContain("aaa1111");
+    const logs = h.calls.filter((c) => commandText(c).startsWith("log --format"));
+    expect(logs.some((c) => commandText(c).includes("refs/remotes/pocket/"))).toBe(false);
+    expect(logs.filter((c) => commandText(c).includes(`main..${branch}`)).length).toBeGreaterThanOrEqual(2);
   });
 });

@@ -280,6 +280,7 @@ describe("refresh job file lists", () => {
     expect(silent).toContain("stops for a person at step 9");
     expect(silent).toContain("git push <remote> <branch>");
     expect(silent).toContain("gh pr create --repo PocketDecks/pokemon-tcg-pocket-tier-list --base main --head <branch>");
+    expect(silent).toContain("delete the local dated branch and start again");
     expect(publish).not.toContain("the next run reuses it");
     expect(publish).toContain("stops for a person at step 9");
   });

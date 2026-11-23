@@ -652,7 +652,7 @@ describe("refresh job decisions with a fake runner", () => {
 
   it("stops for a person when the main update is rejected", async () => {
     const rejection = " ! [rejected] main       -> main  (non-fast-forward)\n";
-    const h = harness((c) => (commandText(c).startsWith("fetch pocket refs/heads/main:refs/heads/main")
+    const h = harness((c) => (commandText(c).startsWith("fetch --show-forced-updates pocket refs/heads/main:refs/heads/main")
       ? ok("", { status: 1, stderr: rejection })
       : undefined));
     const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
@@ -663,7 +663,7 @@ describe("refresh job decisions with a fake runner", () => {
   });
 
   it("fails another main fetch refusal", async () => {
-    const h = harness((c) => (commandText(c).startsWith("fetch pocket refs/heads/main:refs/heads/main")
+    const h = harness((c) => (commandText(c).startsWith("fetch --show-forced-updates pocket refs/heads/main:refs/heads/main")
       ? ok("", { status: 1, stderr: "fatal: unable to access remote\n" })
       : undefined));
     const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
@@ -676,7 +676,7 @@ describe("refresh job decisions with a fake runner", () => {
     const h = harness(() => undefined);
     await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
     const texts = h.calls.map(commandText);
-    expect(texts).toContain("fetch pocket refs/heads/main:refs/heads/main");
+    expect(texts).toContain("fetch --show-forced-updates pocket refs/heads/main:refs/heads/main");
     expect(texts.some((text) => text.startsWith("branch -f main"))).toBe(false);
   });
 
@@ -745,5 +745,88 @@ describe("refresh job decisions with a fake runner", () => {
       if (previous === undefined) delete process.env.npm_execpath;
       else process.env.npm_execpath = previous;
     }
+  });
+
+  it("targets the canonical repository on every gh call", async () => {
+    for (const existing of [true, false]) {
+      const h = harness((c) => {
+        const text = commandText(c);
+        if (text.includes("headRefOid,url")) return ok(`${JSON.stringify({ headRefOid: "headsha", url: "https://github.com/pr/2" })}\n`);
+        if (existing && text.startsWith("pr view") && c.args.includes("--jq")) return ok("42\n");
+        return publishingClassify(c);
+      });
+      const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+      expect(outcome.status).toBe("published");
+      const ghCalls = h.calls.filter((c) => c.file === "gh");
+      expect(ghCalls.length).toBeGreaterThan(0);
+      for (const call of ghCalls) {
+        expect(call.args).toContain("--repo");
+        expect(call.args[call.args.indexOf("--repo") + 1]).toBe(CANONICAL_REPO);
+      }
+      expect(ghCalls.map((c) => c.args[1])).toContain(existing ? "edit" : "create");
+    }
+  });
+
+  const autoCommit = `aaa1111\x1fAutomation\x1fbot@example.invalid\x1f${REFRESH_SUBJECT}\n`;
+
+  it("stops for a person when a silent day hides an unpublished commit", async () => {
+    const h = harness((c) => {
+      const text = commandText(c);
+      if (text.startsWith("log --format")) return ok(autoCommit);
+      if (text.startsWith("pr view")) return ok("42\n");
+      return undefined;
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 9");
+    const report = outcome.firstErrorLines.join(" ");
+    expect(report).toContain("unpublished commits on automated/pipeline-update-2026-11-23");
+    expect(report).toContain("aaa1111");
+    expect(h.calls.some((c) => commandText(c).startsWith("refresh:outputs discard"))).toBe(false);
+  });
+
+  it("stops for a person when a pushed silent-day branch has no open pull request", async () => {
+    const h = harness((c) => {
+      const text = commandText(c);
+      if (text.startsWith("log --format")) {
+        if (text.includes("main..automated/") || text.includes("main..refs/remotes/pocket/automated/")) return ok(autoCommit);
+        return ok("");
+      }
+      if (text.startsWith("pr view")) return ok("", { status: 1 });
+      return undefined;
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 9");
+    const report = outcome.firstErrorLines.join(" ");
+    expect(report).toContain("no open pull request");
+    expect(report).toContain("automated/pipeline-update-2026-11-23");
+    expect(report).toContain("aaa1111");
+    const check = h.calls.find((c) => c.file === "gh");
+    expect(check?.args).toContain("--repo");
+    expect(check?.args[check.args.indexOf("--repo") + 1]).toBe(CANONICAL_REPO);
+  });
+
+  it("stays silent when a pushed silent-day branch has an open pull request", async () => {
+    const h = harness((c) => {
+      const text = commandText(c);
+      if (text.startsWith("log --format")) {
+        if (text.includes("main..automated/") || text.includes("main..refs/remotes/pocket/automated/")) return ok(autoCommit);
+        return ok("");
+      }
+      if (text.startsWith("pr view")) return ok("42\n");
+      return undefined;
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("silent");
+    expect(h.calls.some((c) => commandText(c).startsWith("refresh:outputs discard"))).toBe(true);
+    expect(h.calls.some((c) => c.file === "gh")).toBe(true);
+  });
+
+  it("keeps a plain silent day without any publication check", async () => {
+    const h = harness(() => undefined);
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("silent");
+    expect(h.calls.some((c) => c.file === "gh")).toBe(false);
   });
 });

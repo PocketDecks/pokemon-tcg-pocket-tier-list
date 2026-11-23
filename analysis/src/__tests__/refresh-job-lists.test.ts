@@ -265,4 +265,29 @@ describe("refresh job file lists", () => {
     expect(job).not.toContain("A run with no tracked output changes is silent");
     expect(job).toContain("A run is silent only when `yarn refresh:outputs classify` prints no paths");
   });
+
+  it("names the canonical repository on gh calls and the forced fetch flag", () => {
+    const checkout = step("1. Work", "2. Create");
+    const publish = step("12. Push", "13. Reads");
+    expect(checkout).toContain("git fetch --show-forced-updates <remote> refs/heads/main:refs/heads/main");
+    expect(checkout).toContain("fetch.showForcedUpdates` is false");
+    expect(publish).toContain("--repo PocketDecks/pokemon-tcg-pocket-tier-list");
+  });
+
+  it("documents the silent-day publication check and manual publish steps", () => {
+    const silent = step("9. From", "10. From");
+    const publish = step("12. Push", "13. Read");
+    expect(silent).toContain("stops for a person at step 9");
+    expect(silent).toContain("git push <remote> <branch>");
+    expect(silent).toContain("gh pr create --repo PocketDecks/pokemon-tcg-pocket-tier-list --base main --head <branch>");
+    expect(publish).not.toContain("the next run reuses it");
+    expect(publish).toContain("stops for a person at step 9");
+  });
+
+  it("recovers a failed step 11 commit with the restore procedure", () => {
+    const recovery = step("## Recovery", "## Failure rules");
+    expect(recovery).toContain("Step 11 refuses at the commit");
+    expect(recovery).toContain("stops at step 1 with `index already holds entries`");
+    expect(recovery).toContain("Follow the step 11 restore procedure below, then start again at step 1.");
+  });
 });

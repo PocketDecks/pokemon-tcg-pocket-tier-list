@@ -6,38 +6,49 @@ only when testing the build path locally, which this guide also covers.
 
 ## What `yarn build` runs
 
-Yarn's lifecycle hooks turn one command into a seven-stage pipeline. In order:
+`yarn build` runs thirteen stages in this order:
 
-1. Sitemap generation. The `prebuild` hook runs
-   `node scripts/generate-sitemap.js`, which rebuilds `public/sitemap.xml` from
-   the eight static routes plus one entry per deck in
-   `public/data/best-decks.json`. A typical run logs
-   `Wrote 86 routes to ...\public\sitemap.xml`.
-2. Typecheck. `yarn typecheck` runs `tsc --noEmit`.
-3. Lint. `yarn lint` runs ESLint with `--max-warnings 0`.
-4. Bundle. `vite build` transforms the app into `dist/`, emitting the stable
+1. Typecheck. `yarn typecheck` runs `tsc --noEmit` and
+   `tsc --noEmit -p tsconfig.node.json`.
+2. Lint. `yarn lint` runs ESLint with `--max-warnings 0`.
+3. Deck archive. `node --env-file-if-exists=.env scripts/build-deck-archive.mjs`
+   rebuilds the archived deck data.
+4. Deck hub slugs. `node scripts/generate-deck-hub-slugs.mjs` rebuilds the hub
+   slug data.
+5. Deck redirects. `node --env-file-if-exists=.env scripts/generate-deck-redirects.mjs`
+   rewrites the Hosting redirects in `firebase.json`.
+6. Sitemap. `node --env-file-if-exists=.env scripts/generate-sitemap.js` rebuilds
+   `public/sitemap.xml` from the static routes and the deck data.
+7. Attack costs. `node --env-file-if-exists=.env scripts/generate-attack-costs.mjs`
+   rebuilds the attack cost data.
+8. Deck thumbs. `node --env-file-if-exists=.env scripts/generate-deck-thumbs.mjs`
+   rebuilds the deck thumbnails.
+9. Bundle. `vite build` transforms the app into `dist/`, emitting the stable
    `dist/app.js` application entry and hashed dependency chunks under
    `dist/assets/`.
-5. Deck prerendering. `node scripts/prerender-decks.js` writes one
-   `dist/deck/<slug>/index.html` per deck in `best-decks.json`, each stamped
-   with Open Graph and Twitter meta plus BreadcrumbList JSON-LD.
-6. Route prerendering. `node scripts/prerender-routes.js` serves `dist/` on
-   `127.0.0.1:4173`, loads each static route in headless Chromium through
-   Puppeteer, stamps per-route titles, descriptions and canonicals using
-   `stampHead` in `scripts/meta-stamp.js`, and writes each result as
-   `<route>/index.html`. It aborts third-party requests (ads, Firebase,
-   fonts) but allows the external card database, because rendering gates on
-   card data loading. Any page error fails the stage.
-7. Dist verification. `node scripts/verify-dist-html.js` scans every built
-   HTML file for `127.0.0.1` or `localhost` references and exits non-zero if
-   any survive, since a leaked loopback URL would break the deployed page. It
-   also fails when an inline script in the built HTML has no SHA-256 hash in
-   the effective script policy of the enforced Content-Security-Policy
-   header (see below).
+10. Deck prerendering. `node --env-file-if-exists=.env scripts/prerender-decks.js`
+    writes one `dist/deck/<slug>/index.html` per deck in `best-decks.json`, each
+    stamped with Open Graph and Twitter meta plus BreadcrumbList JSON-LD.
+11. Deck hub prerendering. `node --env-file-if-exists=.env scripts/prerender-deck-hubs.js`
+    writes the prerendered hub pages into `dist`.
+12. Route prerendering. `node --env-file-if-exists=.env scripts/prerender-routes.js`
+    serves `dist/` on `127.0.0.1:4173`, loads each static route in headless
+    Chromium through Puppeteer, stamps per-route titles, descriptions and
+    canonicals using `stampHead` in `scripts/meta-stamp.js`, and writes each
+    result as `<route>/index.html`. It aborts third-party requests (ads,
+    Firebase, fonts) but allows the external card database, because rendering
+    gates on card data loading. Any page error fails the stage.
+13. Dist verification. `node --env-file-if-exists=.env scripts/verify-dist-html.js`
+    scans every built HTML file for `127.0.0.1` or `localhost` references and
+    exits non-zero if any survive, since a leaked loopback URL would break the
+    deployed page. It also fails when an inline script in the built HTML has no
+    SHA-256 hash in the effective script policy of the enforced
+    Content-Security-Policy header (see below).
 
-Stages 5 to 7 form the `postbuild` hook, so they never run without stages 1 to
-4 ahead of them. If a build stops after the Vite stage you have a stale `dist/`
-with template HTML but no prerendered pages; rerun the whole command.
+Stages 3 to 8 form the `prebuild:site` hook and stages 10 to 13 form the
+`postbuild:site` hook, so generation runs after typecheck and lint. If a build
+stops after the bundle stage you have a stale `dist/` with template HTML but no
+prerendered pages; rerun the whole command.
 
 The first build downloads a Chromium build for Puppeteer. Later runs reuse it.
 
@@ -105,18 +116,18 @@ updates:
   the same repository. It checks generated files, runs `yarn build:site` and
   deploys a preview channel. Same-repository Dependabot pull requests build
   with placeholder Firebase values and skip the deploy step. Other
-  same-repository pull requests receive a preview URL
+  same-repository pull requests receive a preview URL.
 - `deploy.yml`, named `Deploy`, starts when CI completes on a push to `main`
   with a successful conclusion. It checks out the triggering commit, runs
-  `yarn build:site`, verifies premium data and deploys to `channelId: live`
+  `yarn build:site`, verifies premium data and deploys to `channelId: live`.
 - `ci.yml`, named `CI`, runs the checks on pushes to and pull requests against
   `main`, and accepts manual dispatch. See [Running the frontend checks](running-frontend-checks.md#what-ci-runs)
-  for the job breakdown
+  for the job breakdown.
 - `sync-pairings.yml`, named `Sync pairings`, runs the `sync` job every Monday
   at 10:00 UTC and on manual dispatch. It runs `yarn sync-pairings`, typechecks
   and tests `analysis/`, then opens or updates a pull request when
   `analysis/src/data/limitless-decks.json` changes and dispatches CI on that
-  branch
+  branch.
 
 Running `firebase init hosting:github` again recreates the generated Hosting
 workflows; its merge workflow adds a second live deployment beside `deploy.yml`.
@@ -130,36 +141,36 @@ setup, dependency installation, the build and premium verification. The newest
 runs are already pending, GitHub cancels any additional run, so the newest
 commit may not deploy. Rerun Deploy for that commit or push again to start a
 new run. If the newest commit fails its checks, nothing deploys and live stays
-on the last deployed commit
+on the last deployed commit.
 
 A push to `main` starts CI, and a successful CI run for a push starts Deploy.
 Deploy checks out the CI run's head SHA rather than its own, and uses that SHA
 in both freshness checks. Do not use `[skip ci]` or push with `GITHUB_TOKEN`.
 Manual dispatch of CI does not start Deploy, because Deploy only accepts a
-completed push run
+completed push run.
 
 The `frontend`, `analysis`, `kofi` and `actionlint` jobs in `ci.yml` are the
 required checks on pull requests into `main`. Preview does not gate merging. A
 sync branch needs those checks before its PR can merge, so the sync job
-dispatches CI with `gh workflow run ci.yml --ref` after it pushes the branch
+dispatches CI with `gh workflow run ci.yml --ref` after it pushes the branch.
 
 Every workflow job has a `timeout-minutes` limit: `frontend` 15, `analysis` 10,
 `kofi` 10, `actionlint` 5, `preview` 25, `deploy` 25 and `sync` 15. The
 Firestore rules step inside `frontend` has its own five-minute limit, since an
-emulator hang is the likeliest stall
+emulator hang is the likeliest stall.
 
-The `actionlint` job downloads release v1.7.12 for `linux_amd64`, verifies the
-archive against `actionlint_1.7.12_checksums.txt` with `sha256sum -c` and runs
-it with shellcheck on the runner. `.github/actionlint.yaml` ignores the
-unsupported `queue` key in `deploy.yml` and `sync-pairings.yml` while upstream
-PR #654 remains unmerged
+The `actionlint` job downloads release v1.7.12 for `linux_amd64`, checks the
+archive against a pinned SHA-256 hash with `sha256sum -c` and runs it with
+shellcheck on the runner. `.github/actionlint.yaml` ignores the unsupported
+`queue` key in `deploy.yml` and `sync-pairings.yml` while upstream PR #654
+remains unmerged.
 
 Every third-party action in `.github/` is pinned to a 40-character commit SHA
 with a `# vX.Y.Z` comment. Dependabot's `github-actions` entry reads those
 comments and proposes updates. When you apply an update, keep the SHA and its
-comment in step, and check both directories listed in `.github/dependabot.yml`
+comment in step, and check both directories listed in `.github/dependabot.yml`.
 
-Both deploy workflows inject the Firebase web configuration as
+The deploy and preview workflows inject the Firebase web configuration as
 `VITE_FIREBASE_*` environment variables from repository secrets.
 
 Each job uses `.github/actions/setup`, which reads Node from `.nvmrc` and keys

@@ -15,6 +15,7 @@ export interface CommandSpec {
   args: string[];
   cwd?: string;
   logPath?: string;
+  env?: Record<string, string>;
 }
 
 export interface CommandResult {
@@ -57,6 +58,7 @@ export const defaultRunner: Runner = (command) => {
     cwd: spec.cwd,
     encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,
+    env: { ...process.env, ...command.env },
   });
   const stdout = result.stdout ?? "";
   const stderr = result.stderr ?? "";
@@ -329,7 +331,10 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
     return { file, args, cwd, logPath };
   };
   const yarn = (args: string[], cwd: string, name: string): CommandSpec => make("yarn", args, cwd, name);
-  const git = (args: string[], name: string): CommandSpec => make("git", args, root, name);
+  const git = (args: string[], name: string): CommandSpec => ({
+    ...make("git", args, root, name),
+    env: { LC_ALL: "C", LANGUAGE: "" },
+  });
 
   function failure(
     status: JobStatus,

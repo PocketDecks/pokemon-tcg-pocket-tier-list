@@ -18,6 +18,7 @@ permissions:
 jobs:
   frontend:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -27,6 +28,9 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           workspace: root
+
+      - name: Check generated files
+        run: yarn check:generated
 
       - name: Typecheck
         run: yarn typecheck
@@ -50,9 +54,11 @@ jobs:
 
       - name: Test Firestore rules
         run: yarn test:rules
+        timeout-minutes: 5
 
   analysis:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -73,8 +79,17 @@ jobs:
           cd analysis
           yarn test
 
+      - name: Run tests with a symlinked temporary directory
+        run: |
+          cd analysis
+          real_tmp="$(mktemp -d)"
+          link_tmp="${RUNNER_TEMP}/tmp-link"
+          ln -s "$real_tmp" "$link_tmp"
+          TMPDIR="$link_tmp" yarn test
+
   kofi:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -93,3 +108,22 @@ jobs:
 
       - name: Bundle Ko-fi receiver
         run: yarn --cwd workers/kofi wrangler deploy --dry-run --outdir dist-dry
+
+  actionlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install actionlint
+        run: |
+          curl -fsSLO "https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz"
+          curl -fsSLO "https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_checksums.txt"
+          sha256sum -c actionlint_1.7.12_checksums.txt --ignore-missing
+          tar -xzf actionlint_1.7.12_linux_amd64.tar.gz actionlint
+
+      - name: Run actionlint
+        run: ./actionlint

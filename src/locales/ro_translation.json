@@ -231,7 +231,8 @@
     "successReply": "Îți vom răspunde la {{email}}.",
     "sendAnother": "Trimite altul",
     "error": "Nu s-a putut trimite. Verifică-ți conexiunea și încearcă din nou peste câteva minute.",
-    "rateLimited": "Ai trimis deja feedback în ultima oră. Mesajul tău rămâne aici, așa că îl poți trimite după ce trece ora."
+    "rateLimited": "Ai trimis deja feedback în ultima oră. Mesajul tău rămâne aici, așa că îl poți trimite după ce trece ora.",
+    "rateLimitedFor": "You've already sent feedback in the last hour. Your message is still here, so you can send it in {{minutes}} minutes."
   },
   "hero": {
     "title": "Cele mai bune deck-uri și tier list pentru Pokemon TCG Pocket",

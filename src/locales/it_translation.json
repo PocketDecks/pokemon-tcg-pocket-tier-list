@@ -231,7 +231,8 @@
     "successReply": "Ti risponderemo a {{email}}.",
     "sendAnother": "Invia un altro",
     "error": "Invio non riuscito. Controlla la connessione e riprova tra qualche minuto.",
-    "rateLimited": "Hai già inviato un feedback nell'ultima ora. Il tuo messaggio resta qui, quindi puoi inviarlo allo scadere dell'ora."
+    "rateLimited": "Hai già inviato un feedback nell'ultima ora. Il tuo messaggio resta qui, quindi puoi inviarlo allo scadere dell'ora.",
+    "rateLimitedFor": "You've already sent feedback in the last hour. Your message is still here, so you can send it in {{minutes}} minutes."
   },
   "hero": {
     "title": "Migliori Mazzi e Tier List di Pokemon TCG Pocket",

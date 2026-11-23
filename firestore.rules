@@ -93,7 +93,8 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll(['lastAt', 'feedbackId'])
         && request.resource.data.lastAt == request.time
         && request.resource.data.feedbackId is string;
-      allow read, delete: if false;
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow delete: if false;
     }
   }
 }

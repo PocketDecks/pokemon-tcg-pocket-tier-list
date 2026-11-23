@@ -231,7 +231,8 @@
     "successReply": "Responderemos para {{email}}.",
     "sendAnother": "Enviar outro",
     "error": "Não foi possível enviar. Verifique sua conexão e tente de novo em alguns minutos.",
-    "rateLimited": "Você já enviou feedback na última hora. Sua mensagem continua aqui, então você pode enviá-la quando a hora passar."
+    "rateLimited": "Você já enviou feedback na última hora. Sua mensagem continua aqui, então você pode enviá-la quando a hora passar.",
+    "rateLimitedFor": "You've already sent feedback in the last hour. Your message is still here, so you can send it in {{minutes}} minutes."
   },
   "hero": {
     "title": "Melhores Decks e Tier List de Pokemon TCG Pocket",

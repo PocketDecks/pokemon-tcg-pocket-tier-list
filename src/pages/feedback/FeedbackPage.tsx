@@ -8,7 +8,7 @@ import Button from "../../components/Button";
 import SignInFailedNotice from "../../components/SignInFailedNotice";
 import NavIcon, { type NavIconName } from "../../components/NavIcon";
 import { LocaleLink } from "../../app/locale-link";
-import { submitFeedback } from "../../app/feedback-api";
+import { readFeedbackThrottle, submitFeedback } from "../../app/feedback-api";
 import {
   FEEDBACK_CATEGORIES,
   FEEDBACK_MAX_LENGTH,
@@ -290,6 +290,7 @@ const FeedbackPage = () => {
   const [agreed, setAgreed] = useState(false);
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<Status>("idle");
+  const [rateLimitMinutes, setRateLimitMinutes] = useState(0);
   const [showLengthError, setShowLengthError] = useState(false);
   const [showConsentError, setShowConsentError] = useState(false);
   const messageRef = useRef<HTMLTextAreaElement>(null);
@@ -330,6 +331,15 @@ const FeedbackPage = () => {
     }
     setStatus("sending");
     try {
+      const lastAt = await readFeedbackThrottle(user.uid);
+      if (lastAt !== null) {
+        const remaining = lastAt + 3_600_000 - Date.now();
+        if (remaining > 0) {
+          setRateLimitMinutes(Math.max(1, Math.ceil(remaining / 60_000)));
+          setStatus("limited");
+          return;
+        }
+      }
       await submitFeedback({
         uid: user.uid,
         email: user.email,
@@ -339,9 +349,8 @@ const FeedbackPage = () => {
         page: fromPage,
       });
       setStatus("sent");
-    } catch (error) {
-      const code = (error as { code?: string } | null)?.code;
-      setStatus(code === "permission-denied" ? "limited" : "error");
+    } catch {
+      setStatus("error");
     }
   };
 
@@ -486,7 +495,7 @@ const FeedbackPage = () => {
           </HoneyPot>
 
           {status === "error" && <ErrorText role="alert">{t("feedback.error")}</ErrorText>}
-          {status === "limited" && <ErrorText role="alert">{t("feedback.rateLimited")}</ErrorText>}
+          {status === "limited" && <ErrorText role="alert">{t("feedback.rateLimitedFor", { minutes: rateLimitMinutes })}</ErrorText>}
 
           <Actions>
             <Button isLoading={status === "sending"}>{t("feedback.submit")}</Button>

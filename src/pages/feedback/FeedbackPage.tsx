@@ -331,8 +331,13 @@ const FeedbackPage = () => {
       return;
     }
     setStatus("sending");
+    let lastAt: number | null = null;
     try {
-      const lastAt = await readFeedbackThrottle(user.uid);
+      lastAt = await readFeedbackThrottle(user.uid);
+    } catch {
+      lastAt = null;
+    }
+    try {
       if (lastAt !== null) {
         const remaining = lastAt + FEEDBACK_THROTTLE_MS - Date.now();
         if (remaining > 0) {

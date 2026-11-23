@@ -39,4 +39,27 @@ describe("feedback copy", () => {
   it.each(Object.entries(locales))("%s no longer carries the optional reply label", (_path, data) => {
     expect(data.feedback).not.toHaveProperty("contactLabel");
   });
+
+  const pluralLocales = ["en", "de", "es", "fr", "it", "pt", "ro"];
+
+  it.each(Object.entries(locales))("%s uses the right rate limit keys", (path, data) => {
+    const locale = path.replace(/^.*\//, "").replace(/_translation\.json$/, "");
+    const feedback = data.feedback as unknown as Record<string, string>;
+    expect(feedback).not.toHaveProperty("rateLimited");
+
+    const keys = Object.keys(feedback).filter((key) => key.startsWith("rateLimitedFor"));
+    const expected = pluralLocales.includes(locale)
+      ? locale === "ro"
+        ? ["rateLimitedFor_few", "rateLimitedFor_one", "rateLimitedFor_other"]
+        : ["rateLimitedFor_one", "rateLimitedFor_other"]
+      : ["rateLimitedFor"];
+    expect(keys.sort()).toEqual(expected);
+
+    const english = (locales["../en_translation.json"].feedback as unknown as Record<string, string>)
+      .rateLimitedFor_other;
+    for (const key of keys) {
+      expect(feedback[key]).toContain("{{minutes}}");
+      if (locale !== "en") expect(feedback[key]).not.toBe(english);
+    }
+  });
 });

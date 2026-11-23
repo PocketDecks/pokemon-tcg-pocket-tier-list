@@ -94,6 +94,21 @@ describe("refresh job file lists", () => {
     for (const name of PREMIUM_ARTEFACT_NAMES) expect(REFRESH_OUTPUT_FILES).toContain(`analysis/out/premium/${name}.json`);
   });
 
+  it("documents local branch reuse and both index refusals", () => {
+    const checkout = step("1. Work", "2. Create");
+    const branch = step("2. Create", "3. From");
+    const commit = step("11. Run", "12. Push");
+    const recovery = step("## Recovery", "## Failure rules");
+    expect(checkout).toContain("git diff --cached --name-only");
+    expect(branch).toContain("git rev-parse --verify --quiet refs/heads/<branch>");
+    expect(branch).toContain("checks out a local dated branch");
+    expect(branch).toContain("couldn't find remote ref");
+    expect(commit).toContain("naming exactly the paths the stage step printed");
+    expect(commit).toContain("git diff --cached --name-only");
+    expect(recovery).toContain("index has entries outside generated paths");
+    expect(recovery).toContain("makes no commit");
+  });
+
   it("keeps the update timestamp in the generated-output allowlist", () => {
     expect(writeArtefactKeys()).toContain("src/app/last-updated.ts");
     expect(REFRESH_OUTPUT_FILES).toContain("src/app/last-updated.ts");

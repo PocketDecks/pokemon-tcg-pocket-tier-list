@@ -6,20 +6,35 @@ import { spawnSync } from "node:child_process";
 
 import {
   CANONICAL_REPO,
-  MANUAL_REPAIR_MARKERS,
+  LOCK_RETRY_MARKERS,
   REFRESH_SUBJECT,
   buildPrBody,
+  classifyDownloadFailure,
   commandSpecFor,
   createRecordingRunner,
   defaultRunner,
   findCanonicalRemote,
   humanCommits,
+  isMissingRemoteBranch,
   isSilentDay,
   needsPersonForRefusal,
   readPublishingValues,
   runJob,
+  storeLockRetry,
+  thrownDownloadError,
 } from "../../scripts/refresh-job";
-import type { CommandResult, CommandSpec, Runner } from "../../scripts/refresh-job";
+import type { CommandResult, CommandSpec, DownloadDecision, Runner } from "../../scripts/refresh-job";
+import { interruptedWriteMessage } from "../utils/deck-store";
+import {
+  changingMessage,
+  claimHeldMessage,
+  claimMismatchMessage,
+  cleanupFailureMessage,
+  displacedMessage,
+  heldMessage,
+  mainThreadMessage,
+  ownClaimHeldMessage,
+} from "../utils/store-lock";
 
 vi.mock("node:child_process", () => ({ spawnSync: vi.fn() }));
 
@@ -132,6 +147,24 @@ const publishingClassify = (command: CommandSpec): CommandResult | undefined =>
     ? ok("analysis/src/data/limitless-decks.json\n")
     : undefined;
 
+const interruptedOutput = `Error: ${interruptedWriteMessage(["analysis/data/decks/c1.ndjson.tmp"])}`;
+
+const messageCases = [
+  { name: "held lock", message: heldMessage("/data/store", "4242\n"), expected: "needs-person" as DownloadDecision },
+  { name: "displaced lock", message: displacedMessage("/data/store", "4242\n", "/data/store.reclaim"), expected: "fail" as DownloadDecision },
+  { name: "claim held without retry", message: claimHeldMessage("/data/claim", 4242, false), expected: "needs-person" as DownloadDecision },
+  { name: "claim held with retry", message: claimHeldMessage("/data/claim", 4242, true), expected: "retry" as DownloadDecision },
+  { name: "claim without pid", message: claimHeldMessage("/data/claim", undefined, false), expected: "retry" as DownloadDecision },
+  { name: "own claim held", message: ownClaimHeldMessage("/data/claim", 4242), expected: "fail" as DownloadDecision },
+  { name: "claim mismatch", message: claimMismatchMessage("/data/claim"), expected: "fail" as DownloadDecision },
+  { name: "worker thread", message: mainThreadMessage, expected: "fail" as DownloadDecision },
+  { name: "changing lock", message: changingMessage("/data/store"), expected: "retry" as DownloadDecision },
+  { name: "cleanup failure", message: cleanupFailureMessage("write failed", ["remove failed"]), expected: "fail" as DownloadDecision },
+  { name: "interrupted write", message: interruptedOutput, expected: "needs-person" as DownloadDecision },
+  { name: "duplicate deck", message: "Deck 123 already exists in shard c1", expected: "needs-person" as DownloadDecision },
+  { name: "interrupted processed", message: "interrupted processed-tournaments write: processed-tournaments.json.tmp", expected: "needs-person" as DownloadDecision },
+];
+
 describe("refresh job decisions with a fake runner", () => {
   it("finds the canonical remote by its GitHub URL", () => {
     expect(findCanonicalRemote(`upstream\thttps://github.com/other/repo.git (fetch)\npocket\thttps://github.com/${CANONICAL_REPO}.git (fetch)\n`)).toBe("pocket");
@@ -154,12 +187,36 @@ describe("refresh job decisions with a fake runner", () => {
     expect(buildPrBody({ tournaments: 2, decks: 7, windows: WINDOWS, imageParity: PARITY, premiumVersion: "v1" })).toContain("Premium data version `v1`");
   });
 
-  it("classifies store refusals by their wording", () => {
-    for (const marker of MANUAL_REPAIR_MARKERS) {
-      expect(needsPersonForRefusal(`refused: ${marker}`)).toBe(true);
-    }
-    expect(needsPersonForRefusal("another run is starting, so retry shortly")).toBe(false);
-    expect(needsPersonForRefusal("thrown error")).toBe(false);
+  it.each(messageCases)("classifies the real message for $name as $expected", ({ message, expected }) => {
+    expect(classifyDownloadFailure(message)).toBe(expected);
+  });
+
+  it("shows the old order loses the interrupted write and the dual-marker claim", () => {
+    const oldManualMarkers = [
+      "remove the lock file",
+      "remove that claim file",
+      "already exists in shard",
+      "interrupted processed-tournaments",
+    ];
+    const oldOrder = (output: string): DownloadDecision => {
+      if (oldManualMarkers.some((marker) => output.toLowerCase().includes(marker))) return "needs-person";
+      if (LOCK_RETRY_MARKERS.some((marker) => output.toLowerCase().includes(marker))) return "retry";
+      if (thrownDownloadError(output)) return "rerun";
+      return "fail";
+    };
+    const dual = claimHeldMessage("/data/claim", 4242, true);
+    expect(classifyDownloadFailure(dual)).toBe("retry");
+    expect(oldOrder(dual)).toBe("needs-person");
+    expect(classifyDownloadFailure(interruptedOutput)).toBe("needs-person");
+    expect(oldOrder(interruptedOutput)).toBe("rerun");
+  });
+
+  it("matches only the missing remote ref refusal", () => {
+    expect(isMissingRemoteBranch("error: couldn't find remote ref refs/heads/x")).toBe(true);
+    expect(isMissingRemoteBranch("fatal: Repository not found")).toBe(false);
+    expect(isMissingRemoteBranch("fatal: no such ref was fetched")).toBe(false);
+    expect(needsPersonForRefusal("remove the lock file")).toBe(true);
+    expect(storeLockRetry("so retry the run")).toBe(true);
   });
 
   it("spawns Yarn through the executable and arguments from commandSpecFor", () => {
@@ -194,9 +251,24 @@ describe("refresh job decisions with a fake runner", () => {
   });
 
   it("reuses and checks out an existing dated branch", async () => {
-    const h = harness((c) => (commandText(c).startsWith("fetch origin automated/") ? ok("", { status: 0 }) : undefined));
+    const h = harness((c) => (commandText(c).startsWith("fetch pocket automated/") ? ok("", { status: 0 }) : undefined));
     await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
     expect(h.calls.some((c) => commandText(c) === "checkout automated/pipeline-update-2026-11-23")).toBe(true);
+  });
+
+  it("checks out a local dated branch when the remote ref is absent", async () => {
+    const branch = "automated/pipeline-update-2026-11-23";
+    const h = harness((c) => {
+      const text = commandText(c);
+      if (text.startsWith("fetch pocket automated/")) {
+        return ok("", { status: 1, stderr: `error: couldn't find remote ref refs/heads/${branch}\n` });
+      }
+      if (text.startsWith("rev-parse --verify --quiet refs/heads/")) return ok(`${branch}\n`);
+      return undefined;
+    });
+    await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(h.calls.some((c) => commandText(c) === `checkout ${branch}`)).toBe(true);
+    expect(h.calls.some((c) => commandText(c).startsWith("checkout -b"))).toBe(false);
   });
 
   it("stops for a person on a human commit", async () => {
@@ -234,12 +306,26 @@ describe("refresh job decisions with a fake runner", () => {
     const h = harness((c) => {
       if (!commandText(c).startsWith("download")) return undefined;
       downloads += 1;
-      return downloads === 1 ? ok("Store lock claim is busy, so retry the run\n", { status: 1 }) : ok();
+      return downloads === 1 ? ok(`${changingMessage("/data/store")}\n`, { status: 1 }) : ok();
     });
     const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23", sleep: async (ms) => { sleeps.push(ms); } });
     expect(downloads).toBe(2);
     expect(sleeps).toEqual([10000]);
     expect(outcome.status).toBe("silent");
+  });
+
+  it("backs up the raw store and stops for a person on an interrupted write", async () => {
+    let downloads = 0;
+    const h = harness((c) => {
+      if (!commandText(c).startsWith("download")) return undefined;
+      downloads += 1;
+      return ok(`${interruptedOutput}\n`, { status: 1 });
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(downloads).toBe(1);
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 6");
+    expect(fs.existsSync(path.join(h.root, "analysis", "data-backup", "2026-11-23"))).toBe(true);
   });
 
   it("reads publishing values from trimmed real files at their real paths", () => {
@@ -328,7 +414,7 @@ describe("refresh job decisions with a fake runner", () => {
       if (!commandText(c).startsWith("download")) return undefined;
       downloads += 1;
       return downloads === 1
-        ? ok("or remove that claim file if the process is gone; another run is starting, so retry shortly\n", { status: 1 })
+        ? ok(`${claimHeldMessage("/data/claim", 4242, true)}\n`, { status: 1 })
         : ok();
     });
     const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23", sleep: async () => {} });
@@ -343,10 +429,22 @@ describe("refresh job decisions with a fake runner", () => {
     expect(commit?.args).toEqual(["commit", "-m", REFRESH_SUBJECT, "--", "public/data/best-decks.json"]);
   });
 
-  it("refuses a commit when the index holds unrelated entries", async () => {
+  it("refuses at step 1 when the index already holds entries", async () => {
+    const h = harness((c) => (commandText(c).startsWith("diff --cached --name-only") ? ok("README.md\n") : undefined));
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 1");
+    expect(h.calls.some((c) => commandText(c).startsWith("refresh:outputs begin"))).toBe(false);
+  });
+
+  it("refuses a commit when the index holds unrelated entries at stage time", async () => {
+    let staged = false;
     const h = harness((c) => {
-      if (commandText(c).startsWith("refresh:outputs stage")) return ok("public/data/best-decks.json\n");
-      if (commandText(c).startsWith("diff --cached --name-only")) return ok("README.md\n");
+      if (commandText(c).startsWith("refresh:outputs stage")) {
+        staged = true;
+        return ok("public/data/best-decks.json\n");
+      }
+      if (staged && commandText(c).startsWith("diff --cached --name-only")) return ok("README.md\n");
       return publishingClassify(c);
     });
     const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
@@ -361,6 +459,14 @@ describe("refresh job decisions with a fake runner", () => {
     expect(outcome.status).toBe("failed");
     expect(outcome.step).toBe("step 2");
     expect(outcome.firstErrorLines.join(" ")).toContain("unable to access remote");
+  });
+
+  it("fails a repository-not-found refusal instead of treating it as a missing branch", async () => {
+    const h = harness((c) => (commandText(c).startsWith("fetch pocket automated/") ? ok("", { status: 1, stderr: "fatal: Repository not found\n" }) : undefined));
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("failed");
+    expect(outcome.step).toBe("step 2");
+    expect(outcome.firstErrorLines.join(" ")).toContain("Repository not found");
   });
 
   it("completes a dry run without generated publishing files", async () => {

@@ -231,7 +231,8 @@
     "successReply": "Te responderemos a {{email}}.",
     "sendAnother": "Enviar otro",
     "error": "No se ha podido enviar. Revisa tu conexión y vuelve a intentarlo en unos minutos.",
-    "rateLimited": "Ya enviaste comentarios en la última hora. Tu mensaje sigue aquí, así que puedes enviarlo cuando pase la hora."
+    "rateLimitedFor_one": "Ya enviaste comentarios en la última hora. Tu mensaje sigue aquí, así que puedes enviarlo en {{minutes}} minuto.",
+    "rateLimitedFor_other": "Ya enviaste comentarios en la última hora. Tu mensaje sigue aquí, así que puedes enviarlo en {{minutes}} minutos."
   },
   "hero": {
     "title": "Mejores mazos y Tier List de Pokémon TCG Pocket",

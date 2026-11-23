@@ -231,7 +231,8 @@
     "successReply": "We'll reply to {{email}}.",
     "sendAnother": "Send another",
     "error": "That didn't send. Check your connection and try again in a few minutes.",
-    "rateLimited": "You've already sent feedback in the last hour. Your message is still here, so you can send it once the hour is up."
+    "rateLimitedFor_one": "You've already sent feedback in the last hour. Your message is still here, so you can send it in {{minutes}} minute.",
+    "rateLimitedFor_other": "You've already sent feedback in the last hour. Your message is still here, so you can send it in {{minutes}} minutes."
   },
   "hero": {
     "title": "Pokemon TCG Pocket Best Decks and Tier List",

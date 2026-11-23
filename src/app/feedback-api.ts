@@ -1,6 +1,12 @@
-import { collection, doc, getFirestore, serverTimestamp, writeBatch } from "firebase/firestore";
+import { collection, doc, getDoc, getFirestore, serverTimestamp, writeBatch } from "firebase/firestore";
 import app from "../config/firebase";
 import type { FeedbackSubmission } from "./feedback";
+
+export const readFeedbackThrottle = async (uid: string): Promise<number | null> => {
+  const snapshot = await getDoc(doc(getFirestore(app), "feedbackThrottle", uid));
+  const lastAt = snapshot.data()?.lastAt as { toMillis?: () => number } | undefined;
+  return lastAt && typeof lastAt.toMillis === "function" ? lastAt.toMillis() : null;
+};
 
 export const submitFeedback = async (submission: FeedbackSubmission): Promise<void> => {
   const db = getFirestore(app);

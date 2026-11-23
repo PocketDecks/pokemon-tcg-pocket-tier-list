@@ -1,3 +1,5 @@
+export const FEEDBACK_THROTTLE_MS = 3_600_000;
+
 export const FEEDBACK_CATEGORIES = [
   "idea",
   "bug",

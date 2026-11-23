@@ -102,6 +102,17 @@ export const humanCommits = (log: string, automationEmail: string): string[] =>
 export const isSilentDay = (classifyOutput: string): boolean =>
   classifyOutput.trim().length === 0;
 
+const prState = (output: string): { number: number; state: string } | null => {
+  try {
+    const parsed = JSON.parse(output) as { number?: number; state?: string };
+    return typeof parsed.number === "number" && typeof parsed.state === "string"
+      ? { number: parsed.number, state: parsed.state }
+      : null;
+  } catch {
+    return null;
+  }
+};
+
 const commitSummaries = (log: string): string[] =>
   log
     .split(/\r?\n/)
@@ -528,9 +539,10 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
         if (unpublished.length > 0) {
           failure("needs-person", "step 9", unpublishedCommand, [`unpublished commits on ${branch}`, ...unpublished]);
         }
-        const prCheckCommand = make("gh", ["pr", "view", branch, "--repo", CANONICAL_REPO, "--json", "number", "--jq", ".number"], root, "pr-check");
+        const prCheckCommand = make("gh", ["pr", "view", branch, "--repo", CANONICAL_REPO, "--json", "number,state"], root, "pr-check");
         const prCheck = options.runner(prCheckCommand);
-        if (prCheck.status !== 0 || !prCheck.stdout.trim()) {
+        const checked = prState(prCheck.stdout);
+        if (prCheck.status !== 0 || !checked || checked.state !== "OPEN") {
           failure("needs-person", "step 9", prCheckCommand, [`no open pull request for ${branch}`, ...automationCommits]);
         }
       }
@@ -567,9 +579,10 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
     const localHead = simple("step 12", git(["rev-parse", "HEAD"], "head"));
     const headSha = localHead.stdout.trim();
     const body = buildPrBody(values);
-    const existing = options.runner(make("gh", ["pr", "view", branch, "--repo", CANONICAL_REPO, "--json", "number", "--jq", ".number"], root, "pr-view"));
-    const prCommand = existing.status === 0 && existing.stdout.trim()
-      ? make("gh", ["pr", "edit", existing.stdout.trim(), "--repo", CANONICAL_REPO, "--body", body], root, "pr-edit")
+    const existing = options.runner(make("gh", ["pr", "view", branch, "--repo", CANONICAL_REPO, "--json", "number,state"], root, "pr-view"));
+    const found = existing.status === 0 ? prState(existing.stdout) : null;
+    const prCommand = found?.state === "OPEN"
+      ? make("gh", ["pr", "edit", String(found.number), "--repo", CANONICAL_REPO, "--body", body], root, "pr-edit")
       : make("gh", ["pr", "create", "--repo", CANONICAL_REPO, "--base", "main", "--head", branch, "--title", REFRESH_SUBJECT, "--body", body], root, "pr-create");
     simple("step 12", prCommand);
 

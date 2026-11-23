@@ -530,6 +530,12 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
       const automationLog = options.runner(automationLogCommand);
       if (automationLog.status !== 0) failure("failed", "step 9", automationLogCommand, [automationLog.stderr]);
       const automationCommits = commitSummaries(automationLog.stdout);
+      if (remoteExists) {
+        const remoteAutomationCommand = git(["log", "--format=%h%x1f%an%x1f%ae%x1f%s", `main..refs/remotes/${remote}/${branch}`], "silent-remote-log");
+        const remoteAutomationLog = options.runner(remoteAutomationCommand);
+        if (remoteAutomationLog.status !== 0) failure("failed", "step 9", remoteAutomationCommand, [remoteAutomationLog.stderr]);
+        automationCommits.push(...commitSummaries(remoteAutomationLog.stdout));
+      }
       if (automationCommits.length > 0) {
         const base = remoteExists ? `refs/remotes/${remote}/${branch}` : "main";
         const unpublishedCommand = git(["log", "--format=%h%x1f%an%x1f%ae%x1f%s", `${base}..${branch}`], "unpublished-log");

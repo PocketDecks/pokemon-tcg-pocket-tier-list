@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getFirestore, serverTimestamp, writeBatch } from "firebase/firestore";
+import { collection, doc, getDoc, getFirestore, serverTimestamp, writeBatch } from "firebase/firestore/lite";
 import app from "../config/firebase";
 import type { FeedbackSubmission } from "./feedback";
 

@@ -57,7 +57,7 @@ const loadArtefactAtVersion = async (
   version: string
 ): Promise<{ found: true; value: unknown } | { found: false }> => {
   const [{ doc, getDoc, getFirestore }, { default: app }] = await Promise.all([
-    import("firebase/firestore"),
+    import("firebase/firestore/lite"),
     import("../config/firebase"),
   ]);
   const reference = doc(getFirestore(app), "premiumData", version, "artefacts", name);

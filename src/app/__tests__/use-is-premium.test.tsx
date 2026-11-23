@@ -12,7 +12,7 @@ const firestore = vi.hoisted(() => ({
   getFirestore: vi.fn(() => ({ kind: "db" })),
 }));
 
-vi.mock("firebase/firestore", () => firestore);
+vi.mock("firebase/firestore/lite", () => firestore);
 vi.mock("../../contexts/AuthContext", () => ({ useAuth: vi.fn() }));
 vi.mock("../../config/firebase", () => ({ default: { name: "app" } }));
 

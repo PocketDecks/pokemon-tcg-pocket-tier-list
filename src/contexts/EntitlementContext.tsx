@@ -21,7 +21,7 @@ const MAX_TIMEOUT = 2_147_483_647;
 const NO_ENTITLEMENT: DecodedEntitlement = { premium: false, expiresAtMs: null };
 
 const getEntitlement = async (uid: string): Promise<DecodedEntitlement> => {
-  const { doc, getDoc, getFirestore } = await import("firebase/firestore");
+  const { doc, getDoc, getFirestore } = await import("firebase/firestore/lite");
   const { default: app } = await import("../config/firebase");
   const snapshot = await getDoc(doc(getFirestore(app), ENTITLEMENT_COLLECTION, uid));
   if (!snapshot.exists()) return NO_ENTITLEMENT;

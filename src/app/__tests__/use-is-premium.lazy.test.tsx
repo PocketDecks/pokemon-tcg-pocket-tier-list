@@ -7,7 +7,7 @@ import { useAuth } from "../../contexts/AuthContext";
 
 const loaded = vi.hoisted(() => ({ firestore: false }));
 
-vi.mock("firebase/firestore", () => {
+vi.mock("firebase/firestore/lite", () => {
   loaded.firestore = true;
   return {
     doc: vi.fn(),

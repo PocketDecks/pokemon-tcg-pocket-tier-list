@@ -231,8 +231,8 @@
     "successReply": "Wir antworten an {{email}}.",
     "sendAnother": "Noch etwas senden",
     "error": "Das hat nicht geklappt. Prüfe deine Verbindung und versuche es in ein paar Minuten erneut.",
-    "rateLimited": "Du hast in der letzten Stunde bereits Feedback gesendet. Deine Nachricht bleibt hier, du kannst sie senden, sobald die Stunde um ist.",
-    "rateLimitedFor": "You've already sent feedback in the last hour. Your message is still here, so you can send it in {{minutes}} minutes."
+    "rateLimitedFor_one": "Du hast in der letzten Stunde bereits Feedback gesendet. Deine Nachricht bleibt hier, du kannst sie in {{minutes}} Minute senden.",
+    "rateLimitedFor_other": "Du hast in der letzten Stunde bereits Feedback gesendet. Deine Nachricht bleibt hier, du kannst sie in {{minutes}} Minuten senden."
   },
   "hero": {
     "title": "Pokémon TCG Pocket Beste Decks und Tier-Liste",

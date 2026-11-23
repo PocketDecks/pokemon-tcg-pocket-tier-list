@@ -331,7 +331,7 @@ const FeedbackPage = () => {
       return;
     }
     setStatus("sending");
-    let lastAt: number | null = null;
+    let lastAt: number | null;
     try {
       lastAt = await readFeedbackThrottle(user.uid);
     } catch {

@@ -149,6 +149,9 @@ const publishingClassify = (command: CommandSpec): CommandResult | undefined =>
 
 const interruptedOutput = `Error: ${interruptedWriteMessage(["analysis/data/decks/c1.ndjson.tmp"])}`;
 
+const manyProgressLines = (): string =>
+  Array.from({ length: 20_000 }, (_, index) => `progress batch ${index} written`).join("\n");
+
 const messageCases = [
   { name: "held lock", message: heldMessage("/data/store", "4242\n"), expected: "needs-person" as DownloadDecision },
   { name: "displaced lock", message: displacedMessage("/data/store", "4242\n", "/data/store.reclaim"), expected: "fail" as DownloadDecision },
@@ -530,6 +533,50 @@ describe("refresh job decisions with a fake runner", () => {
     expect(outcome.status).toBe("failed");
     expect(outcome.step).toBe("step 2");
     expect(outcome.firstErrorLines.join(" ")).toContain("Repository not found");
+  });
+
+  it("keeps the duplicate-deck message from a long step 6 output", async () => {
+    const message = duplicateDeckMessage("123", "c1");
+    let downloads = 0;
+    const h = harness((c) => {
+      if (!commandText(c).startsWith("download")) return undefined;
+      downloads += 1;
+      return downloads === 1
+        ? ok("thrown write error\n", { status: 1 })
+        : ok(`${manyProgressLines()}\n${message}\n`, { status: 1 });
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 6");
+    expect(outcome.firstErrorLines.join(" ")).toContain(message);
+    expect(JSON.stringify(outcome).length).toBeLessThan(4000);
+  });
+
+  it("bounds a long stderr from a simple step", async () => {
+    const h = harness((c) => (commandText(c).startsWith("sync-pairings")
+      ? ok("", { status: 1, stderr: `${manyProgressLines()}\nfatal: unable to access remote ${"x".repeat(10_000)}\n` })
+      : undefined));
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("failed");
+    expect(outcome.step).toBe("step 3");
+    expect(outcome.firstErrorLines.join(" ")).toContain("unable to access remote");
+    expect(JSON.stringify(outcome).length).toBeLessThan(4000);
+  });
+
+  it("keeps the discard instruction first in a long killed output", async () => {
+    const h = harness((c) => {
+      if (!commandText(c).startsWith("download")) return undefined;
+      return ok(`${manyProgressLines()}\nspawnSync yarn ENOBUFS\n`, {
+        status: null,
+        signal: "SIGTERM",
+        error: "spawnSync yarn ENOBUFS",
+      });
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 6");
+    expect(outcome.firstErrorLines[0]).toBe("yarn refresh:outputs discard");
+    expect(JSON.stringify(outcome).length).toBeLessThan(4000);
   });
 
   it("completes a dry run without generated publishing files", async () => {

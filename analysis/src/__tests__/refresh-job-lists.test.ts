@@ -94,6 +94,13 @@ describe("refresh job file lists", () => {
     for (const name of PREMIUM_ARTEFACT_NAMES) expect(REFRESH_OUTPUT_FILES).toContain(`analysis/out/premium/${name}.json`);
   });
 
+  it("states the bounded JSON error report rule", () => {
+    expect(job).toContain("each line is capped at 500 characters");
+    expect(job).toContain("the last progress lines when no error line matches");
+    expect(job).toContain("At most five lines reach the JSON line");
+    expect(job).toContain("the full output stays in the dated log");
+  });
+
   it("documents local branch reuse and both index refusals", () => {
     const checkout = step("1. Work", "2. Create");
     const branch = step("2. Create", "3. From");

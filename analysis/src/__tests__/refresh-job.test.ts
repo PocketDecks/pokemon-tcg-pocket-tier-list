@@ -880,6 +880,42 @@ describe("refresh job decisions with a fake runner", () => {
     expect(outcome.firstErrorLines.join(" ")).toContain("no open pull request");
   });
 
+  const remoteCommit = `bbb2222\x1fAutomation\x1fbot@example.invalid\x1f${REFRESH_SUBJECT}\n`;
+
+  const silentWithRemoteCommit = async (pr?: CommandResult): Promise<Awaited<ReturnType<typeof runJob>>> => {
+    const h = harness((c) => {
+      const text = commandText(c);
+      if (text.startsWith("log --format")) {
+        if (text.includes("main..refs/remotes/pocket/automated/")) return ok(remoteCommit);
+        return ok("");
+      }
+      if (text.startsWith("pr view") && pr) return pr;
+      return undefined;
+    });
+    return runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+  };
+
+  it("stops for a person when a remote automation commit has no pull request", async () => {
+    const outcome = await silentWithRemoteCommit();
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 9");
+    expect(outcome.firstErrorLines.join(" ")).toContain("no open pull request");
+    expect(outcome.firstErrorLines.join(" ")).toContain("bbb2222");
+  });
+
+  it("stops for a person when a remote automation commit has a MERGED pull request", async () => {
+    const outcome = await silentWithRemoteCommit(ok('{"number":194,"state":"MERGED"}\n'));
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 9");
+    expect(outcome.firstErrorLines.join(" ")).toContain("no open pull request");
+    expect(outcome.firstErrorLines.join(" ")).toContain("bbb2222");
+  });
+
+  it("stays silent when a remote automation commit has an OPEN pull request", async () => {
+    const outcome = await silentWithRemoteCommit(ok('{"number":191,"state":"OPEN"}\n'));
+    expect(outcome.status).toBe("silent");
+  });
+
   const publishWithPrState = async (state: string): Promise<Harness> => {
     const h = harness((c) => {
       const text = commandText(c);

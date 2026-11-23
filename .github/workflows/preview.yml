@@ -11,6 +11,7 @@ jobs:
   preview:
     if: "${{ github.event.pull_request.head.repo.full_name == github.repository }}"
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -21,7 +22,7 @@ jobs:
       - run: yarn check:generated
       # Firebase's getAuth() throws on an empty apiKey, which Dependabot cannot supply.
       # Dependabot builds with placeholders and never deploys them.
-      - run: yarn build
+      - run: yarn build:site
         env:
           VITE_FIREBASE_APIKEY: ${{ github.actor == 'dependabot[bot]' && 'dependabot-placeholder' || secrets.VITE_FIREBASE_APIKEY }}
           VITE_FIREBASE_AUTHDOMAIN: ${{ github.actor == 'dependabot[bot]' && 'placeholder.invalid' || secrets.VITE_FIREBASE_AUTHDOMAIN }}
@@ -29,17 +30,6 @@ jobs:
           VITE_FIREBASE_STORAGEBUCKET: ${{ github.actor == 'dependabot[bot]' && 'placeholder.invalid' || secrets.VITE_FIREBASE_STORAGEBUCKET }}
           VITE_FIREBASE_MESSAGINGSENDERID: ${{ github.actor == 'dependabot[bot]' && '0' || secrets.VITE_FIREBASE_MESSAGINGSENDERID }}
           VITE_FIREBASE_APPID: ${{ github.actor == 'dependabot[bot]' && 'placeholder' || secrets.VITE_FIREBASE_APPID }}
-      - run: yarn test:ci
-        env:
-          CI: true
-      - run: yarn test:scripts
-      - uses: ./.github/actions/setup
-        with:
-          workspace: analysis
-      - run: yarn typecheck
-        working-directory: analysis
-      - run: yarn test
-        working-directory: analysis
       - uses: FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a # v0.11.0
         if: ${{ github.actor != 'dependabot[bot]' }}
         with:

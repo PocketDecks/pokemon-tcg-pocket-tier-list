@@ -24,7 +24,7 @@ import {
   thrownDownloadError,
 } from "../../scripts/refresh-job";
 import type { CommandResult, CommandSpec, DownloadDecision, Runner } from "../../scripts/refresh-job";
-import { interruptedWriteMessage } from "../utils/deck-store";
+import { duplicateDeckMessage, interruptedProcessedMessage, interruptedWriteMessage } from "../utils/deck-store";
 import {
   changingMessage,
   claimHeldMessage,
@@ -161,8 +161,8 @@ const messageCases = [
   { name: "changing lock", message: changingMessage("/data/store"), expected: "retry" as DownloadDecision },
   { name: "cleanup failure", message: cleanupFailureMessage("write failed", ["remove failed"]), expected: "fail" as DownloadDecision },
   { name: "interrupted write", message: interruptedOutput, expected: "needs-person" as DownloadDecision },
-  { name: "duplicate deck", message: "Deck 123 already exists in shard c1", expected: "needs-person" as DownloadDecision },
-  { name: "interrupted processed", message: "interrupted processed-tournaments write: processed-tournaments.json.tmp", expected: "needs-person" as DownloadDecision },
+  { name: "duplicate deck", message: duplicateDeckMessage("123", "c1"), expected: "needs-person" as DownloadDecision },
+  { name: "interrupted processed", message: interruptedProcessedMessage("processed-tournaments.json", ".tmp"), expected: "needs-person" as DownloadDecision },
 ];
 
 describe("refresh job decisions with a fake runner", () => {
@@ -328,6 +328,54 @@ describe("refresh job decisions with a fake runner", () => {
     expect(fs.existsSync(path.join(h.root, "analysis", "data-backup", "2026-11-23"))).toBe(true);
   });
 
+  it("stops with a backup when the thrown-error rerun refuses with a duplicate deck", async () => {
+    let downloads = 0;
+    const h = harness((c) => {
+      if (!commandText(c).startsWith("download")) return undefined;
+      downloads += 1;
+      return downloads === 1
+        ? ok("thrown write error\n", { status: 1 })
+        : ok(`${duplicateDeckMessage("123", "c1")}\n`, { status: 1 });
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(downloads).toBe(2);
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 6");
+    expect(fs.existsSync(path.join(h.root, "analysis", "data-backup", "2026-11-23"))).toBe(true);
+  });
+
+  it("stops with a backup when a lock retry then needs a person", async () => {
+    let downloads = 0;
+    const h = harness((c) => {
+      if (!commandText(c).startsWith("download")) return undefined;
+      downloads += 1;
+      return downloads === 1
+        ? ok(`${claimHeldMessage("/data/claim", 4242, true)}\n`, { status: 1 })
+        : ok(`${heldMessage("/data/store", "4242\n")}\n`, { status: 1 });
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23", sleep: async () => {} });
+    expect(downloads).toBe(2);
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 6");
+    expect(fs.existsSync(path.join(h.root, "analysis", "data-backup", "2026-11-23"))).toBe(true);
+  });
+
+  it("stops for a discard when the thrown-error rerun is killed", async () => {
+    let downloads = 0;
+    const h = harness((c) => {
+      if (!commandText(c).startsWith("download")) return undefined;
+      downloads += 1;
+      return downloads === 1
+        ? ok("thrown write error\n", { status: 1 })
+        : ok("", { status: null, signal: "SIGKILL" });
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(downloads).toBe(2);
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 6");
+    expect(outcome.firstErrorLines.join(" ")).toContain("yarn refresh:outputs discard");
+  });
+
   it("reads publishing values from trimmed real files at their real paths", () => {
     const root = fixtureRoot();
     const scratch = scratchRoot(root);
@@ -434,6 +482,7 @@ describe("refresh job decisions with a fake runner", () => {
     const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
     expect(outcome.status).toBe("needs-person");
     expect(outcome.step).toBe("step 1");
+    expect(outcome.firstErrorLines.join(" ")).toContain("index already holds entries");
     expect(h.calls.some((c) => commandText(c).startsWith("refresh:outputs begin"))).toBe(false);
   });
 

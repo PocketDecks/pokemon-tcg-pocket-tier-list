@@ -100,13 +100,15 @@ describe("refresh job file lists", () => {
     const commit = step("11. Run", "12. Push");
     const recovery = step("## Recovery", "## Failure rules");
     expect(checkout).toContain("git diff --cached --name-only");
+    expect(checkout).toContain("index already holds entries");
     expect(branch).toContain("git rev-parse --verify --quiet refs/heads/<branch>");
     expect(branch).toContain("checks out a local dated branch");
     expect(branch).toContain("couldn't find remote ref");
     expect(commit).toContain("naming exactly the paths the stage step printed");
     expect(commit).toContain("git diff --cached --name-only");
+    expect(recovery).toContain("index already holds entries");
     expect(recovery).toContain("index has entries outside generated paths");
-    expect(recovery).toContain("makes no commit");
+    expect(recovery).toContain("Follow the step 11 restore procedure below");
   });
 
   it("keeps the update timestamp in the generated-output allowlist", () => {

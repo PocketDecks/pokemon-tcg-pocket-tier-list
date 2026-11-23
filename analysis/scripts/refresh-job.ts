@@ -45,6 +45,7 @@ export const MANUAL_REPAIR_MARKERS = [
   "remove that claim file",
   "already exists in shard",
   "interrupted processed-tournaments",
+  "keep the write blocked",
 ] as const;
 
 export const defaultRunner: Runner = (command) => {
@@ -193,13 +194,22 @@ export const storeLockRetry = (output: string): boolean =>
   LOCK_RETRY_MARKERS.some((marker) => output.toLowerCase().includes(marker));
 
 export const isMissingRemoteBranch = (output: string): boolean =>
-  /couldn't find remote ref|not found|no such ref/i.test(output);
+  /couldn't find remote ref/i.test(output);
 
 export const needsPersonForRefusal = (output: string): boolean =>
   MANUAL_REPAIR_MARKERS.some((marker) => output.toLowerCase().includes(marker));
 
 export const thrownDownloadError = (output: string): boolean =>
   /thrown|error:|exception/i.test(output);
+
+export type DownloadDecision = "retry" | "needs-person" | "rerun" | "fail";
+
+export const classifyDownloadFailure = (output: string): DownloadDecision => {
+  if (storeLockRetry(output)) return "retry";
+  if (needsPersonForRefusal(output)) return "needs-person";
+  if (thrownDownloadError(output)) return "rerun";
+  return "fail";
+};
 
 export const copyRawStore = (root: string, date: string): string => {
   const target = path.join(root, "analysis", "data-backup", date);
@@ -310,6 +320,14 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
       ]);
     }
 
+    const indexCommand = git(["diff", "--cached", "--name-only"], "index-check");
+    const staged = options.runner(indexCommand);
+    if (staged.status !== 0) failure("failed", "step 1", indexCommand, [staged.stderr]);
+    const stagedPaths = staged.stdout.split(/\r?\n/).map((entry) => entry.trim()).filter(Boolean);
+    if (stagedPaths.length > 0) {
+      failure("needs-person", "step 1", indexCommand, [`index has entries outside generated paths: ${stagedPaths.join(", ")}`]);
+    }
+
     const remotes = options.runner(git(["remote", "-v"], "remote-list"));
     if (remotes.status !== 0) failure("failed", "step 1", git(["remote", "-v"], "remote-list"), [remotes.error ?? remotes.stderr]);
     const remote = findCanonicalRemote(remotes.stdout) ?? "";
@@ -387,39 +405,37 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
     }
 
     const downloadCommand = yarn(["download"], scratchAnalysis, "download");
+    const outputOf = (result: CommandResult): string => `${result.stdout}\n${result.stderr}`;
+    const stopWithBackup = (output: string): never => {
+      copyRawStore(root, date);
+      failure("needs-person", "step 6", downloadCommand, [output]);
+    };
+    const stopForDiscard = (output: string): never =>
+      failure("needs-person", "step 6", downloadCommand, ["yarn refresh:outputs discard", output]);
+
     let download = options.runner(downloadCommand);
-    const firstOutput = `${download.stdout}\n${download.stderr}`;
+    let output = outputOf(download);
     if (download.status !== 0) {
-      if (download.status === null || download.signal) {
-        failure("needs-person", "step 6", downloadCommand, ["yarn refresh:outputs discard", firstOutput]);
-      }
-      if (storeLockRetry(firstOutput)) {
+      if (download.status === null || download.signal) stopForDiscard(output);
+      const decision = classifyDownloadFailure(output);
+      if (decision === "retry") {
         await sleep(10_000);
         download = options.runner(downloadCommand);
-        const retryOutput = `${download.stdout}\n${download.stderr}`;
+        output = outputOf(download);
         if (download.status !== 0) {
-          if (needsPersonForRefusal(retryOutput)) {
-            copyRawStore(root, date);
-            failure("needs-person", "step 6", downloadCommand, [retryOutput]);
-          }
-          if (download.status === null || download.signal) {
-            failure("needs-person", "step 6", downloadCommand, ["yarn refresh:outputs discard", retryOutput]);
-          }
-          failure("failed", "step 6", downloadCommand, [retryOutput]);
+          if (download.status === null || download.signal) stopForDiscard(output);
+          if (classifyDownloadFailure(output) === "needs-person") stopWithBackup(output);
+          failure("failed", "step 6", downloadCommand, [output]);
         }
-      } else if (needsPersonForRefusal(firstOutput)) {
-        copyRawStore(root, date);
-        failure("needs-person", "step 6", downloadCommand, [firstOutput]);
-      } else if (thrownDownloadError(firstOutput)) {
+      } else if (decision === "needs-person") {
+        stopWithBackup(output);
+      } else if (decision === "rerun") {
         download = options.runner(downloadCommand);
-        const rerunOutput = `${download.stdout}\n${download.stderr}`;
-        if (needsPersonForRefusal(rerunOutput)) {
-          copyRawStore(root, date);
-          failure("needs-person", "step 6", downloadCommand, [rerunOutput]);
-        }
-        if (download.status !== 0) failure("failed", "step 6", downloadCommand, [rerunOutput]);
+        output = outputOf(download);
+        if (classifyDownloadFailure(output) === "needs-person") stopWithBackup(output);
+        if (download.status !== 0) failure("failed", "step 6", downloadCommand, [output]);
       } else {
-        failure("failed", "step 6", downloadCommand, [firstOutput]);
+        failure("failed", "step 6", downloadCommand, [output]);
       }
     }
 

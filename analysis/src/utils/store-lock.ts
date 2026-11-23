@@ -38,11 +38,11 @@ const holderOf = (contents: string): string => {
   return held === undefined ? "a process that has not written its pid yet" : `process ${held}`;
 };
 
-const heldMessage = (lockFile: string, contents: string): string =>
+export const heldMessage = (lockFile: string, contents: string): string =>
   `Store lock ${lockFile} is held by ${holderOf(contents)}; wait for that run to finish, ` +
   `or remove the lock file if the process is gone`;
 
-const displacedMessage = (lockFile: string, current: string | undefined, moved: string): string => {
+export const displacedMessage = (lockFile: string, current: string | undefined, moved: string): string => {
   const holder = current === undefined ? "no process, because the lock has been released" : holderOf(current);
   return (
     `Store lock ${lockFile} was taken by ${holder} while a reclaim was moving the stale lock aside; ` +
@@ -50,7 +50,7 @@ const displacedMessage = (lockFile: string, current: string | undefined, moved: 
   );
 };
 
-const claimHeldMessage = (claim: string, held: number | undefined, retry: boolean): string => {
+export const claimHeldMessage = (claim: string, held: number | undefined, retry: boolean): string => {
   if (held === undefined) {
     return `Store lock claim ${claim} has not written its pid yet; another run is starting, so retry shortly`;
   }
@@ -61,17 +61,17 @@ const claimHeldMessage = (claim: string, held: number | undefined, retry: boolea
   );
 };
 
-const ownClaimHeldMessage = (claim: string, held: number): string =>
+export const ownClaimHeldMessage = (claim: string, held: number): string =>
   `Store lock claim ${claim} is held by process ${held}, which is this process: a store lock call is still running in it; ` +
   "the claim clears when that call ends";
 
-const claimMismatchMessage = (claim: string): string =>
+export const claimMismatchMessage = (claim: string): string =>
   `Store lock claim ${claim} did not read back this process's pid`;
 
-const mainThreadMessage =
+export const mainThreadMessage =
   "Store lock can only be taken on the main thread, because worker threads share the process pid but not its record of claims";
 
-const changingMessage = (lockFile: string): string =>
+export const changingMessage = (lockFile: string): string =>
   `Store lock ${lockFile} kept changing while this run was acquiring it, so retry the run`;
 
 const warnReclaim = (lockFile: string, contents: string): void => {
@@ -189,7 +189,7 @@ const removeClaim = (lockFile: string, claim: string): void => {
   }
 };
 
-const cleanupFailureMessage = (original: string | undefined, cleanups: string[]): string =>
+export const cleanupFailureMessage = (original: string | undefined, cleanups: string[]): string =>
   original === undefined
     ? `store lock cleanup failed: ${cleanups.join("; ")}`
     : `${original}; store lock cleanup also failed: ${cleanups.join("; ")}`;

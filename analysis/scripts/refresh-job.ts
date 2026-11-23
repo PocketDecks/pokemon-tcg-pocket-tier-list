@@ -102,6 +102,12 @@ export const humanCommits = (log: string, automationEmail: string): string[] =>
 export const isSilentDay = (classifyOutput: string): boolean =>
   classifyOutput.trim().length === 0;
 
+const commitSummaries = (log: string): string[] =>
+  log
+    .split(/\r?\n/)
+    .filter((line) => line.length > 0)
+    .map((line) => line.split("\x1f").join(" "));
+
 export const parseScratchPath = (beginOutput: string): string | null => {
   const line = beginOutput
     .split(/\r?\n/)
@@ -388,7 +394,7 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
       const pull = options.runner(git(["pull", "--ff-only", remote, "main"], "pull-main"));
       if (pull.status !== 0) failure("failed", "step 1", git(["pull", "--ff-only", remote, "main"], "pull-main"), [pull.stderr]);
     } else {
-      const mainCommand = git(["fetch", remote, "refs/heads/main:refs/heads/main"], "fetch-main");
+      const mainCommand = git(["fetch", "--show-forced-updates", remote, "refs/heads/main:refs/heads/main"], "fetch-main");
       const fetchMain = options.runner(mainCommand);
       if (fetchMain.status !== 0) {
         const output = fetchMain.stderr || fetchMain.stdout || fetchMain.error || "";
@@ -509,6 +515,25 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
     const classify = options.runner(classifyCommand);
     if (classify.status !== 0) failure("failed", "step 9", classifyCommand, [classify.stderr]);
     if (isSilentDay(classify.stdout)) {
+      const automationLogCommand = git(["log", "--format=%h%x1f%an%x1f%ae%x1f%s", `main..${branch}`], "silent-branch-log");
+      const automationLog = options.runner(automationLogCommand);
+      if (automationLog.status !== 0) failure("failed", "step 9", automationLogCommand, [automationLog.stderr]);
+      const automationCommits = commitSummaries(automationLog.stdout);
+      if (automationCommits.length > 0) {
+        const base = remoteExists ? `refs/remotes/${remote}/${branch}` : "main";
+        const unpublishedCommand = git(["log", "--format=%h%x1f%an%x1f%ae%x1f%s", `${base}..${branch}`], "unpublished-log");
+        const unpublishedLog = options.runner(unpublishedCommand);
+        if (unpublishedLog.status !== 0) failure("failed", "step 9", unpublishedCommand, [unpublishedLog.stderr]);
+        const unpublished = commitSummaries(unpublishedLog.stdout);
+        if (unpublished.length > 0) {
+          failure("needs-person", "step 9", unpublishedCommand, [`unpublished commits on ${branch}`, ...unpublished]);
+        }
+        const prCheckCommand = make("gh", ["pr", "view", branch, "--repo", CANONICAL_REPO, "--json", "number", "--jq", ".number"], root, "pr-check");
+        const prCheck = options.runner(prCheckCommand);
+        if (prCheck.status !== 0 || !prCheck.stdout.trim()) {
+          failure("needs-person", "step 9", prCheckCommand, [`no open pull request for ${branch}`, ...automationCommits]);
+        }
+      }
       simple("step 9", yarn(["refresh:outputs", "discard"], path.join(root, "analysis"), "discard"));
       return { status: "silent", step: "step 9", command: formatCommand(classifyCommand), firstErrorLines: [], headSha: "", logPath, reviewUrl: "" };
     }
@@ -542,16 +567,17 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
     const localHead = simple("step 12", git(["rev-parse", "HEAD"], "head"));
     const headSha = localHead.stdout.trim();
     const body = buildPrBody(values);
-    const existing = options.runner(make("gh", ["pr", "view", branch, "--json", "number", "--jq", ".number"], root, "pr-view"));
+    const existing = options.runner(make("gh", ["pr", "view", branch, "--repo", CANONICAL_REPO, "--json", "number", "--jq", ".number"], root, "pr-view"));
     const prCommand = existing.status === 0 && existing.stdout.trim()
-      ? make("gh", ["pr", "edit", existing.stdout.trim(), "--body", body], root, "pr-edit")
-      : make("gh", ["pr", "create", "--base", "main", "--head", branch, "--title", REFRESH_SUBJECT, "--body", body], root, "pr-create");
+      ? make("gh", ["pr", "edit", existing.stdout.trim(), "--repo", CANONICAL_REPO, "--body", body], root, "pr-edit")
+      : make("gh", ["pr", "create", "--repo", CANONICAL_REPO, "--base", "main", "--head", branch, "--title", REFRESH_SUBJECT, "--body", body], root, "pr-create");
     simple("step 12", prCommand);
 
-    const readBack = simple("step 13", make("gh", ["pr", "view", branch, "--json", "headRefOid,url"], root, "pr-readback"));
+    const readBackCommand = make("gh", ["pr", "view", branch, "--repo", CANONICAL_REPO, "--json", "headRefOid,url"], root, "pr-readback");
+    const readBack = simple("step 13", readBackCommand);
     const parsed = JSON.parse(readBack.stdout) as { headRefOid: string; url: string };
     if (parsed.headRefOid !== headSha) {
-      failure("failed", "step 13", make("gh", ["pr", "view", branch, "--json", "headRefOid,url"], root, "pr-readback"), [headSha, parsed.headRefOid]);
+      failure("failed", "step 13", readBackCommand, [headSha, parsed.headRefOid]);
     }
     return { status: "published", step: "step 13", command: "", firstErrorLines: [], headSha, logPath, reviewUrl: parsed.url };
   } catch (error) {

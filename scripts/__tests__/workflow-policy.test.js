@@ -739,3 +739,18 @@ test("build runs typecheck and lint before build:site", () => {
   assert.match(scripts["prebuild:site"], /generate-sitemap\.js/);
   assert.match(scripts["postbuild:site"], /verify-dist-html\.js/);
 });
+test("actionlint install checks the pinned archive hash with sha256sum", () => {
+  const workflow = loadYaml(".github", "workflows", "ci.yml");
+  const job = workflow.jobs.actionlint;
+  assert.ok(job, "ci.yml must contain the actionlint job");
+  const install = job.steps.find((step) => step.name === "Install actionlint");
+  assert.ok(install, "actionlint install step");
+  const hashLine = install.run
+    .split("\n")
+    .find((line) => line.includes("8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"));
+  assert.ok(hashLine, "pinned archive hash line");
+  assert.match(hashLine, /printf '%s  %s/);
+  assert.match(hashLine, /actionlint_1\.7\.12_linux_amd64\.tar\.gz/);
+  assert.match(hashLine, /\| sha256sum -c -$/);
+  assert.doesNotMatch(install.run, /checksums\.txt/);
+});

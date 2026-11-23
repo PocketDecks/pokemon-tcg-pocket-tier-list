@@ -13,7 +13,7 @@ const errorCode = (error: unknown): unknown =>
 
 const requestCode = async (uid: string): Promise<string> => {
   const [{ collection, doc, getDocs, getFirestore, query, setDoc, where }, { default: app }] =
-    await Promise.all([import("firebase/firestore"), import("../config/firebase")]);
+    await Promise.all([import("firebase/firestore/lite"), import("../config/firebase")]);
   const database = getFirestore(app);
   const existing = await getDocs(query(collection(database, "premiumCodes"), where("uid", "==", uid)));
   if (existing.docs.length > 0) return existing.docs[0].id;

@@ -10,7 +10,7 @@ const firestore = vi.hoisted(() => ({
   where: vi.fn((...args: unknown[]) => args),
 }));
 
-vi.mock("firebase/firestore", () => firestore);
+vi.mock("firebase/firestore/lite", () => firestore);
 vi.mock("../../config/firebase", () => ({ __esModule: true, default: { name: "app" } }));
 
 import { loadPremiumCode } from "../premium-code";

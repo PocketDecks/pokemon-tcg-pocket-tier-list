@@ -11,7 +11,7 @@ const firebase = vi.hoisted(() => ({
   currentUser: { current: null as { getIdToken: (force: boolean) => Promise<string> } | null },
 }));
 
-vi.mock("firebase/firestore", () => firestore);
+vi.mock("firebase/firestore/lite", () => firestore);
 vi.mock("../../config/firebase", () => ({
   __esModule: true,
   default: { name: "app" },

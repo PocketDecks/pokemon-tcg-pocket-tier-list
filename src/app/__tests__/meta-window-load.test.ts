@@ -5,7 +5,7 @@ const spies = vi.hoisted(() => ({
   loadPremiumArtefact: vi.fn(),
 }));
 
-vi.mock("firebase/firestore", () => {
+vi.mock("firebase/firestore/lite", () => {
   spies.firestoreImported();
   return {};
 });

@@ -1,4 +1,4 @@
-# Pokemon TCG Pocket Deck Tier List
+# Pokémon TCG Pocket Deck Tier List
 
 <div align="center">
 
@@ -27,12 +27,14 @@ The development server runs at `http://localhost:3000`.
 
 ## ✨ Features
 
-- The tier list at `/tier-list` ranks decks and links each entry to a deck page.
-- The deck finder at `/deck` builds a deck from the cards you select and shows its statistics.
-- The card list at `/cards-list` shows the card data the deck pages use.
-- The expansion list at `/expansion-list` lets you browse sets and packs.
-- Statistics at `/statistics` shows game counts, trends and matchups.
-- The feedback page at `/feedback` lets signed-in visitors send a message.
+- A tournament-driven tier list ranks decks and shows the decklist behind each tier.
+- A missing-cards finder starts from the top deck. Mark the cards you lack, and it shows the strongest deck you can still build.
+- Filters narrow the deck list by Energy type or to decks with no ex cards.
+- Matchup data shows which decks beat others and their win rates.
+- Every deck page offers a QR code to scan into Pokémon TCG Pocket and a deck code to copy.
+- Meta statistics show each deck's share of the field week by week and its head-to-head win rates.
+- A card tier list groups cards into tiers and can be filtered by expansion.
+- An expansion page lists the set's cards that appear in current tournament decks and the decks that play them.
 
 ## 💾 Data sources
 

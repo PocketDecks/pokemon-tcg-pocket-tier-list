@@ -749,7 +749,7 @@ test("actionlint install checks the pinned archive hash with sha256sum", () => {
     .split("\n")
     .find((line) => line.includes("8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"));
   assert.ok(hashLine, "pinned archive hash line");
-  assert.match(hashLine, /printf '%s  %s/);
+  assert.match(hashLine, /printf '%s {2}%s/);
   assert.match(hashLine, /actionlint_1\.7\.12_linux_amd64\.tar\.gz/);
   assert.match(hashLine, /\| sha256sum -c -$/);
   assert.doesNotMatch(install.run, /checksums\.txt/);

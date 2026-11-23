@@ -30,14 +30,6 @@ export interface JobOutcome {
   logPath: string;
 }
 
-export interface PrBodyInput {
-  pairingRows: number;
-  rankedArchetypes: number;
-  imageParity: string;
-  testResults: string;
-  premiumVersion: string;
-}
-
 export const CANONICAL_REPO = "PocketDecks/pokemon-tcg-pocket-tier-list";
 export const REFRESH_SUBJECT = "chore(data): refresh tier-list snapshot";
 
@@ -110,45 +102,61 @@ export const parseScratchPath = (beginOutput: string): string | null => {
   return line ?? null;
 };
 
-export const buildPrBody = (input: PrBodyInput): string =>
+export interface PublishingValues {
+  tournaments: number;
+  decks: number;
+  windows: string;
+  imageParity: string;
+  premiumVersion: string;
+}
+
+export const readPublishingValues = (root: string, validateOutput = ""): PublishingValues => {
+  const listings = JSON.parse(fs.readFileSync(path.join(root, "analysis", "src", "data", "limitless-decks.json"), "utf8")) as {
+    sets?: Record<string, unknown>;
+  };
+  const sets = listings.sets;
+  if (!sets || typeof sets !== "object") throw new Error("limitless-decks.json has no sets object");
+  const entries = Object.values(sets);
+  const decks = entries.reduce<number>((total, entry) => {
+    const list = (entry as { decks?: unknown }).decks;
+    return total + (Array.isArray(list) ? list.length : 0);
+  }, 0);
+  const windows = ["10d", "20d", "30d", "all"]
+    .map((window) => {
+      const file = window === "all" ? "best-decks.json" : `best-decks-${window}.json`;
+      const value = JSON.parse(fs.readFileSync(path.join(root, "public", "data", file), "utf8")) as unknown;
+      return `${window}: ${Array.isArray(value) ? value.length : 0}`;
+    })
+    .join(", ");
+  const parity = validateOutput.split(/\r?\n/).find((line) => /image|png|slug/i.test(line))?.trim() ?? "validate:refresh reported image parity";
+  const version = JSON.parse(fs.readFileSync(path.join(root, "public", "data", "data-version.json"), "utf8")) as { premium?: string };
+  if (!version.premium) throw new Error("data-version.json has no premium version");
+  return { tournaments: entries.length, decks, windows, imageParity: parity, premiumVersion: version.premium };
+};
+
+export const readPremiumVersion = (root: string): string => {
+  const value = JSON.parse(fs.readFileSync(path.join(root, "public", "data", "data-version.json"), "utf8")) as { premium?: string };
+  if (!value.premium) throw new Error("data-version.json has no premium version");
+  return value.premium;
+};
+
+export const buildPrBody = (input: PublishingValues): string =>
   [
-    `- Tournament rows: ${input.pairingRows}`,
-    `- Ranked archetypes: ${input.rankedArchetypes}`,
+    `- Tournament data: ${input.tournaments} tournaments processed, ${input.decks} decks`,
+    `- Ranked archetypes: ${input.windows}`,
     `- Image parity: ${input.imageParity}`,
-    `- Tests: ${input.testResults}`,
     `- Premium data version \`${input.premiumVersion}\` in \`data-version.json\``,
   ].join("\n");
 
-const jsonCount = (root: string, relative: string): number => {
-  const value = JSON.parse(fs.readFileSync(path.join(root, relative), "utf8"));
-  if (!Array.isArray(value)) throw new Error(`${relative} is not an array`);
-  return value.length;
+export const commandSpecFor = (platform: string, execPath: string, npmExecPath: string, args: string[], cwd?: string): CommandSpec => {
+  const yarnScript = npmExecPath.replace(/\\/g, "/");
+  if (!/(^|\/)yarn\.(js|cjs)$/.test(yarnScript)) {
+    throw new Error(`npm_execpath must point at yarn.js or yarn.cjs, got ${npmExecPath}`);
+  }
+  return { file: execPath, args: [npmExecPath, "--silent", ...args], cwd };
 };
 
-export const readPrBodyValues = (root: string): PrBodyInput => {
-  const pairingRows = jsonCount(root, "analysis/src/data/limitless-decks.json");
-  const ranked = JSON.parse(fs.readFileSync(path.join(root, "public/data/best-decks.json"), "utf8")) as unknown;
-  const tiers = ranked as Record<string, unknown>;
-  const archetypes = Array.isArray(ranked)
-    ? ranked.length
-    : Object.values(tiers).reduce<number>((total, entry) => {
-        if (Array.isArray(entry)) return total + entry.length;
-        if (entry && typeof entry === "object" && Array.isArray((entry as { decks?: unknown }).decks)) {
-          return total + (entry as { decks: unknown[] }).decks.length;
-        }
-        return total;
-      }, 0);
-  const version = JSON.parse(fs.readFileSync(path.join(root, "public/data/data-version.json"), "utf8")) as { premium?: string };
-  if (!version.premium) throw new Error("data-version.json has no premium version");
-  const images = fs.readdirSync(path.join(root, "public/og/deck")).filter((name) => name.endsWith(".png")).length;
-  return {
-    pairingRows,
-    rankedArchetypes: archetypes,
-    imageParity: images === archetypes ? `${images} images for ${archetypes} archetypes` : `${images} images for ${archetypes} archetypes, mismatch`,
-    testResults: "all step 8 commands passed",
-    premiumVersion: version.premium,
-  };
-};
+export const nodeSpecFor = (execPath: string, script: string, cwd?: string): CommandSpec => ({ file: execPath, args: [script], cwd });
 
 export const storeLockRetry = (output: string): boolean =>
   LOCK_RETRY_MARKERS.some((marker) => output.toLowerCase().includes(marker));
@@ -333,7 +341,12 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
         }
       } else if (thrownDownloadError(firstOutput)) {
         download = options.runner(downloadCommand);
-        if (download.status !== 0) failure("failed", "step 6", downloadCommand, [download.stderr]);
+        const rerunOutput = `${download.stdout}\n${download.stderr}`;
+        if (needsPersonForRefusal(rerunOutput)) {
+          copyRawStore(root, date);
+          failure("needs-person", "step 6", downloadCommand, [rerunOutput]);
+        }
+        if (download.status !== 0) failure("failed", "step 6", downloadCommand, [rerunOutput]);
       } else {
         failure("failed", "step 6", downloadCommand, [firstOutput]);
       }
@@ -341,9 +354,9 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
 
     simple("step 7", yarn(["card-printings:generate"], scratchAnalysis, "printings"));
     simple("step 7", yarn(["start"], scratchAnalysis, "start"));
-    simple("step 7", make(process.platform === "win32" ? "node.exe" : "node", ["scripts/build-deck-archive.mjs"], scratch, "archive"));
-    simple("step 7", make(process.platform === "win32" ? "node.exe" : "node", ["scripts/generate-deck-hub-slugs.mjs"], scratch, "hubs"));
-    simple("step 7", make(process.platform === "win32" ? "node.exe" : "node", ["scripts/generate-deck-redirects.mjs"], scratch, "redirects"));
+    simple("step 7", nodeSpecFor(process.execPath, "scripts/build-deck-archive.mjs", scratch));
+    simple("step 7", nodeSpecFor(process.execPath, "scripts/generate-deck-hub-slugs.mjs", scratch));
+    simple("step 7", nodeSpecFor(process.execPath, "scripts/generate-deck-redirects.mjs", scratch));
     simple("step 7", yarn(["validate:refresh"], scratchAnalysis, "validate"));
     simple("step 8", yarn(["test"], scratchAnalysis, "analysis-test"));
     simple("step 8", yarn(["typecheck"], scratchAnalysis, "analysis-typecheck"));
@@ -360,23 +373,25 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
       return { status: "silent", step: "step 9", command: formatCommand(classifyCommand), firstErrorLines: [], headSha: "", logPath };
     }
 
+    let values: PublishingValues = { tournaments: 0, decks: 0, windows: "", imageParity: "", premiumVersion: "" };
+    try {
+      values = readPublishingValues(root, "");
+    } catch (error) {
+      failure("failed", "step 9", yarn(["validate:refresh"], scratchAnalysis, "validate"), [String(error)]);
+    }
+
     simple("step 10", yarn(["publish:premium", "--dry-run"], scratchAnalysis, "premium-dry"));
     simple("step 10", yarn(["publish:premium"], scratchAnalysis, "premium-publish"));
     simple("step 10", yarn(["verify:premium"], scratchAnalysis, "premium-verify"));
+    if (!values) failure("failed", "step 10", yarn(["verify:premium"], scratchAnalysis, "premium-verify"), ["missing publishing values"]);
+    values.premiumVersion = readPremiumVersion(root);
     simple("step 11", yarn(["refresh:outputs", "stage"], path.join(root, "analysis"), "stage"));
     simple("step 11", git(["commit", "-m", REFRESH_SUBJECT], "commit"));
 
     simple("step 12", git(["push", remote, branch], "push"));
     const localHead = simple("step 12", git(["rev-parse", "HEAD"], "head"));
     const headSha = localHead.stdout.trim();
-    let values: PrBodyInput | undefined;
-    try {
-      values = readPrBodyValues(root);
-    } catch (error) {
-      failure("failed", "step 12", git(["rev-parse", "HEAD"], "head"), [String(error)]);
-    }
-    if (!values) failure("failed", "step 12", git(["rev-parse", "HEAD"], "head"), ["missing PR body values"]);
-    const body = buildPrBody(values as PrBodyInput);
+    const body = buildPrBody(values as PublishingValues);
     const existing = options.runner(make("gh", ["pr", "view", branch, "--json", "number", "--jq", ".number"], root, "pr-view"));
     const prCommand = existing.status === 0 && existing.stdout.trim()
       ? make("gh", ["pr", "edit", existing.stdout.trim(), "--body", body], root, "pr-edit")

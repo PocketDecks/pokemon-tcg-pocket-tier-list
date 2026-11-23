@@ -221,7 +221,7 @@ describe("premiumVersion", () => {
 
 describe("versioned premium snapshots", () => {
   it("reads only a snapshot whose files hash to the referenced version", () => {
-    const dir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "premium-version-snapshot-")), "premium");
+    const dir = path.join(fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "premium-version-snapshot-"))), "premium");
     const files = Object.fromEntries(PREMIUM_ARTEFACT_NAMES.map((name) => [name, `payload:${name}`]));
     const version = premiumVersion(files);
     snapshotPremiumVersion(files, version, dir);
@@ -232,7 +232,7 @@ describe("versioned premium snapshots", () => {
   });
 
   it("prunes only unprotected version directories inside the snapshot cache", () => {
-    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-cleanup-"));
+    const temp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-cleanup-")));
     const dir = path.join(temp, "premium");
     const cache = previousPremiumDir(dir);
     const retained = ["aaaaaaaaaaaaaaaa", "bbbbbbbbbbbbbbbb", "cccccccccccccccc", "dddddddddddddddd"];
@@ -260,7 +260,7 @@ describe("versioned premium snapshots", () => {
   });
 
   it("does not follow a linked snapshot cache root", () => {
-    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-root-link-"));
+    const temp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-root-link-")));
     const externalCache = path.join(temp, "external");
     const linkedDir = path.join(temp, "analysis", "premium");
     const linkedCache = previousPremiumDir(linkedDir);
@@ -279,7 +279,7 @@ describe("versioned premium snapshots", () => {
   });
 
   it("does not follow a linked ancestor of the snapshot cache", () => {
-    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-ancestor-link-"));
+    const temp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-ancestor-link-")));
     const outside = path.join(temp, "external");
     const version = path.join(outside, "premium-previous", "eeeeeeeeeeeeeeee");
     const linkedOut = path.join(temp, "analysis", "out");
@@ -294,7 +294,7 @@ describe("versioned premium snapshots", () => {
   });
 
   it("reports snapshot listing failures with the cache path", () => {
-    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-list-failure-"));
+    const temp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "premium-snapshot-list-failure-")));
     const dir = path.join(temp, "premium");
     fs.mkdirSync(previousPremiumDir(dir), { recursive: true });
     const cache = previousPremiumDir(dir);

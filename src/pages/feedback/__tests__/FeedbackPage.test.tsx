@@ -28,7 +28,11 @@ vi.mock("../../../ads/ContentReadyContext", () => ({
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
-    t: (key: string, options?: { minutes?: number }) => (key === "feedback.rateLimitedFor" ? `${key} ${options?.minutes ?? ""}` : key),
+    t: (key: string, options?: { minutes?: number; count?: number }) => {
+      if (key !== "feedback.rateLimitedFor") return key;
+      const suffix = options?.count === 1 ? "_one" : "_other";
+      return `${key}${suffix} ${options?.minutes ?? ""}`;
+    },
   }),
   Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
 }));
@@ -123,10 +127,37 @@ describe("FeedbackPage", () => {
     typeMessage("  The matchup matrix is empty on Safari.  ");
     agree();
     await submit();
-    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("feedback.rateLimitedFor"));
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("feedback.rateLimitedFor_other 50"));
     expect(screen.getByRole("alert")).toHaveTextContent("50");
     expect(screen.getByLabelText("feedback.messageLabel")).toHaveValue("  The matchup matrix is empty on Safari.  ");
     expect(submitFeedback).not.toHaveBeenCalled();
+  });
+
+  it("uses the one-minute form when a minute is left", async () => {
+    readFeedbackThrottle.mockResolvedValueOnce(Date.now() - 59 * 60_000);
+    renderPage();
+    typeMessage("The matchup matrix is empty on Safari.");
+    agree();
+    await submit();
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("feedback.rateLimitedFor_one 1"));
+    expect(submitFeedback).not.toHaveBeenCalled();
+  });
+
+  it("sends when the throttle read fails", async () => {
+    readFeedbackThrottle.mockRejectedValueOnce(new Error("refused"));
+    renderPage();
+    typeMessage("The tier list did not load this morning.");
+    agree();
+    submit();
+
+    await waitFor(() => expect(submitFeedback).toHaveBeenCalledTimes(1));
+    expect(submitFeedback.mock.calls[0][0]).toMatchObject({
+      uid: "user-1",
+      email: "ash@example.com",
+      message: "The tier list did not load this morning.",
+    });
+    expect(await screen.findByRole("heading", { name: "feedback.successTitle" })).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("shows a general failure for a refusal that is not a rate limit", async () => {

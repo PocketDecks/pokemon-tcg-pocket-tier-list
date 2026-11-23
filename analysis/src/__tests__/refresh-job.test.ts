@@ -965,4 +965,57 @@ describe("refresh job decisions with a fake runner", () => {
     expect(logs.some((c) => commandText(c).includes("refs/remotes/pocket/"))).toBe(false);
     expect(logs.filter((c) => commandText(c).includes(`main..${branch}`)).length).toBeGreaterThanOrEqual(2);
   });
+
+  const datedBranch = "automated/pipeline-update-2026-11-23";
+
+  const badRange = (range: string): CommandResult => ({
+    status: 128,
+    stdout: "",
+    stderr: `fatal: ambiguous argument '${range}': unknown revision or path not in the working tree.\nUse '--' to separate paths from revisions, like this:\n'git <command> [<revision>...] -- [<file>...]'\n`,
+  });
+
+  const expectLogFailure = async (
+    decide: (command: CommandSpec) => CommandResult | undefined,
+    range: string
+  ): Promise<void> => {
+    const h = harness(decide);
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("failed");
+    expect(outcome.step).toBe("step 9");
+    expect(outcome.command).toContain(range);
+    expect(outcome.firstErrorLines.join(" ")).toContain("unknown revision or path not in the working tree");
+  };
+
+  it("stops as failed when the local silent-day log exits non-zero", async () => {
+    const range = `main..${datedBranch}`;
+    await expectLogFailure((c) => {
+      const text = commandText(c);
+      if (text.startsWith("rev-parse --verify --quiet refs/heads/")) return ok("", { status: 1 });
+      if (text.startsWith("log --format") && text.includes(range)) return badRange(range);
+      return undefined;
+    }, range);
+  });
+
+  it("stops as failed when the remote silent-day log exits non-zero", async () => {
+    const range = `main..refs/remotes/pocket/${datedBranch}`;
+    let seen = 0;
+    await expectLogFailure((c) => {
+      const text = commandText(c);
+      if (text.startsWith("log --format") && text.includes(range)) {
+        seen += 1;
+        return seen === 2 ? badRange(range) : ok("");
+      }
+      return undefined;
+    }, range);
+  });
+
+  it("stops as failed when the unpublished log exits non-zero", async () => {
+    const range = `refs/remotes/pocket/${datedBranch}..${datedBranch}`;
+    await expectLogFailure((c) => {
+      const text = commandText(c);
+      if (text.startsWith("log --format") && text.includes(range)) return badRange(range);
+      if (text.startsWith("log --format") && text.includes(`main..${datedBranch}`)) return ok(autoCommit);
+      return undefined;
+    }, range);
+  });
 });

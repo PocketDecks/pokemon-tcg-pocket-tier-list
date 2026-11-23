@@ -300,6 +300,20 @@ describe("refresh job decisions with a fake runner", () => {
     expect(outcome.status).toBe("needs-person");
   });
 
+  it("reports ENOBUFS when a killed download has a spawn error", async () => {
+    let downloads = 0;
+    const h = harness((c) => {
+      if (!commandText(c).startsWith("download")) return undefined;
+      downloads += 1;
+      return ok("", { status: null, signal: "SIGTERM", error: "spawnSync yarn ENOBUFS" });
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(downloads).toBe(1);
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 6");
+    expect(outcome.firstErrorLines.join(" ")).toContain("ENOBUFS");
+  });
+
   it("waits and retries once on a retry-shortly lock refusal", async () => {
     let downloads = 0;
     const sleeps: number[] = [];

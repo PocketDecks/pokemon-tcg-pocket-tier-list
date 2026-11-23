@@ -501,7 +501,7 @@ const FeedbackPage = () => {
           </HoneyPot>
 
           {status === "error" && <ErrorText role="alert">{t("feedback.error")}</ErrorText>}
-          {status === "limited" && <ErrorText role="alert">{t("feedback.rateLimitedFor", { minutes: rateLimitMinutes })}</ErrorText>}
+          {status === "limited" && <ErrorText role="alert">{t("feedback.rateLimitedFor", { minutes: rateLimitMinutes, count: rateLimitMinutes })}</ErrorText>}
 
           <Actions>
             <Button isLoading={status === "sending"}>{t("feedback.submit")}</Button>

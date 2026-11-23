@@ -32,7 +32,8 @@ const sandbox = (): { dir: string; local: string; dispose: () => void } => {
 };
 
 const probeGerman = (): boolean => {
-  if (process.env.PR191_SKIP_GERMAN) return false;
+  // Forces the German case off to mirror a runner without that locale.
+  if (process.env.REFRESH_SKIP_GERMAN_PROBE) return false;
   const box = sandbox();
   try {
     return git(box.local, ["fetch", "origin", "refs/heads/nope"], {

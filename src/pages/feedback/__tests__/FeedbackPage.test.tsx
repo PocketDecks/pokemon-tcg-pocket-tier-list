@@ -11,6 +11,7 @@ const auth = vi.hoisted(() => ({
 }));
 
 const submitFeedback = vi.hoisted(() => vi.fn());
+const readFeedbackThrottle = vi.hoisted(() => vi.fn());
 
 vi.mock("../../../app/use-auth", () => ({
   useAuth: () => auth,
@@ -18,6 +19,7 @@ vi.mock("../../../app/use-auth", () => ({
 
 vi.mock("../../../app/feedback-api", () => ({
   submitFeedback,
+  readFeedbackThrottle,
 }));
 
 vi.mock("../../../ads/ContentReadyContext", () => ({
@@ -26,7 +28,7 @@ vi.mock("../../../ads/ContentReadyContext", () => ({
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string, options?: { minutes?: number }) => (key === "feedback.rateLimitedFor" ? `${key} ${options?.minutes ?? ""}` : key),
   }),
   Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
 }));
@@ -54,6 +56,8 @@ beforeEach(() => {
   auth.signInWithGoogle.mockReset();
   submitFeedback.mockReset();
   submitFeedback.mockResolvedValue(undefined);
+  readFeedbackThrottle.mockReset();
+  readFeedbackThrottle.mockResolvedValue(null);
 });
 
 describe("FeedbackPage", () => {
@@ -111,6 +115,29 @@ describe("FeedbackPage", () => {
       page: "/tier-list",
     });
     expect(await screen.findByRole("heading", { name: "feedback.successTitle" })).toBeInTheDocument();
+  });
+
+  it("shows the time left and keeps the message when the throttle is recent", async () => {
+    readFeedbackThrottle.mockResolvedValueOnce(Date.now() - 10 * 60_000);
+    renderPage();
+    typeMessage("  The matchup matrix is empty on Safari.  ");
+    agree();
+    await submit();
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("feedback.rateLimitedFor"));
+    expect(screen.getByRole("alert")).toHaveTextContent("50");
+    expect(screen.getByLabelText("feedback.messageLabel")).toHaveValue("  The matchup matrix is empty on Safari.  ");
+    expect(submitFeedback).not.toHaveBeenCalled();
+  });
+
+  it("shows a general failure for a refusal that is not a rate limit", async () => {
+    submitFeedback.mockRejectedValueOnce(Object.assign(new Error("denied"), { code: "permission-denied" }));
+    renderPage();
+    typeMessage("The matchup matrix is empty on Safari.");
+    agree();
+    await submit();
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("feedback.error"));
+    expect(screen.queryByText("feedback.rateLimitedFor")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("feedback.messageLabel")).toHaveValue("The matchup matrix is empty on Safari.");
   });
 
   it("lists the categories with Something else last", () => {
@@ -228,14 +255,14 @@ describe("FeedbackPage", () => {
     );
   });
 
-  it("explains the hourly limit when Firestore refuses the message", async () => {
+  it("shows a general failure when Firestore refuses the message for another reason", async () => {
     submitFeedback.mockRejectedValueOnce(Object.assign(new Error("denied"), { code: "permission-denied" }));
     renderPage();
     typeMessage("The tier list did not load this morning.");
     agree();
     submit();
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("feedback.rateLimited");
+    expect(await screen.findByRole("alert")).toHaveTextContent("feedback.error");
     expect(screen.getByLabelText("feedback.messageLabel")).toHaveValue(
       "The tier list did not load this morning."
     );

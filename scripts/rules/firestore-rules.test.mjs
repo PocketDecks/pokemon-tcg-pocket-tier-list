@@ -263,8 +263,13 @@ describe("feedback", () => {
     await assertFails(getDoc(doc(db, "feedback/f1")));
     await assertFails(updateDoc(doc(db, "feedback/f1"), { message: "changed text here" }));
     await assertFails(deleteDoc(doc(db, "feedback/f1")));
-    await assertFails(getDoc(doc(db, "feedbackThrottle/alice")));
     await assertFails(deleteDoc(doc(db, "feedbackThrottle/alice")));
+  });
+
+  test("a user can read their own throttle document but nobody else can", async () => {
+    await seed({ "feedbackThrottle/alice": { lastAt: Timestamp.now(), feedbackId: "f1" } });
+    await assertSucceeds(getDoc(doc(google("alice"), "feedbackThrottle/alice")));
+    await assertFails(getDoc(doc(google("bob"), "feedbackThrottle/alice")));
   });
 });
 

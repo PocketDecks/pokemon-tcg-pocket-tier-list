@@ -18,7 +18,7 @@ The premium publication lock uses a Firestore transaction before listing existin
 
 ## Steps the job runs
 
-Run `yarn refresh:job` from `analysis/`. The script follows these steps in order and stops at the first non-zero exit. It writes a dated log for each command and ends with one JSON line holding the status, step, command, first error lines, head SHA and log path. Exit 0 means published or silent, 2 needs a person and 1 means failed.
+Run `yarn refresh:job` from `analysis/`. The script follows these steps in order and stops at the first non-zero exit. It writes a dated log for each command and ends with one JSON line holding the status, step, command, first error lines, head SHA and log path. The error lines are split on newlines, blank lines are dropped and each line is capped at 500 characters. Instruction lines such as `yarn refresh:outputs discard` come first, then lines that carry an error such as a duplicate deck, a store lock, an interrupted write or ENOBUFS, then the last progress lines when no error line matches. At most five lines reach the JSON line, so it stays short; the full output stays in the dated log. Exit 0 means published or silent, 2 needs a person and 1 means failed.
 
 Repository: the checked-out `pokemon-tcg-pocket-tier-list` repository.
 

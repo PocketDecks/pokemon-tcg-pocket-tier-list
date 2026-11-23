@@ -37,8 +37,8 @@ describe("git locale", () => {
         LANGUAGE: "de",
         LC_ALL: "de_DE.UTF-8",
       });
-      expect(german).toContain("Konnte Remote-Referenz");
-      expect(isMissingRemoteBranch(german)).toBe(false);
+      const translated = german.includes("Konnte Remote-Referenz");
+      if (translated) expect(isMissingRemoteBranch(german)).toBe(false);
 
       vi.stubEnv("LANGUAGE", "de");
       vi.stubEnv("LC_ALL", "de_DE.UTF-8");
@@ -51,6 +51,17 @@ describe("git locale", () => {
       const result = defaultRunner(spec);
       expect(result.stderr).toContain("couldn't find remote ref");
       expect(isMissingRemoteBranch(result.stderr)).toBe(true);
+
+      const stub = path.join(temp, "git-stub.sh");
+      fs.writeFileSync(
+        stub,
+        '#!/bin/sh\nif [ "$LC_ALL" = C ] && [ -z "$LANGUAGE" ]; then\n  echo "fatal: couldn\'t find remote ref refs/heads/nope"\nelse\n  echo "Konnte Remote-Referenz refs/heads/nope"\nfi\n',
+        { mode: 0o755 }
+      );
+      const overridden = defaultRunner({ file: stub, args: [], env: { LC_ALL: "C", LANGUAGE: "" } });
+      const inherited = defaultRunner({ file: stub, args: [] });
+      expect(inherited.stdout).toContain("Konnte Remote-Referenz");
+      expect(overridden.stdout).toContain("couldn't find remote ref");
     } finally {
       fs.rmSync(temp, { recursive: true, force: true });
     }

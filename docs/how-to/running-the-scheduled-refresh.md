@@ -1,6 +1,8 @@
-# Local analysis refresh job
+# How to run the scheduled refresh
 
-This is the self-contained prompt used by the scheduled local tier-list refresh. The job runs on the maintainer's analysis machine and publishes only reviewed generated outputs.
+The scheduled refresh runs `yarn refresh:job` from `analysis/`. The script follows the numbered steps below in order and stops at the first non-zero exit. It finds the canonical remote by its GitHub URL, checks the dated branch for human commits, copies `analysis/data/` to a dated backup when store verification fails, reruns a thrown download once, retries a store-lock refusal once, treats an empty classifier result as a silent day, builds the pull request body from a fixed template and reads the head SHA back after the push. Pass `--dry-run` to print the planned commands without running them.
+
+The script does not remove a lock or claim, repair the raw store, merge, or push `main`. It stops and reports those cases for a person.
 
 ## Schedule
 

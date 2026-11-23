@@ -16,6 +16,7 @@ These guides cover the site, the analysis pipeline and the data contracts behind
 - [How to refresh the pinned robots list](how-to/refreshing-the-robots-list.md) - How do I update the crawler list and regenerate the robots file?
 - [How to report and triage](how-to/reporting-and-triage.md) - Which issue form should I use, and how do maintainers triage it?
 - [How to run the frontend checks](how-to/running-frontend-checks.md) - Which checks must pass before I open a pull request?
+- [How to run the scheduled refresh](how-to/running-the-scheduled-refresh.md) - How does the scheduled refresh publish reviewed outputs?
 - [How to update archetypes and expansions](how-to/updating-archetypes-and-expansions.md) - How do I add a set or change an archetype match?
 
 ## Reference

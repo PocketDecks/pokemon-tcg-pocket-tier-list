@@ -9,7 +9,7 @@ import { PREMIUM_DIR, PREMIUM_ARTEFACT_NAMES } from "../utils/premium-artefacts"
 import { REFRESH_OUTPUT_FILES, REFRESH_OUTPUT_TREES } from "../../scripts/refresh-outputs";
 
 const job = fs.readFileSync(
-  path.join(__dirname, "../../../cronjob/local-analysis-data-refresh-pr.md"),
+  path.join(__dirname, "../../../docs/how-to/running-the-scheduled-refresh.md"),
   "utf8"
 );
 const premiumGuide = fs.readFileSync(path.join(__dirname, "../../../docs/how-to/publish-premium-data.md"), "utf8");

@@ -1,7 +1,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { spawnSync } from "node:child_process";
 
 import {
   CANONICAL_REPO,
@@ -14,10 +15,13 @@ import {
   findCanonicalRemote,
   humanCommits,
   isSilentDay,
+  needsPersonForRefusal,
   readPublishingValues,
   runJob,
 } from "../../scripts/refresh-job";
 import type { CommandResult, CommandSpec, Runner } from "../../scripts/refresh-job";
+
+vi.mock("node:child_process", () => ({ spawnSync: vi.fn() }));
 
 const repoRoot = path.resolve(__dirname, "..", "..", "..");
 const realText = (relative: string): string => fs.readFileSync(path.join(repoRoot, relative), "utf8");
@@ -113,6 +117,8 @@ const harness = (overrides: (command: CommandSpec, calls: CommandSpec[]) => Comm
     if (text.startsWith("refresh:outputs begin")) return ok(`${scratch}\n`);
     if (text.startsWith("validate:refresh")) return ok(`${PARITY}\n`);
     if (text.startsWith("refresh:outputs classify")) return ok("\n");
+    if (text.startsWith("refresh:outputs stage")) return ok("public/data/best-decks.json\n");
+    if (text.startsWith("rev-parse --verify --quiet refs/heads/")) return ok("", { status: 1 });
     if (text.startsWith("pr view")) return ok("", { status: 1 });
     if (text.startsWith("pr create")) return ok("https://github.com/pr/1\n");
     if (text.startsWith("rev-parse HEAD")) return ok("headsha\n");
@@ -148,11 +154,25 @@ describe("refresh job decisions with a fake runner", () => {
     expect(buildPrBody({ tournaments: 2, decks: 7, windows: WINDOWS, imageParity: PARITY, premiumVersion: "v1" })).toContain("Premium data version `v1`");
   });
 
-  it("keeps manual repair markers sourced from the store files", () => {
-    const storeLock = fs.readFileSync(path.resolve(__dirname, "../utils/store-lock.ts"), "utf8");
-    const deckStore = fs.readFileSync(path.resolve(__dirname, "../utils/deck-store.ts"), "utf8");
+  it("classifies store refusals by their wording", () => {
     for (const marker of MANUAL_REPAIR_MARKERS) {
-      expect(storeLock + deckStore).toContain(marker);
+      expect(needsPersonForRefusal(`refused: ${marker}`)).toBe(true);
+    }
+    expect(needsPersonForRefusal("another run is starting, so retry shortly")).toBe(false);
+    expect(needsPersonForRefusal("thrown error")).toBe(false);
+  });
+
+  it("spawns Yarn through the executable and arguments from commandSpecFor", () => {
+    const previous = process.env.npm_execpath;
+    process.env.npm_execpath = "/tools/yarn.js";
+    try {
+      const expected = commandSpecFor(process.execPath, "/tools/yarn.js", ["refresh:outputs", "begin"], "/work");
+      vi.mocked(spawnSync).mockReturnValue({ status: 0, stdout: "", stderr: "", signal: null } as unknown as ReturnType<typeof spawnSync>);
+      defaultRunner({ file: "yarn", args: ["refresh:outputs", "begin"], cwd: "/work" });
+      expect(spawnSync).toHaveBeenCalledWith(expected.file, expected.args, expect.objectContaining({ cwd: "/work" }));
+    } finally {
+      if (previous === undefined) delete process.env.npm_execpath;
+      else process.env.npm_execpath = previous;
     }
   });
 
@@ -180,7 +200,7 @@ describe("refresh job decisions with a fake runner", () => {
   });
 
   it("stops for a person on a human commit", async () => {
-    const h = harness((c) => (commandText(c).includes("main..automated/") ? ok("aaa\x1fJane Doe\x1fjane@example.com\x1fAdd a feature\n") : undefined));
+    const h = harness((c) => (commandText(c).startsWith("log --format") ? ok("aaa\x1fJane Doe\x1fjane@example.com\x1fAdd a feature\n") : undefined));
     const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
     expect(outcome.status).toBe("needs-person");
     expect(outcome.step).toBe("step 2");
@@ -236,16 +256,59 @@ describe("refresh job decisions with a fake runner", () => {
   });
 
   it("takes the PR body values from the generated scratch outputs", async () => {
-    const bodies: string[] = [];
-    const h = harness((c) => {
-      if (commandText(c).startsWith("pr create")) bodies.push(c.args.join(" "));
-      return publishingClassify(c);
-    });
-    await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
-    expect(bodies.join(" ")).toContain(`Tournament data: 1 tournaments processed, 1 decks`);
-    expect(bodies.join(" ")).toContain(`Ranked archetypes: ${WINDOWS}`);
-    expect(bodies.join(" ")).toContain(`Image parity: ${PARITY}`);
-    expect(bodies.join(" ")).toContain(VERSION);
+    type ScratchValues = { processed: number; decks: number; window: number; version: string; parity: string };
+    const base: ScratchValues = {
+      processed: 2,
+      decks: 3,
+      window: 4,
+      version: "scratch-version",
+      parity: "union: 7 deck names, 7 OG images, 0 missing, 0 orphan",
+    };
+    const scratchBody = async (values: ScratchValues): Promise<string> => {
+      let body = "";
+      const h = harness((c) => {
+        if (commandText(c).startsWith("pr create")) body = c.args.join(" ");
+        if (commandText(c).startsWith("validate:refresh")) return ok(`${values.parity}\n`);
+        return publishingClassify(c);
+      });
+      writeFixture(h.scratch, "analysis/data/processed-tournaments.json", JSON.stringify(
+        Array.from({ length: values.processed }, (_, index) => ({ id: `s${index}`, date: "2026-11-23" }))
+      ));
+      writeFixture(h.scratch, "analysis/data/decks/manifest.json", JSON.stringify({
+        schema: 1,
+        shards: { s1: { file: "s1.ndjson", count: values.decks, minDate: "2026-11-23", maxDate: "2026-11-23" } },
+      }));
+      const decks = Array.from({ length: values.window }, (_, index) => ({ id: index }));
+      for (const file of ["best-decks-10d.json", "best-decks-20d.json", "best-decks.json"]) {
+        writeFixture(h.scratch, `public/data/${file}`, JSON.stringify(decks));
+      }
+      for (const file of ["best-decks-30d.json", "best-decks-all.json"]) {
+        writeFixture(h.scratch, `analysis/out/premium/${file}`, JSON.stringify(decks));
+      }
+      writeFixture(h.scratch, "public/data/data-version.json", JSON.stringify({ premium: values.version }));
+      await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+      return body;
+    };
+
+    const initial = await scratchBody(base);
+    expect(initial).toContain("Tournament data: 2 tournaments processed, 3 decks");
+    expect(initial).toContain("Ranked archetypes: 10d: 4, 20d: 4, 30d: 4, all: 4");
+    expect(initial).toContain(base.parity);
+    expect(initial).toContain(base.version);
+    expect(initial).not.toContain("Tournament data: 1 tournaments processed, 1 decks");
+    expect(initial).not.toContain(`Tournament data: 1 tournaments processed, 1 decks`);
+
+    const changes: [Partial<ScratchValues>, string][] = [
+      [{ processed: 5 }, "Tournament data: 5 tournaments processed"],
+      [{ decks: 6 }, "6 decks"],
+      [{ window: 8 }, "10d: 8, 20d: 8, 30d: 8, all: 8"],
+      [{ version: "next-version" }, "next-version"],
+      [{ parity: "union: 9 deck names, 9 OG images, 0 missing, 0 orphan" }, "union: 9"],
+    ];
+    for (const [change, expected] of changes) {
+      const body = await scratchBody({ ...base, ...change });
+      expect(body).toContain(expected);
+    }
   });
 
   it("fails the run when validate:refresh prints no parity line", async () => {
@@ -257,6 +320,57 @@ describe("refresh job decisions with a fake runner", () => {
     expect(outcome.status).toBe("failed");
     expect(outcome.step).toBe("step 9");
     expect(outcome.firstErrorLines.join(" ")).toContain("no image parity line");
+  });
+
+  it("retries a lock claim that asks for a retry and names its claim file", async () => {
+    let downloads = 0;
+    const h = harness((c) => {
+      if (!commandText(c).startsWith("download")) return undefined;
+      downloads += 1;
+      return downloads === 1
+        ? ok("or remove that claim file if the process is gone; another run is starting, so retry shortly\n", { status: 1 })
+        : ok();
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23", sleep: async () => {} });
+    expect(downloads).toBe(2);
+    expect(outcome.status).toBe("silent");
+  });
+
+  it("commits only the paths printed by the stage step", async () => {
+    const h = harness((c) => (commandText(c).startsWith("refresh:outputs stage") ? ok("public/data/best-decks.json\n") : publishingClassify(c)));
+    await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    const commit = h.calls.find((c) => commandText(c).startsWith("commit -m"));
+    expect(commit?.args).toEqual(["commit", "-m", REFRESH_SUBJECT, "--", "public/data/best-decks.json"]);
+  });
+
+  it("refuses a commit when the index holds unrelated entries", async () => {
+    const h = harness((c) => {
+      if (commandText(c).startsWith("refresh:outputs stage")) return ok("public/data/best-decks.json\n");
+      if (commandText(c).startsWith("diff --cached --name-only")) return ok("README.md\n");
+      return publishingClassify(c);
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("needs-person");
+    expect(outcome.step).toBe("step 11");
+    expect(h.calls.some((c) => commandText(c).startsWith("commit -m"))).toBe(false);
+  });
+
+  it("surfaces a fetch failure that is not a missing dated branch", async () => {
+    const h = harness((c) => (commandText(c).startsWith("fetch pocket automated/") ? ok("", { status: 1, stderr: "fatal: unable to access remote\n" }) : undefined));
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("failed");
+    expect(outcome.step).toBe("step 2");
+    expect(outcome.firstErrorLines.join(" ")).toContain("unable to access remote");
+  });
+
+  it("completes a dry run without generated publishing files", async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "refresh-dry-"));
+    writeFixture(root, ".nvmrc", realText(".nvmrc"));
+    const recorder = createRecordingRunner(root);
+    const outcome = await runJob({ root, runner: recorder.runner, publishingValues: recorder.publishingValues });
+    expect(outcome.status).toBe("published");
+    expect(outcome.step).toBe("step 13");
+    expect(recorder.commands().some((c) => commandText(c).startsWith("publish:premium"))).toBe(true);
   });
 
   it("stops for a person when Node does not match .nvmrc", async () => {

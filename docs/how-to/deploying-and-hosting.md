@@ -83,7 +83,7 @@ hash-authorised classic inline script after `#root`; it inserts the module
 entry at the fixed `/app.js` URL. `strict-dynamic` carries that trust to the
 app and its lazy imports in modern browsers. The stable entry is outside
 `/assets/`, so it inherits `no-cache`; its hashed dependency chunks remain
-immutable. When any inline script changes, stage 7 checks the hashes, fixed
+immutable. When any inline script changes, stage 13 checks the hashes, fixed
 URL, and every prerendered page. The node test
 `scripts/__tests__/content-security-policy.test.js` checks the source hashes
 and cache rules without a build.

@@ -1,4 +1,4 @@
-# How-to guide: Publishing premium window data
+# How to publish premium window data
 
 The 30-day and All Time artefacts, and the full meta share movement of the 10-day and 20-day artefacts, are the paid part of the site. They are not committed to the repository and they are not served from Hosting. The refresh writes them to `analysis/out/premium/`, the refresh job uploads them to Firestore at step 10, and the app reads them back only for signed-in users who hold an entitlement. Premium time is granted by tips through [Ko-fi](https://ko-fi.com/dalin) or by hand with the Admin SDK. This guide covers the order of work, the one-off set-up, granting access, and rollback. The manual commands below remain for recovery when the job has already run.
 

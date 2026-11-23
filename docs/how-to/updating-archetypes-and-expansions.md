@@ -1,4 +1,4 @@
-# How-to guide: Updating archetypes and expansions
+# How to update archetypes and expansions
 
 The meta shifts when players discover new decks or new cards are released. You maintain the tier list by refreshing the per-set listing store and, when a set drops, confirming the release date the package reports.
 

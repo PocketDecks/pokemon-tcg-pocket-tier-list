@@ -1,4 +1,4 @@
-# How-to guide: Receiving Ko-fi payments
+# How to receive Ko-fi payments
 
 The Cloudflare Worker in `workers/kofi/` takes Ko-fi's payment webhooks and
 writes Premium access to Firestore. Eligible GBP tips grant one calendar

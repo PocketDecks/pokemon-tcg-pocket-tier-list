@@ -1,107 +1,58 @@
-# Pokemon TCG Pocket Deck Tier List
+# Pokémon TCG Pocket Deck Tier List
 
 <div align="center">
 
-[![CI](https://img.shields.io/github/actions/workflow/status/chase-mew/pokemon-tcg-pocket-tier-list/ci.yml?branch=main)](https://github.com/chase-mew/pokemon-tcg-pocket-tier-list/actions/workflows/ci.yml)
-[![licence](https://img.shields.io/github/license/chase-mew/pokemon-tcg-pocket-tier-list)](LICENSE)
-[![card data size](https://img.shields.io/badge/card%20data-453.9%20kB%20gzipped-blue)](https://bundlephobia.com/package/pokemon-tcg-pocket-cards@5.3.0)
+[![CI](https://img.shields.io/github/actions/workflow/status/PocketDecks/pokemon-tcg-pocket-tier-list/ci.yml?branch=main)](https://github.com/PocketDecks/pokemon-tcg-pocket-tier-list/actions/workflows/ci.yml)
+[![licence](https://img.shields.io/github/license/PocketDecks/pokemon-tcg-pocket-tier-list)](LICENSE)
 
-<img width="1677" alt="image" src="https://github.com/user-attachments/assets/76cb84ed-d0b0-44a6-a914-a3586c30449b" />
+<img width="1677" alt="Tiered list of Pokémon TCG Pocket deck archetypes from S to E, with card icons for each deck" src="https://github.com/user-attachments/assets/76cb84ed-d0b0-44a6-a914-a3586c30449b" />
 
 </div>
 
-A web application that tracks and displays the current best decks for the Pokémon TCG Pocket game. This project aims to help players stay informed about the competitive meta by analysing tournament data from [Limitless](https://limitlesstcg.com/) Tournaments.
+[PocketDecks.top](https://pocketdecks.top) publishes tier rankings for Pokémon TCG Pocket. The site builds them from tournament results and shows deck statistics and card data for each deck.
+
+## 🚀 Quick start
+
+Use the Node version in `.nvmrc` and Yarn 1. Install the root and analysis dependencies separately:
+
+```bash
+git clone https://github.com/PocketDecks/pokemon-tcg-pocket-tier-list.git
+cd pokemon-tcg-pocket-tier-list
+yarn install
+cd analysis && yarn install && cd ..
+yarn start
+```
+
+The development server runs at `http://localhost:3000`.
 
 ## ✨ Features
 
-- Real-time deck tier rankings based on tournament performance
-- Detailed deck statistics and win rates
-- Easy-to-use interface for browsing top decks
-- Regular updates based on tournament results
-- Mobile-friendly design
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js at the version in `.nvmrc`. The site and the analysis pipeline both run on that version.
-- npm or yarn
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/chase-mew/pokemon-tcg-pocket-tier-list.git
-cd pokemon-tcg-pocket-tier-list
-```
-2. Install frontend dependencies at the repo root, and analysis dependencies separately:
-```bash
-yarn install
-cd analysis && yarn install && cd ..
-```
-3. Start the development server:
-```bash
-yarn start
-```
-4. Open your browser and navigate to `http://localhost:3000`
-
-## 📚 Documentation
-
-The site relies on a data analysis pipeline located in the `analysis/` directory. Maintainers use this pipeline to download tournaments, name decks, score them, and write the JSON files that power the frontend.     
-
-Detailed documentation for maintaining the project is available in the `docs/` directory:
-- **[Tutorial: Running a local pipeline update](docs/tutorial/running-pipeline-updates.md)**: Step-by-step instructions for fetching data and generating the frontend JSON files.
-- **[How-to guide: Updating archetypes and expansions](docs/how-to/updating-archetypes-and-expansions.md)**: Instructions for modifying the archetype matcher and rolling over the pipeline for a new set release.
-- **[Explanation: Statistical scoring and windowing](docs/explanation/statistical-scoring.md)**: The math behind the tier list, including the Wilson shrinkage estimator and the meta-window selector.
-- **[Reference: Analysis pipeline](docs/reference/analysis-pipeline.md)**: A technical overview of the backend data flow and scripting architecture.
-- **[How-to guide: Running the frontend checks](docs/how-to/running-frontend-checks.md)**: Running the type, lint and test checks locally, and what CI runs on a pull request.
-- **[Reference: Card data](docs/reference/card-data-contract.md)**: How the upstream card payload is normalised, what each field means, and how the app handles ids that fall out of step.
-- **[Reference: Frontend architecture](docs/reference/frontend-architecture.md)**: The provider stack, routing, contexts, query keys and pure helpers behind the React app.
-- **[Reference: Pipeline output contract](docs/reference/pipeline-output-contract.md)**: The five JSON files under `public/data/`, what each field means, and which pipeline scripts write and frontend components read them.
-- **[How-to guide: Deploying and hosting](docs/how-to/deploying-and-hosting.md)**: What `yarn build` runs stage by stage, how Firebase Hosting caches and rewrites requests, and which workflow deploys on a pull request or merge.
-- **[How-to guide: Adding a language](docs/how-to/adding-a-language.md)**: Steps for contributing a new locale, from choosing the BCP 47 code to passing the translation parity test.
-- **[How-to guide: Collecting feedback](docs/how-to/collecting-feedback.md)**: How the sign-in-only feedback page stores submissions in Firestore, and the security rules to add in the Firebase console.
-- **[How-to guide: Reporting and triage](docs/how-to/reporting-and-triage.md)**: The three issue forms, what each one asks for, how the form check runs, and how maintainers separate severity from priority.
-- **[How-to guide: Refreshing the robots list](docs/how-to/refreshing-the-robots-list.md)**: How to re-pin the upstream crawler list, regenerate `public/robots.txt` and decide which agents are allowed or left unlisted.
-- **[How-to guide: Receiving Ko-fi payments](docs/how-to/receive-ko-fi-payments.md)**: What the Ko-fi webhook Worker records in Firestore, how it grants Premium months, and the owner steps to deploy it and add its two secrets.
-- **[How-to guide: Publishing premium window data](docs/how-to/publish-premium-data.md)**: How to publish the protected data, grant Premium through Ko-fi tips or by hand, and roll back a release.
-- **[Explanation: Advertising, premium and consent](docs/explanation/ads-premium-and-consent.md)**: Why the site gates content and shows ads, how Premium entitlements work, and how the ad and consent layers stay inside policy.
-
-## 🙌 Contributing
-
-We welcome contributions to improve this project:
-
-1. Fork the repository
-2. Create a new branch for your feature (`git checkout -b feature/AmazingFeature`)
-3. Make your changes
-4. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-5. Push to the branch (`git push origin feature/AmazingFeature`)
-6. Open a Pull Request
-
-Ensure your code follows the existing style and conventions. Add appropriate tests for new features and update documentation as needed. Keep commits focused and atomic.
-
-## 🌐 Translations
-
-Accessibility matters. This project supports multiple languages. The translation system uses JSON files to manage localised content.
-
-To contribute a new language, follow the [how-to guide for adding a language](docs/how-to/adding-a-language.md). A parity test fails `yarn test:ci` when a locale file is missing keys the English file has, or carries keys the English file no longer has.
+- A tournament-driven tier list ranks decks and shows the decklist behind each tier.
+- A missing-cards finder starts from the top deck. Mark the cards you lack, and it shows the strongest deck you can still build.
+- Filters narrow the deck list by Energy type or to decks with no ex cards.
+- Matchup data shows which decks beat others and their win rates.
+- Every deck page offers a QR code to scan into Pokémon TCG Pocket and a deck code to copy.
+- Meta statistics show each deck's share of the field week by week and its head-to-head win rates.
+- A card tier list groups cards into tiers and can be filtered by expansion.
+- An expansion page lists the set's cards that appear in current tournament decks and the decks that play them.
 
 ## 💾 Data sources
 
-This project uses two data sources:
+Tournament results come from [Limitless](https://limitlesstcg.com/). Card data comes from [pokemon-tcg-pocket-cards](https://github.com/PocketDecks/pokemon-tcg-pocket-cards). The pipeline in `analysis/` turns the tournament results into the JSON files under `public/data/`.
 
-1. Tournament data from **[Limitless](https://limitlesstcg.com/)**, a platform for Pokémon TCG tournaments.    
-The deck rankings and statistics are based on tournament participation rates, win rates, top cut appearances, and overall performance.
-2. Card data from **[pokemon-tcg-pocket-cards](https://github.com/PocketDecks/pokemon-tcg-pocket-cards)**, an open-source repository that provides card information for Pokémon TCG Pocket.   
-_This data is used to display detailed card information and deck compositions._
+## 📚 Documentation and contributing
+
+- [Documentation index](docs/README.md) lists the guides.
+- [Contributing guide](CONTRIBUTING.md) covers setup, checks and commit rules.
+
+## 🌐 Translations
+
+Locale files live in `src/locales/`, and a parity test checks them. To add a language, follow [How to add a language](docs/how-to/adding-a-language.md).
 
 ## 📜 Licence
 
-This project is licensed under the **[AGPL-3.0 License](https://www.gnu.org/licenses/agpl-3.0.html)**. See the **[LICENSE](LICENSE)** file for details.
+The project uses the [AGPL-3.0 licence](https://www.gnu.org/licenses/agpl-3.0.html). See [LICENSE](LICENSE) for the full text.
 
 ## 🙏🏻 Acknowledgements
 
-- [Limitless](https://limitlesstcg.com/) for providing tournament data
-- [pokemon-tcg-pocket-cards](https://github.com/PocketDecks/pokemon-tcg-pocket-cards) for maintaining the card database
-- The Pokémon TCG community for their support and feedback
-- All contributors who help improve this project
+See [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md) for the people and sources behind the project.

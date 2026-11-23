@@ -1,4 +1,4 @@
-# Deck share codes
+# Deck share codes reference
 
 How the QR code and raw deck code on deck pages are built, and how to keep
 the fixtures honest when the card data moves on.

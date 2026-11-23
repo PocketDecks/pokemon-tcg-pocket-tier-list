@@ -1,4 +1,4 @@
-# How-to guide: Adding a language
+# How to add a language
 
 The app loads translations at runtime from `src/locales/`. i18next builds each
 file name as `${language}_${namespace}.json`, so a language called `pt` reads

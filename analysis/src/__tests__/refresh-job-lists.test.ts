@@ -9,7 +9,7 @@ import { PREMIUM_DIR, PREMIUM_ARTEFACT_NAMES } from "../utils/premium-artefacts"
 import { REFRESH_OUTPUT_FILES, REFRESH_OUTPUT_TREES } from "../../scripts/refresh-outputs";
 
 const job = fs.readFileSync(
-  path.join(__dirname, "../../../cronjob/local-analysis-data-refresh-pr.md"),
+  path.join(__dirname, "../../../docs/how-to/running-the-scheduled-refresh.md"),
   "utf8"
 );
 const premiumGuide = fs.readFileSync(path.join(__dirname, "../../../docs/how-to/publish-premium-data.md"), "utf8");
@@ -94,6 +94,48 @@ describe("refresh job file lists", () => {
     for (const name of PREMIUM_ARTEFACT_NAMES) expect(REFRESH_OUTPUT_FILES).toContain(`analysis/out/premium/${name}.json`);
   });
 
+  it("states the review URL and the operator check-state duty", () => {
+    const after = step("## After the job", "## Prerequisite");
+    const checkout = step("1. Work", "2. Create");
+    const branch = step("2. Create", "3. From");
+    const body = step("12. Push", "13. Reads");
+    const readback = step("13. Reads", "## Freshness");
+    expect(checkout).toContain("refs/heads/main:refs/heads/main");
+    expect(checkout).not.toContain("branch -f main");
+    expect(checkout).toContain("LC_ALL=C");
+    expect(branch).toContain("same C locale");
+    expect(body).toContain("buildPrBody");
+    expect(body).not.toContain("EN-UK");
+    expect(readback).toContain("returns the review URL in the published outcome and the JSON line");
+    expect(readback).toContain("does not query check states");
+    expect(after).toContain("Report the current check states on the pull request yourself");
+    expect(job).toContain("the line that decided the stop");
+  });
+
+  it("states the bounded JSON error report rule", () => {
+    expect(job).toContain("each line is capped at 500 characters");
+    expect(job).toContain("then the last other error lines, then the last progress lines");
+    expect(job).toContain("At most five lines reach the JSON line");
+    expect(job).toContain("the full output stays in the dated log");
+  });
+
+  it("documents local branch reuse and both index refusals", () => {
+    const checkout = step("1. Work", "2. Create");
+    const branch = step("2. Create", "3. From");
+    const commit = step("11. Run", "12. Push");
+    const recovery = step("## Recovery", "## Failure rules");
+    expect(checkout).toContain("git diff --cached --name-only");
+    expect(checkout).toContain("index already holds entries");
+    expect(branch).toContain("git rev-parse --verify --quiet refs/heads/<branch>");
+    expect(branch).toContain("checks out a local dated branch");
+    expect(branch).toContain("couldn't find remote ref");
+    expect(commit).toContain("naming exactly the paths the stage step printed");
+    expect(commit).toContain("git diff --cached --name-only");
+    expect(recovery).toContain("index already holds entries");
+    expect(recovery).toContain("index has entries outside generated paths");
+    expect(recovery).toContain("Follow the step 11 restore procedure below");
+  });
+
   it("keeps the update timestamp in the generated-output allowlist", () => {
     expect(writeArtefactKeys()).toContain("src/app/last-updated.ts");
     expect(REFRESH_OUTPUT_FILES).toContain("src/app/last-updated.ts");
@@ -109,7 +151,7 @@ describe("refresh job file lists", () => {
 
   it("runs validate:refresh from analysis and stops on every late step", () => {
     const generation = step("7. From", "8. Run");
-    expect(generation).toMatch(/From `analysis\/`, run `yarn\.cmd validate:refresh`/);
+    expect(generation).toMatch(/From `analysis\/`, run `yarn validate:refresh`/);
     expect(generation).toContain("analysis/package.json");
     for (const [start, end] of [
       ["9. From", "10. From"],
@@ -170,7 +212,7 @@ describe("refresh job file lists", () => {
   });
 
   it("uses canonical premium retention and documents publication lock recovery", () => {
-    const prerequisite = step("## Prerequisite", "## Prompt");
+    const prerequisite = step("## Prerequisite", "## Steps the job runs");
     const checkout = step("1. Work", "2. Create");
     expect(prerequisite).toMatch(/GitHub repository URL[\s\S]*?canonical `main`/i);
     expect(prerequisite).toMatch(/deployed version[\s\S]*?open pull requests?/i);
@@ -188,8 +230,8 @@ describe("refresh job file lists", () => {
 
   it("names the publishability guard beside the generation command", () => {
     const generation = step("7. From", "8. Run");
-    expect(generation).toContain("yarn.cmd start");
-    expect(generation.indexOf("yarn.cmd start")).toBeLessThan(generation.indexOf("assertPublishable"));
+    expect(generation).toContain("yarn start");
+    expect(generation.indexOf("yarn start")).toBeLessThan(generation.indexOf("assertPublishable"));
   });
 
   it("names generated hub files in the commit and silent-day instructions", () => {
@@ -221,6 +263,50 @@ describe("refresh job file lists", () => {
     expect(check).toContain("includes ignored premium outputs");
     expect(check).toContain("hub files count as output");
     expect(job).not.toContain("A run with no tracked output changes is silent");
-    expect(job).toContain("A run is silent only when `yarn.cmd refresh:outputs classify` prints no paths");
+    expect(job).toContain("A run is silent only when `yarn refresh:outputs classify` prints no paths");
+  });
+
+  it("names the canonical repository on gh calls and the forced fetch flag", () => {
+    const checkout = step("1. Work", "2. Create");
+    const publish = step("12. Push", "13. Reads");
+    expect(checkout).toContain("git fetch --show-forced-updates <remote> refs/heads/main:refs/heads/main");
+    expect(checkout).toContain("fetch.showForcedUpdates` is false");
+    expect(publish).toContain("--repo PocketDecks/pokemon-tcg-pocket-tier-list");
+  });
+
+  it("documents the silent-day publication check and manual publish steps", () => {
+    const silent = step("9. From", "10. From");
+    const publish = step("12. Push", "13. Read");
+    expect(silent).toContain("stops for a person at step 9");
+    expect(silent).toContain("git push <remote> <branch>");
+    expect(silent).toContain("gh pr create --repo PocketDecks/pokemon-tcg-pocket-tier-list --base main --head <branch>");
+    expect(silent).toContain("checks the local and remote dated branches");
+    expect(silent).toContain("--json state` shows `MERGED");
+    expect(silent).toContain("git log refs/remotes/<remote>/<branch>..<branch>` prints nothing");
+    const merged = silent.slice(silent.indexOf("For a merged pull request"), silent.indexOf("On Windows 11"));
+    const sequence = [
+      "yarn refresh:outputs discard",
+      "git checkout main",
+      "git branch -D <branch>",
+      "git push <remote> --delete <branch>",
+    ];
+    let cursor = merged.indexOf(sequence[0]);
+    expect(cursor).toBeGreaterThanOrEqual(0);
+    for (const step of sequence.slice(1)) {
+      const next = merged.indexOf(step, cursor + 1);
+      expect(next, `${step} must follow the earlier recovery steps`).toBeGreaterThan(cursor);
+      cursor = next;
+    }
+    expect(silent).toContain("yarn.cmd refresh:outputs discard");
+    expect(silent).not.toContain("delete the local dated branch and start again");
+    expect(publish).not.toContain("the next run reuses it");
+    expect(publish).toContain("stops for a person at step 9");
+  });
+
+  it("recovers a failed step 11 commit with the restore procedure", () => {
+    const recovery = step("## Recovery", "## Failure rules");
+    expect(recovery).toContain("Step 11 refuses at the commit");
+    expect(recovery).toContain("stops at step 1 with `index already holds entries`");
+    expect(recovery).toContain("Follow the step 11 restore procedure below, then start again at step 1.");
   });
 });

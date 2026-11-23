@@ -35,7 +35,7 @@ The untrimmed meta share files become the premium artefacts `meta-share-10d` and
 
 ## The order of work for every refresh
 
-The scheduled refresh job (`cronjob/local-analysis-data-refresh-pr.md`) runs these steps for you: starting the refresh, validating it, then `yarn publish:premium --dry-run`, `yarn publish:premium` and `yarn verify:premium`, and it reports the published version in the pull request body. The manual order below is the recovery path: if the job is interrupted, run the steps yourself
+The scheduled refresh job (`docs/how-to/running-the-scheduled-refresh.md`) runs these steps for you: starting the refresh, validating it, then `yarn publish:premium --dry-run`, `yarn publish:premium` and `yarn verify:premium`, and it reports the published version in the pull request body. The manual order below is the recovery path: if the job is interrupted, run the steps yourself
 
 1. Run the refresh in `analysis` (`yarn start`). It writes the JSON files atomically, then commits OG images separately. The image commit can fail after JSON publication. In that case the rendered staging directory is kept and the refusal names its exact path; finish the swap before starting another run.
 2. Run `yarn validate:refresh`. It reads the 10d and 20d rankings from `public/data/` and the 30d and all rankings from `analysis/out/premium/`.

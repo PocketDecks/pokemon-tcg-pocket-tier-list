@@ -26,8 +26,8 @@ const fixtureRoot = (): string => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "refresh-job-"));
   fs.mkdirSync(path.join(root, "analysis", "src", "data"), { recursive: true });
   fs.mkdirSync(path.join(root, "public", "data"), { recursive: true });
-  fs.writeFileSync(path.join(root, "analysis", "src", "data", "limitless-decks.json"), JSON.stringify([{ id: 1 }, { id: 2 }]));
-  fs.writeFileSync(path.join(root, "public", "data", "best-decks.json"), JSON.stringify([{ id: "a" }]));
+  fs.writeFileSync(path.join(root, "analysis", "src", "data", "limitless-decks.json"), JSON.stringify({ updatedAt: "2026-11-20T05:08:52.718Z", currentSet: "C1", sets: { c1: { decks: [{ id: 1 }, { id: 2 }] } } }));
+  for (const file of ["best-decks-10d.json", "best-decks-20d.json", "best-decks-30d.json", "best-decks.json"]) fs.writeFileSync(path.join(root, "public", "data", file), JSON.stringify([{ id: "a" }]));
   fs.writeFileSync(path.join(root, "public", "data", "data-version.json"), JSON.stringify({ premium: "version-1" }));
   fs.mkdirSync(path.join(root, "public", "og", "deck"), { recursive: true });
   fs.writeFileSync(path.join(root, "public", "og", "deck", "a.png"), "png");
@@ -94,7 +94,7 @@ describe("refresh job decisions with a fake runner", () => {
   });
 
   it("builds a PR body from fixed fields", () => {
-    expect(buildPrBody({ pairingRows: 2, rankedArchetypes: 1, imageParity: "1 images for 1 archetypes", testResults: "passed", premiumVersion: "v1" })).toContain("Premium data version `v1`");
+    expect(buildPrBody({ tournaments: 2, decks: 7, windows: "10d: 1, 20d: 1, 30d: 1, all: 1", imageParity: "checked", premiumVersion: "v1" })).toContain("Premium data version `v1`");
   });
 
   it("keeps manual repair markers sourced from the store files", () => {
@@ -180,8 +180,20 @@ describe("refresh job decisions with a fake runner", () => {
       return undefined;
     });
     await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
-    expect(bodies.join(" ")).toContain("Tournament rows: 2");
+    expect(bodies.join(" ")).toContain("Tournament data: 1 tournaments processed, 2 decks");
     expect(bodies.join(" ")).toContain("version-1");
+  });
+
+  it("reaches step 13 on a full publishing day with real file shapes", async () => {
+    const h = harness((c) => {
+      if (commandText(c).startsWith("refresh:outputs classify")) return ok("analysis/src/data/limitless-decks.json\n");
+      if (commandText(c).startsWith("pr create")) return ok("https://github.com/pr/2\n");
+      if (commandText(c).startsWith("pr view") && c.args.includes("--json") && c.args.includes("headRefOid,url")) return ok(JSON.stringify({ headRefOid: "headsha", url: "https://github.com/pr/2" }) + "\n");
+      return undefined;
+    });
+    const outcome = await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    expect(outcome.status).toBe("published");
+    expect(outcome.step).toBe("step 13");
   });
 
   it("spawns Yarn through process.execPath and never yarn.cmd", () => {

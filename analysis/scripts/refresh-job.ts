@@ -8,12 +8,15 @@ export interface CommandSpec {
   file: string;
   args: string[];
   cwd?: string;
+  logPath?: string;
 }
 
 export interface CommandResult {
-  status: number;
+  status: number | null;
   stdout: string;
   stderr: string;
+  error?: string;
+  signal?: string | null;
 }
 
 export type Runner = (command: CommandSpec) => CommandResult;
@@ -23,8 +26,8 @@ export interface JobOutcome {
   step: string;
   command: string;
   firstErrorLines: string[];
-  prUrl: string;
   headSha: string;
+  logPath: string;
 }
 
 export interface PrBodyInput {
@@ -36,15 +39,39 @@ export interface PrBodyInput {
 }
 
 export const CANONICAL_REPO = "PocketDecks/pokemon-tcg-pocket-tier-list";
-export const AUTOMATION_AUTHOR = "github-actions[bot]";
 export const REFRESH_SUBJECT = "chore(data): refresh tier-list snapshot";
 
-export const defaultRunner: Runner = ({ file, args, cwd }) => {
-  const result = spawnSync(file, args, { cwd, encoding: "utf8" });
+export const LOCK_RETRY_MARKERS = ["retry shortly", "so retry the run"] as const;
+export const MANUAL_REPAIR_MARKERS = [
+  "remove the lock file",
+  "remove that claim file",
+  "already exists in shard",
+  "interrupted processed-tournaments",
+] as const;
+
+export const defaultRunner: Runner = ({ file, args, cwd, logPath }) => {
+  const isYarn = file === "yarn" || file === "yarn.cmd";
+  const commandFile = isYarn ? process.execPath : file;
+  const commandArgs = isYarn
+    ? [process.env.npm_execpath ?? "", "--silent", ...args]
+    : args;
+  const result = spawnSync(commandFile, commandArgs, {
+    cwd,
+    encoding: "utf8",
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  const stdout = result.stdout ?? "";
+  const stderr = result.stderr ?? "";
+  if (logPath) {
+    fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    fs.appendFileSync(logPath, `$ ${commandFile} ${commandArgs.join(" ")}\n--- stdout ---\n${stdout}\n--- stderr ---\n${stderr}\n`);
+  }
   return {
-    status: result.status ?? 1,
-    stdout: result.stdout ?? "",
-    stderr: result.stderr ?? "",
+    status: result.status,
+    stdout,
+    stderr,
+    error: result.error?.message,
+    signal: result.signal,
   };
 };
 
@@ -57,67 +84,80 @@ export const findCanonicalRemote = (remoteList: string): string | null => {
     const match = line.match(/^([^\s]+)\s+(\S+)\s+\(fetch\)$/);
     if (!match) continue;
     const url = match[2];
-    if (
-      url.includes(`${CANONICAL_REPO}.git`) ||
-      url.includes(`${CANONICAL_REPO}/`) ||
-      url.endsWith(CANONICAL_REPO) ||
-      url.endsWith(`${CANONICAL_REPO}.git`)
-    ) {
-      return match[1];
-    }
+    if (url.includes(CANONICAL_REPO)) return match[1];
   }
   return null;
 };
 
-export const humanCommits = (log: string): string[] =>
+export const humanCommits = (log: string, automationEmail: string): string[] =>
   log
     .split(/\r?\n/)
-    .filter((line) => line.trim().length > 0)
+    .filter((line) => line.length > 0)
     .filter((line) => {
-      const match = line.match(/^([0-9a-f]+)\s+(.+?)\s+(.+)$/);
-      if (!match) return true;
-      return !(match[2] === AUTOMATION_AUTHOR && match[3] === REFRESH_SUBJECT);
+      const fields = line.split("\x1f");
+      if (fields.length < 4) return true;
+      return !(fields[3] === REFRESH_SUBJECT && fields[2] === automationEmail);
     });
 
 export const isSilentDay = (classifyOutput: string): boolean =>
   classifyOutput.trim().length === 0;
 
+export const parseScratchPath = (beginOutput: string): string | null => {
+  const line = beginOutput
+    .split(/\r?\n/)
+    .map((entry) => entry.trim())
+    .find((entry) => /[\\/]/.test(entry) && !entry.startsWith("$") && !entry.includes("yarn"));
+  return line ?? null;
+};
+
 export const buildPrBody = (input: PrBodyInput): string =>
   [
-    "Pairing rows: " + input.pairingRows,
-    "Ranked archetypes: " + input.rankedArchetypes,
-    "Image parity: " + input.imageParity,
-    "Test results: " + input.testResults,
-    "Premium version: " + input.premiumVersion,
+    `- Tournament rows: ${input.pairingRows}`,
+    `- Ranked archetypes: ${input.rankedArchetypes}`,
+    `- Image parity: ${input.imageParity}`,
+    `- Tests: ${input.testResults}`,
+    `- Premium data version \`${input.premiumVersion}\` in \`data-version.json\``,
   ].join("\n");
 
-export const needsPersonForRefusal = (output: string): boolean => {
-  const text = output.toLowerCase();
-  return (
-    text.includes("remove the lock") ||
-    text.includes("remove the claim") ||
-    text.includes("repair the raw store") ||
-    text.includes("pid has been reused")
-  );
+const jsonCount = (root: string, relative: string): number => {
+  const value = JSON.parse(fs.readFileSync(path.join(root, relative), "utf8"));
+  if (!Array.isArray(value)) throw new Error(`${relative} is not an array`);
+  return value.length;
 };
 
-export const storeLockRetry = (output: string): boolean => {
-  const text = output.toLowerCase();
-  return text.includes("retry") && (text.includes("lock") || text.includes("claim"));
+export const readPrBodyValues = (root: string): PrBodyInput => {
+  const pairingRows = jsonCount(root, "analysis/src/data/limitless-decks.json");
+  const ranked = JSON.parse(fs.readFileSync(path.join(root, "public/data/best-decks.json"), "utf8")) as unknown;
+  const tiers = ranked as Record<string, unknown>;
+  const archetypes = Array.isArray(ranked)
+    ? ranked.length
+    : Object.values(tiers).reduce<number>((total, entry) => {
+        if (Array.isArray(entry)) return total + entry.length;
+        if (entry && typeof entry === "object" && Array.isArray((entry as { decks?: unknown }).decks)) {
+          return total + (entry as { decks: unknown[] }).decks.length;
+        }
+        return total;
+      }, 0);
+  const version = JSON.parse(fs.readFileSync(path.join(root, "public/data/data-version.json"), "utf8")) as { premium?: string };
+  if (!version.premium) throw new Error("data-version.json has no premium version");
+  const images = fs.readdirSync(path.join(root, "public/og/deck")).filter((name) => name.endsWith(".png")).length;
+  return {
+    pairingRows,
+    rankedArchetypes: archetypes,
+    imageParity: images === archetypes ? `${images} images for ${archetypes} archetypes` : `${images} images for ${archetypes} archetypes, mismatch`,
+    testResults: "all step 8 commands passed",
+    premiumVersion: version.premium,
+  };
 };
+
+export const storeLockRetry = (output: string): boolean =>
+  LOCK_RETRY_MARKERS.some((marker) => output.toLowerCase().includes(marker));
+
+export const needsPersonForRefusal = (output: string): boolean =>
+  MANUAL_REPAIR_MARKERS.some((marker) => output.toLowerCase().includes(marker));
 
 export const thrownDownloadError = (output: string): boolean =>
   /thrown|error:|exception/i.test(output);
-
-export const interruptedBatch = (output: string): boolean =>
-  /already exists in shard|interrupted processed-tournaments|staging sidecar/i.test(output);
-
-export const readPremiumVersion = (root: string): string => {
-  const file = path.join(root, "public", "data", "data-version.json");
-  const value = JSON.parse(fs.readFileSync(file, "utf8")) as { premium?: string };
-  if (!value.premium) throw new Error(`${file} has no premium version`);
-  return value.premium;
-};
 
 export const copyRawStore = (root: string, date: string): string => {
   const target = path.join(root, "analysis", "data-backup", date);
@@ -125,31 +165,13 @@ export const copyRawStore = (root: string, date: string): string => {
   return target;
 };
 
-const yarnCommand = (args: string[], cwd?: string): CommandSpec => ({
-  file: process.platform === "win32" ? "yarn.cmd" : "yarn",
-  args,
-  cwd,
-});
-
-const gitCommand = (args: string[], cwd?: string): CommandSpec => ({
-  file: "git",
-  args,
-  cwd,
-});
-
-const nodeCommand = (script: string, cwd?: string): CommandSpec => ({
-  file: process.platform === "win32" ? "node.exe" : "node",
-  args: [script],
-  cwd,
-});
-
-const firstErrorLines = (result: CommandResult): string[] =>
-  [result.stderr, result.stdout]
-    .join("\n")
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-    .slice(0, 5);
+export interface JobOptions {
+  root: string;
+  runner: Runner;
+  date?: string;
+  dryRun?: boolean;
+  sleep?: (ms: number) => Promise<void>;
+}
 
 class JobStop extends Error {
   outcome: JobOutcome;
@@ -160,265 +182,216 @@ class JobStop extends Error {
   }
 }
 
-export const plannedCommands = (root: string, date: string, remote: string, branch: string): CommandSpec[] => {
-  const analysis = path.join(root, "analysis");
-  return [
-    gitCommand(["status", "--short"], root),
-    gitCommand(["remote", "-v"], root),
-    gitCommand(["pull", "--ff-only", remote, "main"], root),
-    gitCommand(["checkout", "-b", branch, "main"], root),
-    yarnCommand(["refresh:outputs", "begin"], analysis),
-    yarnCommand(["sync-pairings"], analysis),
-    yarnCommand(["golden:generate"], analysis),
-    yarnCommand(["store:verify"], analysis),
-    yarnCommand(["download"], analysis),
-    yarnCommand(["download"], analysis),
-    yarnCommand(["card-printings:generate"], analysis),
-    yarnCommand(["start"], analysis),
-    nodeCommand("scripts/build-deck-archive.mjs", root),
-    nodeCommand("scripts/generate-deck-hub-slugs.mjs", root),
-    nodeCommand("scripts/generate-deck-redirects.mjs", root),
-    yarnCommand(["validate:refresh"], analysis),
-    yarnCommand(["test"], analysis),
-    yarnCommand(["typecheck"], analysis),
-    yarnCommand(["typecheck"], root),
-    yarnCommand(["lint"], root),
-    yarnCommand(["test:ci"], root),
-    yarnCommand(["check:generated"], root),
-    yarnCommand(["refresh:outputs", "classify"], analysis),
-    yarnCommand(["publish:premium", "--dry-run"], analysis),
-    yarnCommand(["publish:premium"], analysis),
-    yarnCommand(["verify:premium"], analysis),
-    yarnCommand(["refresh:outputs", "stage"], analysis),
-    gitCommand(["commit", "-m", REFRESH_SUBJECT], root),
-    gitCommand(["push", remote, branch], root),
-    gitCommand(["rev-parse", "HEAD"], root),
-    {
-      file: "gh",
-      args: ["pr", "create", "--base", "main", "--head", branch, "--title", REFRESH_SUBJECT, "--body", "<pr-body>"],
-      cwd: root,
-    },
-    {
-      file: "gh",
-      args: ["pr", "view", branch, "--json", "headRefOid,url"],
-      cwd: root,
-    },
-  ];
-};
-
-export interface JobOptions {
-  root: string;
-  runner: Runner;
-  date?: string;
-  dryRun?: boolean;
-}
-
-export const runJob = (options: JobOptions): JobOutcome => {
+export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
   const root = options.root;
   const date = options.date ?? new Date().toISOString().slice(0, 10);
   const branch = `automated/pipeline-update-${date}`;
-  const analysis = path.join(root, "analysis");
-  const runner = options.runner;
-  let lastStep = "start";
-  let lastCommand = "";
+  const logDir = path.join(root, "analysis", ".refresh-logs", date);
+  const sleep = options.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
+  let step = "start";
+  let commandText = "";
+  let logPath = path.join(logDir, "job.log");
 
-  if (options.dryRun) {
-    for (const command of plannedCommands(root, date, "canonical", branch)) {
-      console.log(formatCommand(command));
-    }
-    return { status: "silent", step: "dry-run", command: "", firstErrorLines: [], prUrl: "", headSha: "" };
-  }
+  const make = (file: string, args: string[], cwd = root, name = "command"): CommandSpec => {
+    logPath = path.join(logDir, `${name}.log`);
+    return { file, args, cwd, logPath };
+  };
+  const yarn = (args: string[], cwd: string, name: string): CommandSpec =>
+    make(process.platform === "win32" ? "yarn.cmd" : "yarn", args, cwd, name);
+  const git = (args: string[], name: string): CommandSpec => make("git", args, root, name);
 
-  const fail = (step: string, command: CommandSpec, result: CommandResult, status: JobStatus = "failed"): never => {
+  const failure = (
+    status: JobStatus,
+    at: string,
+    spec: CommandSpec,
+    lines: string[]
+  ): never => {
     throw new JobStop({
       status,
-      step,
-      command: formatCommand(command),
-      firstErrorLines: firstErrorLines(result),
-      prUrl: "",
+      step: at,
+      command: formatCommand(spec),
+      firstErrorLines: lines.slice(0, 5),
       headSha: "",
+      logPath: spec.logPath ?? logPath,
     });
   };
 
   try {
-    const status = runner(gitCommand(["status", "--short"], root));
-    if (status.status !== 0) fail("step 1", gitCommand(["status", "--short"], root), status);
-    if (status.stdout.trim().length > 0) {
-      throw new JobStop({
-        status: "needs-person",
-        step: "step 1",
-        command: formatCommand(gitCommand(["status", "--short"], root)),
-        firstErrorLines: status.stdout.trim().split(/\r?\n/).slice(0, 5),
-        prUrl: "",
-        headSha: "",
-      });
+    if (options.dryRun) {
+      const planned: CommandSpec[] = [
+        git(["remote", "-v"], "remote-list"),
+        git(["fetch", "canonical", "refs/heads/main:refs/remotes/canonical/main"], "fetch-main"),
+        git(["fetch", "canonical", branch], "fetch-dated"),
+        git(["checkout", branch], "checkout-dated"),
+        yarn(["refresh:outputs", "begin"], path.join(root, "analysis"), "begin"),
+        yarn(["sync-pairings"], path.join(root, "analysis"), "sync"),
+        yarn(["golden:generate"], path.join(root, "analysis"), "golden"),
+        yarn(["store:verify"], path.join(root, "analysis"), "verify"),
+        yarn(["download"], path.join(root, "analysis"), "download"),
+        yarn(["card-printings:generate"], path.join(root, "analysis"), "printings"),
+        yarn(["start"], path.join(root, "analysis"), "start"),
+        yarn(["validate:refresh"], path.join(root, "analysis"), "validate"),
+        yarn(["refresh:outputs", "classify"], path.join(root, "analysis"), "classify"),
+        yarn(["publish:premium", "--dry-run"], path.join(root, "analysis"), "premium-dry"),
+        yarn(["publish:premium"], path.join(root, "analysis"), "premium-publish"),
+        yarn(["verify:premium"], path.join(root, "analysis"), "premium-verify"),
+        yarn(["refresh:outputs", "stage"], path.join(root, "analysis"), "stage"),
+        git(["commit", "-m", REFRESH_SUBJECT], "commit"),
+        git(["push", "canonical", branch], "push"),
+        make("gh", ["pr", "view", branch, "--json", "number", "--jq", ".number"], root, "pr-view"),
+        make("gh", ["pr", "create", "--base", "main", "--head", branch, "--title", REFRESH_SUBJECT, "--body", "<pr-body>"], root, "pr-create"),
+        make("gh", ["pr", "view", branch, "--json", "headRefOid,url"], root, "pr-readback"),
+      ];
+      for (const spec of planned) console.log(formatCommand(spec));
+      return { status: "silent", step: "dry-run", command: "", firstErrorLines: [], headSha: "", logPath };
     }
 
-    const remotes = runner(gitCommand(["remote", "-v"], root));
-    if (remotes.status !== 0) fail("step 1", gitCommand(["remote", "-v"], root), remotes);
-    const remote = findCanonicalRemote(remotes.stdout);
-    if (!remote) {
-      throw new JobStop({
-        status: "needs-person",
-        step: "step 1",
-        command: formatCommand(gitCommand(["remote", "-v"], root)),
-        firstErrorLines: [CANONICAL_REPO],
-        prUrl: "",
-        headSha: "",
-      });
+    const remotes = options.runner(git(["remote", "-v"], "remote-list"));
+    if (remotes.status !== 0) failure("failed", "step 1", git(["remote", "-v"], "remote-list"), [remotes.error ?? remotes.stderr]);
+    const remote = findCanonicalRemote(remotes.stdout) ?? "";
+    if (!remote) failure("needs-person", "step 1", git(["remote", "-v"], "remote-list"), [CANONICAL_REPO]);
+
+    const current = options.runner(git(["rev-parse", "--abbrev-ref", "HEAD"], "current-branch"));
+    if (current.status !== 0) failure("failed", "step 1", git(["rev-parse", "--abbrev-ref", "HEAD"], "current-branch"), [current.stderr]);
+    const onMain = current.stdout.trim() === "main";
+    if (onMain) {
+      const pull = options.runner(git(["pull", "--ff-only", remote, "main"], "pull-main"));
+      if (pull.status !== 0) failure("failed", "step 1", git(["pull", "--ff-only", remote, "main"], "pull-main"), [pull.stderr]);
+    } else {
+      const fetchMain = options.runner(git(["fetch", remote, "refs/heads/main:refs/remotes/" + remote + "/main"], "fetch-main"));
+      if (fetchMain.status !== 0) failure("failed", "step 1", git(["fetch", remote, "refs/heads/main:refs/remotes/" + remote + "/main"], "fetch-main"), [fetchMain.stderr]);
+      const forceBranch = options.runner(git(["branch", "-f", "main", `refs/remotes/${remote}/main`], "force-main"));
+      if (forceBranch.status !== 0) failure("failed", "step 1", git(["branch", "-f", "main", `refs/remotes/${remote}/main`], "force-main"), [forceBranch.stderr]);
     }
 
-    const pull = runner(gitCommand(["pull", "--ff-only", remote, "main"], root));
-    if (pull.status !== 0) fail("step 1", gitCommand(["pull", "--ff-only", remote, "main"], root), pull);
-
-    const localLog = runner(gitCommand(["log", "--format=%h %an %s", `main..${branch}`], root));
-    const remoteLog = runner(gitCommand(["log", "--format=%h %an %s", `main..refs/remotes/${remote}/${branch}`], root));
+    const fetchBranch = options.runner(git(["fetch", remote, branch], "fetch-dated"));
+    const config = options.runner(git(["config", "user.email"], "git-email"));
+    const automationEmail = config.stdout.trim();
+    const localLog = options.runner(git(["log", `--format=%h%x1f%an%x1f%ae%x1f%s`, `main..${branch}`], "local-log"));
+    const remoteLog = options.runner(git(["log", `--format=%h%x1f%an%x1f%ae%x1f%s`, `main..refs/remotes/${remote}/${branch}`], "remote-log"));
     const humans = [
-      ...humanCommits(localLog.stdout),
-      ...humanCommits(remoteLog.stdout),
+      ...humanCommits(localLog.stdout, automationEmail),
+      ...humanCommits(remoteLog.stdout, automationEmail),
     ];
-    if (humans.length > 0) {
-      throw new JobStop({
-        status: "needs-person",
-        step: "step 2",
-        command: formatCommand(gitCommand(["log", "--format=%h %an %s", `main..${branch}`], root)),
-        firstErrorLines: humans.slice(0, 5),
-        prUrl: "",
-        headSha: "",
-      });
-    }
-    const branchCheckout = runner(gitCommand(["checkout", "-b", branch, "main"], root));
-    if (branchCheckout.status !== 0 && !/already exists/i.test(branchCheckout.stderr)) {
-      fail("step 2", gitCommand(["checkout", "-b", branch, "main"], root), branchCheckout);
+    if (humans.length > 0) failure("needs-person", "step 2", git(["log", "--format=%h%x1f%an%x1f%ae%x1f%s", `main..${branch}`], "local-log"), humans);
+
+    if (fetchBranch.status === 0) {
+      const checkout = options.runner(git(["checkout", branch], "checkout-dated"));
+      if (checkout.status !== 0) failure("failed", "step 2", git(["checkout", branch], "checkout-dated"), [checkout.stderr]);
+    } else {
+      const create = options.runner(git(["checkout", "-b", branch, "main"], "create-dated"));
+      if (create.status !== 0) failure("failed", "step 2", git(["checkout", "-b", branch, "main"], "create-dated"), [create.stderr]);
     }
 
-    const simple = (step: string, command: CommandSpec): void => {
-      lastStep = step;
-      lastCommand = formatCommand(command);
-      const result = runner(command);
-      if (result.status !== 0) fail(step, command, result);
+    const simple = (at: string, spec: CommandSpec): CommandResult => {
+      step = at;
+      commandText = formatCommand(spec);
+      const result = options.runner(spec);
+      if (result.error) failure("failed", at, spec, [result.error]);
+      if (result.status !== 0) failure("failed", at, spec, [result.stderr || result.stdout]);
+      return result;
     };
 
-    simple("step 3", yarnCommand(["refresh:outputs", "begin"], analysis));
-    simple("step 3", yarnCommand(["sync-pairings"], analysis));
-    simple("step 4", yarnCommand(["golden:generate"], analysis));
+    const begin = simple("step 3", yarn(["refresh:outputs", "begin"], path.join(root, "analysis"), "begin"));
+    const scratch = parseScratchPath(begin.stdout) ?? "";
+    if (!scratch) failure("failed", "step 3", yarn(["refresh:outputs", "begin"], path.join(root, "analysis"), "begin"), [begin.stdout]);
+    const scratchAnalysis = path.join(scratch, "analysis");
+    simple("step 3", yarn(["sync-pairings"], scratchAnalysis, "sync"));
+    simple("step 4", yarn(["golden:generate"], scratchAnalysis, "golden"));
 
-    const verifyCommand = yarnCommand(["store:verify"], analysis);
-    lastStep = "step 5";
-    lastCommand = formatCommand(verifyCommand);
-    const verify = runner(verifyCommand);
+    const verifyCommand = yarn(["store:verify"], scratchAnalysis, "verify");
+    const verify = options.runner(verifyCommand);
     if (verify.status !== 0) {
       const backup = copyRawStore(root, date);
-      throw new JobStop({
-        status: "needs-person",
-        step: "step 5",
-        command: lastCommand,
-        firstErrorLines: [backup, ...firstErrorLines(verify)],
-        prUrl: "",
-        headSha: "",
-      });
+      failure("needs-person", "step 5", verifyCommand, [backup, verify.stderr]);
     }
 
-    const downloadCommand = yarnCommand(["download"], analysis);
-    let download = runner(downloadCommand);
+    const downloadCommand = yarn(["download"], scratchAnalysis, "download");
+    let download = options.runner(downloadCommand);
+    const firstOutput = `${download.stdout}\n${download.stderr}`;
     if (download.status !== 0) {
-      const output = `${download.stdout}\n${download.stderr}`;
-      if (interruptedBatch(output) || needsPersonForRefusal(output)) {
+      if (download.status === null || download.signal) {
+        failure("needs-person", "step 6", downloadCommand, ["yarn refresh:outputs discard", firstOutput]);
+      }
+      if (needsPersonForRefusal(firstOutput)) {
         copyRawStore(root, date);
-        throw new JobStop({
-          status: "needs-person",
-          step: "step 6",
-          command: formatCommand(downloadCommand),
-          firstErrorLines: firstErrorLines(download),
-          prUrl: "",
-          headSha: "",
-        });
+        failure("needs-person", "step 6", downloadCommand, [firstOutput]);
       }
-      if (thrownDownloadError(output) || storeLockRetry(output)) {
-        download = runner(downloadCommand);
+      if (storeLockRetry(firstOutput)) {
+        await sleep(10_000);
+        download = options.runner(downloadCommand);
+        const retryOutput = `${download.stdout}\n${download.stderr}`;
+        if (download.status !== 0) {
+          if (needsPersonForRefusal(retryOutput)) {
+            copyRawStore(root, date);
+            failure("needs-person", "step 6", downloadCommand, [retryOutput]);
+          }
+          if (download.status === null || download.signal) {
+            failure("needs-person", "step 6", downloadCommand, ["yarn refresh:outputs discard", retryOutput]);
+          }
+          failure("failed", "step 6", downloadCommand, [retryOutput]);
+        }
+      } else if (thrownDownloadError(firstOutput)) {
+        download = options.runner(downloadCommand);
+        if (download.status !== 0) failure("failed", "step 6", downloadCommand, [download.stderr]);
+      } else {
+        failure("failed", "step 6", downloadCommand, [firstOutput]);
       }
-      if (download.status !== 0) fail("step 6", downloadCommand, download);
     }
 
-    simple("step 7", yarnCommand(["card-printings:generate"], analysis));
-    simple("step 7", yarnCommand(["start"], analysis));
-    simple("step 7", nodeCommand("scripts/build-deck-archive.mjs", root));
-    simple("step 7", nodeCommand("scripts/generate-deck-hub-slugs.mjs", root));
-    simple("step 7", nodeCommand("scripts/generate-deck-redirects.mjs", root));
-    simple("step 7", yarnCommand(["validate:refresh"], analysis));
-    simple("step 8", yarnCommand(["test"], analysis));
-    simple("step 8", yarnCommand(["typecheck"], analysis));
-    simple("step 8", yarnCommand(["typecheck"], root));
-    simple("step 8", yarnCommand(["lint"], root));
-    simple("step 8", yarnCommand(["test:ci"], root));
-    simple("step 8", yarnCommand(["check:generated"], root));
+    simple("step 7", yarn(["card-printings:generate"], scratchAnalysis, "printings"));
+    simple("step 7", yarn(["start"], scratchAnalysis, "start"));
+    simple("step 7", make(process.platform === "win32" ? "node.exe" : "node", ["scripts/build-deck-archive.mjs"], scratch, "archive"));
+    simple("step 7", make(process.platform === "win32" ? "node.exe" : "node", ["scripts/generate-deck-hub-slugs.mjs"], scratch, "hubs"));
+    simple("step 7", make(process.platform === "win32" ? "node.exe" : "node", ["scripts/generate-deck-redirects.mjs"], scratch, "redirects"));
+    simple("step 7", yarn(["validate:refresh"], scratchAnalysis, "validate"));
+    simple("step 8", yarn(["test"], scratchAnalysis, "analysis-test"));
+    simple("step 8", yarn(["typecheck"], scratchAnalysis, "analysis-typecheck"));
+    simple("step 8", yarn(["typecheck"], scratch, "root-typecheck"));
+    simple("step 8", yarn(["lint"], scratch, "root-lint"));
+    simple("step 8", yarn(["test:ci"], scratch, "root-test-ci"));
+    simple("step 8", yarn(["check:generated"], scratch, "check-generated"));
 
-    const classifyCommand = yarnCommand(["refresh:outputs", "classify"], analysis);
-    const classify = runner(classifyCommand);
-    if (classify.status !== 0) fail("step 9", classifyCommand, classify);
+    const classifyCommand = yarn(["refresh:outputs", "classify"], path.join(root, "analysis"), "classify");
+    const classify = options.runner(classifyCommand);
+    if (classify.status !== 0) failure("failed", "step 9", classifyCommand, [classify.stderr]);
     if (isSilentDay(classify.stdout)) {
-      simple("step 9", yarnCommand(["refresh:outputs", "discard"], analysis));
-      return { status: "silent", step: "step 9", command: formatCommand(classifyCommand), firstErrorLines: [], prUrl: "", headSha: "" };
+      simple("step 9", yarn(["refresh:outputs", "discard"], path.join(root, "analysis"), "discard"));
+      return { status: "silent", step: "step 9", command: formatCommand(classifyCommand), firstErrorLines: [], headSha: "", logPath };
     }
 
-    simple("step 10", yarnCommand(["publish:premium", "--dry-run"], analysis));
-    simple("step 10", yarnCommand(["publish:premium"], analysis));
-    simple("step 10", yarnCommand(["verify:premium"], analysis));
-    simple("step 11", yarnCommand(["refresh:outputs", "stage"], analysis));
-    simple("step 11", gitCommand(["commit", "-m", REFRESH_SUBJECT], root));
+    simple("step 10", yarn(["publish:premium", "--dry-run"], scratchAnalysis, "premium-dry"));
+    simple("step 10", yarn(["publish:premium"], scratchAnalysis, "premium-publish"));
+    simple("step 10", yarn(["verify:premium"], scratchAnalysis, "premium-verify"));
+    simple("step 11", yarn(["refresh:outputs", "stage"], path.join(root, "analysis"), "stage"));
+    simple("step 11", git(["commit", "-m", REFRESH_SUBJECT], "commit"));
 
-    const pushCommand = gitCommand(["push", remote, branch], root);
-    const push = runner(pushCommand);
-    if (push.status !== 0) fail("step 12", pushCommand, push);
-
-    const localHead = runner(gitCommand(["rev-parse", "HEAD"], root));
-    if (localHead.status !== 0) fail("step 12", gitCommand(["rev-parse", "HEAD"], root), localHead);
+    simple("step 12", git(["push", remote, branch], "push"));
+    const localHead = simple("step 12", git(["rev-parse", "HEAD"], "head"));
     const headSha = localHead.stdout.trim();
-    const premiumVersion = readPremiumVersion(root);
-    const body = buildPrBody({
-      pairingRows: 0,
-      rankedArchetypes: 0,
-      imageParity: "checked",
-      testResults: "passed",
-      premiumVersion,
-    });
-    const prCommand: CommandSpec = {
-      file: "gh",
-      args: ["pr", "create", "--base", "main", "--head", branch, "--title", REFRESH_SUBJECT, "--body", body],
-      cwd: root,
-    };
-    const pr = runner(prCommand);
-    if (pr.status !== 0) fail("step 12", prCommand, pr);
-    const prUrl = pr.stdout.trim();
-
-    const readBack = runner({
-      file: "gh",
-      args: ["pr", "view", branch, "--json", "headRefOid,url"],
-      cwd: root,
-    });
-    if (readBack.status !== 0) fail("step 13", { file: "gh", args: ["pr", "view", branch] }, readBack);
-    const parsed = JSON.parse(readBack.stdout) as { headRefOid: string; url: string };
-    if (parsed.headRefOid !== headSha) {
-      throw new JobStop({
-        status: "failed",
-        step: "step 13",
-        command: formatCommand({ file: "gh", args: ["pr", "view", branch, "--json", "headRefOid,url"] }),
-        firstErrorLines: [headSha, parsed.headRefOid],
-        prUrl: parsed.url,
-        headSha,
-      });
+    let values: PrBodyInput | undefined;
+    try {
+      values = readPrBodyValues(root);
+    } catch (error) {
+      failure("failed", "step 12", git(["rev-parse", "HEAD"], "head"), [String(error)]);
     }
-    return { status: "published", step: "step 13", command: "", firstErrorLines: [], prUrl: parsed.url, headSha };
+    if (!values) failure("failed", "step 12", git(["rev-parse", "HEAD"], "head"), ["missing PR body values"]);
+    const body = buildPrBody(values as PrBodyInput);
+    const existing = options.runner(make("gh", ["pr", "view", branch, "--json", "number", "--jq", ".number"], root, "pr-view"));
+    const prCommand = existing.status === 0 && existing.stdout.trim()
+      ? make("gh", ["pr", "edit", existing.stdout.trim(), "--body", body], root, "pr-edit")
+      : make("gh", ["pr", "create", "--base", "main", "--head", branch, "--title", REFRESH_SUBJECT, "--body", body], root, "pr-create");
+    simple("step 12", prCommand);
+
+    const readBack = simple("step 13", make("gh", ["pr", "view", branch, "--json", "headRefOid,url"], root, "pr-readback"));
+    const parsed = JSON.parse(readBack.stdout) as { headRefOid: string };
+    if (parsed.headRefOid !== headSha) {
+      failure("failed", "step 13", make("gh", ["pr", "view", branch, "--json", "headRefOid,url"], root, "pr-readback"), [headSha, parsed.headRefOid]);
+    }
+    return { status: "published", step: "step 13", command: "", firstErrorLines: [], headSha, logPath };
   } catch (error) {
     if (error instanceof JobStop) return error.outcome;
-    return {
-      status: "failed",
-      step: lastStep,
-      command: lastCommand,
-      firstErrorLines: [String(error)],
-      prUrl: "",
-      headSha: "",
-    };
+    return { status: "failed", step, command: commandText, firstErrorLines: [String(error)], headSha: "", logPath };
   }
 };
 
@@ -426,7 +399,8 @@ const invokedDirectly = process.argv[1] ? path.resolve(process.argv[1]) === __fi
 
 if (invokedDirectly) {
   const dryRun = process.argv.slice(2).includes("--dry-run");
-  const outcome = runJob({ root: path.resolve(__dirname, "..", ".."), runner: defaultRunner, dryRun });
-  console.log(JSON.stringify(outcome));
-  process.exitCode = outcome.status === "published" || outcome.status === "silent" ? 0 : outcome.status === "needs-person" ? 2 : 1;
+  void runJob({ root: path.resolve(__dirname, "..", ".."), runner: defaultRunner, dryRun }).then((outcome) => {
+    console.log(JSON.stringify(outcome));
+    process.exitCode = outcome.status === "published" || outcome.status === "silent" ? 0 : outcome.status === "needs-person" ? 2 : 1;
+  });
 }

@@ -72,7 +72,8 @@ const runFreshnessCheck = (
     command: step.run,
     commandShims: { git: freshnessGitShim },
     env: {
-      GITHUB_SHA: githubSha,
+      GITHUB_SHA: "unrelated-sha",
+      HEAD_SHA: githubSha,
       INITIAL_MAIN_SHA: initialMainSha,
       FETCHED_MAIN_SHA: fetchedMainSha,
       FETCH_FAIL: fetchFail ? "true" : "false",
@@ -146,7 +147,7 @@ test("every job uses shared setup after checkout", () => {
       analysis: ["analysis"],
       kofi: ["kofi"],
     },
-    "preview.yml": { preview: ["root", "analysis"] },
+    "preview.yml": { preview: ["root"] },
     "deploy.yml": { deploy: ["root", "analysis"] },
     "sync-pairings.yml": { sync: ["analysis"] },
   };
@@ -186,7 +187,7 @@ test("every job uses shared setup after checkout", () => {
 
 test("workflow names and job IDs match the layout", () => {
   const workflows = [
-    { file: "ci.yml", name: "CI", jobs: ["analysis", "frontend", "kofi"] },
+    { file: "ci.yml", name: "CI", jobs: ["actionlint", "analysis", "frontend", "kofi"] },
     { file: "preview.yml", name: "Preview", jobs: ["preview"] },
     { file: "deploy.yml", name: "Deploy", jobs: ["deploy"] },
     { file: "sync-pairings.yml", name: "Sync pairings", jobs: ["sync"] },
@@ -284,7 +285,7 @@ test("live deploys queue pending runs and skip commits that are no longer latest
   );
   assert.ok(latestIndex >= 0);
   assert.strictEqual(deployIndex, latestIndex + 1);
-  assert.ok(steps[latestIndex].run.includes("GITHUB_SHA"));
+  assert.ok(steps[latestIndex].run.includes("HEAD_SHA"));
   assert.ok(steps[latestIndex].run.includes("refs/remotes/origin/main"));
   const runLatestCheck = (githubSha, initialMainSha, fetchedMainSha) =>
     runFreshnessCheck(steps[latestIndex], {

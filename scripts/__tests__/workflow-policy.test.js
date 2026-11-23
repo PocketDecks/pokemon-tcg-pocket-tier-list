@@ -72,7 +72,8 @@ const runFreshnessCheck = (
     command: step.run,
     commandShims: { git: freshnessGitShim },
     env: {
-      GITHUB_SHA: githubSha,
+      GITHUB_SHA: "unrelated-sha",
+      HEAD_SHA: githubSha,
       INITIAL_MAIN_SHA: initialMainSha,
       FETCHED_MAIN_SHA: fetchedMainSha,
       FETCH_FAIL: fetchFail ? "true" : "false",
@@ -146,7 +147,7 @@ test("every job uses shared setup after checkout", () => {
       analysis: ["analysis"],
       kofi: ["kofi"],
     },
-    "preview.yml": { preview: ["root", "analysis"] },
+    "preview.yml": { preview: ["root"] },
     "deploy.yml": { deploy: ["root", "analysis"] },
     "sync-pairings.yml": { sync: ["analysis"] },
   };
@@ -186,7 +187,7 @@ test("every job uses shared setup after checkout", () => {
 
 test("workflow names and job IDs match the layout", () => {
   const workflows = [
-    { file: "ci.yml", name: "CI", jobs: ["analysis", "frontend", "kofi"] },
+    { file: "ci.yml", name: "CI", jobs: ["actionlint", "analysis", "frontend", "kofi"] },
     { file: "preview.yml", name: "Preview", jobs: ["preview"] },
     { file: "deploy.yml", name: "Deploy", jobs: ["deploy"] },
     { file: "sync-pairings.yml", name: "Sync pairings", jobs: ["sync"] },
@@ -284,7 +285,7 @@ test("live deploys queue pending runs and skip commits that are no longer latest
   );
   assert.ok(latestIndex >= 0);
   assert.strictEqual(deployIndex, latestIndex + 1);
-  assert.ok(steps[latestIndex].run.includes("GITHUB_SHA"));
+  assert.ok(steps[latestIndex].run.includes("HEAD_SHA"));
   assert.ok(steps[latestIndex].run.includes("refs/remotes/origin/main"));
   const runLatestCheck = (githubSha, initialMainSha, fetchedMainSha) =>
     runFreshnessCheck(steps[latestIndex], {
@@ -581,4 +582,175 @@ test("pairings failures draft new PRs and undo ready automated PRs", () => {
   assert.strictEqual(failedReadyPr.status, 0, failedReadyPr.stderr);
   assert.match(failedReadyPr.ghLog, /pr ready --undo 44/);
   assert.doesNotMatch(failedReadyPr.ghLog, /pr create/);
+});
+const jqBinary = spawnSync("sh", ["-c", "command -v jq"], { encoding: "utf8" }).stdout.trim();
+
+const evaluateCondition = (condition, context) => {
+  const expression = condition.replace(/^\$\{\{\s*|\s*\}\}$/g, "").trim();
+  return expression.split(/\s*&&\s*/).every((term) => {
+    const match = term.match(/^([a-zA-Z0-9_.]+)\s*(==|!=)\s*([a-zA-Z0-9_.]+|'[^']*')$/);
+    assert.ok(match, `Unsupported condition term: ${term}`);
+    const right = match[3].startsWith("'") ? match[3].slice(1, -1) : context[match[3]];
+    return match[2] === "==" ? context[match[1]] === right : context[match[1]] !== right;
+  });
+};
+
+const resolveExpression = (value, context) =>
+  String(value).replace(/\$\{\{\s*([^}]+?)\s*\}\}/g, (_, key) => context[key.trim()] ?? "");
+
+const runSyncDispatchProbe = (step, { workflowFail = false } = {}) =>
+  runWorkflowCommand({
+    command: step.run,
+    commandShims: {
+      git: `printf '%s\\n' "git $*" >> "$GH_LOG"\nif [ "$1" = status ]; then printf '%s\\n' ' M analysis/src/data/limitless-decks.json'; fi`,
+      gh: `printf '%s\\n' "gh $*" >> "$GH_LOG"\nif [ "$1" = pr ] && [ "$2" = list ]; then printf '%s\\n' "$MOCK_PRS"; fi\nif [ "$1" = workflow ] && [ "$2" = run ] && [ "$WORKFLOW_FAIL" = true ]; then printf '%s\\n' 'simulated dispatch failure' >&2; exit 42; fi`,
+      jq: `printf '%s\\n' "jq $*" >> "$GH_LOG"\nexec "$JQ_BIN" "$@"`,
+      sleep: `printf '%s\\n' "sleep $*" >> "$GH_LOG"`,
+    },
+    env: {
+      BRANCH: "automated/pairings-2026-11-23",
+      TYPECHECK: "success",
+      TESTS: "success",
+      WORKFLOW_FAIL: workflowFail ? "true" : "false",
+      JQ_BIN: jqBinary,
+      MOCK_PRS: "[]",
+      GITHUB_SERVER_URL: "https://github.com",
+      GITHUB_REPOSITORY: "PocketDecks/pokemon-tcg-pocket-tier-list",
+      GITHUB_RUN_ID: "1",
+    },
+  });
+
+test("Deploy starts only after a successful push CI run on main", () => {
+  const workflow = loadYaml(".github", "workflows", "deploy.yml");
+  const trigger = workflow.on.workflow_run;
+  assert.deepStrictEqual(trigger.workflows, ["CI"]);
+  assert.deepStrictEqual(trigger.types, ["completed"]);
+  assert.deepStrictEqual(trigger.branches, ["main"]);
+  const condition = workflow.jobs.deploy.if;
+  const base = {
+    "github.event.workflow_run.conclusion": "success",
+    "github.event.workflow_run.event": "push",
+  };
+  assert.strictEqual(evaluateCondition(condition, base), true);
+  assert.strictEqual(
+    evaluateCondition(condition, { ...base, "github.event.workflow_run.conclusion": "failure" }),
+    false
+  );
+  assert.strictEqual(
+    evaluateCondition(condition, { ...base, "github.event.workflow_run.event": "workflow_dispatch" }),
+    false
+  );
+});
+
+test("Deploy freshness uses the CI run head SHA rather than the default branch SHA", () => {
+  const workflow = loadYaml(".github", "workflows", "deploy.yml");
+  const steps = workflow.jobs.deploy.steps;
+  const expression = workflow.jobs.deploy.env.HEAD_SHA;
+  assert.strictEqual(expression, "${{ github.event.workflow_run.head_sha }}");
+  const event = {
+    "github.event.workflow_run.head_sha": "head-sha",
+    "github.sha": "main-sha",
+  };
+  const resolved = resolveExpression(expression, event);
+  assert.strictEqual(resolved, event["github.event.workflow_run.head_sha"]);
+  assert.notStrictEqual(resolved, event["github.sha"]);
+  const checkout = steps.find((step) => step.uses?.startsWith("actions/checkout@"));
+  assert.strictEqual(checkout.with.ref, expression);
+  for (const id of ["early_latest", "latest"]) {
+    const step = steps.find((entry) => entry.id === id);
+    const result = runFreshnessCheck(step, {
+      githubSha: resolved,
+      initialMainSha: "old-sha",
+      fetchedMainSha: event["github.event.workflow_run.head_sha"],
+    });
+    assert.strictEqual(result.status, 0, result.stderr);
+    assert.strictEqual(result.workflowOutput.trim(), "is_latest=true", `${id} verdict`);
+  }
+});
+
+test("CI accepts manual dispatch", () => {
+  const workflow = loadYaml(".github", "workflows", "ci.yml");
+  assert.ok(Object.hasOwn(workflow.on, "workflow_dispatch"));
+  assert.deepStrictEqual(workflow.on.push.branches, ["main"]);
+  assert.deepStrictEqual(workflow.on.pull_request.branches, ["main"]);
+});
+
+test("pairings syncs dispatch CI after opening the PR and retry a failed dispatch", () => {
+  assert.ok(jqBinary, "jq must be installed for the dispatch probe");
+  const step = loadYaml(".github", "workflows", "sync-pairings.yml").jobs.sync.steps.find(
+    (entry) => entry.run?.includes("gh pr create")
+  );
+  const ok = runSyncDispatchProbe(step);
+  assert.strictEqual(ok.status, 0, ok.stderr);
+  const okLines = ok.ghLog.trim().split("\n");
+  const okPr = okLines.findIndex((line) => line.startsWith("gh pr create"));
+  const okDispatch = okLines.findIndex((line) => line.startsWith("gh workflow run"));
+  assert.ok(okPr >= 0 && okPr < okDispatch, okLines.join("\n"));
+  assert.strictEqual(okLines.filter((line) => line.startsWith("gh workflow run")).length, 1);
+  assert.match(okLines[okDispatch], /gh workflow run ci\.yml --ref automated\/pairings-2026-11-23/);
+
+  const failed = runSyncDispatchProbe(step, { workflowFail: true });
+  assert.notStrictEqual(failed.status, 0);
+  const failLines = failed.ghLog.trim().split("\n");
+  const failPr = failLines.findIndex((line) => line.startsWith("gh pr create"));
+  const failDispatch = failLines.findIndex((line) => line.startsWith("gh workflow run"));
+  assert.ok(failPr >= 0 && failPr < failDispatch, failLines.join("\n"));
+  assert.strictEqual(failLines.filter((line) => line.startsWith("gh workflow run")).length, 3);
+  assert.match(failed.stderr, /Could not dispatch CI for .* after three attempts\./);
+});
+
+test("pairings job can dispatch workflows", () => {
+  const workflow = loadYaml(".github", "workflows", "sync-pairings.yml");
+  assert.strictEqual(workflow.permissions.actions, "write");
+});
+
+test("every job and the Firestore rules step set timeout-minutes", () => {
+  const expected = {
+    "ci.yml": { frontend: 15, analysis: 10, kofi: 10, actionlint: 5 },
+    "preview.yml": { preview: 25 },
+    "deploy.yml": { deploy: 25 },
+    "sync-pairings.yml": { sync: 15 },
+  };
+  for (const [file, jobs] of Object.entries(expected)) {
+    const workflow = loadYaml(".github", "workflows", file);
+    for (const [jobId, minutes] of Object.entries(jobs)) {
+      assert.strictEqual(workflow.jobs[jobId]["timeout-minutes"], minutes, `${file}/${jobId}`);
+    }
+  }
+  const rules = loadYaml(".github", "workflows", "ci.yml").jobs.frontend.steps.find(
+    (step) => step.name === "Test Firestore rules"
+  );
+  assert.strictEqual(rules["timeout-minutes"], 5);
+});
+
+test("analysis runs tests under a symlinked temporary directory", () => {
+  const steps = loadYaml(".github", "workflows", "ci.yml").jobs.analysis.steps;
+  const step = steps.find((entry) => entry.run?.includes("ln -s"));
+  assert.ok(step, "a step must create a symlink");
+  assert.match(step.run, /mktemp -d/);
+  assert.match(step.run, /ln -s "\$real_tmp" "\$link_tmp"/);
+  assert.match(step.run, /TMPDIR="\$link_tmp" yarn test/);
+});
+
+test("build runs typecheck and lint before build:site", () => {
+  const scripts = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).scripts;
+  assert.strictEqual(scripts.build, "yarn typecheck && yarn lint && yarn build:site");
+  assert.strictEqual(scripts["build:site"], "vite build");
+  assert.match(scripts["prebuild:site"], /generate-sitemap\.js/);
+  assert.match(scripts["postbuild:site"], /verify-dist-html\.js/);
+});
+test("actionlint install checks the pinned archive hash with sha256sum", () => {
+  const workflow = loadYaml(".github", "workflows", "ci.yml");
+  const job = workflow.jobs.actionlint;
+  assert.ok(job, "ci.yml must contain the actionlint job");
+  const install = job.steps.find((step) => step.name === "Install actionlint");
+  assert.ok(install, "actionlint install step");
+  const hashLine = install.run
+    .split("\n")
+    .find((line) => line.includes("8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"));
+  assert.ok(hashLine, "pinned archive hash line");
+  assert.match(hashLine, /printf '%s {2}%s/);
+  assert.match(hashLine, /actionlint_1\.7\.12_linux_amd64\.tar\.gz/);
+  assert.match(hashLine, /\| sha256sum -c -$/);
+  assert.doesNotMatch(install.run, /checksums\.txt/);
 });

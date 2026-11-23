@@ -32,7 +32,7 @@ afterEach(() => {
 });
 
 const testSnapshotDir = (): string => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "premium-entrypoint-snapshot-"));
+  const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "premium-entrypoint-snapshot-")));
   snapshotRoots.push(root);
   return path.join(root, "premium");
 };
@@ -262,7 +262,7 @@ describe("premium entry points", () => {
 
   it("a dry run plans the writes without touching the database", async () => {
     const lines: string[] = [];
-    const snapshotDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "premium-dry-run-")), "premium");
+    const snapshotDir = path.join(fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "premium-dry-run-"))), "premium");
     const files = premiumPayloads();
     const version = premiumVersion(files);
     const db = {
@@ -689,7 +689,7 @@ describe("premium entry points", () => {
   });
 
   it("reads the canonical main version while the checkout has newer data", () => {
-    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "live-version-"));
+    const repo = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "live-version-")));
     const git = (...args: string[]) =>
       execFileSync(
         "git",
@@ -726,7 +726,7 @@ describe("premium entry points", () => {
   });
 
   it("returns no live version when canonical main is unavailable", () => {
-    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "live-version-none-"));
+    const repo = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "live-version-none-")));
     try {
       execFileSync("git", ["init", "-q"], { cwd: repo, stdio: "ignore" });
       expect(readPremiumVersionAtRef(repo)).toBeUndefined();
@@ -736,7 +736,7 @@ describe("premium entry points", () => {
   });
 
   it.each(["{", '{ "premium": "deadbeef" }'])("reports an unreadable canonical main premium value", (contents) => {
-    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "live-version-invalid-"));
+    const repo = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "live-version-invalid-")));
     const git = (...args: string[]) => execFileSync("git", ["-c", "user.name=test", "-c", "user.email=test@example.com", ...args], { cwd: repo, stdio: "ignore" });
     try {
       git("init", "-q");

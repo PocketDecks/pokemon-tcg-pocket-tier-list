@@ -21,18 +21,31 @@ the affected suites.
 
 ## What CI runs
 
-`.github/workflows/ci.yml` is named `CI`. Its `frontend`, `analysis` and
-`kofi` jobs run on pushes to and pull requests against `main`. `frontend` runs
-root typecheck, lint, tests, script tests and Firestore rules. `analysis` runs
-typecheck and tests in `analysis/`. `kofi` runs its typecheck, tests and the
-Wrangler dry-run bundle. All three jobs use the Node version in `.nvmrc` through
-`.github/actions/setup`.
+`.github/workflows/ci.yml` is named `CI`. It runs on pushes to and pull requests
+against `main`, and accepts manual dispatch. Four jobs provide the required
+checks: `frontend`, `analysis`, `kofi` and `actionlint`. `frontend` checks
+generated files, then runs root typecheck, lint, tests, script tests and
+Firestore rules. `analysis` runs typecheck, tests and a second test pass with
+`TMPDIR` pointing at a symlink to a real folder, which catches temp-root bugs
+that only appear when a parent directory is a link. `kofi` runs its typecheck,
+tests and the Wrangler dry-run bundle. `actionlint` downloads release v1.7.12,
+checks the archive against a pinned SHA-256 hash and lints every workflow.
+All four jobs use the Node version in `.nvmrc` through `.github/actions/setup`.
+Their `timeout-minutes` limits are 15, 10, 10 and 5. The Firestore rules step
+has its own five-minute limit.
 
 Root `yarn lint` also covers `analysis/`.
 
-The deploy workflows run `yarn build` separately. That script chains
-typecheck and lint ahead of `vite build`, so a warning you ignore locally
-will still stop a deployment.
+The deploy and preview workflows run `yarn build:site`, which builds the site
+without repeating typecheck or lint. `yarn build` still runs typecheck and lint
+first, then calls `yarn build:site`. Both scripts run the same generation and
+prerender hooks. Deploy starts only after a successful CI run, and the
+`frontend` job in CI runs lint with `--max-warnings 0`, so a warning you ignore
+locally still stops a deployment.
+
+Third-party actions are pinned to full commit SHAs with version comments.
+Dependabot reads those comments, so apply its updates without changing the
+comment format.
 
 ## Upgrading packages
 

@@ -1,0 +1,8 @@
+# actionlint 1.7.12 does not support the concurrency queue key (#654).
+paths:
+  .github/workflows/deploy.yml:
+    ignore:
+      - 'unexpected key "queue" for "concurrency" section'
+  .github/workflows/sync-pairings.yml:
+    ignore:
+      - 'unexpected key "queue" for "concurrency" section'

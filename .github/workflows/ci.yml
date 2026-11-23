@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 concurrency:
   group: "ci-${{ github.event_name == 'pull_request' && github.ref || github.sha }}"
@@ -18,15 +19,19 @@ permissions:
 jobs:
   frontend:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - uses: ./.github/actions/setup
         with:
           workspace: root
+
+      - name: Check generated files
+        run: yarn check:generated
 
       - name: Typecheck
         run: yarn typecheck
@@ -43,19 +48,21 @@ jobs:
         run: yarn test:scripts
 
       - name: Setup Java for the Firestore emulator
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: temurin
           java-version: "21"
 
       - name: Test Firestore rules
         run: yarn test:rules
+        timeout-minutes: 5
 
   analysis:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -73,11 +80,20 @@ jobs:
           cd analysis
           yarn test
 
+      - name: Run tests with a symlinked temporary directory
+        run: |
+          cd analysis
+          real_tmp="$(mktemp -d)"
+          link_tmp="${RUNNER_TEMP}/tmp-link"
+          ln -s "$real_tmp" "$link_tmp"
+          TMPDIR="$link_tmp" yarn test
+
   kofi:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -93,3 +109,21 @@ jobs:
 
       - name: Bundle Ko-fi receiver
         run: yarn --cwd workers/kofi wrangler deploy --dry-run --outdir dist-dry
+
+  actionlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install actionlint
+        run: |
+          curl -fsSLO "https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz"
+          printf '%s  %s\n' "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8" "actionlint_1.7.12_linux_amd64.tar.gz" | sha256sum -c -
+          tar -xzf actionlint_1.7.12_linux_amd64.tar.gz actionlint
+
+      - name: Run actionlint
+        run: ./actionlint

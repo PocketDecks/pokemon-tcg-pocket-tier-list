@@ -10,6 +10,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 concurrency:
   group: sync-pairings
@@ -19,9 +20,10 @@ concurrency:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/setup
         with:
@@ -128,6 +130,19 @@ jobs:
                 --body "Analysis $FAILED_CHECKS failed. See the run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID." \
                 --label automated
             fi
+          fi
+
+          dispatch_ok=false
+          for attempt in 1 2 3; do
+            if gh workflow run ci.yml --ref "$BRANCH"; then
+              dispatch_ok=true
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then sleep 5; fi
+          done
+          if [ "$dispatch_ok" != true ]; then
+            echo "Could not dispatch CI for $BRANCH after three attempts." >&2
+            exit 1
           fi
 
       - name: Fail when analysis checks fail

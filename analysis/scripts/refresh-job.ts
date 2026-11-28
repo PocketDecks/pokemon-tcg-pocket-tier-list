@@ -463,7 +463,6 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
     if (!scratch) failure("failed", "step 3", yarn(["refresh:outputs", "begin"], path.join(root, "analysis"), "begin"), [begin.stdout]);
     const scratchAnalysis = path.join(scratch, "analysis");
     simple("step 3", yarn(["sync-pairings"], scratchAnalysis, "sync"));
-    simple("step 4", yarn(["golden:generate"], scratchAnalysis, "golden"));
 
     const verifyCommand = yarn(["store:verify"], scratchAnalysis, "verify");
     const verify = options.runner(verifyCommand);
@@ -509,6 +508,7 @@ export const runJob = async (options: JobOptions): Promise<JobOutcome> => {
     }
 
     simple("step 7", yarn(["card-printings:generate"], scratchAnalysis, "printings"));
+    simple("step 7", yarn(["golden:generate"], scratchAnalysis, "golden"));
     simple("step 7", yarn(["start"], scratchAnalysis, "start"));
     simple("step 7", nodeSpecFor(process.execPath, "scripts/build-deck-archive.mjs", scratch));
     simple("step 7", nodeSpecFor(process.execPath, "scripts/generate-deck-hub-slugs.mjs", scratch));

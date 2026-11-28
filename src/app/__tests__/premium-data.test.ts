@@ -195,12 +195,18 @@ describe("loadPremiumArtefact", () => {
       } as unknown as Response);
     firestore.getDoc.mockResolvedValue({ exists: () => false });
 
-    const results = await Promise.all([
-      loadPremiumArtefact("best-decks-30d").catch(() => "missing"),
-      loadPremiumArtefact("best-decks-30d").catch(() => "missing"),
+    const settled = await Promise.allSettled([
+      loadPremiumArtefact("best-decks-30d"),
+      loadPremiumArtefact("best-decks-30d"),
     ]);
 
-    expect(results).toEqual(["missing", "missing"]);
+    expect(settled.map((result) => result.status)).toEqual(["rejected", "rejected"]);
+    for (const result of settled) {
+      expect(String((result as PromiseRejectedResult).reason)).toContain(
+        "Premium artefact best-decks-30d is missing for version"
+      );
+    }
+    expect(firestore.getDoc).toHaveBeenCalledTimes(4);
     expect(fetchSpy).toHaveBeenCalledTimes(2);
     expect(
       fetchSpy.mock.calls.filter(

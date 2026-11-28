@@ -37,12 +37,20 @@ export const loadDataVersion = (): Promise<string> =>
   });
 
 // Concurrent callers share the one in-flight request.
-const refreshDataVersion = (): Promise<string> =>
-  queryClient.fetchQuery({
-    queryKey: dataVersionKey,
-    queryFn: () => requestDataVersion(true),
-    staleTime: 0,
+const refreshDataVersion = async (stale: string): Promise<string> => {
+  const version = await queryClient.fetchQuery({
+    queryKey: [...dataVersionKey, "refresh", stale],
+    queryFn: () =>
+      requestDataVersion(true).then((next) => {
+        queryClient.setQueryData(dataVersionKey, next);
+        return next;
+      }),
+    staleTime: Infinity,
   });
+  const refreshKey = [...dataVersionKey, "refresh", stale];
+  if (version === stale) queryClient.removeQueries({ queryKey: refreshKey, exact: true });
+  return version;
+};
 
 const sha256Hex = async (text: string): Promise<string> => {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
@@ -57,7 +65,7 @@ const loadArtefactAtVersion = async (
   version: string
 ): Promise<{ found: true; value: unknown } | { found: false }> => {
   const [{ doc, getDoc, getFirestore }, { default: app }] = await Promise.all([
-    import("firebase/firestore/lite"),
+    import("./firestore-lite"),
     import("../config/firebase"),
   ]);
   const reference = doc(getFirestore(app), "premiumData", version, "artefacts", name);
@@ -89,7 +97,7 @@ export const loadPremiumArtefact = async (name: string): Promise<unknown> => {
   let result = await loadArtefactAtVersion(name, version);
   if (result.found) return result.value;
 
-  version = await refreshDataVersion();
+  version = await refreshDataVersion(version);
   result = await loadArtefactAtVersion(name, version);
   if (!result.found) {
     throw new Error(`Premium artefact ${name} is missing for version ${version}`);

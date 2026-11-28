@@ -143,10 +143,12 @@ describe("refresh job file lists", () => {
 
   it("generates in a scratch worktree and stops after pairing or golden failures", () => {
     expect(job.indexOf("refresh:outputs begin")).toBeLessThan(job.indexOf("sync-pairings"));
-    expect(step("3. From", "4. From")).toMatch(/refresh:outputs begin[\s\S]*?scratch worktree[\s\S]*?stop if it fails/i);
-    expect(step("3. From", "4. From")).toMatch(/sync-pairings[\s\S]*?stop on a non-zero exit/i);
-    expect(step("4. From", "5. Run")).toMatch(/golden:generate[\s\S]*?stop on a non-zero exit/i);
+    expect(step("3. From", "4. No")).toMatch(/refresh:outputs begin[\s\S]*?scratch worktree[\s\S]*?stop if it fails/i);
+    expect(step("3. From", "4. No")).toMatch(/sync-pairings[\s\S]*?stop on a non-zero exit/i);
+    expect(step("4. No", "5. Run")).toContain("command runs in step 4");
     expect(job).toContain("refresh:outputs discard");
+    expect(step("7. From", "8. Run")).toMatch(/card-printings:generate[\s\S]*?golden:generate[\s\S]*?validate:refresh/);
+    expect(job).toContain("/home/linuxbrew/.linuxbrew/bin/yarn");
   });
 
   it("runs validate:refresh from analysis and stops on every late step", () => {

@@ -149,6 +149,16 @@ describe("refresh job decisions with a fake runner", () => {
     expect(classify?.cwd).toBe(path.join(h.root, "analysis"));
   });
 
+  it("regenerates the golden after printings and before validation", async () => {
+    const h = harness(() => undefined);
+    await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });
+    const indexOf = (prefix: string): number => h.calls.findIndex((c) => commandText(c).startsWith(prefix));
+    expect(indexOf("download")).toBeLessThan(indexOf("card-printings:generate"));
+    expect(indexOf("card-printings:generate")).toBeLessThan(indexOf("golden:generate"));
+    expect(indexOf("golden:generate")).toBeLessThan(indexOf("validate:refresh"));
+    expect(indexOf("golden:generate")).toBeLessThan(indexOf("test"));
+  });
+
   it("reuses and checks out an existing dated branch", async () => {
     const h = harness((c) => (commandText(c).startsWith("fetch pocket automated/") ? ok("", { status: 0 }) : undefined));
     await runJob({ root: h.root, runner: h.runner, date: "2026-11-23" });

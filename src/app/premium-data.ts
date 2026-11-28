@@ -37,16 +37,20 @@ export const loadDataVersion = (): Promise<string> =>
   });
 
 // Concurrent callers share the one in-flight request.
-const refreshDataVersion = (stale: string): Promise<string> =>
-  queryClient.fetchQuery({
+const refreshDataVersion = async (stale: string): Promise<string> => {
+  const version = await queryClient.fetchQuery({
     queryKey: [...dataVersionKey, "refresh", stale],
     queryFn: () =>
-      requestDataVersion(true).then((version) => {
-        queryClient.setQueryData(dataVersionKey, version);
-        return version;
+      requestDataVersion(true).then((next) => {
+        queryClient.setQueryData(dataVersionKey, next);
+        return next;
       }),
     staleTime: Infinity,
   });
+  const refreshKey = [...dataVersionKey, "refresh", stale];
+  if (version === stale) queryClient.removeQueries({ queryKey: refreshKey, exact: true });
+  return version;
+};
 
 const sha256Hex = async (text: string): Promise<string> => {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
